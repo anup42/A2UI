@@ -10,6 +10,13 @@ To use the models, you need to set the following environment variables with your
 
 You can set these in a `.env` file in the root of the project, or in your shell's configuration file (e.g., `.bashrc`, `.zshrc`).
 
+You also need to install dependencies before running:
+```bash
+npm install
+```
+
+## Running all evals (warning: can use *lots* of model quota)
+
 To run the flow, use the following command:
 
 ```bash
@@ -28,10 +35,10 @@ npx tsx src/index.ts --model='<model_name>' --prompt=<prompt_name>
 
 ### Example
 
-To run the test with the `gpt-5-nano (reasoning: minimal)` model and the `generateDogUIs` prompt, use the following command:
+To run the test with the `gemini-2.5-flash (thinking: 0)` model and the `dogBreedGenerator` prompt, use the following command:
 
 ```bash
-npx tsx src/index.ts --model='gpt-5-nano (reasoning: minimal)' --prompt=generateDogUIs
+npx tsx src/index.ts --model='gemini-2.5-flash' --prompt=dogBreedGenerator
 ```
 
 ## Controlling Output
