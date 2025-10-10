@@ -6,7 +6,7 @@
 
 import { config } from "dotenv";
 import { UserConfig } from "vite";
-import { customA2aHandlerPlugin } from "./src/middleware/a2a";
+import * as A2UI from "./src";
 
 export default async () => {
   config();
@@ -15,11 +15,16 @@ export default async () => {
     index: "./index.html",
   };
   return {
-    plugins: [customA2aHandlerPlugin()],
+    plugins: [
+      A2UI.v0_8.Middleware.GeminiMiddleware.plugin(),
+      A2UI.v0_8.Middleware.ImageFallbackMiddleware.plugin(
+        "public/sample/scenic_view.jpg"
+      ),
+    ],
     build: {
       lib: {
         entry,
-        name: "GULF Demo",
+        name: "A2UI Editor",
         formats: ["es"],
       },
       target: "esnext",
