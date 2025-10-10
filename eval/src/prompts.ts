@@ -8,7 +8,8 @@ export interface TestPrompt {
   promptText: string;
   description: string;
   name: string;
-  schema: string;
+  expectedMessageType: 'surfaceUpdate' | 'dataModelUpdate' | 'beginRendering';
+  schemaPath: string;
   matchers?: ComponentUpdateSchemaMatcher[];
 }
 
@@ -16,10 +17,9 @@ export const prompts: TestPrompt[] = [
   {
     name: 'dogBreedGenerator',
     description: 'A prompt to generate a UI for a dog breed information and generator tool.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON conforming to the schema to describe the following UI:
-
-A root node has already been created with ID "root". You need to create a ComponentUpdate message now.
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property, which describes the following UI:
 
 A vertical list with:
 Dog breed information
@@ -49,8 +49,9 @@ The dog generator is another card which is a form that generates a fictional dog
   {
     name: 'loginForm',
     description: 'A simple login form with username, password, a "remember me" checkbox, and a submit button.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a login form. It should have a "Login" heading, two text fields for username and password (bound to /login/username and /login/password), a checkbox for "Remember Me" (bound to /login/rememberMe), and a "Sign In" button. The button should trigger a 'login' action, passing the username, password, and rememberMe status in the dynamicContext.`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a login form. It should have a "Login" heading, two text fields for username and password (bound to /login/username and /login/password), a checkbox for "Remember Me" (bound to /login/rememberMe), and a "Sign In" button. The button should trigger a 'login' action, passing the username, password, and rememberMe status in the context.`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Heading', 'text', 'Login'),
       new ComponentUpdateSchemaMatcher('TextField', 'label', 'username'),
@@ -62,8 +63,9 @@ The dog generator is another card which is a form that generates a fictional dog
   {
     name: 'productGallery',
     description: 'A gallery of products using a list with a template.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a product gallery. It should display a list of products from the data model at '/products'. Use a template for the list items. Each item should be a Card containing an Image (from '/products/item/imageUrl'), a Text component for the product name (from '/products/item/name'), and a Button labeled "Add to Cart". The button's action should be 'addToCart' and include a staticContext with the product ID, for example, 'productId': 'product123'. You should create a template component and then a list that uses it.`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a product gallery. It should display a list of products from the data model at '/products'. Use a template for the list items. Each item should be a Card containing an Image (from '/products/item/imageUrl'), a Text component for the product name (from '/products/item/name'), and a Button labeled "Add to Cart". The button's action should be 'addToCart' and include the product ID in its context. You should create a template component and then a list that uses it.`,
     matchers: [
       new ComponentUpdateSchemaMatcher('List'),
       new ComponentUpdateSchemaMatcher('Card'),
@@ -75,8 +77,9 @@ The dog generator is another card which is a form that generates a fictional dog
   {
     name: 'settingsPage',
     description: 'A settings page with tabs and a modal dialog.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a user settings page. Use a Tabs component with two tabs: "Profile" and "Notifications". The "Profile" tab should contain a simple column with a text field for the user's name. The "Notifications" tab should contain a checkbox for "Enable email notifications". Also, include a Modal component. The modal's entry point should be a button labeled "Delete Account", and its content should be a column with a confirmation text and two buttons: "Confirm Deletion" and "Cancel".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a user settings page. Use a Tabs component with two tabs: "Profile" and "Notifications". The "Profile" tab should contain a simple column with a text field for the user's name. The "Notifications" tab should contain a checkbox for "Enable email notifications". Also, include a Modal component. The modal's entry point should be a button labeled "Delete Account", and its content should be a column with a confirmation text and two buttons: "Confirm Deletion" and "Cancel".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Tabs'),
       new ComponentUpdateSchemaMatcher('TextField', 'label', 'name'),
@@ -88,28 +91,25 @@ The dog generator is another card which is a form that generates a fictional dog
     ],
   },
   {
-    name: 'streamHeader',
-    description: 'A StreamHeader message to initialize the UI stream.',
-    schema: 'stream_header.json',
-    promptText: `Generate a JSON StreamHeader message. This is the very first message in a UI stream, used to establish the protocol version. The version should be "1.0.0".`
-  },
-  {
     name: 'dataModelUpdate',
     description: 'A DataModelUpdate message to update user data.',
-    schema: 'data_model_update.json',
-    promptText: `Generate a JSON DataModelUpdate message. This is used to update the client's data model. The scenario is that a user has just logged in, and we need to populate their profile information. Create a single data model update message to set '/user/name' to "John Doe" and '/user/email' to "john.doe@example.com".`
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'dataModelUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'dataModelUpdate' property. This is used to update the client's data model. The scenario is that a user has just logged in, and we need to populate their profile information. The message should set '/user/name' to "John Doe" and '/user/email' to "john.doe@example.com".`
   },
   {
-    name: 'uiRoot',
-    description: 'A UIRoot message to set the initial UI and data roots.',
-    schema: 'begin_rendering.json',
-    promptText: `Generate a JSON UIRoot message. This message tells the client where to start rendering the UI and where the root of the data model is. Set the UI root to a component with ID "mainLayout" and the data model root to a node with ID "dataRoot".`
+    name: 'beginRendering',
+    description: 'A BeginRendering message to set the initial UI root.',
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'beginRendering',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'beginRendering' property. This message tells the client where to start rendering the UI. Set the UI root to a component with ID "mainLayout".`
   },
   {
     name: 'animalKingdomExplorer',
     description: 'A simple, explicit UI to display a hierarchy of animals.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a simplified UI explorer for the Animal Kingdom.
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a simplified UI explorer for the Animal Kingdom.
 
 The UI must have a main 'Heading' with the text "Simple Animal Explorer".
 
@@ -177,8 +177,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'recipeCard',
     description: 'A UI to display a recipe with ingredients and instructions.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a recipe card. It should have a 'Heading' for the recipe title, "Classic Lasagna". Below the title, an 'Image' of the lasagna. Then, a 'Row' containing two 'Column's. The first column has a 'Text' heading "Ingredients" and a 'List' of ingredients. The second column has a 'Text' heading "Instructions" and a 'List' of step-by-step instructions. Finally, a 'Button' at the bottom labeled "Watch Video Tutorial".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a recipe card. It should have a 'Heading' for the recipe title, "Classic Lasagna". Below the title, an 'Image' of the lasagna. Then, a 'Row' containing two 'Column's. The first column has a 'Text' heading "Ingredients" and a 'List' of ingredients. The second column has a 'Text' heading "Instructions" and a 'List' of step-by-step instructions. Finally, a 'Button' at the bottom labeled "Watch Video Tutorial".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Heading', 'text', 'Classic Lasagna'),
       new ComponentUpdateSchemaMatcher('Image'),
@@ -191,8 +192,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'musicPlayer',
     description: 'A simple music player UI.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a music player. It should be a 'Card' containing a 'Column'. Inside the column, there's an 'Image' for the album art, a 'Text' for the song title "Bohemian Rhapsody", another 'Text' for the artist "Queen", a 'Slider' for the song progress, and a 'Row' with three 'Button's: "Previous", "Play", and "Next".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a music player. It should be a 'Card' containing a 'Column'. Inside the column, there's an 'Image' for the album art, a 'Text' for the song title "Bohemian Rhapsody", another 'Text' for the artist "Queen", a 'Slider' for the song progress, and a 'Row' with three 'Button's: "Previous", "Play", and "Next".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Card'),
       new ComponentUpdateSchemaMatcher('Image'),
@@ -207,8 +209,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'weatherForecast',
     description: 'A UI to display the weather forecast.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a weather forecast UI. It should have a 'Heading' with the city name, "New York". Below it, a 'Row' with the current temperature as a 'Text' component ("68°F") and an 'Image' for the weather icon (e.g., a sun). Below that, a 'Divider'. Then, a 'List' component to display the 5-day forecast. Each item in the list should be a 'Row' with the day, an icon, and high/low temperatures.`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a weather forecast UI. It should have a 'Heading' with the city name, "New York". Below it, a 'Row' with the current temperature as a 'Text' component ("68°F") and an 'Image' for the weather icon (e.g., a sun). Below that, a 'Divider'. Then, a 'List' component to display the 5-day forecast. Each item in the list should be a 'Row' with the day, an icon, and high/low temperatures.`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Heading', 'text', 'New York'),
       new ComponentUpdateSchemaMatcher('Text', 'text', '68°F'),
@@ -220,8 +223,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'surveyForm',
     description: 'A customer feedback survey form.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a survey form. It should have a 'Heading' "Customer Feedback". Then a 'MultipleChoice' question "How would you rate our service?" with options "Excellent", "Good", "Average", "Poor". Then a 'CheckBox' section for "What did you like?" with options "Product Quality", "Price", "Customer Support". Finally, a 'TextField' with the label "Any other comments?" and a 'Button' labeled "Submit Feedback".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a survey form. It should have a 'Heading' "Customer Feedback". Then a 'MultipleChoice' question "How would you rate our service?" with options "Excellent", "Good", "Average", "Poor". Then a 'CheckBox' section for "What did you like?" with options "Product Quality", "Price", "Customer Support". Finally, a 'TextField' with the label "Any other comments?" and a 'Button' labeled "Submit Feedback".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Heading', 'text', 'Customer Feedback'),
       new ComponentUpdateSchemaMatcher('MultipleChoice'),
@@ -233,8 +237,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'flightBooker',
     description: 'A form to search for flights.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a flight booking form. It should have a 'Heading' "Book a Flight". Use a 'Row' for two 'TextField's: "Departure City" and "Arrival City". Below that, another 'Row' for two 'DateTimeInput's: "Departure Date" and "Return Date". Add a 'CheckBox' for "One-way trip". Finally, a 'Button' labeled "Search Flights".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a flight booking form. It should have a 'Heading' "Book a Flight". Use a 'Row' for two 'TextField's: "Departure City" and "Arrival City". Below that, another 'Row' for two 'DateTimeInput's: "Departure Date" and "Return Date". Add a 'CheckBox' for "One-way trip". Finally, a 'Button' labeled "Search Flights".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Heading', 'text', 'Book a Flight'),
       new ComponentUpdateSchemaMatcher('TextField', 'label', 'Departure City'),
@@ -247,8 +252,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'dashboard',
     description: 'A simple dashboard with statistics.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a simple dashboard. It should have a 'Heading' "Sales Dashboard". Below, a 'Row' containing three 'Card's. The first card has a 'Text' "Revenue" and another 'Text' "$50,000". The second card has "New Customers" and "1,200". The third card has "Conversion Rate" and "4.5%".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a simple dashboard. It should have a 'Heading' "Sales Dashboard". Below, a 'Row' containing three 'Card's. The first card has a 'Text' "Revenue" and another 'Text' "$50,000". The second card has "New Customers" and "1,200". The third card has "Conversion Rate" and "4.5%".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Heading', 'text', 'Sales Dashboard'),
       new ComponentUpdateSchemaMatcher('Card'),
@@ -263,8 +269,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'contactCard',
     description: 'A UI to display contact information.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a contact card. It should be a 'Card' with a 'Row'. The row contains an 'Image' (as an avatar) and a 'Column'. The column contains a 'Text' for the name "Jane Doe", a 'Text' for the email "jane.doe@example.com", and a 'Text' for the phone number "(123) 456-7890". Below the main row, add a 'Button' labeled "View on Map".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a contact card. It should be a 'Card' with a 'Row'. The row contains an 'Image' (as an avatar) and a 'Column'. The column contains a 'Text' for the name "Jane Doe", a 'Text' for the email "jane.doe@example.com", and a 'Text' for the phone number "(123) 456-7890". Below the main row, add a 'Button' labeled "View on Map".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Card'),
       new ComponentUpdateSchemaMatcher('Image'),
@@ -277,8 +284,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'calendarEventCreator',
     description: 'A form to create a new calendar event.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a calendar event creation form. It should have a 'Heading' "New Event". Include a 'TextField' for the "Event Title". Use a 'Row' for two 'DateTimeInput's for "Start Time" and "End Time". Add a 'CheckBox' labeled "All-day event". Finally, a 'Row' with two 'Button's: "Save" and "Cancel".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a calendar event creation form. It should have a 'Heading' "New Event". Include a 'TextField' for the "Event Title". Use a 'Row' for two 'DateTimeInput's for "Start Time" and "End Time". Add a 'CheckBox' labeled "All-day event". Finally, a 'Row' with two 'Button's: "Save" and "Cancel".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Heading', 'text', 'New Event'),
       new ComponentUpdateSchemaMatcher('TextField', 'label', 'Event Title'),
@@ -291,8 +299,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'checkoutPage',
     description: 'A simplified e-commerce checkout page.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a checkout page. It should have a 'Heading' "Checkout". Create a 'Column' for "Shipping Information" with 'TextField's for "Full Name" and "Address". Create another 'Column' for "Payment Information" with 'TextField's for "Card Number" and "Expiry Date". Add a 'Divider'. Show an order summary with a 'Text' component: "Total: $99.99". Finally, a 'Button' labeled "Place Order".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a checkout page. It should have a 'Heading' "Checkout". Create a 'Column' for "Shipping Information" with 'TextField's for "Full Name" and "Address". Create another 'Column' for "Payment Information" with 'TextField's for "Card Number" and "Expiry Date". Add a 'Divider'. Show an order summary with a 'Text' component: "Total: $99.99". Finally, a 'Button' labeled "Place Order".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Heading', 'text', 'Checkout'),
       new ComponentUpdateSchemaMatcher('TextField', 'label', 'Full Name'),
@@ -307,8 +316,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'socialMediaPost',
     description: 'A component representing a social media post.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a social media post. It should be a 'Card' containing a 'Column'. The first item is a 'Row' with an 'Image' (user avatar) and a 'Text' (username "user123"). Below that, a 'Text' component for the post content: "Enjoying the beautiful weather today!". Then, an 'Image' for the main post picture. Finally, a 'Row' with three 'Button's: "Like", "Comment", and "Share".`,
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a social media post. It should be a 'Card' containing a 'Column'. The first item is a 'Row' with an 'Image' (user avatar) and a 'Text' (username "user123"). Below that, a 'Text' component for the post content: "Enjoying the beautiful weather today!". Then, an 'Image' for the main post picture. Finally, a 'Row' with three 'Button's: "Like", "Comment", and "Share".`,
     matchers: [
       new ComponentUpdateSchemaMatcher('Card'),
       new ComponentUpdateSchemaMatcher('Text', 'text', 'user123'),
@@ -322,8 +332,9 @@ IMPORTANT: Do not skip any of the classes, orders, or species above. Include eve
   {
     name: 'eCommerceProductPage',
     description: 'A detailed product page for an e-commerce website.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a product details page.
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a product details page.
 The main layout should be a 'Row'.
 The left side of the row is a 'Column' containing a large main 'Image' of the product, and below it, a 'Row' of three smaller thumbnail 'Image' components.
 The right side of the row is another 'Column' for product information:
@@ -347,8 +358,9 @@ The right side of the row is another 'Column' for product information:
   {
     name: 'interactiveDashboard',
     description: 'A dashboard with filters and data cards.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for an interactive analytics dashboard.
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for an interactive analytics dashboard.
 At the top, a 'Heading' "Company Dashboard".
 Below the heading, a 'Card' containing a 'Row' of filter controls:
 - A 'DateTimeInput' with a label for "Start Date".
@@ -373,8 +385,9 @@ Finally, a large 'Card' at the bottom with a 'Heading' "Revenue Over Time" and a
   {
     name: 'travelItinerary',
     description: 'A multi-day travel itinerary display.',
-    schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a travel itinerary for a trip to Paris.
+    schemaPath: '../../specification/json/standard_catalog_description_llm.json',
+    expectedMessageType: 'surfaceUpdate',
+    promptText: `Generate a JSON object conforming to the A2UI protocol schema. The object should contain a single 'surfaceUpdate' property for a travel itinerary for a trip to Paris.
 It should have a main 'Heading' "Paris Adventure".
 Below, use a 'List' to display three days. Each item in the list should be a 'Card'.
 - The first 'Card' (Day 1) should contain a 'Heading' "Day 1: Arrival & Eiffel Tower", and a 'List' of activities for that day: "Check into hotel", "Lunch at a cafe", "Visit the Eiffel Tower".
