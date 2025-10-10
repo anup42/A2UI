@@ -139,8 +139,7 @@ export class A2UILayoutEditor extends SignalWatcher(LitElement) {
               color: var(--text-color);
               opacity: 0.5;
               border-bottom: 2px solid var(--border-color);
-              transition:
-                opacity 0.3s cubic-bezier(0, 0, 0.3, 1),
+              transition: opacity 0.3s cubic-bezier(0, 0, 0.3, 1),
                 border-color 0.3s cubic-bezier(0, 0, 0.3, 1);
 
               &:not([disabled]):not(.active) {
@@ -419,9 +418,10 @@ export class A2UILayoutEditor extends SignalWatcher(LitElement) {
     return html`<section id="surfaces">
       ${repeat(
         this.#processor.getSurfaces(),
-        ([id]) => id,
-        ([, surface]) => {
+        ([surfaceId]) => surfaceId,
+        ([surfaceId, surface]) => {
           return html`<a2ui-surface
+            .surfaceId=${surfaceId}
             .surface=${surface}
             .processor=${this.#processor}
           ></a2-uisurface>`;
