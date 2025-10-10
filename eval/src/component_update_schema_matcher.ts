@@ -15,14 +15,21 @@ export class ComponentUpdateSchemaMatcher {
   ) {}
 
   validate(schema: any): ValidationResult {
-    if (!schema.components || !Array.isArray(schema.components)) {
+    const surfaceUpdate = schema.surfaceUpdate;
+    if (!surfaceUpdate) {
       return {
         success: false,
-        error: 'ComponentUpdate message must have a "components" array.',
+        error: 'Generated JSON must have a "surfaceUpdate" property.',
+      };
+    }
+    if (!surfaceUpdate.components || !Array.isArray(surfaceUpdate.components)) {
+      return {
+        success: false,
+        error: 'The "surfaceUpdate" property must contain a "components" array.',
       };
     }
 
-    for (const component of schema.components) {
+    for (const component of surfaceUpdate.components) {
       if (component.componentProperties?.[this.componentName]) {
         const properties = component.componentProperties[this.componentName];
         if (!this.propertyName) {

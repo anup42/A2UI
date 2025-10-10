@@ -90,9 +90,10 @@ async function main() {
 
   const generationPromises: Promise<InferenceResult>[] = [];
 
+  const schemaString = fs.readFileSync(path.join(__dirname, 'a2ui_v0_8.json'), 'utf-8');
+  const schema = JSON.parse(schemaString);
+
   for (const prompt of filteredPrompts) {
-    const schemaString = fs.readFileSync(path.join(__dirname, prompt.schema), 'utf-8');
-    const schema = JSON.parse(schemaString);
     for (const modelConfig of filteredModels) {
       for (let i = 1; i <= runsPerPrompt; i++) {
         console.log(`Queueing generation for model: ${modelConfig.name}, prompt: ${prompt.name} (run ${i})`);
@@ -106,7 +107,7 @@ async function main() {
           }).then(component => {
             const validationResults = validateSchema(
               component,
-              prompt.schema,
+              prompt.expectedMessageType,
               prompt.matchers
             );
             return {

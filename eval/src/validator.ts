@@ -6,17 +6,22 @@ import { ComponentUpdateSchemaMatcher } from './component_update_schema_matcher'
 
 export function validateSchema(
   data: any,
-  schemaName: string,
+  expectedMessageType: string,
   matchers?: ComponentUpdateSchemaMatcher[]
 ): string[] {
   const errors: string[] = [];
 
-  switch (schemaName) {
-    case 'stream_header.json':
-      validateStreamHeader(data, errors);
-      break;
-    case 'component_update.json':
-      validateComponentUpdate(data, errors);
+  const topLevelKeys = Object.keys(data);
+  if (topLevelKeys.length !== 1 || topLevelKeys[0] !== expectedMessageType) {
+    errors.push(
+      `Generated JSON should have exactly one top-level key: '${expectedMessageType}'. Found: ${topLevelKeys}`
+    );
+    return errors;
+  }
+
+  switch (expectedMessageType) {
+    case 'surfaceUpdate':
+      validateComponentUpdate(data.surfaceUpdate, errors);
       if (matchers) {
         for (const matcher of matchers) {
           const result = matcher.validate(data);
@@ -26,34 +31,24 @@ export function validateSchema(
         }
       }
       break;
-    case 'data_model_update.json':
-      validateDataModelUpdate(data, errors);
+    case 'dataModelUpdate':
+      validateDataModelUpdate(data.dataModelUpdate, errors);
       break;
-    case 'begin_rendering.json':
-      validateBeginRendering(data, errors);
+    case 'beginRendering':
+      validateBeginRendering(data.beginRendering, errors);
       break;
     default:
-      errors.push(`Unknown schema for validation: ${schemaName}`);
+      errors.push(
+        `Unknown expected message type for validation: ${expectedMessageType}`
+      );
   }
 
   return errors;
 }
 
-function validateStreamHeader(data: any, errors: string[]) {
-  if (!data.version) {
-    errors.push("StreamHeader must have a 'version' property.");
-  }
-  const allowed = ['version'];
-  for (const key in data) {
-    if (!allowed.includes(key)) {
-      errors.push(`StreamHeader has unexpected property: ${key}`);
-    }
-  }
-}
-
 function validateComponentUpdate(data: any, errors: string[]) {
   if (!data.components || !Array.isArray(data.components)) {
-    errors.push("ComponentUpdate must have a 'components' array.");
+    errors.push("SurfaceUpdate must have a 'components' array.");
     return;
   }
 
