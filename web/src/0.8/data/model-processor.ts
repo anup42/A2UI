@@ -45,7 +45,7 @@ import {
   isResolvedText,
   isResolvedTextField,
   isResolvedVideo,
-} from "./guards";
+} from "./guards.js";
 import { deep } from "signal-utils/deep";
 
 /**
@@ -105,7 +105,7 @@ export class A2UIModelProcessor {
     if (!surfaceId) {
       surfaceId = A2UIModelProcessor.DEFAULT_SURFACE_ID;
     }
-    const surface = this.#surfaces.get(surfaceId);
+    const surface = this.#getOrCreateSurface(surfaceId);
     if (!surface) {
       return null;
     }
@@ -118,7 +118,7 @@ export class A2UIModelProcessor {
     value: DataValue,
     surfaceId = A2UIModelProcessor.DEFAULT_SURFACE_ID
   ) {
-    const surface = this.#surfaces.get(surfaceId);
+    const surface = this.#getOrCreateSurface(surfaceId);
     if (!surface) {
       return null;
     }
@@ -289,13 +289,11 @@ export class A2UIModelProcessor {
     const { components } = surface;
 
     if (!components.has(baseComponentId)) {
-      console.warn(`Component definition "${baseComponentId}" not found.`);
       return null;
     }
 
     if (visited.has(componentId)) {
-      console.warn(`Circular dependency for component "${componentId}".`);
-      return null;
+      throw new Error(`Circular dependency for component "${componentId}".`);
     }
 
     visited.add(componentId);
