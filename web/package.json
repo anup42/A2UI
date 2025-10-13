@@ -1,5 +1,5 @@
 {
-  "name": "@breadboard-ai/a2ui",
+  "name": "@a2ui/web",
   "private": true,
   "version": "0.1.0",
   "description": "AI-first UI Toolkit Demo",
@@ -78,7 +78,7 @@
   "repository": {
     "directory": "packages/a2ui",
     "type": "git",
-    "url": "git+https://github.com/breadboard-ai/breadboard.git"
+    "url": "git+https://github.com/google/A2UI.git"
   },
   "files": [
     "dist/src"
@@ -87,9 +87,9 @@
   "author": "Google Labs Team",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/breadboard-ai/breadboard/issues"
+    "url": "https://github.com/google/A2UI/issues"
   },
-  "homepage": "https://github.com/breadboard-ai/breadboard/tree/main/packages/a2ui#readme",
+  "homepage": "https://github.com/google/A2UI/tree/main/web#readme",
   "devDependencies": {
     "dotenv": "^17.2.3",
     "typescript": "^5.8.3",
