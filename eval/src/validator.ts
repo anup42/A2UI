@@ -17,11 +17,11 @@ export function validateSchema(
     validateDataModelUpdate(data.dataModelUpdate, errors);
   } else if (data.beginRendering) {
     validateBeginRendering(data.beginRendering, errors);
-  } else if (data.surfaceDeletion) {
-    validateSurfaceDeletion(data.surfaceDeletion, errors);
+  } else if (data.deleteSurface) {
+    validateDeleteSurface(data.deleteSurface, errors);
   } else {
     errors.push(
-      "A2UI Protocol message must have one of: surfaceUpdate, dataModelUpdate, beginRendering, surfaceDeletion."
+      "A2UI Protocol message must have one of: surfaceUpdate, dataModelUpdate, beginRendering, deleteSurface."
     );
   }
 
@@ -37,18 +37,22 @@ export function validateSchema(
   return errors;
 }
 
-function validateSurfaceDeletion(data: any, errors: string[]) {
-  // The presence of the surfaceDeletion object is enough.
-  // It has an optional "unused" property to prevent it from being empty.
-  const allowed = ["unused"];
+function validateDeleteSurface(data: any, errors: string[]) {
+  if (data.surfaceId === undefined) {
+    errors.push("DeleteSurface must have a 'surfaceId' property.");
+  }
+  const allowed = ["surfaceId"];
   for (const key in data) {
     if (!allowed.includes(key)) {
-      errors.push(`SurfaceDeletion has unexpected property: ${key}`);
+      errors.push(`DeleteSurface has unexpected property: ${key}`);
     }
   }
 }
 
 function validateSurfaceUpdate(data: any, errors: string[]) {
+  if (data.surfaceId === undefined) {
+    errors.push("SurfaceUpdate must have a 'surfaceId' property.");
+  }
   if (!data.components || !Array.isArray(data.components)) {
     errors.push("SurfaceUpdate must have a 'components' array.");
     return;
@@ -70,18 +74,37 @@ function validateSurfaceUpdate(data: any, errors: string[]) {
 }
 
 function validateDataModelUpdate(data: any, errors: string[]) {
-  if (data.contents === undefined) {
-    errors.push("DataModelUpdate must have a 'contents' property.");
+  if (data.surfaceId === undefined) {
+    errors.push("DataModelUpdate must have a 'surfaceId' property.");
   }
-  const allowed = ["path", "contents"];
+  if (data.dataModelUpdate === undefined) {
+    errors.push(
+      "DataModelUpdate must have a nested 'dataModelUpdate' property."
+    );
+    return;
+  }
+  const nested = data.dataModelUpdate;
+  if (nested.contents === undefined) {
+    errors.push("Nested DataModelUpdate must have a 'contents' property.");
+  }
+  const allowed = ["surfaceId", "dataModelUpdate"];
   for (const key in data) {
     if (!allowed.includes(key)) {
-      errors.push(`DataModelUpdate has unexpected property: ${key}`);
+      errors.push(`Top-level DataModelUpdate has unexpected property: ${key}`);
+    }
+  }
+  const nestedAllowed = ["path", "contents"];
+  for (const key in nested) {
+    if (!nestedAllowed.includes(key)) {
+      errors.push(`Nested DataModelUpdate has unexpected property: ${key}`);
     }
   }
 }
 
 function validateBeginRendering(data: any, errors: string[]) {
+  if (data.surfaceId === undefined) {
+    errors.push("BeginRendering message must have a 'surfaceId' property.");
+  }
   if (!data.root) {
     errors.push("BeginRendering message must have a 'root' property.");
   }
