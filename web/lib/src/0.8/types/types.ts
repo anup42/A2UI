@@ -200,7 +200,18 @@ export interface SurfaceUpdateMessage {
 export interface DataModelUpdate {
   surfaceId: string;
   path?: string;
-  contents: DataValue;
+  contents: {
+    key: string;
+    valueString?: string /** May be JSON */;
+    valueNumber?: number;
+    valueBoolean?: boolean;
+
+    valueList?: {
+      valueString?: string /** May be JSON */;
+      valueNumber?: number;
+      valueBoolean?: boolean;
+    }[];
+  }[];
 }
 
 export interface DeleteSurfaceMessage {
