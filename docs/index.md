@@ -16,4 +16,6 @@ Thank you for your interest in A2UI! A new open source UI Toolkit to facilitate 
 
 We will be sharing more soon. Sign up here to learn when we publish more details about A2UI.
 
-<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeZIBsjtpwiVHdtz3Md8INPfY5FayZOlkVKgvUjzF_drgR2aw/viewform?embedded=true" width="640" height="1042" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+---
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeZIBsjtpwiVHdtz3Md8INPfY5FayZOlkVKgvUjzF_drgR2aw/viewform?embedded=true" width="1000" height="1042" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
