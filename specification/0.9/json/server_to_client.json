@@ -1,0 +1,100 @@
+{
+  "$id": "https://a2ui.dev/specification/0.9/server_to_client.json",
+  "title": "A2UI Message Schema",
+  "description": "Describes a JSON payload for an A2UI (Agent to UI) message, which is used to dynamically construct and update user interfaces.",
+  "type": "object",
+  "oneOf": [
+    {
+      "properties": {
+        "createSurface": {
+          "type": "object",
+          "description": "Signals the client to begin rendering a surface with a root component and specific styles. When this message is received, the client should expect a 'surfaceUpdate' message for the same 'surfaceId' that contains the component tree. One of the components in that tree MUST have the 'id' of 'root'.",
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "description": "The unique identifier for the UI surface to be rendered."
+            },
+            "theme": {
+              "$ref": "standard_catalog_definition.json#/$defs/Theme"
+            }
+          },
+          "required": ["surfaceId"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["createSurface"],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "surfaceUpdate": {
+          "type": "object",
+          "description": "Updates a surface with a new set of components.",
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "description": "The unique identifier for the UI surface to be updated. If you are adding a new surface this *must* be a new, unique identified that has never been used for any existing surfaces shown."
+            },
+            "components": {
+              "type": "array",
+              "description": "A list containing all UI components for the surface.",
+              "minItems": 1,
+              "items": {
+                "$ref": "standard_catalog_definition.json#/$defs/anyComponent"
+              }
+            }
+          },
+          "required": ["surfaceId", "components"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["surfaceUpdate"],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "dataModelUpdate": {
+          "type": "object",
+          "description": "Updates the data model for a surface.",
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "description": "The unique identifier for the UI surface this data model update applies to."
+            },
+            "path": {
+              "type": "string",
+              "description": "An optional path to a location within the data model (e.g., '/user/name'). If omitted, or set to '/', the entire data model will be replaced."
+            },
+            "contents": {
+              "type": "object",
+              "description": "The data to be updated in the data model. This can be any valid JSON object.",
+              "additionalProperties": true
+            }
+          },
+          "required": ["contents", "surfaceId"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["dataModelUpdate"],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "deleteSurface": {
+          "type": "object",
+          "description": "Signals the client to delete the surface identified by 'surfaceId'.",
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "description": "The unique identifier for the UI surface to be deleted."
+            }
+          },
+          "required": ["surfaceId"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["deleteSurface"],
+      "additionalProperties": false
+    }
+  ]
+}
