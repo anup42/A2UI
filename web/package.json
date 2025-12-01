@@ -19,8 +19,8 @@
   "workspaces": [
     "lib",
     "tests",
-    "restaurant",
-    "editor",
-    "inspector"
+    "lit/samples/restaurant",
+    "lit/samples/contact",
+    "lit/inspector"
   ]
 }
