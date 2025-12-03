@@ -21,7 +21,7 @@ import { SchemaMatcher, ValidationResult } from "./schema_matcher";
  * `updateComponents` message, and optionally validates the presence and value of
  * a property on that component.
  */
-export class SurfaceUpdateSchemaMatcher extends SchemaMatcher {
+export class UpdateComponentsSchemaMatcher extends SchemaMatcher {
   constructor(
     public componentType: string,
     public propertyName?: string,
@@ -29,6 +29,21 @@ export class SurfaceUpdateSchemaMatcher extends SchemaMatcher {
     public caseInsensitive: boolean = false
   ) {
     super();
+  }
+
+  get description(): string {
+    let desc = `Component '${this.componentType}'`;
+    if (this.propertyName) {
+      desc += ` with property '${this.propertyName}'`;
+      if (this.propertyValue !== undefined) {
+        if (typeof this.propertyValue === "function") {
+          desc += ` matching predicate`;
+        } else {
+          desc += ` matching ${JSON.stringify(this.propertyValue)}`;
+        }
+      }
+    }
+    return desc;
   }
 
   private getComponentById(components: any[], id: string): any | undefined {
@@ -128,7 +143,12 @@ export class SurfaceUpdateSchemaMatcher extends SchemaMatcher {
         : s1 === s2;
     };
 
-    // 1. Direct Primitive Match (Shorthand)
+    // Predicate Function Match
+    if (typeof expectedValue === "function") {
+      return expectedValue(actualValue);
+    }
+
+    // Direct Primitive Match (Shorthand)
     if (typeof actualValue === "string" && typeof expectedValue === "string") {
       return compareStrings(actualValue, expectedValue);
     }
@@ -142,7 +162,7 @@ export class SurfaceUpdateSchemaMatcher extends SchemaMatcher {
       return actualValue === expectedValue;
     }
 
-    // 2. Object with Path (Should not match a literal expected value usually, unless expectedValue is the path object)
+    // Object with Path (Should not match a literal expected value usually, unless expectedValue is the path object)
     if (
       typeof actualValue === "object" &&
       !Array.isArray(actualValue) &&
@@ -152,7 +172,7 @@ export class SurfaceUpdateSchemaMatcher extends SchemaMatcher {
       return false;
     }
 
-    // 3. Array Match (e.g. MultipleChoice options)
+    // Array Match (e.g. MultipleChoice options)
     if (Array.isArray(actualValue)) {
       for (const item of actualValue) {
         // Direct match in array

@@ -35,23 +35,40 @@ const schemaFiles = [
 // ];
 
 // Add this function to extract JSON from markdown
-function extractJsonFromMarkdown(markdown: string): any | null {
-  const jsonBlockMatch = markdown.match(/```json\s*([\s\S]*?)\s*```/);
-  if (jsonBlockMatch && jsonBlockMatch[1]) {
-    try {
-      return JSON.parse(jsonBlockMatch[1]);
-    } catch (error) {
-      logger.error(`Failed to parse JSON from markdown: ${error}`);
-      return null;
+// Add this function to extract JSON from markdown
+function extractJsonFromMarkdown(markdown: string): any[] {
+  const jsonBlockRegex = /```json\s*([\s\S]*?)\s*```/g;
+  const matches = [...markdown.matchAll(jsonBlockRegex)];
+  const results: any[] = [];
+
+  for (const match of matches) {
+    if (match[1]) {
+      const content = match[1].trim();
+      // Try parsing as a single JSON object first
+      try {
+        results.push(JSON.parse(content));
+      } catch (error) {
+        // If that fails, try parsing as JSONL (line by line)
+        const lines = content.split("\n");
+        for (const line of lines) {
+          if (line.trim()) {
+            try {
+              results.push(JSON.parse(line));
+            } catch (e2) {
+              // Ignore invalid lines
+            }
+          }
+        }
+      }
     }
   }
-  return null;
+  return results;
 }
 
 interface InferenceResult {
   modelName: string;
   prompt: TestPrompt;
-  component: any;
+  components: any[];
   error: any;
   latency: number;
   validationResults: string[];
@@ -93,7 +110,8 @@ function generateSummary(
 
     let totalModelFailedRuns = 0;
 
-    for (const promptName in promptsInModel) {
+    const sortedPromptNames = Object.keys(promptsInModel).sort();
+    for (const promptName of sortedPromptNames) {
       const runs = promptsInModel[promptName];
       const totalRuns = runs.length;
       const failedRuns = runs.filter(
@@ -115,7 +133,15 @@ function generateSummary(
     }
 
     const totalRunsForModel = resultsByModel[modelName].length;
-    summary += `\n\n**Total failed runs:** ${totalModelFailedRuns} / ${totalRunsForModel}`;
+    const successPercentage =
+      totalRunsForModel === 0
+        ? "0.0"
+        : (
+            ((totalRunsForModel - totalModelFailedRuns) / totalRunsForModel) *
+            100.0
+          ).toFixed(1);
+
+    summary += `\n\n**Total failed runs:** ${totalModelFailedRuns} / ${totalRunsForModel} (${successPercentage}% success)`;
   }
 
   summary += "\n\n---\n\n## Overall Summary\n";
@@ -133,7 +159,13 @@ function generateSummary(
   ].join(", ");
 
   summary += `\n- **Total tool failures:** ${totalToolErrorRuns} / ${totalRuns}`;
-  summary += `\n- **Number of runs with any failure (tool error or validation):** ${totalRunsWithAnyFailure} / ${totalRuns}`;
+  const successPercentage =
+    totalRuns === 0
+      ? "0.0"
+      : (((totalRuns - totalRunsWithAnyFailure) / totalRuns) * 100.0).toFixed(
+          1
+        );
+  summary += `\n- **Number of runs with any failure (tool error or validation):** ${totalRunsWithAnyFailure} / ${totalRuns} (${successPercentage}% success)`;
   const latencies = results.map((r) => r.latency).sort((a, b) => a - b);
   const totalLatency = latencies.reduce((acc, l) => acc + l, 0);
   const meanLatency = (totalLatency / totalRuns).toFixed(0);
@@ -195,6 +227,12 @@ async function main() {
     .option("clean-results", {
       type: "boolean",
       description: "Clear the output directory before starting",
+      default: false,
+    })
+    .option("print-prompts", {
+      type: "boolean",
+      description:
+        "Print prompt metadata and output as JSONL stream to a separate file",
       default: false,
     })
     .help()
@@ -301,26 +339,34 @@ async function main() {
           const text = output?.text;
           const latency = output?.latency || 0;
 
-          let component = null;
+          let components: any[] = [];
           let error = null;
           let validationResults: string[] = [];
 
           if (text) {
             try {
-              component = extractJsonFromMarkdown(text);
+              components = extractJsonFromMarkdown(text);
 
               // Validate against the main schema
               const validate = ajv.getSchema(
                 "https://a2ui.dev/specification/0.9/server_to_client.json"
               );
-              if (validate && !validate(component)) {
-                validationResults = (validate.errors || []).map(
-                  (err) => `${err.instancePath} ${err.message}`
-                );
+
+              if (validate) {
+                for (const component of components) {
+                  if (!validate(component)) {
+                    validationResults = validationResults.concat(
+                      (validate.errors || []).map(
+                        (err) => `${err.instancePath} ${err.message}`
+                      )
+                    );
+                  }
+                }
               }
+
               // Also run original validator for more specific checks
               validationResults = validationResults.concat(
-                validateSchema(component, prompt.matchers)
+                validateSchema(components, prompt.matchers)
               );
 
               if (outputDir) {
@@ -338,7 +384,7 @@ async function main() {
                 );
                 fs.writeFileSync(
                   outputPath,
-                  JSON.stringify(component, null, 2)
+                  JSON.stringify(components, null, 2)
                 );
 
                 if (validationResults.length > 0) {
@@ -347,6 +393,32 @@ async function main() {
                     `${prompt.name}.${runIndex}.failed.txt`
                   );
                   fs.writeFileSync(failurePath, validationResults.join("\n"));
+                }
+
+                if (argv["print-prompts"]) {
+                  const samplePath = path.join(
+                    detailsDir,
+                    `${prompt.name}.${runIndex}.sample`
+                  );
+                  const yamlHeader = `---
+description: ${prompt.description}
+name: ${prompt.name}
+prompt: |
+${prompt.promptText
+  .split("\n")
+  .map((line) => "  " + line)
+  .join("\n")}
+---
+`;
+                  let jsonlBody = "";
+                  // Check if we need to add setup messages
+                  // If we have updateComponents but no createSurface, maybe add it?
+                  // For now, just dump what we have.
+                  for (const comp of components) {
+                    jsonlBody += JSON.stringify(comp) + "\n";
+                  }
+
+                  fs.writeFileSync(samplePath, yamlHeader + jsonlBody);
                 }
               }
             } catch (e) {
@@ -369,7 +441,7 @@ async function main() {
           return {
             modelName: modelConfig.name,
             prompt,
-            component,
+            components,
             error,
             latency,
             validationResults,
@@ -402,7 +474,7 @@ async function main() {
           return {
             modelName: modelConfig.name,
             prompt,
-            component: null,
+            components: [],
             error,
             latency: Date.now() - startTime,
             validationResults: [],
@@ -454,7 +526,7 @@ async function main() {
       for (const result of resultsByModel[modelName]) {
         const hasError = !!result.error;
         const hasValidationFailures = result.validationResults.length > 0;
-        const hasComponent = !!result.component;
+        const hasComponent = result.components && result.components.length > 0;
 
         if (hasError || hasValidationFailures) {
           logger.info(`----------------------------------------`);
@@ -474,7 +546,7 @@ async function main() {
               );
             }
             logger.verbose("Generated output:");
-            logger.verbose(JSON.stringify(result.component, null, 2));
+            logger.verbose(JSON.stringify(result.components, null, 2));
           }
         }
       }
