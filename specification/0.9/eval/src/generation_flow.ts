@@ -14,37 +14,11 @@
  limitations under the License.
  */
 
-import { googleAI } from "@genkit-ai/google-genai";
-import { genkit, z } from "genkit";
-import { openAI } from "@genkit-ai/compat-oai/openai";
-import { anthropic } from "genkitx-anthropic";
+import { z } from "genkit";
+import { ai } from "./ai";
 import { ModelConfiguration } from "./models";
 import { rateLimiter } from "./rateLimiter";
 import { logger } from "./logger";
-
-const plugins = [];
-
-if (process.env.GEMINI_API_KEY) {
-  logger.info("Initializing Google AI plugin...");
-  plugins.push(
-    googleAI({
-      apiKey: process.env.GEMINI_API_KEY!,
-      experimental_debugTraces: true,
-    })
-  );
-}
-if (process.env.OPENAI_API_KEY) {
-  logger.info("Initializing OpenAI plugin...");
-  plugins.push(openAI());
-}
-if (process.env.ANTHROPIC_API_KEY) {
-  logger.info("Initializing Anthropic plugin...");
-  plugins.push(anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! }));
-}
-
-export const ai = genkit({
-  plugins,
-});
 
 // Define a UI component generator flow
 export const componentGeneratorFlow = ai.defineFlow(
@@ -69,6 +43,10 @@ Standard Instructions:
 1. Generate a 'updateComponents' message with surfaceId 'main' and catalogId 'https://a2ui.dev/specification/0.9/standard_catalog_definition.json' containing the requested UI.
 2. Ensure all component children are referenced by ID (using the 'children' or 'child' property with IDs), NOT nested inline as objects.
 3. If the request involves data binding, you may also generate 'updateDataModel' messages.
+4. Among the 'updateComponents' messages in the output, there MUST be one root component with id: 'root'.
+5. Components need to be nested within a root layout container (Column, Row). No need to add an extra container if the root is already a layout container.
+6. There shouldn't be any orphaned components: no components should be generated which don't have a parent, except for the root component.
+7. If the request involves data binding, you may also generate 'updateDataModel' messages.
 
 Schemas:
 ${schemaDefs}
