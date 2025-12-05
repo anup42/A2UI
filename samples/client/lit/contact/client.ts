@@ -15,7 +15,7 @@
  */
 
 import { v0_8 } from "@a2ui/web-lib";
-
+import { registerContactComponents } from "./ui/custom-components/register-components.js";
 type A2TextPayload = {
   kind: "text";
   text: string;
@@ -62,3 +62,4 @@ export class A2UIClient {
     throw new Error(error.error);
   }
 }
+registerContactComponents();
