@@ -48,39 +48,20 @@ export const DEFAULT_CATALOG: Catalog = {
     type: () => import('./list').then((r) => r.List),
     bindings: (node) => {
       const properties = (node as v0_8.Types.ListNode).properties;
-      return [
-        inputBinding('direction', () => properties.direction ?? 'vertical'),
-      ];
+      return [inputBinding('direction', () => properties.direction ?? 'vertical')];
     },
   },
 
   Card: () => import('./card').then((r) => r.Card),
 
-  Heading: {
-    type: () => import('./heading').then((r) => r.Heading),
-    bindings: (node) => {
-      const properties = (node as v0_8.Types.TextNode).properties;
-      // Figure out the heading level based on the hint. If the hint isn't
-      // a hint for a heading, we can't render a heading.
-      let level: number;
-      if (["h1", "h2", "h3", "h4", "h5"].includes(properties.usageHint)) {
-        level = Number(properties.usageHint[1]);
-      } else {
-        throw new Error(`Cannot render heading: usageHint wasn't a heading level, it was ${properties.usageHint}`);
-      }
-
-      return [
-        inputBinding('text', () => properties.text),
-        inputBinding('level', () => level),
-      ];
-    },
-  },
-
   Image: {
     type: () => import('./image').then((r) => r.Image),
     bindings: (node) => {
       const properties = (node as v0_8.Types.ImageNode).properties;
-      return [inputBinding('url', () => properties.url)];
+      return [
+        inputBinding('url', () => properties.url),
+        inputBinding('usageHint', () => properties.usageHint),
+      ];
     },
   },
 
@@ -112,7 +93,10 @@ export const DEFAULT_CATALOG: Catalog = {
     type: () => Text,
     bindings: (node) => {
       const properties = (node as v0_8.Types.TextNode).properties;
-      return [inputBinding('text', () => properties.text)];
+      return [
+        inputBinding('text', () => properties.text),
+        inputBinding('usageHint', () => properties.usageHint || null),
+      ];
     },
   },
 
