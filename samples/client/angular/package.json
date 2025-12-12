@@ -10,7 +10,10 @@
     "serve:ssr:angular": "node dist/angular/server/server.mjs",
     "serve:ssr:restaurant": "node dist/restaurant/server/server.mjs",
     "serve:ssr:rizzcharts": "node dist/rizzcharts/server/server.mjs",
-    "serve:ssr:contact": "node dist/contact/server/server.mjs"
+    "serve:ssr:contact": "node dist/contact/server/server.mjs",
+    "build:lit": "cd ../../../renderers/lit && npm i && npm run build",
+    "serve:agent:restaurant": "cd ../../agent/adk/restaurant_finder && uv run .",
+    "demo:restaurant": "npm run build:lit && concurrently -k -n \"AGENT,WEB\" -c \"magenta,blue\" \"npm run serve:agent:restaurant\" \"npm start -- restaurant\""
   },
   "prettier": {
     "printWidth": 100,
@@ -59,6 +62,7 @@
     "@types/node": "^20.17.19",
     "@types/uuid": "^10.0.0",
     "@vitest/browser": "^4.0.15",
+    "concurrently": "^9.2.1",
     "cypress": "^15.6.0",
     "jasmine-core": "~5.9.0",
     "jsdom": "^27.2.0",
