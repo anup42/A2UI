@@ -12,21 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Lit renderer build and test
+name: Inspector build
 
 on:
   push:
     branches: [ main ]
     paths:
+      - 'tools/inspector/**'
       - 'renderers/lit/**'
-      - '.github/workflows/web_build_and_test.yml'
+      - '.github/workflows/inspector_build.yml'
   pull_request:
     paths:
+      - 'tools/inspector/**'
       - 'renderers/lit/**'
-      - '.github/workflows/web_build_and_test.yml'
+      - '.github/workflows/inspector_build.yml'
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,14 +39,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Lit renderer dependencies
+      - name: Install lib's deps
         working-directory: ./renderers/lit
-        run: npm i
+        run: npm ci
 
-      - name: Build Lit renderer
+      - name: Build lib
         working-directory: ./renderers/lit
         run: npm run build
 
-      - name: Run Lit renderer tests
-        working-directory: ./renderers/lit
-        run: npm test
+      - name: Install inspector deps
+        working-directory: ./tools/inspector
+        run: npm install
+
+      - name: Build inspector
+        working-directory: ./tools/inspector
+        run: npm run build
