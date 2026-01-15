@@ -92,7 +92,6 @@ The [`common_types.json`] schema defines reusable primitives used throughout the
   - `object`: A template for generating children from a data binding list (requires a template `componentId` and a data binding `path`).
 
 - **`id`**: The unique identifier for a component. Defined here so that all IDs are consistent and can be used for data binding.
-- **`weight`**: The relative weight of a component within a Row or Column. This corresponds to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column. Defined here so that all weights are consistent and can be used for data binding.
 
 ### Server to Client Message Structure: The Envelope
 
@@ -225,7 +224,6 @@ A2UI's component model is designed for flexibility, separating the protocol's st
 Each object in the `components` array of a `updateComponents` message defines a single UI component. It has the following structure:
 
 - `id` (string, required): A unique string that identifies this specific component instance. This is used for parent-child references.
-- `weight` (number, optional): The relative weight of this component within a `Row` or `Column`, corresponding to the CSS `flex-grow` property.
 - `component` (string, required): Specifies the component's type (e.g., `"Text"`).
 - **Component Properties**: Other properties relevant to the specific component type (e.g., `text`, `url`, `children`) are included directly in the component object.
 
