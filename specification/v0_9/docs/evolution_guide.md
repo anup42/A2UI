@@ -226,7 +226,7 @@ Specifying an unknown surfaceId will cause an error. It is recommended that clie
 
 **v0.9:**
 
-- **String Formatting**: Introduced the `string_format` function, which supports `${expression}` syntax for interpolation.
+- **String Formatting**: Introduced the `formatString` function, which supports `${expression}` syntax for interpolation.
 - **Unified Expression Language**: Allows embedding JSON Pointer paths (absolute and relative) and client-side function calls directly within the format string.
 - **Nesting**: Supports recursive nesting of expressions (e.g., `${formatDate(${/timestamp}, 'yyyy-MM-dd')}`).
 - **Restriction**: String interpolation `${...}` is **ONLY** supported within the `string_format` function. It is not supported in general for string properties, in order to strictly separate data binding definitions from static content.
