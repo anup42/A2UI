@@ -40,3 +40,12 @@ models:
     model: mock
     supports_json_mode: false
     endpoint: http://localhost:8000/v1/chat/completions
+  - name: openrouter_default
+    provider: openrouter
+    model: openrouter/auto
+    supports_json_mode: true
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "set per your OpenRouter account tier"

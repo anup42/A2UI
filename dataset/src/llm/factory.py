@@ -7,6 +7,7 @@ from .gemini_adapter import GeminiAdapter
 from .openai_adapter import OpenAIAdapter
 from .local_adapter import LocalAdapter
 from .gauss_adapter import GaussAdapter
+from .openrouter_adapter import OpenRouterAdapter
 
 
 def build_adapter(spec: ModelSpec) -> BaseLLMAdapter:
@@ -17,6 +18,8 @@ def build_adapter(spec: ModelSpec) -> BaseLLMAdapter:
         return GeminiAdapter(spec)
     if provider == "gauss":
         return GaussAdapter(spec)
+    if provider == "openrouter":
+        return OpenRouterAdapter(spec)
     if provider == "local":
         return LocalAdapter(spec)
     raise ValueError(f"Unsupported provider: {spec.provider}")

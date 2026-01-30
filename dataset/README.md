@@ -55,6 +55,10 @@ PowerShell:
 ```
 $env:OPENAI_API_KEY="..."
 $env:GEMINI_API_KEY="..."
+$env:OPENROUTER_API_KEY="..."
+$env:OPENROUTER_API_BASE="https://openrouter.ai/api/v1"
+$env:OPENROUTER_SITE_URL="https://your-site.example"
+$env:OPENROUTER_APP_NAME="DatasetRunner"
 $env:GAUSS_ENDPOINT="https://your-host"
 $env:GAUSS_CLIENT_KEY="..."
 $env:GAUSS_OPENAPI_TOKEN="Bearer ..."
