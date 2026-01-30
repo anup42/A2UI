@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="a2ui_blue">#137FEC</color>
+    <style name="Theme.A2ui" parent="Theme.Material3.DayNight.NoActionBar">
+    <item name="android:statusBarColor">@android:color/transparent</item>
+  </style>
+</resources>

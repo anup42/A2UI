@@ -1,0 +1,42 @@
+models:
+  - name: openai_gpt4o
+    provider: openai
+    model: gpt-4o
+    supports_json_mode: true
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "set per your OpenAI account tier"
+  - name: openai_gpt4o_mini
+    provider: openai
+    model: gpt-4o-mini
+    supports_json_mode: true
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "set per your OpenAI account tier"
+  - name: gemini_2_5_flash_lite
+    provider: gemini
+    model: gemini-2.5-flash-lite
+    supports_json_mode: false
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "set per your Google project tier"
+  - name: gauss_default
+    provider: gauss
+    model: GAUSS_MODEL_ID
+    supports_json_mode: false
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "set per your Gauss account tier"
+  - name: local_mock
+    provider: local
+    model: mock
+    supports_json_mode: false
+    endpoint: http://localhost:8000/v1/chat/completions

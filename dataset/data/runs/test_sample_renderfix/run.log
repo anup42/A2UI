@@ -1,0 +1,3 @@
+2026-01-30 16:51:50 ERROR dataset: Stage4 render error ui_id=u_000001_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-01-30 16:52:05 ERROR dataset: Stage4 render error ui_id=u_000002_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-01-30 16:52:05 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\workspace\A2UI\dataset\data\runs\test_sample_renderfix\rendered

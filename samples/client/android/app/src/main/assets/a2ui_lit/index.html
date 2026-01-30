@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>A2UI Lit Renderer</title>
+    <style>
+      @font-face {
+        font-family: "Material Symbols Outlined";
+        font-style: normal;
+        font-weight: 100 700;
+        font-display: block;
+        src: url("fonts/material-symbols-outlined.ttf") format("truetype");
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script>
+      window.__A2UI_QUEUE = [];
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__A2UI_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const bridge = window.A2uiBridge;
+
+      function notifyStatus(data) {
+        if (bridge && typeof bridge.onRendererStatus === "function") {
+          bridge.onRendererStatus(JSON.stringify(data));
+        }
+      }
+
+      function notifyError(data) {
+        if (bridge && typeof bridge.onRendererError === "function") {
+          bridge.onRendererError(
+            typeof data === "string" ? data : JSON.stringify(data)
+          );
+        }
+      }
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const { v0_8 } = await import("./vendor/a2ui-lit.bundle.mjs");
+          const surfaceDefined = !!customElements.get("a2ui-surface");
+          console.log("A2UI surface element defined:", surfaceDefined);
+          notifyStatus({ surfaceDefined });
+
+          const theme = createDefaultTheme();
+          let themeRequests = 0;
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (themeRequests === 0) {
+              notifyStatus({
+                contextRequest: {
+                  contextType: typeof contextKey,
+                  hasDetail: !!event.detail
+                }
+              });
+            }
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "A2UITheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+            themeRequests += 1;
+            notifyStatus({ themeRequests });
+          });
+          notifyStatus({ themeProvided: true });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+            const surfaceCount = processor.getSurfaces().size;
+            console.log("Rendered surfaces:", surfaceCount);
+            notifyStatus({ surfaceCount });
+            requestAnimationFrame(() => {
+              const containerRect = container.getBoundingClientRect();
+              const firstSurface = container.firstElementChild;
+              const surfaceRect = firstSurface
+                ? firstSurface.getBoundingClientRect()
+                : null;
+              notifyStatus({
+                layout: {
+                  container: {
+                    width: Math.round(containerRect.width),
+                    height: Math.round(containerRect.height)
+                  },
+                  surface: surfaceRect
+                    ? {
+                        width: Math.round(surfaceRect.width),
+                        height: Math.round(surfaceRect.height)
+                      }
+                    : null
+                }
+              });
+            });
+          }
+
+          function renderMessages(payload, reset) {
+            try {
+              const messages = parseMessages(payload);
+              if (!Array.isArray(messages)) {
+                console.warn("A2UI payload was not an array", messages);
+                return;
+              }
+              if (reset) {
+                processor.clearSurfaces();
+              }
+              processor.processMessages(messages);
+              renderSurfaces();
+              console.log("Processed messages:", messages.length);
+              notifyStatus({
+                processedMessages: messages.length,
+                surfaceCount: processor.getSurfaces().size
+              });
+            } catch (err) {
+              console.error("Failed to render A2UI messages", err);
+              notifyError({
+                stage: "renderMessages",
+                message: err?.message ?? String(err)
+              });
+            }
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.A2UI_READY = true;
+          if (
+            window.A2uiBridge &&
+            typeof window.A2uiBridge.onRendererReady === "function"
+          ) {
+            window.A2uiBridge.onRendererReady();
+          }
+          console.log("A2UI renderer ready");
+          notifyStatus({ ready: true });
+
+          const queued = window.__A2UI_QUEUE || [];
+          window.__A2UI_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+        } catch (err) {
+          console.error("Failed to load A2UI Lit renderer", err);
+          notifyError({
+            stage: "init",
+            message: err?.message ?? String(err)
+          });
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>

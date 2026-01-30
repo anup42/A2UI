@@ -1,0 +1,51 @@
+run:
+  run_id: test_sample_1000
+  intents_file: intents.info
+  output_dir: data/runs
+  k_queries_per_intent: 100
+  n_responses_per_query: 1
+  a2ui_candidates_per_response: 1
+  max_repair_attempts: 1
+  parallelism: 2
+  rate_limit_qps: 0.05
+  seed: 42
+  batch_size_queries: 100
+  response_temperatures: [0.7]
+  response_max_tokens: 256
+  response_batch_size: 1
+  query_batch_size: 100
+  response_group_by_intent: true
+  response_batch_fallback_per_query: true
+  query_max_tokens: 1024
+  a2ui_max_tokens: 512
+  cache_dir: data/cache
+  artifact_dir: artifacts
+  dry_run: false
+  call_sleep_seconds: 10
+  max_queries_total: 1000
+  max_responses_total: 1000
+  max_a2ui_total: 0
+  stage1_max_failures_per_intent: 3
+  stage1_fill_missing_with_fallback: true
+  max_attempts: 6
+render:
+  output_dir: rendered
+  assets_dir: renderer/a2ui_lit
+  render_images: true
+  image_format: png
+  use_http_server: true
+  viewport:
+    width: 1280
+    height: 720
+  timeout_ms: 15000
+  wait_ms: 200
+benchmark:
+  fixed_subset_size: 10
+  fixed_seed: 123
+evaluation:
+  weights:
+    schema_valid_strict: 5.0
+    content_coverage: 3.0
+    lint_score: 2.0
+    dup_rate: -1.0
+    cost_usd: -0.5

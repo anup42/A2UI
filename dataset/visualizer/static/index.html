@@ -1,0 +1,40 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dataset Visualizer</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="title">Dataset Visualizer</div>
+      <div class="run-picker">
+        <label for="runSelect">Run</label>
+        <select id="runSelect"></select>
+        <button id="refreshBtn">Refresh</button>
+      </div>
+    </header>
+
+    <section class="summary" id="summary"></section>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="queries">Queries</button>
+      <button class="tab" data-tab="responses">Responses</button>
+      <button class="tab" data-tab="a2ui">A2UI</button>
+    </nav>
+
+    <section class="panel">
+      <div class="toolbar">
+        <input id="searchInput" type="search" placeholder="Search" />
+        <input id="fieldInput" type="text" placeholder="Field (optional)" />
+        <input id="limitInput" type="number" value="50" min="1" max="500" />
+        <button id="prevBtn">Prev</button>
+        <button id="nextBtn">Next</button>
+      </div>
+      <div id="tableWrap"></div>
+    </section>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
