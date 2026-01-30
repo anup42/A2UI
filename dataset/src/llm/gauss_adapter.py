@@ -4,6 +4,7 @@ import json
 import os
 import time
 import urllib.request
+import urllib.error
 from typing import Optional
 
 from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
@@ -62,6 +63,16 @@ class GaussAdapter(BaseLLMAdapter):
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:
                 raw = resp.read().decode("utf-8")
+        except urllib.error.HTTPError as exc:
+            body = ""
+            try:
+                body = exc.read().decode("utf-8")
+            except Exception:
+                body = ""
+            return {
+                "error": f"gauss_models_http_error: {exc.code} {exc.reason}",
+                "body": body[:1000],
+            }
         except Exception as exc:
             return {"error": str(exc)}
 
@@ -166,6 +177,16 @@ class GaussAdapter(BaseLLMAdapter):
         raw = None
         last_error: Optional[Exception] = None
         attempted: list[str] = []
+        prompt_preview = prompt.replace("\n", " ")[:200]
+        request_debug = {
+            "modelIds": [model_id],
+            "prompt_preview": prompt_preview,
+            "prompt_length": len(prompt),
+            "temperature": temperature,
+            "max_new_tokens": max_tokens,
+            "seed": seed,
+            "system": bool(system),
+        }
         for candidate in self._candidate_endpoints(endpoint):
             attempted.append(candidate)
             req = urllib.request.Request(candidate, data=data, headers=headers)
@@ -173,6 +194,33 @@ class GaussAdapter(BaseLLMAdapter):
                 with urllib.request.urlopen(req, timeout=60) as resp:
                     raw = resp.read().decode("utf-8")
                 break
+            except urllib.error.HTTPError as exc:
+                last_error = exc
+                code = getattr(exc, "code", None)
+                if code == 404:
+                    continue
+                if code == 429:
+                    raise
+                body = ""
+                try:
+                    body = exc.read().decode("utf-8")
+                except Exception:
+                    body = ""
+                return LLMResult(
+                    text="",
+                    raw=None,
+                    latency_ms=(time.time() - start) * 1000,
+                    input_tokens=0,
+                    output_tokens=0,
+                    cost_usd=None,
+                    model=self.spec.model,
+                    provider=self.spec.provider,
+                    error=(
+                        f"gauss_http_error: {code} {getattr(exc, 'reason', '')}; "
+                        f"body={body[:1000]}; request={request_debug}; "
+                        f"endpoint={candidate}"
+                    ),
+                )
             except Exception as exc:
                 last_error = exc
                 if hasattr(exc, "code") and getattr(exc, "code") == 404:
@@ -188,7 +236,7 @@ class GaussAdapter(BaseLLMAdapter):
                     cost_usd=None,
                     model=self.spec.model,
                     provider=self.spec.provider,
-                    error=str(exc),
+                    error=f"{exc}; request={request_debug}; endpoint={candidate}",
                 )
 
         if raw is None:
@@ -204,7 +252,7 @@ class GaussAdapter(BaseLLMAdapter):
                 cost_usd=None,
                 model=self.spec.model,
                 provider=self.spec.provider,
-                error=f"{error_text}. Tried: {', '.join(attempted)}",
+                error=f"{error_text}. Tried: {', '.join(attempted)}. request={request_debug}",
             )
 
         elapsed = (time.time() - start) * 1000
