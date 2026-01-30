@@ -16,7 +16,7 @@ run:
   query_batch_size: 100
   response_group_by_intent: true
   response_batch_fallback_per_query: true
-  query_max_tokens: 1024
+  query_max_tokens: 2024
   a2ui_max_tokens: 512
   cache_dir: data/cache
   artifact_dir: artifacts
@@ -26,7 +26,7 @@ run:
   max_responses_total: 1000
   max_a2ui_total: 0
   stage1_max_failures_per_intent: 3
-  stage1_fill_missing_with_fallback: true
+  stage1_fill_missing_with_fallback: false
   max_attempts: 6
 render:
   output_dir: rendered
