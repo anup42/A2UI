@@ -49,3 +49,12 @@ models:
       tpm: null
       rpd: null
       note: "set per your OpenRouter account tier"
+  - name: openrouter_deepseek_chimera_free
+    provider: openrouter
+    model: tngtech/deepseek-r1t2-chimera:free
+    supports_json_mode: true
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "free tier limits per OpenRouter"
