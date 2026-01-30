@@ -204,7 +204,7 @@ class GaussAdapter(BaseLLMAdapter):
                 cost_usd=None,
                 model=self.spec.model,
                 provider=self.spec.provider,
-                error=f\"{error_text}. Tried: {', '.join(attempted)}\",
+                error=f"{error_text}. Tried: {', '.join(attempted)}",
             )
 
         elapsed = (time.time() - start) * 1000
