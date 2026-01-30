@@ -56,6 +56,29 @@ def _make_ui_id(query_id: str, n_idx: int, candidate_idx: int) -> str:
     return f"u_{suffix}_{n_idx:02d}_{candidate_idx:02d}"
 
 
+def _build_asset_context(assets: list[dict]) -> str:
+    if not assets:
+        return ""
+    lines: list[str] = []
+    for item in assets:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "").strip()
+        path = str(item.get("path") or "").strip()
+        if not path:
+            continue
+        local_path = path.replace("\\", "/")
+        if not local_path.startswith("/"):
+            local_path = "/" + local_path.lstrip("/")
+        if url:
+            lines.append(f"- {url} -> {local_path}")
+        else:
+            lines.append(f"- {local_path}")
+    if not lines:
+        return ""
+    return "Assets (local copies of any URLs in the response; use ONLY these local paths):\n" + "\n".join(lines)
+
+
 def run_stage3(
     responses_path: Path,
     prompt_path: Path,
@@ -85,6 +108,8 @@ def run_stage3(
         response_id = response.get("response_id")
         query_id = response.get("query_id")
         response_text = response.get("response_text")
+        assets = response.get("assets") if isinstance(response, dict) else None
+        assets_list = assets if isinstance(assets, list) else []
         n_idx = int(response.get("n_idx", 1))
         if not response_id or not query_id or not response_text:
             continue
@@ -97,7 +122,11 @@ def run_stage3(
             if ui_id in existing_ids:
                 continue
 
-            prompt = render_prompt(prompt_template, response_text=response_text)
+            asset_context = _build_asset_context(assets_list)
+            prompt_response_text = response_text
+            if asset_context:
+                prompt_response_text = f"{response_text}\n\n{asset_context}"
+            prompt = render_prompt(prompt_template, response_text=prompt_response_text)
             prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}")
 
             cached = cache.get(prompt_hash)
@@ -240,6 +269,7 @@ def run_stage3(
                 "response_id": response_id,
                 "query_id": query_id,
                 "a2ui_json": a2ui_json,
+                "assets": assets_list,
                 "toon": toon,
                 "validation": {
                     "json_parse_ok": parsed_ok,
