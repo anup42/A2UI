@@ -249,6 +249,9 @@ def main() -> None:
         logger.info("Benchmark complete. Aggregates stored at %s", run_paths.aggregates_path)
         return
 
+    if args.model and args.model not in model_map:
+        available = ", ".join(sorted(model_map.keys()))
+        raise SystemExit(f"Unknown model '{args.model}'. Available: {available}")
     spec = model_map.get(args.model) if args.model else specs[0]
     adapter = build_adapter(spec)
     rate_limiter = RateLimiter(
