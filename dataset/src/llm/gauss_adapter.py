@@ -23,6 +23,18 @@ class GaussAdapter(BaseLLMAdapter):
             return endpoint.split(marker)[0]
         return endpoint
 
+    def _candidate_endpoints(self, endpoint: str) -> list[str]:
+        endpoint = endpoint.rstrip("/")
+        base = self._resolve_base(endpoint)
+        primary = self._resolve_endpoint(endpoint)
+        candidates = [primary]
+        alt_messages = f"{base}/openapi/chat/v1/messages"
+        alt_with_models = f"{base}/openapi/chat/v1/messages-with-models"
+        for url in (alt_messages, alt_with_models):
+            if url not in candidates:
+                candidates.append(url)
+        return candidates
+
     def list_models(self, all_models: bool = True) -> dict:
         endpoint = os.getenv("GAUSS_ENDPOINT") or self.spec.endpoint
         client_key = os.getenv("GAUSS_CLIENT_KEY")
@@ -150,15 +162,39 @@ class GaussAdapter(BaseLLMAdapter):
             body["systemPrompt"] = system
 
         data = json.dumps(body).encode("utf-8")
-        req = urllib.request.Request(url, data=data, headers=headers)
-
         start = time.time()
-        try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                raw = resp.read().decode("utf-8")
-        except Exception as exc:
-            if hasattr(exc, "code") and getattr(exc, "code") == 429:
-                raise
+        raw = None
+        last_error: Optional[Exception] = None
+        attempted: list[str] = []
+        for candidate in self._candidate_endpoints(endpoint):
+            attempted.append(candidate)
+            req = urllib.request.Request(candidate, data=data, headers=headers)
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    raw = resp.read().decode("utf-8")
+                break
+            except Exception as exc:
+                last_error = exc
+                if hasattr(exc, "code") and getattr(exc, "code") == 404:
+                    continue
+                if hasattr(exc, "code") and getattr(exc, "code") == 429:
+                    raise
+                return LLMResult(
+                    text="",
+                    raw=None,
+                    latency_ms=(time.time() - start) * 1000,
+                    input_tokens=0,
+                    output_tokens=0,
+                    cost_usd=None,
+                    model=self.spec.model,
+                    provider=self.spec.provider,
+                    error=str(exc),
+                )
+
+        if raw is None:
+            error_text = "gauss_error: 404 Not Found"
+            if last_error is not None and hasattr(last_error, "code"):
+                error_text = f"gauss_error: {getattr(last_error, 'code')} {last_error}"
             return LLMResult(
                 text="",
                 raw=None,
@@ -168,7 +204,7 @@ class GaussAdapter(BaseLLMAdapter):
                 cost_usd=None,
                 model=self.spec.model,
                 provider=self.spec.provider,
-                error=str(exc),
+                error=f\"{error_text}. Tried: {', '.join(attempted)}\",
             )
 
         elapsed = (time.time() - start) * 1000
