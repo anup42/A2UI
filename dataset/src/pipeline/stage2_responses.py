@@ -388,6 +388,39 @@ def _process_query_batch(
     except Exception as exc:
         logger.error("Stage2 batch parse error: %s", exc)
         parsed = []
+        # Fallback: attempt to recover list of objects from raw text
+        if raw_text:
+            recovered = []
+            depth = 0
+            start = None
+            in_string = False
+            escape = False
+            for i, ch in enumerate(raw_text):
+                if ch == "\\" and in_string:
+                    escape = not escape
+                    continue
+                if ch == '"' and not escape:
+                    in_string = not in_string
+                escape = False if ch != "\\" else escape
+                if in_string:
+                    continue
+                if ch == "{":
+                    if depth == 0:
+                        start = i
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0 and start is not None:
+                        chunk = raw_text[start : i + 1]
+                        try:
+                            obj = json.loads(chunk)
+                            if isinstance(obj, dict):
+                                recovered.append(obj)
+                        except Exception:
+                            pass
+                        start = None
+            if recovered:
+                parsed = recovered
 
     responses_by_id = {}
     if isinstance(parsed, list):
