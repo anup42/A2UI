@@ -53,7 +53,14 @@ def run_stage2(
     total_created = 0
 
     if query_batch_size > 1:
-        queries = list(iter_jsonl(queries_path))
+        queries = []
+        for q in iter_jsonl(queries_path):
+            if not isinstance(q, dict):
+                continue
+            if not q.get("query_id") or not q.get("query_text"):
+                logger.warning("Stage2 skipping query without id/text: %s", q)
+                continue
+            queries.append(q)
         if group_by_intent:
             grouped: dict[str, list[dict]] = {}
             order: list[str] = []
@@ -246,7 +253,16 @@ def _process_query_batch(
 ) -> int:
     if not queries:
         return 0
-    payload = [{"query_id": q["query_id"], "query_text": q["query_text"]} for q in queries]
+    payload = []
+    for q in queries:
+        qid = q.get("query_id")
+        qtext = q.get("query_text")
+        if not qid or not qtext:
+            logger.warning("Stage2 batch skip missing query_id/query_text: %s", q)
+            continue
+        payload.append({"query_id": qid, "query_text": qtext})
+    if not payload:
+        return 0
     queries_json = json.dumps(payload, ensure_ascii=False)
     prompt = batch_prompt_template or (
         "Return JSON array of {query_id, response_text} for these queries:\n" + queries_json
@@ -385,10 +401,14 @@ def _process_query_batch(
 
     created = 0
     for q in queries:
-        qid = q["query_id"]
+        qid = q.get("query_id")
+        qtext = q.get("query_text")
+        if not qid or not qtext:
+            logger.warning("Stage2 batch skip missing query_id/query_text: %s", q)
+            continue
         response_text = responses_by_id.get(qid, "").strip()
         if not response_text and fallback_per_query:
-            single_prompt = render_prompt(single_prompt_template, query_text=q["query_text"])
+            single_prompt = render_prompt(single_prompt_template, query_text=qtext)
             single_hash = hash_text(f"{adapter.spec.name}:{single_prompt}")
             cached_single = cache.get(single_hash)
             if cached_single:
