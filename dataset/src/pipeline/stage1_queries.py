@@ -135,78 +135,84 @@ def run_stage1(
                     logger.error("Stage1 error intent=%s: %s", intent, exc)
                     failures += 1
                     if failures >= max_failures_per_intent:
-                        logger.error("Stage1 fallback intent=%s after %s failures", intent, failures)
-                        while existing_counts[intent] < target:
-                            if max_total is not None and total_created >= max_total:
-                                logger.info("Stage1 reached max_total=%s", max_total)
-                                return
-                            suffix = existing_counts[intent] + 1
-                            fallback_text = f"{intent} request {suffix}"
-                            norm_hash = hash_text(normalize_text(fallback_text))
-                            if norm_hash not in existing_hashes:
-                                query_id = stable_id("q", next_idx)
-                                next_idx += 1
-                                record = {
-                                    "query_id": query_id,
-                                    "intent": intent,
-                                    "query_text": fallback_text,
-                                    "difficulty": "easy",
-                                    "tags": [intent.lower().replace(" ", "_")],
-                                    "created_at": datetime.utcnow().isoformat() + "Z",
-                                    "source": "fallback",
-                                    "gen": {
-                                        "llm_provider": adapter.spec.provider,
-                                        "model": adapter.spec.model,
-                                        "prompt_version": "query_gen_v1",
-                                        "temperature": temperature,
-                                        "seed": seed,
-                                    },
-                                }
-                                writer.append(record)
-                                existing_hashes.add(norm_hash)
-                                existing_counts[intent] += 1
-                                total_created += 1
-                            else:
-                                existing_counts[intent] += 1
+                        if fill_missing_with_fallback:
+                            logger.error("Stage1 fallback intent=%s after %s failures", intent, failures)
+                            while existing_counts[intent] < target:
+                                if max_total is not None and total_created >= max_total:
+                                    logger.info("Stage1 reached max_total=%s", max_total)
+                                    return
+                                suffix = existing_counts[intent] + 1
+                                fallback_text = f"{intent} request {suffix}"
+                                norm_hash = hash_text(normalize_text(fallback_text))
+                                if norm_hash not in existing_hashes:
+                                    query_id = stable_id("q", next_idx)
+                                    next_idx += 1
+                                    record = {
+                                        "query_id": query_id,
+                                        "intent": intent,
+                                        "query_text": fallback_text,
+                                        "difficulty": "easy",
+                                        "tags": [intent.lower().replace(" ", "_")],
+                                        "created_at": datetime.utcnow().isoformat() + "Z",
+                                        "source": "fallback",
+                                        "gen": {
+                                            "llm_provider": adapter.spec.provider,
+                                            "model": adapter.spec.model,
+                                            "prompt_version": "query_gen_v1",
+                                            "temperature": temperature,
+                                            "seed": seed,
+                                        },
+                                    }
+                                    writer.append(record)
+                                    existing_hashes.add(norm_hash)
+                                    existing_counts[intent] += 1
+                                    total_created += 1
+                                else:
+                                    existing_counts[intent] += 1
+                            break
+                        logger.error("Stage1 stopping intent=%s after %s failures", intent, failures)
                         break
                     continue
                 if result.error:
                     logger.error("Stage1 error intent=%s: %s", intent, result.error)
                     failures += 1
                     if failures >= max_failures_per_intent:
-                        logger.error("Stage1 fallback intent=%s after %s failures", intent, failures)
-                        while existing_counts[intent] < target:
-                            if max_total is not None and total_created >= max_total:
-                                logger.info("Stage1 reached max_total=%s", max_total)
-                                return
-                            suffix = existing_counts[intent] + 1
-                            fallback_text = f"{intent} request {suffix}"
-                            norm_hash = hash_text(normalize_text(fallback_text))
-                            if norm_hash not in existing_hashes:
-                                query_id = stable_id("q", next_idx)
-                                next_idx += 1
-                                record = {
-                                    "query_id": query_id,
-                                    "intent": intent,
-                                    "query_text": fallback_text,
-                                    "difficulty": "easy",
-                                    "tags": [intent.lower().replace(" ", "_")],
-                                    "created_at": datetime.utcnow().isoformat() + "Z",
-                                    "source": "fallback",
-                                    "gen": {
-                                        "llm_provider": adapter.spec.provider,
-                                        "model": adapter.spec.model,
-                                        "prompt_version": "query_gen_v1",
-                                        "temperature": temperature,
-                                        "seed": seed,
-                                    },
-                                }
-                                writer.append(record)
-                                existing_hashes.add(norm_hash)
-                                existing_counts[intent] += 1
-                                total_created += 1
-                            else:
-                                existing_counts[intent] += 1
+                        if fill_missing_with_fallback:
+                            logger.error("Stage1 fallback intent=%s after %s failures", intent, failures)
+                            while existing_counts[intent] < target:
+                                if max_total is not None and total_created >= max_total:
+                                    logger.info("Stage1 reached max_total=%s", max_total)
+                                    return
+                                suffix = existing_counts[intent] + 1
+                                fallback_text = f"{intent} request {suffix}"
+                                norm_hash = hash_text(normalize_text(fallback_text))
+                                if norm_hash not in existing_hashes:
+                                    query_id = stable_id("q", next_idx)
+                                    next_idx += 1
+                                    record = {
+                                        "query_id": query_id,
+                                        "intent": intent,
+                                        "query_text": fallback_text,
+                                        "difficulty": "easy",
+                                        "tags": [intent.lower().replace(" ", "_")],
+                                        "created_at": datetime.utcnow().isoformat() + "Z",
+                                        "source": "fallback",
+                                        "gen": {
+                                            "llm_provider": adapter.spec.provider,
+                                            "model": adapter.spec.model,
+                                            "prompt_version": "query_gen_v1",
+                                            "temperature": temperature,
+                                            "seed": seed,
+                                        },
+                                    }
+                                    writer.append(record)
+                                    existing_hashes.add(norm_hash)
+                                    existing_counts[intent] += 1
+                                    total_created += 1
+                                else:
+                                    existing_counts[intent] += 1
+                            break
+                        logger.error("Stage1 stopping intent=%s after %s failures", intent, failures)
                         break
                     continue
                 raw_text = result.text
@@ -224,39 +230,42 @@ def run_stage1(
                 else:
                     failures += 1
                     if failures >= max_failures_per_intent:
-                        logger.error("Stage1 fallback intent=%s after %s failures", intent, failures)
-                        while existing_counts[intent] < target:
-                            if max_total is not None and total_created >= max_total:
-                                logger.info("Stage1 reached max_total=%s", max_total)
-                                return
-                            suffix = existing_counts[intent] + 1
-                            fallback_text = f"{intent} request {suffix}"
-                            norm_hash = hash_text(normalize_text(fallback_text))
-                            if norm_hash not in existing_hashes:
-                                query_id = stable_id("q", next_idx)
-                                next_idx += 1
-                                record = {
-                                    "query_id": query_id,
-                                    "intent": intent,
-                                    "query_text": fallback_text,
-                                    "difficulty": "easy",
-                                    "tags": [intent.lower().replace(" ", "_")],
-                                    "created_at": datetime.utcnow().isoformat() + "Z",
-                                    "source": "fallback",
-                                    "gen": {
-                                        "llm_provider": result_provider,
-                                        "model": result_model,
-                                        "prompt_version": "query_gen_v1",
-                                        "temperature": temperature,
-                                        "seed": seed,
-                                    },
-                                }
-                                writer.append(record)
-                                existing_hashes.add(norm_hash)
-                                existing_counts[intent] += 1
-                                total_created += 1
-                            else:
-                                existing_counts[intent] += 1
+                        if fill_missing_with_fallback:
+                            logger.error("Stage1 fallback intent=%s after %s failures", intent, failures)
+                            while existing_counts[intent] < target:
+                                if max_total is not None and total_created >= max_total:
+                                    logger.info("Stage1 reached max_total=%s", max_total)
+                                    return
+                                suffix = existing_counts[intent] + 1
+                                fallback_text = f"{intent} request {suffix}"
+                                norm_hash = hash_text(normalize_text(fallback_text))
+                                if norm_hash not in existing_hashes:
+                                    query_id = stable_id("q", next_idx)
+                                    next_idx += 1
+                                    record = {
+                                        "query_id": query_id,
+                                        "intent": intent,
+                                        "query_text": fallback_text,
+                                        "difficulty": "easy",
+                                        "tags": [intent.lower().replace(" ", "_")],
+                                        "created_at": datetime.utcnow().isoformat() + "Z",
+                                        "source": "fallback",
+                                        "gen": {
+                                            "llm_provider": result_provider,
+                                            "model": result_model,
+                                            "prompt_version": "query_gen_v1",
+                                            "temperature": temperature,
+                                            "seed": seed,
+                                        },
+                                    }
+                                    writer.append(record)
+                                    existing_hashes.add(norm_hash)
+                                    existing_counts[intent] += 1
+                                    total_created += 1
+                                else:
+                                    existing_counts[intent] += 1
+                            break
+                        logger.error("Stage1 stopping intent=%s after %s failures", intent, failures)
                         break
                     continue
 

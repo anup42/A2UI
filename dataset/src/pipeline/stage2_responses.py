@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+import hashlib
+import re
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 from pipeline.common import extract_json, load_prompt, render_prompt
@@ -16,6 +20,71 @@ from utils.retry import with_retry
 def _make_response_id(query_id: str, n_idx: int) -> str:
     suffix = query_id.replace("q_", "")
     return f"r_{suffix}_{n_idx:02d}"
+
+
+_URL_RE = re.compile(r"https?://[^\\s<>\"')]+")
+
+
+def _extract_urls(text: str) -> list[str]:
+    urls = []
+    for match in _URL_RE.findall(text or ""):
+        cleaned = match.rstrip(".,;:)]}!?")
+        if cleaned:
+            urls.append(cleaned)
+    return list(dict.fromkeys(urls))
+
+
+def _safe_name(value: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9._-]+", "_", value).strip("._") or "asset"
+
+
+def _download_assets(
+    response_text: str,
+    response_id: str,
+    assets_dir: Path,
+    logger,
+    url_cache: dict[str, Path],
+    max_bytes: int = 25 * 1024 * 1024,
+) -> list[dict]:
+    assets = []
+    urls = _extract_urls(response_text)
+    if not urls:
+        return assets
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    for idx, url in enumerate(urls, start=1):
+        if url in url_cache:
+            path = url_cache[url]
+            assets.append(
+                {"url": url, "path": str(path.relative_to(assets_dir.parent))}
+            )
+            continue
+        try:
+            parsed = urllib.parse.urlparse(url)
+            basename = Path(parsed.path).name
+            safe_name = _safe_name(basename) or f"asset_{idx}"
+            if "." not in safe_name:
+                safe_name = f"{safe_name}.bin"
+            filename = f"{response_id}_{idx}_{safe_name}"
+            dest = assets_dir / filename
+            with urllib.request.urlopen(url, timeout=30) as resp:
+                data = resp.read(max_bytes + 1)
+            if len(data) > max_bytes:
+                logger.warning("Stage2 asset too large, skipped url=%s", url)
+                continue
+            dest.write_bytes(data)
+            sha = hashlib.sha256(data).hexdigest()
+            url_cache[url] = dest
+            assets.append(
+                {
+                    "url": url,
+                    "path": str(dest.relative_to(assets_dir.parent)),
+                    "sha256": sha,
+                    "bytes": len(data),
+                }
+            )
+        except Exception as exc:
+            logger.warning("Stage2 asset download failed url=%s err=%s", url, exc)
+    return assets
 
 
 def run_stage2(
@@ -49,6 +118,8 @@ def run_stage2(
             existing_hashes.add(hash_text(normalize_text(text)))
 
     writer = JsonlWriter(responses_path)
+    assets_dir = responses_path.parent / "assets"
+    url_cache: dict[str, Path] = {}
 
     total_created = 0
 
@@ -202,12 +273,20 @@ def run_stage2(
                     logger.info("Stage2 duplicate response query_id=%s", query_id)
                     continue
 
+                assets = _download_assets(
+                    response_text,
+                    response_id,
+                    assets_dir,
+                    logger,
+                    url_cache,
+                )
                 record = {
                     "response_id": response_id,
                     "query_id": query_id,
                     "n_idx": n_idx,
                     "response_text": response_text,
                     "created_at": datetime.utcnow().isoformat() + "Z",
+                    "assets": assets,
                     "gen": {
                         "provider": provider,
                         "model": model,
@@ -483,12 +562,20 @@ def _process_query_batch(
         norm_hash = hash_text(normalize_text(response_text))
         if norm_hash in existing_hashes:
             continue
+        assets = _download_assets(
+            response_text,
+            response_id,
+            assets_dir,
+            logger,
+            url_cache,
+        )
         record = {
             "response_id": response_id,
             "query_id": qid,
             "n_idx": 1,
             "response_text": response_text,
             "created_at": datetime.utcnow().isoformat() + "Z",
+            "assets": assets,
             "gen": {
                 "provider": provider,
                 "model": model,
