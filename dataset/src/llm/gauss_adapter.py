@@ -16,6 +16,50 @@ class GaussAdapter(BaseLLMAdapter):
             return endpoint
         return f"{endpoint}/openapi/chat/v1/messages"
 
+    def _resolve_base(self, endpoint: str) -> str:
+        endpoint = endpoint.rstrip("/")
+        marker = "/openapi/chat/v1/messages"
+        if marker in endpoint:
+            return endpoint.split(marker)[0]
+        return endpoint
+
+    def list_models(self, all_models: bool = True) -> dict:
+        endpoint = os.getenv("GAUSS_ENDPOINT") or self.spec.endpoint
+        client_key = os.getenv("GAUSS_CLIENT_KEY")
+        token = os.getenv("GAUSS_OPENAPI_TOKEN")
+        email = os.getenv("GAUSS_USER_EMAIL")
+
+        if not endpoint:
+            return {"error": "GAUSS_ENDPOINT not set"}
+        if not client_key:
+            return {"error": "GAUSS_CLIENT_KEY not set"}
+        if not token:
+            return {"error": "GAUSS_OPENAPI_TOKEN not set"}
+
+        base = self._resolve_base(endpoint)
+        path = "all-models" if all_models else "models"
+        url = f"{base}/openapi/chat/v1/{path}"
+        headers = {
+            "x-generative-ai-client": client_key,
+            "x-openapi-token": token,
+        }
+        if email:
+            headers["x-generative-ai-user-email"] = email
+
+        req = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                raw = resp.read().decode("utf-8")
+        except Exception as exc:
+            return {"error": str(exc)}
+
+        try:
+            payload = json.loads(raw)
+        except Exception as exc:
+            return {"error": f"gauss_models_parse_error: {exc}", "raw": raw}
+
+        return {"models": payload}
+
     def generate(
         self,
         prompt: str,

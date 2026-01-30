@@ -19,6 +19,7 @@ from pipeline.stage2_responses import run_stage2
 from pipeline.stage3_a2ui import run_stage3
 from pipeline.stage4_render import run_stage4
 from pipeline.storage import JsonlWriter, get_run_paths, iter_jsonl
+from llm.base import ModelSpec
 from llm.factory import build_adapter, load_model_specs
 from utils.config import load_yaml
 from utils.logging import setup_logger
@@ -104,6 +105,7 @@ def main() -> None:
     parser.add_argument("--benchmark_models", nargs="*", default=None, help="Benchmark models by name")
     parser.add_argument("--run_id", type=str, default=None, help="Override run id")
     parser.add_argument("--print_limits", action="store_true", help="Print configured model limits")
+    parser.add_argument("--list_models", action="store_true", help="List models for a provider")
     args = parser.parse_args()
 
     root = ROOT
@@ -133,6 +135,24 @@ def main() -> None:
 
     if args.print_limits:
         _print_limits(specs)
+        return
+
+    if args.list_models:
+        spec = model_map.get(args.model) if args.model else None
+        if spec is None:
+            spec = next((item for item in specs if item.provider.lower() == "gauss"), None)
+        if spec is None:
+            spec = ModelSpec(
+                name="gauss_list",
+                provider="gauss",
+                model="GAUSS_MODEL_ID",
+                supports_json_mode=False,
+            )
+        adapter = build_adapter(spec)
+        if not hasattr(adapter, "list_models"):
+            raise SystemExit(f"Provider {spec.provider} does not support list_models")
+        payload = adapter.list_models()
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
 
     if args.benchmark_models is not None and len(args.benchmark_models) > 0:
