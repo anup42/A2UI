@@ -33,37 +33,37 @@
     <script type="importmap">
       {
         "imports": {
-          "lit": "../../../../renderer/a2ui_lit/vendor/lit/index.js",
-          "lit/": "../../../../renderer/a2ui_lit/vendor/lit/",
-          "lit-html": "../../../../renderer/a2ui_lit/vendor/lit-html/lit-html.js",
-          "lit-html/": "../../../../renderer/a2ui_lit/vendor/lit-html/",
-          "lit-element/": "../../../../renderer/a2ui_lit/vendor/lit-element/",
-          "@lit/context": "../../../../renderer/a2ui_lit/vendor/@lit/context/index.js",
-          "@lit/context/": "../../../../renderer/a2ui_lit/vendor/@lit/context/",
-          "@lit/reactive-element": "../../../../renderer/a2ui_lit/vendor/@lit/reactive-element/reactive-element.js",
-          "@lit/reactive-element/": "../../../../renderer/a2ui_lit/vendor/@lit/reactive-element/",
-          "@lit-labs/signals": "../../../../renderer/a2ui_lit/vendor/@lit-labs/signals/index.js",
-          "@lit-labs/signals/": "../../../../renderer/a2ui_lit/vendor/@lit-labs/signals/",
-          "signal-utils": "../../../../renderer/a2ui_lit/vendor/signal-utils/dist/index.ts.js",
-          "signal-utils/array": "../../../../renderer/a2ui_lit/vendor/signal-utils/dist/array.ts.js",
-          "signal-utils/map": "../../../../renderer/a2ui_lit/vendor/signal-utils/dist/map.ts.js",
-          "signal-utils/object": "../../../../renderer/a2ui_lit/vendor/signal-utils/dist/object.ts.js",
-          "signal-utils/set": "../../../../renderer/a2ui_lit/vendor/signal-utils/dist/set.ts.js",
-          "signal-utils/subtle/microtask-effect": "../../../../renderer/a2ui_lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
-          "signal-polyfill": "../../../../renderer/a2ui_lit/vendor/signal-polyfill/dist/index.js",
-          "signal-polyfill/": "../../../../renderer/a2ui_lit/vendor/signal-polyfill/dist/",
-          "markdown-it": "../../../../renderer/a2ui_lit/vendor/markdown-it/index.mjs",
-          "markdown-it/": "../../../../renderer/a2ui_lit/vendor/markdown-it/",
-          "linkify-it": "../../../../renderer/a2ui_lit/vendor/linkify-it/index.mjs",
-          "linkify-it/": "../../../../renderer/a2ui_lit/vendor/linkify-it/",
-          "mdurl": "../../../../renderer/a2ui_lit/vendor/mdurl/index.mjs",
-          "mdurl/": "../../../../renderer/a2ui_lit/vendor/mdurl/",
-          "uc.micro": "../../../../renderer/a2ui_lit/vendor/uc.micro/index.mjs",
-          "uc.micro/": "../../../../renderer/a2ui_lit/vendor/uc.micro/",
-          "punycode.js": "../../../../renderer/a2ui_lit/vendor/punycode.js/punycode.es6.js",
-          "punycode.js/": "../../../../renderer/a2ui_lit/vendor/punycode.js/",
-          "entities": "../../../../renderer/a2ui_lit/vendor/entities/lib/esm/index.js",
-          "entities/": "../../../../renderer/a2ui_lit/vendor/entities/lib/esm/"
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
         }
       }
     </script>
@@ -78,7 +78,7 @@
     </script>
     <script type="module">
       const container = document.getElementById("surfaces");
-      const assetBase = new URL("../../../../renderer/a2ui_lit/", window.location.href).href;
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
 
       function setStatus(message) {
         container.innerHTML = "";
@@ -240,3 +240,4 @@
     </script>
   </body>
 </html>
+

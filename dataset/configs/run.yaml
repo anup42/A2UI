@@ -30,7 +30,7 @@ run:
   max_attempts: 6
 render:
   output_dir: rendered
-  assets_dir: renderer/a2ui_lit
+  assets_dir: renderer/lit
   render_images: true
   image_format: png
   use_http_server: true
@@ -49,3 +49,4 @@ evaluation:
     lint_score: 2.0
     dup_rate: -1.0
     cost_usd: -0.5
+

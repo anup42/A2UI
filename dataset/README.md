@@ -80,7 +80,7 @@ python src/main.py --stage 4 --model openai_gpt4o
 Outputs are written to `data/runs/<run_id>/`.
 
 Stage 4 renders A2UI JSON to HTML + PNG using the Lit renderer assets copied
-from `renderers/lit/dist` into `renderer/a2ui_lit`. Image capture uses Playwright
+from `renderers/lit/dist` into `renderer/lit`. Image capture uses Playwright
 if installed; if not, HTML is still generated and rendering errors are logged.
 
 ## Print configured limits
@@ -104,3 +104,4 @@ This runs a fixed subset of queries against each model and stores per?model aggr
 - A2UI schema is in `schema/a2ui.schema.json`.
 - `jsonschema` is optional; if missing, strict validation is marked false with a warning.
 - TOON is encoded in `src/pipeline/toon_convert.py` and can be swapped for a custom spec.
+

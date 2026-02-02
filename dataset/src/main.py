@@ -330,7 +330,7 @@ def main() -> None:
     if args.stage == 4:
         render_cfg = run_cfg.get("render", {})
         output_dir = run_paths.run_dir / render_cfg.get("output_dir", "rendered")
-        assets_dir = root / render_cfg.get("assets_dir", "renderer/a2ui_lit")
+        assets_dir = root / render_cfg.get("assets_dir", "renderer/lit")
         viewport = render_cfg.get("viewport", {"width": 1280, "height": 720})
         run_stage4(
             a2ui_path=run_paths.a2ui_path,
@@ -354,3 +354,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
