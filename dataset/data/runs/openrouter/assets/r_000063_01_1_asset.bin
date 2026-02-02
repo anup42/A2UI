@@ -1,0 +1,63 @@
+
+<html><head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>Armenia Network Information Centre</title>
+  </head>
+  <body><center>
+    <table border=0>
+	<tr><td colspan=2 align=center>
+	  <br><b>
+	  <font size=+2>Armenia Network Information Centre</font><br>
+	  <font size=-1>AM NIC is managed by <a href="http://www.isoc.am/">Internet Society of Armenia</a><br>
+	  Member of <a href="http://www.ripe.net">Reseaux IP Europeens</a>, <a href="http://www.centr.org">Council of European National TLD Registries</a>
+	  <br><br>
+	  It is 01:08 on Saturday, 31 January 2026 in Yerevan, Armenia<br>
+There are <u>.am - 46906</u> and <u>.հայ - 834</u> records in domain database<br><br>
+	</td></tr><tr>
+	<td valign=top><font size=-1>
+	  <h4>domain names</h4>
+	  <ul>
+	    <li> Application form - <a href="/register/">contact registrar</a>
+	    <br>
+	    <li> Modification form - <a href="/modify/">contact registrar</a>
+	    <br>
+	    <li> Transfer password <a href="/password/">change</a>, <a href="/password/reset/">reset</a>
+	    <br>
+	    <li> Generate/check domain <a href="/transfer/code/">transfer code</a>
+	  </ul>
+	</td>
+	<td valign=top width=50%><font size=-1>
+	  <h4>information base</h4>
+	  <ul>
+	    <li> <a href="/whois/">AM NIC Web Whois</a>
+	    <li> <a href="/policy/en/Policy_EN.pdf">AM NIC Policy (EN)</a>
+		 <a href="/policy/am/Policy_AM.pdf">[AM]</a>
+	    <li> <a href="/faq/en/">AM NIC FAQ (EN)</a>
+		 <a href="/faq/am">[AM]</a>
+	    <li> <a href="/directory/registrars/">List of Registrars</a>
+	    <li> <a href="https://amnic.net/statistics/">Registration statistics by countries</a>
+	  </ul>
+	</td>
+	</tr>
+	<tr><td colspan=2 align=center>
+	  <hr>
+	</td></tr>
+	<tr><td align=center>
+	  <br><font size=-1><a href="https://evisa.mfa.am/"><b>You may apply for e-visa to Armenia here!</b></a></font>
+	<td align=center>
+	  <br><font size=1>
+	    Your IP address is 2401:4900:1cb8:df6:9100:a7ae:e33:81f0<br>	    <a href="/GeoTrustSmartSeal.p">Verify site certificate</a><br>
+	    <a href="http://ipv6-test.com/validate.php?url=www.amnic.net">IPv6 validate</a><br>
+	  </font>
+	</td>
+	</td></tr>
+	<tr><td colspan=2 align=center>
+	  <br>
+	  <hr width=50%>
+	  <font size=1>Address: Khachatryan 17-2, Yerevan 12, Armenia<br>E-mail: <<a href="mailto:hostmaster@amnic.net">hostmaster@amnic.net</a>><br></font><br>
+	</td></tr>
+    </table>
+  </body>
+</html>
+

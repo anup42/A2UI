@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="no-js ie9 oldie" lang="en"> <![endif]-->
+<!--[if (gt IE 9)]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+<head>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src=https://www.googletagmanager.com/gtag/js?id=G-ZZ3YHMBCMQ></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-ZZ3YHMBCMQ');
+    </script>
+
+    <!--
+        California State Template
+        Version 5.0
+
+        Based on Twitter Bootstrap
+    -->
+    <meta charset="utf-8">
+    <title>CalGold | CalGold v2 - Permit Assistance Tool</title>
+    <meta name="Author" content="State of California" />
+    <meta name="Description" content="State of California" />
+    <meta name="Keywords" content="California, government" />
+    <!-- Use highest compatibility mode -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <!-- for Blackberry, AvantGo -->
+    <meta name="MobileOptimized" content="320">
+    <!-- for Windows mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <!-- Google Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
+    <!-- Do Not Bundle CA css, WOFF files will not download -->
+    <!-- Styles.Render("~/Content/stateTemplateCss") -->
+    <link href="/Content/StateTemplate/css/cagov.core.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/StateTemplate/css/colorscheme-oceanside.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/calgold/css/calgold._layout.min.css" rel="stylesheet" type="text/css" />
+
+    <script src="/Content/StateTemplate/js/libs/jquery-3.2.1.min.js"></script>
+<script src="/Content/StateTemplate/js/libs/jquery-migrate-3.0.1.min.js"></script>
+<script src="/Content/StateTemplate/js/libs/modernizr-2.0.6.min.js"></script>
+<script src="/Content/StateTemplate/js/libs/modernizr-extra.min.js"></script>
+
+    
+
+    <!-- <script src="~/Scripts/ckeditor_standard/ckeditor.js" type="text/javascript"></script> -->
+    <!-- <script src="~/Scripts/ckeditor_full/ckeditor.js" type="text/javascript"></script> -->
+    <script src="/Scripts/ckeditor_basic/ckeditor.js" type="text/javascript"></script>
+
+    <!-- selectivizr.com, emulates CSS3 pseudo-classes and attribute selectors in Internet Explorer 6-8 -->
+    <!--[if (lt IE 9) & (!IEMobile)]>
+    <script src="~/Content/StateTemplate/js/libs/selectivizr-min.js"></script>
+    <![endif]-->
+    <!-- For iPad 3-->
+    <link rel="apple-touch-icon" sizes="144x144" href="/Content/StateTemplate/images/template2014/apple-touch-icon-144x144.png">
+    <!-- For iPhone 4 -->
+    <link rel="apple-touch-icon" sizes="114x114" href="/Content/StateTemplate/images/template2014/apple-touch-icon-114x114.png">
+    <!-- For iPad 1-->
+    <link rel="apple-touch-icon" sizes="72x72" href="/Content/StateTemplate/images/template2014/apple-touch-icon-72x72.png">
+    <!-- For iPhone 3G, iPod Touch and Android -->
+    <link rel="apple-touch-icon" href="/Content/StateTemplate/images/template2014/apple-touch-icon-57x57.png">
+    <!-- For Nokia -->
+    <link rel="shortcut icon" href="/Content/StateTemplate/images/template2014/apple-touch-icon-57x57.png">
+    <!-- For everything else -->
+    <link rel="shortcut icon" href="/favicon.ico">
+    <!-- Activate ClearType for Mobile IE -->
+    <!--[if IE]>
+    <meta http-equiv="cleartype" content="on">
+    <![endif]-->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="~/Content/StateTemplate/js/libs/html5shiv.min.js"></script>
+      <script src="~/Content/StateTemplate/js/libs/respond.min.js"></script>
+    <![endif]-->
+    <!-- END State Template -->
+
+</head>
+<body>
+    <!--START State Template Body-->
+    <header role="banner" id="header" class="global-header fixed">
+        <div id="skip-to-content"><a href="#main-content">Skip to Main Content</a></div>
+        <!-- Location Bar -->
+        <div class="location-settings section section-standout collapse collapsed " id="locationSettings">
+            <div class="container p-y">
+                <button type="button" class="close" data-toggle="collapse" data-target="#locationSettings" aria-expanded="false" aria-controls="locationSettings" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="form-group form-inline">
+                    <label for="locationZipCode">Saving your location allows us to provide you with more relevant information.</label>
+                    <input type="input" class="form-control" id="locationZipCode" placeholder="Zip Code">
+                    <button type="button" class="btn btn-primary">Set Location</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utility Header -->
+        <div class="utility-header">
+            <div class="container">
+                <div class="group">
+                    <div class="half">
+
+                        <ul class="utility-links social-media-links">
+                            <li><div class="header-cagov-logo"><a href="/"><img src="/Content/stateTemplate/images/Ca-Gov-Logo-Gold.svg" alt="CA.gov" /></a></div></li>
+                            <li><a href="/"><span class="ca-gov-icon-home" aria-hidden="true"></span><span class="sr-only">Home</span></a></li>
+                            <li><a href="https://www.facebook.com/CAGOBiz/ " class="ca-gov-icon-facebook" title="Share via Facebook" target="_blank"><span class="sr-only">Facebook</span></a></li>
+                            <li><a href="https://twitter.com/CAGoBiz?ref_src=twsrc%5Etfw" class="ca-gov-icon-twitter" title="Share via Twitter" target="_blank"><span class="sr-only">Twitter</span></a></li>
+                            <li><a href="https://www.linkedin.com/company/governor-s-office-of-business-and-economic-development"class="ca-gov-icon-linkedin" title="Share via LinkedIn" target="_blank"><span class="sr-only">LinkedIn</span></a></li>
+                            
+                            
+                        </ul>
+                    </div>
+                    <div class="half settings-links">
+                        <ul class="utility-links ">
+                            <li><a href="/Home/Contact"></a></li>
+                            <li><a role="button" data-toggle="collapse" href="#siteSettings" aria-expanded="false" aria-controls="siteSettings"><span class="ca-gov-icon-gear" aria-hidden="true"></span> Settings</a></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--  Settings Bar -->
+        <div class="site-settings section section-standout collapse collapsed" role="alert" id="siteSettings">
+            <div class="container  p-y">
+                <button type="button" class="close" data-toggle="collapse" data-target="#siteSettings" aria-expanded="false" aria-controls="siteSettings" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                <div class="btn-group btn-group-justified-sm" role="group" aria-label="contrastMode">
+                    <div class="btn-group"><button type="button" class="btn btn-standout disableHighContrastMode">Default</button></div>
+                    <div class="btn-group"><button type="button" class="btn btn-standout enableHighContrastMode">High Contrast</button></div>
+                </div>
+
+                <div class="btn-group" role="group" aria-label="textSizeMode">
+                    <div class="btn-group"><button type="button" class="btn btn-standout resetTextSize">Reset</button></div>
+                    <div class="btn-group"><button type="button" class="btn btn-standout increaseTextSize"><span class="hidden-xs">Increase Font Size</span><span class="visible-xs">Font <small class="ca-gov-icon-plus-line"></small></span></button></div>
+                    <div class="btn-group"><button type="button" class="btn btn-standout decreaseTextSize"><span class="hidden-xs">Decrease Font Size</span><span class="visible-xs">Font <small class="ca-gov-icon-minus-line"></small></span></button></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branding -->
+        <div class="branding">
+            <div class="header-organization-banner"><a href="/"><img src="/Content/CalGold/images/cal-gold555x167-new.png" alt="Organization Title" /></a></div>
+        </div>
+
+
+        <!-- mobile navigation controls -->
+        <div class="mobile-controls">
+            <span class="mobile-control-group mobile-header-icons">
+                <!-- Add more mobile controls here. These will be on the right side of the mobile page header section -->
+            </span>
+            <div class="mobile-control-group main-nav-icons pull-right">
+                <button class="mobile-control toggle-menu pull-right" aria-expanded="false" aria-controls="navigation"><span class="ca-gov-icon-menu" aria-hidden="true"></span><span class="sr-only">Menu</span></button>
+                <button class="mobile-control toggle-search">
+                    <span class="ca-gov-icon-search" aria-hidden="true"></span><span class="sr-only">Search</span>
+                </button>
+            </div>
+        </div>
+
+        <!--  Navigation -->
+        <div class="navigation-search">
+            <div id="head-search" class="search-container">
+                <!-- Google Custom Search -->
+                
+                
+            </div>
+
+            <!-- Include Navigation -->
+            <!-- Top Level Navigation Only -->
+            <nav id="navigation" class="main-navigation megadropdown auto-highlight">
+                <ul id="nav_list" class="top-level-nav">
+                    <li class="home-link nav-item">
+                        <a href="/" class="first-level-link"><span id="nav_home_container" class="ca-gov-icon-home" aria-hidden="true"></span>Home</a>
+                    </li>
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+
+
+                    
+
+                    
+                    <li class="nav-item">
+                        <a href="https://gobiz.zendesk.com/hc/en-us/requests/new" class="first-level-link" target="_blank"><span class="ca-gov-icon-lightbulb" aria-hidden="true"></span>Contact Us</a>
+                    </li>
+                    <li class="nav-item">
+                        
+
+    <a href="/Account/Login" Class="first-level-link"><span Class="ca-gov-icon-download" aria-hidden="true"></span>Log In</a>
+
+                        
+    <ul class="nav navbar-nav navbar-right">
+        
+        <li><a href="/Account/Login" id="loginLink">Log in</a></li>
+    </ul>
+
+
+                    </li>
+                </ul>
+                    </nav>
+                </div>
+            </header>
+
+            <!-- before _Layout->main-content -->
+            <div id="main-content" class="main-content">
+                <!-- within _Layout->main-content -->
+
+                
+
+
+                
+
+
+                <p>
+<div style="text-align:center;color:#FF0000;font-size:x-large;font-weight:bold;">This tool has been newly launched, but still under construction. Generated information may still be incomplete as we continue to upload permitting information.</div>                        <br />
+</p>
+
+
+                <!-- Before calling renderBody() -->
+                
+
+
+<link href="/Content/calgold/css/calgold.home-index.min.css" rel="stylesheet" type="text/css" />
+<link href="/Content/calgold.jquery.override.home-index.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="/Content/jquery-ui-1.12.1/jquery-ui.css" type="text/css" />
+<script src="/Content/jquery-ui-1.12.1/jquery-ui.js"></script>
+<script src="/Content/mousetrap.min.js"></script>
+<script src="/Content/calgold/js/calgold.home-index.min.js"></script>
+
+<!-- change id= to classes in order to update all similar ids -->
+<!-- https://stackoverflow.com/questions/4035570/how-can-i-apply-jquery-on-all-elements-with-same-id-attribute -->
+<script type='text/javascript'>
+    function guhl(i) {
+        var id = i;
+        var url = "/Home/GUHL";
+        $.post(url, { id: id }, function (result) {
+            //$('#' + id).blur();
+            $('#' + id).text(result.msg);
+            //alert(result.success);
+            if (result.success) {
+                window.open(result.msg, "_blank");
+            }
+            });
+}
+</script>
+
+<div class="cg-search-dropdowns-container">
+    <div class="cg-search-dropdowns-container-title">CalGold v2 - Permit Assistance Tool</div>
+
+    <h4>
+        This website assists you in finding appropriate permit information for your business.
+        It also provides contact information for the various agencies that administer & issue these permits.
+        Select your primary business location and business type below:
+    </h4>
+
+    <br />
+
+    <div class="cg-search-dropdowns">
+
+<form action="/" class="form-horizontal" method="post" role="form"><input name="__RequestVerificationToken" type="hidden" value="QwcDAK5ylMD-CE1UCXYu5YLIbEHC8DuabuSmkGlZlOn1b7_kY-dRIsaP_SJqA9RtgLE-pp01-wvr6UsMLNO014wtTjgbcJOsb21fLLqLiQ01" />            <div Class="form-group">
+                <div class="cg-search-citycounty-label">
+                    <label class="control-label col-md-2" for="Select_a_City">Select a City</label>
+                </div>
+
+                <div class="col-md-10 cg-search-citycounty-dropdown">
+                    <select id="CityCounty" name="CityCounty"><option value="">Select a City &amp; County</option>
+<option value="">Acampo - San Joaquin County</option>
+<option value="">Acton - Los Angeles County</option>
+<option value="">Adelanto - San Bernardino County</option>
+<option value="">Adin - Modoc County</option>
+<option value="">Agoura Hills - Los Angeles County</option>
+<option value="">Aguanga - Riverside County</option>
+<option value="">Ahwahnee - Madera County</option>
+<option value="">Alameda - Alameda County</option>
+<option value="">Alamo - Contra Costa County</option>
+<option value="">Albany - Alameda County</option>
+<option value="">Albion - Mendocino County</option>
+<option value="">Alderpoint - Humboldt County</option>
+<option value="">Alhambra - Los Angeles County</option>
+<option value="">Aliso Viejo - Orange County</option>
+<option value="">Alleghany - Sierra County</option>
+<option value="">Alpine - San Diego County</option>
+<option value="">Altadena - Los Angeles County</option>
+<option value="">Alturas - Modoc County</option>
+<option value="">American Canyon - Napa County</option>
+<option value="">Anaheim - Orange County</option>
+<option value="">Anderson - Shasta County</option>
+<option value="">Angels Camp - Calaveras County</option>
+<option value="">Angelus Oaks - San Bernardino County</option>
+<option value="">Angwin - Napa County</option>
+<option value="">Annapolis - Sonoma County</option>
+<option value="">Antelope - Sacramento County</option>
+<option value="">Antioch - Contra Costa County</option>
+<option value="">Anza - Riverside County</option>
+<option value="">Apple Valley - San Bernardino County</option>
+<option value="">Applegate - Placer County</option>
+<option value="">Aptos - Santa Cruz County</option>
+<option value="">Arbuckle - Colusa County</option>
+<option value="">Arcadia - Los Angeles County</option>
+<option value="">Arcata - Humboldt County</option>
+<option value="">Armona - Kings County</option>
+<option value="">Arnold - Calaveras County</option>
+<option value="">Aromas - Monterey County</option>
+<option value="">Arroyo Grande - San Luis Obispo County</option>
+<option value="">Artesia - Los Angeles County</option>
+<option value="">Arvin - Kern County</option>
+<option value="">Atascadero - San Luis Obispo County</option>
+<option value="">Atherton - San Mateo County</option>
+<option value="">Atwater - Merced County</option>
+<option value="">Auberry - Fresno County</option>
+<option value="">Auburn - Placer County</option>
+<option value="">Avenal - Kings County</option>
+<option value="">Azusa - Los Angeles County</option>
+<option value="">Badger - Tulare County</option>
+<option value="">Baker - San Bernardino County</option>
+<option value="">Bakersfield - Kern County</option>
+<option value="">Baldwin Park - Los Angeles County</option>
+<option value="">Ballico - Merced County</option>
+<option value="">Bangor - Butte County</option>
+<option value="">Banning - Riverside County</option>
+<option value="">Barstow - San Bernardino County</option>
+<option value="">Bass Lake - Madera County</option>
+<option value="">Bayside - Humboldt County</option>
+<option value="">Beale AFB - Yuba County</option>
+<option value="">Beaumont - Riverside County</option>
+<option value="">Beckwourth - Plumas County</option>
+<option value="">Bell Gardens - Los Angeles County</option>
+<option value="">Bella Vista - Shasta County</option>
+<option value="">Bellflower - Los Angeles County</option>
+<option value="">Belmont - San Mateo County</option>
+<option value="">Belvedere Tiburon - Marin County</option>
+<option value="">Ben Lomond - Santa Cruz County</option>
+<option value="">Benicia - Solano County</option>
+<option value="">Benton - Mono County</option>
+<option value="">Berkeley - Alameda County</option>
+<option value="">Berry Creek - Butte County</option>
+<option value="">Beverly Hills - Los Angeles County</option>
+<option value="">Big Bar - Trinity County</option>
+<option value="">Big Bear City - San Bernardino County</option>
+<option value="">Big Bear Lake - San Bernardino County</option>
+<option value="">Big Pine - Inyo County</option>
+<option value="">Big Sur - Monterey County</option>
+<option value="">Biggs - Butte County</option>
+<option value="">Birds Landing - Solano County</option>
+<option value="">Bishop - Inyo County</option>
+<option value="">Blairsden Graeagle - Plumas County</option>
+<option value="">Blocksburg - Humboldt County</option>
+<option value="">Bloomington - San Bernardino County</option>
+<option value="">Blue Lake - Humboldt County</option>
+<option value="">Blythe - Riverside County</option>
+<option value="">Bodega - Sonoma County</option>
+<option value="">Bodega Bay - Sonoma County</option>
+<option value="">Bodfish - Kern County</option>
+<option value="">Bolinas - Marin County</option>
+<option value="">Bonita - San Diego County</option>
+<option value="">Bonsall - San Diego County</option>
+<option value="">Boonville - Mendocino County</option>
+<option value="">Boron - Kern County</option>
+<option value="">Borrego Springs - San Diego County</option>
+<option value="">Boulder Creek - Santa Cruz County</option>
+<option value="">Boulevard - San Diego County</option>
+<option value="">Bradley - Monterey County</option>
+<option value="">Branscomb - Mendocino County</option>
+<option value="">Brawley - Imperial County</option>
+<option value="">Brea - Orange County</option>
+<option value="">Brentwood - Contra Costa County</option>
+<option value="">Bridgeport - Mono County</option>
+<option value="">Bridgeville - Humboldt County</option>
+<option value="">Brisbane - San Mateo County</option>
+<option value="">Brooks - Yolo County</option>
+<option value="">Browns Valley - Yuba County</option>
+<option value="">Brownsville - Yuba County</option>
+<option value="">Bryn Mawr - San Bernardino County</option>
+<option value="">Buellton - Santa Barbara County</option>
+<option value="">Buena Park - Orange County</option>
+<option value="">Burbank - Los Angeles County</option>
+<option value="">Burlingame - San Mateo County</option>
+<option value="">Burney - Shasta County</option>
+<option value="">Burnt Ranch - Trinity County</option>
+<option value="">Butte City - Glenn County</option>
+<option value="">Buttonwillow - Kern County</option>
+<option value="">Byron - Contra Costa County</option>
+<option value="">Cabazon - Riverside County</option>
+<option value="">Calabasas - Los Angeles County</option>
+<option value="">Calexico - Imperial County</option>
+<option value="">Caliente - Kern County</option>
+<option value="">California City - Kern County</option>
+<option value="">California Hot Springs - Tulare County</option>
+<option value="">Calimesa - Riverside County</option>
+<option value="">Calipatria - Imperial County</option>
+<option value="">Calistoga - Napa County</option>
+<option value="">Callahan - Siskiyou County</option>
+<option value="">Calpine - Sierra County</option>
+<option value="">Camarillo - Ventura County</option>
+<option value="">Cambria - San Luis Obispo County</option>
+<option value="">Camino - El Dorado County</option>
+<option value="">Campbell - Santa Clara County</option>
+<option value="">Campo - San Diego County</option>
+<option value="">Camptonville - Yuba County</option>
+<option value="">Canby - Modoc County</option>
+<option value="">Canoga Park - Los Angeles County</option>
+<option value="">Cantua Creek - Fresno County</option>
+<option value="">Canyon Country - Los Angeles County</option>
+<option value="">Canyon Dam - Plumas County</option>
+<option value="">Capay - Yolo County</option>
+<option value="">Capistrano Beach - Orange County</option>
+<option value="">Capitola - Santa Cruz County</option>
+<option value="">Cardiff By The Sea - San Diego County</option>
+<option value="">Carlotta - Humboldt County</option>
+<option value="">Carlsbad - San Diego County</option>
+<option value="">Carmel - Monterey County</option>
+<option value="">Carmel Valley - Monterey County</option>
+<option value="">Carmichael - Sacramento County</option>
+<option value="">Carpinteria - Santa Barbara County</option>
+<option value="">Carson - Los Angeles County</option>
+<option value="">Caruthers - Fresno County</option>
+<option value="">Caspar - Mendocino County</option>
+<option value="">Cassel - Shasta County</option>
+<option value="">Castaic - Los Angeles County</option>
+<option value="">Castella - Shasta County</option>
+<option value="">Castro Valley - Alameda County</option>
+<option value="">Castroville - Monterey County</option>
+<option value="">Cathedral City - Riverside County</option>
+<option value="">Catheys Valley - Mariposa County</option>
+<option value="">Cayucos - San Luis Obispo County</option>
+<option value="">Cazadero - Sonoma County</option>
+<option value="">Cedarville - Modoc County</option>
+<option value="">Ceres - Stanislaus County</option>
+<option value="">Cerritos - Los Angeles County</option>
+<option value="">Challenge - Yuba County</option>
+<option value="">Chatsworth - Los Angeles County</option>
+<option value="">Chester - Plumas County</option>
+<option value="">Chico - Butte County</option>
+<option value="">Chilcoot - Plumas County</option>
+<option value="">Chino - San Bernardino County</option>
+<option value="">Chino Hills - San Bernardino County</option>
+<option value="">Chowchilla - Madera County</option>
+<option value="">Chualar - Monterey County</option>
+<option value="">Chula Vista - San Diego County</option>
+<option value="">Cima - San Bernardino County</option>
+<option value="">Citrus Heights - Sacramento County</option>
+<option value="">Claremont - Los Angeles County</option>
+<option value="">Clarksburg - Yolo County</option>
+<option value="">Clayton - Contra Costa County</option>
+<option value="">Clearlake - Lake County</option>
+<option value="">Clearlake Oaks - Lake County</option>
+<option value="">Clipper Mills - Butte County</option>
+<option value="">Cloverdale - Sonoma County</option>
+<option value="">Clovis - Fresno County</option>
+<option value="">Coachella - Riverside County</option>
+<option value="">Coalinga - Fresno County</option>
+<option value="">Coarsegold - Madera County</option>
+<option value="">Coleville - Mono County</option>
+<option value="">Colfax - Placer County</option>
+<option value="">Colton - San Bernardino County</option>
+<option value="">Columbia - Tuolumne County</option>
+<option value="">Colusa - Colusa County</option>
+<option value="">Comptche - Mendocino County</option>
+<option value="">Compton - Los Angeles County</option>
+<option value="">Concord - Contra Costa County</option>
+<option value="">Cool - El Dorado County</option>
+<option value="">Copperopolis - Calaveras County</option>
+<option value="">Corcoran - Kings County</option>
+<option value="">Corning - Tehama County</option>
+<option value="">Corona - Riverside County</option>
+<option value="">Corona Del Mar - Orange County</option>
+<option value="">Coronado - San Diego County</option>
+<option value="">Corte Madera - Marin County</option>
+<option value="">Costa Mesa - Orange County</option>
+<option value="">Cotati - Sonoma County</option>
+<option value="">Cottonwood - Tehama County</option>
+<option value="">Coulterville - Mariposa County</option>
+<option value="">Courtland - Sacramento County</option>
+<option value="">Covelo - Mendocino County</option>
+<option value="">Covina - Los Angeles County</option>
+<option value="">Crescent City - Del Norte County</option>
+<option value="">Crescent Mills - Plumas County</option>
+<option value="">Creston - San Luis Obispo County</option>
+<option value="">Crockett - Contra Costa County</option>
+<option value="">Crows Landing - Stanislaus County</option>
+<option value="">Culver City - Los Angeles County</option>
+<option value="">Cupertino - Santa Clara County</option>
+<option value="">Cutler - Tulare County</option>
+<option value="">Cypress - Orange County</option>
+<option value="">Daggett - San Bernardino County</option>
+<option value="">Daly City - San Mateo County</option>
+<option value="">Dana Point - Orange County</option>
+<option value="">Danville - Contra Costa County</option>
+<option value="">Davenport - Santa Cruz County</option>
+<option value="">Davis - Yolo County</option>
+<option value="">Davis Creek - Modoc County</option>
+<option value="">Death Valley - Inyo County</option>
+<option value="">Deer Park - Napa County</option>
+<option value="">Del Mar - San Diego County</option>
+<option value="">Del Rey - Fresno County</option>
+<option value="">Delano - Kern County</option>
+<option value="">Delhi - Merced County</option>
+<option value="">Denair - Stanislaus County</option>
+<option value="">Descanso - San Diego County</option>
+<option value="">Desert Hot Springs - Riverside County</option>
+<option value="">Diamond Bar - Los Angeles County</option>
+<option value="">Diamond Springs - El Dorado County</option>
+<option value="">Dinuba - Tulare County</option>
+<option value="">Discovery Bay - Contra Costa County</option>
+<option value="">Dixon - Solano County</option>
+<option value="">Dobbins - Yuba County</option>
+<option value="">Dorris - Siskiyou County</option>
+<option value="">Dos Palos - Merced County</option>
+<option value="">Dos Rios - Mendocino County</option>
+<option value="">Douglas City - Trinity County</option>
+<option value="">Downey - Los Angeles County</option>
+<option value="">Doyle - Lassen County</option>
+<option value="">Duarte - Los Angeles County</option>
+<option value="">Dublin - Alameda County</option>
+<option value="">Dulzura - San Diego County</option>
+<option value="">Dunlap - Fresno County</option>
+<option value="">Dunsmuir - Siskiyou County</option>
+<option value="">Durham - Butte County</option>
+<option value="">Earlimart - Tulare County</option>
+<option value="">Earp - San Bernardino County</option>
+<option value="">Eastvale - Riverside County</option>
+<option value="">Edwards - Kern County</option>
+<option value="">El Cajon - San Diego County</option>
+<option value="">El Centro - Imperial County</option>
+<option value="">El Cerrito - Contra Costa County</option>
+<option value="">El Dorado - El Dorado County</option>
+<option value="">El Dorado Hills - El Dorado County</option>
+<option value="">El Monte - Los Angeles County</option>
+<option value="">El Nido - Merced County</option>
+<option value="">El Segundo - Los Angeles County</option>
+<option value="">El Sobrante - Contra Costa County</option>
+<option value="">Elk - Mendocino County</option>
+<option value="">Elk Creek - Glenn County</option>
+<option value="">Elk Grove - Sacramento County</option>
+<option value="">Elverta - Sacramento County</option>
+<option value="">Emeryville - Alameda County</option>
+<option value="">Encinitas - San Diego County</option>
+<option value="">Encino - Los Angeles County</option>
+<option value="">Escalon - San Joaquin County</option>
+<option value="">Escondido - San Diego County</option>
+<option value="">Esparto - Yolo County</option>
+<option value="">Essex - San Bernardino County</option>
+<option value="">Etna - Siskiyou County</option>
+<option value="">Eureka - Humboldt County</option>
+<option value="">Exeter - Tulare County</option>
+<option value="">Fair Oaks - Sacramento County</option>
+<option value="">Fairfax - Marin County</option>
+<option value="">Fairfield - Solano County</option>
+<option value="">Fall River Mills - Shasta County</option>
+<option value="">Fallbrook - San Diego County</option>
+<option value="">Farmersville - Tulare County</option>
+<option value="">Farmington - San Joaquin County</option>
+<option value="">Fellows - Kern County</option>
+<option value="">Felton - Santa Cruz County</option>
+<option value="">Ferndale - Humboldt County</option>
+<option value="">Fiddletown - Amador County</option>
+<option value="">Fillmore - Ventura County</option>
+<option value="">Firebaugh - Fresno County</option>
+<option value="">Fish Camp - Mariposa County</option>
+<option value="">Flournoy - Tehama County</option>
+<option value="">Folsom - Sacramento County</option>
+<option value="">Fontana - San Bernardino County</option>
+<option value="">Foothill Ranch - Orange County</option>
+<option value="">Forbestown - Butte County</option>
+<option value="">Forest Falls - San Bernardino County</option>
+<option value="">Forest Ranch - Butte County</option>
+<option value="">Foresthill - Placer County</option>
+<option value="">Forestville - Sonoma County</option>
+<option value="">Forks Of Salmon - Siskiyou County</option>
+<option value="">Fort Bidwell - Modoc County</option>
+<option value="">Fort Bragg - Mendocino County</option>
+<option value="">Fort Irwin - San Bernardino County</option>
+<option value="">Fort Jones - Siskiyou County</option>
+<option value="">Fortuna - Humboldt County</option>
+<option value="">Fountain Valley - Orange County</option>
+<option value="">Fowler - Fresno County</option>
+<option value="">Frazier Park - Kern County</option>
+<option value="">Freedom - Santa Cruz County</option>
+<option value="">Fremont - Alameda County</option>
+<option value="">French Camp - San Joaquin County</option>
+<option value="">French Gulch - Shasta County</option>
+<option value="">Fresno - Fresno County</option>
+<option value="">Friant - Fresno County</option>
+<option value="">Fullerton - Orange County</option>
+<option value="">Fulton - Sonoma County</option>
+<option value="">Galt - Sacramento County</option>
+<option value="">Garberville - Humboldt County</option>
+<option value="">Garden Grove - Orange County</option>
+<option value="">Garden Valley - El Dorado County</option>
+<option value="">Gardena - Los Angeles County</option>
+<option value="">Gasquet - Del Norte County</option>
+<option value="">Gazelle - Siskiyou County</option>
+<option value="">Georgetown - El Dorado County</option>
+<option value="">Gerber - Tehama County</option>
+<option value="">Geyserville - Sonoma County</option>
+<option value="">Gilroy - Santa Clara County</option>
+<option value="">Glen Ellen - Sonoma County</option>
+<option value="">Glencoe - Calaveras County</option>
+<option value="">Glendale - Los Angeles County</option>
+<option value="">Glendora - Los Angeles County</option>
+<option value="">Glenhaven - Lake County</option>
+<option value="">Glenn - Glenn County</option>
+<option value="">Glennville - Kern County</option>
+<option value="">Goleta - Santa Barbara County</option>
+<option value="">Gonzales - Monterey County</option>
+<option value="">Granada Hills - Los Angeles County</option>
+<option value="">Grand Terrace - San Bernardino County</option>
+<option value="">Granite Bay - Placer County</option>
+<option value="">Grass Valley - Nevada County</option>
+<option value="">Graton - Sonoma County</option>
+<option value="">Greenbrae - Marin County</option>
+<option value="">Greenfield - Monterey County</option>
+<option value="">Greenville - Plumas County</option>
+<option value="">Greenwood - El Dorado County</option>
+<option value="">Grenada - Siskiyou County</option>
+<option value="">Gridley - Butte County</option>
+<option value="">Grizzly Flats - El Dorado County</option>
+<option value="">Groveland - Tuolumne County</option>
+<option value="">Grover Beach - San Luis Obispo County</option>
+<option value="">Guadalupe - Santa Barbara County</option>
+<option value="">Gualala - Mendocino County</option>
+<option value="">Guerneville - Sonoma County</option>
+<option value="">Guinda - Yolo County</option>
+<option value="">Gustine - Merced County</option>
+<option value="">Hacienda Heights - Los Angeles County</option>
+<option value="">Half Moon Bay - San Mateo County</option>
+<option value="">Hanford - Kings County</option>
+<option value="">Happy Camp - Siskiyou County</option>
+<option value="">Harbor City - Los Angeles County</option>
+<option value="">Hat Creek - Shasta County</option>
+<option value="">Hawaiian Gardens - Los Angeles County</option>
+<option value="">Hawthorne - Los Angeles County</option>
+<option value="">Hayfork - Trinity County</option>
+<option value="">Hayward - Alameda County</option>
+<option value="">Healdsburg - Sonoma County</option>
+<option value="">Heber - Imperial County</option>
+<option value="">Helendale - San Bernardino County</option>
+<option value="">Hemet - Riverside County</option>
+<option value="">Herald - Sacramento County</option>
+<option value="">Hercules - Contra Costa County</option>
+<option value="">Hermosa Beach - Los Angeles County</option>
+<option value="">Hesperia - San Bernardino County</option>
+<option value="">Hickman - Stanislaus County</option>
+<option value="">Hidden Valley Lake - Lake County</option>
+<option value="">Highland - San Bernardino County</option>
+<option value="">Hilmar - Merced County</option>
+<option value="">Hinkley - San Bernardino County</option>
+<option value="">Hollister - San Benito County</option>
+<option value="">Holtville - Imperial County</option>
+<option value="">Homeland - Riverside County</option>
+<option value="">Hoopa - Humboldt County</option>
+<option value="">Hopland - Mendocino County</option>
+<option value="">Hornbrook - Siskiyou County</option>
+<option value="">Hornitos - Mariposa County</option>
+<option value="">Hughson - Stanislaus County</option>
+<option value="">Hume - Fresno County</option>
+<option value="">Huntington Beach - Orange County</option>
+<option value="">Huntington Park - Los Angeles County</option>
+<option value="">Hydesville - Humboldt County</option>
+<option value="">Igo - Shasta County</option>
+<option value="">Imperial - Imperial County</option>
+<option value="">Imperial Beach - San Diego County</option>
+<option value="">Independence - Inyo County</option>
+<option value="">Indian Wells - Riverside County</option>
+<option value="">Indio - Riverside County</option>
+<option value="">Inglewood - Los Angeles County</option>
+<option value="">Inverness - Marin County</option>
+<option value="">Inyokern - Kern County</option>
+<option value="">Ione - Amador County</option>
+<option value="">Irvine - Orange County</option>
+<option value="">Isleton - Sacramento County</option>
+<option value="">Ivanhoe - Tulare County</option>
+<option value="">Jackson - Amador County</option>
+<option value="">Jacumba - San Diego County</option>
+<option value="">Jamestown - Tuolumne County</option>
+<option value="">Jamul - San Diego County</option>
+<option value="">Janesville - Lassen County</option>
+<option value="">Jenner - Sonoma County</option>
+<option value="">Joshua Tree - San Bernardino County</option>
+<option value="">Julian - San Diego County</option>
+<option value="">Junction City - Trinity County</option>
+<option value="">Jurupa Valley - Riverside County</option>
+<option value="">Keene - Kern County</option>
+<option value="">Kelseyville - Lake County</option>
+<option value="">Kenwood - Sonoma County</option>
+<option value="">Kerman - Fresno County</option>
+<option value="">Kernville - Kern County</option>
+<option value="">Kettleman City - Kings County</option>
+<option value="">Keyes - Stanislaus County</option>
+<option value="">King City - Monterey County</option>
+<option value="">Kingsburg - Fresno County</option>
+<option value="">Klamath - Del Norte County</option>
+<option value="">Klamath River - Siskiyou County</option>
+<option value="">Kneeland - Humboldt County</option>
+<option value="">Knights Landing - Yolo County</option>
+<option value="">Korbel - Humboldt County</option>
+<option value="">Kyburz - El Dorado County</option>
+<option value="">La Canada Flintridge - Los Angeles County</option>
+<option value="">La Crescenta - Los Angeles County</option>
+<option value="">La Grange - Tuolumne County</option>
+<option value="">La Habra - Orange County</option>
+<option value="">La Honda - San Mateo County</option>
+<option value="">La Jolla - San Diego County</option>
+<option value="">La Mesa - San Diego County</option>
+<option value="">La Mirada - Los Angeles County</option>
+<option value="">La Palma - Orange County</option>
+<option value="">La Puente - Los Angeles County</option>
+<option value="">La Quinta - Riverside County</option>
+<option value="">La Verne - Los Angeles County</option>
+<option value="">Ladera Ranch - Orange County</option>
+<option value="">Lafayette - Contra Costa County</option>
+<option value="">Laguna Beach - Orange County</option>
+<option value="">Laguna Hills - Orange County</option>
+<option value="">Laguna Niguel - Orange County</option>
+<option value="">Laguna Woods - Orange County</option>
+<option value="">Lake City - Modoc County</option>
+<option value="">Lake Elsinore - Riverside County</option>
+<option value="">Lake Forest - Orange County</option>
+<option value="">Lake Hughes - Los Angeles County</option>
+<option value="">Lake Isabella - Kern County</option>
+<option value="">Lakehead - Shasta County</option>
+<option value="">Lakeport - Lake County</option>
+<option value="">Lakeside - San Diego County</option>
+<option value="">Lakewood - Los Angeles County</option>
+<option value="">Lamont - Kern County</option>
+<option value="">Lancaster - Los Angeles County</option>
+<option value="">Landers - San Bernardino County</option>
+<option value="">Larkspur - Marin County</option>
+<option value="">Lathrop - San Joaquin County</option>
+<option value="">Laton - Fresno County</option>
+<option value="">Lawndale - Los Angeles County</option>
+<option value="">Laytonville - Mendocino County</option>
+<option value="">Le Grand - Merced County</option>
+<option value="">Lebec - Kern County</option>
+<option value="">Leggett - Mendocino County</option>
+<option value="">Lemon Cove - Tulare County</option>
+<option value="">Lemon Grove - San Diego County</option>
+<option value="">Lemoore - Kings County</option>
+<option value="">Lewiston - Trinity County</option>
+<option value="">Lincoln - Placer County</option>
+<option value="">Linden - San Joaquin County</option>
+<option value="">Lindsay - Tulare County</option>
+<option value="">Litchfield - Lassen County</option>
+<option value="">Little River - Mendocino County</option>
+<option value="">Littlerock - Los Angeles County</option>
+<option value="">Live Oak - Sutter County</option>
+<option value="">Livermore - Alameda County</option>
+<option value="">Livingston - Merced County</option>
+<option value="">Llano - Los Angeles County</option>
+<option value="">Lockeford - San Joaquin County</option>
+<option value="">Lodi - San Joaquin County</option>
+<option value="">Loleta - Humboldt County</option>
+<option value="">Loma Linda - San Bernardino County</option>
+<option value="">Loma Mar - San Mateo County</option>
+<option value="">Lomita - Los Angeles County</option>
+<option value="">Lompoc - Santa Barbara County</option>
+<option value="">Lone Pine - Inyo County</option>
+<option value="">Long Barn - Tuolumne County</option>
+<option value="">Long Beach - Los Angeles County</option>
+<option value="">Loomis - Placer County</option>
+<option value="">Los Alamitos - Orange County</option>
+<option value="">Los Altos - Santa Clara County</option>
+<option value="">Los Angeles - Los Angeles County</option>
+<option value="">Los Banos - Merced County</option>
+<option value="">Los Gatos - Santa Clara County</option>
+<option value="">Los Molinos - Tehama County</option>
+<option value="">Los Osos - San Luis Obispo County</option>
+<option value="">Lost Hills - Kern County</option>
+<option value="">Lotus - El Dorado County</option>
+<option value="">Lower Lake - Lake County</option>
+<option value="">Loyalton - Sierra County</option>
+<option value="">Lucerne - Lake County</option>
+<option value="">Lucerne Valley - San Bernardino County</option>
+<option value="">Ludlow - San Bernardino County</option>
+<option value="">Lynwood - Los Angeles County</option>
+<option value="">Lytle Creek - San Bernardino County</option>
+<option value="">Macdoel - Siskiyou County</option>
+<option value="">Mad River - Trinity County</option>
+<option value="">Madera - Madera County</option>
+<option value="">Magalia - Butte County</option>
+<option value="">Malibu - Los Angeles County</option>
+<option value="">Mammoth Lakes - Mono County</option>
+<option value="">Manchester - Mendocino County</option>
+<option value="">Manhattan Beach - Los Angeles County</option>
+<option value="">Manteca - San Joaquin County</option>
+<option value="">Manton - Tehama County</option>
+<option value="">March Air Reserve Base - Riverside County</option>
+<option value="">Maricopa - Kern County</option>
+<option value="">Marina - Monterey County</option>
+<option value="">Marina Del Rey - Los Angeles County</option>
+<option value="">Mariposa - Mariposa County</option>
+<option value="">Markleeville - Alpine County</option>
+<option value="">Marshall - Marin County</option>
+<option value="">Martinez - Contra Costa County</option>
+<option value="">Marysville - Yuba County</option>
+<option value="">Mather - Sacramento County</option>
+<option value="">Maywood - Los Angeles County</option>
+<option value="">Mc Farland - Kern County</option>
+<option value="">Mc Kittrick - Kern County</option>
+<option value="">Mcarthur - Shasta County</option>
+<option value="">Mcclellan - Sacramento County</option>
+<option value="">Mccloud - Siskiyou County</option>
+<option value="">Mckinleyville - Humboldt County</option>
+<option value="">Meadow Vista - Placer County</option>
+<option value="">Mecca - Riverside County</option>
+<option value="">Mendocino - Mendocino County</option>
+<option value="">Mendota - Fresno County</option>
+<option value="">Menifee - Riverside County</option>
+<option value="">Menlo Park - San Mateo County</option>
+<option value="">Mentone - San Bernardino County</option>
+<option value="">Merced - Merced County</option>
+<option value="">Meridian - Sutter County</option>
+<option value="">Mi Wuk Village - Tuolumne County</option>
+<option value="">Middletown - Lake County</option>
+<option value="">Midpines - Mariposa County</option>
+<option value="">Midway City - Orange County</option>
+<option value="">Milford - Lassen County</option>
+<option value="">Mill Creek - Tehama County</option>
+<option value="">Mill Valley - Marin County</option>
+<option value="">Millbrae - San Mateo County</option>
+<option value="">Millville - Shasta County</option>
+<option value="">Milpitas - Santa Clara County</option>
+<option value="">Mira Loma - Riverside County</option>
+<option value="">Miramonte - Fresno County</option>
+<option value="">Mission Hills - Los Angeles County</option>
+<option value="">Mission Viejo - Orange County</option>
+<option value="">Modesto - Stanislaus County</option>
+<option value="">Mojave - Kern County</option>
+<option value="">Mokelumne Hill - Calaveras County</option>
+<option value="">Monrovia - Los Angeles County</option>
+<option value="">Montague - Siskiyou County</option>
+<option value="">Montclair - San Bernardino County</option>
+<option value="">Monte Rio - Sonoma County</option>
+<option value="">Montebello - Los Angeles County</option>
+<option value="">Monterey - Monterey County</option>
+<option value="">Monterey Park - Los Angeles County</option>
+<option value="">Montgomery Creek - Shasta County</option>
+<option value="">Montrose - Los Angeles County</option>
+<option value="">Moorpark - Ventura County</option>
+<option value="">Moraga - Contra Costa County</option>
+<option value="">Moreno Valley - Riverside County</option>
+<option value="">Morgan Hill - Santa Clara County</option>
+<option value="">Morongo Valley - San Bernardino County</option>
+<option value="">Morro Bay - San Luis Obispo County</option>
+<option value="">Moss Beach - San Mateo County</option>
+<option value="">Moss Landing - Monterey County</option>
+<option value="">Mount Hamilton - Santa Clara County</option>
+<option value="">Mount Shasta - Siskiyou County</option>
+<option value="">Mountain Center - Riverside County</option>
+<option value="">Mountain Pass - San Bernardino County</option>
+<option value="">Mountain Ranch - Calaveras County</option>
+<option value="">Mountain View - Santa Clara County</option>
+<option value="">Murphys - Calaveras County</option>
+<option value="">Murrieta - Riverside County</option>
+<option value="">Myers Flat - Humboldt County</option>
+<option value="">Napa - Napa County</option>
+<option value="">National City - San Diego County</option>
+<option value="">Navarro - Mendocino County</option>
+<option value="">Needles - San Bernardino County</option>
+<option value="">Nevada City - Nevada County</option>
+<option value="">New Cuyama - Santa Barbara County</option>
+<option value="">Newark - Alameda County</option>
+<option value="">Newberry Springs - San Bernardino County</option>
+<option value="">Newbury Park - Ventura County</option>
+<option value="">Newcastle - Placer County</option>
+<option value="">Newhall - Los Angeles County</option>
+<option value="">Newman - Stanislaus County</option>
+<option value="">Newport Beach - Orange County</option>
+<option value="">Newport Coast - Orange County</option>
+<option value="">Nicasio - Marin County</option>
+<option value="">Nice - Lake County</option>
+<option value="">Nicolaus - Sutter County</option>
+<option value="">Niland - Imperial County</option>
+<option value="">Nipomo - San Luis Obispo County</option>
+<option value="">Nipton - San Bernardino County</option>
+<option value="">Norco - Riverside County</option>
+<option value="">North Fork - Madera County</option>
+<option value="">North Highlands - Sacramento County</option>
+<option value="">North Hills - Los Angeles County</option>
+<option value="">North Hollywood - Los Angeles County</option>
+<option value="">North San Juan - Nevada County</option>
+<option value="">Northridge - Los Angeles County</option>
+<option value="">Norwalk - Los Angeles County</option>
+<option value="">Novato - Marin County</option>
+<option value="">Nuevo - Riverside County</option>
+<option value="">O Neals - Madera County</option>
+<option value="">Oak Park - Ventura County</option>
+<option value="">Oak Run - Shasta County</option>
+<option value="">Oak View - Ventura County</option>
+<option value="">Oakdale - Stanislaus County</option>
+<option value="">Oakhurst - Madera County</option>
+<option value="">Oakland - Alameda County</option>
+<option value="">Oakley - Contra Costa County</option>
+<option value="">Occidental - Sonoma County</option>
+<option value="">Oceano - San Luis Obispo County</option>
+<option value="">Oceanside - San Diego County</option>
+<option value="">Ojai - Ventura County</option>
+<option value="">Old Station - Shasta County</option>
+<option value="">Olivehurst - Yuba County</option>
+<option value="">Olympic Valley - Placer County</option>
+<option value="">Ontario - San Bernardino County</option>
+<option value="">Onyx - Kern County</option>
+<option value="">Orange - Orange County</option>
+<option value="">Orange Cove - Fresno County</option>
+<option value="">Orangevale - Sacramento County</option>
+<option value="">Oregon House - Yuba County</option>
+<option value="">Orick - Humboldt County</option>
+<option value="">Orinda - Contra Costa County</option>
+<option value="">Orland - Glenn County</option>
+<option value="">Oro Grande - San Bernardino County</option>
+<option value="">Orosi - Tulare County</option>
+<option value="">Oroville - Butte County</option>
+<option value="">Oxnard - Ventura County</option>
+<option value="">Pacific Grove - Monterey County</option>
+<option value="">Pacific Palisades - Los Angeles County</option>
+<option value="">Pacifica - San Mateo County</option>
+<option value="">Pacoima - Los Angeles County</option>
+<option value="">Paicines - San Benito County</option>
+<option value="">Pala - San Diego County</option>
+<option value="">Palermo - Butte County</option>
+<option value="">Palm Desert - Riverside County</option>
+<option value="">Palm Springs - Riverside County</option>
+<option value="">Palmdale - Los Angeles County</option>
+<option value="">Palo Alto - Santa Clara County</option>
+<option value="">Palo Cedro - Shasta County</option>
+<option value="">Palos Verdes Peninsula - Los Angeles County</option>
+<option value="">Panorama City - Los Angeles County</option>
+<option value="">Paradise - Butte County</option>
+<option value="">Paramount - Los Angeles County</option>
+<option value="">Parlier - Fresno County</option>
+<option value="">Pasadena - Los Angeles County</option>
+<option value="">Paso Robles - San Luis Obispo County</option>
+<option value="">Patterson - Stanislaus County</option>
+<option value="">Pauma Valley - San Diego County</option>
+<option value="">Paynes Creek - Tehama County</option>
+<option value="">Pearblossom - Los Angeles County</option>
+<option value="">Pebble Beach - Monterey County</option>
+<option value="">Penn Valley - Nevada County</option>
+<option value="">Penngrove - Sonoma County</option>
+<option value="">Penryn - Placer County</option>
+<option value="">Perris - Riverside County</option>
+<option value="">Pescadero - San Mateo County</option>
+<option value="">Petaluma - Sonoma County</option>
+<option value="">Petrolia - Humboldt County</option>
+<option value="">Phelan - San Bernardino County</option>
+<option value="">Philo - Mendocino County</option>
+<option value="">Pico Rivera - Los Angeles County</option>
+<option value="">Piercy - Mendocino County</option>
+<option value="">Pilot Hill - El Dorado County</option>
+<option value="">Pine Grove - Amador County</option>
+<option value="">Pine Valley - San Diego County</option>
+<option value="">Pinecrest - Tuolumne County</option>
+<option value="">Pinole - Contra Costa County</option>
+<option value="">Pinon Hills - San Bernardino County</option>
+<option value="">Pioneer - Amador County</option>
+<option value="">Pismo Beach - San Luis Obispo County</option>
+<option value="">Pittsburg - Contra Costa County</option>
+<option value="">Pixley - Tulare County</option>
+<option value="">Placentia - Orange County</option>
+<option value="">Placerville - El Dorado County</option>
+<option value="">Planada - Merced County</option>
+<option value="">Platina - Trinity County</option>
+<option value="">Playa Del Rey - Los Angeles County</option>
+<option value="">Playa Vista - Los Angeles County</option>
+<option value="">Pleasant Grove - Sutter County</option>
+<option value="">Pleasant Hill - Contra Costa County</option>
+<option value="">Pleasanton - Alameda County</option>
+<option value="">Plymouth - Amador County</option>
+<option value="">Point Arena - Mendocino County</option>
+<option value="">Point Reyes Station - Marin County</option>
+<option value="">Pollock Pines - El Dorado County</option>
+<option value="">Pomona - Los Angeles County</option>
+<option value="">Pope Valley - Napa County</option>
+<option value="">Port Hueneme - Ventura County</option>
+<option value="">Porter Ranch - Los Angeles County</option>
+<option value="">Porterville - Tulare County</option>
+<option value="">Portola - Plumas County</option>
+<option value="">Portola Valley - San Mateo County</option>
+<option value="">Posey - Tulare County</option>
+<option value="">Potrero - San Diego County</option>
+<option value="">Potter Valley - Mendocino County</option>
+<option value="">Poway - San Diego County</option>
+<option value="">Prather - Fresno County</option>
+<option value="">Princeton - Colusa County</option>
+<option value="">Quincy - Plumas County</option>
+<option value="">Rackerby - Yuba County</option>
+<option value="">Raisin City - Fresno County</option>
+<option value="">Ramona - San Diego County</option>
+<option value="">Ranchita - San Diego County</option>
+<option value="">Rancho Cordova - Sacramento County</option>
+<option value="">Rancho Cucamonga - San Bernardino County</option>
+<option value="">Rancho Mirage - Riverside County</option>
+<option value="">Rancho Palos Verdes - Los Angeles County</option>
+<option value="">Rancho Santa Fe - San Diego County</option>
+<option value="">Rancho Santa Margarita - Orange County</option>
+<option value="">Ravendale - Lassen County</option>
+<option value="">Raymond - Madera County</option>
+<option value="">Red Bluff - Tehama County</option>
+<option value="">Redcrest - Humboldt County</option>
+<option value="">Redding - Shasta County</option>
+<option value="">Redlands - San Bernardino County</option>
+<option value="">Redondo Beach - Los Angeles County</option>
+<option value="">Redway - Humboldt County</option>
+<option value="">Redwood City - San Mateo County</option>
+<option value="">Redwood Valley - Mendocino County</option>
+<option value="">Reedley - Fresno County</option>
+<option value="">Rescue - El Dorado County</option>
+<option value="">Reseda - Los Angeles County</option>
+<option value="">Rialto - San Bernardino County</option>
+<option value="">Richmond - Contra Costa County</option>
+<option value="">Ridgecrest - Kern County</option>
+<option value="">Rio Dell - Humboldt County</option>
+<option value="">Rio Linda - Sacramento County</option>
+<option value="">Rio Oso - Sutter County</option>
+<option value="">Rio Vista - Solano County</option>
+<option value="">Ripon - San Joaquin County</option>
+<option value="">Riverbank - Stanislaus County</option>
+<option value="">Riverdale - Fresno County</option>
+<option value="">Riverside - Riverside County</option>
+<option value="">Rocklin - Placer County</option>
+<option value="">Rodeo - Contra Costa County</option>
+<option value="">Rohnert Park - Sonoma County</option>
+<option value="">Rosamond - Kern County</option>
+<option value="">Rosemead - Los Angeles County</option>
+<option value="">Roseville - Placer County</option>
+<option value="">Rough And Ready - Nevada County</option>
+<option value="">Rowland Heights - Los Angeles County</option>
+<option value="">Sacramento - Sacramento County</option>
+<option value="">Saint Helena - Napa County</option>
+<option value="">Salida - Stanislaus County</option>
+<option value="">Salinas - Monterey County</option>
+<option value="">Samoa - Humboldt County</option>
+<option value="">San Andreas - Calaveras County</option>
+<option value="">San Anselmo - Marin County</option>
+<option value="">San Ardo - Monterey County</option>
+<option value="">San Bernardino - San Bernardino County</option>
+<option value="">San Bruno - San Mateo County</option>
+<option value="">San Carlos - San Mateo County</option>
+<option value="">San Clemente - Orange County</option>
+<option value="">San Diego - San Diego County</option>
+<option value="">San Dimas - Los Angeles County</option>
+<option value="">San Fernando - Los Angeles County</option>
+<option value="">San Francisco - San Francisco County</option>
+<option value="">San Gabriel - Los Angeles County</option>
+<option value="">San Gregorio - San Mateo County</option>
+<option value="">San Jacinto - Riverside County</option>
+<option value="">San Joaquin - Fresno County</option>
+<option value="">San Jose - Santa Clara County</option>
+<option value="">San Juan Bautista - San Benito County</option>
+<option value="">San Juan Capistrano - Orange County</option>
+<option value="">San Leandro - Alameda County</option>
+<option value="">San Lorenzo - Alameda County</option>
+<option value="">San Luis Obispo - San Luis Obispo County</option>
+<option value="">San Marcos - San Diego County</option>
+<option value="">San Marino - Los Angeles County</option>
+<option value="">San Martin - Santa Clara County</option>
+<option value="">San Mateo - San Mateo County</option>
+<option value="">San Miguel - San Luis Obispo County</option>
+<option value="">San Pablo - Contra Costa County</option>
+<option value="">San Pedro - Los Angeles County</option>
+<option value="">San Quentin - Marin County</option>
+<option value="">San Rafael - Marin County</option>
+<option value="">San Ramon - Contra Costa County</option>
+<option value="">San Simeon - San Luis Obispo County</option>
+<option value="">San Ysidro - San Diego County</option>
+<option value="">Sanger - Fresno County</option>
+<option value="">Santa Ana - Orange County</option>
+<option value="">Santa Barbara - Santa Barbara County</option>
+<option value="">Santa Clara - Santa Clara County</option>
+<option value="">Santa Clarita - Los Angeles County</option>
+<option value="">Santa Cruz - Santa Cruz County</option>
+<option value="">Santa Fe Springs - Los Angeles County</option>
+<option value="">Santa Margarita - San Luis Obispo County</option>
+<option value="">Santa Maria - Santa Barbara County</option>
+<option value="">Santa Monica - Los Angeles County</option>
+<option value="">Santa Paula - Ventura County</option>
+<option value="">Santa Rosa - Sonoma County</option>
+<option value="">Santa Ynez - Santa Barbara County</option>
+<option value="">Santa Ysabel - San Diego County</option>
+<option value="">Santee - San Diego County</option>
+<option value="">Saratoga - Santa Clara County</option>
+<option value="">Sausalito - Marin County</option>
+<option value="">Scotia - Humboldt County</option>
+<option value="">Scott Bar - Siskiyou County</option>
+<option value="">Scotts Valley - Santa Cruz County</option>
+<option value="">Seal Beach - Orange County</option>
+<option value="">Seaside - Monterey County</option>
+<option value="">Sebastopol - Sonoma County</option>
+<option value="">Seiad Valley - Siskiyou County</option>
+<option value="">Selma - Fresno County</option>
+<option value="">Sequoia National Park - Tulare County</option>
+<option value="">Shafter - Kern County</option>
+<option value="">Shandon - San Luis Obispo County</option>
+<option value="">Shasta Lake - Shasta County</option>
+<option value="">Shaver Lake - Fresno County</option>
+<option value="">Sheridan - Placer County</option>
+<option value="">Sherman Oaks - Los Angeles County</option>
+<option value="">Shingle Springs - El Dorado County</option>
+<option value="">Shingletown - Shasta County</option>
+<option value="">Sierra City - Sierra County</option>
+<option value="">Sierra Madre - Los Angeles County</option>
+<option value="">Signal Hill - Los Angeles County</option>
+<option value="">Silverado - Orange County</option>
+<option value="">Simi Valley - Ventura County</option>
+<option value="">Sloughhouse - Sacramento County</option>
+<option value="">Smartsville - Nevada County</option>
+<option value="">Smith River - Del Norte County</option>
+<option value="">Snelling - Merced County</option>
+<option value="">Solana Beach - San Diego County</option>
+<option value="">Soledad - Monterey County</option>
+<option value="">Solvang - Santa Barbara County</option>
+<option value="">Somerset - El Dorado County</option>
+<option value="">Somes Bar - Siskiyou County</option>
+<option value="">Somis - Ventura County</option>
+<option value="">Sonoma - Sonoma County</option>
+<option value="">Sonora - Tuolumne County</option>
+<option value="">Soquel - Santa Cruz County</option>
+<option value="">Soulsbyville - Tuolumne County</option>
+<option value="">South El Monte - Los Angeles County</option>
+<option value="">South Gate - Los Angeles County</option>
+<option value="">South Lake Tahoe - El Dorado County</option>
+<option value="">South Pasadena - Los Angeles County</option>
+<option value="">South San Francisco - San Mateo County</option>
+<option value="">Spring Valley - San Diego County</option>
+<option value="">Springville - Tulare County</option>
+<option value="">Squaw Valley - Fresno County</option>
+<option value="">Standish - Lassen County</option>
+<option value="">Stanford - Santa Clara County</option>
+<option value="">Stanton - Orange County</option>
+<option value="">Stevenson Ranch - Los Angeles County</option>
+<option value="">Stevinson - Merced County</option>
+<option value="">Stinson Beach - Marin County</option>
+<option value="">Stockton - San Joaquin County</option>
+<option value="">Stonyford - Colusa County</option>
+<option value="">Stratford - Kings County</option>
+<option value="">Strathmore - Tulare County</option>
+<option value="">Strawberry Valley - Yuba County</option>
+<option value="">Studio City - Los Angeles County</option>
+<option value="">Suisun City - Solano County</option>
+<option value="">Sun Valley - Los Angeles County</option>
+<option value="">Sunland - Los Angeles County</option>
+<option value="">Sunnyvale - Santa Clara County</option>
+<option value="">Sunol - Alameda County</option>
+<option value="">Susanville - Lassen County</option>
+<option value="">Sutter - Sutter County</option>
+<option value="">Sutter Creek - Amador County</option>
+<option value="">Sylmar - Los Angeles County</option>
+<option value="">Taft - Kern County</option>
+<option value="">Tarzana - Los Angeles County</option>
+<option value="">Taylorsville - Plumas County</option>
+<option value="">Tecate - San Diego County</option>
+<option value="">Tehachapi - Kern County</option>
+<option value="">Temecula - Riverside County</option>
+<option value="">Temple City - Los Angeles County</option>
+<option value="">Templeton - San Luis Obispo County</option>
+<option value="">Termo - Lassen County</option>
+<option value="">Terra Bella - Tulare County</option>
+<option value="">Thermal - Riverside County</option>
+<option value="">Thousand Oaks - Ventura County</option>
+<option value="">Thousand Palms - Riverside County</option>
+<option value="">Three Rivers - Tulare County</option>
+<option value="">Tipton - Tulare County</option>
+<option value="">Tollhouse - Fresno County</option>
+<option value="">Topanga - Los Angeles County</option>
+<option value="">Topaz - Mono County</option>
+<option value="">Torrance - Los Angeles County</option>
+<option value="">Trabuco Canyon - Orange County</option>
+<option value="">Tracy - San Joaquin County</option>
+<option value="">Tranquillity - Fresno County</option>
+<option value="">Travis AFB - Solano County</option>
+<option value="">Tres Pinos - San Benito County</option>
+<option value="">Trinidad - Humboldt County</option>
+<option value="">Trinity Center - Trinity County</option>
+<option value="">Trona - San Bernardino County</option>
+<option value="">Truckee - Nevada County</option>
+<option value="">Tujunga - Los Angeles County</option>
+<option value="">Tulare - Tulare County</option>
+<option value="">Tulelake - Siskiyou County</option>
+<option value="">Tuolumne - Tuolumne County</option>
+<option value="">Turlock - Stanislaus County</option>
+<option value="">Tustin - Orange County</option>
+<option value="">Twain Harte - Tuolumne County</option>
+<option value="">Twentynine Palms - San Bernardino County</option>
+<option value="">Twin Bridges - El Dorado County</option>
+<option value="">Ukiah - Mendocino County</option>
+<option value="">Union City - Alameda County</option>
+<option value="">Universal City - Los Angeles County</option>
+<option value="">Upland - San Bernardino County</option>
+<option value="">Upper Lake - Lake County</option>
+<option value="">Vacaville - Solano County</option>
+<option value="">Valencia - Los Angeles County</option>
+<option value="">Vallecito - Calaveras County</option>
+<option value="">Vallejo - Solano County</option>
+<option value="">Valley Center - San Diego County</option>
+<option value="">Valley Ford - Marin County</option>
+<option value="">Valley Springs - Calaveras County</option>
+<option value="">Valley Village - Los Angeles County</option>
+<option value="">Valyermo - Los Angeles County</option>
+<option value="">Van Nuys - Los Angeles County</option>
+<option value="">Venice - Los Angeles County</option>
+<option value="">Ventura - Ventura County</option>
+<option value="">Vernalis - Stanislaus County</option>
+<option value="">Victorville - San Bernardino County</option>
+<option value="">Vidal - San Bernardino County</option>
+<option value="">Villa Park - Orange County</option>
+<option value="">Visalia - Tulare County</option>
+<option value="">Vista - San Diego County</option>
+<option value="">Volcano - Amador County</option>
+<option value="">Walnut - Los Angeles County</option>
+<option value="">Walnut Creek - Contra Costa County</option>
+<option value="">Walnut Grove - Sacramento County</option>
+<option value="">Warner Springs - San Diego County</option>
+<option value="">Wasco - Kern County</option>
+<option value="">Waterford - Stanislaus County</option>
+<option value="">Watsonville - Santa Cruz County</option>
+<option value="">Weed - Siskiyou County</option>
+<option value="">Weldon - Kern County</option>
+<option value="">Wendel - Lassen County</option>
+<option value="">West Covina - Los Angeles County</option>
+<option value="">West Hills - Los Angeles County</option>
+<option value="">West Hollywood - Los Angeles County</option>
+<option value="">West Point - Calaveras County</option>
+<option value="">West Sacramento - Yolo County</option>
+<option value="">Westlake Village - Ventura County</option>
+<option value="">Westminster - Orange County</option>
+<option value="">Westmorland - Imperial County</option>
+<option value="">Westport - Mendocino County</option>
+<option value="">Westwood - Lassen County</option>
+<option value="">Wheatland - Yuba County</option>
+<option value="">Whitethorn - Humboldt County</option>
+<option value="">Whitewater - Riverside County</option>
+<option value="">Whitmore - Shasta County</option>
+<option value="">Whittier - Los Angeles County</option>
+<option value="">Wildomar - Riverside County</option>
+<option value="">Williams - Colusa County</option>
+<option value="">Willits - Mendocino County</option>
+<option value="">Willow Creek - Humboldt County</option>
+<option value="">Willows - Glenn County</option>
+<option value="">Wilmington - Los Angeles County</option>
+<option value="">Wilseyville - Calaveras County</option>
+<option value="">Wilton - Sacramento County</option>
+<option value="">Winchester - Riverside County</option>
+<option value="">Windsor - Sonoma County</option>
+<option value="">Winnetka - Los Angeles County</option>
+<option value="">Winterhaven - Imperial County</option>
+<option value="">Winters - Yolo County</option>
+<option value="">Winton - Merced County</option>
+<option value="">Wishon - Madera County</option>
+<option value="">Witter Springs - Lake County</option>
+<option value="">Wofford Heights - Kern County</option>
+<option value="">Woodbridge - San Joaquin County</option>
+<option value="">Woodlake - Tulare County</option>
+<option value="">Woodland - Yolo County</option>
+<option value="">Woodland Hills - Los Angeles County</option>
+<option value="">Woody - Kern County</option>
+<option value="">Wrightwood - San Bernardino County</option>
+<option value="">Yorba Linda - Orange County</option>
+<option value="">Yorkville - Mendocino County</option>
+<option value="">Yosemite National Park - Mariposa County</option>
+<option value="">Yountville - Napa County</option>
+<option value="">Yreka - Siskiyou County</option>
+<option value="">Yuba City - Sutter County</option>
+<option value="">Yucaipa - San Bernardino County</option>
+<option value="">Yucca Valley - San Bernardino County</option>
+<option value="">Zenia - Trinity County</option>
+</select>
+                    <br />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="cg-search-businesstype-label">
+                    <label class="control-label col-md-2" for="Select_a_Business_Type">Select a Business Type</label>
+                </div>
+                <div class="col-md-10 cg-search-businesstype-dropdown">
+                    <select id="BusType" name="BusType"><option value="">Select a Business Type</option>
+<option value="">Acupuncture</option>
+<option value="">Advertising Agencies</option>
+<option value="">Aircraft, Aircraft Engine and Engine Parts Manufacturing</option>
+<option value="">Amusement &amp; Recreation Services</option>
+<option value="">Animal Production</option>
+<option value="">Aquaculture</option>
+<option value="">Art Dealer</option>
+<option value="">Attorney / Legal Services</option>
+<option value="">Automobile Dealer</option>
+<option value="">Automotive Body Repair</option>
+<option value="">Automotive Glass Replacement</option>
+<option value="">Automotive Oil Change and Lubrication</option>
+<option value="">Barber Shops, Beauty &amp; Nail Salons</option>
+<option value="">Beverage Manufacturing</option>
+<option value="">Book and Other Paper Publishers</option>
+<option value="">Breweries</option>
+<option value="">Building and Building Equipment Contractors</option>
+<option value="">Car Wash</option>
+<option value="">Cemetery, Crematory &amp; Funeral Services</option>
+<option value="">Child Day Care Services</option>
+<option value="">Chiropractor</option>
+<option value="">Clothing and Clothing Accessories Store</option>
+<option value="">Collection Agency</option>
+<option value="">Commercial Banking, Saving Institutions &amp; Credit Unions</option>
+<option value="">Commerical Laundry</option>
+<option value="">Consulting Services</option>
+<option value="">Cosmetics, Beauty Supplies, and Perfume Stores</option>
+<option value="">Cottage Food Operation &amp; Baked Goods Stores</option>
+<option value="">Crop Harvesting</option>
+<option value="">Crop Production</option>
+<option value="">Dentistry</option>
+<option value="">Distilleries</option>
+<option value="">Drywall and Insulation Contractors</option>
+<option value="">Electrical Contractors and Other Wiring Installation Contractors</option>
+<option value="">Electronic, Appliance and Home Furnishing Repair</option>
+<option value="">Farmers Markets &amp; Other Produce Markets</option>
+<option value="">Finish Carpentry Contractors</option>
+<option value="">Fishing, Hunting and Trapping</option>
+<option value="">Flooring Contractors</option>
+<option value="">Food (Health) Supplement Stores</option>
+<option value="">Food Manufacturing</option>
+<option value="">Food Services and Drinking Places</option>
+<option value="">Forestry and Logging</option>
+<option value="">Garment Manufacture</option>
+<option value="">Gasoline Service Station</option>
+<option value="">General Business Information</option>
+<option value="">General Manufacturing</option>
+<option value="">Grocery Store</option>
+<option value="">Hotel (except Casino Hotels) / Motel</option>
+<option value="">Housing &amp; Building Construction</option>
+<option value="">Import/Export</option>
+<option value="">Investigation Services</option>
+<option value="">Janitorial Cleaning Maintenance Services</option>
+<option value="">Jewelry Store</option>
+<option value="">Landscaping Services</option>
+<option value="">Liquor Store and Bars</option>
+<option value="">Mining (except Oil and Gas)</option>
+<option value="">Motion Picture &amp; Sound Recording</option>
+<option value="">Nonprofit &amp; Tax-Exempt Status</option>
+<option value="">Nursing and Residential Care Facilities</option>
+<option value="">Optometry</option>
+<option value="">Other Direct Selling Establishments Including Food</option>
+<option value="">Painting and Wall Covering Contractors</option>
+<option value="">Pharmacy / Drug Store</option>
+<option value="">Photographic Services</option>
+<option value="">Physician</option>
+<option value="">Plumbing, Heating, and Air-Conditioning Contractors</option>
+<option value="">Real Estate</option>
+<option value="">Recycling Center</option>
+<option value="">Renewable Energy Generation</option>
+<option value="">Restaurant &amp; Catering</option>
+<option value="">Retail Stores</option>
+<option value="">Security Guards and Patrol Services</option>
+<option value="">Sporting Goods Retailers</option>
+<option value="">Sporting Goods Store</option>
+<option value="">Surgical and Medical Instrument Manufacturing</option>
+<option value="">Tax Preparation Services</option>
+<option value="">Testing Laboratories</option>
+<option value="">Tile and Terrazzo Contractors</option>
+<option value="">Transit and Ground Passenger Transportation</option>
+<option value="">Travel Agencies</option>
+<option value="">Trucking Business</option>
+<option value="">Veterinary Services</option>
+<option value="">Vocational School &amp; Services</option>
+<option value="">Wineries</option>
+<option value="">Wood Kitchen Cabinet and Countertop Manufacturing</option>
+</select>
+                    <br />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input id="citycounty" name="citycounty" type="hidden" value="System.Collections.Generic.List`1[System.Web.Mvc.SelectListItem]" />
+                    <input id="bustype" name="bustype" type="hidden" value="" />
+
+                    <input type="submit" id="search" name="search" value=Search class="btn btn-default" />
+                </div>
+            </div>
+</form>    </div>
+
+    <div class="cg-search-dropdowns-info-container">
+        <p>
+            <div class="cg-search-dropdowns-info-pragraphs">
+                <div class="cg-search-dropdowns-info-not-sure">Not sure of your business type?</div>
+
+                <div class="cg-search-dropdowns-info-not-finding">Not finding your business type listed?</div>
+
+                Simply enter the words 
+                <div class="cg-search-dropdowns-info-general-business">"General Business Information"</div> 
+                for the Business Type, and select a City or County and click on Search.
+
+                <br />
+                <br />
+
+                <span class="cg-search-dropdowns-info-note">Note:</span> CalGold Business Permit System does not issue permits or licenses. Also, it does not provide information on any specific license number(s). Specific questions related to permitting and licensing for any business type must be directed to the associated agencies.
+            </div>
+        </p>
+    </div>
+    <div style="clear: both;"></div>
+</div>
+
+
+
+
+            </div>
+            <!-- after _Layout->main-content -->
+
+            <br />
+
+            <!--State Template Global Footer -->
+            <footer id="footer" class="global-footer">
+
+                <div class="container footer-menu">
+    <div class="group">
+        <div class="three-quarters">
+            <ul class="footer-links">
+                <li><a href="#skip-to-content">Back to Top</a></li>
+                <li class="" title=""><a href="https://business.ca.gov/accessibility/" target="_blank">Accessibility</a></li>
+                <li class="" title=""><a href="https://business.ca.gov/privacy-policy/" target="_blank">Privacy Policy</a></li>
+                <li class="" title=""><a href="https://gobiz.zendesk.com/hc/en-us/requests/new" target="_blank">Contact Us</a></li>
+                <li class="" title=""><a href="https://business.ca.gov/disclaimer/" target="_blank">Disclaimer</a></li>
+                <li class="" title=""><a href="https://business.ca.gov/conditions-of-use/" target="_blank">Conditions of Use</a></li>
+                <li class="" title=""><a href="https://business.ca.gov/terms-of-use/" target="_blank">Terms of Use</a></li>
+            </ul>
+        </div>
+        <div class="quarter">
+            <ul class="socialsharer-container">
+                <li><a href="https://www.facebook.com/CAGOBiz/" title="" target="_blank"><span class="ca-gov-icon-facebook"></span><span class="sr-only">facebook</span></a></li>
+                <li><a href="https://twitter.com/CAGoBiz?ref_src=twsrc%5Etfw" title="" target="_blank"><span class="ca-gov-icon-twitter"></span><span class="sr-only">twitter</span></a></li>
+                <li><a href="https://www.youtube.com/channel/UCregW8KZRE4k1sXVZs2bPxw" title="" target="_blank"><span class="ca-gov-icon-youtube"></span><span class="sr-only">youtube</span></a></li>
+                <li><a href="https://www.linkedin.com/company/governor-s-office-of-business-and-economic-development" title="" target="_blank"><span class="ca-gov-icon-linkedin"></span><span class="sr-only">linkedin</span></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+                <!--State Template Copyright Statement -->
+                <div class="copyright">
+                    <div class="container">
+                        Copyright &copy;
+                        <script>document.write(new Date().getFullYear())</script> State of California
+                    </div>
+                </div>
+            </footer>
+            <!--State Template Extra Decorative Content -->
+            <div class="decoration-last">&nbsp;</div>
+
+            <script src="/Content/StateTemplate/js/cagov.core.js"></script>
+<script src="/Content/StateTemplate/js/search.js"></script>
+
+
+            <!-- Default Renders -->
+            <!--    --Scripts.Render("~/bundles/jquery") -->
+            <!--    --Scripts.Render("~/bundles/bootstrap") -->
+            <!-- This is needed for login to work -->
+            
+
+
+        </body>
+        </html>

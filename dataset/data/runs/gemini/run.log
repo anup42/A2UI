@@ -1,0 +1,397 @@
+2026-01-31 01:28:55 ERROR dataset: Stage1 parse error intent=Information Retrieval: Expecting ',' delimiter: line 25 column 43 (char 684)
+2026-01-31 01:28:55 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Information Retrieval
+2026-01-31 01:28:55 INFO dataset: Stage1 intent=Information Retrieval created=5 total=5
+2026-01-31 01:29:05 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:29:25 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:29:45 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:29:45 ERROR dataset: Stage1 fallback intent=Information Retrieval after 3 failures
+2026-01-31 01:29:45 ERROR dataset: Stage1 parse error intent=Entertainment: Expecting ',' delimiter: line 25 column 54 (char 754)
+2026-01-31 01:29:45 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Entertainment
+2026-01-31 01:29:45 INFO dataset: Stage1 intent=Entertainment created=5 total=5
+2026-01-31 01:30:05 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:30:25 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:30:45 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:30:45 ERROR dataset: Stage1 fallback intent=Entertainment after 3 failures
+2026-01-31 01:30:45 ERROR dataset: Stage1 parse error intent=product_lookup: Expecting ',' delimiter: line 25 column 54 (char 730)
+2026-01-31 01:30:45 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=product_lookup
+2026-01-31 01:30:45 INFO dataset: Stage1 intent=product_lookup created=5 total=5
+2026-01-31 01:31:05 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:31:25 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:31:45 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:31:45 ERROR dataset: Stage1 fallback intent=product_lookup after 3 failures
+2026-01-31 01:31:45 ERROR dataset: Stage1 parse error intent=Booking: Expecting ',' delimiter: line 30 column 37 (char 791)
+2026-01-31 01:31:45 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Booking
+2026-01-31 01:31:45 INFO dataset: Stage1 intent=Booking created=5 total=5
+2026-01-31 01:32:05 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:32:25 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:32:45 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:32:45 ERROR dataset: Stage1 fallback intent=Booking after 3 failures
+2026-01-31 01:32:45 ERROR dataset: Stage1 parse error intent=weather: Expecting ',' delimiter: line 25 column 54 (char 753)
+2026-01-31 01:32:45 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=weather
+2026-01-31 01:32:45 INFO dataset: Stage1 intent=weather created=4 total=4
+2026-01-31 01:33:05 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:33:25 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:33:45 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:33:45 ERROR dataset: Stage1 fallback intent=weather after 3 failures
+2026-01-31 01:33:45 ERROR dataset: Stage1 parse error intent=data visualisation: Expecting ',' delimiter: line 20 column 78 (char 860)
+2026-01-31 01:33:45 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=data visualisation
+2026-01-31 01:33:45 INFO dataset: Stage1 intent=data visualisation created=4 total=4
+2026-01-31 01:34:05 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:34:25 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:34:45 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:34:45 ERROR dataset: Stage1 fallback intent=data visualisation after 3 failures
+2026-01-31 01:34:45 ERROR dataset: Stage1 parse error intent=Planning: Expecting ',' delimiter: line 25 column 63 (char 859)
+2026-01-31 01:34:45 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=Planning
+2026-01-31 01:34:45 INFO dataset: Stage1 intent=Planning created=4 total=4
+2026-01-31 01:35:05 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:35:25 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:35:45 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:35:45 ERROR dataset: Stage1 fallback intent=Planning after 3 failures
+2026-01-31 01:35:45 ERROR dataset: Stage1 parse error intent=productivity: Expecting ',' delimiter: line 25 column 45 (char 674)
+2026-01-31 01:35:45 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=productivity
+2026-01-31 01:35:45 INFO dataset: Stage1 intent=productivity created=5 total=5
+2026-01-31 01:36:05 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:36:25 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:36:45 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:36:45 ERROR dataset: Stage1 fallback intent=productivity after 3 failures
+2026-01-31 01:36:45 ERROR dataset: Stage1 parse error intent=Recipe: Expecting ',' delimiter: line 25 column 55 (char 704)
+2026-01-31 01:36:45 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Recipe
+2026-01-31 01:36:45 INFO dataset: Stage1 intent=Recipe created=5 total=5
+2026-01-31 01:37:05 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:37:25 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:37:45 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:37:45 ERROR dataset: Stage1 fallback intent=Recipe after 3 failures
+2026-01-31 01:37:45 ERROR dataset: Stage1 parse error intent=Localization: Expecting ',' delimiter: line 25 column 54 (char 690)
+2026-01-31 01:37:45 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Localization
+2026-01-31 01:37:45 INFO dataset: Stage1 intent=Localization created=5 total=5
+2026-01-31 01:38:05 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:38:25 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:38:45 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:38:45 ERROR dataset: Stage1 fallback intent=Localization after 3 failures
+2026-01-31 01:38:45 INFO dataset: Stage1 reached max_total=1000
+2026-01-31 01:41:37 ERROR dataset: Stage1 parse error intent=Information Retrieval: Expecting ',' delimiter: line 25 column 43 (char 684)
+2026-01-31 01:41:37 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Information Retrieval
+2026-01-31 01:41:37 INFO dataset: Stage1 intent=Information Retrieval created=5 total=5
+2026-01-31 01:41:47 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:42:07 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:42:27 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:42:27 ERROR dataset: Stage1 stopping intent=Information Retrieval after 3 failures
+2026-01-31 01:42:27 ERROR dataset: Stage1 parse error intent=Entertainment: Expecting ',' delimiter: line 25 column 54 (char 754)
+2026-01-31 01:42:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Entertainment
+2026-01-31 01:42:27 INFO dataset: Stage1 intent=Entertainment created=5 total=5
+2026-01-31 01:42:47 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:43:07 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:43:27 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:43:27 ERROR dataset: Stage1 stopping intent=Entertainment after 3 failures
+2026-01-31 01:43:27 ERROR dataset: Stage1 parse error intent=product_lookup: Expecting ',' delimiter: line 25 column 54 (char 730)
+2026-01-31 01:43:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=product_lookup
+2026-01-31 01:43:27 INFO dataset: Stage1 intent=product_lookup created=5 total=5
+2026-01-31 01:43:47 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:44:07 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:44:27 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:44:27 ERROR dataset: Stage1 stopping intent=product_lookup after 3 failures
+2026-01-31 01:44:27 ERROR dataset: Stage1 parse error intent=Booking: Expecting ',' delimiter: line 30 column 37 (char 791)
+2026-01-31 01:44:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Booking
+2026-01-31 01:44:27 INFO dataset: Stage1 intent=Booking created=5 total=5
+2026-01-31 01:44:47 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:44:47 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:45:06 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:45:07 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:45:27 ERROR dataset: Stage1 error intent=Information Retrieval: HTTP Error 400: Bad Request
+2026-01-31 01:45:27 ERROR dataset: Stage1 stopping intent=Information Retrieval after 3 failures
+2026-01-31 01:45:27 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:45:27 ERROR dataset: Stage1 stopping intent=Booking after 3 failures
+2026-01-31 01:45:27 ERROR dataset: Stage1 parse error intent=weather: Expecting ',' delimiter: line 25 column 54 (char 753)
+2026-01-31 01:45:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=weather
+2026-01-31 01:45:27 INFO dataset: Stage1 intent=weather created=4 total=4
+2026-01-31 01:45:46 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:45:47 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:46:06 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:46:07 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:46:27 ERROR dataset: Stage1 error intent=Entertainment: HTTP Error 400: Bad Request
+2026-01-31 01:46:27 ERROR dataset: Stage1 stopping intent=Entertainment after 3 failures
+2026-01-31 01:46:27 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:46:27 ERROR dataset: Stage1 stopping intent=weather after 3 failures
+2026-01-31 01:46:27 ERROR dataset: Stage1 parse error intent=data visualisation: Expecting ',' delimiter: line 20 column 78 (char 860)
+2026-01-31 01:46:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=data visualisation
+2026-01-31 01:46:27 INFO dataset: Stage1 intent=data visualisation created=4 total=4
+2026-01-31 01:46:47 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:46:47 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:47:06 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:47:07 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:47:27 ERROR dataset: Stage1 error intent=product_lookup: HTTP Error 400: Bad Request
+2026-01-31 01:47:27 ERROR dataset: Stage1 stopping intent=product_lookup after 3 failures
+2026-01-31 01:47:27 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:47:27 ERROR dataset: Stage1 stopping intent=data visualisation after 3 failures
+2026-01-31 01:47:27 ERROR dataset: Stage1 parse error intent=Planning: Expecting ',' delimiter: line 25 column 63 (char 859)
+2026-01-31 01:47:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=Planning
+2026-01-31 01:47:27 INFO dataset: Stage1 intent=Planning created=4 total=4
+2026-01-31 01:47:47 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:47:47 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:48:06 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:48:07 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:48:27 ERROR dataset: Stage1 error intent=Booking: HTTP Error 400: Bad Request
+2026-01-31 01:48:27 ERROR dataset: Stage1 stopping intent=Booking after 3 failures
+2026-01-31 01:48:27 ERROR dataset: Stage1 parse error intent=weather: Expecting ',' delimiter: line 25 column 54 (char 753)
+2026-01-31 01:48:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=weather
+2026-01-31 01:48:27 INFO dataset: Stage1 intent=weather created=4 total=4
+2026-01-31 01:48:27 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:48:27 ERROR dataset: Stage1 stopping intent=Planning after 3 failures
+2026-01-31 01:48:27 ERROR dataset: Stage1 parse error intent=productivity: Expecting ',' delimiter: line 25 column 45 (char 674)
+2026-01-31 01:48:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=productivity
+2026-01-31 01:48:27 INFO dataset: Stage1 intent=productivity created=5 total=5
+2026-01-31 01:48:47 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:48:47 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:49:06 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:49:07 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:49:27 ERROR dataset: Stage1 error intent=weather: HTTP Error 400: Bad Request
+2026-01-31 01:49:27 ERROR dataset: Stage1 stopping intent=weather after 3 failures
+2026-01-31 01:49:27 ERROR dataset: Stage1 parse error intent=data visualisation: Expecting ',' delimiter: line 20 column 78 (char 860)
+2026-01-31 01:49:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=data visualisation
+2026-01-31 01:49:27 INFO dataset: Stage1 intent=data visualisation created=4 total=4
+2026-01-31 01:49:27 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:49:27 ERROR dataset: Stage1 stopping intent=productivity after 3 failures
+2026-01-31 01:49:27 ERROR dataset: Stage1 parse error intent=Recipe: Expecting ',' delimiter: line 25 column 55 (char 704)
+2026-01-31 01:49:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Recipe
+2026-01-31 01:49:27 INFO dataset: Stage1 intent=Recipe created=5 total=5
+2026-01-31 01:49:47 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:49:47 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:50:07 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:50:07 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:50:27 ERROR dataset: Stage1 error intent=data visualisation: HTTP Error 400: Bad Request
+2026-01-31 01:50:27 ERROR dataset: Stage1 stopping intent=data visualisation after 3 failures
+2026-01-31 01:50:27 ERROR dataset: Stage1 parse error intent=Planning: Expecting ',' delimiter: line 25 column 63 (char 859)
+2026-01-31 01:50:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=Planning
+2026-01-31 01:50:27 INFO dataset: Stage1 intent=Planning created=4 total=4
+2026-01-31 01:50:27 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:50:27 ERROR dataset: Stage1 stopping intent=Recipe after 3 failures
+2026-01-31 01:50:27 ERROR dataset: Stage1 parse error intent=Localization: Expecting ',' delimiter: line 25 column 54 (char 690)
+2026-01-31 01:50:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Localization
+2026-01-31 01:50:27 INFO dataset: Stage1 intent=Localization created=5 total=5
+2026-01-31 01:50:47 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:50:47 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:51:06 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:51:07 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:51:26 ERROR dataset: Stage1 error intent=Planning: HTTP Error 400: Bad Request
+2026-01-31 01:51:26 ERROR dataset: Stage1 stopping intent=Planning after 3 failures
+2026-01-31 01:51:26 ERROR dataset: Stage1 parse error intent=productivity: Expecting ',' delimiter: line 25 column 45 (char 674)
+2026-01-31 01:51:26 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=productivity
+2026-01-31 01:51:26 INFO dataset: Stage1 intent=productivity created=5 total=5
+2026-01-31 01:51:27 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:51:27 ERROR dataset: Stage1 stopping intent=Localization after 3 failures
+2026-01-31 01:51:27 ERROR dataset: Stage1 parse error intent=Technical support: Expecting ',' delimiter: line 25 column 43 (char 680)
+2026-01-31 01:51:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Technical support
+2026-01-31 01:51:27 INFO dataset: Stage1 intent=Technical support created=5 total=5
+2026-01-31 01:51:47 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:51:47 ERROR dataset: Stage1 error intent=Technical support: HTTP Error 400: Bad Request
+2026-01-31 01:52:06 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:52:07 ERROR dataset: Stage1 error intent=Technical support: HTTP Error 400: Bad Request
+2026-01-31 01:52:27 ERROR dataset: Stage1 error intent=productivity: HTTP Error 400: Bad Request
+2026-01-31 01:52:27 ERROR dataset: Stage1 stopping intent=productivity after 3 failures
+2026-01-31 01:52:27 ERROR dataset: Stage1 parse error intent=Recipe: Expecting ',' delimiter: line 25 column 55 (char 704)
+2026-01-31 01:52:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Recipe
+2026-01-31 01:52:27 INFO dataset: Stage1 intent=Recipe created=5 total=5
+2026-01-31 01:52:27 ERROR dataset: Stage1 error intent=Technical support: HTTP Error 400: Bad Request
+2026-01-31 01:52:27 ERROR dataset: Stage1 stopping intent=Technical support after 3 failures
+2026-01-31 01:52:27 ERROR dataset: Stage1 parse error intent=Creating Writing: Expecting ',' delimiter: line 25 column 59 (char 845)
+2026-01-31 01:52:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Creating Writing
+2026-01-31 01:52:27 INFO dataset: Stage1 intent=Creating Writing created=5 total=5
+2026-01-31 01:52:47 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:52:47 ERROR dataset: Stage1 error intent=Creating Writing: HTTP Error 400: Bad Request
+2026-01-31 01:52:52 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:53:06 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:53:07 ERROR dataset: Stage1 error intent=Creating Writing: HTTP Error 400: Bad Request
+2026-01-31 01:53:13 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:53:27 ERROR dataset: Stage1 error intent=Recipe: HTTP Error 400: Bad Request
+2026-01-31 01:53:27 ERROR dataset: Stage1 stopping intent=Recipe after 3 failures
+2026-01-31 01:53:27 ERROR dataset: Stage1 parse error intent=Localization: Expecting ',' delimiter: line 25 column 54 (char 690)
+2026-01-31 01:53:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Localization
+2026-01-31 01:53:27 INFO dataset: Stage1 intent=Localization created=5 total=5
+2026-01-31 01:53:27 ERROR dataset: Stage1 error intent=Creating Writing: HTTP Error 400: Bad Request
+2026-01-31 01:53:27 ERROR dataset: Stage1 stopping intent=Creating Writing after 3 failures
+2026-01-31 01:53:27 ERROR dataset: Stage1 parse error intent=Event Schedule: Expecting ',' delimiter: line 30 column 40 (char 792)
+2026-01-31 01:53:27 INFO dataset: Stage1 recovered 6 objects from fallback parse intent=Event Schedule
+2026-01-31 01:53:27 INFO dataset: Stage1 intent=Event Schedule created=6 total=6
+2026-01-31 01:53:32 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:53:46 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:53:47 ERROR dataset: Stage1 error intent=Event Schedule: HTTP Error 400: Bad Request
+2026-01-31 01:53:52 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:54:06 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:54:07 ERROR dataset: Stage1 error intent=Event Schedule: HTTP Error 400: Bad Request
+2026-01-31 01:54:12 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:54:26 ERROR dataset: Stage1 error intent=Localization: HTTP Error 400: Bad Request
+2026-01-31 01:54:26 ERROR dataset: Stage1 stopping intent=Localization after 3 failures
+2026-01-31 01:54:26 ERROR dataset: Stage1 parse error intent=Technical support: Expecting ',' delimiter: line 25 column 43 (char 680)
+2026-01-31 01:54:26 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Technical support
+2026-01-31 01:54:26 INFO dataset: Stage1 intent=Technical support created=5 total=5
+2026-01-31 01:54:27 ERROR dataset: Stage1 error intent=Event Schedule: HTTP Error 400: Bad Request
+2026-01-31 01:54:27 ERROR dataset: Stage1 stopping intent=Event Schedule after 3 failures
+2026-01-31 01:54:27 ERROR dataset: Stage1 parse error intent=Research Analysis: Expecting ',' delimiter: line 25 column 79 (char 905)
+2026-01-31 01:54:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Research Analysis
+2026-01-31 01:54:27 INFO dataset: Stage1 intent=Research Analysis created=5 total=5
+2026-01-31 01:54:32 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:54:47 ERROR dataset: Stage1 error intent=Technical support: HTTP Error 400: Bad Request
+2026-01-31 01:54:47 ERROR dataset: Stage1 error intent=Research Analysis: HTTP Error 400: Bad Request
+2026-01-31 01:54:52 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:55:06 ERROR dataset: Stage1 error intent=Technical support: HTTP Error 400: Bad Request
+2026-01-31 01:55:07 ERROR dataset: Stage1 error intent=Research Analysis: HTTP Error 400: Bad Request
+2026-01-31 01:55:12 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:55:27 ERROR dataset: Stage1 error intent=Technical support: HTTP Error 400: Bad Request
+2026-01-31 01:55:27 ERROR dataset: Stage1 stopping intent=Technical support after 3 failures
+2026-01-31 01:55:27 ERROR dataset: Stage1 parse error intent=Creating Writing: Expecting ',' delimiter: line 25 column 59 (char 845)
+2026-01-31 01:55:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Creating Writing
+2026-01-31 01:55:27 INFO dataset: Stage1 intent=Creating Writing created=5 total=5
+2026-01-31 01:55:27 ERROR dataset: Stage1 error intent=Research Analysis: HTTP Error 400: Bad Request
+2026-01-31 01:55:27 ERROR dataset: Stage1 stopping intent=Research Analysis after 3 failures
+2026-01-31 01:55:27 ERROR dataset: Stage1 parse error intent=Comparison: Expecting ',' delimiter: line 25 column 62 (char 848)
+2026-01-31 01:55:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Comparison
+2026-01-31 01:55:27 INFO dataset: Stage1 intent=Comparison created=5 total=5
+2026-01-31 01:55:32 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:55:47 ERROR dataset: Stage1 error intent=Creating Writing: HTTP Error 400: Bad Request
+2026-01-31 01:55:47 ERROR dataset: Stage1 error intent=Comparison: HTTP Error 400: Bad Request
+2026-01-31 01:55:52 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:56:07 ERROR dataset: Stage1 error intent=Creating Writing: HTTP Error 400: Bad Request
+2026-01-31 01:56:07 ERROR dataset: Stage1 error intent=Comparison: HTTP Error 400: Bad Request
+2026-01-31 01:56:12 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:56:27 ERROR dataset: Stage1 error intent=Creating Writing: HTTP Error 400: Bad Request
+2026-01-31 01:56:27 ERROR dataset: Stage1 stopping intent=Creating Writing after 3 failures
+2026-01-31 01:56:27 ERROR dataset: Stage1 parse error intent=Event Schedule: Expecting ',' delimiter: line 30 column 40 (char 792)
+2026-01-31 01:56:27 INFO dataset: Stage1 recovered 6 objects from fallback parse intent=Event Schedule
+2026-01-31 01:56:27 INFO dataset: Stage1 intent=Event Schedule created=6 total=6
+2026-01-31 01:56:27 ERROR dataset: Stage1 error intent=Comparison: HTTP Error 400: Bad Request
+2026-01-31 01:56:27 ERROR dataset: Stage1 stopping intent=Comparison after 3 failures
+2026-01-31 01:56:27 ERROR dataset: Stage1 parse error intent=calculation: Expecting ',' delimiter: line 20 column 49 (char 654)
+2026-01-31 01:56:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=calculation
+2026-01-31 01:56:27 INFO dataset: Stage1 intent=calculation created=4 total=4
+2026-01-31 01:56:32 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:56:47 ERROR dataset: Stage1 error intent=Event Schedule: HTTP Error 400: Bad Request
+2026-01-31 01:56:47 ERROR dataset: Stage1 error intent=calculation: HTTP Error 400: Bad Request
+2026-01-31 01:57:07 ERROR dataset: Stage1 error intent=Event Schedule: HTTP Error 400: Bad Request
+2026-01-31 01:57:07 ERROR dataset: Stage1 error intent=calculation: HTTP Error 400: Bad Request
+2026-01-31 01:57:27 ERROR dataset: Stage1 error intent=Event Schedule: HTTP Error 400: Bad Request
+2026-01-31 01:57:27 ERROR dataset: Stage1 stopping intent=Event Schedule after 3 failures
+2026-01-31 01:57:27 ERROR dataset: Stage1 parse error intent=Research Analysis: Expecting ',' delimiter: line 25 column 79 (char 905)
+2026-01-31 01:57:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Research Analysis
+2026-01-31 01:57:27 INFO dataset: Stage1 intent=Research Analysis created=5 total=5
+2026-01-31 01:57:27 ERROR dataset: Stage1 error intent=calculation: HTTP Error 400: Bad Request
+2026-01-31 01:57:27 ERROR dataset: Stage1 stopping intent=calculation after 3 failures
+2026-01-31 01:57:27 ERROR dataset: Stage1 parse error intent=Travel: Expecting ',' delimiter: line 25 column 67 (char 784)
+2026-01-31 01:57:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Travel
+2026-01-31 01:57:27 INFO dataset: Stage1 intent=Travel created=5 total=5
+2026-01-31 01:57:36 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:57:47 ERROR dataset: Stage1 error intent=Research Analysis: HTTP Error 400: Bad Request
+2026-01-31 01:57:47 ERROR dataset: Stage1 error intent=Travel: HTTP Error 400: Bad Request
+2026-01-31 01:57:56 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:58:07 ERROR dataset: Stage1 error intent=Research Analysis: HTTP Error 400: Bad Request
+2026-01-31 01:58:07 ERROR dataset: Stage1 error intent=Travel: HTTP Error 400: Bad Request
+2026-01-31 01:58:16 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:58:27 ERROR dataset: Stage1 error intent=Research Analysis: HTTP Error 400: Bad Request
+2026-01-31 01:58:27 ERROR dataset: Stage1 stopping intent=Research Analysis after 3 failures
+2026-01-31 01:58:27 ERROR dataset: Stage1 parse error intent=Comparison: Expecting ',' delimiter: line 25 column 62 (char 848)
+2026-01-31 01:58:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Comparison
+2026-01-31 01:58:27 INFO dataset: Stage1 intent=Comparison created=5 total=5
+2026-01-31 01:58:27 ERROR dataset: Stage1 error intent=Travel: HTTP Error 400: Bad Request
+2026-01-31 01:58:27 ERROR dataset: Stage1 stopping intent=Travel after 3 failures
+2026-01-31 01:58:27 ERROR dataset: Stage1 parse error intent=Navigation: Expecting ',' delimiter: line 30 column 38 (char 709)
+2026-01-31 01:58:27 INFO dataset: Stage1 recovered 6 objects from fallback parse intent=Navigation
+2026-01-31 01:58:27 INFO dataset: Stage1 intent=Navigation created=6 total=6
+2026-01-31 01:58:36 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:58:47 ERROR dataset: Stage1 error intent=Comparison: HTTP Error 400: Bad Request
+2026-01-31 01:58:47 ERROR dataset: Stage1 error intent=Navigation: HTTP Error 400: Bad Request
+2026-01-31 01:58:56 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:59:06 ERROR dataset: Stage1 error intent=Comparison: HTTP Error 400: Bad Request
+2026-01-31 01:59:07 ERROR dataset: Stage1 error intent=Navigation: HTTP Error 400: Bad Request
+2026-01-31 01:59:16 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:59:27 ERROR dataset: Stage1 error intent=Comparison: HTTP Error 400: Bad Request
+2026-01-31 01:59:27 ERROR dataset: Stage1 stopping intent=Comparison after 3 failures
+2026-01-31 01:59:27 ERROR dataset: Stage1 parse error intent=calculation: Expecting ',' delimiter: line 20 column 49 (char 654)
+2026-01-31 01:59:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=calculation
+2026-01-31 01:59:27 INFO dataset: Stage1 intent=calculation created=4 total=4
+2026-01-31 01:59:27 ERROR dataset: Stage1 error intent=Navigation: HTTP Error 400: Bad Request
+2026-01-31 01:59:27 ERROR dataset: Stage1 stopping intent=Navigation after 3 failures
+2026-01-31 01:59:27 ERROR dataset: Stage1 parse error intent=Education: Expecting ',' delimiter: line 20 column 77 (char 799)
+2026-01-31 01:59:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=Education
+2026-01-31 01:59:27 INFO dataset: Stage1 intent=Education created=4 total=4
+2026-01-31 01:59:36 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 01:59:47 ERROR dataset: Stage1 error intent=calculation: HTTP Error 400: Bad Request
+2026-01-31 01:59:47 ERROR dataset: Stage1 error intent=Education: HTTP Error 400: Bad Request
+2026-01-31 01:59:56 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:00:07 ERROR dataset: Stage1 error intent=calculation: HTTP Error 400: Bad Request
+2026-01-31 02:00:07 ERROR dataset: Stage1 error intent=Education: HTTP Error 400: Bad Request
+2026-01-31 02:00:16 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:00:27 ERROR dataset: Stage1 error intent=calculation: HTTP Error 400: Bad Request
+2026-01-31 02:00:27 ERROR dataset: Stage1 stopping intent=calculation after 3 failures
+2026-01-31 02:00:27 ERROR dataset: Stage1 parse error intent=Travel: Expecting ',' delimiter: line 25 column 67 (char 784)
+2026-01-31 02:00:27 INFO dataset: Stage1 recovered 5 objects from fallback parse intent=Travel
+2026-01-31 02:00:27 INFO dataset: Stage1 intent=Travel created=5 total=5
+2026-01-31 02:00:27 ERROR dataset: Stage1 error intent=Education: HTTP Error 400: Bad Request
+2026-01-31 02:00:27 ERROR dataset: Stage1 stopping intent=Education after 3 failures
+2026-01-31 02:00:27 ERROR dataset: Stage1 parse error intent=Documentation: Expecting ',' delimiter: line 20 column 62 (char 697)
+2026-01-31 02:00:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=Documentation
+2026-01-31 02:00:27 INFO dataset: Stage1 intent=Documentation created=4 total=4
+2026-01-31 02:00:36 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:00:47 ERROR dataset: Stage1 error intent=Travel: HTTP Error 400: Bad Request
+2026-01-31 02:00:47 ERROR dataset: Stage1 error intent=Documentation: HTTP Error 400: Bad Request
+2026-01-31 02:00:56 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:01:07 ERROR dataset: Stage1 error intent=Travel: HTTP Error 400: Bad Request
+2026-01-31 02:01:07 ERROR dataset: Stage1 error intent=Documentation: HTTP Error 400: Bad Request
+2026-01-31 02:01:16 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:01:26 ERROR dataset: Stage1 error intent=Travel: HTTP Error 400: Bad Request
+2026-01-31 02:01:26 ERROR dataset: Stage1 stopping intent=Travel after 3 failures
+2026-01-31 02:01:26 ERROR dataset: Stage1 parse error intent=Navigation: Expecting ',' delimiter: line 30 column 38 (char 709)
+2026-01-31 02:01:26 INFO dataset: Stage1 recovered 6 objects from fallback parse intent=Navigation
+2026-01-31 02:01:26 INFO dataset: Stage1 intent=Navigation created=6 total=6
+2026-01-31 02:01:27 ERROR dataset: Stage1 error intent=Documentation: HTTP Error 400: Bad Request
+2026-01-31 02:01:27 ERROR dataset: Stage1 stopping intent=Documentation after 3 failures
+2026-01-31 02:01:36 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:01:47 ERROR dataset: Stage1 error intent=Navigation: HTTP Error 400: Bad Request
+2026-01-31 02:01:47 ERROR dataset: Stage1 error intent=media playback: HTTP Error 400: Bad Request
+2026-01-31 02:01:56 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:02:07 ERROR dataset: Stage1 error intent=Navigation: HTTP Error 400: Bad Request
+2026-01-31 02:02:07 ERROR dataset: Stage1 error intent=media playback: HTTP Error 400: Bad Request
+2026-01-31 02:02:16 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:02:27 ERROR dataset: Stage1 error intent=Navigation: HTTP Error 400: Bad Request
+2026-01-31 02:02:27 ERROR dataset: Stage1 stopping intent=Navigation after 3 failures
+2026-01-31 02:02:27 ERROR dataset: Stage1 parse error intent=Education: Expecting ',' delimiter: line 20 column 77 (char 799)
+2026-01-31 02:02:27 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=Education
+2026-01-31 02:02:27 INFO dataset: Stage1 intent=Education created=4 total=4
+2026-01-31 02:02:27 ERROR dataset: Stage1 error intent=media playback: HTTP Error 400: Bad Request
+2026-01-31 02:02:27 ERROR dataset: Stage1 stopping intent=media playback after 3 failures
+2026-01-31 02:02:36 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:02:46 ERROR dataset: Stage1 error intent=Education: HTTP Error 400: Bad Request
+2026-01-31 02:02:47 ERROR dataset: Stage1 error intent=qr scanner: HTTP Error 400: Bad Request
+2026-01-31 02:03:07 ERROR dataset: Stage1 error intent=Education: HTTP Error 400: Bad Request
+2026-01-31 02:03:07 ERROR dataset: Stage1 error intent=qr scanner: HTTP Error 400: Bad Request
+2026-01-31 02:03:26 ERROR dataset: Stage1 error intent=Education: HTTP Error 400: Bad Request
+2026-01-31 02:03:26 ERROR dataset: Stage1 stopping intent=Education after 3 failures
+2026-01-31 02:03:26 ERROR dataset: Stage1 parse error intent=Documentation: Expecting ',' delimiter: line 20 column 62 (char 697)
+2026-01-31 02:03:26 INFO dataset: Stage1 recovered 4 objects from fallback parse intent=Documentation
+2026-01-31 02:03:26 INFO dataset: Stage1 intent=Documentation created=4 total=4
+2026-01-31 02:03:27 ERROR dataset: Stage1 error intent=qr scanner: HTTP Error 400: Bad Request
+2026-01-31 02:03:27 ERROR dataset: Stage1 stopping intent=qr scanner after 3 failures
+2026-01-31 02:03:47 ERROR dataset: Stage1 error intent=Documentation: HTTP Error 400: Bad Request
+2026-01-31 02:03:47 ERROR dataset: Stage1 error intent=status check: HTTP Error 400: Bad Request
+2026-01-31 02:04:07 ERROR dataset: Stage1 error intent=Documentation: HTTP Error 400: Bad Request
+2026-01-31 02:04:07 ERROR dataset: Stage1 error intent=status check: HTTP Error 400: Bad Request
+2026-01-31 02:04:22 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:04:27 ERROR dataset: Stage1 error intent=status check: HTTP Error 400: Bad Request
+2026-01-31 02:04:27 ERROR dataset: Stage1 stopping intent=status check after 3 failures
+2026-01-31 02:04:42 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:05:02 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:05:21 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:05:42 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:06:02 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:06:22 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:06:42 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:07:02 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:07:22 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:07:42 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:08:01 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:08:22 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:08:42 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:09:02 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:09:21 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:09:42 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:10:01 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:10:22 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-01-31 02:10:42 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request

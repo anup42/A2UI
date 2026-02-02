@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en-us" class="cdc-theme-cdc cdc-page-type--home" >
+<head>
+	
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+<link rel="apple-touch-icon" sizes="180x180" href="/TemplatePackage/5.0/img/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/TemplatePackage/5.0/img/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/TemplatePackage/5.0/img/favicon/favicon-16x16.png">
+<link rel="mask-icon" href="/TemplatePackage/5.0/img/favicon/safari-pinned-tab.svg" color="#0056b3">
+<meta name="msapplication-TileColor" content="#0056b3">
+<meta name="theme-color" content="#0056b3">
+<link rel="stylesheet prefetch" href="/TemplatePackage/5.0/css/app.min.css?_=04929" />
+<link rel="stylesheet" media="print" href="/TemplatePackage/5.0/css/print.min.css?_=04929" />
+<link rel="manifest" href="/TemplatePackage/5.0/json/manifest.json">
+
+<script src="https://www.cdc.gov/JScript/dmat/cdc-dmat.min.js?account=cdcgov&_=08871"></script>
+
+<meta property="cdc:template_version" content="5.0"/>
+
+	<title>Influenza (Flu) | Influenza (Flu) | CDC</title>
+		<meta name="description" content="Learn about flu, including symptoms, prevention methods, and treatment options."/>
+		<meta property="og:type" content="article"/>
+<meta property="og:title" content="Influenza (Flu)"/>
+<meta property="og:url" content="https://www.cdc.gov/flu/index.html"/>
+<meta property="og:description" content="Learn about flu, including symptoms, prevention methods, and treatment options."/>
+<meta property="fb:app_id" content="205691699516606"/>
+<meta property="og:site_name" content="Influenza (Flu)"/>
+<meta property="og:author" content="CDC"/>
+<meta property="og:image" content="https://www.cdc.gov/flu/images/virus/Flu19_trans_RNPs-small.png?_=39900"/>
+<meta property="og:image:type" content="image/png"/>
+<meta property="og:updated_time" content="2025-02-18T16:19:34-05:00"/>
+<meta property="article:author" content="CDC"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Influenza (Flu)"/>
+<meta name="twitter:url" content="https://www.cdc.gov/flu/index.html"/>
+<meta name="twitter:description" content="Learn about flu, including symptoms, prevention methods, and treatment options."/>
+<meta name="twitter:site" content="@CDCgov"/>
+<meta name="twitter:creator" content="@CDCgov"/>
+<meta name="twitter:image:src" content="https://www.cdc.gov/flu/images/virus/Flu19_trans_RNPs-small.png?_=39900"/>
+	<meta name="robots" content="index, archive" />
+		<meta property="cdc:first_published" content="October 1, 2024"/>
+	<meta property="cdc:last_updated" content="August 29, 2024"/>
+	<meta property="cdc:last_reviewed" content="August 29, 2024"/>
+	<meta property="cdc:content_source" content="NATIONAL CENTER FOR IMMUNIZATION AND RESPIRATORY DISEASES"/>
+	<meta property="cdc:maintained_by" content="DIVISION OF DIGITAL MEDIA"/>
+	<meta property="cdc:content_id" content="136787" />
+	<meta property="cdc:build" content="4737" />
+	<meta property="cdc:version" content="4.25.1" />
+	<meta property="cdc:page_type" content="cdc_dfe" />
+	<meta property="cdc:page_origin" content="dfe"/>
+	<link rel="canonical" href="https://www.cdc.gov/flu/index.html"/>
+	<meta property="cdc:wcms_build" content="4.25.1 - b.4737" />
+	
+		
+	
+		<meta name="DC.date" content="2025-02-18T16:19:34Z" />
+	<meta name="cdc:last_published" content="2025-02-18T16:26:43Z" />
+		<meta property="cdc:dfe_version" content="0.3"/>
+<meta property="cdc:dfe_content_type" content="cdc_homepage"/>
+<meta property="cdc:dfe_content_type_version" content="1.1.0"/>
+		</head>
+<body class="no-js cdc-post-type--cdc-dfe cdc-dfe-cdc_homepage">
+	<div id="skipmenu">
+	<a class="usa-skipnav" href="#content">Skip directly to site content</a>
+	<a class="usa-skipnav" href="#cdc-search">Skip directly to search</a>
+</div>
+
+
+<!-- [5/9/2025] hide motionpoint links -->
+<link rel="stylesheet" href="/files/mp.2025.css" />
+<div class="cdc-page-banner container noindex">
+	<div class="cdc-site-gov-notice noindex noprint" aria-label="Official website of the United States government">
+	<div class="cdc-page-offset">
+		<div class="cdc-site-gov-notice__header">
+			<div>
+				<img aria-hidden="true" class="usa-banner__header-flag" src="/TemplatePackage/5.0/img/uswds/us_flag_small.png" alt="" width="16" height="11">
+				<span>An official website of the United States government</span>
+			</div>
+			<span>
+				<a data-bs-toggle="collapse" href="#gov-notice" role="button" aria-expanded="false" aria-controls="gov-notice">
+					Here's how you know
+					<span class="cdc-fa-angle-down" aria-hidden="true"></span>
+				</a>
+			</span>
+		</div>
+		<div class="collapse" id="gov-notice" aria-hidden="true">
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<img src="/TemplatePackage/5.0/img/uswds/icon-dot-gov.svg" alt="" aria-hidden="true">
+					<div>
+						<b>Official websites use .gov</b>
+						<p>A <b>.gov</b> website belongs to an official government organization in the United States.</p>
+					</div>
+				</div>
+				<div class="col-12 col-lg-6">
+					<img src="/TemplatePackage/5.0/img/uswds/icon-https.svg" alt="" aria-hidden="true">
+					<div>
+						<strong>Secure .gov websites use HTTPS</strong>
+						<p>A <strong>lock</strong> ( <i class="cdc-icon-lock-01" aria-hidden="true"></i> ) or <strong>https://</strong> means you've safely connected to the .gov website. Share sensitive information only on official, secure websites.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div data-cdc-site-alert></div>
+<script src="/TemplatePackage/5.0/js/modules/banner.js"></script>
+</div>
+<header class="container-fluid cdc-header cdc-header--homepage noindex">
+	<div class="container">
+		<div class="cdc-header__desktop">
+	<div class="cdc-page-offset">
+		<div class="cdc-header__cdc-logo">
+			<a href="https://www.cdc.gov">
+	<img src="/TemplatePackage/5.0/img/logo/logo-notext.svg" alt="Centers for Disease Control and Prevention. CDC twenty four seven. Saving Lives, Protecting People" />
+</a>
+		</div>
+		<div class="cdc-header__body">
+			<div class="cdc-header__components">
+				<div class="cdc-header__components--search">
+					<div class="cdc-header__title">
+						<a href="/flu/index.html">
+							Influenza (Flu)						</a>
+					</div>
+					
+					<form action="https://search.cdc.gov/search/" method="GET" class="cdc-header__search cdc-header__search--hp" role="search">
+	<button id="cdc-search__toggle" aria-controls="cdc-header__search-inner" type="button">Search</button>
+
+	<div id="cdc-header__search-inner" class="input-group cdc-header__search__group" aria-labelledby="cdc-search__toggle">
+		<label class="visually-hidden" for="cdc-search__input">Search</label>
+		<input id="cdc-search__input" class="form-control" data-search-input autocomplete="off" type="search" name="query" maxlength="300" placeholder="Search">
+
+		<button id="cdc-search__clear" class="cdc-header__search-clear btn" type="button">
+			<span class="cdc-header__search-icon cdc-fa-xmark" aria-hidden="true"></span>
+			<span class="visually-hidden">Clear</span>
+		</button>
+
+		<button id="cdc-search__submit" class="cdc-header__search-submit btn" type="submit">
+			<span class="cdc-header__search-icon cdc-fa-magnifying-glass" aria-hidden="true"></span>
+			<span class="visually-hidden">Search</span>
+		</button>
+	</div>
+</form>
+				</div>
+									<div class="cdc-header__links">
+											<a data-post-id="133537" href="/flu/about/index.html" class="btn btn-outline-white btn-fancy" id="button_433_0" name="About" title="About">About</a>
+												<a data-post-id="133540" href="/flu/signs-symptoms/index.html" class="btn btn-outline-white btn-fancy" id="button_433_1" name="Signs%20and%20Symptoms" title="Signs and Symptoms">Signs and Symptoms</a>
+												<a data-post-id="133676" href="/flu/spread/index.html" class="btn btn-outline-white btn-fancy" id="button_433_2" name="Causes%20and%20Spread" title="Causes and Spread">Causes and Spread</a>
+												<a data-post-id="133531" href="/flu/highrisk/index.htm" class="btn btn-outline-white btn-fancy" id="button_433_3" name="Flu%20Complications%20and%20People%20at%20Higher%20Risk" title="Flu Complications and People at Higher Risk">Flu Complications and People at Higher Risk</a>
+												<a data-post-id="133542" href="/flu/prevention/index.html" class="btn btn-outline-white btn-fancy" id="button_433_4" name="Prevention" title="Prevention">Prevention</a>
+												<a data-post-id="133754" href="/flu/vaccines/index.html" class="btn btn-outline-white btn-fancy" id="button_433_5" name="Vaccine%20Basics" title="Vaccine Basics">Vaccine Basics</a>
+												<a data-post-id="133752" href="/flu/testing/index.html" class="btn btn-outline-white btn-fancy" id="button_433_6" name="Diagnosis" title="Diagnosis">Diagnosis</a>
+												<a data-post-id="133541" href="/flu/treatment/index.html" class="btn btn-outline-white btn-fancy" id="button_433_7" name="Flu%20Treatment" title="Flu Treatment">Flu Treatment</a>
+												<a class="btn btn-outline-white btn-fancy btn-arrow btn-index" href="/flu/site.html">
+							<span>View All </span>
+						</a>
+					</div>
+							</div>
+		</div>
+	</div>
+</div>
+
+
+
+<div class="cdc-header-mobile dropdown">
+	<div class="cdc-header-mobile__top">
+		<a href="https://www.cdc.gov">
+	<img src="/TemplatePackage/5.0/img/logo/logo-notext.svg" class="cdc-logo-mobile" alt="Centers for Disease Control and Prevention. CDC twenty four seven. Saving Lives, Protecting People" />
+</a>
+				<div class="cdc-header-mobile__buttons">
+			<a href="#" id="mobile-search-toggle" class="search-link" aria-controls="mobile-search-body">
+				<i class="cdc-fa-regular cdc-fa-magnifying-glass"><span class="visually-hidden">search</span></i>
+			</a>
+			<div id="mobile-search-body" class="cdc-mobile-menu-search" aria-labelledby="mobile-search-toggle">
+				<form action="https://search.cdc.gov/search/" method="GET" id="cdc-mobile-search-body" class="cdc-mobile-search" role="search" aria-labelledby="cdc-mobile-search-toggle">
+	<div class="input-group">
+		<input class="form-control cdc-mobile-search__input" data-search-input type="search" name="query" maxlength="300" placeholder="Search" required="" tabindex="-1">
+		
+		<button class="btn btn-outline-secondary btn--clear" type="button"><span class="cdc-fa-light cdc-fa-xmark" aria-hidden="true"></span></i><span class="visually-hidden">clear</span></button>
+		
+		<button class="btn btn-outline-secondary btn--search" type="submit"><i class="cdc-fa-light cdc-fa-magnifying-glass"></i><span class="visually-hidden">search</span></button>
+	</div>
+</form>
+			</div>
+		</div>
+			</div>
+
+		
+		<div class="cdc-header-mobile__title  ">
+		<a href="/flu/index.html">Influenza (Flu)</a>
+		<button type="button" id="mobileDropDownButton" class="nav-link dropdown-toggle" data-bs-offset="0,20">
+			Menu <i class="cdc-fa-angle-down"></i>
+		</button>
+	</div>
+
+	<div class="dropdown-menu cdc-mobile-menu" role="menu" aria-labelledby="mobileDropDownButton">
+		<div class="cdc-mobile-menu-search">
+			<form action="https://search.cdc.gov/search/" method="GET" id="cdc-mobile-search-body" class="cdc-mobile-search" role="search" aria-labelledby="cdc-mobile-search-toggle">
+	<div class="input-group">
+		<input class="form-control cdc-mobile-search__input" data-search-input type="search" name="query" maxlength="300" placeholder="Search" required="" tabindex="-1">
+		
+		<button class="btn btn-outline-secondary btn--clear" type="button"><span class="cdc-fa-light cdc-fa-xmark" aria-hidden="true"></span></i><span class="visually-hidden">clear</span></button>
+		
+		<button class="btn btn-outline-secondary btn--search" type="submit"><i class="cdc-fa-light cdc-fa-magnifying-glass"></i><span class="visually-hidden">search</span></button>
+	</div>
+</form>
+		</div>
+		<div class="cdc-mobile-menu-body">
+						<div class="cdc-mobile-audience accordion">
+										<div class="accordion-item" data-audience="gen">
+							<div class="accordion-header">
+								<button class="accordion-button" aria-expanded="false" type="button" data-bs-toggle="collapse" data-bs-target="#mobilemenu-gen">
+									<span class="accordion-button__text">
+										For Everyone									</span>
+								</button>
+							</div>
+							<div class="accordion-collpase collapse" id="mobilemenu-gen">
+								<div class="accordion-body">
+									<ul>
+																					<li class="truncate">
+												<a data-post-id="133537" href="/flu/about/index.html">
+													About												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133540" href="/flu/signs-symptoms/index.html">
+													Signs and Symptoms												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133676" href="/flu/spread/index.html">
+													Causes and Spread												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133531" href="/flu/highrisk/index.htm">
+													Flu Complications and People at Higher Risk												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133542" href="/flu/prevention/index.html">
+													Prevention												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133754" href="/flu/vaccines/index.html">
+													Vaccine Basics												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133752" href="/flu/testing/index.html">
+													Diagnosis												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133541" href="/flu/treatment/index.html">
+													Flu Treatment												</a>
+											</li>
+																				<li>
+																						<span class="item-link item-link--all">
+												<a href="/flu/site.html#gen">
+													View All												</a>
+											</span>
+																																	<span class="item-link item-link--home">
+												<a href="/flu/index.html">
+													Home												</a>
+											</span>
+																					</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+											<div class="accordion-item" data-audience="hcp">
+							<div class="accordion-header">
+								<button class="accordion-button" aria-expanded="false" type="button" data-bs-toggle="collapse" data-bs-target="#mobilemenu-hcp">
+									<span class="accordion-button__text">
+										Health Care Providers									</span>
+								</button>
+							</div>
+							<div class="accordion-collpase collapse" id="mobilemenu-hcp">
+								<div class="accordion-body">
+									<ul>
+																					<li class="truncate">
+												<a data-post-id="133772" href="/flu/hcp/clinical-guidance/index.html">
+													Clinical Guidance												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133770" href="/flu/hcp/clinical-signs/index.html">
+													Clinical Signs and Symptoms of Influenza												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="134709" href="/flu/hcp/vax-summary/index.html">
+													Guidance for Influenza Vaccination												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="134325" href="/flu/hcp/vaccine-supply/index.html">
+													Vaccine Product Information												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133771" href="/flu/hcp/testing-methods/index.html">
+													Clinical Testing and Diagnosis												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="134713" href="/flu/hcp/antivirals/index.html">
+													About Influenza Antiviral Medications												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133773" href="/flu/hcp/infection-control/index.html">
+													Infection Control Guidance												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="134704" href="/flu/hcp/info-collection/index.html">
+													Laboratory Testing												</a>
+											</li>
+																				<li>
+																						<span class="item-link item-link--all">
+												<a href="/flu/site.html#hcp">
+													View All												</a>
+											</span>
+																																	<span class="item-link item-link--home">
+												<a href="/flu/professionals/index.htm">
+													Home												</a>
+											</span>
+																					</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+											<div class="accordion-item" data-audience="php">
+							<div class="accordion-header">
+								<button class="accordion-button" aria-expanded="false" type="button" data-bs-toggle="collapse" data-bs-target="#mobilemenu-php">
+									<span class="accordion-button__text">
+										Public Health									</span>
+								</button>
+							</div>
+							<div class="accordion-collpase collapse" id="mobilemenu-php">
+								<div class="accordion-body">
+									<ul>
+																					<li class="truncate">
+												<a data-post-id="133738" href="/flu/php/surveillance/index.html">
+													How CDC Classifies Flu Severity each Season in the United States												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="133733" href="/flu/php/laboratories/index.html">
+													Information for Laboratories												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="134097" href="/flu/php/viruses/index.html">
+													Understanding Influenza Viruses												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="137877" href="/flu/php/who-collaboration/index.html">
+													WHO Collaborating Center for Surveillance, Epidemiology and Control of Influenza												</a>
+											</li>
+																					<li class="truncate">
+												<a data-post-id="137878" href="/flu/php/genomic-sequencing-infrastructure/index.html">
+													Viral Genomic Sequencing Infrastructure												</a>
+											</li>
+																				<li>
+																						<span class="item-link item-link--all">
+												<a href="/flu/site.html#php">
+													View All												</a>
+											</span>
+																																</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+																		<div class="accordion-item accordion-item__related">
+						<div class="accordion-header">
+							<button class="accordion-button" aria-expanded="false" type="button" data-bs-toggle="collapse" data-bs-target="#mobilemenu-related">
+								<span class="accordion-button__text">Related Topics</span>
+							</button>
+						</div>
+						<div class="accordion-collpase collapse" id="mobilemenu-related">
+							<div class="accordion-body">
+								<ul>
+																		<li class="truncate">
+										<a data-post-id="" href="/bird-flu/">
+											Avian Flu										</a>
+									</li>
+																		<li class="truncate">
+										<a data-post-id="" href="/swine-flu/">
+											Swine Flu										</a>
+									</li>
+																		<li class="truncate">
+										<a data-post-id="" href="/flu-in-animals/">
+											Flu in Animals										</a>
+									</li>
+																		<li class="truncate">
+										<a data-post-id="" href="/flu-vaccines-work/">
+											Flu Vaccines Work										</a>
+									</li>
+																		<li class="truncate">
+										<a data-post-id="" href="/pandemic-flu/">
+											Pandemic Flu										</a>
+									</li>
+																		<li class="truncate">
+										<a data-post-id="" href="/flu-burden/">
+											Flu Burden										</a>
+									</li>
+																	</ul>
+							</div>
+						</div>
+					</div>
+											</div>
+					</div>
+		<div class="cdc-mobile-menu-footer">
+							<a href="/flu/index.html">
+					<span>Influenza (Flu)</span>
+				</a>
+						</div>
+	</div>
+
+	<div class="cdc-header-mobile__faux-title" aria-hidden="true">&nbsp;</div>
+		</div>
+<div class="cdc-mobile-navbar">
+	<div class="cdc-mobile-navbar__paging">
+	</div>
+	<div class="cdc-mobile-navbar__links" tabindex="-1">
+					<a data-post-id="133537" href="/flu/about/index.html" tabindex="0">
+				About			</a>
+						<a data-post-id="133540" href="/flu/signs-symptoms/index.html" tabindex="0">
+				Signs and Symptoms			</a>
+						<a data-post-id="133676" href="/flu/spread/index.html" tabindex="0">
+				Causes and Spread			</a>
+						<a data-post-id="133531" href="/flu/highrisk/index.htm" tabindex="0">
+				Flu Complications and People at Higher Risk			</a>
+						<a data-post-id="133542" href="/flu/prevention/index.html" tabindex="0">
+				Prevention			</a>
+						<a data-post-id="133754" href="/flu/vaccines/index.html" tabindex="0">
+				Vaccine Basics			</a>
+						<a data-post-id="133752" href="/flu/testing/index.html" tabindex="0">
+				Diagnosis			</a>
+						<a data-post-id="133541" href="/flu/treatment/index.html" tabindex="0">
+				Flu Treatment			</a>
+									<a class="view-all dropdown-toggle" href="#">
+					View Menu				</a>
+			</div>
+</div>
+	</div>
+</header>
+<main  class="container cdc-main" role="main" aria-label="Main Content Area">
+	
+<section class="cdc-page-title-bar cdc-page-offset noindex">
+			<div data-alt-langs class="cdc-page-title-bar__item cdc-page-title-bar__item--languages">
+		<a class="cdc-page-title-bar__item" href="https://espanol.cdc.gov/enes/flu/index.html">Español</a>
+	</div>
+	</section>
+<div class="cdc-page-title cdc-page-offset syndicate">
+	<h1>Influenza (Flu)</h1>	</div>
+	<div id="content" class="cdc-page-content cdc-page-offset syndicate container">
+		<div class="cdc-dfe-body homepage">
+	<div class="cdc-dfe-body__content">
+			<div class="cdc-dfe-body__combined">
+			<section class="dfe-section cdc_homepage_headline cdc_homepage_headline--1-feature dfe-1-feature dfe-links-layout" data-section="cdc_homepage_headline container">
+	<div class="row">
+				<div class="cdc_homepage_headline--1-feature">
+		<div class="dfe-features cdc_homepage_headline cdc_homepage_headline--1-feature dfe-1-feature dfe-links-layout dfe-links-layout--featured" data-section="cdc_homepage_headline">
+	<div class="dfe-section__content row featured-background">
+	<div class="dfe-section__col1 col"><div class="dfe-curated-link dfe-curated-link--featured flex-row-reverse" data-post="433_133540"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9 stretch"><a href="/flu/signs-symptoms/index.html" title="Signs and Symptoms of Flu"><img src="/flu/images/homepage/symptoms2.png" alt="Flu can cause mild to severe illness. Learn the symptoms of flu."></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu/signs-symptoms/index.html">Signs and Symptoms</a></div>
+<div class="dfe-curated-link__desc">Learn about identifying flu symptoms, how the diagnosis works, common complications, and more.</div>
+<div class="dfe-curated-link__button"><a href="/flu/signs-symptoms/index.html" class="btn btn-outline-blue btn-arrow-right" id="button_433_133540" name="Learn%20More" title="Learn More">Learn More</a></div>
+<time class="dfe-curated-link__date">Aug. 26, 2024</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></div>	</div>
+</div>
+		</div>
+	</div>
+</section>
+<section class="dfe-section cdc_homepage_audience cdc_homepage_audience--2-features-1-bulleted-list-with-title dfe-2-features-1-bulleted-list-with-title dfe-links-layout" data-section="cdc_homepage_audience">
+	<a class="onThisPageAnchor" id="cdc_homepage_audience-for-everyone" name="For%20Everyone" title="For Everyone"><!-- --></a><h2 class="editor-block--title" id="heading-yan0s22put">For Everyone</h2>
+<div class="dfe-features cdc_homepage_audience cdc_homepage_audience--2-features-1-bulleted-list-with-title dfe-2-features-1-bulleted-list-with-title dfe-links-layout" data-section="cdc_homepage_audience">
+	<div class="dfe-links-layout--featured dfe-section__content row">
+		<div class="dfe-section__col1 col-md-4">
+			<div class="dfe-curated-link dfe-curated-link--featured flex-column" data-post="433_133542"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9 stretch"><a href="/flu/prevention/index.html" title="Preventing Seasonal Flu"><img src="/flu/media/images/2024/08/prevention-shot.png" alt="flu shot"></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu/prevention/index.html">Prevention</a></div>
+<div class="dfe-curated-link__desc">Strategies to reduce the risk of seasonal flu.</div>
+<time class="dfe-curated-link__date">Aug. 26, 2024</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div>		</div>
+		<div class="dfe-links-layout--featured dfe-section__col2 col-md-4">
+		<div class="dfe-curated-link dfe-curated-link--featured flex-column" data-post="433_133541"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9 stretch"><a href="/flu/treatment/index.html" title="Treatment of Flu"><img src="/flu/media/images/2024/10/antivirals-what-you-600px.jpg" alt='Person holding prescription bottle with a paper that says "RX"'></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu/treatment/index.html">Flu Treatment</a></div>
+<div class="dfe-curated-link__desc">If you get sick with flu, flu antiviral drugs may be a treatment option.</div>
+<time class="dfe-curated-link__date">Sept. 9, 2024</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div>		</div>
+		<div class="dfe-links-layout--list dfe-section__col3 col-md-4 feature-background">
+			<div class="list-container">
+								<ul>
+<li><div class="dfe-curated-link dfe-curated-link--list" data-post="1863_47"><div class="dfe-curated-link__content list"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/bird-flu/situation-summary/index.html">H5 Bird Flu: Current Situation</a></div>
+<div class="dfe-curated-link__desc">H5 bird flu is causing outbreaks in wild birds and poultry, other animals and sporadic human cases.</div>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></li><li><div class="dfe-curated-link dfe-curated-link--list" data-post><div class="dfe-curated-link__content list"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="https://www.cdc.gov/fluview/">Weekly U.S. Influenza Surveillance Report</a></div>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></li><li><div class="dfe-curated-link dfe-curated-link--list" data-post="1263_5925"><div class="dfe-curated-link__content list"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="https://www.cdc.gov/respiratory-viruses/index.html">Respiratory Illnesses</a></div>
+<div class="dfe-curated-link__desc">Learn what respiratory illnesses have in common and steps to help protect yourself and others.</div>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></li><li><div class="dfe-curated-link dfe-curated-link--list" data-post><div class="dfe-curated-link__content list"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="https://www.vaccines.gov/find-vaccines/">Flu Vaccine Finder</a></div>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></li><li><div class="dfe-curated-link dfe-curated-link--list" data-post="1926_45"><div class="dfe-curated-link__content list"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/fluvaxview/index.html">FluVaxView</a></div>
+<div class="dfe-curated-link__desc">Flu vaccination data for people 6 months and older as recommended by the ACIP.</div>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></li>
+</ul>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+<section class="dfe-section cdc_homepage_secondary_featured cdc_homepage_secondary_featured--6-feature-list dfe-6-feature-list dfe-links-layout" data-section="cdc_homepage_secondary_featured">
+	<a class="onThisPageAnchor" id="cdc_homepage_secondary_featured-featured" name="Featured" title="Featured"><!-- --></a><h2 class="editor-block--title" id="heading-6-zlqit9cg">Featured</h2>
+<div class="dfe-features cdc_homepage_secondary_featured cdc_homepage_secondary_featured--6-feature-list dfe-6-feature-list dfe-links-layout dfe-links-layout--featured" data-section="cdc_homepage_secondary_featured">
+<div class="dfe-section__content row"><div class="dfe-section__col1 col-md-6"><div class="dfe-curated-link dfe-curated-link--featured flex-row-reverse" data-post="433_133577"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9"><a href="/flu/professionals/index.htm" title="Influenza (Flu) Information for Health Care Providers"><img src="/flu/media/images/2024/08/healthcare-professional.jpg" alt="A healthcare provider wearing a mask chats with a smiling patient with a bandage on their upper arm."></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu/professionals/index.htm">Influenza for Health Care Providers</a></div>
+<div class="dfe-curated-link__desc">Health care professionals play a critical role in helping patients choose flu vaccines.</div>
+<time class="dfe-curated-link__date">Sept. 3, 2024</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></div><div class="dfe-section__col2 col-md-6"><div class="dfe-curated-link dfe-curated-link--featured flex-row-reverse" data-post="433_133537"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9"><a href="/flu/about/index.html" title="About Influenza"><img src="/bird-flu/media/images/2024/05/flu-virus.jpg" alt="3D rendering of Influenza virus"></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu/about/index.html">About</a></div>
+<div class="dfe-curated-link__desc">Flu is a contagious respiratory illness that infect the nose, throat, and sometimes the lungs.</div>
+<time class="dfe-curated-link__date">Aug. 13, 2024</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></div></div><div class="dfe-section__content row"><div class="dfe-section__col1 col-md-6"><div class="dfe-curated-link dfe-curated-link--featured flex-row-reverse" data-post="433_133742"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9"><a href="/flu/season/index.html" title="Information for the Flu Season"><img src="/flu/media/images/2024/09/doctor-entering-patient-600x400px.jpg" alt="doctor hands entering patient information"></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu/season/index.html">Information for the Flu Season</a></div>
+<div class="dfe-curated-link__desc">Learn about the current flu season and find resources related to flu surveillance and past seasons.</div>
+<time class="dfe-curated-link__date">Aug. 31, 2022</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></div><div class="dfe-section__col2 col-md-6"><div class="dfe-curated-link dfe-curated-link--featured flex-row-reverse" data-post="433_133531"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9 stretch"><a href="/flu/highrisk/index.htm" title="People at Increased Risk for Flu Complications"><img src="/flu/media/images/2024/09/smiling-family.jpg" alt="smiling family"></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu/highrisk/index.htm">Flu Complications and People at Higher Risk</a></div>
+<div class="dfe-curated-link__desc">Learn more about who is at higher risk of developing potentially serious flu complications.</div>
+<time class="dfe-curated-link__date">Sept. 11, 2024</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></div></div><div class="dfe-section__content row"><div class="dfe-section__col1 col-md-6"><div class="dfe-curated-link dfe-curated-link--featured flex-row-reverse" data-post="1937_44"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9 stretch"><a href="/flu-resources/index.html" title="Flu Resource Center"><img src="/flu-resources/media/files/2024/07/stopthespread-Twitter.png" alt="Social media and print resources you can use to share information on the importance of an annual flu vaccine."></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu-resources/index.html">Flu Resource Center</a></div>
+<div class="dfe-curated-link__desc">Access CDC communication resources to share information about the importance annual flu vaccination</div>
+<time class="dfe-curated-link__date">Aug. 14, 2024</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></div><div class="dfe-section__col2 col-md-6"><div class="dfe-curated-link dfe-curated-link--featured flex-row-reverse" data-post="433_133757"><figure class="dfe-curated-link__image dfe-image__featured"><div class="image-container aspect-ratio-16-9 stretch"><a href="/flu/about/flu-vs-covid19.html" title="Similarities and Differences between Flu and COVID-19"><img src="/flu/media/images/2024/08/covid-19-virus.jpg" alt="Learn the differences and similarities between flu and COVID-19 so appropriate decisions about treatment can be made."></a></div></figure>
+<div class="dfe-curated-link__content featured"><div class="dfe-curated-link__title"><a class="cdc-block-link" href="/flu/about/flu-vs-covid19.html">Similarities and Differences between Flu and COVID-19</a></div>
+<div class="dfe-curated-link__desc">Learn about prevention and treatment for flu and COVID-19.</div>
+<time class="dfe-curated-link__date">Sept. 17, 2024</time>
+<div class="featured download"></div></div>
+<div class="dfe-curated-link__download"></div></div></div></div></div></section></div>
+
+<section class="dfe-section cdc_homepage_news_worthy dfe-links-layout dfe-links-layout--linklist" data-section="cdc_homepage_news_worthy">
+	<div class="cdc_homepage_news_worthy--linklist">
+	<a class="onThisPageAnchor" id="cdc_homepage_news_worthy-whats-new" name="What's%20New" title="What's New"><!-- --></a><h2 class="editor-block--title" id="heading-qgxvxbax0n">What's New</h2>
+<div class="dfe-block dfe-block--cdcmodule cdc_content_coll"><div class="dfe-block dfe-block--cdcmodule cdc_content_coll"><content-collection data-src="/flu/modules/whats-new-collection.json" data-static="/flu/modules/whats-new-collection.static.json" data-template="dfe" data-theme="linklist" data-hide-form="1" data-hide-pagination="1" data-limit="6" data-limit-content="200" data-columns="1"></content-collection>
+<a class="btn btn-outline-blue" href="/flu/whats-new/index.html">View More</a></div></div>	</div>
+</section>
+		</div>
+			</div>
+
+	</div>
+</main>
+
+<section class="site-footer container noindex">
+	<div class="row cdc-footer__inner">
+		<div class="col-lg-3 site-footer__heading
+			has-home-link		">
+			<h2>
+				<a href="/flu/index.html" class="cdc-footer__super-title" aria-label="Influenza (Flu)">
+											<i class="cdc-icon cdc-fa-solid cdc-fa-house"></i>
+										<span>Influenza (Flu)&nbsp;<i class="cdc-icon cdc-fa-light cdc-fa-angle-right"></i></span>
+				</a>
+			</h2>
+								<p class="cdc-footer__site-desc">Influenza (flu) is a contagious respiratory illness caused by influenza viruses that infect the nose, throat, and lungs.</p>
+											<a href="/flu/site.html" class="cdc-footer__all btn-outline__half btn btn-outline-white btn-arrow">
+				View All			</a>
+					</div>
+		<div class="col-lg-8 offset-lg-1">
+			<div class="row site-footer__links">
+				<div class="col-md-6">
+											<!-- If Group Site is Enabled, Need at Least 2 Links -->
+													<h3 class="site-footer__links__header">
+																<a class="cdc-footer__super-link" href="/flu/index.html#gen">
+									<span>For Everyone</span>
+									<span class="cdc-icon cdc-fa-light cdc-fa-angle-right"></span>
+								</a>
+															</h3>
+																<ul>
+													<li>
+								<a data-post-id="133537" href="/flu/about/index.html">
+									About								</a>
+							</li>
+													<li>
+								<a data-post-id="133540" href="/flu/signs-symptoms/index.html">
+									Signs and Symptoms								</a>
+							</li>
+													<li>
+								<a data-post-id="133676" href="/flu/spread/index.html">
+									Causes and Spread								</a>
+							</li>
+													<li>
+								<a data-post-id="133531" href="/flu/highrisk/index.htm">
+									Flu Complications and People at Higher Risk								</a>
+							</li>
+													<li>
+								<a data-post-id="133542" href="/flu/prevention/index.html">
+									Prevention								</a>
+							</li>
+													<li>
+								<a data-post-id="133754" href="/flu/vaccines/index.html">
+									Vaccine Basics								</a>
+							</li>
+													<li>
+								<a data-post-id="133752" href="/flu/testing/index.html">
+									Diagnosis								</a>
+							</li>
+													<li>
+								<a data-post-id="133541" href="/flu/treatment/index.html">
+									Flu Treatment								</a>
+							</li>
+																			<li>
+								<a href="/flu/site.html#gen" class="btn cdc-super-footer-link">
+									View all									<span class="cdc-icon cdc-fa-light cdc-fa-angle-right"></span>
+								</a>
+							</li>
+											</ul>
+				</div>
+													<div class="col-md-6">
+													<div class="audience-column">
+								<h3 class="site-footer__links__header">
+																		<a class="cdc-footer__super-link" href="/flu/professionals/index.htm#hcp">
+										<span>Health Care Providers</span>
+										<span class="cdc-icon cdc-fa-light cdc-fa-angle-right"></span>
+									</a>
+																	</h3>
+								<ul>
+																													<li>
+											<a data-post-id="133772" href="/flu/hcp/clinical-guidance/index.html">
+												Clinical Guidance											</a>
+										</li>
+																													<li>
+											<a data-post-id="133770" href="/flu/hcp/clinical-signs/index.html">
+												Clinical Signs and Symptoms of Influenza											</a>
+										</li>
+																													<li>
+											<a data-post-id="134709" href="/flu/hcp/vax-summary/index.html">
+												Guidance for Influenza Vaccination											</a>
+										</li>
+																																						<li>
+											<a href="/flu/site.html#hcp" class="btn cdc-super-footer-link">
+												View All												<span class="cdc-icon cdc-fa-light cdc-fa-angle-right"></span>
+											</a>
+										</li>
+																	</ul>
+							</div>
+													<div class="audience-column">
+								<h3 class="site-footer__links__header">
+																		<a class="cdc-footer__super-link" href="/flu/site.html#php">
+										<span>Public Health</span>
+										<span class="cdc-icon cdc-fa-light cdc-fa-angle-right"></span>
+									</a>
+																	</h3>
+								<ul>
+																													<li>
+											<a data-post-id="133738" href="/flu/php/surveillance/index.html">
+												How CDC Classifies Flu Severity each Season in the United States											</a>
+										</li>
+																													<li>
+											<a data-post-id="133733" href="/flu/php/laboratories/index.html">
+												Information for Laboratories											</a>
+										</li>
+																													<li>
+											<a data-post-id="134097" href="/flu/php/viruses/index.html">
+												Understanding Influenza Viruses											</a>
+										</li>
+																																						<li>
+											<a href="/flu/site.html#php" class="btn cdc-super-footer-link">
+												View All												<span class="cdc-icon cdc-fa-light cdc-fa-angle-right"></span>
+											</a>
+										</li>
+																	</ul>
+							</div>
+											</div>
+							</div>
+			<div class="row site-footer__emailupdates">
+				<div class="col">
+					<i class="cdc-fa-regular cdc-fa-envelope" role="img" aria-hidden="true"></i>
+					<a href="https://tools.cdc.gov/campaignproxyservice/subscriptions.aspx?topic_id=USCDC_7_3">Sign up for Email Updates</a>
+					<i class="cdc-fa-light cdc-fa-angle-right" role="img" aria-hidden="true"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+<footer class="cdc-footer">
+	
+<section class="cdc-footer__desktop">
+	<nav class="cdc-footer__nav" id="cdc-footer-nav">
+		<div class="row cdc-footer__inner">
+			<div class="col">
+				<a id="contactUs-btn" class="cdc-footer__nav-link" data-bs-toggle="collapse" href="#contactUs" role="button" aria-expanded="false" aria-controls="contactUs">
+					Contact Us <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__subnav collapse" id="contactUs" data-bs-parent="#cdc-footer-nav" aria-labelledby="contactUs-btn" tabindex="-1">
+					<div class="cdc-footer__subnav-inner">
+						<a class="cdc-footer__nav-heading" href="https://www.cdc.gov/cdc-info/index.html">Contact Us <span class="cdc-fa-angle-right"></span></a>
+						<ul>
+							<li><a class="cdc-footer__subnav-link" href="tel:800-232-4636">Call 800-232-4636</a></li>
+							<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/cdc-info/index.html">Contact CDC</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<a id="aboutCDC-btn" class="cdc-footer__nav-link" data-bs-toggle="collapse" href="#aboutCDC" role="button" aria-expanded="false" aria-controls="aboutCDC">
+					About CDC <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__subnav collapse" id="aboutCDC" data-bs-parent="#cdc-footer-nav" aria-labelledby="aboutCDC-btn" tabindex="-1">
+					<div class="cdc-footer__subnav-inner">
+						<a class="cdc-footer__nav-heading" href="https://www.cdc.gov/about/">About CDC <span class="cdc-fa-angle-right"></span></a>
+						<ul>
+							<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/media/">Pressroom</a></li>
+							<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/about/organization/">Organization</a></li>
+							<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/budget/">Budget &amp; Funding</a></li>
+							<li><a class="cdc-footer__subnav-link" href="https://jobs.cdc.gov/index.html">Careers &amp; Jobs</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<a id="policies-btn" class="cdc-footer__nav-link" data-bs-toggle="collapse" href="#policies" role="button" aria-expanded="false" aria-controls="policies">
+					Policies <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__subnav collapse" id="policies" data-bs-parent="#cdc-footer-nav" aria-labelledby="policies-btn" tabindex="-1">
+					<div class="cdc-footer__subnav-inner">
+						<div class="row">
+							<div class="col-lg-3">
+								<ul>
+									<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/accessibility.html">Accessibility</a></li>
+									<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/Other/disclaimer.html#exit-notification">External Links</a></li>
+									<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/privacy.html">Privacy</a></li>
+									<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/Other/policies.html">Web Policies</a></li>
+								</ul>
+							</div>
+							<div class="col-lg-3">
+								<ul>
+									<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/foia/">FOIA</a></li>
+									<li><a class="cdc-footer__subnav-link" href="https://oig.hhs.gov/">OIG</a></li>
+									<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/oeeowe/no-fear-act/">No Fear Act</a></li>
+									<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/nondiscrimination.html">Nondiscrimination</a></li>
+									<li><a class="cdc-footer__subnav-link" href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html">Vulnerability Disclosure Policy</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<a id="languages-btn" class="cdc-footer__nav-link" data-bs-toggle="collapse" href="#languages" role="button" aria-expanded="false" aria-controls="languages">
+					Languages <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__subnav collapse" id="languages" data-bs-parent="#cdc-footer-nav" aria-labelledby="languages-btn" tabindex="-1">
+					<div class="cdc-footer__subnav-inner">
+						<div class="row">
+							<div class="col-lg-2">
+								<a href="https://www.cdc.gov/other/other-languages/index.html" class="cdc-footer__nav-heading">Languages</a>
+								<ul>
+									<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/spanish/">Español</a></li>
+								</ul>
+							</div>
+							<div class="col-lg-10">
+								<a href="https://www.cdc.gov/other/language-assistance.html" class="cdc-footer__nav-heading">Language Assistance</a>
+								<div class="row">
+									<div class="col-lg-3">
+										<ul>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Spanish">Español</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Chinese">繁體中文</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Vietnamese">Tiếng Việt</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Korean">한국어</a></li>
+										</ul>
+									</div>
+									<div class="col-lg-3">
+										<ul>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Tagalog">Tagalog</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Russian">Русский</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Arabic">العربية</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Haitian">Kreyòl Ayisyen</a></li>
+										</ul>
+									</div>
+									<div class="col-lg-3">
+										<ul>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#French">Français</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Polish">Polski</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Portuguese">Português</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Italian">Italiano</a></li>
+										</ul>
+									</div>
+									<div class="col-lg-3">
+										<ul>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#German">Deutsch</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Japanese">日本語</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#Farsi">فارسی</a></li>
+											<li><a class="cdc-footer__subnav-link" href="https://www.cdc.gov/other/language-assistance.html#English">English</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<a id="archive-btn" class="cdc-footer__nav-link" data-bs-toggle="collapse" href="#archive" role="button" aria-expanded="false" aria-controls="archive">
+					Archive <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__subnav collapse" id="archive" data-bs-parent="#cdc-footer-nav" aria-labelledby="archive-btn" tabindex="-1">
+					<div class="cdc-footer__subnav-inner">
+						<ul>
+							<li><a class="cdc-footer__subnav-link" href="https://archive.cdc.gov/">CDC Archive</a></li>
+							<li><a class="cdc-footer__subnav-link" href="https://stacks.cdc.gov/">Public Health Publications</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</nav>
+</section>
+
+
+<section class="cdc-footer__mobile">
+	<nav class="cdc-footer__nav">
+		<div class="row cdc-footer__inner">
+			<div class="col">
+				<a class="cdc-footer__heading" data-bs-toggle="collapse" href="#mobile-footer-contactUs" role="button" aria-expanded="false" aria-controls="mobile-footer-contactUs">
+					Contact Us <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__group col offset-lg-1 collapse" id="mobile-footer-contactUs">
+					<a href="https://www.cdc.gov/cdc-info/index.html" class="cdc-footer__nav-heading">Contact Us</a> <span class="cdc-fa-angle-right"></span>
+					<ul>
+						<li><a href="tel:800-232-4636">Call 800-232-4636</a></li>
+						<li><a href="https://www.cdc.gov/cdc-info/index.html">Contact CDC</a></li>
+					</ul>
+				</div>
+
+				<a class="cdc-footer__heading" data-bs-toggle="collapse" href="#mobile-footer-aboutCDC" role="button" aria-expanded="false" aria-controls="mobile-footer-aboutCDC">
+					About CDC <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__group col offset-lg-1 collapse" id="mobile-footer-aboutCDC">
+					<ul>
+						<li><a href="https://www.cdc.gov/media/">Pressroom</a></li>
+						<li><a href="https://www.cdc.gov/about/organization/">Organization</a></li>
+						<li><a href="https://www.cdc.gov/budget/">Budget &amp; Funding</a></li>
+						<li><a href="https://jobs.cdc.gov/index.html">Careers &amp; Jobs</a></li>
+						<li><a href="https://www.cdc.gov/about/">About CDC</a></li>
+					</ul>
+				</div>
+
+				<a class="cdc-footer__heading" data-bs-toggle="collapse" href="#mobile-footer-policies" role="button" aria-expanded="false" aria-controls="mobile-footer-policies">
+					Policies <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__group col offset-lg-1 collapse" id="mobile-footer-policies" data-bs-parent="#cdc-footer-nav">
+					<ul>
+						<li><a href="https://www.cdc.gov/other/accessibility.html">Accessibility</a></li>
+						<li><a href="https://www.cdc.gov/Other/disclaimer.html#exit-notification">External Links</a></li>
+						<li><a href="https://www.cdc.gov/other/privacy.html">Privacy</a></li>
+						<li><a href="https://www.cdc.gov/Other/policies.html">Web Policies</a></li>
+					</ul>
+					<ul>
+						<li><a href="https://www.cdc.gov/foia/">FOIA</a></li>
+						<li><a href="https://oig.hhs.gov/">OIG</a></li>
+						<li><a href="https://www.cdc.gov/oeeowe/no-fear-act/">No Fear Act</a></li>
+						<li><a href="https://www.cdc.gov/other/nondiscrimination.html">Nondiscrimination</a></li>
+						<li><a href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html">Vulnerability Disclosure Policy</a></li>
+					</ul>
+				</div>
+
+				<a class="cdc-footer__heading" data-bs-toggle="collapse" href="#mobile-footer-languages" role="button" aria-expanded="false" aria-controls="mobile-footer-languages">
+					Languages <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__group col offset-lg-1 collapse" id="mobile-footer-languages" data-bs-parent="#cdc-footer-nav">
+					<p class="cdc-footer__nav-heading">Languages <span class="cdc-fa-angle-right"></span></p>
+					<ul>
+						<li><a href="https://www.cdc.gov/spanish/">Español</a></li>
+					</ul>
+					<p class="cdc-footer__nav-heading">Language Assistance <span class="cdc-fa-angle-right"></span></p>
+					<ul>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Spanish">Español</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Chinese">繁體中文</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Vietnamese">Tiếng Việt</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Korean">한국어</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Tagalog">Tagalog</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Russian">Русский</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Arabic">العربية</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Haitian">Kreyòl Ayisyen</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#French">Français</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Polish">Polski</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Portuguese">Português</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Italian">Italiano</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#German">Deutsch</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Japanese">日本語</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#Farsi">فارسی</a></li>
+						<li><a href="https://www.cdc.gov/other/language-assistance.html#English">English</a></li>
+					</ul>
+				</div>
+
+				<a class="cdc-footer__heading" data-bs-toggle="collapse" href="#mobile-footer-archive" role="button" aria-expanded="false" aria-controls="mobile-footer-archive">
+					Archive <span class="cdc-fa-angle-down"></span>
+				</a>
+				<div class="cdc-footer__group col offset-lg-1 collapse" id="mobile-footer-archive">
+					<ul>
+						<li><a href="https://archive.cdc.gov/">CDC Archive</a></li>
+						<li><a href="https://stacks.cdc.gov/">Public Health Publications</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</nav>
+</section>
+<div class="cdc-footer__body">
+	<div class="row cdc-footer__inner">
+		<div class="col-lg-3 cdc-footer__body-logo">
+			<a href="https://www.cdc.gov/">
+				<img src="/TemplatePackage/5.0/img/logo/cdc-logo-tag-right.svg" alt="Centers for Disease Control and Prevention" />
+			</a>
+		</div>
+		<div class="col-lg-7 cdc-footer__body-social">
+			<div>
+				<a href="https://www.facebook.com/CDC">
+					<i role="img" aria-label="facebook icon" class="cdc-icon-facebook"></i>
+				</a>
+				<a href="https://twitter.com/CDCgov">
+					<i role="img" aria-label="x icon" class="cdc-icon-twitter"></i>
+				</a>
+				<a href="https://www.instagram.com/CDCgov">
+					<i role="img" aria-label="instagram icon" class="cdc-icon-instagram"></i>
+				</a>
+				<a href="https://www.linkedin.com/company/centers-for-disease-control-and-prevention">
+					<i role="img" aria-label="linkedin icon" class="cdc-icon-linkedin"></i>
+				</a>
+			</div>
+			<div>
+				<a href="https://www.youtube.com/cdc">
+					<i role="img" aria-label="youtube icon" class="cdc-icon-youtube"></i>
+				</a>
+				<a href="https://www.pinterest.com/cdcgov">
+					<i role="img" aria-label="pinterest icon" class="cdc-icon-pinterest"></i>
+				</a>
+				<a href="https://www.snapchat.com/add/cdcgov">
+					<i role="img" aria-label="snapchat icon" class="cdc-icon-snapchat"></i>
+				</a>
+				<a href="https://www.cdc.gov/rss">
+					<i role="img" aria-label="rss icon" class="cdc-icon-rss"></i>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="cdc-footer__agency">
+	<div class="cdc-footer__inner">
+		<a href="https://hhs.gov">HHS.gov</a>
+		<a href="https://usa.gov">USA.gov</a>
+	</div>
+</div>
+</footer>
+
+<!-- progress bar -->
+<div class="cdc-page-progress-bar d-none noindex">
+	<div class="cdc-page-progress-bar__scrubber"></div>
+</div>
+
+<!-- to top button -->
+<a href="#" class="cdc-page-to-top d-none noindex noprint" title="Go to top">
+	<div class="cdc-page-to-top__bar"><i class="cdc-fa-solid cdc-fa-arrow-up"></i></div>
+</a>
+
+<script src="/config/cdc_config.js"></script>
+<script>var CDC_POST={"id":"433_136787","type":"cdc_dfe","context":"433-3","lang":"en","audience":"gen","tax":{"cdc_topics":["5b44a0c6-ceec-4155-a74c-d40d40e0bec1","729f8e0c-0084-4ca3-b79a-9731d34f6ca4"],"cdc_categories":["a9a5dc06-779f-4131-88b7-fa68f806d201"],"cdc_audiences":["8de1299b-beee-47ff-a33e-3ab1d2f97e0c"]}};</script>
+	<script src="/TemplatePackage/contrib/libs/bootstrap/5x/bootstrap.bundle.min.js?_=04929"></script>
+	<script src="/TemplatePackage/contrib/libs/jquery/latest/jquery.js?_=04929"></script>
+	<script src="/TemplatePackage/5.0/js/app.min.js?_=04929"></script>
+	<script src="/TemplatePackage/contrib/libs/cdc/c2r/c2r.js?_=04929" type="module"></script>
+
+	
+<script>s.pageName=document.title;
+s.channel="Seasonal Flu";
+siteCatalyst.setAzEntry("Seasonal Flu");
+siteCatalyst.setLevel1("CDC Flu"); 
+siteCatalyst.setLevel2("OD"); 
+siteCatalyst.setLevel3("Seasonal Flu");</script>
+<script>
+	</script>
+
+<script src="/flu/files/2024.banner.js"></script>
+<script src="/flu/files/trivalent-banner-9-6-24.js"></script>
+<script src="/flu/files/acip-banner-9-6-24.js"></script>
+
+<script>
+if ( 'en-us' === document.querySelector('html').getAttribute('lang') ) {
+    $('main .cdc-dfe-body:first').after(`
+        <!-- mp_trans_add
+<p class="smallFontSize"><strong>Descargo de responsabilidad:</strong> Es posible que en este sitio encuentre algunos enlaces que le lleven a contenido disponible s&oacute;lo en ingl&eacute;s. <strong>Adem&aacute;s, el contenido que se ha traducido del ingl&eacute;s se actualiza a menudo</strong>, lo cual puede causar la aparici&oacute;n temporal de algunas partes en ese idioma hasta que se termine de traducir (generalmente en 24 horas). Llame al 1-800-CDC-INFO si tiene preguntas sobre la influenza estacional, cuyas respuestas no ha encontrado en este sitio. Agradecemos su paciencia.</p>
+-->
+    `);
+}
+</script>
+
+</body>
+</html>
