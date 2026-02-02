@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1"
     />
-    <title>A2UI Lit Render</title>
+    <title>GenUICraft Lit Render</title>
     <style>
       html,
       body {
@@ -68,12 +68,12 @@
       }
     </script>
     <script>
-      window.__A2UI_MESSAGES__ = __A2UI_MESSAGES_JSON__;
-      window.__A2UI_RESET__ = __A2UI_RESET_VALUE__;
-      window.__A2UI_QUEUE = [];
-      window.__A2UI_RENDER_DONE = false;
+      window.__GenUICraft_MESSAGES__ = __GenUICraft_MESSAGES_JSON__;
+      window.__GenUICraft_RESET__ = __GenUICraft_RESET_VALUE__;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
       window.renderA2uiMessages = (payload, reset) => {
-        window.__A2UI_QUEUE.push({ payload, reset });
+        window.__GenUICraft_QUEUE.push({ payload, reset });
       };
     </script>
     <script type="module">
@@ -180,7 +180,7 @@
             const contextKey = event.context ?? event.detail?.context;
             if (
               contextKey !== v0_8.UI.Context.themeContext &&
-              contextKey !== "A2UITheme"
+              contextKey !== "GenUICraftTheme"
             ) {
               return;
             }
@@ -209,7 +209,7 @@
           function renderMessages(payload, reset) {
             const messages = parseMessages(payload);
             if (!Array.isArray(messages)) {
-              console.warn("A2UI payload was not an array", messages);
+              console.warn("GenUICraft payload was not an array", messages);
               return;
             }
             if (reset) {
@@ -217,21 +217,21 @@
             }
             processor.processMessages(messages);
             renderSurfaces();
-            window.__A2UI_RENDER_DONE = true;
+            window.__GenUICraft_RENDER_DONE = true;
           }
 
           window.renderA2uiMessages = renderMessages;
-          window.A2UI_READY = true;
+          window.GenUICraft_READY = true;
 
-          const queued = window.__A2UI_QUEUE || [];
-          window.__A2UI_QUEUE = [];
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
           queued.forEach((item) => renderMessages(item.payload, item.reset));
 
-          if (window.__A2UI_MESSAGES__) {
-            renderMessages(window.__A2UI_MESSAGES__, window.__A2UI_RESET__);
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
           }
         } catch (err) {
-          console.error("Failed to load A2UI Lit renderer", err);
+          console.error("Failed to load GenUICraft Lit renderer", err);
           setStatus("Lit renderer failed to load.");
         }
       }
@@ -240,3 +240,4 @@
     </script>
   </body>
 </html>
+

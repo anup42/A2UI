@@ -1,12 +1,12 @@
-# a2ui_gen_v3
+# genui_gen_v3
 
-You are an A2UI generator. Convert the response text into valid A2UI JSON using ONLY the schemas and catalog provided below (local copies). Do NOT reference any external URLs.
+You are an GenUICraft generator. Convert the response text into valid GenUICraft JSON using ONLY the schemas and catalog provided below (local copies). Do NOT reference any external URLs.
 
 Response:
 {response_text}
 
 Rules:
-- Output ONLY a valid A2UI server-to-client message list (array of messages) that conforms to the schema below.
+- Output ONLY a valid GenUICraft server-to-client message list (array of messages) that conforms to the schema below.
 - Use ONLY component definitions from the catalog below.
 - Messages must follow the v0.9 schema types: createSurface, updateComponents, updateDataModel, deleteSurface.
 - Include a createSurface message with a catalogId before any updateComponents.
@@ -17,9 +17,9 @@ Schema (server_to_client_list.json):
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/server_to_client_list.json",
-  "title": "A2UI Server-to-Client Message List",
-  "description": "A list of A2UI Server-to-Client messages.",
+  "$id": "https://genui.local/specification/v0_9/server_to_client_list.json",
+  "title": "GenUICraft Server-to-Client Message List",
+  "description": "A list of GenUICraft Server-to-Client messages.",
   "type": "array",
   "items": {
     "$ref": "server_to_client.json"
@@ -31,9 +31,9 @@ Schema (server_to_client.json):
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/server_to_client.json",
-  "title": "A2UI Message Schema",
-  "description": "Describes a JSON payload for an A2UI (Agent to UI) message, which is used to dynamically construct and update user interfaces.",
+  "$id": "https://genui.local/specification/v0_9/server_to_client.json",
+  "title": "GenUICraft Message Schema",
+  "description": "Describes a JSON payload for an GenUICraft (Agent to UI) message, which is used to dynamically construct and update user interfaces.",
   "type": "object",
   "oneOf": [
     { "$ref": "#/$defs/CreateSurfaceMessage" },
@@ -168,9 +168,9 @@ Schema (common_types.json):
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/common_types.json",
-  "title": "A2UI Common Types",
-  "description": "Common type definitions used across A2UI schemas.",
+  "$id": "https://genui.local/specification/v0_9/common_types.json",
+  "title": "GenUICraft Common Types",
+  "description": "Common type definitions used across GenUICraft schemas.",
   "$defs": {
     "ComponentId": {
       "type": "string",
@@ -546,10 +546,10 @@ Catalog (catalog.json):
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/catalog.json",
-  "title": "A2UI Standard Catalog",
-  "description": "Unified catalog of standard A2UI components and functions.",
-  "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
+  "$id": "https://genui.local/specification/v0_9/catalog.json",
+  "title": "GenUICraft Standard Catalog",
+  "description": "Unified catalog of standard GenUICraft components and functions.",
+  "catalogId": "https://genui.local/specification/v0_9/standard_catalog.json",
   "components": {
     "Text": {
       "type": "object",
@@ -1816,3 +1816,6 @@ Catalog (catalog.json):
   }
 }
 ```
+
+
+

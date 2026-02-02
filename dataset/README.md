@@ -1,6 +1,6 @@
 # Dataset Generation + LLM Benchmark Harness
 
-This folder contains a resumable, multi?stage pipeline to generate user queries, responses, A2UI JSON, and TOON outputs, plus metrics and benchmarking.
+This folder contains a resumable, multi?stage pipeline to generate user queries, responses, GenUICraft JSON, and TOON outputs, plus metrics and benchmarking.
 
 ## Structure
 
@@ -13,9 +13,9 @@ dataset/
   prompts/
     query_gen.md
     response_gen.md
-    a2ui_gen.md
+    genui_gen.md
   schema/
-    a2ui.schema.json
+    genui.schema.json
   src/
     main.py
     pipeline/
@@ -79,7 +79,7 @@ python src/main.py --stage 4 --model openai_gpt4o
 
 Outputs are written to `data/runs/<run_id>/`.
 
-Stage 4 renders A2UI JSON to HTML + PNG using the Lit renderer assets copied
+Stage 4 renders GenUICraft JSON to HTML + PNG using the Lit renderer assets copied
 from `renderers/lit/dist` into `renderer/lit`. Image capture uses Playwright
 if installed; if not, HTML is still generated and rendering errors are logged.
 
@@ -101,7 +101,9 @@ This runs a fixed subset of queries against each model and stores per?model aggr
 
 ## Notes
 
-- A2UI schema is in `schema/a2ui.schema.json`.
+- GenUICraft schema is in `schema/genui.schema.json`.
 - `jsonschema` is optional; if missing, strict validation is marked false with a warning.
 - TOON is encoded in `src/pipeline/toon_convert.py` and can be swapped for a custom spec.
+
+
 

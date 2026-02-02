@@ -1,4 +1,4 @@
-﻿const state = {
+const state = {
   runId: null,
   tab: "queries",
   offset: 0,
@@ -49,7 +49,7 @@ function setSummary(payload) {
       <div class="value">${payload.responses ?? 0}</div>
     </div>
     <div class="card">
-      <div class="label">A2UI</div>
+      <div class="label">GenUICraft</div>
       <div class="value">${payload.a2ui ?? 0}</div>
     </div>
     <div class="card">
@@ -263,3 +263,4 @@ nextBtn.addEventListener("click", async () => {
     showMessage(`Failed to load data: ${err}`);
   }
 })();
+

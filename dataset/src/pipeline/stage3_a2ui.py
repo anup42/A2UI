@@ -33,13 +33,13 @@ def _validate_schema(schema: dict[str, Any], data: Any, schema_dir: Path) -> tup
             store[schema_id] = content
         # Map known spec URLs to local copies when filenames are present.
         if schema_path.name == "catalog.json":
-            store["https://a2ui.org/specification/v0_9/catalog.json"] = content
+            store["https://genui.local/specification/v0_9/catalog.json"] = content
         if schema_path.name == "common_types.json":
-            store["https://a2ui.org/specification/v0_9/common_types.json"] = content
+            store["https://genui.local/specification/v0_9/common_types.json"] = content
         if schema_path.name == "server_to_client.json":
-            store["https://a2ui.org/specification/v0_9/server_to_client.json"] = content
+            store["https://genui.local/specification/v0_9/server_to_client.json"] = content
         if schema_path.name == "server_to_client_list.json":
-            store["https://a2ui.org/specification/v0_9/server_to_client_list.json"] = content
+            store["https://genui.local/specification/v0_9/server_to_client_list.json"] = content
     try:
         resolver = jsonschema.RefResolver.from_schema(schema, store=store)
         validator = jsonschema.Draft202012Validator(schema, resolver=resolver)
@@ -284,7 +284,7 @@ def run_stage3(
                 "gen": {
                     "provider": provider,
                     "model": model,
-                    "prompt_version": "a2ui_gen_v1",
+                    "prompt_version": "genui_gen_v1",
                     "latency_ms": latency_ms,
                     "input_tokens": input_tokens,
                     "output_tokens": output_tokens,
@@ -309,3 +309,5 @@ def run_stage3(
                     "errors": errors,
                 }
                 error_path.write_text(json.dumps(error_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+

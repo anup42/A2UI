@@ -7,8 +7,9 @@ Query:
 
 Rules:
 - Provide a helpful, coherent, and complete response.
-- Do not mention A2UI or JSON.
+- Do not mention GenUICraft or JSON.
 - If the response references assets (images, files, documents), include direct, publicly accessible URLs.
 - If given a JSON array of {query_id, query_text}, return a JSON array of objects {query_id, response_text}.
 - If asked for multiple responses to one query, return a JSON array of strings (no markdown).
 - Otherwise, return plain text only.
+

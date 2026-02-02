@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/server_to_client.json",
-  "title": "A2UI Message Schema",
-  "description": "Describes a JSON payload for an A2UI (Agent to UI) message, which is used to dynamically construct and update user interfaces.",
+  "$id": "https://genui.local/specification/v0_9/server_to_client.json",
+  "title": "GenUICraft Message Schema",
+  "description": "Describes a JSON payload for an GenUICraft (Agent to UI) message, which is used to dynamically construct and update user interfaces.",
   "type": "object",
   "oneOf": [
     { "$ref": "#/$defs/CreateSurfaceMessage" },
@@ -131,3 +131,5 @@
     }
   }
 }
+
+

@@ -228,10 +228,10 @@ def main() -> None:
             )
             run_stage3(
                 responses_path=model_paths.responses_path,
-                prompt_path=prompts_dir / "a2ui_gen.md",
+                prompt_path=prompts_dir / "genui_gen.md",
                 adapter=adapter,
                 a2ui_path=model_paths.a2ui_path,
-                schema_path=schema_dir / "a2ui.schema.json",
+                schema_path=schema_dir / "genui.schema.json",
                 artifacts_dir=model_paths.artifacts_dir,
                 candidates_per_response=int(run_cfg.get("a2ui_candidates_per_response", 1)),
                 max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
@@ -307,10 +307,10 @@ def main() -> None:
     if args.stage == 3:
         run_stage3(
             responses_path=run_paths.responses_path,
-            prompt_path=prompts_dir / "a2ui_gen.md",
+            prompt_path=prompts_dir / "genui_gen.md",
             adapter=adapter,
             a2ui_path=run_paths.a2ui_path,
-            schema_path=schema_dir / "a2ui.schema.json",
+            schema_path=schema_dir / "genui.schema.json",
             artifacts_dir=run_paths.artifacts_dir,
             candidates_per_response=int(run_cfg.get("a2ui_candidates_per_response", 1)),
             max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
@@ -354,4 +354,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 

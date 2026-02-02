@@ -118,8 +118,8 @@ class HtmlRenderer:
         )
         try:
             page.goto(url)
-            page.wait_for_function("window.A2UI_READY === true", timeout=self.timeout_ms)
-            page.wait_for_function("window.__A2UI_RENDER_DONE === true", timeout=self.timeout_ms)
+            page.wait_for_function("window.GenUICraft_READY === true", timeout=self.timeout_ms)
+            page.wait_for_function("window.__GenUICraft_RENDER_DONE === true", timeout=self.timeout_ms)
             if self.wait_ms > 0:
                 page.wait_for_timeout(self.wait_ms)
             page.screenshot(path=str(image_path), full_page=True)
@@ -211,16 +211,16 @@ def run_stage4(
         a2ui_json = row.get("a2ui_json")
         messages = _normalize_messages(a2ui_json)
         if not messages or not _has_message_content(messages):
-            err_text = "No renderable A2UI messages."
+            err_text = "No renderable GenUICraft messages."
             validation = row.get("validation") if isinstance(row, dict) else None
             errors = validation.get("errors") if isinstance(validation, dict) else None
             if isinstance(errors, list) and errors:
-                err_text = f"No renderable A2UI messages. First error: {errors[0][:160]}"
+                err_text = f"No renderable GenUICraft messages. First error: {errors[0][:160]}"
             messages = _fallback_messages(err_text)
         messages_json = _safe_json_dumps(messages)
         html_text = (
-            template.replace("__A2UI_MESSAGES_JSON__", messages_json)
-            .replace("__A2UI_RESET_VALUE__", "true")
+            template.replace("__GenUICraft_MESSAGES_JSON__", messages_json)
+            .replace("__GenUICraft_RESET_VALUE__", "true")
             .replace("__ASSET_BASE__", asset_base)
         )
 
@@ -260,3 +260,4 @@ def run_stage4(
         renderer.stop()
     if server:
         server.stop()
+

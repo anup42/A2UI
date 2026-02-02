@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/common_types.json",
-  "title": "A2UI Common Types",
-  "description": "Common type definitions used across A2UI schemas.",
+  "$id": "https://genui.local/specification/v0_9/common_types.json",
+  "title": "GenUICraft Common Types",
+  "description": "Common type definitions used across GenUICraft schemas.",
   "$defs": {
     "ComponentId": {
       "type": "string",
@@ -372,3 +372,5 @@
     }
   }
 }
+
+
