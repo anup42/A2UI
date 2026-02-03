@@ -50,7 +50,7 @@ function setSummary(payload) {
     </div>
     <div class="card">
       <div class="label">GenUICraft</div>
-      <div class="value">${payload.a2ui ?? 0}</div>
+      <div class="value">${payload.genui ?? 0}</div>
     </div>
     <div class="card">
       <div class="label">Overall Score</div>
@@ -64,7 +64,7 @@ function setRuns(runs) {
   runs.forEach((run) => {
     const opt = document.createElement("option");
     opt.value = run.run_id;
-    opt.textContent = `${run.run_id} (Q:${run.queries} R:${run.responses} A:${run.a2ui})`;
+    opt.textContent = `${run.run_id} (Q:${run.queries} R:${run.responses} G:${run.genui})`;
     runSelect.appendChild(opt);
   });
   if (!state.runId && runs.length > 0) {

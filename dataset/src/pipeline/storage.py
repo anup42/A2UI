@@ -11,7 +11,7 @@ class RunPaths:
     run_dir: Path
     queries_path: Path
     responses_path: Path
-    a2ui_path: Path
+    genui_path: Path
     metrics_path: Path
     aggregates_path: Path
     artifacts_dir: Path
@@ -64,11 +64,22 @@ def load_jsonl_by_key(path: Path, key: str) -> dict[str, dict[str, Any]]:
 def get_run_paths(base_dir: Path, run_id: str, artifact_dir_name: str) -> RunPaths:
     run_dir = base_dir / run_id
     artifacts_dir = run_dir / artifact_dir_name
+
+    # Migration / compatibility: older runs used "a2ui.jsonl". New runs use "genui.jsonl".
+    legacy_path = run_dir / "a2ui.jsonl"
+    genui_path = run_dir / "genui.jsonl"
+    if legacy_path.exists() and not genui_path.exists():
+        try:
+            legacy_path.replace(genui_path)
+        except Exception:
+            # If we can't rename (e.g., file is locked), keep using the legacy path for reads.
+            genui_path = legacy_path
+
     return RunPaths(
         run_dir=run_dir,
         queries_path=run_dir / "queries.jsonl",
         responses_path=run_dir / "responses.jsonl",
-        a2ui_path=run_dir / "a2ui.jsonl",
+        genui_path=genui_path,
         metrics_path=run_dir / "metrics.jsonl",
         aggregates_path=run_dir / "aggregates.json",
         artifacts_dir=artifacts_dir,

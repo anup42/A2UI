@@ -515,7 +515,7 @@ class HttpServer:
 
 
 def run_stage4(
-    a2ui_path: Path,
+    genui_path: Path,
     output_dir: Path,
     assets_dir: Path,
     server_root: Optional[Path],
@@ -557,7 +557,7 @@ def run_stage4(
             logger.error("Stage4 renderer unavailable: %s", renderer_error)
 
     created = 0
-    for row in iter_jsonl(a2ui_path):
+    for row in iter_jsonl(genui_path):
         ui_id = row.get("ui_id")
         if not ui_id or ui_id in existing:
             continue

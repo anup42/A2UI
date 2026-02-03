@@ -51,6 +51,17 @@ def _count_lines(path: Path) -> int:
     return count
 
 
+def _resolve_genui_jsonl(run_dir: Path) -> Path:
+    """Return the GenUICraft JSONL path for a run (supports legacy filenames)."""
+    genui = run_dir / "genui.jsonl"
+    if genui.exists():
+        return genui
+    legacy = run_dir / "a2ui.jsonl"
+    if legacy.exists():
+        return legacy
+    return genui
+
+
 def _slice_jsonl(path: Path, offset: int, limit: int, search: str | None, field: str | None):
     results = []
     if not path.exists():
@@ -108,7 +119,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
                     continue
                 queries = run_dir / "queries.jsonl"
                 responses = run_dir / "responses.jsonl"
-                a2ui = run_dir / "a2ui.jsonl"
+                genui = _resolve_genui_jsonl(run_dir)
                 aggregates = run_dir / "aggregates.json"
                 render = run_dir / "render.jsonl"
                 runs.append(
@@ -116,7 +127,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
                         "run_id": run_dir.name,
                         "queries": _count_lines(queries),
                         "responses": _count_lines(responses),
-                        "a2ui": _count_lines(a2ui),
+                        "genui": _count_lines(genui),
                         "has_aggregates": aggregates.exists(),
                         "has_render": render.exists(),
                         "updated_at": datetime.utcfromtimestamp(run_dir.stat().st_mtime).isoformat() + "Z",
@@ -129,7 +140,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
             "run_id": run_dir.name,
             "queries": _count_lines(run_dir / "queries.jsonl"),
             "responses": _count_lines(run_dir / "responses.jsonl"),
-            "a2ui": _count_lines(run_dir / "a2ui.jsonl"),
+            "genui": _count_lines(_resolve_genui_jsonl(run_dir)),
         }
         aggregates = run_dir / "aggregates.json"
         if aggregates.exists():
@@ -140,6 +151,8 @@ class DatasetHandler(BaseHTTPRequestHandler):
         self._send_json(payload)
 
     def _handle_api_jsonl(self, run_dir: Path, name: str, query: dict) -> None:
+        if name == "a2ui":
+            name = "genui"
         path = run_dir / f"{name}.jsonl"
         offset = int(query.get("offset", ["0"])[0])
         limit = int(query.get("limit", ["50"])[0])
@@ -191,7 +204,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
             if parts[4] == "summary":
                 self._handle_api_summary(run_dir)
                 return
-            if parts[4] in ("queries", "responses", "a2ui"):
+            if parts[4] in ("queries", "responses", "genui", "a2ui"):
                 self._handle_api_jsonl(run_dir, parts[4], query)
                 return
         self._send_json({"error": "not found"}, status=404)

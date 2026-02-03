@@ -16,7 +16,7 @@ from pipeline.cache import PromptCache
 from pipeline.metrics import aggregate_metrics, compute_overall_score
 from pipeline.stage1_queries import run_stage1
 from pipeline.stage2_responses import run_stage2
-from pipeline.stage3_a2ui import run_stage3
+from pipeline.stage3_genui import run_stage3
 from pipeline.stage4_render import run_stage4
 from pipeline.storage import JsonlWriter, get_run_paths, iter_jsonl
 from llm.base import ModelSpec
@@ -50,8 +50,8 @@ def _load_subset(queries_path: Path, size: int) -> list[dict]:
     return subset
 
 
-def _compute_aggregates(a2ui_path: Path, weights: dict) -> dict:
-    rows = list(iter_jsonl(a2ui_path))
+def _compute_aggregates(genui_path: Path, weights: dict) -> dict:
+    rows = list(iter_jsonl(genui_path))
     aggregate = aggregate_metrics(rows)
     aggregate["overall_score"] = compute_overall_score(aggregate, weights)
     return aggregate
@@ -249,7 +249,7 @@ def main() -> None:
                 responses_path=model_paths.responses_path,
                 prompt_path=prompts_dir / "genui_gen.md",
                 adapter=adapter,
-                a2ui_path=model_paths.a2ui_path,
+                genui_path=model_paths.genui_path,
                 schema_path=schema_dir / "genui.schema.json",
                 artifacts_dir=model_paths.artifacts_dir,
                 candidates_per_response=int(run_cfg.get("a2ui_candidates_per_response", 1)),
@@ -264,7 +264,7 @@ def main() -> None:
                 aggregates_path=model_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
             )
-            aggregates[model_name] = _compute_aggregates(model_paths.a2ui_path, eval_cfg.get("weights", {}))
+            aggregates[model_name] = _compute_aggregates(model_paths.genui_path, eval_cfg.get("weights", {}))
 
         run_paths.aggregates_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
         logger.info("Benchmark complete. Aggregates stored at %s", run_paths.aggregates_path)
@@ -330,7 +330,7 @@ def main() -> None:
             responses_path=run_paths.responses_path,
             prompt_path=prompts_dir / "genui_gen.md",
             adapter=adapter,
-            a2ui_path=run_paths.a2ui_path,
+            genui_path=run_paths.genui_path,
             schema_path=schema_dir / "genui.schema.json",
             artifacts_dir=run_paths.artifacts_dir,
             candidates_per_response=int(run_cfg.get("a2ui_candidates_per_response", 1)),
@@ -354,7 +354,7 @@ def main() -> None:
         assets_dir = root / render_cfg.get("assets_dir", "renderer/lit")
         viewport = render_cfg.get("viewport", {"width": 1280, "height": 720})
         run_stage4(
-            a2ui_path=run_paths.a2ui_path,
+            genui_path=run_paths.genui_path,
             output_dir=output_dir,
             assets_dir=assets_dir,
             server_root=root,

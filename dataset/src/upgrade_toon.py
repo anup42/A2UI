@@ -28,15 +28,15 @@ def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
             f.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
 
 
-def upgrade_a2ui_jsonl(a2ui_jsonl_path: Path) -> dict[str, Any]:
+def upgrade_genui_jsonl(genui_jsonl_path: Path) -> dict[str, Any]:
     """Rewrite `toon` field in-place using the spec TOON encoder.
 
     This is safe to run multiple times: it always re-encodes from `a2ui_json`.
     """
-    if not a2ui_jsonl_path.exists():
-        raise FileNotFoundError(str(a2ui_jsonl_path))
+    if not genui_jsonl_path.exists():
+        raise FileNotFoundError(str(genui_jsonl_path))
 
-    rows = _iter_jsonl(a2ui_jsonl_path)
+    rows = _iter_jsonl(genui_jsonl_path)
 
     updated = 0
     for row in rows:
@@ -57,30 +57,39 @@ def upgrade_a2ui_jsonl(a2ui_jsonl_path: Path) -> dict[str, Any]:
         updated += 1
 
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    backup_path = a2ui_jsonl_path.with_suffix(a2ui_jsonl_path.suffix + f".bak_toon_{ts}")
-    shutil.copy2(a2ui_jsonl_path, backup_path)
+    backup_path = genui_jsonl_path.with_suffix(genui_jsonl_path.suffix + f".bak_toon_{ts}")
+    shutil.copy2(genui_jsonl_path, backup_path)
 
-    tmp_path = a2ui_jsonl_path.with_suffix(a2ui_jsonl_path.suffix + ".tmp")
+    tmp_path = genui_jsonl_path.with_suffix(genui_jsonl_path.suffix + ".tmp")
     _write_jsonl(tmp_path, rows)
-    tmp_path.replace(a2ui_jsonl_path)
+    tmp_path.replace(genui_jsonl_path)
 
     return {"updated": updated, "backup": str(backup_path)}
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Upgrade TOON strings in a2ui.jsonl to spec format.")
+    parser = argparse.ArgumentParser(description="Upgrade TOON strings in genui.jsonl to spec format.")
+    parser.add_argument(
+        "--genui_jsonl",
+        required=False,
+        type=Path,
+        help="Path to a run's genui.jsonl (e.g. dataset/data/runs/gemini_3/genui.jsonl).",
+    )
     parser.add_argument(
         "--a2ui_jsonl",
-        required=True,
+        required=False,
         type=Path,
-        help="Path to a run's a2ui.jsonl (e.g. dataset/data/runs/gemini_3/a2ui.jsonl).",
+        help="(Deprecated) Path to a run's a2ui.jsonl (legacy name).",
     )
     args = parser.parse_args()
 
-    result = upgrade_a2ui_jsonl(args.a2ui_jsonl)
+    path = args.genui_jsonl or args.a2ui_jsonl
+    if not path:
+        parser.error("One of --genui_jsonl or --a2ui_jsonl is required.")
+
+    result = upgrade_genui_jsonl(path)
     print(json.dumps(result, indent=2))
 
 
 if __name__ == "__main__":
     main()
-

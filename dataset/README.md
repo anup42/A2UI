@@ -21,7 +21,7 @@ dataset/
     pipeline/
       stage1_queries.py
       stage2_responses.py
-      stage3_a2ui.py
+      stage3_genui.py
       toon_convert.py
       metrics.py
       storage.py
@@ -40,7 +40,7 @@ dataset/
       RUN_ID/
         queries.jsonl
         responses.jsonl
-        a2ui.jsonl
+        genui.jsonl
         metrics.jsonl
         aggregates.json
         artifacts/
