@@ -261,6 +261,8 @@ def main() -> None:
                 logger=model_logger,
                 max_total=run_cfg.get("max_a2ui_total"),
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
+                aggregates_path=model_paths.aggregates_path,
+                aggregate_weights=eval_cfg.get("weights", {}),
             )
             aggregates[model_name] = _compute_aggregates(model_paths.a2ui_path, eval_cfg.get("weights", {}))
 
@@ -340,10 +342,10 @@ def main() -> None:
             logger=logger,
             max_total=run_cfg.get("max_a2ui_total"),
             max_attempts=int(run_cfg.get("max_attempts", 3)),
+            aggregates_path=run_paths.aggregates_path,
+            aggregate_weights=eval_cfg.get("weights", {}),
         )
-        aggregates = _compute_aggregates(run_paths.a2ui_path, eval_cfg.get("weights", {}))
-        run_paths.aggregates_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
-        logger.info("Stage3 complete. Aggregates stored at %s", run_paths.aggregates_path)
+        logger.info("Stage3 complete.")
         return
 
     if args.stage == 4:

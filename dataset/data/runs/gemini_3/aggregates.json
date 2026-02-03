@@ -1,0 +1,11 @@
+{
+  "counts": 410,
+  "schema_valid_strict_rate": 0.7390243902439024,
+  "content_coverage_avg": 0.9098840008163148,
+  "lint_score_avg": 0.986829268292683,
+  "dup_rate_avg": 0.13156437940786572,
+  "latency_ms_avg": 107554.11383058966,
+  "latency_ms_p95": 131344.6123600006,
+  "cost_usd_avg": 0.0,
+  "overall_score": 8.266868110845957
+}

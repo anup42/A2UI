@@ -1,0 +1,690 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+<!-- eplica-no-index -->
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Aurora forecast for Iceland | Aurora forecasts | Icelandic Meteorological office</title>
+
+  <meta property="og:site_name" content="Icelandic Meteorological office" />
+    
+
+  
+  <link rel="stylesheet" href="/skin/basic/design/main-print.css?v27" media="print" />
+  <link rel="stylesheet" href="/skin/basic/design/main-stream.css?v27" media="speech, braille, embossed, tty" />
+
+  <link rel="stylesheet" href="/skin/basic/design/vkort/vkort-print.css" media="print" />
+
+  <link rel="stylesheet" href="/skin/basic/design/vkort/vkort-print.css" media="print" />
+
+  <meta name="X-UserstyleURL" content="/codecentre/userstyles/2/?hlogo=100&siteid=foo.is" />
+
+
+  <link rel="stylesheet" href="/skin/basic/design/main.css?v27" media="screen" />
+
+  <link rel="stylesheet" href="/skin/v2/dist/oldweb-minialertsmap.css" media="screen" />
+
+  <link rel="stylesheet" href="/skin/basic/design/vkort/vkort.css?v27" media="screen" />
+
+  <link rel="stylesheet" href="/skin/basic/design/vkort/vkort.css?v27" media="screen" />
+
+
+  <script src='/skin/basic/js/noflicker.js'></script>
+  <script src='/skin/basic/js/jQuery-1.6.js'></script>
+  
+  
+
+<!--  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      Eplica web management system
+      Eplica 3 : (HEAD @ 6cec1714a)
+      Tags [release/4.1.3.5]
+      Project Version (HEAD@427a8ad)
+      License Eplica ISP hosted solution
+      eplica2.vedur.is::
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      Hugsmiðjan ehf.
+      Tel. +354 550-0900
+      info@eplica.is
+      www.eplica.is
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  -->
+
+  
+
+  <link rel="shortcut icon" href="/skin/basic/design/i/fav.ico" />
+<!-- /eplica-no-index --> 
+
+</head>
+<!--[if lt IE 9 ]><body class="msie  threecol"><![endif]--><!--[if (gte IE 9)|!(IE)]><!-->
+<body class=" threecol"><!--<![endif]-->
+  <div class="pgwrap  threecol">
+
+
+  
+<div class="pghead" id="pghead">
+<div class="wrap">
+
+  <!-- Google tag (gtag.js) --> <script async src=https://www.googletagmanager.com/gtag/js?id=G-9DQK3TDF90></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-9DQK3TDF90'); </script>
+        
+
+<!-- eplica-no-index -->
+<div class="brand" role="banner"><a href="/" title="Icelandic Meteorological office - home"
+    ><img class="logo" src="https://www.vedur.is/skin/basic/design/i/sitelogo-en.svg" alt="Icelandic Meteorological office" /></a></div>
+<div class="stream"><p><a href='#pgnav' title='Skip to navigation'>Navigation</a>.</p><hr /></div>
+<!-- /eplica-no-index -->
+
+
+
+        
+    
+        
+<!-- wrote: 2 chars -->
+        
+    
+</div>
+</div>
+
+
+  
+<div class="pgmain">
+<div class="wrap">
+    
+        
+
+<script type="text/javascript" src="/js/vi-aurora.js?v=527"></script>
+<script>
+var VI;
+if (VI == undefined) VI = {};
+if (VI.data == undefined) VI.data = {};
+if (VI.data.aurora == undefined) VI.data.aurora = {};
+
+
+	VI.data.aurora.text = {};
+
+</script>
+
+<div class="article">
+<div class="boxbody">
+
+
+<h1 id="au_forec_title">Aurora forecast for Iceland</h1>
+
+<div class="textforec auroratext">
+	<p id="au_forec_txt"></p>
+</div>
+
+
+</div>
+</div>
+<HR class=stream>
+
+
+
+
+
+<!-- wrote: 499 chars -->
+        
+    
+        
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" type="text/css" media="screen, print" href="/css/jquery-ui.css?v=527" />
+
+<script type="text/javascript" src="/js/vi-base.js?v=527"></script>
+<script type="text/javascript" src="/js/vi-res_en.js?v=527"></script>
+<script type="text/javascript" src="/jslib/history.js?v=527"></script>
+<script type="text/javascript" src="/jslib/jquery-ui.js?v=527"></script>
+
+
+
+
+
+<script>
+
+var VI;
+if (VI == undefined) VI = new Object();
+ 
+VI.conf = {
+ 'currMap':0,
+ 'now': new Date(2026,2-1,2,19,24),
+ 'title': '%DDD %hh:%mm',
+ 'sliderLen': 500,
+ 'sliderMargin' : 10.0,
+ 'sliderHandleLen' : 10,
+ 'sliderCommonTags' : true, 
+ 'sliderEntries' : 72,
+ 'startImg': -1,
+ 'sliderType': 'f',
+ 'sliderDays' : 6
+};
+
+VI.imgConf = new Array();
+
+VI.imgConf[0] = {'title':'Low and mid-level clouds','url':'total','0' : '/photos/isl_skyjahula2/260202_1500_1.png','tag0'  : new Date(2026,2-1,2,16,0),'1' : '/photos/isl_skyjahula2/260202_1500_2.png','tag1'  : new Date(2026,2-1,2,17,0),'2' : '/photos/isl_skyjahula2/260202_1500_3.png','tag2'  : new Date(2026,2-1,2,18,0),'3' : '/photos/isl_skyjahula2/260202_1500_4.png','tag3'  : new Date(2026,2-1,2,19,0),'4' : '/photos/isl_skyjahula2/260202_1500_5.png','tag4'  : new Date(2026,2-1,2,20,0),'5' : '/photos/isl_skyjahula2/260202_1500_6.png','tag5'  : new Date(2026,2-1,2,21,0),'6' : '/photos/isl_skyjahula2/260202_1500_7.png','tag6'  : new Date(2026,2-1,2,22,0),'7' : '/photos/isl_skyjahula2/260202_1500_8.png','tag7'  : new Date(2026,2-1,2,23,0),'8' : '/photos/isl_skyjahula2/260202_1500_9.png','tag8'  : new Date(2026,2-1,3,0,0),'9' : '/photos/isl_skyjahula2/260202_1500_10.png','tag9'  : new Date(2026,2-1,3,1,0),'10' : '/photos/isl_skyjahula2/260202_1500_11.png','tag10'  : new Date(2026,2-1,3,2,0),'11' : '/photos/isl_skyjahula2/260202_1500_12.png','tag11'  : new Date(2026,2-1,3,3,0),'12' : '/photos/isl_skyjahula2/260202_1500_13.png','tag12'  : new Date(2026,2-1,3,4,0),'13' : '/photos/isl_skyjahula2/260202_1500_14.png','tag13'  : new Date(2026,2-1,3,5,0),'14' : '/photos/isl_skyjahula2/260202_1500_15.png','tag14'  : new Date(2026,2-1,3,6,0),'15' : '/photos/isl_skyjahula2/260202_1500_16.png','tag15'  : new Date(2026,2-1,3,7,0),'16' : '/photos/isl_skyjahula2/260202_1500_17.png','tag16'  : new Date(2026,2-1,3,8,0),'17' : '/photos/isl_skyjahula2/260202_1500_18.png','tag17'  : new Date(2026,2-1,3,9,0),'18' : '/photos/isl_skyjahula2/260202_1500_19.png','tag18'  : new Date(2026,2-1,3,10,0),'19' : '/photos/isl_skyjahula2/260202_1500_20.png','tag19'  : new Date(2026,2-1,3,11,0),'20' : '/photos/isl_skyjahula2/260202_1500_21.png','tag20'  : new Date(2026,2-1,3,12,0),'21' : '/photos/isl_skyjahula2/260202_1500_22.png','tag21'  : new Date(2026,2-1,3,13,0),'22' : '/photos/isl_skyjahula2/260202_1500_23.png','tag22'  : new Date(2026,2-1,3,14,0),'23' : '/photos/isl_skyjahula2/260202_1500_24.png','tag23'  : new Date(2026,2-1,3,15,0),'24' : '/photos/isl_skyjahula2/260202_1500_25.png','tag24'  : new Date(2026,2-1,3,16,0),'25' : '/photos/isl_skyjahula2/260202_1500_26.png','tag25'  : new Date(2026,2-1,3,17,0),'26' : '/photos/isl_skyjahula2/260202_1500_27.png','tag26'  : new Date(2026,2-1,3,18,0),'27' : '/photos/isl_skyjahula2/260202_1500_28.png','tag27'  : new Date(2026,2-1,3,19,0),'28' : '/photos/isl_skyjahula2/260202_1500_29.png','tag28'  : new Date(2026,2-1,3,20,0),'29' : '/photos/isl_skyjahula2/260202_1500_30.png','tag29'  : new Date(2026,2-1,3,21,0),'30' : '/photos/isl_skyjahula2/260202_1500_31.png','tag30'  : new Date(2026,2-1,3,22,0),'31' : '/photos/isl_skyjahula2/260202_1500_32.png','tag31'  : new Date(2026,2-1,3,23,0),'32' : '/photos/isl_skyjahula2/260202_1500_33.png','tag32'  : new Date(2026,2-1,4,0,0),'33' : '/photos/isl_skyjahula2/260202_1500_34.png','tag33'  : new Date(2026,2-1,4,1,0),'34' : '/photos/isl_skyjahula2/260202_1500_35.png','tag34'  : new Date(2026,2-1,4,2,0),'35' : '/photos/isl_skyjahula2/260202_1500_36.png','tag35'  : new Date(2026,2-1,4,3,0),'36' : '/photos/isl_skyjahula2/260202_1500_37.png','tag36'  : new Date(2026,2-1,4,4,0),'37' : '/photos/isl_skyjahula2/260202_1500_38.png','tag37'  : new Date(2026,2-1,4,5,0),'38' : '/photos/isl_skyjahula2/260202_1500_39.png','tag38'  : new Date(2026,2-1,4,6,0),'39' : '/photos/isl_skyjahula2/260202_1500_40.png','tag39'  : new Date(2026,2-1,4,7,0),'40' : '/photos/isl_skyjahula2/260202_1500_41.png','tag40'  : new Date(2026,2-1,4,8,0),'41' : '/photos/isl_skyjahula2/260202_1500_42.png','tag41'  : new Date(2026,2-1,4,9,0),'42' : '/photos/isl_skyjahula2/260202_1500_43.png','tag42'  : new Date(2026,2-1,4,10,0),'43' : '/photos/isl_skyjahula2/260202_1500_44.png','tag43'  : new Date(2026,2-1,4,11,0),'44' : '/photos/isl_skyjahula2/260202_1500_45.png','tag44'  : new Date(2026,2-1,4,12,0),'45' : '/photos/isl_skyjahula2/260202_1500_46.png','tag45'  : new Date(2026,2-1,4,13,0),'46' : '/photos/isl_skyjahula2/260202_1500_47.png','tag46'  : new Date(2026,2-1,4,14,0),'47' : '/photos/isl_skyjahula2/260202_1500_48.png','tag47'  : new Date(2026,2-1,4,15,0),'48' : '/photos/isl_skyjahula2/260202_1500_49.png','tag48'  : new Date(2026,2-1,4,16,0),'49' : '/photos/isl_skyjahula2/260202_1500_50.png','tag49'  : new Date(2026,2-1,4,17,0),'50' : '/photos/isl_skyjahula2/260202_1500_51.png','tag50'  : new Date(2026,2-1,4,18,0),'51' : '/photos/isl_skyjahula2/260202_1500_52.png','tag51'  : new Date(2026,2-1,4,19,0),'52' : '/photos/isl_skyjahula2/260202_1500_53.png','tag52'  : new Date(2026,2-1,4,20,0),'53' : '/photos/isl_skyjahula2/260202_1500_54.png','tag53'  : new Date(2026,2-1,4,21,0),'54' : '/photos/isl_skyjahula2/260202_1500_55.png','tag54'  : new Date(2026,2-1,4,22,0),'55' : '/photos/isl_skyjahula2/260202_1500_56.png','tag55'  : new Date(2026,2-1,4,23,0),'56' : '/photos/isl_skyjahula2/260202_1500_57.png','tag56'  : new Date(2026,2-1,5,0,0),'57' : '/photos/isl_skyjahula2/260202_1500_58.png','tag57'  : new Date(2026,2-1,5,1,0),'58' : '/photos/isl_skyjahula2/260202_1500_59.png','tag58'  : new Date(2026,2-1,5,2,0),'59' : '/photos/isl_skyjahula2/260202_1500_60.png','tag59'  : new Date(2026,2-1,5,3,0),'60' : '/photos/isl_skyjahula2/260202_1500_61.png','tag60'  : new Date(2026,2-1,5,4,0),'61' : '/photos/isl_skyjahula2/260202_1500_62.png','tag61'  : new Date(2026,2-1,5,5,0),'62' : '/photos/isl_skyjahula2/260202_1500_63.png','tag62'  : new Date(2026,2-1,5,6,0),'63' : '/photos/isl_skyjahula2/260202_1500_64.png','tag63'  : new Date(2026,2-1,5,7,0),'64' : '/photos/isl_skyjahula2/260202_1500_65.png','tag64'  : new Date(2026,2-1,5,8,0),'65' : '/photos/isl_skyjahula2/260202_1500_66.png','tag65'  : new Date(2026,2-1,5,9,0),'66' : '/photos/isl_skyjahula2/260202_1500_67.png','tag66'  : new Date(2026,2-1,5,10,0),'67' : '/photos/isl_skyjahula2/260202_1500_68.png','tag67'  : new Date(2026,2-1,5,11,0),'68' : '/photos/isl_skyjahula2/260202_1500_69.png','tag68'  : new Date(2026,2-1,5,12,0),'69' : '/photos/isl_skyjahula2/260202_1500_70.png','tag69'  : new Date(2026,2-1,5,13,0),'70' : '/photos/isl_skyjahula2/260202_1500_71.png','tag70'  : new Date(2026,2-1,5,14,0),'71' : '/photos/isl_skyjahula2/260202_1500_72.png','tag71'  : new Date(2026,2-1,5,15,0),'mapCtrl':null };VI.imgConf[1] = {'title':'Lower clouds','url':'lower','0' : '/photos/harmonie_island_lcc/260202_1500_1.png','tag0'  : new Date(2026,2-1,2,16,0),'1' : '/photos/harmonie_island_lcc/260202_1500_2.png','tag1'  : new Date(2026,2-1,2,17,0),'2' : '/photos/harmonie_island_lcc/260202_1500_3.png','tag2'  : new Date(2026,2-1,2,18,0),'3' : '/photos/harmonie_island_lcc/260202_1500_4.png','tag3'  : new Date(2026,2-1,2,19,0),'4' : '/photos/harmonie_island_lcc/260202_1500_5.png','tag4'  : new Date(2026,2-1,2,20,0),'5' : '/photos/harmonie_island_lcc/260202_1500_6.png','tag5'  : new Date(2026,2-1,2,21,0),'6' : '/photos/harmonie_island_lcc/260202_1500_7.png','tag6'  : new Date(2026,2-1,2,22,0),'7' : '/photos/harmonie_island_lcc/260202_1500_8.png','tag7'  : new Date(2026,2-1,2,23,0),'8' : '/photos/harmonie_island_lcc/260202_1500_9.png','tag8'  : new Date(2026,2-1,3,0,0),'9' : '/photos/harmonie_island_lcc/260202_1500_10.png','tag9'  : new Date(2026,2-1,3,1,0),'10' : '/photos/harmonie_island_lcc/260202_1500_11.png','tag10'  : new Date(2026,2-1,3,2,0),'11' : '/photos/harmonie_island_lcc/260202_1500_12.png','tag11'  : new Date(2026,2-1,3,3,0),'12' : '/photos/harmonie_island_lcc/260202_1500_13.png','tag12'  : new Date(2026,2-1,3,4,0),'13' : '/photos/harmonie_island_lcc/260202_1500_14.png','tag13'  : new Date(2026,2-1,3,5,0),'14' : '/photos/harmonie_island_lcc/260202_1500_15.png','tag14'  : new Date(2026,2-1,3,6,0),'15' : '/photos/harmonie_island_lcc/260202_1500_16.png','tag15'  : new Date(2026,2-1,3,7,0),'16' : '/photos/harmonie_island_lcc/260202_1500_17.png','tag16'  : new Date(2026,2-1,3,8,0),'17' : '/photos/harmonie_island_lcc/260202_1500_18.png','tag17'  : new Date(2026,2-1,3,9,0),'18' : '/photos/harmonie_island_lcc/260202_1500_19.png','tag18'  : new Date(2026,2-1,3,10,0),'19' : '/photos/harmonie_island_lcc/260202_1500_20.png','tag19'  : new Date(2026,2-1,3,11,0),'20' : '/photos/harmonie_island_lcc/260202_1500_21.png','tag20'  : new Date(2026,2-1,3,12,0),'21' : '/photos/harmonie_island_lcc/260202_1500_22.png','tag21'  : new Date(2026,2-1,3,13,0),'22' : '/photos/harmonie_island_lcc/260202_1500_23.png','tag22'  : new Date(2026,2-1,3,14,0),'23' : '/photos/harmonie_island_lcc/260202_1500_24.png','tag23'  : new Date(2026,2-1,3,15,0),'24' : '/photos/harmonie_island_lcc/260202_1500_25.png','tag24'  : new Date(2026,2-1,3,16,0),'25' : '/photos/harmonie_island_lcc/260202_1500_26.png','tag25'  : new Date(2026,2-1,3,17,0),'26' : '/photos/harmonie_island_lcc/260202_1500_27.png','tag26'  : new Date(2026,2-1,3,18,0),'27' : '/photos/harmonie_island_lcc/260202_1500_28.png','tag27'  : new Date(2026,2-1,3,19,0),'28' : '/photos/harmonie_island_lcc/260202_1500_29.png','tag28'  : new Date(2026,2-1,3,20,0),'29' : '/photos/harmonie_island_lcc/260202_1500_30.png','tag29'  : new Date(2026,2-1,3,21,0),'30' : '/photos/harmonie_island_lcc/260202_1500_31.png','tag30'  : new Date(2026,2-1,3,22,0),'31' : '/photos/harmonie_island_lcc/260202_1500_32.png','tag31'  : new Date(2026,2-1,3,23,0),'32' : '/photos/harmonie_island_lcc/260202_1500_33.png','tag32'  : new Date(2026,2-1,4,0,0),'33' : '/photos/harmonie_island_lcc/260202_1500_34.png','tag33'  : new Date(2026,2-1,4,1,0),'34' : '/photos/harmonie_island_lcc/260202_1500_35.png','tag34'  : new Date(2026,2-1,4,2,0),'35' : '/photos/harmonie_island_lcc/260202_1500_36.png','tag35'  : new Date(2026,2-1,4,3,0),'36' : '/photos/harmonie_island_lcc/260202_1500_37.png','tag36'  : new Date(2026,2-1,4,4,0),'37' : '/photos/harmonie_island_lcc/260202_1500_38.png','tag37'  : new Date(2026,2-1,4,5,0),'38' : '/photos/harmonie_island_lcc/260202_1500_39.png','tag38'  : new Date(2026,2-1,4,6,0),'39' : '/photos/harmonie_island_lcc/260202_1500_40.png','tag39'  : new Date(2026,2-1,4,7,0),'40' : '/photos/harmonie_island_lcc/260202_1500_41.png','tag40'  : new Date(2026,2-1,4,8,0),'41' : '/photos/harmonie_island_lcc/260202_1500_42.png','tag41'  : new Date(2026,2-1,4,9,0),'42' : '/photos/harmonie_island_lcc/260202_1500_43.png','tag42'  : new Date(2026,2-1,4,10,0),'43' : '/photos/harmonie_island_lcc/260202_1500_44.png','tag43'  : new Date(2026,2-1,4,11,0),'44' : '/photos/harmonie_island_lcc/260202_1500_45.png','tag44'  : new Date(2026,2-1,4,12,0),'45' : '/photos/harmonie_island_lcc/260202_1500_46.png','tag45'  : new Date(2026,2-1,4,13,0),'46' : '/photos/harmonie_island_lcc/260202_1500_47.png','tag46'  : new Date(2026,2-1,4,14,0),'47' : '/photos/harmonie_island_lcc/260202_1500_48.png','tag47'  : new Date(2026,2-1,4,15,0),'48' : '/photos/harmonie_island_lcc/260202_1500_49.png','tag48'  : new Date(2026,2-1,4,16,0),'49' : '/photos/harmonie_island_lcc/260202_1500_50.png','tag49'  : new Date(2026,2-1,4,17,0),'50' : '/photos/harmonie_island_lcc/260202_1500_51.png','tag50'  : new Date(2026,2-1,4,18,0),'51' : '/photos/harmonie_island_lcc/260202_1500_52.png','tag51'  : new Date(2026,2-1,4,19,0),'52' : '/photos/harmonie_island_lcc/260202_1500_53.png','tag52'  : new Date(2026,2-1,4,20,0),'53' : '/photos/harmonie_island_lcc/260202_1500_54.png','tag53'  : new Date(2026,2-1,4,21,0),'54' : '/photos/harmonie_island_lcc/260202_1500_55.png','tag54'  : new Date(2026,2-1,4,22,0),'55' : '/photos/harmonie_island_lcc/260202_1500_56.png','tag55'  : new Date(2026,2-1,4,23,0),'56' : '/photos/harmonie_island_lcc/260202_1500_57.png','tag56'  : new Date(2026,2-1,5,0,0),'57' : '/photos/harmonie_island_lcc/260202_1500_58.png','tag57'  : new Date(2026,2-1,5,1,0),'58' : '/photos/harmonie_island_lcc/260202_1500_59.png','tag58'  : new Date(2026,2-1,5,2,0),'59' : '/photos/harmonie_island_lcc/260202_1500_60.png','tag59'  : new Date(2026,2-1,5,3,0),'60' : '/photos/harmonie_island_lcc/260202_1500_61.png','tag60'  : new Date(2026,2-1,5,4,0),'61' : '/photos/harmonie_island_lcc/260202_1500_62.png','tag61'  : new Date(2026,2-1,5,5,0),'62' : '/photos/harmonie_island_lcc/260202_1500_63.png','tag62'  : new Date(2026,2-1,5,6,0),'63' : '/photos/harmonie_island_lcc/260202_1500_64.png','tag63'  : new Date(2026,2-1,5,7,0),'64' : '/photos/harmonie_island_lcc/260202_1500_65.png','tag64'  : new Date(2026,2-1,5,8,0),'65' : '/photos/harmonie_island_lcc/260202_1500_66.png','tag65'  : new Date(2026,2-1,5,9,0),'66' : '/photos/harmonie_island_lcc/260202_1500_67.png','tag66'  : new Date(2026,2-1,5,10,0),'67' : '/photos/harmonie_island_lcc/260202_1500_68.png','tag67'  : new Date(2026,2-1,5,11,0),'68' : '/photos/harmonie_island_lcc/260202_1500_69.png','tag68'  : new Date(2026,2-1,5,12,0),'69' : '/photos/harmonie_island_lcc/260202_1500_70.png','tag69'  : new Date(2026,2-1,5,13,0),'70' : '/photos/harmonie_island_lcc/260202_1500_71.png','tag70'  : new Date(2026,2-1,5,14,0),'71' : '/photos/harmonie_island_lcc/260202_1500_72.png','tag71'  : new Date(2026,2-1,5,15,0),'mapCtrl':null };VI.imgConf[2] = {'title':'Middle clouds','url':'middle','0' : '/photos/harmonie_island_mcc/260202_1500_1.png','tag0'  : new Date(2026,2-1,2,16,0),'1' : '/photos/harmonie_island_mcc/260202_1500_2.png','tag1'  : new Date(2026,2-1,2,17,0),'2' : '/photos/harmonie_island_mcc/260202_1500_3.png','tag2'  : new Date(2026,2-1,2,18,0),'3' : '/photos/harmonie_island_mcc/260202_1500_4.png','tag3'  : new Date(2026,2-1,2,19,0),'4' : '/photos/harmonie_island_mcc/260202_1500_5.png','tag4'  : new Date(2026,2-1,2,20,0),'5' : '/photos/harmonie_island_mcc/260202_1500_6.png','tag5'  : new Date(2026,2-1,2,21,0),'6' : '/photos/harmonie_island_mcc/260202_1500_7.png','tag6'  : new Date(2026,2-1,2,22,0),'7' : '/photos/harmonie_island_mcc/260202_1500_8.png','tag7'  : new Date(2026,2-1,2,23,0),'8' : '/photos/harmonie_island_mcc/260202_1500_9.png','tag8'  : new Date(2026,2-1,3,0,0),'9' : '/photos/harmonie_island_mcc/260202_1500_10.png','tag9'  : new Date(2026,2-1,3,1,0),'10' : '/photos/harmonie_island_mcc/260202_1500_11.png','tag10'  : new Date(2026,2-1,3,2,0),'11' : '/photos/harmonie_island_mcc/260202_1500_12.png','tag11'  : new Date(2026,2-1,3,3,0),'12' : '/photos/harmonie_island_mcc/260202_1500_13.png','tag12'  : new Date(2026,2-1,3,4,0),'13' : '/photos/harmonie_island_mcc/260202_1500_14.png','tag13'  : new Date(2026,2-1,3,5,0),'14' : '/photos/harmonie_island_mcc/260202_1500_15.png','tag14'  : new Date(2026,2-1,3,6,0),'15' : '/photos/harmonie_island_mcc/260202_1500_16.png','tag15'  : new Date(2026,2-1,3,7,0),'16' : '/photos/harmonie_island_mcc/260202_1500_17.png','tag16'  : new Date(2026,2-1,3,8,0),'17' : '/photos/harmonie_island_mcc/260202_1500_18.png','tag17'  : new Date(2026,2-1,3,9,0),'18' : '/photos/harmonie_island_mcc/260202_1500_19.png','tag18'  : new Date(2026,2-1,3,10,0),'19' : '/photos/harmonie_island_mcc/260202_1500_20.png','tag19'  : new Date(2026,2-1,3,11,0),'20' : '/photos/harmonie_island_mcc/260202_1500_21.png','tag20'  : new Date(2026,2-1,3,12,0),'21' : '/photos/harmonie_island_mcc/260202_1500_22.png','tag21'  : new Date(2026,2-1,3,13,0),'22' : '/photos/harmonie_island_mcc/260202_1500_23.png','tag22'  : new Date(2026,2-1,3,14,0),'23' : '/photos/harmonie_island_mcc/260202_1500_24.png','tag23'  : new Date(2026,2-1,3,15,0),'24' : '/photos/harmonie_island_mcc/260202_1500_25.png','tag24'  : new Date(2026,2-1,3,16,0),'25' : '/photos/harmonie_island_mcc/260202_1500_26.png','tag25'  : new Date(2026,2-1,3,17,0),'26' : '/photos/harmonie_island_mcc/260202_1500_27.png','tag26'  : new Date(2026,2-1,3,18,0),'27' : '/photos/harmonie_island_mcc/260202_1500_28.png','tag27'  : new Date(2026,2-1,3,19,0),'28' : '/photos/harmonie_island_mcc/260202_1500_29.png','tag28'  : new Date(2026,2-1,3,20,0),'29' : '/photos/harmonie_island_mcc/260202_1500_30.png','tag29'  : new Date(2026,2-1,3,21,0),'30' : '/photos/harmonie_island_mcc/260202_1500_31.png','tag30'  : new Date(2026,2-1,3,22,0),'31' : '/photos/harmonie_island_mcc/260202_1500_32.png','tag31'  : new Date(2026,2-1,3,23,0),'32' : '/photos/harmonie_island_mcc/260202_1500_33.png','tag32'  : new Date(2026,2-1,4,0,0),'33' : '/photos/harmonie_island_mcc/260202_1500_34.png','tag33'  : new Date(2026,2-1,4,1,0),'34' : '/photos/harmonie_island_mcc/260202_1500_35.png','tag34'  : new Date(2026,2-1,4,2,0),'35' : '/photos/harmonie_island_mcc/260202_1500_36.png','tag35'  : new Date(2026,2-1,4,3,0),'36' : '/photos/harmonie_island_mcc/260202_1500_37.png','tag36'  : new Date(2026,2-1,4,4,0),'37' : '/photos/harmonie_island_mcc/260202_1500_38.png','tag37'  : new Date(2026,2-1,4,5,0),'38' : '/photos/harmonie_island_mcc/260202_1500_39.png','tag38'  : new Date(2026,2-1,4,6,0),'39' : '/photos/harmonie_island_mcc/260202_1500_40.png','tag39'  : new Date(2026,2-1,4,7,0),'40' : '/photos/harmonie_island_mcc/260202_1500_41.png','tag40'  : new Date(2026,2-1,4,8,0),'41' : '/photos/harmonie_island_mcc/260202_1500_42.png','tag41'  : new Date(2026,2-1,4,9,0),'42' : '/photos/harmonie_island_mcc/260202_1500_43.png','tag42'  : new Date(2026,2-1,4,10,0),'43' : '/photos/harmonie_island_mcc/260202_1500_44.png','tag43'  : new Date(2026,2-1,4,11,0),'44' : '/photos/harmonie_island_mcc/260202_1500_45.png','tag44'  : new Date(2026,2-1,4,12,0),'45' : '/photos/harmonie_island_mcc/260202_1500_46.png','tag45'  : new Date(2026,2-1,4,13,0),'46' : '/photos/harmonie_island_mcc/260202_1500_47.png','tag46'  : new Date(2026,2-1,4,14,0),'47' : '/photos/harmonie_island_mcc/260202_1500_48.png','tag47'  : new Date(2026,2-1,4,15,0),'48' : '/photos/harmonie_island_mcc/260202_1500_49.png','tag48'  : new Date(2026,2-1,4,16,0),'49' : '/photos/harmonie_island_mcc/260202_1500_50.png','tag49'  : new Date(2026,2-1,4,17,0),'50' : '/photos/harmonie_island_mcc/260202_1500_51.png','tag50'  : new Date(2026,2-1,4,18,0),'51' : '/photos/harmonie_island_mcc/260202_1500_52.png','tag51'  : new Date(2026,2-1,4,19,0),'52' : '/photos/harmonie_island_mcc/260202_1500_53.png','tag52'  : new Date(2026,2-1,4,20,0),'53' : '/photos/harmonie_island_mcc/260202_1500_54.png','tag53'  : new Date(2026,2-1,4,21,0),'54' : '/photos/harmonie_island_mcc/260202_1500_55.png','tag54'  : new Date(2026,2-1,4,22,0),'55' : '/photos/harmonie_island_mcc/260202_1500_56.png','tag55'  : new Date(2026,2-1,4,23,0),'56' : '/photos/harmonie_island_mcc/260202_1500_57.png','tag56'  : new Date(2026,2-1,5,0,0),'57' : '/photos/harmonie_island_mcc/260202_1500_58.png','tag57'  : new Date(2026,2-1,5,1,0),'58' : '/photos/harmonie_island_mcc/260202_1500_59.png','tag58'  : new Date(2026,2-1,5,2,0),'59' : '/photos/harmonie_island_mcc/260202_1500_60.png','tag59'  : new Date(2026,2-1,5,3,0),'60' : '/photos/harmonie_island_mcc/260202_1500_61.png','tag60'  : new Date(2026,2-1,5,4,0),'61' : '/photos/harmonie_island_mcc/260202_1500_62.png','tag61'  : new Date(2026,2-1,5,5,0),'62' : '/photos/harmonie_island_mcc/260202_1500_63.png','tag62'  : new Date(2026,2-1,5,6,0),'63' : '/photos/harmonie_island_mcc/260202_1500_64.png','tag63'  : new Date(2026,2-1,5,7,0),'64' : '/photos/harmonie_island_mcc/260202_1500_65.png','tag64'  : new Date(2026,2-1,5,8,0),'65' : '/photos/harmonie_island_mcc/260202_1500_66.png','tag65'  : new Date(2026,2-1,5,9,0),'66' : '/photos/harmonie_island_mcc/260202_1500_67.png','tag66'  : new Date(2026,2-1,5,10,0),'67' : '/photos/harmonie_island_mcc/260202_1500_68.png','tag67'  : new Date(2026,2-1,5,11,0),'68' : '/photos/harmonie_island_mcc/260202_1500_69.png','tag68'  : new Date(2026,2-1,5,12,0),'69' : '/photos/harmonie_island_mcc/260202_1500_70.png','tag69'  : new Date(2026,2-1,5,13,0),'70' : '/photos/harmonie_island_mcc/260202_1500_71.png','tag70'  : new Date(2026,2-1,5,14,0),'71' : '/photos/harmonie_island_mcc/260202_1500_72.png','tag71'  : new Date(2026,2-1,5,15,0),'mapCtrl':null };VI.imgConf[3] = {'title':'High clouds','url':'high','0' : '/photos/harmonie_island_hcc/260202_1500_1.png','tag0'  : new Date(2026,2-1,2,16,0),'1' : '/photos/harmonie_island_hcc/260202_1500_2.png','tag1'  : new Date(2026,2-1,2,17,0),'2' : '/photos/harmonie_island_hcc/260202_1500_3.png','tag2'  : new Date(2026,2-1,2,18,0),'3' : '/photos/harmonie_island_hcc/260202_1500_4.png','tag3'  : new Date(2026,2-1,2,19,0),'4' : '/photos/harmonie_island_hcc/260202_1500_5.png','tag4'  : new Date(2026,2-1,2,20,0),'5' : '/photos/harmonie_island_hcc/260202_1500_6.png','tag5'  : new Date(2026,2-1,2,21,0),'6' : '/photos/harmonie_island_hcc/260202_1500_7.png','tag6'  : new Date(2026,2-1,2,22,0),'7' : '/photos/harmonie_island_hcc/260202_1500_8.png','tag7'  : new Date(2026,2-1,2,23,0),'8' : '/photos/harmonie_island_hcc/260202_1500_9.png','tag8'  : new Date(2026,2-1,3,0,0),'9' : '/photos/harmonie_island_hcc/260202_1500_10.png','tag9'  : new Date(2026,2-1,3,1,0),'10' : '/photos/harmonie_island_hcc/260202_1500_11.png','tag10'  : new Date(2026,2-1,3,2,0),'11' : '/photos/harmonie_island_hcc/260202_1500_12.png','tag11'  : new Date(2026,2-1,3,3,0),'12' : '/photos/harmonie_island_hcc/260202_1500_13.png','tag12'  : new Date(2026,2-1,3,4,0),'13' : '/photos/harmonie_island_hcc/260202_1500_14.png','tag13'  : new Date(2026,2-1,3,5,0),'14' : '/photos/harmonie_island_hcc/260202_1500_15.png','tag14'  : new Date(2026,2-1,3,6,0),'15' : '/photos/harmonie_island_hcc/260202_1500_16.png','tag15'  : new Date(2026,2-1,3,7,0),'16' : '/photos/harmonie_island_hcc/260202_1500_17.png','tag16'  : new Date(2026,2-1,3,8,0),'17' : '/photos/harmonie_island_hcc/260202_1500_18.png','tag17'  : new Date(2026,2-1,3,9,0),'18' : '/photos/harmonie_island_hcc/260202_1500_19.png','tag18'  : new Date(2026,2-1,3,10,0),'19' : '/photos/harmonie_island_hcc/260202_1500_20.png','tag19'  : new Date(2026,2-1,3,11,0),'20' : '/photos/harmonie_island_hcc/260202_1500_21.png','tag20'  : new Date(2026,2-1,3,12,0),'21' : '/photos/harmonie_island_hcc/260202_1500_22.png','tag21'  : new Date(2026,2-1,3,13,0),'22' : '/photos/harmonie_island_hcc/260202_1500_23.png','tag22'  : new Date(2026,2-1,3,14,0),'23' : '/photos/harmonie_island_hcc/260202_1500_24.png','tag23'  : new Date(2026,2-1,3,15,0),'24' : '/photos/harmonie_island_hcc/260202_1500_25.png','tag24'  : new Date(2026,2-1,3,16,0),'25' : '/photos/harmonie_island_hcc/260202_1500_26.png','tag25'  : new Date(2026,2-1,3,17,0),'26' : '/photos/harmonie_island_hcc/260202_1500_27.png','tag26'  : new Date(2026,2-1,3,18,0),'27' : '/photos/harmonie_island_hcc/260202_1500_28.png','tag27'  : new Date(2026,2-1,3,19,0),'28' : '/photos/harmonie_island_hcc/260202_1500_29.png','tag28'  : new Date(2026,2-1,3,20,0),'29' : '/photos/harmonie_island_hcc/260202_1500_30.png','tag29'  : new Date(2026,2-1,3,21,0),'30' : '/photos/harmonie_island_hcc/260202_1500_31.png','tag30'  : new Date(2026,2-1,3,22,0),'31' : '/photos/harmonie_island_hcc/260202_1500_32.png','tag31'  : new Date(2026,2-1,3,23,0),'32' : '/photos/harmonie_island_hcc/260202_1500_33.png','tag32'  : new Date(2026,2-1,4,0,0),'33' : '/photos/harmonie_island_hcc/260202_1500_34.png','tag33'  : new Date(2026,2-1,4,1,0),'34' : '/photos/harmonie_island_hcc/260202_1500_35.png','tag34'  : new Date(2026,2-1,4,2,0),'35' : '/photos/harmonie_island_hcc/260202_1500_36.png','tag35'  : new Date(2026,2-1,4,3,0),'36' : '/photos/harmonie_island_hcc/260202_1500_37.png','tag36'  : new Date(2026,2-1,4,4,0),'37' : '/photos/harmonie_island_hcc/260202_1500_38.png','tag37'  : new Date(2026,2-1,4,5,0),'38' : '/photos/harmonie_island_hcc/260202_1500_39.png','tag38'  : new Date(2026,2-1,4,6,0),'39' : '/photos/harmonie_island_hcc/260202_1500_40.png','tag39'  : new Date(2026,2-1,4,7,0),'40' : '/photos/harmonie_island_hcc/260202_1500_41.png','tag40'  : new Date(2026,2-1,4,8,0),'41' : '/photos/harmonie_island_hcc/260202_1500_42.png','tag41'  : new Date(2026,2-1,4,9,0),'42' : '/photos/harmonie_island_hcc/260202_1500_43.png','tag42'  : new Date(2026,2-1,4,10,0),'43' : '/photos/harmonie_island_hcc/260202_1500_44.png','tag43'  : new Date(2026,2-1,4,11,0),'44' : '/photos/harmonie_island_hcc/260202_1500_45.png','tag44'  : new Date(2026,2-1,4,12,0),'45' : '/photos/harmonie_island_hcc/260202_1500_46.png','tag45'  : new Date(2026,2-1,4,13,0),'46' : '/photos/harmonie_island_hcc/260202_1500_47.png','tag46'  : new Date(2026,2-1,4,14,0),'47' : '/photos/harmonie_island_hcc/260202_1500_48.png','tag47'  : new Date(2026,2-1,4,15,0),'48' : '/photos/harmonie_island_hcc/260202_1500_49.png','tag48'  : new Date(2026,2-1,4,16,0),'49' : '/photos/harmonie_island_hcc/260202_1500_50.png','tag49'  : new Date(2026,2-1,4,17,0),'50' : '/photos/harmonie_island_hcc/260202_1500_51.png','tag50'  : new Date(2026,2-1,4,18,0),'51' : '/photos/harmonie_island_hcc/260202_1500_52.png','tag51'  : new Date(2026,2-1,4,19,0),'52' : '/photos/harmonie_island_hcc/260202_1500_53.png','tag52'  : new Date(2026,2-1,4,20,0),'53' : '/photos/harmonie_island_hcc/260202_1500_54.png','tag53'  : new Date(2026,2-1,4,21,0),'54' : '/photos/harmonie_island_hcc/260202_1500_55.png','tag54'  : new Date(2026,2-1,4,22,0),'55' : '/photos/harmonie_island_hcc/260202_1500_56.png','tag55'  : new Date(2026,2-1,4,23,0),'56' : '/photos/harmonie_island_hcc/260202_1500_57.png','tag56'  : new Date(2026,2-1,5,0,0),'57' : '/photos/harmonie_island_hcc/260202_1500_58.png','tag57'  : new Date(2026,2-1,5,1,0),'58' : '/photos/harmonie_island_hcc/260202_1500_59.png','tag58'  : new Date(2026,2-1,5,2,0),'59' : '/photos/harmonie_island_hcc/260202_1500_60.png','tag59'  : new Date(2026,2-1,5,3,0),'60' : '/photos/harmonie_island_hcc/260202_1500_61.png','tag60'  : new Date(2026,2-1,5,4,0),'61' : '/photos/harmonie_island_hcc/260202_1500_62.png','tag61'  : new Date(2026,2-1,5,5,0),'62' : '/photos/harmonie_island_hcc/260202_1500_63.png','tag62'  : new Date(2026,2-1,5,6,0),'63' : '/photos/harmonie_island_hcc/260202_1500_64.png','tag63'  : new Date(2026,2-1,5,7,0),'64' : '/photos/harmonie_island_hcc/260202_1500_65.png','tag64'  : new Date(2026,2-1,5,8,0),'65' : '/photos/harmonie_island_hcc/260202_1500_66.png','tag65'  : new Date(2026,2-1,5,9,0),'66' : '/photos/harmonie_island_hcc/260202_1500_67.png','tag66'  : new Date(2026,2-1,5,10,0),'67' : '/photos/harmonie_island_hcc/260202_1500_68.png','tag67'  : new Date(2026,2-1,5,11,0),'68' : '/photos/harmonie_island_hcc/260202_1500_69.png','tag68'  : new Date(2026,2-1,5,12,0),'69' : '/photos/harmonie_island_hcc/260202_1500_70.png','tag69'  : new Date(2026,2-1,5,13,0),'70' : '/photos/harmonie_island_hcc/260202_1500_71.png','tag70'  : new Date(2026,2-1,5,14,0),'71' : '/photos/harmonie_island_hcc/260202_1500_72.png','tag71'  : new Date(2026,2-1,5,15,0),'mapCtrl':null };VI.imgConf[4] = {'title':'Composite','url':'composite','0' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_1.png','tag0'  : new Date(2026,2-1,2,16,0),'1' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_2.png','tag1'  : new Date(2026,2-1,2,17,0),'2' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_3.png','tag2'  : new Date(2026,2-1,2,18,0),'3' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_4.png','tag3'  : new Date(2026,2-1,2,19,0),'4' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_5.png','tag4'  : new Date(2026,2-1,2,20,0),'5' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_6.png','tag5'  : new Date(2026,2-1,2,21,0),'6' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_7.png','tag6'  : new Date(2026,2-1,2,22,0),'7' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_8.png','tag7'  : new Date(2026,2-1,2,23,0),'8' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_9.png','tag8'  : new Date(2026,2-1,3,0,0),'9' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_10.png','tag9'  : new Date(2026,2-1,3,1,0),'10' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_11.png','tag10'  : new Date(2026,2-1,3,2,0),'11' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_12.png','tag11'  : new Date(2026,2-1,3,3,0),'12' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_13.png','tag12'  : new Date(2026,2-1,3,4,0),'13' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_14.png','tag13'  : new Date(2026,2-1,3,5,0),'14' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_15.png','tag14'  : new Date(2026,2-1,3,6,0),'15' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_16.png','tag15'  : new Date(2026,2-1,3,7,0),'16' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_17.png','tag16'  : new Date(2026,2-1,3,8,0),'17' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_18.png','tag17'  : new Date(2026,2-1,3,9,0),'18' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_19.png','tag18'  : new Date(2026,2-1,3,10,0),'19' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_20.png','tag19'  : new Date(2026,2-1,3,11,0),'20' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_21.png','tag20'  : new Date(2026,2-1,3,12,0),'21' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_22.png','tag21'  : new Date(2026,2-1,3,13,0),'22' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_23.png','tag22'  : new Date(2026,2-1,3,14,0),'23' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_24.png','tag23'  : new Date(2026,2-1,3,15,0),'24' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_25.png','tag24'  : new Date(2026,2-1,3,16,0),'25' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_26.png','tag25'  : new Date(2026,2-1,3,17,0),'26' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_27.png','tag26'  : new Date(2026,2-1,3,18,0),'27' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_28.png','tag27'  : new Date(2026,2-1,3,19,0),'28' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_29.png','tag28'  : new Date(2026,2-1,3,20,0),'29' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_30.png','tag29'  : new Date(2026,2-1,3,21,0),'30' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_31.png','tag30'  : new Date(2026,2-1,3,22,0),'31' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_32.png','tag31'  : new Date(2026,2-1,3,23,0),'32' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_33.png','tag32'  : new Date(2026,2-1,4,0,0),'33' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_34.png','tag33'  : new Date(2026,2-1,4,1,0),'34' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_35.png','tag34'  : new Date(2026,2-1,4,2,0),'35' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_36.png','tag35'  : new Date(2026,2-1,4,3,0),'36' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_37.png','tag36'  : new Date(2026,2-1,4,4,0),'37' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_38.png','tag37'  : new Date(2026,2-1,4,5,0),'38' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_39.png','tag38'  : new Date(2026,2-1,4,6,0),'39' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_40.png','tag39'  : new Date(2026,2-1,4,7,0),'40' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_41.png','tag40'  : new Date(2026,2-1,4,8,0),'41' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_42.png','tag41'  : new Date(2026,2-1,4,9,0),'42' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_43.png','tag42'  : new Date(2026,2-1,4,10,0),'43' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_44.png','tag43'  : new Date(2026,2-1,4,11,0),'44' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_45.png','tag44'  : new Date(2026,2-1,4,12,0),'45' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_46.png','tag45'  : new Date(2026,2-1,4,13,0),'46' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_47.png','tag46'  : new Date(2026,2-1,4,14,0),'47' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_48.png','tag47'  : new Date(2026,2-1,4,15,0),'48' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_49.png','tag48'  : new Date(2026,2-1,4,16,0),'49' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_50.png','tag49'  : new Date(2026,2-1,4,17,0),'50' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_51.png','tag50'  : new Date(2026,2-1,4,18,0),'51' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_52.png','tag51'  : new Date(2026,2-1,4,19,0),'52' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_53.png','tag52'  : new Date(2026,2-1,4,20,0),'53' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_54.png','tag53'  : new Date(2026,2-1,4,21,0),'54' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_55.png','tag54'  : new Date(2026,2-1,4,22,0),'55' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_56.png','tag55'  : new Date(2026,2-1,4,23,0),'56' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_57.png','tag56'  : new Date(2026,2-1,5,0,0),'57' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_58.png','tag57'  : new Date(2026,2-1,5,1,0),'58' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_59.png','tag58'  : new Date(2026,2-1,5,2,0),'59' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_60.png','tag59'  : new Date(2026,2-1,5,3,0),'60' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_61.png','tag60'  : new Date(2026,2-1,5,4,0),'61' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_62.png','tag61'  : new Date(2026,2-1,5,5,0),'62' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_63.png','tag62'  : new Date(2026,2-1,5,6,0),'63' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_64.png','tag63'  : new Date(2026,2-1,5,7,0),'64' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_65.png','tag64'  : new Date(2026,2-1,5,8,0),'65' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_66.png','tag65'  : new Date(2026,2-1,5,9,0),'66' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_67.png','tag66'  : new Date(2026,2-1,5,10,0),'67' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_68.png','tag67'  : new Date(2026,2-1,5,11,0),'68' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_69.png','tag68'  : new Date(2026,2-1,5,12,0),'69' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_70.png','tag69'  : new Date(2026,2-1,5,13,0),'70' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_71.png','tag70'  : new Date(2026,2-1,5,14,0),'71' : '/photos/harmonie_island_tcc_lcc_mcc_hcc/260202_1500_72.png','tag71'  : new Date(2026,2-1,5,15,0),'mapCtrl':null };
+
+</script>
+
+
+<!-- content starts -->
+<div class="vedurkort">
+
+    <h2 id="img1_title" class="boxhead">Low and mid-level clouds</h2>
+<div class="boxbody">
+
+<div class="knav">
+<ul class="level1">
+	
+<li class="cat1 current" id="maptab0">
+    <a class="cat1" href="/"  id="maplink0">Low and mid-level clouds</a>
+</li>
+	
+<li class="cat1" id="maptab1">
+    <a class="cat1" href="/"  id="maplink1">Lower clouds</a>
+</li>
+	
+<li class="cat1" id="maptab2">
+    <a class="cat1" href="/"  id="maplink2">Middle clouds</a>
+</li>
+	
+<li class="cat1" id="maptab3">
+    <a class="cat1" href="/"  id="maplink3">High clouds</a>
+</li>
+	
+<li class="cat1" id="maptab4">
+    <a class="cat1" href="/"  id="maplink4">Composite</a>
+</li>
+
+</ul>
+</div>
+
+
+
+<div class="cwrapper">
+<div class="kort">
+
+<noscript>
+<img src="-1" alt=""/>
+</noscript>
+
+<img id="img1" class="hidden" src="" alt=""/>
+
+<div id="img1_info" class="loadinfo hidden">
+<p id="img1_txt"></p>
+<p class="s" id="img1_small"></p>
+</div>
+
+</div>
+
+
+<div id="wmapslider" class="slider" style="margin-left:5px">
+<div class="track" id="slidertrack" style="width:500px"></div>
+<div class="btnrew"><a id="slid1Prev" href="/" >&lt;</a></div>
+<ul class="level1">
+	
+	<li class="cat1"><a class="disabled" id="slid1Day0" href="/">day - 1</a>
+	  <ul class="level2">
+		<li><a class="disabled" id="slid1Pos0" href="/" > 00 </a></li>
+		<li><a class="disabled" id="slid1Pos1" href="/" > 06 </a></li>
+		<li><a class="disabled" id="slid1Pos2" href="/" > 12 </a></li>
+		<li><a class="disabled" id="slid1Pos3" href="/" > 18 </a></li>
+	  </ul>
+	</li>
+	
+	<li class="cat1"><a class="disabled" id="slid1Day1" href="/">day - 2</a>
+	  <ul class="level2">
+		<li><a class="disabled" id="slid1Pos4" href="/" > 00 </a></li>
+		<li><a class="disabled" id="slid1Pos5" href="/" > 06 </a></li>
+		<li><a class="disabled" id="slid1Pos6" href="/" > 12 </a></li>
+		<li><a class="disabled" id="slid1Pos7" href="/" > 18 </a></li>
+	  </ul>
+	</li>
+	
+	<li class="cat1"><a class="disabled" id="slid1Day2" href="/">day - 3</a>
+	  <ul class="level2">
+		<li><a class="disabled" id="slid1Pos8" href="/" > 00 </a></li>
+		<li><a class="disabled" id="slid1Pos9" href="/" > 06 </a></li>
+		<li><a class="disabled" id="slid1Pos10" href="/" > 12 </a></li>
+		<li><a class="disabled" id="slid1Pos11" href="/" > 18 </a></li>
+	  </ul>
+	</li>
+	
+	<li class="cat1"><a class="disabled" id="slid1Day3" href="/">day - 4</a>
+	  <ul class="level2">
+		<li><a class="disabled" id="slid1Pos12" href="/" > 00 </a></li>
+		<li><a class="disabled" id="slid1Pos13" href="/" > 06 </a></li>
+		<li><a class="disabled" id="slid1Pos14" href="/" > 12 </a></li>
+		<li><a class="disabled" id="slid1Pos15" href="/" > 18 </a></li>
+	  </ul>
+	</li>
+	
+	<li class="cat1"><a class="disabled" id="slid1Day4" href="/">day - 5</a>
+	  <ul class="level2">
+		<li><a class="disabled" id="slid1Pos16" href="/" > 00 </a></li>
+		<li><a class="disabled" id="slid1Pos17" href="/" > 06 </a></li>
+		<li><a class="disabled" id="slid1Pos18" href="/" > 12 </a></li>
+		<li><a class="disabled" id="slid1Pos19" href="/" > 18 </a></li>
+	  </ul>
+	</li>
+	
+	<li class="cat1"><a class="disabled" id="slid1Day5" href="/">day - 6</a>
+	  <ul class="level2">
+		<li><a class="disabled" id="slid1Pos20" href="/" > 00 </a></li>
+		<li><a class="disabled" id="slid1Pos21" href="/" > 06 </a></li>
+		<li><a class="disabled" id="slid1Pos22" href="/" > 12 </a></li>
+		<li><a class="disabled" id="slid1Pos23" href="/" > 18 </a></li>
+	  </ul>
+	</li>
+	  
+	<li class="cat1">
+	  <ul class="level2">
+		<li><a class="disabled" id="slid1Pos24" href="/" > 00 </a></li>
+	  </ul>
+	</li>
+
+
+</ul>
+<div class="btnfwd"><a id="slid1Next" href="/" > &gt; </a></div>
+</div>
+		
+
+		
+
+		
+
+
+
+<div class="clear"> &nbsp; </div>
+
+<div class="smallnote" ><a href="/"  id="img1_getall">Load all</a></div>
+<div class="clear"> &nbsp; </div>
+		
+
+</div>
+
+</div>
+</div>
+
+
+<script>
+VI.bitmap.initFirstMap();
+</script>
+
+<!-- content ends -->
+
+
+
+<!-- wrote: 38920 chars -->
+        
+    <p>The spectacle of Aurora Borealis requires dark and partly clear skies.</p>
+
+<p>The map of Iceland shows forecast of cloud cover. Green areas are cloudy and white areas clear skies. Move the slider below the cloud cover map, or click directly on a day or time.</p>
+
+<p>The forecast of auroral activity at midnight, scale 0 to 9, is shown in the upper-right box. The scale changes in accordance with the date selected under the cloud cover map.</p>
+
+<p>The timing of sunset, darkness, sunrise and moonrise are valid for Reykjavík.</p>
+    </div>
+</div>
+
+  
+<div class="pgextra1">
+<div class="wrap">
+    
+        
+
+
+<script>
+var VI;
+if (VI == undefined) VI = {};
+if (VI.data == undefined) VI.data = {};
+if (VI.data.aurora == undefined) VI.data.aurora = {};
+
+VI.data.aurora.idx = {260202: {act: 2, 
+sun: ['s0','17:20','10:01','18:16','09:06'], 
+moon: ['15','t2','18:19','']},
+260203: {act: 2, 
+sun: ['s0','17:22','09:58','18:19','09:03'], 
+moon: ['16','t2','20:10','']},
+260204: {act: 2, 
+sun: ['s0','17:25','09:55','18:22','09:00'], 
+moon: ['17','t2','21:53','']},
+260205: {act: 2, 
+sun: ['s0','17:30','09:52','18:23','08:58'], 
+moon: ['18','t2','23:31','']},
+260206: {act: 3, 
+sun: ['s0','17:32','09:49','18:26','08:55'], 
+moon: ['19','t4','01:09','09:48']},
+260207: {act: 3, 
+sun: ['s0','17:35','09:46','18:29','08:52'], 
+moon: ['20','t4','02:51','09:36']},
+260208: {act: 3, 
+sun: ['s0','17:40','09:42','18:32','08:49'], 
+moon: ['21','t4','04:41','09:19']},
+260209: {act: 3, 
+sun: ['s0','17:42','09:39','18:35','08:47'], 
+moon: ['22','t4','07:00','08:38']},
+260210: {act: 3, 
+sun: ['s0','17:45','09:36','18:39','08:44'], 
+moon: ['23','t0','','']},
+260211: {act: 3, 
+sun: ['s0','17:50','09:33','18:42','08:41'], 
+moon: ['24','t0','','']}}
+
+if (VI.conf == undefined) VI.conf = {};
+if (VI.conf.webPath == undefined) VI.conf.webPath = '/';
+
+</script>
+
+  <div class="publist aurorabox rbox">
+    <h2 class="boxhead"><span class="hidden">Aurora activity, sun and moon - </span><span id="au_idx_tit"></span></h2>
+    <div class="boxbody">
+		<h3>Aurora forecast:</h3>		
+		<div class="idx" id="au_idx"><ul>
+			<li>0</li>
+			<li>1</li>
+			<li>2</li>
+			<li>3</li>
+			<li>4</li>
+			<li>5</li>
+			<li>6</li>
+			<li>7</li>
+			<li>8</li>
+			<li>9</li>
+		</ul></div>
+		<div class="odds" id="au_odds">Information unavailable</div>
+
+		<h3>Sun:</h3>		
+		<p id="au_sundown">Information unavailable</p>
+		<p id="au_dark"></p>
+		<p id="au_sunup"></p>
+		
+		<h3>Moon:</h3>
+		<div class="moon">
+		<img id="au_moon_img" style="display: none" src="" alt=""/>
+		<p id="au_moon">Information unavailable</p>
+		</div>
+    </div>
+</div>
+<HR class=stream>
+
+
+
+
+<!-- wrote: 2068 chars -->
+        
+    
+        
+
+
+  <div class="publist contentbox rbox">
+    <h2 class="boxhead">Related topics</h2>
+    <div class="boxbody">
+        <ul>
+        
+            <li class=cat0><a href="http://en.vedur.is/weather/articles/nr/2588">Help</a></li>
+        
+        
+            <li class=cat0><a href="http://en.vedur.is/weather/articles/nr/2550">Space weather predictions</a></li>
+        
+        
+            <li class=cat0><a href="http://en.vedur.is/weather/articles/nr/2549">Aurora and the earth's magnetic field</a></li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li class=cat0><a href="http://www.vedur.is/vedur/frodleikur/greinar/nr/3119" target="new">Gallery of aurora images</a></li>
+        
+        
+            <li class=cat0><a href="http://www.safetravel.is/" target="new">Safetravel</a></li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+</div>
+
+
+        
+    <DIV class=enav>
+<H2 class="boxhead">Spoken weather forecast</H2>
+<DIV class="boxbody">
+<UL class=level1>
+<LI class=cat1><A class=cat1 href="/about-imo/service/spoken-forecast">Weather information via recorded message<BR>Tel: (+354) 902 0600</A></LI></UL></DIV></DIV>
+<HR class=stream>
+    </div>
+</div>
+
+  
+<div class="pgextra2" id="pgnav">
+<div class="wrap">
+    
+        <!-- eplica-no-index -->
+            
+
+<div class="breadcrumbs" role="navigation" aria-labelledby="crumbs01452887"><div>
+  <strong id="crumbs01452887">You are here:</strong> <a href="/" class='home'>Home</a> <i>&gt;</i> <a href="/weather/forecasts/areas/">Weather</a> <i>&gt;</i> <a href="/weather/forecasts/areas/">Weather forecasts</a> <i>&gt;</i> <b class="current"><a href="/weather/forecasts/aurora/">Aurora forecasts</a></b>
+</div></div>
+<hr class="stream" />
+
+              <div class="mnav" role="navigation">
+                <h2 class="boxhead">en.vedur.is</h2>
+                <div class="boxbody">
+                    <ul class="level1"
+                      ><li class="home"><a href="/">Home</a></li
+                      ><li class="vkort.css parent branch"><a href="/weather/forecasts/areas/" class="cat1">Weather</a
+                    ></li
+                      ><li class="cat2 branch"><a href="/earthquakes-and-volcanism/earthquakes" class="cat2">Earthquakes</a
+                    ></li
+                      ><li class="null branch"><a href="/hydrology/" class="cat3">Hydrology</a
+                    ></li
+                      ><li class="cat4 branch"><a href="/avalanches/" class="cat4">Avalanches</a
+                    ></li
+                      ><li class="null branch"><a href="/climatology/iceland" class="cat5">Climatology</a
+                    ></li
+                      ><li class="null branch"><a href="/sea-ice/navtex" class="cat6">Sea ice</a
+                    ></li
+                      ><li class="cat7 branch"><a href="/pollution-and-radiation/pollution/" class="cat7">Pollution</a
+                    ></li
+                      ><li class="umvedur branch"><a href="/about-imo/mission/" class="cat8">About IMO</a
+                    ></li
+                 ></ul>
+             
+                </div>
+              </div>
+              <hr class="stream" />
+        
+      <!-- /eplica-no-index -->
+  
+
+
+        
+    
+        
+
+<script>
+	window.W2_CONTAINER_TYPE = 'eplica';
+
+
+	window.W2_COMPONENT_TYPE__alert_minimap = true; 
+	
+
+
+	window.initData = {
+			'language': 'en', 
+			'log_error_to_console': 0,
+			'css_location': '/skin/v2/dist/',
+			'urls_data_req': '/xhrreq',
+			
+			'data_alert_active_interval': 120,
+			'data_alert_inactive_interval': 240,
+
+			'now': '2026-02-02T19:24Z',
+			'alert': {
+				'key': '2026-01-23T03:00Z',
+				'data': {"updateTS":"2026-01-23T03:00Z","alerts": []}
+			}
+	};
+	
+</script>
+
+
+<script src="/web2/js/app.min.js?v=527" id="alert_script" base-react-path="/alerts" ></script>
+<!-- wrote: 612 chars -->
+        
+    
+        <!-- eplica-no-index -->
+              <div class="snav" role="navigation">
+                <h2 class="boxhead">Weather</h2>
+                <div class="boxbody">
+                    <ul class="level1"
+                      ><li class="parent branch"><a href="/weather/forecasts/areas/" class="cat1">Weather forecasts</a
+                    
+                      ><ul class="level2"
+                        ><li class="branch"><a href="/weather/forecasts/areas/">Station forecasts - whole country</a
+                    ></li
+                        ><li class="branch"><a href="/weather/forecasts/elements/">Wind, temperature, precipitation forecasts</a
+                    ></li
+                        ><li><a href="/weather/forecasts/text/">Text forecasts</a
+                    ></li
+                        ><li><a href="/weather/forecasts/meteograms/">Meteograms</a
+                    ></li
+                        ><li><a href="/weather/forecasts/atlantic/">Atlantic ocean forecasts</a
+                    ></li
+                        ><li><a href="/weather/forecasts/cloudcover/">Cloud cover forecasts</a
+                    ></li
+                        ><li class="current last"><a href="/weather/forecasts/aurora/">Aurora forecasts</a
+                    ></li
+                      ></ul
+                      ></li
+                      ><li class="cat2 branch"><a href="/weather/observations/areas/" class="cat2">Weather observations</a
+                    ></li
+                      ><li class="branch"><a href="/weather/shipping/text">Marine weather</a
+                    ></li
+                      ><li class="cat4 branch"><a href="/weather/aviation/" class="cat4">Aviation weather</a
+                    ></li
+                      ><li class="cat5"><a href="/weather/climate_in_iceland/" class="cat5">Climate in Iceland</a
+                    ></li
+                      ><li><a href="/weather/stations/">Weather stations</a
+                    ></li
+                      ><li class="null last"><a href="/weather/articles/overview" class="cat7">Articles</a
+                    ></li
+                 ></ul>
+             
+                </div>
+              </div>
+              <hr class="stream" />
+        
+      <!-- /eplica-no-index -->
+  
+
+
+        
+    
+    </div>
+</div>
+
+  
+<div class="pgfoot">
+<div class="wrap">
+    <div class="imgbanner imgbanner-expanded">
+  <a href="/volcanoes/fagradalsfjall-eruption/news-and-alerts/" class="imgbanner__text">Reykjanes</a>
+</div>
+
+<div class="imgbanner imgbanner-expanded cat2" style="left: 360px; ">
+  <a href="https://gottvedur.is/en" class="imgbanner__text"  style="background: linear-gradient(0deg, rgba(30,77,139,1) 60%, rgba(7,36,96,1) 100%);padding:10px 15px;">gottvedur.is</a>
+</div>
+        <div class="qsearch" id="pg-search">  <h2 class="boxhead">Search</h2>  <form class="boxbody" action="/search">    <div>      <span class="fi_txt req"><label for="qstr">Search string</label> <input id="qstr" name="q" value="" /></span>      <span class="fi_btn"><input class="submit" type="submit" value="Search" /></span>    </div>      </form></div><hr class="stream" />
+        
+    <div class="footer rbox">
+  <h2 class="boxhead">Contact IMO</h2>
+  <div class="boxbody" style="width: 100%; justify-content: space-around">
+    <p>© Veðurstofa Íslands | Bústaðavegi 7- 9 | 105 Reykjavík | Phone 522 6000 | Fax: 522 6001<br> Recording 902 0600 | SSN 630908-0350
+    <a href="/about-imo/contact/">Contact us</a> | <a href="/about-imo/employees/">Employees</a> | <a href="/about-imo/the-web/conditions">Terms and conditions</a> | <a href="/site-map/">Sitemap</a></p>
+  
+    <div class="social">
+      <ul class="social__list">
+        <!-- <li class="social__logo"><a title="Veður appið" href="http://en.vedur.is/about-imo/news/nr/2812" style="background:url(/media/cssmedia/app.png); background-size:30px;">Weather app</a></li>
+        <li class="social__logo"><a title="IMO is on Facebook" href="https://www.facebook.com/Vedurstofan">Veðurstofa Íslands on Facebook</a></li>
+        <li class="social__logo"><a style="background:url(/media/cssmedia/twitter-logo.png); background-size:30px;" href="https://www.twitter.com/vedurstofan/" title="Veðurstofan er á Twitter">Veðurstofa Íslands á Twitter</a></li>
+        <li class="social__logo"><a title="Quality management certified" href="/about-imo/service/quality/">Quality management certified</a></li>
+        <li class="social__logo"><a title="Information about accessibility certification for priority level 1." href="/about-imo/the-web/accessibility/">Accessibility certification for priority level 1.</a></li>
+        <li class="social__logo"><a title="Information about accessibility certification for priority level 2. " href="/about-imo/the-web/accessibility/">Accessibility certification for priority level 2.</a></li> -->
+        <li class="social__logo"><a title="Weather app" href="http://en.vedur.is/about-imo/news/nr/2812"><img src="/media/cssmedia/app-v2.png"/></a></li>
+        <li class="social__logo"><a title="Veðurstofan er á Facebook" href="https://www.facebook.com/Vedurstofan"><img src="/media/cssmedia/facebook-v2.png"/></a></li>
+        <li class="social__logo"><a title="Veðurstofan er á Twitter" href="https://www.twitter.com/vedurstofan/"><img src="/media/cssmedia/twitter-logo-v2.png"/></a></li>
+        <li class="social__logo"><a title="Gæðavottun" href="/um-vi/thjonusta/vottun/"><img src="/media/cssmedia/multilogo-en-v3.jpg"/></a></li>        
+      </ul>
+    </div>
+
+
+  </div>
+</div>
+<hr class="stream" /><div class="headnote">
+  <h2 class="boxhead">Other related web sites</h2>
+  <div class="boxbody">
+    <ul>
+      <li><a class="is" href="http://www.vedur.is/">Icelandic</a></li>
+<!--      <li><a href="http://en.vedur.is/m">Mobile web</a></li>  -->
+    </ul>              
+  </div>
+</div>
+<hr class="stream" />
+    </div>
+</div>
+
+
+
+    
+	<!-- eplica-no-index -->
+    <div class="byggiraeplica" lang="en"><span class="stream">This website is built with  </span><a href="http://www.eplica.com/" title="This website is built with Eplica CMS" target="_blank">Eplica CMS</a></div>
+    <!-- /eplica-no-index -->
+
+    
+
+  </div>
+  <script src='/skin/basic/js/eplica_jqpub.js?v5'></script>
+  <script src='/skin/basic/js/init.js?v17'></script>
+  
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55959367-1', 'auto');
+  ga('send', 'pageview');
+
+</script><script type="text/javascript">
+/*<![CDATA[*/
+(function() {
+var sz = document.createElement('script'); sz.type = 'text/javascript'; sz.async = true;
+sz.src = '//siteimproveanalytics.com/js/siteanalyze_6035376.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sz, s);
+})();
+/*]]>*/
+</script>
+        <script async defer src="https://cdn1.readspeaker.com/script/11166/webReader/webReader.js?pids=wr"></script>
+        
+    
+</body>
+</html>

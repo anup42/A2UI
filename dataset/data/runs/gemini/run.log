@@ -395,3 +395,529 @@
 2026-01-31 02:10:01 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
 2026-01-31 02:10:22 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
 2026-01-31 02:10:42 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-02-02 20:22:07 ERROR dataset: Stage2 batch error: HTTP Error 400: Bad Request
+2026-02-02 20:26:35 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:26:55 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:27:15 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:27:35 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:27:55 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:28:15 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:28:35 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:28:55 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:29:15 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:29:35 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:29:55 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:30:15 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:30:35 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:30:55 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:31:15 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:31:35 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:31:55 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:32:15 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:32:35 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:32:55 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:33:15 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:33:35 ERROR dataset: Stage2 batch error: HTTP 400: Bad Request {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "generativelanguage.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+2026-02-02 20:56:14 ERROR dataset: Stage2 batch error: Gemini keys exhausted after 24 attempts: HTTP Error 400: Bad Request
+2026-02-02 21:15:01 INFO dataset: Stage2 created response_id=r_000001_01
+2026-02-02 21:15:01 INFO dataset: Stage2 created response_id=r_000002_01
+2026-02-02 21:15:01 INFO dataset: Stage2 created response_id=r_000003_01
+2026-02-02 21:15:01 INFO dataset: Stage2 created response_id=r_000004_01
+2026-02-02 21:15:01 INFO dataset: Stage2 created response_id=r_000005_01
+2026-02-02 21:15:21 INFO dataset: Stage2 created response_id=r_000006_01
+2026-02-02 21:15:21 INFO dataset: Stage2 created response_id=r_000007_01
+2026-02-02 21:15:21 INFO dataset: Stage2 created response_id=r_000008_01
+2026-02-02 21:15:21 INFO dataset: Stage2 created response_id=r_000009_01
+2026-02-02 21:15:21 INFO dataset: Stage2 created response_id=r_000010_01
+2026-02-02 21:15:41 INFO dataset: Stage2 created response_id=r_000011_01
+2026-02-02 21:15:41 INFO dataset: Stage2 created response_id=r_000012_01
+2026-02-02 21:15:41 INFO dataset: Stage2 created response_id=r_000013_01
+2026-02-02 21:15:41 INFO dataset: Stage2 created response_id=r_000014_01
+2026-02-02 21:15:41 INFO dataset: Stage2 created response_id=r_000015_01
+2026-02-02 21:16:01 INFO dataset: Stage2 created response_id=r_000016_01
+2026-02-02 21:16:01 INFO dataset: Stage2 created response_id=r_000017_01
+2026-02-02 21:16:01 INFO dataset: Stage2 created response_id=r_000018_01
+2026-02-02 21:16:01 INFO dataset: Stage2 created response_id=r_000019_01
+2026-02-02 21:16:01 INFO dataset: Stage2 created response_id=r_000020_01
+2026-02-02 21:16:21 INFO dataset: Stage2 created response_id=r_000021_01
+2026-02-02 21:16:42 INFO dataset: Stage2 created response_id=r_000025_01
+2026-02-02 21:16:42 INFO dataset: Stage2 created response_id=r_000026_01
+2026-02-02 21:16:42 INFO dataset: Stage2 created response_id=r_000027_01
+2026-02-02 21:16:42 INFO dataset: Stage2 created response_id=r_000028_01
+2026-02-02 21:17:05 WARNING dataset: Stage2 asset download failed url=https://www.japan.travel/en/ 
+* JNTO err=URL can't contain control characters. '/en/ \n* JNTO' (found at least ' ')
+2026-02-02 21:17:07 INFO dataset: Stage2 created response_id=r_000029_01
+2026-02-02 21:17:07 WARNING dataset: Stage2 asset download failed url=https://www.allrecipe err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-02 21:17:07 INFO dataset: Stage2 created response_id=r_000030_01
+2026-02-02 21:17:07 WARNING dataset: Stage2 asset download failed url=https://www.homeadvi err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-02 21:17:13 INFO dataset: Stage2 created response_id=r_000031_01
+2026-02-02 21:17:13 WARNING dataset: Stage2 asset download failed url=https://www.acefitne err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-02 21:17:14 WARNING dataset: Stage2 asset download failed url=https://www.na err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-02 21:17:14 INFO dataset: Stage2 created response_id=r_000032_01
+2026-02-02 21:17:27 INFO dataset: Stage2 created response_id=r_000033_01
+2026-02-02 21:17:27 INFO dataset: Stage2 created response_id=r_000034_01
+2026-02-02 21:17:27 INFO dataset: Stage2 created response_id=r_000035_01
+2026-02-02 21:17:27 INFO dataset: Stage2 created response_id=r_000036_01
+2026-02-02 21:17:27 INFO dataset: Stage2 created response_id=r_000037_01

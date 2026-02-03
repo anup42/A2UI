@@ -8,7 +8,14 @@ from typing import Any
 
 from pipeline.cache import PromptCache
 from pipeline.common import extract_json, load_prompt, render_prompt
-from pipeline.metrics import content_coverage, dup_rate, lint_score, count_tokens
+from pipeline.metrics import (
+    content_coverage,
+    dup_rate,
+    lint_score,
+    count_tokens,
+    aggregate_metrics,
+    compute_overall_score,
+)
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.toon_convert import encode_toon, roundtrip_ok
 from llm.base import BaseLLMAdapter, LLMRateLimitError
@@ -141,6 +148,8 @@ def run_stage3(
     logger,
     max_total: int | None = None,
     max_attempts: int = 3,
+    aggregates_path: Path | None = None,
+    aggregate_weights: dict[str, float] | None = None,
 ) -> None:
     prompt_template = load_prompt(prompt_path)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -149,24 +158,40 @@ def run_stage3(
     existing_ids = {row.get("ui_id") for row in iter_jsonl(a2ui_path)}
     writer = JsonlWriter(a2ui_path)
 
-    total_created = 0
-    for response in iter_jsonl(responses_path):
-        response_id = response.get("response_id")
-        query_id = response.get("query_id")
-        response_text = response.get("response_text")
-        assets = response.get("assets") if isinstance(response, dict) else None
-        assets_list = assets if isinstance(assets, list) else []
-        n_idx = int(response.get("n_idx", 1))
-        if not response_id or not query_id or not response_text:
-            continue
+    def _write_aggregates() -> None:
+        if not aggregates_path:
+            return
+        try:
+            rows = list(iter_jsonl(a2ui_path))
+            aggregates = aggregate_metrics(rows)
+            aggregates["overall_score"] = compute_overall_score(
+                aggregates,
+                aggregate_weights or {},
+            )
+            aggregates_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
+            logger.info("Stage3 aggregates stored at %s", aggregates_path)
+        except Exception as exc:  # best-effort
+            logger.warning("Stage3 aggregates failed: %s", exc)
 
-        for c_idx in range(1, candidates_per_response + 1):
-            if max_total is not None and total_created >= max_total:
-                logger.info("Stage3 reached max_total=%s", max_total)
-                return
-            ui_id = _make_ui_id(query_id, n_idx, c_idx)
-            if ui_id in existing_ids:
+    total_created = 0
+    try:
+        for response in iter_jsonl(responses_path):
+            response_id = response.get("response_id")
+            query_id = response.get("query_id")
+            response_text = response.get("response_text")
+            assets = response.get("assets") if isinstance(response, dict) else None
+            assets_list = assets if isinstance(assets, list) else []
+            n_idx = int(response.get("n_idx", 1))
+            if not response_id or not query_id or not response_text:
                 continue
+
+            for c_idx in range(1, candidates_per_response + 1):
+                if max_total is not None and total_created >= max_total:
+                    logger.info("Stage3 reached max_total=%s", max_total)
+                    return
+            ui_id = _make_ui_id(query_id, n_idx, c_idx)
+                if ui_id in existing_ids:
+                    continue
 
             asset_context = _build_asset_context(assets_list)
             prompt_response_text = response_text
@@ -386,17 +411,19 @@ def run_stage3(
             existing_ids.add(ui_id)
             logger.info("Stage3 created ui_id=%s schema_ok=%s", ui_id, schema_valid_strict)
             total_created += 1
-            if max_total is not None and total_created >= max_total:
-                logger.info("Stage3 reached max_total=%s", max_total)
-                return
+                if max_total is not None and total_created >= max_total:
+                    logger.info("Stage3 reached max_total=%s", max_total)
+                    return
 
-            if errors:
-                error_path = artifacts_dir / f"error_{ui_id}.json"
-                error_payload = {
-                    "prompt": prompt,
-                    "raw_text": raw_text,
-                    "errors": errors,
-                }
-                error_path.write_text(json.dumps(error_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+                if errors:
+                    error_path = artifacts_dir / f"error_{ui_id}.json"
+                    error_payload = {
+                        "prompt": prompt,
+                        "raw_text": raw_text,
+                        "errors": errors,
+                    }
+                    error_path.write_text(json.dumps(error_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    finally:
+        _write_aggregates()
 
 
