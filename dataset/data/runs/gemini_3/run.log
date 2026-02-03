@@ -3462,3 +3462,24 @@ Icon err=URL can't contain control characters. '/upload\n\nIcon' (found at least
 2026-02-03 09:55:29 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3\rendered
 2026-02-03 09:55:29 INFO dataset: Stage4 HTTP server started on port 52388
 2026-02-03 09:55:30 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3\rendered
+2026-02-03 09:55:47 INFO dataset: Stage3 created ui_id=u_000074_01 schema_ok=True
+2026-02-03 09:57:42 INFO dataset: Stage3 created ui_id=u_000058_01 schema_ok=True
+2026-02-03 09:57:57 INFO dataset: Stage3 created ui_id=u_000100_01 schema_ok=False
+2026-02-03 09:58:38 INFO dataset: Stage3 created ui_id=u_000077_01 schema_ok=True
+2026-02-03 09:59:41 INFO dataset: Stage3 created ui_id=u_000075_01 schema_ok=True
+2026-02-03 10:02:50 INFO dataset: Stage3 created ui_id=u_000101_01 schema_ok=False
+2026-02-03 10:03:16 INFO dataset: Stage3 created ui_id=u_000078_01 schema_ok=True
+2026-02-03 10:04:08 INFO dataset: Stage3 created ui_id=u_000076_01 schema_ok=True
+2026-02-03 10:07:21 INFO dataset: Stage3 created ui_id=u_000102_01 schema_ok=False
+2026-02-03 10:07:36 INFO dataset: Stage3 created ui_id=u_000059_01 schema_ok=True
+2026-02-03 10:08:41 INFO dataset: Stage3 created ui_id=u_000077_01 schema_ok=True
+2026-02-03 10:09:30 INFO dataset: Stage3 created ui_id=u_000079_01 schema_ok=True
+2026-02-03 10:11:34 INFO dataset: Stage3 created ui_id=u_000080_01 schema_ok=True
+2026-02-03 10:12:09 INFO dataset: Stage3 created ui_id=u_000103_01 schema_ok=False
+2026-02-03 10:13:19 INFO dataset: Stage3 created ui_id=u_000078_01 schema_ok=True
+2026-02-03 10:15:58 INFO dataset: Stage3 created ui_id=u_000060_01 schema_ok=True
+2026-02-03 10:16:55 INFO dataset: Stage3 created ui_id=u_000104_01 schema_ok=False
+2026-02-03 10:17:45 INFO dataset: Stage3 created ui_id=u_000059_01 schema_ok=True
+2026-02-03 10:19:39 INFO dataset: Stage3 created ui_id=u_000079_01 schema_ok=True
+2026-02-03 10:20:13 INFO dataset: Stage3 created ui_id=u_000171_01 schema_ok=True
+2026-02-03 10:21:16 INFO dataset: Stage3 created ui_id=u_000105_01 schema_ok=False
