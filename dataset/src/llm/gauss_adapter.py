@@ -19,21 +19,18 @@ class GaussAdapter(BaseLLMAdapter):
 
     def _resolve_base(self, endpoint: str) -> str:
         endpoint = endpoint.rstrip("/")
-        marker = "/openapi/chat/v1/messages"
-        if marker in endpoint:
-            return endpoint.split(marker)[0]
+        for marker in ("/openapi/chat/v1/messages", "/openapi/chat/v1/messages-with-models"):
+            if marker in endpoint:
+                return endpoint.split(marker)[0]
         return endpoint
 
     def _candidate_endpoints(self, endpoint: str) -> list[str]:
         endpoint = endpoint.rstrip("/")
         base = self._resolve_base(endpoint)
-        primary = self._resolve_endpoint(endpoint)
-        candidates = [primary]
-        alt_messages = f"{base}/openapi/chat/v1/messages"
-        alt_with_models = f"{base}/openapi/chat/v1/messages-with-models"
-        for url in (alt_messages, alt_with_models):
-            if url not in candidates:
-                candidates.append(url)
+        candidates = [f"{base}/openapi/chat/v1/messages"]
+        # The /messages-with-models endpoint expects multipart form data. Only try it when explicitly enabled.
+        if os.getenv("GAUSS_USE_MESSAGES_WITH_MODELS") == "1":
+            candidates.append(f"{base}/openapi/chat/v1/messages-with-models")
         return candidates
 
     def _resolve_max_new_tokens(self, requested: int) -> tuple[int, int | None]:
