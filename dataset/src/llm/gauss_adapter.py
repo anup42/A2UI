@@ -27,10 +27,32 @@ class GaussAdapter(BaseLLMAdapter):
     def _candidate_endpoints(self, endpoint: str) -> list[str]:
         endpoint = endpoint.rstrip("/")
         base = self._resolve_base(endpoint)
-        candidates = [f"{base}/openapi/chat/v1/messages"]
+        candidates: list[str] = []
+
+        def _add_messages(url: str) -> None:
+            url = url.rstrip("/")
+            if "/openapi/chat/v1/messages" in url:
+                candidate = url
+            else:
+                candidate = f"{url}/openapi/chat/v1/messages"
+            if candidate not in candidates:
+                candidates.append(candidate)
+
+        # Primary: use as-is base.
+        _add_messages(base)
+
+        # Some deployments include or omit "/api-chat" in the base path. Try both.
+        if base.endswith("/api-chat"):
+            _add_messages(base[: -len("/api-chat")])
+        else:
+            _add_messages(f"{base}/api-chat")
+
         # The /messages-with-models endpoint expects multipart form data. Only try it when explicitly enabled.
         if os.getenv("GAUSS_USE_MESSAGES_WITH_MODELS") == "1":
-            candidates.append(f"{base}/openapi/chat/v1/messages-with-models")
+            with_models = f"{base}/openapi/chat/v1/messages-with-models"
+            if with_models not in candidates:
+                candidates.append(with_models)
+
         return candidates
 
     def _resolve_max_new_tokens(self, requested: int) -> tuple[int, int | None]:
