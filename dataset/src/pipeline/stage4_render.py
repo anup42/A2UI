@@ -7,6 +7,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
+import re
 
 from pipeline.storage import JsonlWriter, iter_jsonl, load_existing_ids
 
@@ -22,11 +23,322 @@ def _looks_like_components_list(value: Any) -> bool:
     return True
 
 
+def _dynamic_string(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        if "literalString" in value:
+            return {"literalString": str(value.get("literalString") or "")}
+        if "literalNumber" in value:
+            return {"literalNumber": value.get("literalNumber")}
+        if "literalBoolean" in value:
+            return {"literalBoolean": bool(value.get("literalBoolean"))}
+        if "path" in value:
+            return {"path": value.get("path")}
+    if value is None:
+        return {"literalString": ""}
+    return {"literalString": str(value)}
+
+
+def _split_text_blocks(text: str) -> list[dict[str, str]]:
+    lines = text.splitlines()
+    blocks: list[dict[str, str]] = []
+    buffer: list[str] = []
+    mode = "text"
+
+    def flush_buffer():
+        nonlocal buffer
+        if buffer:
+            blocks.append({"type": "text", "text": "\n".join(buffer).strip()})
+            buffer = []
+
+    button_re = re.compile(r"[-*]?\s*\[Button:\s*(.+?)\]\s*(https?://\S+)")
+    icon_re = re.compile(r"[-*]?\s*([^:]+):\s*(https?://\S+)")
+
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line:
+            flush_buffer()
+            continue
+
+        lower = line.lower()
+        if lower.startswith("quick actions") or lower.startswith("quick action"):
+            flush_buffer()
+            mode = "actions"
+            continue
+        if lower.startswith("icons") or lower.startswith("icon") or lower.startswith("images") or lower.startswith("image"):
+            flush_buffer()
+            mode = "icons"
+            continue
+        if lower.startswith("sources"):
+            flush_buffer()
+            mode = "sources"
+            continue
+
+        match = button_re.match(line)
+        if match:
+            flush_buffer()
+            blocks.append(
+                {
+                    "type": "button",
+                    "label": match.group(1).strip(),
+                    "url": match.group(2).strip(),
+                }
+            )
+            continue
+
+        if mode == "actions":
+            match = button_re.match(line)
+            if match:
+                blocks.append(
+                    {
+                        "type": "button",
+                        "label": match.group(1).strip(),
+                        "url": match.group(2).strip(),
+                    }
+                )
+                continue
+
+        match = icon_re.match(line)
+        if match and match.group(2).startswith("http"):
+            if mode == "icons":
+                flush_buffer()
+                blocks.append(
+                    {
+                        "type": "icon",
+                        "label": match.group(1).strip(),
+                        "url": match.group(2).strip(),
+                    }
+                )
+                continue
+
+        buffer.append(raw_line)
+
+    flush_buffer()
+    return blocks
+
+
+def _expand_text_components_v09(components: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if not components:
+        return components
+    comp_by_id = {comp.get("id"): comp for comp in components if isinstance(comp, dict)}
+    root = comp_by_id.get("root") or components[0]
+    if not isinstance(root, dict):
+        return components
+    if root.get("component") != "Column":
+        return components
+    children = root.get("children")
+    if not isinstance(children, list) or len(children) != 1:
+        return components
+    text_id = children[0]
+    text_comp = comp_by_id.get(text_id)
+    if not isinstance(text_comp, dict) or text_comp.get("component") != "Text":
+        return components
+    text_value = text_comp.get("text")
+    if not isinstance(text_value, str):
+        return components
+
+    blocks = _split_text_blocks(text_value)
+    if not any(block["type"] in ("button", "icon") for block in blocks):
+        return components
+
+    new_components: list[dict[str, Any]] = []
+    new_children: list[str] = []
+    idx = 1
+    for block in blocks:
+        if block["type"] == "text":
+            comp_id = f"text_{idx}"
+            new_components.append(
+                {
+                    "id": comp_id,
+                    "component": "Text",
+                    "text": block["text"],
+                    "variant": "body",
+                }
+            )
+            new_children.append(comp_id)
+            idx += 1
+            continue
+        if block["type"] == "button":
+            label_id = f"btn_label_{idx}"
+            button_id = f"btn_{idx}"
+            new_components.append(
+                {
+                    "id": label_id,
+                    "component": "Text",
+                    "text": block["label"],
+                    "variant": "body",
+                }
+            )
+            new_components.append(
+                {
+                    "id": button_id,
+                    "component": "Button",
+                    "child": label_id,
+                    "variant": "primary",
+                    "action": {
+                        "functionCall": {
+                            "call": "openUrl",
+                            "args": {"url": {"literalString": block["url"]}},
+                            "returnType": "void",
+                        }
+                    },
+                }
+            )
+            new_children.append(button_id)
+            idx += 1
+            continue
+        if block["type"] == "icon":
+            image_id = f"icon_img_{idx}"
+            label_id = f"icon_label_{idx}"
+            row_id = f"icon_row_{idx}"
+            new_components.append(
+                {
+                    "id": image_id,
+                    "component": "Image",
+                    "url": block["url"],
+                    "variant": "icon",
+                }
+            )
+            new_components.append(
+                {
+                    "id": label_id,
+                    "component": "Text",
+                    "text": block["label"],
+                    "variant": "body",
+                }
+            )
+            new_components.append(
+                {
+                    "id": row_id,
+                    "component": "Row",
+                    "children": [image_id, label_id],
+                    "align": "center",
+                }
+            )
+            new_children.append(row_id)
+            idx += 1
+            continue
+
+    root_copy = dict(root)
+    root_copy["children"] = new_children
+    new_components.insert(0, root_copy)
+    return new_components
+
+
+def _convert_component_v09_to_v08(component: dict[str, Any]) -> dict[str, Any]:
+    comp_id = component.get("id") or "component"
+    comp_type = component.get("component")
+    if comp_type == "Text":
+        return {
+            "id": comp_id,
+            "component": {
+                "Text": {
+                    "text": _dynamic_string(component.get("text")),
+                    "usageHint": component.get("variant", "body"),
+                }
+            },
+        }
+    if comp_type == "Image":
+        payload: dict[str, Any] = {"url": _dynamic_string(component.get("url"))}
+        usage = component.get("variant")
+        if usage:
+            payload["usageHint"] = usage
+        fit = component.get("fit")
+        if fit:
+            payload["fit"] = fit
+        return {"id": comp_id, "component": {"Image": payload}}
+    if comp_type == "Icon":
+        return {
+            "id": comp_id,
+            "component": {"Icon": {"name": _dynamic_string(component.get("name"))}},
+        }
+    if comp_type in ("Column", "Row", "List"):
+        children = component.get("children") or []
+        payload: dict[str, Any] = {"children": {"explicitList": children}}
+        if comp_type in ("Column", "Row"):
+            justify = component.get("justify")
+            align = component.get("align")
+            if justify:
+                payload["distribution"] = justify
+            if align:
+                payload["alignment"] = align
+        if comp_type == "List":
+            direction = component.get("direction")
+            if direction:
+                payload["direction"] = direction
+            align = component.get("align")
+            if align:
+                payload["alignment"] = align
+        return {"id": comp_id, "component": {comp_type: payload}}
+    if comp_type == "Divider":
+        payload: dict[str, Any] = {}
+        axis = component.get("axis")
+        if axis:
+            payload["axis"] = axis
+        return {"id": comp_id, "component": {"Divider": payload}}
+    if comp_type == "Card":
+        child = component.get("child")
+        if isinstance(child, str):
+            return {"id": comp_id, "component": {"Card": {"child": child}}}
+    if comp_type == "Tabs":
+        tabs = component.get("tabs") or component.get("items") or []
+        tab_items: list[dict[str, Any]] = []
+        for tab in tabs:
+            if not isinstance(tab, dict):
+                continue
+            title = tab.get("title") or tab.get("label")
+            child = tab.get("child")
+            if not child:
+                continue
+            tab_items.append({"title": _dynamic_string(title), "child": child})
+        if tab_items:
+            return {"id": comp_id, "component": {"Tabs": {"tabItems": tab_items}}}
+    if comp_type == "Button":
+        child = component.get("child")
+        if isinstance(child, str):
+            action_payload = None
+            action = component.get("action")
+            if isinstance(action, dict):
+                if "functionCall" in action:
+                    fn = action.get("functionCall") or {}
+                    if isinstance(fn, dict) and fn.get("call"):
+                        args = fn.get("args") or {}
+                        context = []
+                        for key, value in (args.items() if isinstance(args, dict) else []):
+                            context.append({"key": str(key), "value": _dynamic_string(value)})
+                        action_payload = {"name": fn.get("call"), "context": context} if context else {"name": fn.get("call")}
+                if "event" in action:
+                    ev = action.get("event") or {}
+                    if isinstance(ev, dict) and ev.get("name"):
+                        ctx = ev.get("context") or {}
+                        context = []
+                        if isinstance(ctx, dict):
+                            for key, value in ctx.items():
+                                context.append({"key": str(key), "value": _dynamic_string(value)})
+                        action_payload = {"name": ev.get("name"), "context": context} if context else {"name": ev.get("name")}
+            if not action_payload:
+                action_payload = {"name": "noop"}
+            payload: dict[str, Any] = {"child": child, "action": action_payload}
+            if component.get("variant") == "primary":
+                payload["primary"] = True
+            return {"id": comp_id, "component": {"Button": payload}}
+    # Fallback for unsupported components: render a text stub.
+    return {
+        "id": comp_id,
+        "component": {
+            "Text": {
+                "text": _dynamic_string(f"[{comp_type or 'Unknown'}]"),
+                "usageHint": "body",
+            }
+        },
+    }
+
+
 def _wrap_components_as_messages(components: list[dict], surface_id: str = "@default") -> list[dict]:
-    root_id = components[0].get("id") if components else "root"
+    converted = [_convert_component_v09_to_v08(comp) for comp in components]
+    root_id = converted[0].get("id") if converted else "root"
     return [
         {"beginRendering": {"root": root_id, "surfaceId": surface_id}},
-        {"surfaceUpdate": {"surfaceId": surface_id, "components": components}},
+        {"surfaceUpdate": {"surfaceId": surface_id, "components": converted}},
     ]
 
 
@@ -38,6 +350,9 @@ def _has_message_content(messages: list[Any]) -> bool:
         "dataModelUpdate",
         "dataModelDelete",
         "dataModelTransaction",
+        "createSurface",
+        "updateComponents",
+        "updateDataModel",
     }
     for item in messages:
         if isinstance(item, dict) and keys.intersection(item.keys()):
@@ -49,25 +364,67 @@ def _fallback_messages(text: str) -> list[dict]:
     return _wrap_components_as_messages(
         [
             {
+                "id": "root",
+                "component": "Column",
+                "children": ["fallback-text"],
+            },
+            {
                 "id": "fallback-text",
-                "component": {"Text": {"text": {"literalString": text}, "usageHint": "body"}},
-            }
+                "component": "Text",
+                "text": text,
+                "variant": "body",
+            },
         ]
     )
+
+
+def _convert_genui_messages_to_a2ui(messages: list[Any]) -> list[Any]:
+    # Detect GenUICraft v0.9 style messages and convert to v0.8 A2UI messages.
+    if not isinstance(messages, list):
+        return messages
+    surfaces: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+
+    for item in messages:
+        if not isinstance(item, dict):
+            continue
+        if "createSurface" in item:
+            surface_id = item.get("createSurface", {}).get("surfaceId")
+            if surface_id and surface_id not in surfaces:
+                surfaces[surface_id] = {}
+                order.append(surface_id)
+        if "updateComponents" in item:
+            surface_id = item.get("updateComponents", {}).get("surfaceId")
+            comps = item.get("updateComponents", {}).get("components") or []
+            if surface_id:
+                if surface_id not in surfaces:
+                    surfaces[surface_id] = {}
+                    order.append(surface_id)
+                surfaces[surface_id]["components"] = comps
+
+    if not surfaces:
+        return messages
+
+    output: list[dict[str, Any]] = []
+    for surface_id in order:
+        components = surfaces.get(surface_id, {}).get("components") or []
+        components = _expand_text_components_v09(components)
+        output.extend(_wrap_components_as_messages(components, surface_id=surface_id))
+    return output
 
 
 def _normalize_messages(value: Any) -> list[Any]:
     if isinstance(value, list):
         if _looks_like_components_list(value):
             return _wrap_components_as_messages(value)
-        return value
+        return _convert_genui_messages_to_a2ui(value)
     if isinstance(value, dict):
         for key in ("messages", "payload"):
             candidate = value.get(key)
             if isinstance(candidate, list):
                 if _looks_like_components_list(candidate):
                     return _wrap_components_as_messages(candidate)
-                return candidate
+                return _convert_genui_messages_to_a2ui(candidate)
     return [value]
 
 

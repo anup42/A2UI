@@ -28,6 +28,7 @@ def _validate_schema(schema: dict[str, Any], data: Any, schema_dir: Path) -> tup
             content = json.loads(schema_path.read_text(encoding="utf-8"))
         except Exception:
             continue
+        store[schema_path.name] = content
         schema_id = content.get("$id")
         if schema_id:
             store[schema_id] = content
@@ -40,13 +41,26 @@ def _validate_schema(schema: dict[str, Any], data: Any, schema_dir: Path) -> tup
             store["https://genui.local/specification/v0_9/server_to_client.json"] = content
         if schema_path.name == "server_to_client_list.json":
             store["https://genui.local/specification/v0_9/server_to_client_list.json"] = content
+
+    # Prefer the modern referencing registry to avoid network fetches.
     try:
-        resolver = jsonschema.RefResolver.from_schema(schema, store=store)
-        validator = jsonschema.Draft202012Validator(schema, resolver=resolver)
+        from referencing import Registry, Resource  # type: ignore
+
+        registry = Registry()
+        for key, value in store.items():
+            registry = registry.with_resource(key, Resource.from_contents(value))
+        validator = jsonschema.Draft202012Validator(schema, registry=registry)
         validator.validate(instance=data)
         return True, [], True
-    except Exception as exc:
-        return False, [str(exc)], True
+    except Exception:
+        # Fall back to the legacy resolver API.
+        try:
+            resolver = jsonschema.RefResolver.from_schema(schema, store=store)
+            validator = jsonschema.Draft202012Validator(schema, resolver=resolver)
+            validator.validate(instance=data)
+            return True, [], True
+        except Exception as exc:
+            return False, [str(exc)], True
 
 
 def _make_ui_id(query_id: str, n_idx: int, candidate_idx: int) -> str:
@@ -77,6 +91,38 @@ def _build_asset_context(assets: list[dict]) -> str:
     if not lines:
         return ""
     return "Assets (local copies of any URLs in the response; use ONLY these local paths):\n" + "\n".join(lines)
+
+
+def _apply_asset_replacements(text: str, assets: list[dict]) -> str:
+    if not assets:
+        return text
+    valid_exts = (
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".webp",
+        ".svg",
+        ".bmp",
+        ".tiff",
+        ".pdf",
+        ".zip",
+    )
+    updated = text
+    for item in assets:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "").strip()
+        path = str(item.get("path") or "").strip()
+        if not url or not path:
+            continue
+        local_path = path.replace("\\", "/")
+        if not local_path.lower().endswith(valid_exts):
+            continue
+        if not local_path.startswith("/"):
+            local_path = "/" + local_path.lstrip("/")
+        updated = updated.replace(url, local_path)
+    return updated
 
 
 def run_stage3(
@@ -197,14 +243,14 @@ def run_stage3(
                         schema_valid_lenient = True
 
             repair_attempts = 0
-            while parsed_ok and not schema_valid_strict and repair_attempts < max_repair_attempts:
+            while (not parsed_ok or not schema_valid_strict) and repair_attempts < max_repair_attempts:
                 repair_attempts += 1
                 repair_needed = True
                 repair_prompt = (
-                    "The previous output failed schema validation."
-                    "Fix the JSON to satisfy the schema."
+                    "The previous output was not valid JSON or failed schema validation. "
+                    "Fix the output to be valid JSON that satisfies the schema. "
                     f"Errors: {errors}.\n"
-                    "Return only the corrected JSON."
+                    "Return ONLY the corrected JSON."
                 )
                 repaired_text = f"{repair_prompt}\n\nOriginal:\n{raw_text}"
 
@@ -239,7 +285,7 @@ def run_stage3(
                 except Exception as exc:
                     parsed_ok = False
                     errors.append(f"repair_json_parse_error: {exc}")
-                    break
+                    continue
 
                 schema_valid_strict, schema_errors, validator_ok = _validate_schema(schema, a2ui_json, schema_path.parent)
                 if schema_valid_strict:
@@ -249,8 +295,51 @@ def run_stage3(
                     if not validator_ok:
                         schema_valid_lenient = True
 
-            if not parsed_ok or a2ui_json is None:
-                a2ui_json = {}
+            if not parsed_ok or a2ui_json is None or not schema_valid_strict:
+                # Final fallback: build a minimal valid GenUICraft message list.
+                fallback_text = _apply_asset_replacements(response_text, assets_list)
+                surface_id = f"surface_{query_id}"
+                catalog_id = "https://genui.local/specification/v0_9/standard_catalog.json"
+                a2ui_json = [
+                    {
+                        "version": "v0.9",
+                        "createSurface": {
+                            "surfaceId": surface_id,
+                            "catalogId": catalog_id,
+                        },
+                    },
+                    {
+                        "version": "v0.9",
+                        "updateComponents": {
+                            "surfaceId": surface_id,
+                            "components": [
+                                {
+                                    "id": "root",
+                                    "component": "Column",
+                                    "children": ["text_1"],
+                                },
+                                {
+                                    "id": "text_1",
+                                    "component": "Text",
+                                    "text": fallback_text,
+                                    "variant": "body",
+                                },
+                            ],
+                        },
+                    },
+                ]
+                # Re-validate schema for fallback.
+                parsed_ok = True
+                errors = ["fallback_generated"]
+                schema_valid_strict, schema_errors, validator_ok = _validate_schema(
+                    schema, a2ui_json, schema_path.parent
+                )
+                if schema_valid_strict:
+                    schema_valid_lenient = True
+                else:
+                    errors.extend(schema_errors)
+                    if not validator_ok:
+                        schema_valid_lenient = True
 
             toon = encode_toon(a2ui_json)
             toon_ok = roundtrip_ok(a2ui_json, toon)

@@ -15,7 +15,11 @@ def load_prompt(path: Path) -> str:
 
 
 def render_prompt(template: str, **kwargs: Any) -> str:
-    return template.format(**kwargs)
+    # Avoid str.format to prevent accidental formatting of JSON braces in prompts.
+    rendered = template
+    for key, value in kwargs.items():
+        rendered = rendered.replace("{" + key + "}", str(value))
+    return rendered
 
 
 def extract_json(text: str) -> Any:

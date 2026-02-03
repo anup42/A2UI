@@ -26,6 +26,15 @@ models:
       tpm: null
       rpd: null
       note: "set per your Google project tier"
+  - name: gemini_3_flash
+    provider: gemini
+    model: gemini-3-flash-preview
+    supports_json_mode: false
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "set per your Google project tier"
   - name: gauss_default
     provider: gauss
     model: GAUSS_MODEL_ID

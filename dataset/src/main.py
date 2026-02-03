@@ -78,6 +78,7 @@ def _print_limits(specs) -> None:
 
 
 def _load_env(root: Path) -> None:
+    multiline_keys = {"GEMINI_API_KEYS"}
     for env_path in [
         root / ".env",
         root / ".env.example",
@@ -86,16 +87,34 @@ def _load_env(root: Path) -> None:
     ]:
         if not env_path.exists():
             continue
+        is_example = env_path.name.endswith(".example")
+        pending_key = None
+        pending_parts: list[str] = []
         for line in env_path.read_text(encoding="utf-8").splitlines():
             if not line.strip() or line.lstrip().startswith("#"):
                 continue
             if "=" not in line:
+                if pending_key in multiline_keys:
+                    pending_parts.append(line.strip())
                 continue
+            if pending_key in multiline_keys and pending_parts:
+                if not (is_example and pending_key in os.environ):
+                    os.environ[pending_key] = ",".join(pending_parts)
+            pending_key = None
+            pending_parts = []
             key, value = line.split("=", 1)
             key = key.strip()
             value = value.strip().strip("\"").strip("'")
+            if key in multiline_keys:
+                if not (is_example and key in os.environ):
+                    pending_key = key
+                    pending_parts = [value]
+                continue
             if key and key not in os.environ:
                 os.environ[key] = value
+        if pending_key in multiline_keys and pending_parts:
+            if not (is_example and pending_key in os.environ):
+                os.environ[pending_key] = ",".join(pending_parts)
 
 
 def main() -> None:

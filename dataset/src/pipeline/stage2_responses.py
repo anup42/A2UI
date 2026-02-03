@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 import hashlib
+import mimetypes
 import re
 import urllib.parse
 import urllib.request
@@ -22,15 +23,87 @@ def _make_response_id(query_id: str, n_idx: int) -> str:
     return f"r_{suffix}_{n_idx:02d}"
 
 
-_URL_RE = re.compile(r"https?://[^\\s<>\"')]+")
+_URL_RE = re.compile(r"https?://[^\s<>\"')]+")
+_ASSET_EXTENSIONS = {
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".bmp",
+    ".tif",
+    ".tiff",
+    ".pdf",
+    ".zip",
+}
+_ASSET_HOST_HINTS = (
+    "icons8.com",
+    "unsplash.com",
+    "images.unsplash.com",
+    "imgur.com",
+    "cloudfront.net",
+    "googleusercontent.com",
+)
+
+_MIME_EXTENSION_MAP = {
+    "image/jpeg": ".jpg",
+    "image/jpg": ".jpg",
+    "image/png": ".png",
+    "image/gif": ".gif",
+    "image/webp": ".webp",
+    "image/svg+xml": ".svg",
+    "image/bmp": ".bmp",
+    "image/tiff": ".tiff",
+    "application/pdf": ".pdf",
+    "application/zip": ".zip",
+}
 
 
-def _extract_urls(text: str) -> list[str]:
-    urls = []
-    for match in _URL_RE.findall(text or ""):
-        cleaned = match.rstrip(".,;:)]}!?")
-        if cleaned:
-            urls.append(cleaned)
+def _clean_url(value: str) -> str:
+    cleaned = value.strip().strip("()[]{}<>\"'").rstrip(".,;:)]}!?")
+    if not cleaned:
+        return ""
+    cleaned = cleaned.split()[0]
+    cleaned = "".join(ch for ch in cleaned if ch.isprintable())
+    parsed = urllib.parse.urlparse(cleaned)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        return ""
+    return cleaned
+
+
+def _is_asset_url(url: str) -> bool:
+    parsed = urllib.parse.urlparse(url)
+    path = parsed.path.lower()
+    if any(path.endswith(ext) for ext in _ASSET_EXTENSIONS):
+        return True
+    host = parsed.netloc.lower()
+    return any(hint in host for hint in _ASSET_HOST_HINTS)
+
+
+def _extract_asset_urls(text: str) -> list[str]:
+    urls: list[str] = []
+    if not text:
+        return urls
+    section: str | None = None
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            section = None
+            continue
+        header = stripped.rstrip(":").lower()
+        if header in {"images", "icons", "assets", "files"}:
+            section = header
+            continue
+        candidates = _URL_RE.findall(line)
+        if not candidates:
+            continue
+        for match in candidates:
+            cleaned = _clean_url(match)
+            if not cleaned:
+                continue
+            if _is_asset_url(cleaned):
+                urls.append(cleaned)
     return list(dict.fromkeys(urls))
 
 
@@ -47,7 +120,7 @@ def _download_assets(
     max_bytes: int = 25 * 1024 * 1024,
 ) -> list[dict]:
     assets = []
-    urls = _extract_urls(response_text)
+    urls = _extract_asset_urls(response_text)
     if not urls:
         return assets
     assets_dir.mkdir(parents=True, exist_ok=True)
@@ -62,15 +135,29 @@ def _download_assets(
             parsed = urllib.parse.urlparse(url)
             basename = Path(parsed.path).name
             safe_name = _safe_name(basename) or f"asset_{idx}"
-            if "." not in safe_name:
-                safe_name = f"{safe_name}.bin"
-            filename = f"{response_id}_{idx}_{safe_name}"
-            dest = assets_dir / filename
+            dest: Path
+            content_type = None
             with urllib.request.urlopen(url, timeout=30) as resp:
+                content_type = resp.headers.get("Content-Type")
                 data = resp.read(max_bytes + 1)
             if len(data) > max_bytes:
                 logger.warning("Stage2 asset too large, skipped url=%s", url)
                 continue
+            ext = ""
+            if "." in safe_name:
+                ext = Path(safe_name).suffix
+            if not ext:
+                if content_type:
+                    content_type = content_type.split(";")[0].strip().lower()
+                ext = _MIME_EXTENSION_MAP.get(content_type or "")
+                if not ext and content_type:
+                    guessed = mimetypes.guess_extension(content_type, strict=False)
+                    if guessed:
+                        ext = guessed
+            if not ext:
+                ext = ".bin"
+            filename = f"{response_id}_{idx}_{_safe_name(Path(safe_name).stem)}{ext}"
+            dest = assets_dir / filename
             dest.write_bytes(data)
             sha = hashlib.sha256(data).hexdigest()
             url_cache[url] = dest
@@ -512,6 +599,46 @@ def _process_query_batch(
                         start = None
             if recovered:
                 parsed = recovered
+            elif len(queries) > 1:
+                logger.warning("Stage2 batch parse failed; splitting batch size=%s", len(queries))
+                mid = len(queries) // 2
+                return _process_query_batch(
+                    queries[:mid],
+                    batch_prompt_template,
+                    single_prompt_template,
+                    adapter,
+                    writer,
+                    existing_ids,
+                    existing_hashes,
+                    assets_dir,
+                    url_cache,
+                    max_tokens,
+                    seed,
+                    rate_limiter,
+                    cache,
+                    logger,
+                    max_attempts,
+                    fallback_per_query,
+                    temperature,
+                ) + _process_query_batch(
+                    queries[mid:],
+                    batch_prompt_template,
+                    single_prompt_template,
+                    adapter,
+                    writer,
+                    existing_ids,
+                    existing_hashes,
+                    assets_dir,
+                    url_cache,
+                    max_tokens,
+                    seed,
+                    rate_limiter,
+                    cache,
+                    logger,
+                    max_attempts,
+                    fallback_per_query,
+                    temperature,
+                )
 
     responses_by_id = {}
     if isinstance(parsed, list):
