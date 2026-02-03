@@ -36,6 +36,33 @@ class GaussAdapter(BaseLLMAdapter):
                 candidates.append(url)
         return candidates
 
+    def _resolve_max_new_tokens(self, requested: int) -> tuple[int, int | None]:
+        limit: int | None = None
+        env_limit = os.getenv("GAUSS_MAX_NEW_TOKENS")
+        if env_limit:
+            try:
+                limit = int(env_limit)
+            except ValueError:
+                limit = None
+        spec_limits = self.spec.limits if isinstance(self.spec.limits, dict) else {}
+        spec_limit = spec_limits.get("max_new_tokens") if spec_limits else None
+        if spec_limit is not None and limit is None:
+            try:
+                limit = int(spec_limit)
+            except (TypeError, ValueError):
+                limit = None
+        if limit is None:
+            # Safe default based on Gauss docs/examples.
+            limit = 2048
+        if requested > limit:
+            return limit, limit
+        return requested, limit
+
+    def _clamp_temperature(self, value: float) -> tuple[float, bool]:
+        # Gauss docs specify 0 < temperature < 1
+        clamped = min(max(value, 0.01), 0.99)
+        return clamped, clamped != value
+
     def list_models(self, all_models: bool = True) -> dict:
         endpoint = os.getenv("GAUSS_ENDPOINT") or self.spec.endpoint
         client_key = os.getenv("GAUSS_CLIENT_KEY")
@@ -156,9 +183,12 @@ class GaussAdapter(BaseLLMAdapter):
         if email:
             headers["x-generative-ai-user-email"] = email
 
+        max_new_tokens, max_limit = self._resolve_max_new_tokens(max_tokens)
+        temp_value, temp_clamped = self._clamp_temperature(temperature)
+
         llm_config: dict[str, object] = {
-            "max_new_tokens": max_tokens,
-            "temperature": temperature,
+            "max_new_tokens": max_new_tokens,
+            "temperature": temp_value,
         }
         if seed is not None:
             llm_config["seed"] = seed
@@ -182,11 +212,15 @@ class GaussAdapter(BaseLLMAdapter):
             "modelIds": [model_id],
             "prompt_preview": prompt_preview,
             "prompt_length": len(prompt),
-            "temperature": temperature,
-            "max_new_tokens": max_tokens,
+            "temperature": temp_value,
+            "max_new_tokens": max_new_tokens,
             "seed": seed,
             "system": bool(system),
         }
+        if max_limit is not None and max_new_tokens != max_tokens:
+            request_debug["max_new_tokens_clamped_from"] = max_tokens
+        if temp_clamped:
+            request_debug["temperature_clamped_from"] = temperature
         for candidate in self._candidate_endpoints(endpoint):
             attempted.append(candidate)
             req = urllib.request.Request(candidate, data=data, headers=headers)
