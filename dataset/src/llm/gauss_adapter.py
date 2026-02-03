@@ -11,6 +11,15 @@ from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
 
 
 class GaussAdapter(BaseLLMAdapter):
+    def _clean_env(self, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        cleaned = value.strip().strip('"').strip("'").strip()
+        cleaned = cleaned.strip(",")
+        if "," in cleaned:
+            cleaned = cleaned.split(",")[0].strip()
+        return cleaned or None
+
     def _resolve_endpoint(self, endpoint: str) -> str:
         endpoint = endpoint.rstrip("/")
         if endpoint.endswith("/openapi/chat/v1/messages"):
@@ -83,10 +92,10 @@ class GaussAdapter(BaseLLMAdapter):
         return clamped, clamped != value
 
     def list_models(self, all_models: bool = True) -> dict:
-        endpoint = os.getenv("GAUSS_ENDPOINT") or self.spec.endpoint
-        client_key = os.getenv("GAUSS_CLIENT_KEY")
-        token = os.getenv("GAUSS_OPENAPI_TOKEN")
-        email = os.getenv("GAUSS_USER_EMAIL")
+        endpoint = self._clean_env(os.getenv("GAUSS_ENDPOINT") or self.spec.endpoint)
+        client_key = self._clean_env(os.getenv("GAUSS_CLIENT_KEY"))
+        token = self._clean_env(os.getenv("GAUSS_OPENAPI_TOKEN"))
+        email = self._clean_env(os.getenv("GAUSS_USER_EMAIL"))
 
         if not endpoint:
             return {"error": "GAUSS_ENDPOINT not set"}
@@ -95,6 +104,8 @@ class GaussAdapter(BaseLLMAdapter):
         if not token:
             return {"error": "GAUSS_OPENAPI_TOKEN not set"}
 
+        if token and not token.lower().startswith("bearer "):
+            token = f"Bearer {token}"
         base = self._resolve_base(endpoint)
         path = "all-models" if all_models else "models"
         url = f"{base}/openapi/chat/v1/{path}"
@@ -139,12 +150,11 @@ class GaussAdapter(BaseLLMAdapter):
         json_mode: bool = False,
     ) -> LLMResult:
         endpoint = os.getenv("GAUSS_ENDPOINT") or self.spec.endpoint
-        if endpoint:
-            endpoint = endpoint.strip().strip("\"").strip("'")
-        client_key = os.getenv("GAUSS_CLIENT_KEY")
-        token = os.getenv("GAUSS_OPENAPI_TOKEN")
-        email = os.getenv("GAUSS_USER_EMAIL")
-        model_id = os.getenv("GAUSS_MODEL_ID") or self.spec.model
+        endpoint = self._clean_env(endpoint)
+        client_key = self._clean_env(os.getenv("GAUSS_CLIENT_KEY"))
+        token = self._clean_env(os.getenv("GAUSS_OPENAPI_TOKEN"))
+        email = self._clean_env(os.getenv("GAUSS_USER_EMAIL"))
+        model_id = self._clean_env(os.getenv("GAUSS_MODEL_ID") or self.spec.model)
 
         if not endpoint:
             return LLMResult(
@@ -196,6 +206,8 @@ class GaussAdapter(BaseLLMAdapter):
             )
 
         endpoint = endpoint.replace(" ", "")
+        if token and not token.lower().startswith("bearer "):
+            token = f"Bearer {token}"
         url = self._resolve_endpoint(endpoint)
         headers = {
             "Content-Type": "application/json",
