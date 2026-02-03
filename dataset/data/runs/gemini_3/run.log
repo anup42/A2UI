@@ -3483,3 +3483,5 @@ Icon err=URL can't contain control characters. '/upload\n\nIcon' (found at least
 2026-02-03 10:19:39 INFO dataset: Stage3 created ui_id=u_000079_01 schema_ok=True
 2026-02-03 10:20:13 INFO dataset: Stage3 created ui_id=u_000171_01 schema_ok=True
 2026-02-03 10:21:16 INFO dataset: Stage3 created ui_id=u_000105_01 schema_ok=False
+2026-02-03 10:21:41 INFO dataset: Stage3 created ui_id=u_000080_01 schema_ok=True
+2026-02-03 10:22:06 INFO dataset: Stage3 created ui_id=u_000172_01 schema_ok=True
