@@ -42,8 +42,6 @@ def upgrade_genui_jsonl(genui_jsonl_path: Path) -> dict[str, Any]:
     for row in rows:
         genui_json = row.get("genui_json")
         if genui_json is None:
-            genui_json = row.get("a2ui_json")
-        if genui_json is None:
             continue
         toon = encode_toon(genui_json)
         row["toon"] = toon

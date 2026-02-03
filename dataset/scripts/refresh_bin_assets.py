@@ -61,7 +61,7 @@ def refresh_bin_assets(run_dir: Path, timeout: int, max_bytes: int) -> int:
             try:
                 req = urllib.request.Request(
                     url,
-                    headers={"User-Agent": "A2UI-Dataset/1.0"},
+                    headers={"User-Agent": "GenUI-Dataset/1.0"},
                 )
                 with urllib.request.urlopen(req, timeout=timeout) as resp:
                     content_type = resp.headers.get("Content-Type")
