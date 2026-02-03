@@ -31,7 +31,7 @@ def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
 def upgrade_genui_jsonl(genui_jsonl_path: Path) -> dict[str, Any]:
     """Rewrite `toon` field in-place using the spec TOON encoder.
 
-    This is safe to run multiple times: it always re-encodes from `a2ui_json`.
+    This is safe to run multiple times: it always re-encodes from `genui_json`.
     """
     if not genui_jsonl_path.exists():
         raise FileNotFoundError(str(genui_jsonl_path))
@@ -40,15 +40,17 @@ def upgrade_genui_jsonl(genui_jsonl_path: Path) -> dict[str, Any]:
 
     updated = 0
     for row in rows:
-        a2ui_json = row.get("a2ui_json")
-        if a2ui_json is None:
+        genui_json = row.get("genui_json")
+        if genui_json is None:
+            genui_json = row.get("a2ui_json")
+        if genui_json is None:
             continue
-        toon = encode_toon(a2ui_json)
+        toon = encode_toon(genui_json)
         row["toon"] = toon
 
         validation = row.get("validation")
         if isinstance(validation, dict):
-            validation["toon_roundtrip_ok"] = roundtrip_ok(a2ui_json, toon)
+            validation["toon_roundtrip_ok"] = roundtrip_ok(genui_json, toon)
 
         metrics = row.get("metrics")
         if isinstance(metrics, dict):

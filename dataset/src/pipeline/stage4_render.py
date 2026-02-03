@@ -565,8 +565,10 @@ def run_stage4(
             logger.info("Stage4 reached max_total=%s", max_total)
             break
 
-        a2ui_json = row.get("a2ui_json")
-        messages = _normalize_messages(a2ui_json)
+        genui_json = row.get("genui_json")
+        if genui_json is None:
+            genui_json = row.get("a2ui_json")
+        messages = _normalize_messages(genui_json)
         if not messages or not _has_message_content(messages):
             err_text = "No renderable GenUICraft messages."
             validation = row.get("validation") if isinstance(row, dict) else None

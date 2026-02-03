@@ -421,7 +421,7 @@ def run_stage3(
                     "ui_id": ui_id,
                     "response_id": response_id,
                     "query_id": query_id,
-                    "a2ui_json": a2ui_json,
+                    "genui_json": a2ui_json,
                     "assets": assets_list,
                     "toon": toon,
                     "validation": {
