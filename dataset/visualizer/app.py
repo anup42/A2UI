@@ -52,13 +52,8 @@ def _count_lines(path: Path) -> int:
 
 
 def _resolve_genui_jsonl(run_dir: Path) -> Path:
-    """Return the GenUICraft JSONL path for a run (supports legacy filenames)."""
+    """Return the GenUICraft JSONL path for a run."""
     genui = run_dir / "genui.jsonl"
-    if genui.exists():
-        return genui
-    legacy = run_dir / "a2ui.jsonl"
-    if legacy.exists():
-        return legacy
     return genui
 
 

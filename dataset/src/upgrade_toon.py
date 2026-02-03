@@ -71,23 +71,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Upgrade TOON strings in genui.jsonl to spec format.")
     parser.add_argument(
         "--genui_jsonl",
-        required=False,
+        required=True,
         type=Path,
         help="Path to a run's genui.jsonl (e.g. dataset/data/runs/gemini_3/genui.jsonl).",
     )
-    parser.add_argument(
-        "--a2ui_jsonl",
-        required=False,
-        type=Path,
-        help="(Deprecated) Path to a run's a2ui.jsonl (legacy name).",
-    )
     args = parser.parse_args()
 
-    path = args.genui_jsonl or args.a2ui_jsonl
-    if not path:
-        parser.error("One of --genui_jsonl or --a2ui_jsonl is required.")
-
-    result = upgrade_genui_jsonl(path)
+    result = upgrade_genui_jsonl(args.genui_jsonl)
     print(json.dumps(result, indent=2))
 
 
