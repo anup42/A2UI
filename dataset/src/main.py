@@ -78,7 +78,7 @@ def _print_limits(specs) -> None:
 
 
 def _load_env(root: Path) -> None:
-    multiline_keys = {"GEMINI_API_KEYS"}
+    multiline_keys = {"GEMINI_API_KEYS", "GAUSS_OPENAPI_TOKEN", "GAUSS_CLIENT_KEY"}
     for env_path in [
         root / ".env",
         root / ".env.example",

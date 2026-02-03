@@ -139,6 +139,8 @@ class GaussAdapter(BaseLLMAdapter):
         json_mode: bool = False,
     ) -> LLMResult:
         endpoint = os.getenv("GAUSS_ENDPOINT") or self.spec.endpoint
+        if endpoint:
+            endpoint = endpoint.strip().strip("\"").strip("'")
         client_key = os.getenv("GAUSS_CLIENT_KEY")
         token = os.getenv("GAUSS_OPENAPI_TOKEN")
         email = os.getenv("GAUSS_USER_EMAIL")
@@ -193,6 +195,7 @@ class GaussAdapter(BaseLLMAdapter):
                 error="GAUSS_MODEL_ID not set",
             )
 
+        endpoint = endpoint.replace(" ", "")
         url = self._resolve_endpoint(endpoint)
         headers = {
             "Content-Type": "application/json",
