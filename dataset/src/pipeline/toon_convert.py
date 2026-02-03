@@ -44,8 +44,8 @@ def _prepare_for_toon(value: Any) -> Any:
     return value
 
 
-def encode_toon(a2ui_json: Any) -> str:
-    prepared = _prepare_for_toon(a2ui_json)
+def encode_toon(genui_json: Any) -> str:
+    prepared = _prepare_for_toon(genui_json)
     return toon_encode(prepared, options={"indent": 2})
 
 
@@ -54,9 +54,9 @@ def decode_toon(toon: str) -> Any:
     return toon_decode(toon)
 
 
-def roundtrip_ok(a2ui_json: Any, toon: str) -> bool:
+def roundtrip_ok(genui_json: Any, toon: str) -> bool:
     try:
         decoded = decode_toon(toon)
     except (ToonDecodeError, Exception):
         return False
-    return canonicalize_json(decoded) == canonicalize_json(a2ui_json)
+    return canonicalize_json(decoded) == canonicalize_json(genui_json)

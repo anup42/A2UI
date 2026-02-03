@@ -15,18 +15,18 @@ def count_tokens(text: str) -> int:
     return len(text.split())
 
 
-def content_coverage(response_text: str, a2ui_json: Any) -> float:
+def content_coverage(response_text: str, genui_json: Any) -> float:
     text = response_text.lower()
     words = [w for w in re.findall(r"[a-z0-9]+", text) if w not in _stopwords]
     if not words:
         return 0.0
-    a2ui_text = json.dumps(a2ui_json, ensure_ascii=False).lower()
-    hits = sum(1 for w in set(words) if w in a2ui_text)
+    genui_text = json.dumps(genui_json, ensure_ascii=False).lower()
+    hits = sum(1 for w in set(words) if w in genui_text)
     return hits / max(1, len(set(words)))
 
 
-def dup_rate(a2ui_json: Any) -> float:
-    serialized = json.dumps(a2ui_json, sort_keys=True)
+def dup_rate(genui_json: Any) -> float:
+    serialized = json.dumps(genui_json, sort_keys=True)
     lines = serialized.split(",")
     if not lines:
         return 0.0
@@ -35,7 +35,7 @@ def dup_rate(a2ui_json: Any) -> float:
     return dup / max(1, len(lines))
 
 
-def lint_score(a2ui_json: Any) -> float:
+def lint_score(genui_json: Any) -> float:
     score = 1.0
     penalties = 0.0
 
@@ -54,7 +54,7 @@ def lint_score(a2ui_json: Any) -> float:
             for item in obj:
                 walk(item)
 
-    walk(a2ui_json)
+    walk(genui_json)
     score = max(0.0, score - penalties)
     return score
 

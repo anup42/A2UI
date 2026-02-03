@@ -146,8 +146,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
         self._send_json(payload)
 
     def _handle_api_jsonl(self, run_dir: Path, name: str, query: dict) -> None:
-        if name == "a2ui":
-            name = "genui"
+        name = "genui"
         path = run_dir / f"{name}.jsonl"
         offset = int(query.get("offset", ["0"])[0])
         limit = int(query.get("limit", ["50"])[0])
@@ -199,7 +198,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
             if parts[4] == "summary":
                 self._handle_api_summary(run_dir)
                 return
-            if parts[4] in ("queries", "responses", "genui", "a2ui"):
+            if parts[4] in ("queries", "responses", "genui"):
                 self._handle_api_jsonl(run_dir, parts[4], query)
                 return
         self._send_json({"error": "not found"}, status=404)

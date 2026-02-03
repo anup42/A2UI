@@ -283,19 +283,19 @@ def run_stage3(
                 parsed_ok = True
                 errors: list[str] = []
                 try:
-                    a2ui_json = extract_json(raw_text)
+                    genui_json = extract_json(raw_text)
                 except Exception as exc:
                     parsed_ok = False
-                    a2ui_json = None
+                    genui_json = None
                     errors.append(f"json_parse_error: {exc}")
 
                 schema_valid_strict = False
                 schema_valid_lenient = False
                 repair_needed = False
 
-                if parsed_ok and a2ui_json is not None:
+                if parsed_ok and genui_json is not None:
                     schema_valid_strict, schema_errors, validator_ok = _validate_schema(
-                        schema, a2ui_json, schema_path.parent
+                        schema, genui_json, schema_path.parent
                     )
                     if schema_valid_strict:
                         schema_valid_lenient = True
@@ -342,7 +342,7 @@ def run_stage3(
                         raise RuntimeError(result.error)
                     raw_text = result.text
                     try:
-                        a2ui_json = extract_json(raw_text)
+                        genui_json = extract_json(raw_text)
                         parsed_ok = True
                     except Exception as exc:
                         parsed_ok = False
@@ -350,7 +350,7 @@ def run_stage3(
                         continue
 
                     schema_valid_strict, schema_errors, validator_ok = _validate_schema(
-                        schema, a2ui_json, schema_path.parent
+                        schema, genui_json, schema_path.parent
                     )
                     if schema_valid_strict:
                         schema_valid_lenient = True
@@ -359,12 +359,12 @@ def run_stage3(
                         if not validator_ok:
                             schema_valid_lenient = True
 
-                if not parsed_ok or a2ui_json is None or not schema_valid_strict:
+                if not parsed_ok or genui_json is None or not schema_valid_strict:
                     # Final fallback: build a minimal valid GenUICraft message list.
                     fallback_text = _apply_asset_replacements(response_text, assets_list)
                     surface_id = f"surface_{query_id}"
                     catalog_id = "https://genui.local/specification/v0_9/standard_catalog.json"
-                    a2ui_json = [
+                    genui_json = [
                         {
                             "version": "v0.9",
                             "createSurface": {
@@ -396,7 +396,7 @@ def run_stage3(
                     parsed_ok = True
                     errors = ["fallback_generated"]
                     schema_valid_strict, schema_errors, validator_ok = _validate_schema(
-                        schema, a2ui_json, schema_path.parent
+                        schema, genui_json, schema_path.parent
                     )
                     if schema_valid_strict:
                         schema_valid_lenient = True
@@ -405,15 +405,15 @@ def run_stage3(
                         if not validator_ok:
                             schema_valid_lenient = True
 
-                toon = encode_toon(a2ui_json)
-                toon_ok = roundtrip_ok(a2ui_json, toon)
+                toon = encode_toon(genui_json)
+                toon_ok = roundtrip_ok(genui_json, toon)
 
                 metrics = {
-                    "content_coverage": content_coverage(response_text, a2ui_json),
-                    "dup_rate": dup_rate(a2ui_json),
-                    "lint_score": lint_score(a2ui_json),
+                    "content_coverage": content_coverage(response_text, genui_json),
+                    "dup_rate": dup_rate(genui_json),
+                    "lint_score": lint_score(genui_json),
                     "output_tokens_toon": count_tokens(toon),
-                    "output_tokens_json": count_tokens(json.dumps(a2ui_json, ensure_ascii=False)),
+                    "output_tokens_json": count_tokens(json.dumps(genui_json, ensure_ascii=False)),
                 }
 
                 short_errors = [e[:300] + ("..." if len(e) > 300 else "") for e in errors]
@@ -421,7 +421,7 @@ def run_stage3(
                     "ui_id": ui_id,
                     "response_id": response_id,
                     "query_id": query_id,
-                    "genui_json": a2ui_json,
+                    "genui_json": genui_json,
                     "assets": assets_list,
                     "toon": toon,
                     "validation": {

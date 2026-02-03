@@ -378,8 +378,8 @@ def _fallback_messages(text: str) -> list[dict]:
     )
 
 
-def _convert_genui_messages_to_a2ui(messages: list[Any]) -> list[Any]:
-    # Detect GenUICraft v0.9 style messages and convert to v0.8 A2UI messages.
+def _convert_genui_messages_to_genui(messages: list[Any]) -> list[Any]:
+    # Detect GenUICraft v0.9 style messages and convert to v0.8 genui messages.
     if not isinstance(messages, list):
         return messages
     surfaces: dict[str, dict[str, Any]] = {}
@@ -417,14 +417,14 @@ def _normalize_messages(value: Any) -> list[Any]:
     if isinstance(value, list):
         if _looks_like_components_list(value):
             return _wrap_components_as_messages(value)
-        return _convert_genui_messages_to_a2ui(value)
+        return _convert_genui_messages_to_genui(value)
     if isinstance(value, dict):
         for key in ("messages", "payload"):
             candidate = value.get(key)
             if isinstance(candidate, list):
                 if _looks_like_components_list(candidate):
                     return _wrap_components_as_messages(candidate)
-                return _convert_genui_messages_to_a2ui(candidate)
+                return _convert_genui_messages_to_genui(candidate)
     return [value]
 
 
@@ -619,4 +619,3 @@ def run_stage4(
         renderer.stop()
     if server:
         server.stop()
-
