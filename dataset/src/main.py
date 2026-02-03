@@ -280,6 +280,10 @@ def main() -> None:
         float(run_cfg.get("call_sleep_seconds", 0)),
     )
 
+    prompt_max_tokens = run_cfg.get("genui_prompt_max_tokens")
+    if prompt_max_tokens is None and adapter.spec.provider == "gauss":
+        prompt_max_tokens = 6000
+
     if args.stage == 1:
         run_stage1(
             intents_file=root / run_cfg.get("intents_file", "intents.info"),
@@ -336,6 +340,7 @@ def main() -> None:
             candidates_per_response=int(run_cfg.get("a2ui_candidates_per_response", 1)),
             max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
             max_tokens=int(run_cfg.get("a2ui_max_tokens", 1024)),
+            prompt_max_tokens=int(prompt_max_tokens) if prompt_max_tokens else None,
             seed=int(run_cfg.get("seed", 42)),
             rate_limiter=rate_limiter,
             cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),

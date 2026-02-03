@@ -132,6 +132,18 @@ def _apply_asset_replacements(text: str, assets: list[dict]) -> str:
     return updated
 
 
+def _truncate_tokens(text: str, max_tokens: int) -> tuple[str, bool]:
+    if max_tokens <= 0:
+        return "", True
+    tokens = text.split()
+    if len(tokens) <= max_tokens:
+        return text, False
+    trimmed = " ".join(tokens[:max_tokens]).strip()
+    if trimmed:
+        trimmed = f"{trimmed}\n\n[TRUNCATED]"
+    return trimmed, True
+
+
 def run_stage3(
     responses_path: Path,
     prompt_path: Path,
@@ -142,6 +154,7 @@ def run_stage3(
     candidates_per_response: int,
     max_repair_attempts: int,
     max_tokens: int,
+    prompt_max_tokens: int | None,
     seed: int,
     rate_limiter: RateLimiter,
     cache: PromptCache,
@@ -198,7 +211,27 @@ def run_stage3(
                 prompt_response_text = response_text
                 if asset_context:
                     prompt_response_text = f"{response_text}\n\n{asset_context}"
+
                 prompt = render_prompt(prompt_template, response_text=prompt_response_text)
+                if prompt_max_tokens:
+                    prompt_tokens = count_tokens(prompt)
+                    if prompt_tokens > prompt_max_tokens:
+                        # First attempt: drop asset context to save tokens.
+                        prompt = render_prompt(prompt_template, response_text=response_text)
+                        prompt_tokens = count_tokens(prompt)
+                    if prompt_tokens > prompt_max_tokens:
+                        base_prompt = render_prompt(prompt_template, response_text="")
+                        base_tokens = count_tokens(base_prompt)
+                        budget = max(200, prompt_max_tokens - base_tokens)
+                        trimmed_text, truncated = _truncate_tokens(response_text, budget)
+                        if truncated:
+                            logger.warning(
+                                "Stage3 prompt truncated response_id=%s tokens=%s budget=%s",
+                                response_id,
+                                count_tokens(response_text),
+                                budget,
+                            )
+                        prompt = render_prompt(prompt_template, response_text=trimmed_text)
                 prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}")
 
                 cached = cache.get(prompt_hash)
