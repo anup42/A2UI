@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -70,6 +71,7 @@ def run_stage1(
     rate_limiter: RateLimiter,
     cache: PromptCache,
     logger,
+    intent_batch_size: int = 1,
     max_total: int | None = None,
     max_failures_per_intent: int = 3,
     fill_missing_with_fallback: bool = True,
@@ -94,6 +96,297 @@ def run_stage1(
     next_idx = len(existing_ids) + 1
 
     total_created = 0
+    if intent_batch_size <= 0:
+        intent_batch_size = 1
+    use_gemini_batch = adapter.spec.provider == "gemini" and hasattr(adapter, "generate_batch")
+    if use_gemini_batch and intent_batch_size > 1:
+        failures_by_intent = {intent: 0 for intent in intents}
+        stopped_intents: set[str] = set()
+        stop_all = False
+
+        def _append_record(
+            intent: str,
+            query_text: str,
+            difficulty: str,
+            tags: list,
+            source: str,
+            provider: str,
+            model: str,
+            seed_value: int,
+        ) -> bool:
+            nonlocal next_idx, total_created, stop_all
+            if max_total is not None and total_created >= max_total:
+                stop_all = True
+                return False
+            norm_hash = hash_text(normalize_text(query_text))
+            if norm_hash in existing_hashes:
+                return False
+            query_id = stable_id("q", next_idx)
+            next_idx += 1
+            record = {
+                "query_id": query_id,
+                "intent": intent,
+                "query_text": query_text,
+                "difficulty": difficulty,
+                "tags": tags,
+                "created_at": datetime.utcnow().isoformat() + "Z",
+                "source": source,
+                "gen": {
+                    "llm_provider": provider,
+                    "model": model,
+                    "prompt_version": "query_gen_v1",
+                    "temperature": temperature,
+                    "seed": seed_value,
+                },
+            }
+            writer.append(record)
+            existing_hashes.add(norm_hash)
+            existing_counts[intent] += 1
+            total_created += 1
+            if max_total is not None and total_created >= max_total:
+                stop_all = True
+            return True
+
+        def _fill_fallback(intent: str, provider: str, model: str) -> None:
+            if intent in stopped_intents:
+                return
+            logger.error(
+                "Stage1 fallback intent=%s after %s failures",
+                intent,
+                failures_by_intent[intent],
+            )
+            while existing_counts[intent] < k_per_intent:
+                if stop_all:
+                    break
+                suffix = existing_counts[intent] + 1
+                fallback_text = f"{intent} request {suffix}"
+                created = _append_record(
+                    intent,
+                    fallback_text,
+                    "easy",
+                    [intent.lower().replace(" ", "_")],
+                    "fallback",
+                    provider,
+                    model,
+                    seed,
+                )
+                if not created:
+                    existing_counts[intent] += 1
+            stopped_intents.add(intent)
+
+        def _handle_failure(intent: str, provider: str, model: str) -> None:
+            failures_by_intent[intent] += 1
+            if failures_by_intent[intent] >= max_failures_per_intent:
+                if fill_missing_with_fallback:
+                    _fill_fallback(intent, provider, model)
+                else:
+                    logger.error(
+                        "Stage1 stopping intent=%s after %s failures",
+                        intent,
+                        failures_by_intent[intent],
+                    )
+                    stopped_intents.add(intent)
+
+        def _process_raw(
+            intent: str,
+            raw_text: str,
+            provider: str,
+            model: str,
+            seed_value: int,
+        ) -> tuple[int, bool]:
+            try:
+                payload = extract_json(raw_text)
+            except Exception as exc:
+                logger.error("Stage1 parse error intent=%s: %s", intent, exc)
+                payload = _extract_objects_fallback(raw_text)
+                if payload:
+                    logger.info(
+                        "Stage1 recovered %s objects from fallback parse intent=%s",
+                        len(payload),
+                        intent,
+                    )
+                else:
+                    return 0, False
+
+            if not isinstance(payload, list) or not payload:
+                logger.error("Stage1 unexpected or empty payload intent=%s", intent)
+                return 0, False
+
+            created = 0
+            for item in payload:
+                if not isinstance(item, dict):
+                    continue
+                query_text = str(item.get("query_text", "")).strip()
+                if not query_text:
+                    continue
+                if _append_record(
+                    intent,
+                    query_text,
+                    item.get("difficulty", "medium"),
+                    item.get("tags", []),
+                    "generated",
+                    provider,
+                    model,
+                    seed_value,
+                ):
+                    created += 1
+                if stop_all or existing_counts[intent] >= k_per_intent:
+                    break
+
+            if created == 0:
+                logger.warning(
+                    "Stage1 no new queries intent=%s failures=%s/%s",
+                    intent,
+                    failures_by_intent[intent] + 1,
+                    max_failures_per_intent,
+                )
+                return 0, False
+
+            logger.info("Stage1 intent=%s created=%d total=%d", intent, created, existing_counts[intent])
+            return created, True
+
+        while True:
+            if max_total is not None and total_created >= max_total:
+                logger.info("Stage1 reached max_total=%s", max_total)
+                return
+            pending_intents = [
+                intent
+                for intent in intents
+                if intent not in stopped_intents and existing_counts[intent] < k_per_intent
+            ]
+            if not pending_intents:
+                return
+
+            batch_intents = pending_intents[:intent_batch_size]
+            entries: list[dict[str, object]] = []
+            for intent in batch_intents:
+                remaining = k_per_intent - existing_counts[intent]
+                k = min(batch_size, remaining)
+                prompt = render_prompt(prompt_template, intent=intent, k=k)
+                seed_value = seed + existing_counts[intent] + failures_by_intent[intent]
+                prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}:seed={seed_value}")
+                cached = cache.get(prompt_hash)
+                if cached:
+                    created, ok = _process_raw(
+                        intent,
+                        cached.text,
+                        adapter.spec.provider,
+                        adapter.spec.model,
+                        seed_value,
+                    )
+                    if not ok:
+                        _handle_failure(intent, adapter.spec.provider, adapter.spec.model)
+                    elif fill_missing_with_fallback and existing_counts[intent] < k_per_intent:
+                        _fill_fallback(intent, adapter.spec.provider, adapter.spec.model)
+                    if stop_all:
+                        return
+                    continue
+                entries.append(
+                    {
+                        "intent": intent,
+                        "prompt": prompt,
+                        "seed_value": seed_value,
+                        "prompt_hash": prompt_hash,
+                    }
+                )
+
+            if not entries:
+                continue
+
+            prompts = [entry["prompt"] for entry in entries]
+            seeds = [entry["seed_value"] for entry in entries]
+            results = None
+
+            def _call_batch():
+                rate_limiter.acquire()
+                return adapter.generate_batch(
+                    prompts=prompts,
+                    system=None,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    seeds=seeds,
+                    json_mode=True if adapter.spec.supports_json_mode else False,
+                    batch_name=f"stage1_{int(time.time())}",
+                )
+
+            try:
+                results = with_retry(_call_batch, max_attempts=max_attempts)
+            except Exception as exc:
+                if isinstance(exc, LLMRateLimitError):
+                    logger.error(
+                        "Stage1 rate limit info: limits=%s headers=%s",
+                        exc.limits or "unset",
+                        exc.headers or "none",
+                    )
+                logger.warning("Stage1 batch failed; falling back to single calls: %s", exc)
+                results = None
+
+            if results is None or len(results) != len(entries):
+                for entry in entries:
+                    prompt = entry["prompt"]
+                    intent = entry["intent"]
+                    seed_value = entry["seed_value"]
+
+                    def _call():
+                        rate_limiter.acquire()
+                        return adapter.generate(
+                            prompt=prompt,
+                            system=None,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            seed=seed_value,
+                            json_mode=True if adapter.spec.supports_json_mode else False,
+                        )
+
+                    try:
+                        result = with_retry(_call, max_attempts=max_attempts)
+                    except Exception as exc:
+                        if isinstance(exc, LLMRateLimitError):
+                            logger.error(
+                                "Stage1 rate limit info: limits=%s headers=%s",
+                                exc.limits or "unset",
+                                exc.headers or "none",
+                            )
+                        logger.error("Stage1 error intent=%s: %s", intent, exc)
+                        _handle_failure(intent, adapter.spec.provider, adapter.spec.model)
+                        if stop_all:
+                            return
+                        continue
+                    if result.error:
+                        logger.error("Stage1 error intent=%s: %s", intent, result.error)
+                        _handle_failure(intent, result.provider, result.model)
+                        if stop_all:
+                            return
+                        continue
+                    cache.set(entry["prompt_hash"], result.text, result.raw)
+                    created, ok = _process_raw(intent, result.text, result.provider, result.model, seed_value)
+                    if not ok:
+                        _handle_failure(intent, result.provider, result.model)
+                    elif fill_missing_with_fallback and existing_counts[intent] < k_per_intent:
+                        _fill_fallback(intent, result.provider, result.model)
+                    if stop_all:
+                        return
+                continue
+
+            for entry, result in zip(entries, results):
+                intent = entry["intent"]
+                seed_value = entry["seed_value"]
+                if result.error:
+                    logger.error("Stage1 error intent=%s: %s", intent, result.error)
+                    _handle_failure(intent, result.provider, result.model)
+                    if stop_all:
+                        return
+                    continue
+                cache.set(entry["prompt_hash"], result.text, result.raw)
+                created, ok = _process_raw(intent, result.text, result.provider, result.model, seed_value)
+                if not ok:
+                    _handle_failure(intent, result.provider, result.model)
+                elif fill_missing_with_fallback and existing_counts[intent] < k_per_intent:
+                    _fill_fallback(intent, result.provider, result.model)
+                if stop_all:
+                    return
+        return
+
     for intent in intents:
         target = k_per_intent
         failures = 0
