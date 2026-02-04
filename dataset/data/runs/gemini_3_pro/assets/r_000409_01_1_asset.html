@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" itemprop="description" content="Format SQL statements online. Format and check your SQL statements, made a bit more easy.">
+    <meta name="keywords" content="sql formatter, sql parse, sql, format SQL, format query, sql coding, sql online, sql beautifier, sql query formatter, debug SQL statements, sql check, free, pretty-print SQL statements, SQL pretty, SQL debug, online, formatting, formatter, beautifier">
+    <meta name="author" content="Andi Albrecht">
+    <meta name="google-site-verification" content="27GejQJADu3M-JXFhGBD9QnKDjbx_8KrOYThMlKVVo8" />
+    <title>sqlformat: Online SQL Formatter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- <script defer src="https://cdn.jsdelivr.net/npm/cash-dom/dist/cash.min.js"></script> -->
+     <script defer src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/xcode.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script defer src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <script defer src="/static/script.js"></script>
+    <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-M39V8MKQ');</script>
+    <!-- End Google Tag Manager -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="manifest" href="/static/site.webmanifest">
+    
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M39V8MKQ"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!--
+    <div class="notification is-merch has-text-centered pt-2 pb-2">
+        <strong>New:</strong> Show your support with our <a href="/merch/"><strong>"I Speak SQL" merch</strong></a>! <span class="material-icons-outlined">local_cafe</span> T-shirts, mugs, and more available now.
+    </div>
+    -->
+    <header class="has-shadow">
+        <nav class="navbar is-transparent container is-fluid">
+            <div class="navbar-brand logo">
+                <a class="navbar-item" href="/">
+                    <span class="sf"><span class="q">sql</span>format</span>.org
+                </a>
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <div id="navbarBasicExample" class="navbar-menu">
+                <div class="navbar-end">
+                    <a class="navbar-item is-active" href="/">
+                        Formatter
+                    </a>
+                    <a class="navbar-item is-merch" href="https://merch.sqlformat.org" target="_blank">
+                        <span class="material-icons-outlined">local_cafe</span>
+                        <span>Shirts, Mugs &amp; Stickers</span>
+                    </a>
+                    <a class="navbar-item " href="/api/">
+                        API
+                    </a>
+                    <a class="navbar-item " href="/source/">
+                        Source Code
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="">
+            <div class="container is-fluid content">
+                
+<!-- <h1 class="title">SQL Formatter</h1> -->
+<div class="columns">
+    <div class="column is-one-third">
+        <p>
+            <strong>SQLFormat</strong> is a free online formatter for SQL
+            statements.  Enter your SQL statement in the textarea below
+            and click &quot;Format&quot; (or simply: [Ctrl+Enter]).
+          </p>
+    </div>
+    <div class="column is-one-third">
+        <p>
+            In addition to this web interface <strong>SQLFormat</strong>
+            provides an <a href="/api/">API</a>. Or you
+            can download the Python module that powers this service to use
+            it in your own applications. See <a href="/source/">source code</a>
+            for details.
+          </p>
+    </div>
+    <div class="column is-one-third">
+        <div class="notification">
+            Welcome to the redesigned sqlformat.org! Enjoy a sleeker design and faster, more private processing, as SQL statements are now handled directly in your browser, without sending data to our server.
+            <a href="#" class="js-modal-trigger" data-target="redesign-modal">Read more…</a>
+        </div>
+    </div>
+</div>
+<div class="columns">
+    <div class="column is-two-thirds">
+        <textarea id="sql-input" class="textarea" placeholder="Type your SQL here and click 'Format' (or [Ctrl+Enter]) to see the results..."></textarea>
+        <div class="file is-right mt-4">
+            <label class="file-label">
+              <input class="file-input" type="file" name="sqlfile" id="sqlfile" />
+              <span class="file-cta">
+                <span class="file-icon">
+                  <i class="fa fa-upload"></i>
+                </span>
+                <span class="file-label"> Upload file… </span>
+              </span>
+            </label>
+          </div>
+    </div>
+    <div class="column is-one-third">
+        <h2 class="title is-5 is-sidebar">Options</h2>
+
+        <form id="options">
+            <div class="columns">
+                <div class="column">
+                    <div class="field">
+                        <label class="label" for="opt-keywords">Keywords</label>
+                        <div class="select">
+                            <select id="opt-keywords">
+                                <option value="none">Unchanged</option>
+                                <option value="lower">Lower case</option>
+                                <option value="upper" selected>Upper case</option>
+                                <option value="capitalize">Capitalize</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <label class="label" for="opt-identifiers">Identifiers</label>
+                        <div class="select">
+                            <select id="opt-identifiers">
+                                <option value="none" selected>Unchanged</option>
+                                <option value="lower">Lower case</option>
+                                <option value="upper">Upper case</option>
+                                <option value="capitalize">Capitalize</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
+                    <div class="field">
+                        <label class="label" for="opt-indent">Indentation</label>
+
+                        <div class="control">
+                            <input class="input" type="number" value="2" min="1" max="100" id="opt-indent">
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <label class="label" for="opt-output">Output Format</label>
+                        <div class="select">
+                            <select id="opt-output">
+                                <option value="sql" selected>SQL</option>
+                                <option value="python">Python</option>
+                                <option value="php">PHP</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="columns">
+                <div class="column">
+                    <div class="field">
+                        <div class="control">
+                            <label class="checkbox">
+                                <input type="checkbox" id="opt-comments" />
+                                Remove comments
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <div class="control">
+                            <label class="checkbox">
+                                <input type="checkbox" id="opt-compact" />
+                                Compact mode
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="format-btn" class="button is-light is-loading is-fullwidth highlight-button" style="font-weight: bold;">
+                <span class="icon">
+                    <i class="fa fa-arrow-right"></i>
+                </span>
+                <span>Format [Ctrl+Enter]</span>
+            </button>
+            <div class="help">Keyboard Shortcuts: <code class="has-text-black">[Ctlr/Cmd+Enter]</code> format statement, <code class="has-text-black">[Shift+Ctrl/Cmd+Enter]</code> format and copy to clipboad.</div>
+            <div id="info-loading" class="help">Loading formatter engine... feel free to start typing now.</div>
+        </form>
+
+        <h2 class="title is-5 is-sidebar mt-6">In-Browser SQL Formatting</h2>
+        <p>
+            Your SQL code is formatted directly within your
+            browser — ensuring it's both <strong>safe and private</strong>.
+            We use <strong>Pyodide</strong> coupled with the
+            <strong>sqlparse</strong> module, which allows us to
+            clean up your SQL statements without any data
+            leaving your device.<br/>
+            You get the convenience of an online tool with the
+            <strong>privacy</strong> of local processing.
+            Enjoy seamless and secure formatting!
+        </p>
+    </div>
+</div>
+<div class="columns">
+    <div class="column is-two-thirds">
+        <div class="has-text-right">
+            <button class="button is-small" id="btn-clear-results" disabled>
+                <span class="icon is-small">
+                    <i class="fa fa-trash-o"></i>
+                </span>
+                <span>Clear results</span>
+            </button>
+        </div>
+        <div id="result-list" class="mt-4"></div>
+    </div>
+    <div class="column is-one-third">
+        <h2 class="title is-5 is-sidebar mt-6">Show Your Support</h2>
+        <div class="media">
+            <div class="media-left">
+                <figure class="image is-96x96 is-pulled-left">
+                    <img src="/static/speaksql-mug-100x100.avif" alt="I Speak SQL Big Mug" />
+                </figure>
+            </div>
+            <div class="media-content">
+                Your SQL looks beautiful, but your shirts could use an upgrade? Check out our exclusive <strong>“I Speak SQL”</strong> collection. Not only will you look cool, but you'll also support the ongoing development of sqlformat.org.
+                <div class="mt-3">
+                    <a href="https://merch.sqlformat.org" target="_blank" class="button is-small mr-2">
+                        <span class="material-icons-outlined" style="font-size: 0.9em; margin-right: 3px;">local_cafe</span>
+                        <span>Get merch</span>
+                    </a>
+                    <a href="https://merch.sqlformat.org/pages/donate" target="_blank" class="button is-small">
+                        <span class="material-icons-outlined" style="font-size: 0.9em; margin-right: 3px;">favorite</span>
+                        <span>Donate</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <!-- ResponsiveSFSidebar -->
+            <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-8870624642249726"
+            data-ad-slot="5044256947"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        </div>
+
+        <h2 class="title is-5 is-sidebar mt-6">Readability Counts</h2>
+        <p>
+Formatting SQL statements is crucial for several reasons. First, it enhances readability, making complex queries easier to understand and debug. Well-formatted SQL is more approachable for new team members and aids in peer reviews. Consistent formatting ensures that everyone follows the same style, which is particularly important in collaborative environments.
+        </p>
+        <p>Here are some tips and tricks for formatting SQL:</p>
+        <ol>
+            <li><strong>Indentation:</strong> Use consistent indentation for nested queries. This helps in visually separating different levels of logic.</li>
+            <li><strong>Keywords:</strong> Write SQL keywords in uppercase to distinguish them from column and table names.</li>
+            <li><strong>Line Breaks:</strong> Place each clause of your SQL statement on a new line (e.g., SELECT, FROM, WHERE, JOIN). This enhances clarity.</li>
+            <li><strong>Aliases:</strong> Use meaningful aliases for tables and columns. This makes your SQL more readable and easier to understand.</li>
+            <li><strong>Comments:</strong> Include comments to explain complex logic or non-obvious choices. This helps others (and your future self) understand the rationale behind the code.</li>
+        </ol>
+        <div class="mt-5">
+            <!-- ResponsiveSFSidebar -->
+            <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-8870624642249726"
+            data-ad-slot="5044256947"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        </div>
+        <p>
+            By adopting these practices, you ensure that your SQL code remains clean, maintainable, and understandable for everyone who interacts with it.
+        </p>
+        <p>
+            SQLFormat can help you achieve consistent and readable SQL formatting, except for the alias part. It's up to you to choose meaningful aliases ;-) <br/>
+            But it can remove comments, if you like so. Happy formatting!
+        </p>
+    </div>
+</div>
+
+<script>const WORKER_URL = "/static/worker.js";</script>
+<script defer src="/static/formatter.js"></script>
+
+<div class="modal" id="redesign-modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">sqlformat.org: What's new?</p>
+        <button class="delete" aria-label="close"></button>
+      </header>
+      <section class="modal-card-body">
+        <h1>Welcome to the redesigned sqlformat.org!</h1>
+    <p>We're excited to introduce several new features and improvements to enhance your experience.</p>
+
+    <h2>Sleeker Design</h2>
+    <p>Our website now boasts a more streamlined and user-friendly design. This update aims to provide a cleaner, more intuitive interface, making it easier for you to navigate and use the site.</p>
+
+    <h2>Regular Updates</h2>
+    <p>We've implemented a system to keep the website updated with the latest versions of our tools and libraries. This ensures that you always have access to the newest features and improvements.</p>
+
+    <h2>In-Browser SQL Formatting</h2>
+    <p>One of the most significant changes is that SQL statements are now formatted directly in your browser. This is achieved using a Python runtime in the browser via pyodide and the latest version of the sqlparse library.</p>
+
+    <h3>Advantages</h3>
+    <ul>
+        <li><strong>Enhanced Privacy</strong>: Since no SQL statements leave your browser, your data remains private and secure.</li>
+        <li><strong>Improved Performance</strong>: With the latest version of sqlparse, you can expect faster and more accurate formatting.</li>
+    </ul>
+
+    <h3>Disadvantages</h3>
+    <ul>
+        <li><strong>Initial Load Time</strong>: The first time you load the page, there might be a slight delay as the Python runtime and necessary files are loaded. However, these files are cached, so subsequent visits will be much faster.</li>
+    </ul>
+
+    <h2>Improved Privacy Settings</h2>
+    <p>We've enhanced our privacy settings to give you more control over your data. You can now manage your privacy preferences more easily, ensuring a safer browsing experience.</p>
+
+    <h2>Mobile Optimization</h2>
+    <p>The website has been optimized for mobile devices, providing a seamless experience whether you're using a smartphone, tablet, or desktop. Enjoy a responsive design that adapts to any screen size for better usability on the go.</p>
+
+    <p>We hope you enjoy these new features and the improved experience on sqlformat.org. Please share your feedback using the Feedback button (Report a Bug) at the bottom of the page. Happy formatting!</p>
+      </section>
+      <footer class="modal-card-foot">
+        <div class="buttons">
+          <button class="button is-success">Close</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p><strong>sqlformat.org</strong> by <a href="https://phasenpunkt.de" target="_blank">phasenpunkt</a>.<br/>
+                <span class="help">
+                <a href="/imprint/">Imprint</a>
+                |
+                <a href="/privacy/">Privacy Policy</a><br/>
+                Contact: <a href="mailto:andi@phasenpunkt.de">andi@phasenpunkt.de</a><br />
+            </span>
+            </p>
+        </div>
+    </footer>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8870624642249726"
+     crossorigin="anonymous"></script>
+     <script
+  src="https://browser.sentry-cdn.com/8.13.0/bundle.tracing.replay.feedback.min.js"
+  integrity="sha384-IiYaMr96qu56ZbRsQ6ZsOJabKfV4flApZsPWftOOjOaOSZnZU1WaZX3JoTSvkmUF"
+  crossorigin="anonymous"
+></script>
+<script>
+
+</script>
+</body>
+</html>

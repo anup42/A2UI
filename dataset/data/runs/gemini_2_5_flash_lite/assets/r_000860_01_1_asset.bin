@@ -1,0 +1,989 @@
+<!DOCTYPE html><!-- Last Published: Sat Jan 31 2026 00:20:31 GMT+0000 (Coordinated Universal Time) --><html data-wf-domain="webflow-origin.production.linktr.ee" data-wf-page="668f4187652a9c2756072066" data-wf-site="666255f7f2126f4e8cec6f8f" lang="en"><head><meta charset="utf-8"/><title>Link in bio tool: Everything you are, in one simple link | Linktree</title><meta content="Join 70M+ creators and sell, share &amp; curate everything you do online. One bio link—your Linktree—brings it all together for your audience." name="description"/><meta content="Link in bio tool: Everything you are, in one simple link | Linktree" property="og:title"/><meta content="Join 70M+ creators and sell, share &amp; curate everything you do online. One bio link—your Linktree—brings it all together for your audience." property="og:description"/><meta content="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66a8993e0e8d98b8822b7c50_Linktree-OpenGraphPreview.jpg" property="og:image"/><meta content="Link in bio tool: Everything you are, in one simple link | Linktree" property="twitter:title"/><meta content="Join 70M+ creators and sell, share &amp; curate everything you do online. One bio link—your Linktree—brings it all together for your audience." property="twitter:description"/><meta content="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66a8993e0e8d98b8822b7c50_Linktree-OpenGraphPreview.jpg" property="twitter:image"/><meta property="og:type" content="website"/><meta content="summary_large_image" name="twitter:card"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="9ro_xgeGHbKBqiH4sWRy12sXuY6HZdP3NjRiFnUdyfY" name="google-site-verification"/><link href="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/css/marketing-sub-pages-s.shared.655749b32.min.css" rel="stylesheet" type="text/css" integrity="sha384-ZVdJsyFncPRjTADCt2cv2etFMh5Smi3LsW6Nwmz6qkhDcJrxKiJbhtdNjfnIqHhr" crossorigin="anonymous"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="anonymous"/><script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script><script type="text/javascript">WebFont.load({  google: {    families: ["DM Mono:300,400,500,600,700","Inter:300,400,500,600,700","Roboto Mono:300,400,500,600,700"]  }});</script><script type="text/javascript">!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);</script><link href="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66693601ff7950e64e66b56b_favicon.png" rel="shortcut icon" type="image/x-icon"/><link href="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/666935fe59312b3be5417f62_icon-256x256.png" rel="apple-touch-icon"/><link href="https://linktr.ee" rel="canonical"/><meta name="msvalidate.01" content="B459F7FF142D4F8267D68DFD1929304E" />
+
+<link rel="preconnect" href="https://cdn.prod.website-files.com/" />
+<link rel="preconnect" href="https://assets.production.linktr.ee/" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net/" />
+<link rel="preconnect" href="https://api.consentjs.datagrail.io/" />
+
+<!-- Consent script from DataGrail -->
+<script type="text/javascript" src="https://api.consentjs.datagrail.io/b8f6c3bf-2519-4023-963a-974547789e46/0e8c168d-18e3-47b6-a619-4a07878f1cc9/consent-loader.js" async></script>
+
+<!-- BRFP -->
+<script id="__ltbrfp" src="https://edge.browser-fp.production.linktr.ee/script.js" async></script>
+
+<script type="text/javascript">
+  const isQAEnv = window.location.hostname !== 'linktr.ee';
+  const sessionStart = localStorage.getItem('sessionStart') || sessionStorage.getItem('sessionStart');
+  const deviceId = localStorage.getItem('browserId') || sessionStorage.getItem('browserId');
+  const AMPLITUDE_API_KEY = isQAEnv ? '8b0e1961b03ee1c974609b0da9d27cce' : '99681b5b192c190d708c1e659ff741a7';
+</script>
+
+<style>
+  
+/* Default behavior: clickable */
+.persona-slider {
+  pointer-events: auto;
+}
+
+/* Disable pointer events only on mobile */
+@media (max-width: 767px) {
+  .persona-slider {
+    pointer-events: none;
+    touch-action: none;
+  }
+}
+
+  .faq-body {
+    display: none;
+  }
+
+  li::marker{
+    color: #1e2330;
+  }
+
+  .swiper-wrapper {
+    overflow: visible !important;
+  }
+
+  .swiper-wrapper.reg-swiper {
+    overflow: visible !important;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  @media (min-width: 1280px) {
+    li::marker {
+      font-size: 1.25rem;
+    }
+  }
+  @media (max-width: 991px) {
+    li::marker {
+      font-size: 1.704vw;
+    }
+  }
+  @media (max-width: 767px) {
+    li::marker {
+      font-size: 1.42vw;
+    }
+  }
+  @media (max-width: 479px) {
+    li::marker {
+      font-size: 3.5vw;
+    }
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -moz-font-smoothing: antialiased;
+    -o-font-smoothing: antialiased;
+  }
+
+  .faq-item li::marker {
+    font-size: inherit !important;
+  }
+
+  .marquee-swiper-wrapper {
+    transition-timing-function: linear !important;
+  }
+  
+  /* Black Friday Navbar Update */
+  @media screen and (max-width: 479px) {
+    .is-bf-2025.nav-container ._w-nav-buttons .w-button:not(.is-bf-2025){
+        display: none;
+    }
+    .is-bf-2025.nav-container ._w-nav-buttons .w-button.is-bf-2025{
+        display: flex !important;
+    }
+  }
+
+</style>
+
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PJM4GV8');</script>
+<!-- End Google Tag Manager -->
+
+
+<!-- CEP -->
+<script type="text/javascript">
+  const cepScript = document.createElement("script");
+  cepScript.type = "text/javascript";
+  cepScript.async = true;
+  cepScript.src = isQAEnv
+    ? "https://assets.qa.linktr.ee/cep/cep.min.js"
+    : "https://assets.production.linktr.ee/cep/cep.min.js";
+  cepScript.id = "__ltcep";
+  cepScript.setAttribute("data-version", "2");
+  cepScript.setAttribute("data-use-bf", "true");
+  document.head.appendChild(cepScript);
+</script>
+<script>
+  window.__lter = window.__lter || {
+    q: (window.__lter && _lter.q) || [],
+    trackEvent: function () {
+      __lter.q.push(Array.prototype.slice.call(arguments))
+    }
+  }
+</script>
+
+<!-- Amplitude -->
+<script type="text/javascript" data-consent-id="3uwW5qWSyLKhDECRixhgxd">
+  const amplitudeScript = document.createElement('script');
+  amplitudeScript.src = `https://cdn.amplitude.com/script/${AMPLITUDE_API_KEY}.js`;
+  document.head.appendChild(amplitudeScript);
+
+  const waitForBrowserId = () =>
+    new Promise((resolve) => {
+      const browserId = window.sessionStorage.getItem('browserId') || window.localStorage.getItem('browserId');
+      let timeout;
+      if (browserId) {
+        resolve(browserId);
+        return;
+      }
+
+      const checkInterval = setInterval(() => {
+        const browserId = window.sessionStorage.getItem('browserId') || window.localStorage.getItem('browserId');
+        if (browserId) {
+          clearInterval(checkInterval);
+          resolve(browserId);
+
+          if (timeout) {
+            clearTimeout(timeout);
+          }
+        }
+      }, 100);
+
+      timeout = setTimeout(() => {
+        const browserId = window.sessionStorage.getItem('browserId') || window.localStorage.getItem('browserId') || '';
+        clearInterval(checkInterval);
+        resolve(browserId);
+      }, 1000); // 1 second timeout
+    });
+
+    amplitudeScript.onload = function () {
+      waitForBrowserId().then((browserId) => {
+        window.sessionReplay.plugin({
+          sampleRate: 0.02,
+        });
+        window.amplitude.init(AMPLITUDE_API_KEY, {
+          autocapture: {
+            elementInteractions: true,
+          },
+          sessionReplay: {
+            sampleRate: 0.02,
+          },
+          sessionId: sessionStart ? new Date(sessionStart)?.getTime() : undefined,
+          deviceId: browserId ? browserId : undefined,
+          defaultTracking: true,
+        });
+
+        const identifyEvent = new window.amplitude.Identify();
+        identifyEvent.set('source_host', 'WF');
+        window.amplitude.identify(identifyEvent);
+      });
+    };
+</script><!-- Twitter Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta property="twitter:domain" content="linktr.ee">
+<meta property="twitter:url" content="https://linktr.ee/">
+
+<style>
+.faq-body {
+	display: none;
+}
+
+/* Default behavior: clickable */
+.homepage_rive {
+  pointer-events: auto;
+}
+
+/* Disable pointer events only on mobile */
+@media (max-width: 767px) {
+  .homepage_rive {
+    pointer-events: none;
+    touch-action: none;
+  }
+}
+</style>
+
+<script type="application/ld+json" data-gatsby-head="true">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"/","url":"https://linktr.ee/","name":"Link in bio tool: Everything you are, in one simple link | Linktree","isPartOf":{"@id":"/#website"},"primaryImageOfPage":{"@id":"https://linktr.ee/#primaryimage"},"image":{"@id":"https://linktr.ee/#primaryimage"},"thumbnailUrl":"https://api.blog.production.linktr.ee/wp-content/uploads/2022/06/Avatar-Symbol-Canopy.png","datePublished":"2019-02-07T15:29:50+00:00","dateModified":"2024-07-29T21:13:51+00:00","description":"Join 25M+ people and link to everything you create, share and sell online. All from the one bio link.","breadcrumb":{"@id":"https://linktr.ee/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https://linktr.ee/"]}]},{"@type":"ImageObject","inLanguage":"en-US","@id":"https://linktr.ee/#primaryimage","url":"https://api.blog.production.linktr.ee/wp-content/uploads/2022/06/Avatar-Symbol-Canopy.png","contentUrl":"https://api.blog.production.linktr.ee/wp-content/uploads/2022/06/Avatar-Symbol-Canopy.png","width":800,"height":800,"caption":"New Linktree logo icon"},{"@type":"BreadcrumbList","@id":"https://linktr.ee/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home"}]},{"@type":"WebSite","@id":"/#website","url":"/","name":"Linktree","description":"","inLanguage":"en-US"}]}</script></head><body><div class="_w-top-banner"><div class="top-banner"><div class="banner-text max-width-mobile_80vw">We’ve made some changes to our <a href="https://linktr.ee/s/privacy" class="text-color_chartreuse">Privacy Notice</a> and <a href="https://linktr.ee/s/terms" class="text-color_chartreuse">Terms and Conditions</a> to address upcoming features and to give you more clarity on how we collect and use your information.</div><div id="closeBanner" class="banner-close w-embed"><svg width="100%" height="100%" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.3536 3.35453L13.7071 3.00098L13 2.29387L12.6464 2.64742L13.3536 3.35453ZM2.64645 12.6474L2.29289 13.001L3 13.7081L3.35355 13.3545L2.64645 12.6474ZM3.35355 2.64742L3 2.29387L2.29289 3.00098L2.64645 3.35453L3.35355 2.64742ZM12.6464 13.3545L13 13.7081L13.7071 13.001L13.3536 12.6474L12.6464 13.3545ZM12.6464 2.64742L2.64645 12.6474L3.35355 13.3545L13.3536 3.35453L12.6464 2.64742ZM2.64645 3.35453L12.6464 13.3545L13.3536 12.6474L3.35355 2.64742L2.64645 3.35453Z" fill="currentColor"/>
+</svg></div></div></div><div data-w-id="37b6a6f2-2bd2-f5fd-fb1a-3cfbc2df6686" data-animation="over-right" data-collapse="medium" data-duration="250" data-easing="ease" data-easing2="ease" role="banner" class="navbar w-nav"><div class="hide w-embed w-script"><style>
+body {
+    padding: 0 !important;
+}
+@media screen and (max-width: 479px) {
+  .nav-dd-link img {
+      transition: transform .3s ease-in-out;
+  }
+  .nav-dd-link.w--open img {
+      transform: rotate(180deg);
+  }
+  .nav-menu:has(.mobile-tab-open) :where(.navbar-link, .nav-dd-link, .nav-link-item:not(.w--current)) {
+      display: none!important;
+  }
+  .nav-menu:has(.mobile-tab-open) .nav-link-item.w--current :where(._w-nav-link-icon, .nav-link-text) {
+      display: none !important;
+  }
+	.nav-menu:has(.mobile-tab-open) .nav-link-item.w--current svg {
+    transform: rotate(180deg)
+  }
+  .nav-menu:has(.mobile-tab-open) .nav-dropdown {
+      border: none;
+  }
+  .mobile-tab-open {
+      transform: translate(0%);
+      height: auto;
+  }
+	.nav-slide-out {
+    transform: translate(100%);
+	}
+}
+</style>
+
+<!-- Navbar Updates -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+		if (window.innerWidth > 479) {
+      $('nav .w-tabs').on('mouseleave', function() {
+        $(".w-dropdown").trigger("w-close")
+      })
+      $('.nav-link-item.w-tab-link').on('mouseenter', function() {
+        $(this).trigger('click');
+      });
+    }
+		
+    $('.nav-link-item.w-tab-link').each(function() {
+        // 'this' refers to the raw DOM element inside .each()
+        this.addEventListener('click', function(event) {
+            event.preventDefault();
+						event.stopImmediatePropagation();
+            var url = $(this).attr('data-href');
+            if (url && event.originalEvent !== undefined && (window.innerWidth > 991) ) {
+              window.open(url,  (event.ctrlKey || event.metaKey) ? '_blank' : '_self');
+            }
+            if ($('.nav-sublink-menu-wrapper').hasClass('mobile-tab-open')) {
+              $('.nav-sublink-menu-wrapper').addClass('nav-slide-out')
+              setTimeout(() => {
+                $('.nav-sublink-menu-wrapper').removeClass('mobile-tab-open nav-slide-out');
+              }, 300)
+            } else {
+              $('.nav-sublink-menu-wrapper').addClass('mobile-tab-open')
+            }
+        }, true);
+    });
+    
+    $('.nav-hamburger').on('click', function() {
+    	$('.nav-sublink-menu-wrapper').removeClass('mobile-tab-open nav-slide-out');
+		})
+  });
+</script></div><div class="nav-container"><a href="/" aria-current="page" class="nav-logo w-nav-brand w--current"><img loading="eager" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634daccb34e6d65a41c76d_download.svg" alt="" class="nav-desktop-logo"/><img loading="eager" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/666b48ad59add9f2777bb76f_download-2.svg" alt="" class="nav-tablet-mobile-logo"/></a><nav role="navigation" fs-scrolldisable-element="when-visible" class="nav-menu background-color_fbfbf9 w-nav-menu"><div data-hover="true" data-delay="300" class="nav-dropdown underline position_static border-color-tablet_black_8 w-dropdown"><div class="nav-dd-link mod--navbar-link_2025 w-dropdown-toggle"><div class="navbar-link mod--navbar-link_2025 border_none">Products</div><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680813d8f39b171ee7263f64_Union.svg" alt="" class="accordion-arrow hide-desktop mod--nav-accordion-arrow"/></div><nav class="_w-nav-dropdown-list w-dropdown-list"><div data-current="Tab 1" data-easing="ease" data-duration-in="300" data-duration-out="100" class="nav-dropdown-grid w-tabs"><div id="w-node-c2ecbd69-0a87-4dd4-6ed9-8dc80eced1dc-c2df6686" class="nav-sublink-list w-tab-menu"><a data-w-tab="Tab 1" class="nav-link-item w-inline-block w-tab-link w--current"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-title-chevron-icon-prev"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><div class="w-embed"></div></svg><div class="_w-nav-link-icon w-embed"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+  <mask id="path-1-inside-1_4888_50015" fill="white">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.9505 -0.0012207C13.611 -0.0012207 12.3264 0.530881 11.3793 1.47803L10.8292 2.0281C10.3759 2.48144 10.3759 3.21646 10.8292 3.6698C11.2825 4.12314 12.0176 4.12314 12.4709 3.6698L13.021 3.11972C13.5327 2.60798 14.2268 2.32048 14.9505 2.32048C15.6742 2.32048 16.3683 2.60798 16.88 3.11972C17.3918 3.63146 17.6793 4.32554 17.6793 5.04925C17.6793 5.77297 17.3918 6.46704 16.88 6.97878L12.4794 11.3794L12.4794 11.3793L12.4711 11.3878C12.2207 11.6434 11.9217 11.8465 11.5919 11.9851C11.262 12.1237 10.9077 12.1951 10.5499 12.1951C10.1921 12.1951 9.83783 12.1237 9.50794 11.9851C9.17804 11.8465 8.87913 11.6434 8.6287 11.3878C8.18001 10.9299 7.44503 10.9224 6.98709 11.3711C6.52915 11.8197 6.52165 12.5547 6.97034 13.0127C7.43694 13.4889 7.99388 13.8672 8.60853 14.1255C9.22318 14.3838 9.88318 14.5168 10.5499 14.5168C11.2166 14.5168 11.8766 14.3838 12.4913 14.1255C13.104 13.868 13.6593 13.4913 14.125 13.0172L18.5217 8.62048C19.4689 7.67333 20.001 6.38872 20.001 5.04925C20.001 3.70978 19.4689 2.42518 18.5217 1.47803C17.5746 0.530881 16.29 -0.0012207 14.9505 -0.0012207ZM9.45034 5.48322C8.78363 5.48322 8.12362 5.61626 7.50897 5.87454C6.89626 6.132 6.3409 6.50876 5.87521 6.98286L1.47852 11.3795C0.53137 12.3267 -0.000732422 13.6113 -0.000732422 14.9508C-0.000732422 16.2902 0.53137 17.5748 1.47852 18.522C2.42566 19.4691 3.71027 20.0012 5.04974 20.0012C6.38921 20.0012 7.67382 19.4691 8.62096 18.522L9.17104 17.9719C9.62438 17.5186 9.62438 16.7836 9.17104 16.3302C8.7177 15.8769 7.98269 15.8769 7.52935 16.3302L6.97927 16.8803C6.46753 17.392 5.77346 17.6795 5.04974 17.6795C4.32603 17.6795 3.63195 17.392 3.12021 16.8803C2.60847 16.3686 2.32097 15.6745 2.32097 14.9508C2.32097 14.2271 2.60847 13.533 3.12021 13.0212L7.52081 8.62064L7.52086 8.62068L7.52915 8.61222C7.77958 8.35663 8.07849 8.15357 8.40838 8.01495C8.73828 7.87633 9.09251 7.80493 9.45034 7.80493C9.80818 7.80493 10.1624 7.87633 10.4923 8.01495C10.8222 8.15357 11.1211 8.35663 11.3715 8.61222C11.8202 9.07016 12.5552 9.07766 13.0131 8.62897C13.4711 8.18028 13.4786 7.44531 13.0299 6.98737C12.5633 6.51114 12.0064 6.13281 11.3917 5.87454C10.7771 5.61626 10.1171 5.48322 9.45034 5.48322Z"/>
+  </mask>
+  <path d="M11.3793 1.47803L12.6905 2.78927L12.6905 2.78927L11.3793 1.47803ZM10.8292 2.0281L9.51796 0.716864L9.51796 0.716865L10.8292 2.0281ZM10.8292 3.6698L9.51796 4.98104V4.98104L10.8292 3.6698ZM16.88 3.11972L15.5688 4.43096L15.5688 4.43096L16.88 3.11972ZM16.88 6.97878L15.5688 5.66754L15.5688 5.66754L16.88 6.97878ZM12.4794 11.3794L11.1535 12.6758L12.4646 14.0167L13.7907 12.6906L12.4794 11.3794ZM12.4794 11.3793L13.8053 10.0829L12.4808 8.72831L11.1549 10.0815L12.4794 11.3793ZM12.4711 11.3878L11.1466 10.09L11.1465 10.09L12.4711 11.3878ZM8.6287 11.3878L7.30414 12.6856L7.30415 12.6856L8.6287 11.3878ZM6.98709 11.3711L5.6893 10.0465L5.6893 10.0465L6.98709 11.3711ZM6.97034 13.0127L5.64579 14.3105L5.64579 14.3105L6.97034 13.0127ZM12.4913 14.1255L13.2096 15.8351L12.4913 14.1255ZM14.125 13.0172L12.8138 11.7059L12.8079 11.7118L12.8021 11.7177L14.125 13.0172ZM18.5217 8.62048L17.2105 7.30924L18.5217 8.62048ZM7.50897 5.87454L8.22734 7.58411L7.50897 5.87454ZM5.87521 6.98286L7.18645 8.2941L7.19231 8.28824L7.19812 8.28232L5.87521 6.98286ZM1.47852 11.3795L0.167278 10.0683L0.167277 10.0683L1.47852 11.3795ZM1.47852 18.522L0.167277 19.8332H0.167277L1.47852 18.522ZM8.62096 18.522L9.9322 19.8332H9.93221L8.62096 18.522ZM9.17104 17.9719L10.4823 19.2832V19.2832L9.17104 17.9719ZM9.17104 16.3302L10.4823 15.019L10.4823 15.019L9.17104 16.3302ZM6.97927 16.8803L8.29051 18.1915L8.29051 18.1915L6.97927 16.8803ZM3.12021 16.8803L1.80897 18.1915L1.80897 18.1915L3.12021 16.8803ZM3.12021 13.0212L1.80897 11.71L1.80897 11.71L3.12021 13.0212ZM7.52081 8.62064L8.81724 7.29475L7.50616 6.01281L6.20957 7.3094L7.52081 8.62064ZM7.52086 8.62068L6.22443 9.94657L7.5489 11.2416L8.84535 9.91853L7.52086 8.62068ZM7.52915 8.61222L8.85364 9.91007L8.8537 9.91001L7.52915 8.61222ZM8.40838 8.01495L9.12675 9.72453L9.12676 9.72452L8.40838 8.01495ZM10.4923 8.01495L9.77393 9.72452L9.77394 9.72453L10.4923 8.01495ZM11.3715 8.61222L10.047 9.91001L10.047 9.91001L11.3715 8.61222ZM13.0131 8.62897L14.3109 9.95353L14.3109 9.95352L13.0131 8.62897ZM13.0299 6.98737L11.7053 8.28516L11.7053 8.28516L13.0299 6.98737ZM12.6905 2.78927C13.2899 2.18988 14.1028 1.85315 14.9505 1.85315V-1.85559C13.1192 -1.85559 11.3629 -1.12812 10.068 0.16679L12.6905 2.78927ZM12.1404 3.33934L12.6905 2.78927L10.068 0.166789L9.51796 0.716864L12.1404 3.33934ZM12.1404 2.35856C12.4113 2.62939 12.4113 3.06851 12.1404 3.33934L9.51796 0.716865C8.34044 1.89438 8.34044 3.80352 9.51796 4.98104L12.1404 2.35856ZM11.1597 2.35856C11.4305 2.08772 11.8696 2.08772 12.1404 2.35856L9.51796 4.98104C10.6955 6.15855 12.6046 6.15855 13.7821 4.98104L11.1597 2.35856ZM11.7097 1.80848L11.1597 2.35856L13.7821 4.98104L14.3322 4.43096L11.7097 1.80848ZM14.9505 0.46611C13.735 0.46611 12.5692 0.948975 11.7097 1.80848L14.3322 4.43096C14.4962 4.26698 14.7186 4.17486 14.9505 4.17486V0.46611ZM18.1913 1.80848C17.3318 0.948975 16.166 0.46611 14.9505 0.46611V4.17486C15.1824 4.17486 15.4048 4.26698 15.5688 4.43096L18.1913 1.80848ZM19.5336 5.04925C19.5336 3.83373 19.0508 2.66799 18.1913 1.80848L15.5688 4.43096C15.7328 4.59494 15.8249 4.81735 15.8249 5.04925H19.5336ZM18.1913 8.29003C19.0508 7.43052 19.5336 6.26477 19.5336 5.04925H15.8249C15.8249 5.28116 15.7328 5.50356 15.5688 5.66754L18.1913 8.29003ZM13.7907 12.6906L18.1913 8.29002L15.5688 5.66754L11.1682 10.0681L13.7907 12.6906ZM11.1535 12.6758L11.1535 12.6758L13.8053 10.083L13.8053 10.0829L11.1535 12.6758ZM13.7956 12.6856L13.8039 12.6772L11.1549 10.0815L11.1466 10.09L13.7956 12.6856ZM12.3102 13.6947C12.8676 13.4605 13.3726 13.1174 13.7956 12.6856L11.1465 10.09C11.0688 10.1694 10.9759 10.2325 10.8735 10.2755L12.3102 13.6947ZM10.5499 14.0495C11.1544 14.0495 11.7529 13.9288 12.3102 13.6947L10.8735 10.2755C10.771 10.3186 10.661 10.3407 10.5499 10.3407V14.0495ZM8.78956 13.6947C9.3469 13.9288 9.94536 14.0495 10.5499 14.0495V10.3407C10.4388 10.3407 10.3288 10.3186 10.2263 10.2755L8.78956 13.6947ZM7.30415 12.6856C7.72723 13.1174 8.23223 13.4605 8.78956 13.6947L10.2263 10.2755C10.1239 10.2325 10.031 10.1694 9.95325 10.09L7.30415 12.6856ZM8.28488 12.6956C8.0113 12.9637 7.57221 12.9592 7.30414 12.6856L9.95325 10.09C8.78781 8.90054 6.87877 8.88106 5.6893 10.0465L8.28488 12.6956ZM8.29489 11.7149C8.56295 11.9885 8.55847 12.4275 8.28488 12.6956L5.6893 10.0465C4.49983 11.2119 4.48035 13.121 5.64579 14.3105L8.29489 11.7149ZM9.3269 12.4159C8.93969 12.2532 8.58883 12.0149 8.29489 11.7149L5.64579 14.3105C6.28505 14.9629 7.04807 15.4812 7.89015 15.8351L9.3269 12.4159ZM10.5499 12.6624C10.1299 12.6624 9.71411 12.5786 9.3269 12.4159L7.89015 15.8351C8.73224 16.1889 9.63648 16.3712 10.5499 16.3712V12.6624ZM11.7729 12.4159C11.3857 12.5786 10.9699 12.6624 10.5499 12.6624V16.3712C11.4633 16.3712 12.3675 16.1889 13.2096 15.8351L11.7729 12.4159ZM12.8021 11.7177C12.5087 12.0164 12.1589 12.2537 11.7729 12.4159L13.2096 15.8351C14.0491 15.4823 14.8099 14.9662 15.448 14.3166L12.8021 11.7177ZM17.2105 7.30924L12.8138 11.7059L15.4363 14.3284L19.833 9.93172L17.2105 7.30924ZM18.1466 5.04925C18.1466 5.89691 17.8099 6.70985 17.2105 7.30924L19.833 9.93172C21.1279 8.6368 21.8553 6.88053 21.8553 5.04925H18.1466ZM17.2105 2.78927C17.8099 3.38865 18.1466 4.20159 18.1466 5.04925H21.8553C21.8553 3.21797 21.1279 1.4617 19.833 0.166789L17.2105 2.78927ZM14.9505 1.85315C15.7982 1.85315 16.6111 2.18988 17.2105 2.78927L19.833 0.166789C18.5381 -1.12812 16.7818 -1.85559 14.9505 -1.85559V1.85315ZM8.22734 7.58411C8.61455 7.4214 9.03034 7.33759 9.45034 7.33759V3.62885C8.53693 3.62885 7.63269 3.81111 6.7906 4.16496L8.22734 7.58411ZM7.19812 8.28232C7.4915 7.98365 7.84136 7.7463 8.22734 7.58411L6.7906 4.16496C5.95117 4.51769 5.19031 5.03387 4.55229 5.6834L7.19812 8.28232ZM2.78976 12.6908L7.18645 8.2941L4.56397 5.67162L0.167278 10.0683L2.78976 12.6908ZM1.85364 14.9508C1.85364 14.1031 2.19037 13.2902 2.78976 12.6908L0.167277 10.0683C-1.12763 11.3632 -1.85511 13.1195 -1.85511 14.9508H1.85364ZM2.78976 17.2108C2.19037 16.6114 1.85364 15.7984 1.85364 14.9508H-1.85511C-1.85511 16.7821 -1.12763 18.5383 0.167277 19.8332L2.78976 17.2108ZM5.04974 18.1469C4.20208 18.1469 3.38914 17.8101 2.78976 17.2108L0.167277 19.8332C1.46219 21.1281 3.21846 21.8556 5.04974 21.8556V18.1469ZM7.30972 17.2108C6.71034 17.8101 5.8974 18.1469 5.04974 18.1469V21.8556C6.88102 21.8556 8.63729 21.1281 9.9322 19.8332L7.30972 17.2108ZM7.8598 16.6607L7.30972 17.2108L9.93221 19.8332L10.4823 19.2832L7.8598 16.6607ZM7.8598 17.6415C7.58896 17.3706 7.58896 16.9315 7.8598 16.6607L10.4823 19.2832C11.6598 18.1056 11.6598 16.1965 10.4823 15.019L7.8598 17.6415ZM8.84059 17.6415C8.56975 17.9123 8.13064 17.9123 7.8598 17.6415L10.4823 15.019C9.30476 13.8415 7.39563 13.8415 6.21811 15.019L8.84059 17.6415ZM8.29051 18.1915L8.84059 17.6415L6.21811 15.019L5.66803 15.5691L8.29051 18.1915ZM5.04974 19.5339C6.26526 19.5339 7.431 19.051 8.29051 18.1915L5.66803 15.5691C5.50405 15.733 5.28165 15.8252 5.04974 15.8252V19.5339ZM1.80897 18.1915C2.66848 19.051 3.83422 19.5339 5.04974 19.5339V15.8252C4.81784 15.8252 4.59543 15.733 4.43145 15.5691L1.80897 18.1915ZM0.466598 14.9508C0.466598 16.1663 0.949464 17.332 1.80897 18.1915L4.43145 15.5691C4.26747 15.4051 4.17534 15.1827 4.17534 14.9508H0.466598ZM1.80897 11.71C0.949464 12.5695 0.466598 13.7352 0.466598 14.9508H4.17534C4.17534 14.7189 4.26747 14.4965 4.43145 14.3325L1.80897 11.71ZM6.20957 7.3094L1.80897 11.71L4.43145 14.3325L8.83205 9.93188L6.20957 7.3094ZM8.81728 7.29479L8.81724 7.29475L6.22439 9.94653L6.22443 9.94657L8.81728 7.29479ZM6.20465 7.31437L6.19636 7.32283L8.84535 9.91853L8.85364 9.91007L6.20465 7.31437ZM7.69002 6.30537C7.13268 6.53957 6.62768 6.88262 6.20459 7.31443L8.8537 9.91001C8.93147 9.83063 9.0243 9.76757 9.12675 9.72453L7.69002 6.30537ZM9.45034 5.95055C8.84581 5.95055 8.24734 6.07118 7.69001 6.30538L9.12676 9.72452C9.22921 9.68147 9.33922 9.6593 9.45034 9.6593V5.95055ZM11.2107 6.30538C10.6533 6.07118 10.0549 5.95055 9.45034 5.95055V9.6593C9.56147 9.6593 9.67148 9.68147 9.77393 9.72452L11.2107 6.30538ZM12.6961 7.31443C12.273 6.88262 11.768 6.53957 11.2107 6.30537L9.77394 9.72453C9.87638 9.76757 9.96922 9.83063 10.047 9.91001L12.6961 7.31443ZM11.7154 7.30442C11.9889 7.03636 12.428 7.04084 12.6961 7.31443L10.047 9.91001C11.2124 11.0995 13.1215 11.119 14.3109 9.95353L11.7154 7.30442ZM11.7053 8.28516C11.4373 8.01157 11.4418 7.57248 11.7154 7.30442L14.3109 9.95352C15.5004 8.78808 15.5199 6.87905 14.3545 5.68957L11.7053 8.28516ZM10.6733 7.58411C11.0606 7.74682 11.4114 7.98515 11.7053 8.28516L14.3545 5.68958C13.7152 5.03713 12.9522 4.51881 12.1101 4.16496L10.6733 7.58411ZM9.45034 7.33759C9.87035 7.33759 10.2861 7.4214 10.6733 7.58411L12.1101 4.16496C11.268 3.81111 10.3638 3.62885 9.45034 3.62885V7.33759Z" fill="#1E2330" mask="url(#path-1-inside-1_4888_50015)"/>
+</svg></div><div class="nav-link-text text-size_16px">Link in bio + tools</div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 21 20" fill="none" class="nav-chevron-icon"><path d="M7.83325 5L12.8333 10L7.83325 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a data-w-tab="Tab 2" data-href="/products/manage-your-social-media" class="nav-link-item w-inline-block w-tab-link"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-title-chevron-icon-prev"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><div class="_w-nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 32 24" fill="none" class="nav-link-icon width_31-5px"><circle cx="7.7595" cy="12.1874" r="3.19364" stroke="currentColor" stroke-width="1.85437"></circle><circle cx="24.2422" cy="12.1874" r="3.19364" stroke="currentColor" stroke-width="1.85437"></circle><circle cx="18.0608" cy="6.00608" r="3.19364" stroke="currentColor" stroke-width="1.85437"></circle><circle cx="18.0608" cy="18.3685" r="3.19364" stroke="currentColor" stroke-width="1.85437"></circle><line x1="10.2969" y1="13.4526" x2="15.4479" y2="16.5432" stroke="currentColor" stroke-width="1.85437"></line><line x1="10.3723" y1="10.362" x2="15.5234" y2="7.27143" stroke="currentColor" stroke-width="1.85437"></line><line x1="10.8494" y1="12.29" x2="21.1514" y2="12.29" stroke="currentColor" stroke-width="1.85437"></line></svg></div><div class="nav-link-text text-size_16px">Manage your social media</div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 21 20" fill="none" class="nav-chevron-icon"><path d="M7.83325 5L12.8333 10L7.83325 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a data-w-tab="Tab 3" data-href="/products/grow" class="nav-link-item w-inline-block w-tab-link"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-title-chevron-icon-prev"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><div class="_w-nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 22 22" fill="none" class="nav-link-icon width_22px"><path d="M2.75 19.25V17.4167C2.75 16.4442 3.13631 15.5116 3.82394 14.8239C4.51158 14.1363 5.44421 13.75 6.41667 13.75H10.0833C11.0558 13.75 11.9884 14.1363 12.6761 14.8239C13.3637 15.5116 13.75 16.4442 13.75 17.4167V19.25M14.6667 2.86917C15.4554 3.07111 16.1545 3.52981 16.6537 4.17296C17.1529 4.8161 17.4239 5.6071 17.4239 6.42125C17.4239 7.23541 17.1529 8.02641 16.6537 8.66955C16.1545 9.31269 15.4554 9.7714 14.6667 9.97334M19.25 19.25V17.4167C19.2453 16.6074 18.9731 15.8224 18.4757 15.1841C17.9782 14.5457 17.2836 14.0898 16.5 13.8875M11.9167 6.41667C11.9167 8.44171 10.275 10.0833 8.25 10.0833C6.22496 10.0833 4.58333 8.44171 4.58333 6.41667C4.58333 4.39162 6.22496 2.75 8.25 2.75C10.275 2.75 11.9167 4.39162 11.9167 6.41667Z" stroke="currentColor" stroke-width="1.85" stroke-linecap="square"></path></svg></div><div class="nav-link-text text-size_16px">Grow and engage your audience</div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 21 20" fill="none" class="nav-chevron-icon"><path d="M7.83325 5L12.8333 10L7.83325 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a data-w-tab="Tab 4" data-href="/products/earn" class="nav-link-item w-inline-block w-tab-link"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-title-chevron-icon-prev"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><div class="_w-nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 22 22" fill="none" class="nav-link-icon width_22px"><path fill-rule="evenodd" clip-rule="evenodd" d="M11 2.44858C6.27801 2.44858 2.45005 6.27655 2.45005 10.9986C2.45005 15.7206 6.27801 19.5486 11 19.5486C15.7221 19.5486 19.55 15.7206 19.55 10.9986C19.55 6.27655 15.7221 2.44858 11 2.44858ZM0.800049 10.9986C0.800049 5.36528 5.36674 0.798584 11 0.798584C16.6334 0.798584 21.2 5.36528 21.2 10.9986C21.2 16.6319 16.6334 21.1986 11 21.1986C5.36674 21.1986 0.800049 16.6319 0.800049 10.9986ZM8.41161 7.73382C8.87675 7.29083 9.49938 7.04858 10.1407 7.04858H10.1793C10.1765 7.02093 10.175 6.99288 10.175 6.96449V5.37358C10.175 4.91795 10.5444 4.54858 11 4.54858C11.4557 4.54858 11.825 4.91795 11.825 5.37358V6.96449C11.825 6.99288 11.8236 7.02093 11.8208 7.04858H11.8594C11.8707 7.04858 11.882 7.04882 11.8933 7.04928C12.3763 7.06914 12.8456 7.22618 13.2408 7.50494C13.6131 7.76759 13.702 8.28234 13.4393 8.65465C13.1767 9.02696 12.6619 9.11586 12.2896 8.8532C12.1621 8.76325 12.0058 8.70805 11.8397 8.69858H10.1407C9.91172 8.69858 9.69976 8.78558 9.54954 8.92864C9.40069 9.0704 9.32505 9.25383 9.32505 9.43608C9.32505 9.61833 9.40069 9.80176 9.54954 9.94352C9.69976 10.0866 9.91172 10.1736 10.1407 10.1736H11.8594C12.5007 10.1736 13.1233 10.4158 13.5885 10.8588C14.055 11.3031 14.325 11.9145 14.325 12.5611C14.325 13.2076 14.055 13.8191 13.5885 14.2634C13.1233 14.7063 12.5007 14.9486 11.8594 14.9486H11.825V16.6236V17.4486H10.175V16.6236V14.9486H10.1407C10.1294 14.9486 10.1181 14.9484 10.1068 14.9479C9.62382 14.928 9.15447 14.771 8.75932 14.4922C8.38701 14.2296 8.29812 13.7148 8.56077 13.3425C8.82343 12.9702 9.33817 12.8813 9.71048 13.144C9.83799 13.2339 9.99427 13.2891 10.1604 13.2986H11.8594C12.0884 13.2986 12.3003 13.2116 12.4506 13.0685C12.5994 12.9268 12.675 12.7433 12.675 12.5611C12.675 12.3788 12.5994 12.1954 12.4506 12.0536C12.3003 11.9106 12.0884 11.8236 11.8594 11.8236H10.1407C9.49938 11.8236 8.87675 11.5813 8.41161 11.1384C7.94511 10.6941 7.67505 10.0826 7.67505 9.43608C7.67505 8.78953 7.94511 8.17811 8.41161 7.73382Z" fill="currentColor"></path></svg></div><div class="nav-link-text text-size_16px">Monetize your following</div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 21 20" fill="none" class="nav-chevron-icon"><path d="M7.83325 5L12.8333 10L7.83325 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a data-w-tab="Tab 5" class="nav-link-item w-inline-block w-tab-link"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-title-chevron-icon-prev"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><div class="_w-nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-link-icon width_20px"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.75 1.67505C13.2944 1.67505 12.925 2.04441 12.925 2.50005V5.5428C12.8009 5.46805 12.6555 5.42505 12.5 5.42505H7.50005C7.04441 5.42505 6.67505 5.79441 6.67505 6.25005V9.2928C6.55092 9.21805 6.40551 9.17505 6.25005 9.17505H1.25005C0.794414 9.17505 0.425049 9.54441 0.425049 10V17.5C0.425049 17.9557 0.794414 18.3251 1.25005 18.3251H6.25005C6.49987 18.3251 6.72376 18.214 6.87505 18.0386C7.02634 18.214 7.25022 18.3251 7.50005 18.3251H12.5C12.7499 18.3251 12.9738 18.214 13.125 18.0386C13.2763 18.214 13.5002 18.3251 13.75 18.3251H18.75C19.2057 18.3251 19.5751 17.9557 19.5751 17.5V2.50005C19.5751 2.04441 19.2057 1.67505 18.75 1.67505H13.75ZM17.925 16.675H14.575V3.32505H17.925V16.675ZM8.32505 7.07505V16.675H11.675V7.07505H8.32505ZM2.07505 10.825V16.675H5.42505V10.825H2.07505Z" fill="currentColor"></path></svg></div><div class="nav-link-text text-size_16px">Measure your success</div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 21 20" fill="none" class="nav-chevron-icon"><path d="M7.83325 5L12.8333 10L7.83325 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div><div id="w-node-c2ecbd69-0a87-4dd4-6ed9-8dc80eced217-c2df6686" class="nav-sublink-menu-wrapper w-tab-content"><div data-w-tab="Tab 1" class="nav-link-tab-content w-tab-pane w--tab-active"><div class="sublink-tab-content"><div class="sublink-menu-left"><div class="_w-nav-tablet-title-link"><a href="#" class="nav-link-title w-inline-block"><div class="nav-link-text text-size_16px font-weight_500">Link in bio + tools</div></a></div><a href="/products/link-tools/link-in-bio" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Link in bio</div><div class="nav-link-subtext">Customize your Linktree</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/link-tools/link-shortener" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Link shortener</div><div class="nav-link-subtext">Create trackable, shareable short links</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/link-tools/qr-code-generator" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">QR code generator</div><div class="nav-link-subtext">Turn links into scannable QR codes</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/link-tools/canva-integration" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Canva Background Editor</div><div class="nav-link-subtext">Import your custom designs from Canva into your profile</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><div class="sublink-menu-horizontal-divider"></div><div class="sublink-social-wrapper"><div class="nav-sublink-item hover_none"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Linktree for every social platform</div><div class="nav-link-subtext">Grow and engage your audience everywhere</div></div></div></div><div class="nav-social-icons"><a href="/s/creator/linktree-for-instagram" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 25 24" fill="none" class="nav-social-icon"><path d="M16.2869 2.21802H8.37928C5.16557 2.21802 2.55103 4.83256 2.55103 8.04627V15.9539C2.55103 19.1676 5.16557 21.7821 8.37928 21.7821H16.2869C19.5006 21.7821 22.1151 19.1676 22.1151 15.9539V8.04627C22.1151 4.83256 19.5006 2.21802 16.2869 2.21802ZM20.147 15.9539C20.147 18.0857 18.4187 19.814 16.2869 19.814H8.37928C6.24742 19.814 4.51917 18.0857 4.51917 15.9539V8.04627C4.51917 5.91438 6.24742 4.18617 8.37928 4.18617H16.2869C18.4187 4.18617 20.147 5.91438 20.147 8.04627V15.9539Z" fill="currentColor"></path><path d="M12.3344 6.94043C9.54431 6.94043 7.27441 9.21033 7.27441 12.0004C7.27441 14.7904 9.54431 17.0603 12.3344 17.0603C15.1245 17.0603 17.3944 14.7904 17.3944 12.0004C17.3944 9.21029 15.1245 6.94043 12.3344 6.94043ZM12.3344 15.0922C10.6268 15.0922 9.24256 13.708 9.24256 12.0004C9.24256 10.2928 10.6268 8.90858 12.3344 8.90858C14.042 8.90858 15.4262 10.2928 15.4262 12.0004C15.4262 13.7079 14.0419 15.0922 12.3344 15.0922Z" fill="currentColor"></path><path d="M17.4039 8.19069C18.0735 8.19069 18.6164 7.64785 18.6164 6.97822C18.6164 6.30859 18.0735 5.76575 17.4039 5.76575C16.7342 5.76575 16.1914 6.30859 16.1914 6.97822C16.1914 7.64785 16.7342 8.19069 17.4039 8.19069Z" fill="currentColor"></path></svg></a><a href="/s/creator/linktree-for-tiktok" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 29 20" fill="none" class="nav-social-icon is-larger"><path d="M17.902 7.00179V13.3254C17.902 16.4829 15.3299 19.055 12.1723 19.055C10.9553 19.055 9.81728 18.6669 8.88974 18.0157C7.40963 16.9763 6.44263 15.2594 6.44263 13.3254C6.44263 10.1612 9.00815 7.59569 12.1657 7.59569C12.4288 7.59569 12.6854 7.61543 12.9419 7.64832V10.8256H12.9156C12.8038 10.7927 12.6854 10.7598 12.567 10.7401H12.5144C12.396 10.7269 12.2841 10.7072 12.1591 10.7072C10.7119 10.7072 9.53441 11.8847 9.53441 13.3319C9.53441 14.7792 10.7119 15.9567 12.1591 15.9567C13.6064 15.9567 14.7839 14.7792 14.7839 13.3319V0.945068H17.8954C17.8954 1.21478 17.9217 1.47791 17.9677 1.73446C18.1914 2.91855 18.8887 3.93818 19.8689 4.57627C20.553 5.02359 21.3555 5.28014 22.2239 5.28014V8.39166C20.6151 8.39166 19.1178 7.87385 17.902 7.00179Z" fill="currentColor"></path></svg></a><a href="/s/creator/linktree-for-linkedin" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 31 22" fill="none" class="nav-social-icon is-larger"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.58395 2.13062C7.40373 2.13062 6.44843 3.08763 6.44824 4.26518C6.44824 5.44387 7.40353 6.40069 8.58414 6.40069C9.7615 6.40069 10.7181 5.44387 10.7181 4.26518C10.7181 3.08743 9.76131 2.13062 8.58395 2.13062ZM10.4252 8.02059H6.74245V19.8694H10.4252V8.02059ZM16.3165 9.63841C16.8082 8.70698 18.0094 7.72477 19.8008 7.72477C23.5299 7.72477 24.2183 10.1788 24.2183 13.3689V19.8678H20.5382V14.1055C20.5382 12.7317 20.513 10.9643 18.6246 10.9643C16.7087 10.9643 16.4144 12.4611 16.4144 14.0064V19.868H12.7349V8.0194H12.7351H16.2672V9.63841H16.3165Z" fill="currentColor"></path></svg></a><a href="/s/creator/linktree-for-twitter" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 19 20" fill="none" class="nav-social-icon is-smaller"><g clip-path="url(#clip0_4888_49445)"><path d="M11.0959 8.5813L17.993 0.730225H16.3592L10.3679 7.54581L5.58626 0.730225H0.0698242L7.3022 11.0376L0.0698242 19.2696H1.70364L8.02649 12.0706L13.0774 19.2696H18.5938M2.29332 1.93675H4.80332L16.358 18.1224H13.8473" fill="currentColor"></path></g></svg></a></div></div><div class="sublink-menu-divider"></div><div class="sublink-menu-right"><div class="nav-link-text text-size_16px">Featured</div><a href="/products/link-tools/link-in-bio" class="nav-card w-inline-block"><img sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807dbf51f83cd18cb3e01b3_Frame%201597880777-p-500.avif 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807dbf51f83cd18cb3e01b3_Frame%201597880777.avif 730w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807dbf51f83cd18cb3e01b3_Frame%201597880777.avif" loading="lazy" class="nav-card-image"/><div class="nav-card-text"><div class="nav-link-text text-size_14px">Join 70M+ using Linktree as their link in bio</div><div class="nav-link-subtext">One link to share everything you create, curate, and sell across all your socials.</div></div></a></div></div></div><div data-w-tab="Tab 2" class="nav-link-tab-content w-tab-pane"><div class="sublink-tab-content"><div class="sublink-menu-left"><div class="_w-nav-tablet-title-link"><a href="/products/manage-your-social-media" class="nav-link-title w-inline-block"><div class="nav-link-text text-size_16px font-weight_500">Manage your social media</div></a></div><a href="/products/social-scheduler/schedule-publish" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Schedule and auto-post</div><div class="nav-link-subtext">Hands-free, hassle-free social media planning</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/social-scheduler/instagram-auto-reply" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Instagram auto reply</div><div class="nav-link-subtext">Automated replies and DMs triggered by comments</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/social-scheduler/ai-caption-generator" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">AI content &amp; caption generator</div><div class="nav-link-subtext">Instant AI-powered post ideas and captions</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/social-scheduler/hashtag-generator" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Hashtag generator</div><div class="nav-link-subtext">Trending hashtag suggestions for better reach</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><div class="sublink-menu-horizontal-divider"></div><div class="nav-sublink-item hover_none"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Social integration for every social platform</div><div class="nav-link-subtext">Plan, auto post, and share across all platforms</div></div></div><div class="nav-social-icons"><a href="/products/social-scheduler/instagram" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 25 24" fill="none" class="nav-social-icon"><path d="M16.2869 2.21802H8.37928C5.16557 2.21802 2.55103 4.83256 2.55103 8.04627V15.9539C2.55103 19.1676 5.16557 21.7821 8.37928 21.7821H16.2869C19.5006 21.7821 22.1151 19.1676 22.1151 15.9539V8.04627C22.1151 4.83256 19.5006 2.21802 16.2869 2.21802ZM20.147 15.9539C20.147 18.0857 18.4187 19.814 16.2869 19.814H8.37928C6.24742 19.814 4.51917 18.0857 4.51917 15.9539V8.04627C4.51917 5.91438 6.24742 4.18617 8.37928 4.18617H16.2869C18.4187 4.18617 20.147 5.91438 20.147 8.04627V15.9539Z" fill="currentColor"></path><path d="M12.3344 6.94043C9.54431 6.94043 7.27441 9.21033 7.27441 12.0004C7.27441 14.7904 9.54431 17.0603 12.3344 17.0603C15.1245 17.0603 17.3944 14.7904 17.3944 12.0004C17.3944 9.21029 15.1245 6.94043 12.3344 6.94043ZM12.3344 15.0922C10.6268 15.0922 9.24256 13.708 9.24256 12.0004C9.24256 10.2928 10.6268 8.90858 12.3344 8.90858C14.042 8.90858 15.4262 10.2928 15.4262 12.0004C15.4262 13.7079 14.0419 15.0922 12.3344 15.0922Z" fill="currentColor"></path><path d="M17.4039 8.19069C18.0735 8.19069 18.6164 7.64785 18.6164 6.97822C18.6164 6.30859 18.0735 5.76575 17.4039 5.76575C16.7342 5.76575 16.1914 6.30859 16.1914 6.97822C16.1914 7.64785 16.7342 8.19069 17.4039 8.19069Z" fill="currentColor"></path></svg></a><a href="/products/social-scheduler/tiktok" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 29 20" fill="none" class="nav-social-icon is-larger"><path d="M17.902 7.00179V13.3254C17.902 16.4829 15.3299 19.055 12.1723 19.055C10.9553 19.055 9.81728 18.6669 8.88974 18.0157C7.40963 16.9763 6.44263 15.2594 6.44263 13.3254C6.44263 10.1612 9.00815 7.59569 12.1657 7.59569C12.4288 7.59569 12.6854 7.61543 12.9419 7.64832V10.8256H12.9156C12.8038 10.7927 12.6854 10.7598 12.567 10.7401H12.5144C12.396 10.7269 12.2841 10.7072 12.1591 10.7072C10.7119 10.7072 9.53441 11.8847 9.53441 13.3319C9.53441 14.7792 10.7119 15.9567 12.1591 15.9567C13.6064 15.9567 14.7839 14.7792 14.7839 13.3319V0.945068H17.8954C17.8954 1.21478 17.9217 1.47791 17.9677 1.73446C18.1914 2.91855 18.8887 3.93818 19.8689 4.57627C20.553 5.02359 21.3555 5.28014 22.2239 5.28014V8.39166C20.6151 8.39166 19.1178 7.87385 17.902 7.00179Z" fill="currentColor"></path></svg></a><a href="/products/social-scheduler/facebook" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 34 24" fill="none" class="nav-social-icon is-larger"><path d="M12.5314 12.662H14.7575V21.8263C14.7575 22.0072 14.9041 22.1539 15.085 22.1539H18.8593C19.0403 22.1539 19.1869 22.0072 19.1869 21.8263V12.7052H21.7459C21.9123 12.7052 22.0523 12.5803 22.0713 12.4151L22.46 9.04124C22.4706 8.94842 22.4412 8.85546 22.3791 8.78582C22.317 8.71612 22.228 8.67623 22.1346 8.67623H19.187V6.56134C19.187 5.92381 19.5303 5.60053 20.2074 5.60053C20.3039 5.60053 22.1346 5.60053 22.1346 5.60053C22.3156 5.60053 22.4622 5.45386 22.4622 5.27299V2.17613C22.4622 1.99519 22.3156 1.84858 22.1346 1.84858H19.4786C19.4599 1.84767 19.4183 1.84616 19.3569 1.84616C18.8961 1.84616 17.2942 1.93663 16.0288 3.10072C14.6268 4.39071 14.8217 5.93528 14.8683 6.20308V8.67616H12.5314C12.3505 8.67616 12.2039 8.82277 12.2039 9.00371V12.3344C12.2039 12.5154 12.3505 12.662 12.5314 12.662Z" fill="currentColor"></path></svg></a><a href="/products/social-scheduler/pinterest" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 31 24" fill="none" class="nav-social-icon is-larger"><g clip-path="url(#clip0_4888_50082)"><path d="M4.25635 12C4.25635 16.7289 7.22035 20.7665 11.3917 22.3551C11.2902 21.4902 11.1822 20.064 11.4148 19.0634C11.6151 18.2031 12.708 13.5822 12.708 13.5822C12.708 13.5822 12.3785 12.9222 12.3785 11.9446C12.3785 10.4123 13.2665 9.2677 14.3733 9.2677C15.3148 9.2677 15.769 9.97385 15.769 10.8203C15.769 11.7665 15.1662 13.1806 14.8551 14.4923C14.5957 15.5898 15.4062 16.4852 16.488 16.4852C18.4477 16.4852 19.9551 14.4185 19.9551 11.4351C19.9551 8.79416 18.0573 6.94893 15.348 6.94893C12.2114 6.94893 10.3699 9.30185 10.3699 11.7342C10.3699 12.6822 10.7345 13.6975 11.1905 14.2505C11.2294 14.2922 11.2568 14.3433 11.2703 14.3987C11.2837 14.4542 11.2826 14.5122 11.2671 14.5671C11.1831 14.916 10.9967 15.6646 10.9607 15.8178C10.9117 16.0191 10.801 16.0625 10.5914 15.9646C9.21419 15.324 8.35389 13.3108 8.35389 11.6935C8.35389 8.21446 10.8803 5.02062 15.6388 5.02062C19.464 5.02062 22.4373 7.74646 22.4373 11.3889C22.4373 15.1892 20.0419 18.2483 16.7151 18.2483C15.5973 18.2483 14.5477 17.6668 14.1877 16.9809C14.1877 16.9809 13.6348 19.0874 13.501 19.6025C13.2407 20.6031 12.5188 21.8695 12.0711 22.5886C13.1031 22.9062 14.1979 23.0769 15.3333 23.0769C21.4505 23.0769 26.4102 18.1172 26.4102 12C26.4102 5.88277 21.4505 0.92308 15.3333 0.92308C9.21604 0.92308 4.25635 5.88277 4.25635 12Z" fill="currentColor"></path></g></svg></a><a href="/products/social-scheduler/linkedin" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 31 22" fill="none" class="nav-social-icon is-larger"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.58395 2.13062C7.40373 2.13062 6.44843 3.08763 6.44824 4.26518C6.44824 5.44387 7.40353 6.40069 8.58414 6.40069C9.7615 6.40069 10.7181 5.44387 10.7181 4.26518C10.7181 3.08743 9.76131 2.13062 8.58395 2.13062ZM10.4252 8.02059H6.74245V19.8694H10.4252V8.02059ZM16.3165 9.63841C16.8082 8.70698 18.0094 7.72477 19.8008 7.72477C23.5299 7.72477 24.2183 10.1788 24.2183 13.3689V19.8678H20.5382V14.1055C20.5382 12.7317 20.513 10.9643 18.6246 10.9643C16.7087 10.9643 16.4144 12.4611 16.4144 14.0064V19.868H12.7349V8.0194H12.7351H16.2672V9.63841H16.3165Z" fill="currentColor"></path></svg></a><a href="/products/social-scheduler/threads" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 29 22" fill="none" class="nav-social-icon is-larger"><g clip-path="url(#clip0_4888_50076)"><path d="M19.1336 10.1045C19.0461 10.0626 18.9573 10.0223 18.8673 9.98362C18.7105 7.09539 17.1323 5.44187 14.4824 5.42495C14.4704 5.42488 14.4584 5.42488 14.4464 5.42488C12.8614 5.42488 11.5432 6.10144 10.7318 7.33257L12.1892 8.33231C12.7953 7.4127 13.7466 7.21666 14.4471 7.21666C14.4552 7.21666 14.4633 7.21666 14.4713 7.21673C15.3439 7.2223 16.0023 7.47599 16.4284 7.97071C16.7386 8.33089 16.946 8.82861 17.0487 9.45675C16.2751 9.32527 15.4384 9.28484 14.5441 9.33612C12.0246 9.48124 10.4049 10.9506 10.5137 12.9924C10.5689 14.0281 11.0848 14.9191 11.9665 15.5012C12.7119 15.9932 13.6719 16.2338 14.6696 16.1794C15.9873 16.1071 17.021 15.6044 17.7421 14.6852C18.2898 13.9871 18.6362 13.0824 18.7891 11.9426C19.4171 12.3215 19.8824 12.8202 20.1395 13.4197C20.5765 14.4388 20.602 16.1135 19.2356 17.4787C18.0384 18.6748 16.5993 19.1922 14.4244 19.2082C12.0119 19.1903 10.1873 18.4166 9.00101 16.9085C7.89016 15.4964 7.31607 13.4567 7.29465 10.8462C7.31607 8.23554 7.89016 6.19586 9.00101 4.78375C10.1873 3.27571 12.0118 2.50202 14.4243 2.48409C16.8544 2.50216 18.7107 3.27957 19.9424 4.79488C20.5464 5.53798 21.0017 6.47247 21.3019 7.56205L23.0097 7.10639C22.6459 5.76523 22.0733 4.60954 21.2942 3.6511C19.7152 1.7084 17.4059 0.712947 14.4303 0.692307H14.4184C11.4489 0.712875 9.16538 1.71211 7.63132 3.66223C6.26622 5.3976 5.56206 7.81224 5.5384 10.839L5.53833 10.8462L5.5384 10.8533C5.56206 13.88 6.26622 16.2948 7.63132 18.0301C9.16538 19.9802 11.4489 20.9795 14.4184 21H14.4303C17.0704 20.9817 18.9313 20.2905 20.4643 18.7589C22.47 16.7551 22.4096 14.2434 21.7485 12.7015C21.2743 11.5957 20.37 10.6977 19.1336 10.1045ZM14.5753 14.3902C13.4711 14.4524 12.3239 13.9567 12.2673 12.8951C12.2254 12.108 12.8275 11.2297 14.6431 11.125C14.851 11.1131 15.055 11.1072 15.2555 11.1072C15.9149 11.1072 16.5319 11.1713 17.0928 11.2939C16.8836 13.9066 15.6564 14.3308 14.5753 14.3902Z" fill="currentColor"></path></g></svg></a><a href="/products/social-scheduler/youtube-shorts" class="nav-social-link w-inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 29 22" fill="none" class="nav-social-icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.0529 3.65444C24.015 3.91361 24.7713 4.66982 25.0269 5.6284C25.492 7.36804 25.492 11 25.492 11C25.492 11 25.492 14.632 25.0269 16.3716C24.7677 17.3337 24.0115 18.0899 23.0529 18.3456C21.3133 18.8106 14.3334 18.8106 14.3334 18.8106C14.3334 18.8106 7.35705 18.8106 5.61386 18.3456C4.65173 18.0864 3.89551 17.3302 3.63989 16.3716C3.1748 14.632 3.1748 11 3.1748 11C3.1748 11 3.1748 7.36804 3.63989 5.6284C3.89907 4.66627 4.65528 3.91006 5.61386 3.65444C7.35705 3.18935 14.3334 3.18935 14.3334 3.18935C14.3334 3.18935 21.3133 3.18935 23.0529 3.65444ZM17.8997 10.9994L12.1021 14.3473V7.65149L17.8997 10.9994Z" fill="currentColor"></path></svg></a></div></div><div class="sublink-menu-divider"></div><div class="sublink-menu-right"><div class="nav-link-text text-size_16px">What’s New</div><a href="/products/social-scheduler/instagram-auto-reply" class="nav-card w-inline-block"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6882edcf6915328005a76e24_frame1197145639.avif" alt="" class="nav-card-image"/><div class="nav-card-text"><div class="nav-link-text text-size_14px">Boost sales with Instagram Auto-reply</div><div class="nav-link-subtext">Instantly reply to comments, send traffic to your offers, and turn engagement into sales—automatically.</div></div></a></div></div></div><div data-w-tab="Tab 3" class="nav-link-tab-content w-tab-pane"><div class="sublink-tab-content"><div class="sublink-menu-left"><div class="_w-nav-tablet-title-link"><a href="/products/grow" class="nav-link-title w-inline-block"><div class="nav-link-text text-size_16px font-weight_500">Grow and engage your audience</div></a></div><a href="/products/contact-forms" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Collect leads with contact forms</div><div class="nav-link-subtext">Turn visitors into subscribers</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/audience-management" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Manage and activate your audience</div><div class="nav-link-subtext">Organize, tag, and track contacts</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/3rd-party-email-integrations" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Send contacts to email tools</div><div class="nav-link-subtext">Sync with Mailchimp, Klaviyo, Kit &amp; more</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div><div class="sublink-menu-divider"></div><div class="sublink-menu-right"><div class="nav-link-text text-size_16px">Featured</div><a href="/products/3rd-party-email-integrations" class="nav-card w-inline-block"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6859e67e867370f3c13acc5a_Frame%201197145640.avif" alt="" class="nav-card-image"/><div class="nav-card-text"><div class="nav-link-text text-size_14px">Connect your email tools, activate your audience</div><div class="nav-link-subtext">Send new contacts straight from Linktree to Mailchimp, Klaviyo, Kit and more.</div></div></a></div></div></div><div data-w-tab="Tab 4" class="nav-link-tab-content w-tab-pane"><div class="sublink-tab-content"><div class="sublink-menu-left"><div class="_w-nav-tablet-title-link"><a href="/products/earn" class="nav-link-title w-inline-block"><div class="nav-link-text text-size_16px font-weight_500">Monetize your following</div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon display-tablet_block"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div><a href="/products/earn/shops" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Earn with a Linktree Shop</div><div class="nav-link-subtext">Sell products and earn commission </div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/earn/courses" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Sell an online course</div><div class="nav-link-subtext">Create and sell your expertise easily</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/earn/digital-products" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Host digital products</div><div class="nav-link-subtext">Sell digital products and build your email list</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/earn/sponsored-links" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Earn by hosting sponsored links</div><div class="nav-link-subtext">Share brand offers and earn for every sign-up or sale</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/earn/rewards" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Get rewarded for growing your Linktree</div><div class="nav-link-subtext">Earn points, level up and unlock cash bonuses</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="/products/earn/bookings" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Booked and paid, easily</div><div class="nav-link-subtext">Offer sessions and earn from your expertise</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div><div class="sublink-menu-divider"></div><div class="sublink-menu-right"><div class="nav-link-text text-size_16px">Featured</div><a href="/products/earn/shops" class="nav-card w-inline-block"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807e1c17be10a663716dbd5_Frame%201197145639%20(1).avif" alt="" class="nav-card-image"/><div class="nav-card-text"><div class="nav-link-text text-size_14px">Turn Your Linktree into a Storefront That Pays</div><div class="nav-link-subtext">Add affiliate products, share what you love, and start earning in minutes with industry-leading commissions.</div></div></a></div></div></div><div data-w-tab="Tab 5" class="nav-link-tab-content w-tab-pane"><div class="sublink-tab-content"><div class="sublink-menu-left"><div class="_w-nav-tablet-title-link"><a href="#" class="nav-link-title w-inline-block"><div class="nav-link-text text-size_16px font-weight_500">Measure your success</div></a></div><a href="/products/measure/analytics" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Social + link analytics</div><div class="nav-link-subtext">Track clicks, engagement and audience insights</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div><div class="sublink-menu-divider"></div><div class="sublink-menu-right"><div class="nav-link-text text-size_16px">Featured</div><a href="/products/measure/analytics" class="nav-card w-inline-block"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807e1c1a9eb09812121020a_Frame%201197145639%20(2).avif" alt="" class="nav-card-image"/><div class="nav-card-text"><div class="nav-link-text text-size_14px">Grow engagement with analytics</div><div class="nav-link-subtext">Make data-driven decisions for your Linktree and social media platforms with analytics that are easy to understand.</div></div></a></div></div></div></div></div></nav></div><a href="/s/templates" class="navbar-link mod--navbar-link_2025 w-nav-link">Templates</a><a href="/marketplace" class="navbar-link mod--navbar-link_2025 w-nav-link">Marketplace</a><div data-hover="true" data-delay="300" class="nav-dropdown underline position_static border-color-tablet_black_8 w-dropdown"><div class="nav-dd-link mod--navbar-link_2025 w-dropdown-toggle"><div class="navbar-link mod--navbar-link_2025 border_none">Learn</div><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680813d8f39b171ee7263f64_Union.svg" alt="" class="accordion-arrow hide-desktop mod--nav-accordion-arrow"/></div><nav class="_w-nav-dropdown-list w-dropdown-list"><div data-current="Tab 1" data-easing="ease" data-duration-in="300" data-duration-out="100" class="nav-dropdown-grid w-tabs"><div id="w-node-d16adbed-504d-e4bc-8fbe-6d52fd617b35-c2df6686" class="nav-sublink-list w-tab-menu"><a data-w-tab="Tab 1" class="nav-link-item w-inline-block w-tab-link w--current"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-title-chevron-icon-prev"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><div class="w-embed"></div></svg><div class="_w-nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-link-icon width_20px"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5625 0.561401L0.5625 1.5614V8.3114L1.5625 9.3114H8.3125L9.3125 8.3114V1.5614L8.3125 0.561401H1.5625ZM2.5625 7.3114V2.5614H7.3125V7.3114H2.5625ZM11.6875 0.561401L10.6875 1.5614V8.3114L11.6875 9.3114H18.4375L19.4375 8.3114V1.5614L18.4375 0.561401H11.6875ZM12.6875 7.3114V2.5614H17.4375V7.3114H12.6875ZM0.5625 11.6864L1.5625 10.6864H8.3125L9.3125 11.6864V18.4364L8.3125 19.4364H1.5625L0.5625 18.4364V11.6864ZM2.5625 12.6864V17.4364H7.3125V12.6864H2.5625ZM11.6875 10.6864L10.6875 11.6864V18.4364L11.6875 19.4364H18.4375L19.4375 18.4364V11.6864L18.4375 10.6864H11.6875ZM12.6875 17.4364V12.6864H17.4375V17.4364H12.6875Z" fill="currentColor"></path></svg></div><div class="nav-link-text text-size_16px">Resources</div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 21 20" fill="none" class="nav-chevron-icon"><path d="M7.83325 5L12.8333 10L7.83325 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a data-w-tab="Tab 2" data-href="/products/manage-your-social-media" class="nav-link-item w-inline-block w-tab-link"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-title-chevron-icon-prev"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><div class="_w-nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 22 22" fill="none" class="nav-link-icon width_20px"><path fill-rule="evenodd" clip-rule="evenodd" d="M11 2.12476C6.09846 2.12476 2.125 6.09816 2.125 10.9996C2.125 15.901 6.09846 19.8744 11 19.8744C15.9015 19.8744 19.875 15.901 19.875 10.9996C19.875 6.09816 15.9015 2.12476 11 2.12476ZM1.125 10.9996C1.125 5.54586 5.5462 1.12476 11 1.12476C16.4538 1.12476 20.875 5.54586 20.875 10.9996C20.875 16.4533 16.4538 20.8744 11 20.8744C5.5462 20.8744 1.125 16.4533 1.125 10.9996ZM10.6875 7.49976C10.2172 7.49976 9.77874 7.66058 9.4661 7.92856C9.15584 8.1945 9 8.53714 9 8.87476H8C8 8.21781 8.3051 7.60663 8.81531 7.1693C9.32314 6.73402 9.9975 6.49976 10.6875 6.49976H11.3125C12.0025 6.49976 12.6769 6.73402 13.1847 7.1693C13.6912 7.60346 13.9956 8.20895 14 8.86047C14.0258 9.3697 13.8871 9.87388 13.6041 10.2983C13.431 10.5581 13.1189 10.7877 12.9149 10.9259C12.8016 11.0026 12.6968 11.0672 12.6205 11.1126C12.5822 11.1354 12.5506 11.1537 12.5281 11.1664L12.5014 11.1815L12.4937 11.1857L12.4913 11.187L12.4906 11.1875L12.4903 11.1876L12.4901 11.1877C12.4901 11.1877 12.49 11.1878 12.25 10.7491L12.49 11.1878L12.4623 11.2019C12.1977 11.3259 11.9439 11.5721 11.7597 11.9405C11.6168 12.2263 11.5519 12.4208 11.5227 12.532C11.5081 12.5875 11.5024 12.6222 11.5004 12.6371L11.4994 12.6456L11.4994 12.6449L11.4998 12.638L11.4999 12.6319L11.5 12.6283L11.5 12.6263L11.5 12.6252L11.5 12.6247C11.5 12.6244 11.5 12.6241 11 12.6241C10.5 12.6241 10.5 12.6239 10.5 12.6236L10.5 12.6231L10.5 12.6219L10.5 12.6196L10.5001 12.6147L10.5004 12.6036C10.5006 12.5957 10.5011 12.5868 10.5018 12.5767C10.5031 12.5566 10.5055 12.5323 10.5094 12.5035C10.5171 12.4459 10.531 12.371 10.5555 12.2779C10.6044 12.0917 10.6957 11.8326 10.8653 11.4933C11.129 10.966 11.5264 10.5416 12.0208 10.3045L12.034 10.297C12.0514 10.2871 12.0772 10.2723 12.1092 10.2532C12.1736 10.2149 12.2611 10.1609 12.3541 10.0979C12.5628 9.95655 12.7198 9.8221 12.7721 9.74364C12.9374 9.49565 13.0177 9.20064 13.0008 8.90307L13 8.87476C13 8.53714 12.8442 8.1945 12.5339 7.92856C12.2213 7.66058 11.7828 7.49976 11.3125 7.49976H10.6875ZM11.65 14.7498C11.65 15.0949 11.3702 15.3748 11.025 15.3748C10.6798 15.3748 10.4 15.0949 10.4 14.7498C10.4 14.4046 10.6798 14.1248 11.025 14.1248C11.3702 14.1248 11.65 14.4046 11.65 14.7498Z" fill="currentColor"></path><path d="M9.4661 7.92856L9.1888 7.60504L9.1888 7.60504L9.4661 7.92856ZM9 8.87476V9.30085C9.23533 9.30085 9.4261 9.11008 9.4261 8.87476H9ZM8 8.87476H7.5739C7.5739 9.11008 7.76467 9.30085 8 9.30085V8.87476ZM8.81531 7.1693L9.09261 7.49282L8.81531 7.1693ZM13.1847 7.1693L12.9074 7.49282H12.9074L13.1847 7.1693ZM14 8.86047L13.5739 8.86334C13.5739 8.86959 13.5741 8.87584 13.5744 8.88208L14 8.86047ZM13.6041 10.2983L13.9587 10.5347V10.5347L13.6041 10.2983ZM12.9149 10.9259L13.1539 11.2786L12.9149 10.9259ZM12.6205 11.1126L12.8384 11.4788L12.8384 11.4788L12.6205 11.1126ZM12.5281 11.1664L12.7372 11.5377L12.7386 11.5369L12.5281 11.1664ZM12.5014 11.1815L12.7081 11.5541L12.7105 11.5527L12.5014 11.1815ZM12.4937 11.1857L12.6993 11.5589L12.7004 11.5583L12.4937 11.1857ZM12.4913 11.187L12.6963 11.5606L12.697 11.5602L12.4913 11.187ZM12.4906 11.1875L12.6953 11.5611L12.6955 11.561L12.4906 11.1875ZM12.4903 11.1876L12.6945 11.5616L12.695 11.5613L12.4903 11.1876ZM12.4901 11.1877L12.2859 10.8137L12.2843 10.8146L12.4901 11.1877ZM12.6238 10.5446C12.5108 10.3382 12.2519 10.2624 12.0455 10.3754C11.839 10.4883 11.7632 10.7473 11.8762 10.9537L12.6238 10.5446ZM12.49 11.1878L12.6828 11.5677C12.7857 11.5156 12.863 11.4239 12.8971 11.3138C12.9312 11.2036 12.9192 11.0844 12.8638 10.9832L12.49 11.1878ZM12.4623 11.2019L12.6432 11.5878L12.6551 11.5818L12.4623 11.2019ZM11.7597 11.9405L11.3786 11.75V11.75L11.7597 11.9405ZM11.5227 12.532L11.9348 12.6402L11.9348 12.6402L11.5227 12.532ZM11.5004 12.6371L11.0781 12.5801L11.0772 12.5872L11.5004 12.6371ZM11.4994 12.6456L11.0745 12.6142C11.0574 12.8453 11.2281 13.0477 11.4587 13.0698C11.6894 13.0919 11.8954 12.9257 11.9226 12.6956L11.4994 12.6456ZM11.4994 12.6449L11.9245 12.6763L11.925 12.6655L11.4994 12.6449ZM11.4998 12.638L11.9255 12.6586L11.9257 12.6488L11.4998 12.638ZM11.4999 12.6319L11.9259 12.6427L11.926 12.6375L11.4999 12.6319ZM11.5 12.6283L11.9261 12.6338L11.9261 12.6311L11.5 12.6283ZM11.5 12.6263L11.9261 12.6291L11.9261 12.6274L11.5 12.6263ZM11.5 12.6252L11.9261 12.6264L11.9261 12.626L11.5 12.6252ZM11.5 12.6247L11.9261 12.6255V12.6247H11.5ZM10.5 12.6236L10.0739 12.6221V12.6236H10.5ZM10.5 12.6231L10.9261 12.6245L10.9261 12.6241L10.5 12.6231ZM10.5 12.6219L10.0739 12.6191L10.0739 12.6208L10.5 12.6219ZM10.5 12.6196L10.0739 12.6141L10.0739 12.6168L10.5 12.6196ZM10.5001 12.6147L10.0741 12.6036L10.074 12.6092L10.5001 12.6147ZM10.5004 12.6036L10.0745 12.589L10.0744 12.5925L10.5004 12.6036ZM10.5018 12.5767L10.0767 12.5477L10.0767 12.5477L10.5018 12.5767ZM10.5094 12.5035L10.9316 12.5604L10.9316 12.5604L10.5094 12.5035ZM10.5555 12.2779L10.9676 12.3861L10.9676 12.3861L10.5555 12.2779ZM10.8653 11.4933L10.4842 11.3028L10.4842 11.3028L10.8653 11.4933ZM12.0208 10.3045L12.205 10.6887C12.2135 10.6846 12.2218 10.6803 12.2299 10.6757L12.0208 10.3045ZM12.034 10.297L12.2432 10.6683L12.2446 10.6675L12.034 10.297ZM12.1092 10.2532L12.3271 10.6194L12.3271 10.6194L12.1092 10.2532ZM12.3541 10.0979L12.5931 10.4507L12.5931 10.4507L12.3541 10.0979ZM12.7721 9.74364L12.4175 9.50728V9.50729L12.7721 9.74364ZM13.0008 8.90307L12.5747 8.91514L12.5754 8.9272L13.0008 8.90307ZM13 8.87476H12.5737L12.5741 8.88682L13 8.87476ZM12.5339 7.92856L12.8112 7.60504L12.8112 7.60504L12.5339 7.92856ZM2.5511 10.9996C2.5511 6.3335 6.33378 2.55085 11 2.55085V1.69866C5.86314 1.69866 1.6989 5.86283 1.6989 10.9996H2.5511ZM11 19.4483C6.33378 19.4483 2.5511 15.6657 2.5511 10.9996H1.6989C1.6989 16.1364 5.86314 20.3005 11 20.3005V19.4483ZM19.4489 10.9996C19.4489 15.6657 15.6662 19.4483 11 19.4483V20.3005C16.1369 20.3005 20.3011 16.1364 20.3011 10.9996H19.4489ZM11 2.55085C15.6662 2.55085 19.4489 6.3335 19.4489 10.9996H20.3011C20.3011 5.86283 16.1369 1.69866 11 1.69866V2.55085ZM11 0.698657C5.31088 0.698657 0.698901 5.31053 0.698901 10.9996H1.5511C1.5511 5.7812 5.78152 1.55085 11 1.55085V0.698657ZM21.3011 10.9996C21.3011 5.31053 16.6891 0.698657 11 0.698657V1.55085C16.2185 1.55085 20.4489 5.7812 20.4489 10.9996H21.3011ZM11 21.3005C16.6891 21.3005 21.3011 16.6887 21.3011 10.9996H20.4489C20.4489 16.218 16.2185 20.4483 11 20.4483V21.3005ZM0.698901 10.9996C0.698901 16.6887 5.31088 21.3005 11 21.3005V20.4483C5.78152 20.4483 1.5511 16.218 1.5511 10.9996H0.698901ZM9.7434 8.25208C9.97295 8.05532 10.3109 7.92585 10.6875 7.92585V7.07366C10.1235 7.07366 9.58453 7.26584 9.1888 7.60504L9.7434 8.25208ZM9.4261 8.87476C9.4261 8.67287 9.51862 8.44475 9.7434 8.25208L9.1888 7.60504C8.79306 7.94424 8.5739 8.40141 8.5739 8.87476H9.4261ZM8 9.30085H9V8.44866H8V9.30085ZM8.53801 6.84578C7.94275 7.35601 7.5739 8.08155 7.5739 8.87476H8.4261C8.4261 8.35406 8.66744 7.85725 9.09261 7.49282L8.53801 6.84578ZM10.6875 6.07366C9.90397 6.07366 9.12906 6.33917 8.53801 6.84578L9.09261 7.49282C9.51722 7.12887 10.091 6.92585 10.6875 6.92585V6.07366ZM11.3125 6.07366H10.6875V6.92585H11.3125V6.07366ZM13.462 6.84578C12.8709 6.33917 12.096 6.07366 11.3125 6.07366V6.92585C11.909 6.92585 12.4828 7.12887 12.9074 7.49282L13.462 6.84578ZM14.426 8.8576C14.4207 8.071 14.0529 7.35229 13.462 6.84578L12.9074 7.49282C13.3295 7.85462 13.5704 8.34691 13.5739 8.86334L14.426 8.8576ZM13.9587 10.5347C14.2924 10.0341 14.456 9.43945 14.4255 8.83886L13.5744 8.88208C13.5956 9.29995 13.4818 9.71368 13.2496 10.062L13.9587 10.5347ZM13.1539 11.2786C13.3567 11.1413 13.7343 10.8713 13.9587 10.5347L13.2496 10.062C13.1277 10.2448 12.8811 10.4341 12.676 10.5731L13.1539 11.2786ZM12.8384 11.4788C12.9198 11.4304 13.0319 11.3613 13.1539 11.2786L12.676 10.5731C12.5713 10.644 12.4739 10.7041 12.4027 10.7464L12.8384 11.4788ZM12.7386 11.5369C12.7633 11.5229 12.7973 11.5032 12.8384 11.4788L12.4027 10.7464C12.367 10.7676 12.3379 10.7844 12.3176 10.796L12.7386 11.5369ZM12.7105 11.5527L12.7372 11.5377L12.319 10.7952L12.2923 10.8102L12.7105 11.5527ZM12.7004 11.5583L12.7081 11.5541L12.2947 10.8089L12.287 10.8132L12.7004 11.5583ZM12.697 11.5602L12.6993 11.5589L12.2881 10.8125L12.2857 10.8138L12.697 11.5602ZM12.6955 11.561L12.6963 11.5606L12.2864 10.8135L12.2856 10.8139L12.6955 11.561ZM12.695 11.5613L12.6953 11.5611L12.2858 10.8138L12.2855 10.814L12.695 11.5613ZM12.6944 11.5617L12.6945 11.5616L12.286 10.8137L12.2859 10.8137L12.6944 11.5617ZM11.8762 10.9537C11.9962 11.173 12.0563 11.2827 12.0863 11.3376C12.1013 11.365 12.109 11.3789 12.1129 11.3861C12.1147 11.3894 12.1163 11.3922 12.1175 11.3943C12.1178 11.395 12.1184 11.396 12.1191 11.3972C12.1195 11.398 12.121 11.4007 12.123 11.404C12.124 11.4057 12.126 11.409 12.1286 11.4132C12.1303 11.416 12.1366 11.4261 12.1455 11.4383C12.15 11.4445 12.159 11.4565 12.1716 11.4707C12.1816 11.482 12.2091 11.5122 12.2521 11.5412C12.2989 11.5726 12.3898 11.6197 12.5127 11.6132C12.5705 11.6101 12.6173 11.5959 12.6497 11.5828C12.6615 11.5778 12.6789 11.5697 12.6846 11.5668C12.6903 11.5639 12.696 11.5608 12.696 11.5608L12.2843 10.8146C12.2843 10.8146 12.29 10.8116 12.2957 10.8086C12.3014 10.8057 12.3188 10.7976 12.3306 10.7926C12.3629 10.7795 12.4097 10.7653 12.4675 10.7622C12.5904 10.7557 12.6814 10.8028 12.7281 10.8343C12.7711 10.8632 12.7987 10.8934 12.8087 10.9047C12.8213 10.9189 12.8302 10.9309 12.8347 10.937C12.8436 10.9493 12.8499 10.9594 12.8516 10.9621C12.8542 10.9663 12.8562 10.9696 12.8571 10.9712C12.859 10.9744 12.8605 10.977 12.8608 10.9776C12.8613 10.9785 12.8617 10.9792 12.8618 10.9794C12.8621 10.9798 12.8617 10.9792 12.8598 10.9756C12.8562 10.9691 12.8488 10.9557 12.8338 10.9282C12.8038 10.8735 12.7438 10.7639 12.6238 10.5446L11.8762 10.9537ZM12.8638 10.9832L12.6238 10.5446L11.8762 10.9537L12.1162 11.3923L12.8638 10.9832ZM12.6551 11.5818L12.6828 11.5677L12.2972 10.8078L12.2695 10.8219L12.6551 11.5818ZM12.1408 12.1311C12.2898 11.8331 12.4797 11.6643 12.6431 11.5877L12.2814 10.8161C11.9157 10.9875 11.5981 11.3111 11.3786 11.75L12.1408 12.1311ZM11.9348 12.6402C11.9556 12.561 12.0093 12.394 12.1408 12.1311L11.3786 11.75C11.2243 12.0585 11.1481 12.2806 11.1105 12.4237L11.9348 12.6402ZM11.9227 12.694C11.9222 12.6973 11.9244 12.6797 11.9348 12.6402L11.1105 12.4237C11.0917 12.4953 11.0826 12.5471 11.0781 12.5801L11.9227 12.694ZM11.9226 12.6956L11.9236 12.687L11.0772 12.5872L11.0762 12.5957L11.9226 12.6956ZM11.0745 12.6135L11.0745 12.6142L11.9243 12.677L11.9244 12.6763L11.0745 12.6135ZM11.0742 12.6174L11.0739 12.6242L11.925 12.6655L11.9254 12.6586L11.0742 12.6174ZM11.074 12.6211L11.0738 12.6272L11.9257 12.6488L11.9259 12.6427L11.074 12.6211ZM11.0739 12.6227L11.0739 12.6264L11.926 12.6375L11.926 12.6338L11.0739 12.6227ZM11.0739 12.6234L11.0739 12.6254L11.9261 12.6311L11.9261 12.6291L11.0739 12.6234ZM11.0739 12.624L11.0739 12.6251L11.9261 12.6274L11.9261 12.6264L11.0739 12.624ZM11.0739 12.6239L11.0739 12.6244L11.9261 12.626L11.9261 12.6255L11.0739 12.6239ZM11 13.0502C11.25 13.0502 11.3747 13.0503 11.4368 13.0504C11.4682 13.0505 11.4825 13.0505 11.4887 13.0506C11.4934 13.0506 11.49 13.0506 11.4846 13.0504C11.4828 13.0504 11.4789 13.0502 11.4738 13.0499C11.4704 13.0497 11.4579 13.049 11.442 13.0468C11.434 13.0457 11.4183 13.0433 11.3988 13.0386C11.383 13.0347 11.3419 13.024 11.2946 12.998C11.2418 12.9689 11.1613 12.9093 11.112 12.8008C11.0684 12.7049 11.0739 12.6139 11.0739 12.6247H11.9261C11.9261 12.6247 11.9261 12.6232 11.9261 12.6217C11.9261 12.6201 11.926 12.6156 11.9259 12.6126C11.9257 12.6048 11.9251 12.5922 11.9234 12.5766C11.9197 12.5442 11.9108 12.4987 11.888 12.4485C11.8387 12.34 11.7582 12.2804 11.7054 12.2513C11.6581 12.2253 11.6169 12.2146 11.6011 12.2107C11.5816 12.206 11.5658 12.2036 11.5578 12.2025C11.5417 12.2003 11.5291 12.1995 11.5254 12.1993C11.52 12.199 11.5157 12.1988 11.5135 12.1987C11.5061 12.1985 11.4988 12.1984 11.4956 12.1984C11.4862 12.1983 11.4693 12.1983 11.4382 12.1982C11.3753 12.1981 11.25 12.198 11 12.198V13.0502ZM10.0739 12.6236C10.0739 12.6236 10.0739 12.6251 10.0739 12.6266C10.0739 12.6281 10.074 12.6325 10.0741 12.6355C10.0743 12.6432 10.0748 12.6557 10.0765 12.671C10.0801 12.7029 10.0888 12.7479 10.1111 12.7977C10.1595 12.9058 10.239 12.966 10.2924 12.9957C10.34 13.0223 10.3816 13.0333 10.3977 13.0373C10.4174 13.0421 10.4333 13.0446 10.4415 13.0457C10.4577 13.048 10.4706 13.0487 10.4743 13.049C10.4797 13.0493 10.4841 13.0495 10.4864 13.0496C10.4938 13.0498 10.5012 13.0499 10.5043 13.0499C10.5138 13.05 10.5307 13.05 10.5618 13.0501C10.6247 13.0502 10.75 13.0502 11 13.0502V12.198C10.75 12.198 10.6253 12.198 10.5632 12.1979C10.5318 12.1978 10.5175 12.1978 10.5113 12.1977C10.5067 12.1977 10.5101 12.1977 10.5156 12.1979C10.5174 12.1979 10.5214 12.1981 10.5265 12.1984C10.53 12.1986 10.5426 12.1994 10.5588 12.2016C10.5669 12.2027 10.5828 12.2052 10.6024 12.21C10.6185 12.214 10.66 12.225 10.7076 12.2515C10.761 12.2813 10.8405 12.3414 10.8889 12.4495C10.9315 12.5445 10.9261 12.6344 10.9261 12.6236H10.0739ZM10.0739 12.6216L10.0739 12.6221L10.9261 12.6251L10.9261 12.6245L10.0739 12.6216ZM10.0739 12.6208L10.0739 12.622L10.9261 12.6241L10.9261 12.623L10.0739 12.6208ZM10.0739 12.6168L10.0739 12.6191L10.9261 12.6247L10.9261 12.6224L10.0739 12.6168ZM10.074 12.6092L10.074 12.6141L10.9261 12.6251L10.9261 12.6202L10.074 12.6092ZM10.0744 12.5925L10.0741 12.6036L10.926 12.6258L10.9263 12.6147L10.0744 12.5925ZM10.0767 12.5477C10.0757 12.5625 10.075 12.5763 10.0745 12.589L10.9262 12.6182C10.9263 12.6152 10.9265 12.6111 10.9269 12.6057L10.0767 12.5477ZM10.0871 12.4466C10.082 12.4844 10.0787 12.5181 10.0767 12.5477L10.9269 12.6058C10.9276 12.5952 10.929 12.5801 10.9316 12.5604L10.0871 12.4466ZM10.1434 12.1696C10.1147 12.2788 10.0973 12.3709 10.0871 12.4466L10.9316 12.5604C10.937 12.521 10.9473 12.4633 10.9676 12.3861L10.1434 12.1696ZM10.4842 11.3028C10.3032 11.6648 10.2007 11.9514 10.1434 12.1696L10.9676 12.3861C11.0081 12.2319 11.0882 12.0003 11.2464 11.6839L10.4842 11.3028ZM11.8365 9.92029C11.2427 10.2051 10.7825 10.706 10.4842 11.3028L11.2464 11.6839C11.4754 11.2259 11.8101 10.8781 12.205 10.6887L11.8365 9.92029ZM11.8249 9.92577L11.8117 9.93323L12.2299 10.6757L12.2432 10.6683L11.8249 9.92577ZM11.8914 9.88703C11.8621 9.90446 11.8387 9.91792 11.8235 9.92656L12.2446 10.6675C12.2641 10.6564 12.2924 10.6401 12.3271 10.6194L11.8914 9.88703ZM12.1151 9.74512C12.0308 9.80228 11.9506 9.85177 11.8914 9.88704L12.3271 10.6194C12.3965 10.5781 12.4914 10.5196 12.5931 10.4507L12.1151 9.74512ZM12.4175 9.50729C12.4251 9.4959 12.4257 9.49763 12.4097 9.51396C12.3957 9.52832 12.3746 9.54801 12.3458 9.57253C12.2881 9.62157 12.2095 9.68121 12.1151 9.74512L12.5931 10.4507C12.7074 10.3732 12.8117 10.295 12.8977 10.2218C12.9751 10.1561 13.0658 10.0712 13.1266 9.98L12.4175 9.50729ZM12.5754 8.9272C12.587 9.13256 12.5316 9.33614 12.4175 9.50728L13.1266 9.98C13.3432 9.65515 13.4483 9.26873 13.4262 8.87894L12.5754 8.9272ZM12.5741 8.88682L12.5749 8.91513L13.4267 8.891L13.4259 8.86269L12.5741 8.88682ZM12.2566 8.25208C12.4814 8.44475 12.5739 8.67287 12.5739 8.87476H13.4261C13.4261 8.40141 13.2069 7.94424 12.8112 7.60504L12.2566 8.25208ZM11.3125 7.92585C11.6891 7.92585 12.0271 8.05532 12.2566 8.25208L12.8112 7.60504C12.4155 7.26584 11.8765 7.07366 11.3125 7.07366V7.92585ZM10.6875 7.92585H11.3125V7.07366H10.6875V7.92585ZM11.025 15.8009C11.6055 15.8009 12.0761 15.3303 12.0761 14.7498H11.2239C11.2239 14.8596 11.1349 14.9487 11.025 14.9487V15.8009ZM9.9739 14.7498C9.9739 15.3303 10.4445 15.8009 11.025 15.8009V14.9487C10.9151 14.9487 10.8261 14.8596 10.8261 14.7498H9.9739ZM11.025 13.6987C10.4445 13.6987 9.9739 14.1693 9.9739 14.7498H10.8261C10.8261 14.6399 10.9151 14.5509 11.025 14.5509V13.6987ZM12.0761 14.7498C12.0761 14.1693 11.6055 13.6987 11.025 13.6987V14.5509C11.1349 14.5509 11.2239 14.6399 11.2239 14.7498H12.0761Z" fill="currentColor"></path></svg></div><div class="nav-link-text text-size_16px">How to use Linktree</div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 21 20" fill="none" class="nav-chevron-icon"><path d="M7.83325 5L12.8333 10L7.83325 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div><div id="w-node-d16adbed-504d-e4bc-8fbe-6d52fd617b6d-c2df6686" class="nav-sublink-menu-wrapper w-tab-content"><div data-w-tab="Tab 1" hre="" class="nav-link-tab-content w-tab-pane w--tab-active"><div class="sublink-tab-content"><div class="sublink-menu-left"><div class="_w-nav-tablet-title-link"><a href="#" class="nav-link-title w-inline-block"><div class="nav-link-text text-size_16px font-weight_500">Resources</div></a></div><a href="/blog" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Read our blog</div><div class="nav-link-subtext">All the latest tips, tricks and growth strategies</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a href="https://linktr.ee/blogs/categories/success-stories" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Success Stories</div><div class="nav-link-subtext">Real people, real results on Linktree</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div><div class="sublink-menu-divider"></div><div class="sublink-menu-right"><div class="nav-link-text text-size_16px">Learn with Linktree</div><a href="/products/earn/courses" class="nav-card w-inline-block"><img sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807f0c504ad57aa90cf5256_Frame%201197145640-p-500.avif 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807f0c504ad57aa90cf5256_Frame%201197145640.avif 730w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807f0c504ad57aa90cf5256_Frame%201197145640.avif" loading="lazy" class="nav-card-image"/><div class="nav-card-text"><div class="nav-link-text text-size_14px">Create &amp; sell your own online Course</div><div class="nav-link-subtext">If you’ve got something to share, you’ve got something to sell. Easily create and share an online course that...</div></div></a></div></div></div><div data-w-tab="Tab 2" class="nav-link-tab-content w-tab-pane"><div class="sublink-tab-content"><div class="sublink-menu-left"><div class="_w-nav-tablet-title-link"><a href="#" class="nav-link-title w-inline-block"><div class="nav-link-text text-size_16px font-weight_500">How to use Linktree</div></a></div><a href="https://linktr.ee/help/en" class="nav-sublink-item w-inline-block"><div class="flex-vertical"><div class="nav-link-text text-size_14px">Linktree Help Centre</div><div class="nav-link-subtext">Get answers, guides and support</div></div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 20 20" fill="none" class="nav-sub-menu-icon"><path d="M14.1668 5.83337L5.8335 14.1667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6665 5.83337H14.1665V13.3334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div><div class="sublink-menu-divider"></div><div class="sublink-menu-right"><div class="nav-link-text text-size_16px">Learn with Linktree</div><a href="/products/earn/courses" class="nav-card w-inline-block"><img sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807f0c504ad57aa90cf5256_Frame%201197145640-p-500.avif 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807f0c504ad57aa90cf5256_Frame%201197145640.avif 730w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/6807f0c504ad57aa90cf5256_Frame%201197145640.avif" loading="lazy" class="nav-card-image"/><div class="nav-card-text"><div class="nav-link-text text-size_14px">Create &amp; sell your own online Course</div><div class="nav-link-subtext">If you’ve got something to share, you’ve got something to sell. Easily create and share an online course that...</div></div></a></div></div></div></div></div></nav></div><a href="/s/pricing" class="navbar-link mod--navbar-link_2025 w-nav-link">Pricing</a></nav><div class="_w-nav-buttons"><a id="logInButton" data-track-click="login" href="/login" class="button is--login w-button">Log in</a><a id="signUpButton" data-track-click="signup" href="/register" class="button is--signup w-button">Sign up free</a><a href="https://linktr.ee/s/black-friday-2025-pro" class="button is-bf-2025 w-button">Get 33% Off Pro</a></div><div class="nav-hamburger w-nav-button"><div class="_w-hamburger_lottie"><div data-is-ix2-target="1" class="hamburger_lottie" data-w-id="88376efa-d27f-711c-494e-586bb38d1700" data-animation-type="lottie" data-src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68128d26fc1d1e311f9c7384_Animation%20-%201746046137459.json" data-loop="0" data-direction="1" data-autoplay="0" data-renderer="svg" data-default-duration="0" data-duration="1.6166666666666667" data-ix2-initial-state="0"></div></div></div><div class="navbar-bg"></div></div></div><div class="_w-page"><section class="hero homepage_hero is-home"><div class="container _w-home-hero"><div class="_w-hero-text _w-hero-text_home is-homepage"><div class="_w-h1-p _w-h1_hero"><h1 class="h1 hero_h1 text-color_forest align-center-mobile home-h1">A link in bio built for you.</h1><p class="p text-color_forest">Join 70M+ people using Linktree for their link in bio. One link to help you share everything you create, curate and sell from your Instagram, TikTok, Twitter, YouTube and other social media profiles.<br/></p></div><div data-claim-box="true" class="_w-claim-linktree margin-top_48px w-form"><form id="Claim-your-linktree-form-header" name="wf-form-Claim-your-linktree" data-name="Claim your linktree" action="https://linktr.ee/register" method="get" class="claim-linktree" data-wf-page-id="668f4187652a9c2756072066" data-wf-element-id="9766f8db-48e5-58ae-c2a6-a40994cb8339"><input class="input-field w-input" maxlength="256" name="Username" data-name="Username" placeholder="linktr.ee/yourname" type="text" id="username-header" required=""/><input type="submit" data-wait="Please wait..." class="button wide_button button-color_forest w-button" value="Get started for free"/></form><div class="success-message_hidden w-form-done"></div><div class="w-form-fail"><div>Oops! Something went wrong while submitting the form.</div></div></div></div><div class="hero-home-wrapper"><div class="swiper start-swiper-vertical"><div class="swiper-wrapper swiper-wrapper-2"><div class="swiper-slide hero-swiper-slide"><div><div class="hero-slider-animation" data-w-id="16b55168-5bcd-b52d-2c34-72e04a1497de" data-animation-type="lottie" data-src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68e486215075926ecb8a23e8_02.%20Koy-updated-Lottie.json" data-loop="1" data-direction="1" data-autoplay="1" data-is-ix2-target="0" data-renderer="svg" data-default-duration="0" data-duration="3"></div></div></div><div class="swiper-slide hero-swiper-slide"><div><div class="hero-slider-animation" data-w-id="16b55168-5bcd-b52d-2c34-72e04a1497e1" data-animation-type="lottie" data-src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68e48621acaba24419d543e6_ec2a495f8e1177ff17366ad12b87f3cb_04.%20Pistakio-Lottie.json" data-loop="1" data-direction="1" data-autoplay="1" data-is-ix2-target="0" data-renderer="svg" data-default-duration="0" data-duration="2"></div></div></div><div class="swiper-slide hero-swiper-slide"><div><div class="hero-slider-animation" data-w-id="16b55168-5bcd-b52d-2c34-72e04a1497e4" data-animation-type="lottie" data-src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68e486217727e0f7bd1c1741_05.%20Zay-Lottie.json" data-loop="1" data-direction="1" data-autoplay="1" data-is-ix2-target="0" data-renderer="svg" data-default-duration="0" data-duration="2"></div></div></div><div class="swiper-slide hero-swiper-slide"><div><div class="hero-slider-animation" data-w-id="16b55168-5bcd-b52d-2c34-72e04a1497e7" data-animation-type="lottie" data-src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68e48621e6c643add77b726c_01.%20Kelsey-updated.json" data-loop="1" data-direction="1" data-autoplay="1" data-is-ix2-target="0" data-renderer="svg" data-default-duration="0" data-duration="2"></div></div></div><div class="swiper-slide hero-swiper-slide"><div><div class="hero-slider-animation" data-w-id="16b55168-5bcd-b52d-2c34-72e04a1497ea" data-animation-type="lottie" data-src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68e4862125331335aee76c18_03.%20Miles-Lottie.json" data-loop="1" data-direction="1" data-autoplay="1" data-is-ix2-target="0" data-renderer="svg" data-default-duration="0" data-duration="2.8"></div></div></div></div></div></div></div></section><section class="section background-color_hydrangea"><div class="container flex-horizontal gap-80px"><div class="_w-img_large"><div class="img-100 link-bio-animation w-embed"><video id="customize-your-linktree" autoplay="" playsinline="" loop="" muted="" style="max-width:100%;width:100%; height:auto; max-height: 100%; border-radius:1rem" poster="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/692eb9b488731835c528bb18_capture_1764669836574.webp">
+  <source src="https://assets.production.linktr.ee/static/curate/customise_your_linktree.webm" type="video/webm">	
+	<source src="https://assets.production.linktr.ee/static/curate/customise_your_linktree.mp4">
+</video></div></div><div class="hero-h2-wrapper-2"><div class="hero-h2-content"><h2 class="h2 text-color_chartreuse">Create and customize your Linktree in minutes</h2><p class="p text-color_white">Connect all your content across social media, websites, stores and more in one link in bio. Customize every detail or let Linktree automatically enhance it to match your brand and drive more clicks.<br/></p></div><a id="openIntercom" href="https://linktr.ee/register" class="button wide_button background-color_chartreuse hero-h2-content w-button">Get started for free</a></div></div></section><section class="section background-color_red"><div class="container flex-horizontal"><div class="hero-h2-wrapper-2"><div class="hero-h2-content"><h2 class="h2 text-color_lavender">Share your Linktree anywhere you like!</h2><p class="p text-color_white">Add your unique Linktree URL to all the platforms and places you find your audience. Then use your QR code to drive your offline traffic back to your link in bio.<br/></p></div><a href="https://linktr.ee/register" class="button background-color_lavender wide_button w-button">Get started for free</a></div><div class="averyclothing_rive"><div class="homepage_rive" data-rive-url="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680faadc793de4a67df69d04_homepage_image_3.riv" data-rive-state-machine="State Machine" data-rive-artboard="Homepage_image 3" data-rive-autoplay="true" data-rive-is-touch-scroll-enabled="false" data-rive-automatically-handle-events="false" data-rive-fit="contain" data-rive-alignment="center" data-animation-type="rive"><canvas style="height:100%;width:100%"></canvas></div></div></div></section><section class="section background-color_light-green"><div class="container flex-horizontal gap-80px"><div class="_w-img_large"><div class="img-100 w-embed"><picture>
+  <source media="(max-width: 479px)" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68b806bb5feb04097bb7d791_home-section-4-mobile.avif">
+  <img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68b80693934ab0ccd4bf7482_home-section-4.avif" alt="Analyze your audience and keep them engaged">
+</picture></div></div><div class="hero-h2-wrapper"><div class="hero-h2-content"><h2 class="h2 text-color_dark-blue">Analyze your audience and keep them engaged</h2><p class="p text-color_shade">Track your engagement over time, monitor revenue and learn what’s converting your audience. Make informed updates on the fly to keep them coming back.<br/></p></div><a href="https://linktr.ee/register" class="button background-color_lavender wide_button w-button">Get started for free</a></div></div></section><section class="trusted-by trusted-by_creator background-color_marble"><div class="_w-scrolling-heading"><div class="flex-vertical gap_24px x-align_center"><h2 class="h2 text-align-center">The only link in bio trusted by 70M+</h2></div><div class="swiper is-swiper-scroll w-dyn-list"><div role="list" class="swiper-wrapper is-swiper-scroll w-dyn-items"><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">creators</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">influencers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">small businesses</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">athletes</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">models</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">monetizers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">health educators</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">streamers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">vloggers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">fitness coaches</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">ecommerce sellers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">retailers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">products</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">wellness leaders</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">musicians</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">bands</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">podcasters</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">fashion designers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">culture creators</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">merch sellers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">writers</div></div></div><div role="listitem" class="swiper-slide is-swiper-scroll w-dyn-item"><div class="swiper-slide is-swiper-scroll"><div class="h2 text-align-center text-color_blue letter-spacing_-2">DJs</div></div></div></div></div></div><div class="container _w-swiper margin-top_64px is--first-mobile margin-top-mobile_16vw"><div class="swiper start-swiper"><div class="swiper-wrapper first-swiper-wrapper swiper-wrapper-start"><a href="https://linktr.ee/selenagomez" target="_blank" class="swiper-slide swiper-slide-start w-inline-block"><div class="_w-slide-img portrait-slide"><img sizes="(max-width: 1000px) 100vw, 1000px" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ba_selena-gomez-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ba_selena-gomez-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ba_selena-gomez.webp 1000w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ba_selena-gomez.webp" loading="eager" class="slider-img"/></div><div class="_w-slide-pill-link portrait-br_64px"><div class="slider-link-pill"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937810_SVG.svg" alt="" class="card-pill-link-icon"/><div>/selenagomez</div></div></div></a><a href="https://linktr.ee/funkynutmeg" target="_blank" class="swiper-slide swiper-slide-start w-inline-block"><div class="_w-slide-img portrait-slide br_1000px"><img sizes="(max-width: 1000px) 100vw, 1000px" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937786_funkynutmeg-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937786_funkynutmeg-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937786_funkynutmeg.webp 1000w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937786_funkynutmeg.webp" loading="eager" class="slider-img"/></div><div class="_w-slide-pill-link portrait-br_1000px background-color_lavender"><div class="slider-link-pill"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937810_SVG.svg" alt="" class="card-pill-link-icon"/><div>/funkynutmeg</div></div></div></a><a href="https://linktr.ee/hbo" target="_blank" class="swiper-slide swiper-slide-start w-inline-block"><div class="_w-slide-img start-swiper-slide-3_large"><img sizes="(max-width: 890px) 100vw, 890px" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937809_hbo-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937809_hbo-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937809_hbo.webp 890w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937809_hbo.webp" loading="eager" class="slider-img"/></div><div class="_w-slide-pill-link portrait-br_16px"><div class="slider-link-pill"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937810_SVG.svg" alt="" class="card-pill-link-icon"/><div>/hbo</div></div></div></a><a href="https://linktr.ee/comedycentral" target="_blank" class="swiper-slide swiper-slide-start w-inline-block"><div class="_w-slide-img landscape-slide"><img sizes="(max-width: 1279px) 100vw, 1280px" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ac_comedy-central-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ac_comedy-central-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ac_comedy-central-p-1080.webp 1080w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ac_comedy-central.webp 1280w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377ac_comedy-central.webp" loading="eager" class="slider-img"/></div><div class="_w-slide-pill-link land-br_64px"><div class="slider-link-pill"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937810_SVG.svg" alt="" class="card-pill-link-icon"/><div>/comedycentral</div></div></div></a><a href="https://linktr.ee/pharrell" target="_blank" class="swiper-slide swiper-slide-start w-inline-block"><div class="_w-slide-img start-swiper-slide-5_large"><img sizes="(max-width: 1000px) 100vw, 1000px" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb1449d48431e9376d8_pharrell-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb1449d48431e9376d8_pharrell-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb1449d48431e9376d8_pharrell.webp 1000w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb1449d48431e9376d8_pharrell.webp" loading="eager" class="slider-img"/></div><div class="_w-slide-pill-link start-swiper-slide-5"><div class="slider-link-pill"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937810_SVG.svg" alt="" class="card-pill-link-icon"/><div>/pharrell</div></div></div></a><a href="https://linktr.ee/tonyhawk" target="_blank" class="swiper-slide swiper-slide-start w-inline-block"><div class="_w-slide-img start-swiper-slide-6_large"><img sizes="(max-width: 1000px) 100vw, 1000px" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377da_tonyhawk-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377da_tonyhawk-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377da_tonyhawk.webp 1000w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e9377da_tonyhawk.webp" loading="eager" class="slider-img"/></div><div class="_w-slide-pill-link land-br_64px background-color_iris"><div class="slider-link-pill"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937810_SVG.svg" alt="" class="card-pill-link-icon"/><div>/tonyhawk</div></div></div></a><a href="https://linktr.ee/laclippers" target="_blank" class="swiper-slide swiper-slide-start w-inline-block"><div class="_w-slide-img portrait-slide"><img sizes="(max-width: 1000px) 100vw, 1000px" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb1449d48431e937716_laclippers-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb1449d48431e937716_laclippers-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb1449d48431e937716_laclippers.webp 1000w" alt="" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb1449d48431e937716_laclippers.webp" loading="eager" class="slider-img"/></div><div class="_w-slide-pill-link portrait-br_16px background-color_forest"><div class="slider-link-pill"><img loading="lazy" src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66634cb2449d48431e937810_SVG.svg" alt="" class="card-pill-link-icon"/><div>/laclippers</div></div></div></a></div></div></div></section><section class="section background-color_marble padding-bottom_0px padding-top_0px"><div class="container flex-horizontal gap_16px"><div class="flex-vertical width_100 gap_16px"><a href="/s/discover/share-content" class="block padding_48px_40px radius_32px background-color_lavender flex-vertical height_100 gap_80px decor_none w-inline-block"><div class="_w-allyourthings-img"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680c13b834d3994a796896bd_all%20your%20things.avif" loading="lazy" sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680c13b834d3994a796896bd_all%20your%20things-p-500.avif 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680c13b834d3994a796896bd_all%20your%20things.avif 1184w" alt="" class="img-100"/></div><h3 class="h3 card-h3 font-weight_560 font-size-mobile_5-25vw">Share every type of content in limitless ways</h3></a><a href="/products/earn" class="block padding_48px_40px radius_32px background-color_lime flex-vertical gap_64px decor_none w-inline-block"><div class="_w-products-img"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680c16a391a7e027f3fbda59_products.avif" loading="lazy" sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680c16a391a7e027f3fbda59_products-p-500.avif 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/680c16a391a7e027f3fbda59_products.avif 980w" alt="" class="img-100"/></div><h3 class="h3 card-h3 font-weight_560 font-size-mobile_5-25vw">Sell products, collect payments and make monetization simple</h3></a></div><a href="/s/discover/grow-followers" class="block padding_48px_40px radius_32px background-color_iris flex-vertical gap_60px gap-mobile_8vw decor_none w-inline-block"><div class="_w-unify-img"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68b80742d1d9216c45c6d6ea_group1597882005.avif" loading="lazy" alt="" class="img-100"/></div><h3 class="h3 card-h3 font-weight_560 text-color_white font-size-mobile_5-25vw">Grow, own and engage your audience across all of your channels</h3></a></div></section><section class="section background-color_marble"><div class="container"><div class="flex-vertical gap_48px x-align_center"><h2 class="h2 text-align-center max-width_832px">The fast, friendly and powerful link in bio tool.</h2><a href="/s/pricing" class="button background-color_lavender wide_button w-button">Explore all plans</a></div></div></section><section class="section background-color_marble"><div class="container padding-bottom-mobile_10vw"><div class="flex-vertical gap_48px"><div class="_w-h2-button gap-48px align-center"><h2 class="h2 text-align-center">As featured in...<br/></h2></div><div class="_w-featured-in-logos"><div class="_w-platform-logo mod--homepage"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68ccc14f5d9e85733c5a9a48_group1597881647.avif" loading="lazy" width="184" alt="" class="platform-logo mod--homepage tech-logo"/></div><div class="_w-platform-logo mod--homepage"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68ccc14f97d207e420a58182_insiderlogo1.avif" loading="lazy" width="99.5" alt="" class="platform-logo mod--homepage insider-logo"/></div><div class="_w-platform-logo mod--homepage"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68ccc14fd2540b94aa830d59_forbes-blue-grey.avif" loading="lazy" width="80" alt="" class="platform-logo mod--homepage forbes-logo"/></div><div class="_w-platform-logo mod--homepage"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68ccc14fe75d954138be7db4_mashable_logo_(2021)1.avif" loading="lazy" width="80" alt="" class="platform-logo mod--homepage mashable-logo"/></div><div class="_w-platform-logo mod--homepage"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/68ccc14f1230aaa3bbd0a99a_entrepreneur-blue-grey__2_.avif" loading="lazy" width="80" alt="" class="platform-logo mod--homepage fortune-logo"/></div></div></div></div><div class="container vertical-flex testimonial-swiper_container margin-top_128px"><div class="swiper testimonial-swiper"><div class="swiper-wrapper testimonial-swiper-wrapper"><div class="swiper-slide testimonial-swiper-slide"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533566fcb42ef955aad_Testimonial-Riley-Lemon.webp" loading="lazy" sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533566fcb42ef955aad_Testimonial-Riley-Lemon-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533566fcb42ef955aad_Testimonial-Riley-Lemon-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533566fcb42ef955aad_Testimonial-Riley-Lemon-p-1080.webp 1080w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533566fcb42ef955aad_Testimonial-Riley-Lemon.webp 1280w" alt="Photo of Riley Lemon, creator" class="testimonial-img"/><div class="_w-testimonial-quote-source"><h3 class="testimonial-quote">“Linktree simplifies the process for creators to share multiple parts of themselves in one inclusive link.”</h3><div class="_w-testimonial-source"><div class="testimonial-source">Riley Lemon,</div><div class="testimonial-source">Youtuber, Content Creator</div></div></div></div><div class="swiper-slide testimonial-swiper-slide"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864534504211c47030e6cb_Testimonial-Patti-Chimkire-New.webp" loading="lazy" sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864534504211c47030e6cb_Testimonial-Patti-Chimkire-New-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864534504211c47030e6cb_Testimonial-Patti-Chimkire-New-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864534504211c47030e6cb_Testimonial-Patti-Chimkire-New-p-1080.webp 1080w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864534504211c47030e6cb_Testimonial-Patti-Chimkire-New.webp 1280w" alt="Photo of Patti Chimkire, Founder and Pastry Chef" class="testimonial-img"/><div class="_w-testimonial-quote-source"><h3 class="testimonial-quote">“Linktree helps my customers get where they need to go. It&#x27;s fast and easy.”</h3><div class="_w-testimonial-source"><div class="testimonial-source">Patti Chimkire,</div><div class="testimonial-source">Founder and Pastry Chef, Mali Bakes</div></div></div></div><div class="swiper-slide testimonial-swiper-slide"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645339d6bfad6723a29c2_Testimonial-Luke-Kidgell2.webp" loading="lazy" sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645339d6bfad6723a29c2_Testimonial-Luke-Kidgell2-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645339d6bfad6723a29c2_Testimonial-Luke-Kidgell2-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645339d6bfad6723a29c2_Testimonial-Luke-Kidgell2-p-1080.webp 1080w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645339d6bfad6723a29c2_Testimonial-Luke-Kidgell2.webp 1280w" alt="Photo of Luke Kidgell, Comedian" class="testimonial-img"/><div class="_w-testimonial-quote-source"><h3 class="testimonial-quote">“I use Linktree&#x27;s analytics to better understand my audience and what converts them.”</h3><div class="_w-testimonial-source"><div class="testimonial-source">Luke Kidgell,</div><div class="testimonial-source">Comedian</div></div></div></div><div class="swiper-slide testimonial-swiper-slide"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645334e5d2a5fe786925d_Testimonial-Risa-Utama.webp" loading="lazy" sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645334e5d2a5fe786925d_Testimonial-Risa-Utama-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645334e5d2a5fe786925d_Testimonial-Risa-Utama-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645334e5d2a5fe786925d_Testimonial-Risa-Utama-p-1080.webp 1080w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/668645334e5d2a5fe786925d_Testimonial-Risa-Utama.webp 1280w" alt="Photo of Rise Utama, TV Reporter and Producer" class="testimonial-img"/><div class="_w-testimonial-quote-source"><h3 class="testimonial-quote">“My Linktree resume stood out from the rest, securing me my first full-time job as a TV reporter!”</h3><div class="_w-testimonial-source"><div class="testimonial-source">Rise Utama,</div><div class="testimonial-source">TV Reporter and Producer</div></div></div></div><div class="swiper-slide testimonial-swiper-slide"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533e85838c661396b01_Testimonial-David-Coleman.webp" loading="lazy" sizes="100vw" srcset="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533e85838c661396b01_Testimonial-David-Coleman-p-500.webp 500w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533e85838c661396b01_Testimonial-David-Coleman-p-800.webp 800w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533e85838c661396b01_Testimonial-David-Coleman-p-1080.webp 1080w, https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66864533e85838c661396b01_Testimonial-David-Coleman.webp 1280w" alt="Photo of David Coleman, Founder" class="testimonial-img"/><div class="_w-testimonial-quote-source"><h3 class="testimonial-quote">“With Linktree, I can definitely see the monetization of my following becoming a full-time thing.”</h3><div class="_w-testimonial-source"><div class="testimonial-source">David Coleman,</div><div class="testimonial-source">Founder, Mechanicallyincleyend</div></div></div></div></div></div><div class="_w-swiper_arrows"><a href="#" class="testimonial-swiper_prev w-inline-block"><div class="testimonial-swiper_arrow-icon w-embed"><svg title="arrow" width="100%" height="100%" viewBox="0 0 17 14"  fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9.131 2-5.2 5.2H16.8v1.6H3.931l5.2 5.2L8 15.131.869 8 8 .869 9.131 2Z" fill="currentColor"></path></svg></div></a><a href="#" class="testimonial-swiper_next w-inline-block"><div class="testimonial-swiper_arrow-icon rotate_180 w-embed"><svg title="arrow" width="100%" height="100%" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9.131 2-5.2 5.2H16.8v1.6H3.931l5.2 5.2L8 15.131.869 8 8 .869 9.131 2Z" fill="currentColor"></path></svg></div></a></div></div></section><section class="faq"><div class="container _w-faq"><h2 class="h2 text-color_lavender text-align-center">Questions? Answered</h2><div itemtype="https://schema.org/FAQPage" itemscope="itemscope" class="faq-item-wrap"><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">Why do I need a link in bio tool?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemtype="https://schema.org/Answer" itemscope="itemscope" itemprop="acceptedAnswer" class="faq-body"><p itemprop="text" class="faq-body-text">Right now, every time you’ve got something new to share, you have to go to every single one of your channels to change the link in each of your bios. It’s time-consuming and complicated – making it so much harder to keep everything up to date.<br/><br/>A link in bio tool means you never have to compromise, or remove one link from your bio so you can add another. You can keep everything you want to share online in one link. When you’ve got a change, you only ever have to make it once.</p></div></div><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">Is Linktree the original link in bio tool?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemtype="https://schema.org/Answer" itemscope="itemscope" itemprop="acceptedAnswer" class="faq-body"><p itemprop="text" class="faq-body-text">The short answer? Yes!<br/><br/>Back in 2016, we created Linktree as an easy way to link out to all socials and unify digital ecosystems, pioneering the link-in-bio category. Linktree remains the leading, biggest and most popular link-in-bio solution – but that’s just the beginning.  You can use your Linktree URL or QR code <em>anywhere</em> your audience is, including on your business cards, in your email signature, on paper-based posters and brochures, and even on your resumé. If you don’t have a website, that’s fine. If you have a Linktree, you don’t need one!</p></div></div><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">Can you get paid and sell things from a Linktree?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemtype="https://schema.org/Answer" itemscope="itemscope" itemprop="acceptedAnswer" class="faq-body"><p itemprop="text" class="faq-body-text">Yes, you can! We offer plenty of ways to sell products and monetize your audience. You can collect revenue from affiliate links, and sell your products right in your Linktree. Monetisation features are only available for selected countries, see this <a target="_blank" href="https://linktr.ee/help/en/articles/11126119-who-can-use-linktree-s-earn-features">Help Article</a> for more.<br/><br/>A lot of Linktree creators see incredible results with online sales on Linktree, because it removes the extra steps involved in a purchase.<br/><br/>‍<strong>“We love how Linktree has helped us manage our business by having all social media and ways to pay in one location. The QR code has made it easy for customers to access it all!” – Tiffany</strong><br/></p></div></div><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">Is Linktree safe to use on all of my social media profiles?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemtype="https://schema.org/Answer" itemscope="itemscope" itemprop="acceptedAnswer" class="faq-body"><p itemprop="text" class="faq-body-text">Linktree is trusted by all social platforms, and is even used on many of Facebook, Instagram and TikTok’s own social media accounts! Because Linktree is the original and most popular link-in-bio tool, the linktr.ee URL is a trusted, identifiable and familiar link that audiences feel comfy and safe clicking on.</p></div></div><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">What makes Linktree better than the other link in bio options?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemprop="acceptedAnswer" itemscope="itemscope" itemtype="https://schema.org/Answer" class="faq-body"><p itemprop="text" class="faq-body-text">We have our own opinions here, of course, but the stories of the people who use Linktree matter more. Let’s hear what they have to say:<strong><br/><br/>“Four months into creating, someone messaged me like: You need a Linktree. I can’t remember what I was using at the time, but it was one of those ones that were supposed to be easy. Once I got Linktree set up, I was like, oh my god – why did I spend $100 on a website? I don’t need all of that! Now, I can see the monetization of my following becoming a full-time thing.” – David Coleman<br/><br/>It’s so much easier to set up and have all of your links in one place in a well designed format.” – Catie T<br/><br/>”Websites are cool (I have one) but Linktrees just make it so much easier.” – Tan Nguyen<br/><br/>“I love their analytics. Other link-in-bio companies don’t provide extensive data on what’s going on.” – Riley Lemon<br/><br/></strong>Linktree invented the bio link tool in 2016, and it continues to be the world’s most popular bio link to this day – with 50M+ people using it as their trusted place to share, sell and grow online. Join them on Linktree today and see for yourself!</p></div></div><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">How can I drive more traffic to and through my Linktree?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemtype="https://schema.org/Answer" itemscope="itemscope" itemprop="acceptedAnswer" class="faq-body"><p itemprop="text" class="faq-body-text">Sharing your Linktree on every social platform you have makes it easy for your most important content to be seen and engaged with by all of your followers. You can even use QR codes to generate online traffic in offline places, and drive people to your links.<br/><br/>Once visitors arrive on your Linktree, easy-to-understand analytics help you quickly and easily discover where they’re coming from, and what they’re clicking on. You can immediately see what’s working and what’s not and improve your Linktree on the fly with different link placement, prioritized links, subheadings, animation and more to make sure your traffic is landing exactly where you want it!</p></div></div><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">How many links should I have on my Linktree?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemtype="https://schema.org/Answer" itemscope="itemscope" itemprop="acceptedAnswer" class="faq-body"><p itemprop="text" class="faq-body-text">This depends on two things. If your priority is click-throughs and conversion, we recommend having 3-7 links on your Linktree at once (based on our most successful creators). Including too many options for your visitors slows down their course of action.<br/><br/>That said: for certain creators whose priority is display, education and showcasing (e.g. a record label with a library of new releases to promote, or a management company looking to showcase their full roster of clients), including more than seven links fulfils their purpose perfectly.<br/><br/>You can use features on Linktree to add subheadings, sections, animation and other prioritisation methods to your links – so no matter how many things you’ve got to share, you can drive your visitors to what’s most important, first.</p></div></div><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">Do I need a website to use Linktree?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemtype="https://schema.org/Answer" itemscope="itemscope" itemprop="acceptedAnswer" class="faq-body"><p itemprop="text" class="faq-body-text">No, you don’t! Linktree can act as your very own mini-website to share, sell and grow without any of the time and effort it takes to build and maintain a regular website. You can create a design that fully reflects your personality and brand in seconds, with no knowledge, skills or experience needed. If you already have a website, that’s great: you can add it to your Linktree.<br/><br/>“I hardly touch my website any more. I just send people to my Linktree! It’s a good-looking, fresh interface… so much more dynamic. I can take a few minutes, update my links and put my phone away rather than spending 45 struggling on WordPress.” – <a href="https://linktr.ee/ashleyhopeperez">@ashleyhopeperez</a></p></div></div><div itemtype="https://schema.org/Question" itemscope="itemscope" itemprop="mainEntity" class="faq-item"><div class="faq-head"><div class="q-wrapper"><h4 itemprop="name" class="faq-question">Where can I download the app?<br/></h4></div><div class="toggle-arrow-faq w-embed"><svg fill="none" class="rubicons chevron-down" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path d="M6 9l6 6 6-6" stroke-linecap="round"></path>
+</svg></div></div><div itemtype="https://schema.org/Answer" itemscope="itemscope" itemprop="acceptedAnswer" class="faq-body"><p itemprop="text" class="faq-body-text">Find it in the <a href="https://apps.apple.com/us/app/linktree-link-in-bio-creator/id1593515263">App Store</a>, and in the <a href="https://play.google.com/store/apps/details?id=ee.linktr.admin&amp;hl=en_US">Google Play store</a>!</p></div></div></div></div></section><section class="footer"><div class="container"><div class="_w-h2 gap-40px margin-bottom-17-85vw"><h2 class="h2 text-color_lavender text-align-center">Jumpstart your corner of the <span class="block-span-desktop">internet today</span></h2><div><div class="_w-claim-linktree w-form"><form id="Claim-your-linktree-form-footer" name="wf-form-Claim-your-linktree" data-name="Claim your linktree" action="https://linktr.ee/register" method="get" class="claim-linktree" data-wf-page-id="668f4187652a9c2756072066" data-wf-element-id="a85dbfec-c42d-d0cc-ba1f-79a4165b88db"><input class="input-field w-input" maxlength="256" name="Username" data-name="Username" placeholder="linktr.ee/yourname" type="text" id="username-footer" required=""/><input type="submit" data-wait="Please wait..." class="form-submit button-color_chartreuse w-button" value="Claim your Linktree"/></form><div class="success-message_hidden w-form-done"></div><div class="w-form-fail"><div>Oops! Something went wrong while submitting the form.</div></div></div></div></div><div class="_w-footer-main"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/66710696806e843c0058943b_download.svg" loading="lazy" alt="" class="footer-person-img"/><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/666b365b622379ae753964b8_footer-flower.svg" loading="lazy" alt="" class="footer-flower-img"/><div class="footer-content"><div class="_w-footer-cols"><div class="footer-col"><div class="footer-col-title">Company</div><div class="_w-footer-links"><a href="/blog" class="footer-link">The Linktree Blog</a><a href="https://linktr.ee/blog/engineering/" class="footer-link">Engineering Blog</a><a href="/marketplace/" class="footer-link">Marketplace</a><a href="https://app.getbeamer.com/linktree/en" class="footer-link">What&#x27;s New</a><a href="/s/about" class="footer-link">About</a><a href="/s/about/press" class="footer-link">Press</a><a href="/s/about/careers" class="footer-link">Careers</a><a href="https://linktr.ee/link-in-bio/" class="footer-link">Link in Bio</a><a href="/s/about/social-good" class="footer-link">Social Good</a><a href="/s/about/contact" class="footer-link">Contact</a></div></div><div class="footer-col"><div class="footer-col-title">Community</div><div class="_w-footer-links"><a href="/s/about/enterprise" class="footer-link">Linktree for Enterprise</a><a href="https://linktr.ee/creator-report-23" class="footer-link">2023 Creator Report</a><a href="https://linktr.ee/creator-report/" class="footer-link">2022 Creator Report</a><a href="/s/about/charities" class="footer-link">Charities</a><a href="https://linktr.ee/discover/profile-directory/" class="footer-link">Creator Profile Directory</a><a href="/s/templates" class="footer-link">Explore Templates</a></div></div><div class="footer-col"><div class="footer-col-title">Support</div><div class="_w-footer-links"><a href="https://linktr.ee/help" class="footer-link">Help Topics</a><a href="https://help.linktr.ee/collections/3020860-getting-started-with-linktree" class="footer-link">Getting Started</a><a href="/s/join-linktree-pro-for-free" class="footer-link">Linktree Pro</a><a href="https://help.linktr.ee/collections/7058291-how-to-s" class="footer-link">Features &amp; How-Tos</a><a href="https://linktr.ee/help" class="footer-link">FAQs</a><a href="/s/about/trust-center/report" class="footer-link">Report a Violation</a></div></div><div class="footer-col"><div class="footer-col-title">Trust &amp; Legal</div><div class="_w-footer-links"><a href="/s/terms" class="footer-link">Terms &amp; Conditions</a><a href="/s/privacy" class="footer-link">Privacy Notice</a><a href="/s/about/cookie-notice" class="footer-link">Cookie Notice</a><a href="/s/about/trust-center" class="footer-link">Trust Center</a><a href="#" class="footer-link ot-sdk-show-settings">Cookies Preferences</a><a href="/s/transparency-report-hub" class="footer-link">Transparency Report</a><a href="/s/about/trust-center/law-enforcement-access-request-policy" class="footer-link">Law Enforcement Access Policy</a><a href="/s/human-rights" class="footer-link">Human Rights</a></div></div></div><div class="_w-footer-bottom"><div class="_w-footer-nav-buttons"><a href="https://linktr.ee/login" class="button button-color_-eff0ec border-radius_8px w-button">Log in</a><a href="https://linktr.ee/register" class="button button-color_chartreuse w-button">Get started for free</a></div><div class="_w-footer-right-col-links"><div class="_w-app-links"><a href="https://apps.apple.com/us/app/linktree-link-in-bio-creator/id1593515263" class="button app-button width-mobile_100 background-color_shade w-inline-block"><div class="apple-app-store-icon w-embed"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 101 26" xml:space="preserve"><path d="m29.91 10.25-4.48 12.42h2l1.14-3.35h4.73l1.14 3.35h2.04L32 10.25H29.9zm-.85 7.52 1.85-5.45h.05l1.85 5.45h-3.75zm13.29-4.25a3.21 3.21 0 0 0-2.88 1.6h-.04v-1.5h-1.8v12.05h1.86v-4.49h.04a3.07 3.07 0 0 0 2.85 1.59c2.27 0 3.78-1.81 3.78-4.62s-1.51-4.63-3.81-4.63zm-.5 7.67c-1.41 0-2.37-1.22-2.37-3.05 0-1.8.96-3.03 2.38-3.03 1.44 0 2.39 1.2 2.39 3.03 0 1.86-.95 3.05-2.4 3.05zm10.46-7.67a3.2 3.2 0 0 0-2.88 1.6h-.03v-1.5h-1.8v12.05h1.85v-4.49h.05a3.07 3.07 0 0 0 2.85 1.59c2.27 0 3.78-1.81 3.78-4.62s-1.52-4.63-3.82-4.63zm-.49 7.67c-1.42 0-2.37-1.22-2.37-3.05 0-1.8.95-3.03 2.37-3.03 1.45 0 2.4 1.2 2.4 3.03 0 1.86-.95 3.05-2.4 3.05zm18.51-2.09c0 2.32-1.85 3.78-4.79 3.78-2.75 0-4.61-1.42-4.73-3.67h1.9c.14 1.23 1.33 2.04 2.97 2.04 1.56 0 2.7-.8 2.7-1.92 0-.96-.69-1.54-2.3-1.93l-1.6-.4c-2.29-.54-3.35-1.6-3.35-3.34 0-2.14 1.87-3.61 4.52-3.61 2.63 0 4.43 1.47 4.49 3.61h-1.88c-.11-1.24-1.14-1.99-2.63-1.99-1.5 0-2.52.76-2.52 1.86 0 .88.65 1.4 2.25 1.8l1.37.33c2.55.6 3.6 1.62 3.6 3.44zm4.02-5.48h1.72v1.47h-1.72v5c0 .77.34 1.13 1.1 1.13.2 0 .4-.02.61-.04v1.46c-.34.06-.68.09-1.03.08-1.83 0-2.55-.68-2.55-2.44v-5.19h-1.31v-1.47h1.31v-2.14h1.87v2.14zm7-.11c-2.6 0-4.28 1.79-4.28 4.64 0 2.85 1.66 4.64 4.29 4.64s4.3-1.79 4.3-4.64c0-2.85-1.68-4.64-4.3-4.64zm0 7.74c-1.5 0-2.4-1.14-2.4-3.1 0-1.95.9-3.11 2.4-3.11 1.52 0 2.41 1.15 2.41 3.1 0 1.97-.9 3.11-2.4 3.11zm9.83-7.73c.21 0 .43.03.64.07v1.74a2.56 2.56 0 0 0-.84-.11 1.87 1.87 0 0 0-1.93 2.08v5.37h-1.86v-9.05h1.77v1.54H89a2.16 2.16 0 0 1 2.18-1.64zm9.3 5.09v-.64c0-2.74-1.57-4.46-4.07-4.46-2.55 0-4.2 1.84-4.2 4.68 0 2.83 1.64 4.6 4.28 4.6 2.04 0 3.64-1.13 3.9-2.78h-1.77a2.04 2.04 0 0 1-2.1 1.28 2.37 2.37 0 0 1-2.43-2.57v-.11h6.4zm-6.2-2.18A2.3 2.3 0 0 1 96.4 15a2.2 2.2 0 0 1 2.09 1.42c.1.28.15.58.13.88H94.1c0-.3.06-.6.18-.88zM31.64 3.87A2.63 2.63 0 0 0 28.83.91h-2.16v5.96h2.16c1.77 0 2.8-1.1 2.8-3zM27.6 6.03V1.75h1.12a1.89 1.89 0 0 1 1.97 2.13 1.87 1.87 0 0 1-1.97 2.15H27.6zm8.78-3.05a2.13 2.13 0 0 0-3.7 1.64 2.14 2.14 0 0 0 2.13 2.34 2.12 2.12 0 0 0 2.12-2.34 2.14 2.14 0 0 0-.55-1.64zm-1.57 3.2c-.78 0-1.21-.57-1.21-1.56 0-.97.43-1.55 1.2-1.55.78 0 1.22.58 1.22 1.55 0 .98-.44 1.55-1.21 1.55zm4 .7-1.24-4.5h.9l.8 3.43h.07l.93-3.44h.85l.93 3.44h.07l.8-3.44h.9l-1.24 4.5h-.93l-.93-3.31h-.07l-.92 3.31h-.92zm8.98-2.7c0-.72-.31-1.08-.97-1.08a1.03 1.03 0 0 0-1.03.7c-.05.14-.06.3-.05.44v2.63h-.89v-4.5h.86v.72h.07a1.35 1.35 0 0 1 1.34-.8 1.48 1.48 0 0 1 1.5 1.02c.07.21.09.43.06.65v2.91h-.89V4.18zm3.2 2.7h-.9V.6h.9v6.26zm4.93-3.9a2.13 2.13 0 0 0-3.7 1.64 2.14 2.14 0 0 0 2.12 2.34 2.12 2.12 0 0 0 2.12-2.34 2.15 2.15 0 0 0-.54-1.64zm-1.58 3.2c-.77 0-1.2-.57-1.2-1.56 0-.97.43-1.55 1.2-1.55s1.21.58 1.21 1.55c0 .98-.44 1.55-1.2 1.55zm6.84.7V3.8c0-.95-.63-1.52-1.76-1.52-1.02 0-1.75.5-1.84 1.27h.86c.1-.31.44-.5.93-.5.61 0 .93.27.93.75v.39l-1.22.07c-1.07.06-1.68.53-1.68 1.34a1.36 1.36 0 0 0 1.5 1.35 1.52 1.52 0 0 0 1.36-.7h.07v.63h.85zm-.88-1.66a1.08 1.08 0 0 1-.38.74c-.1.09-.23.16-.37.2-.13.04-.28.05-.42.04-.48 0-.83-.24-.83-.64s.28-.6.9-.65l1.1-.07v.38zm3.92 1.73a1.57 1.57 0 0 0 1.41-.79h.07v.71h.85V.61h-.89V3.1h-.06a1.48 1.48 0 0 0-1.38-.8c-1.14 0-1.87.9-1.87 2.33 0 1.43.72 2.33 1.87 2.33zm.25-3.85c.74 0 1.21.59 1.21 1.53 0 .94-.46 1.52-1.21 1.52s-1.2-.57-1.2-1.53c0-.95.45-1.52 1.2-1.52zm7.88 3.86a2.12 2.12 0 0 0 2.13-2.34 2.14 2.14 0 0 0-2.99-2.15 2.13 2.13 0 0 0-1.26 2.15 2.14 2.14 0 0 0 2.12 2.34zm-1.2-2.34c0-.97.43-1.55 1.2-1.55.78 0 1.21.58 1.21 1.55 0 .98-.43 1.55-1.2 1.55-.78 0-1.21-.57-1.21-1.55zm6.05-1.45a1.05 1.05 0 0 0-.6.63c-.04.14-.06.3-.04.44v2.63h-.89v-4.5h.85v.72h.07a1.35 1.35 0 0 1 1.34-.8 1.48 1.48 0 0 1 1.51 1.02c.07.21.09.43.05.65v2.91h-.89V4.18c0-.72-.31-1.08-.97-1.08-.14 0-.3.02-.43.07zm6.43-.03h-.72v-.75h.72V1.25h.89v1.14h.97v.75h-.97v2.31c0 .48.2.68.63.68.12 0 .23 0 .34-.02v.74a2.8 2.8 0 0 1-.48.05c-.99 0-1.38-.35-1.38-1.22V3.14zm3.96 3.73h-.89V.61h.89V3.1h.07a1.38 1.38 0 0 1 1.37-.8 1.48 1.48 0 0 1 1.55 1.68v2.9h-.89V4.2c0-.72-.34-1.09-.96-1.09a1.03 1.03 0 0 0-.84.31 1.05 1.05 0 0 0-.3.83v2.63zm4.21-1.36a2.06 2.06 0 0 0 2.01 1.45 1.83 1.83 0 0 0 1.95-1.3h-.85a1.08 1.08 0 0 1-1.07.55 1.2 1.2 0 0 1-1.14-.8 1.19 1.19 0 0 1-.06-.5v-.04h3.18v-.31c0-1.42-.76-2.27-2.01-2.27a2.08 2.08 0 0 0-2.08 2.35c-.04.3-.02.59.07.87zm.92-1.75a1.16 1.16 0 0 1 1.52-.64 1.09 1.09 0 0 1 .67 1.09h-2.27c0-.16.02-.3.08-.45zM19.03 16.64a11.4 11.4 0 0 1-1.58 3.22c-.93 1.39-1.9 2.75-3.45 2.77-1.5.04-2-.88-3.73-.88-1.74 0-2.28.86-3.72.92-1.48.05-2.6-1.49-3.57-2.87C1.05 17-.45 11.87 1.57 8.4a5.53 5.53 0 0 1 4.65-2.84c1.47-.03 2.84 1 3.75 1 .89 0 2.58-1.23 4.33-1.04a5.28 5.28 0 0 1 4.15 2.24A5.15 5.15 0 0 0 16 12.07a4.97 4.97 0 0 0 3.03 4.57zm-7.37-11.8c-.59.27-1.22.41-1.87.4a4.83 4.83 0 0 1 1.19-3.49A5.16 5.16 0 0 1 14.32.02a5.07 5.07 0 0 1-1.16 3.63c-.4.5-.92.91-1.5 1.19z"></path></svg>
+
+<style>
+.apple-app-store-icon svg {
+
+    fill: rgb(255, 255, 255);
+}
+</style></div></a><a href="https://play.google.com/store/apps/details?id=ee.linktr.admin&amp;hl=en_US" class="button app-button width-mobile_100 background-color_shade w-inline-block"><div class="google-play-icon w-embed"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 116 29" xml:space="preserve"><linearGradient id="play-a" gradientUnits="userSpaceOnUse" x1="11.83" y1="27.05" x2="-4.96" y2="10.27" gradientTransform="matrix(1 0 0 -1 0 30)"><stop offset="0" style="stop-color: rgb(0, 160, 255);"></stop><stop offset="0.01" style="stop-color: rgb(0, 161, 255);"></stop><stop offset="0.26" style="stop-color: rgb(0, 190, 255);"></stop><stop offset="0.51" style="stop-color: rgb(0, 210, 255);"></stop><stop offset="0.76" style="stop-color: rgb(0, 223, 255);"></stop><stop offset="1" style="stop-color: rgb(0, 227, 255);"></stop></linearGradient><path fill="url(#play-a)" d="M.5 1.8c-.3.3-.5.8-.5 1.4v22.1c0 .6.2 1.1.5 1.4l.1.1L13 14.4v-.2L.5 1.8z"></path><linearGradient id="play-b" gradientUnits="userSpaceOnUse" x1="23.86" y1="15.76" x2="-0.33" y2="15.76" gradientTransform="matrix(1 0 0 -1 0 30)"><stop offset="0" style="stop-color: rgb(255, 224, 0);"></stop><stop offset="0.41" style="stop-color: rgb(255, 189, 0);"></stop><stop offset="0.78" style="stop-color: orange;"></stop><stop offset="1" style="stop-color: rgb(255, 156, 0);"></stop></linearGradient><path fill="url(#play-b)" d="M17.1 18.5 13 14.4v-.2l4.1-4.1.1.1 4.9 2.8c1.4.8 1.4 2.1 0 2.9l-5 2.6z"></path><linearGradient id="play-c" gradientUnits="userSpaceOnUse" x1="14.85" y1="13.46" x2="-7.9" y2="-9.29" gradientTransform="matrix(1 0 0 -1 0 30)"><stop offset="0" style="stop-color: rgb(255, 58, 68);"></stop><stop offset="1" style="stop-color: rgb(195, 17, 98);"></stop></linearGradient><path fill="url(#play-c)" d="m17.1 18.5-4.2-4.2L.5 26.7c.5.5 1.2.5 2.1.1l14.5-8.3z"></path><linearGradient id="play-d" gradientUnits="userSpaceOnUse" x1="-2.67" y1="35.58" x2="7.49" y2="25.42" gradientTransform="matrix(1 0 0 -1 0 30)"><stop offset="0" style="stop-color: rgb(50, 160, 113);"></stop><stop offset="0.07" style="stop-color: rgb(45, 167, 113);"></stop><stop offset="0.48" style="stop-color: rgb(21, 207, 116);"></stop><stop offset="0.8" style="stop-color: rgb(6, 231, 117);"></stop><stop offset="1" style="stop-color: rgb(0, 240, 118);"></stop></linearGradient><path fill="url(#play-d)" d="M17.1 10 2.5 1.7c-.8-.5-1.6-.4-2 .1L13 14.3l4.1-4.3z"></path><path opacity="0.2" d="M17.1 18.4 2.5 26.6c-.8.5-1.5.4-2 0l-.1.1.1.1c.5.4 1.2.5 2 0l14.6-8.4z"></path><path opacity="0.12" d="M.5 26.6c-.3-.4-.5-.8-.5-1.4v.1c0 .6.2 1.1.5 1.4v-.1zM22 15.5l-5 2.8.1.1 4.9-2.8c.7-.4 1-.9 1-1.4 0 .5-.3 1-1 1.3z"></path><path opacity="0.25" d="m2.5 1.9 19.5 11c.6.4 1 .8 1 1.3 0-.5-.3-1-1-1.4L2.5 1.7C1.1.9 0 1.6 0 3.2v.1c0-1.6 1.1-2.2 2.5-1.4z"></path><path d="m115.9 16.1-5.1 11.8h-1.9l1.9-4.2-3.3-7.6h2l2.2 5.4h.1l2.1-5.4h2zm-20-.6c0 2.4-2 3.9-4.1 3.9h-2.6v4.7h-1.9V11.6h4.5c2.1 0 4.1 1.5 4.1 3.9zm-1.8 0c0-1-.8-2.1-2.2-2.1h-2.7v4.3h2.7c1.4 0 2.2-1.2 2.2-2.2zm13.1 3.8v4.8h-1.8v-1h-.1c-.4.7-1.1 1.2-2.4 1.2-1.6 0-3.1-1.1-3.1-2.8 0-1.8 1.8-2.8 3.6-2.8.9 0 1.6.3 1.9.5v-.1c0-1-1-1.6-2-1.6-.7 0-1.4.2-1.7.9l-1.7-.7c.6-1.3 2-1.9 3.3-1.9 2.4.1 4 1.3 4 3.5zm-1.8 1.4c-.5-.2-.9-.4-1.7-.4-.9 0-2 .4-2 1.3 0 .8.9 1.1 1.5 1.1 1.1 0 2.1-.8 2.2-2zm-52.3-.6c0 2.4-1.9 4.3-4.3 4.3s-4.3-1.8-4.3-4.3 1.9-4.3 4.3-4.3 4.3 1.9 4.3 4.3zm-1.8 0c0-1.5-1.1-2.6-2.4-2.6-1.3 0-2.4 1-2.4 2.6 0 1.5 1.1 2.6 2.4 2.6s2.4-1.1 2.4-2.6zm-13.5-2.9V19h4.3c-.1 1-.5 1.8-1 2.3-.6.6-1.6 1.3-3.3 1.3-2.7 0-4.7-2.1-4.7-4.8a4.72 4.72 0 0 1 8-3.5l1.3-1.3a6.4 6.4 0 0 0-4.5-1.8c-3.6 0-6.7 3-6.7 6.6 0 3.6 3.1 6.6 6.7 6.6 2 0 3.4-.6 4.6-1.9 1.2-1.2 1.6-2.9 1.6-4.2 0-.4 0-.8-.1-1.1h-6.2zm24.6 2.9c0 2.4-1.9 4.3-4.3 4.3a4.2 4.2 0 0 1-4.3-4.3c0-2.5 1.9-4.3 4.3-4.3 2.4.1 4.3 1.9 4.3 4.3zm-1.8 0c0-1.5-1.1-2.6-2.4-2.6s-2.4 1-2.4 2.6c0 1.5 1.1 2.6 2.4 2.6s2.4-1.1 2.4-2.6zm22.7-1-5.7 2.4c.4.9 1.1 1.3 2.1 1.3s1.6-.5 2.1-1.2l1.5 1a4.18 4.18 0 0 1-7.7-2.4c0-2.5 1.8-4.3 4-4.3s3.3 1.8 3.6 2.7l.1.5zm-2.2-.7c-.2-.5-.8-.9-1.6-.9-1 0-2.3.8-2.2 2.5l3.8-1.6zM97 24.1h1.9V11.6H97v12.5zm-24.3 0h1.9V11.6h-1.9v12.5zm-3.1-8h1.8v7.6c0 3.1-1.9 4.4-4 4.4s-3.3-1.4-3.8-2.5l1.6-.7c.3.7 1 1.5 2.1 1.5 1.4 0 2.3-.9 2.3-2.5v-.6h-.1c-.4.5-1.2 1-2.2 1-2.1 0-4.1-1.9-4.1-4.2 0-2.4 1.9-4.3 4.1-4.3 1 0 1.8.5 2.2 1h.1v-.7zm.1 4c0-1.5-1-2.6-2.3-2.6-1.3 0-2.4 1.1-2.4 2.6s1.1 2.6 2.4 2.6c1.3 0 2.3-1.1 2.3-2.6zM59.3 6.4c-.6-.6-.9-1.3-.9-2.2s.3-1.6.9-2.2c.6-.7 1.3-1 2.2-1 .9 0 1.6.3 2.2.9.6.6.9 1.3.9 2.2 0 .9-.3 1.6-.9 2.2-.6.6-1.3.9-2.2.9-.9.1-1.6-.2-2.2-.8zm-.1-2.2c0 .7.2 1.3.7 1.7.4.5 1 .7 1.6.7s1.2-.2 1.6-.7c.4-.4.7-1 .7-1.7s-.2-1.3-.7-1.7c-.4-.5-1-.7-1.6-.7s-1.2.2-1.6.7c-.5.4-.7 1-.7 1.7zM34.5 7.3c.9 0 1.6-.3 2.2-.9.5-.5.7-1.2.7-2v-.5h-2.9v.7h2.2c0 .5-.2.9-.5 1.2-.4.4-1 .7-1.7.7-.6 0-1.2-.2-1.6-.7-.5-.4-.7-1-.7-1.7s.2-1.3.7-1.7c.5-.4 1-.7 1.6-.7.7 0 1.2.2 1.6.7l.6-.4c-.2-.3-.5-.5-.9-.7-.4-.2-.8-.3-1.3-.3-.9 0-1.6.3-2.2.9-.6.6-.9 1.3-.9 2.2 0 .9.3 1.6.9 2.2.6.7 1.4 1 2.2 1zm7.6-.9h-2.7V4.5h2.5v-.7h-2.5V1.9h2.7v-.7h-3.5v6h3.5v-.8zm3.3.8V1.9H47v-.7h-4.1v.7h1.7v5.3h.8zm5.4-6H50v6h.8v-6zm3.4 6V1.9h1.7v-.7h-4.1v.7h1.7v5.3h.7zm12.2-3.8V2.2l3.1 4.9h.8v-6h-.8v4.7l-2.9-4.7h-.9v6h.8V3.4z"></path></svg>
+
+<style>
+.google-play-icon svg {
+
+    fill: rgb(255, 255, 255);
+}
+</style></div></a></div><div class="_w-social-icons"><div class="_w-social-links"><a href="https://linktr.ee/linktr.ee" target="_blank" class="footer-app-social-link is-social-icon w-inline-block"><div class="social-icon w-embed"><svg width="36" height="26" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_13011_173735)">
+<path d="M19.881 6.34096L24.2196 1.88105L26.7378 4.45991L22.1869 8.79846H28.5885V12.3785H22.1565L26.7378 16.8283L24.2196 19.3566L18 13.1067L11.7804 19.3566L9.26221 16.8384L13.8435 12.3886H7.4115V8.79846H13.8131L9.26221 4.45991L11.7804 1.88105L16.1189 6.34096V0H19.881V6.34096ZM16.1189 17.5059H19.881V26.001H16.1189V17.5059Z" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_13011_173735">
+<rect width="36" height="26" fill="white"/>
+</clipPath>
+</defs>
+</svg></div></a><a href="https://www.threads.net/@linktr.ee" target="_blank" class="footer-app-social-link is-social-icon w-inline-block"><div class="social-icon w-embed"><svg width="36" height="26" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_13011_173742)">
+<path d="M24.2215 12.0505C24.1095 11.9968 23.9957 11.9452 23.8805 11.8957C23.6798 8.19788 21.6593 6.08089 18.2665 6.05922C18.2512 6.05912 18.2359 6.05912 18.2205 6.05912C16.1912 6.05912 14.5035 6.92533 13.4647 8.50155L15.3306 9.78153C16.1066 8.60415 17.3245 8.35315 18.2214 8.35315C18.2317 8.35315 18.2421 8.35315 18.2524 8.35325C19.3695 8.36037 20.2125 8.68517 20.7581 9.31856C21.1551 9.7797 21.4207 10.4169 21.5522 11.2211C20.5617 11.0528 19.4906 11.001 18.3455 11.0667C15.1198 11.2525 13.0461 13.1338 13.1854 15.7479C13.2561 17.0739 13.9166 18.2146 15.0454 18.9598C15.9997 19.5898 17.2288 19.8979 18.5063 19.8281C20.1932 19.7356 21.5167 19.092 22.4399 17.9151C23.1411 17.0213 23.5846 15.8631 23.7804 14.4037C24.5844 14.8889 25.1802 15.5274 25.5093 16.295C26.0688 17.5997 26.1015 19.7437 24.352 21.4917C22.8192 23.023 20.9768 23.6855 18.1923 23.7059C15.1035 23.683 12.7675 22.6924 11.2487 20.7617C9.82649 18.9537 9.09147 16.3424 9.06405 13C9.09147 9.65762 9.82649 7.04622 11.2487 5.23828C12.7675 3.30754 15.1035 2.31698 18.1922 2.29403C21.3034 2.31716 23.6801 3.31248 25.257 5.25254C26.0302 6.20392 26.6132 7.40036 26.9975 8.79535L29.1841 8.21196C28.7183 6.49488 27.9853 5.01525 26.9878 3.78815C24.9661 1.3009 22.0095 0.0264263 18.1998 0H18.1846C14.3827 0.0263345 11.4592 1.30566 9.4951 3.80241C7.74735 6.0242 6.84582 9.11567 6.81552 12.9909L6.81543 13L6.81552 13.0091C6.84582 16.8843 7.74735 19.9759 9.4951 22.1976C11.4592 24.6943 14.3827 25.9737 18.1846 26H18.1998C21.5799 25.9766 23.9624 25.0916 25.9252 23.1307C28.4931 20.5652 28.4157 17.3494 27.5694 15.3753C26.9622 13.9597 25.8045 12.8099 24.2215 12.0505ZM18.3855 17.5374C16.9717 17.617 15.503 16.9825 15.4306 15.6233C15.3769 14.6155 16.1478 13.491 18.4723 13.3571C18.7385 13.3417 18.9997 13.3342 19.2563 13.3342C20.1006 13.3342 20.8905 13.4162 21.6086 13.5732C21.3408 16.9183 19.7697 17.4614 18.3855 17.5374Z" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_13011_173742">
+<rect width="36" height="26" fill="white"/>
+</clipPath>
+</defs>
+</svg></div></a><a href="https://www.tiktok.com/@linktr.ee" target="_blank" class="footer-app-social-link is-social-icon w-inline-block"><div class="social-icon w-embed"><svg width="36" height="26" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.6393 9.10226V17.3229C22.6393 21.4277 19.2956 24.7715 15.1908 24.7715C13.6087 24.7715 12.1292 24.2669 10.9234 23.4203C8.99929 22.0691 7.74219 19.8371 7.74219 17.3229C7.74219 13.2095 11.0774 9.87432 15.1822 9.87432C15.5243 9.87432 15.8578 9.89998 16.1913 9.94274V14.0732H16.1571C16.0117 14.0305 15.8578 13.9877 15.7039 13.9621H15.6354C15.4815 13.945 15.3361 13.9193 15.1736 13.9193C13.2923 13.9193 11.7615 15.4501 11.7615 17.3314C11.7615 19.2128 13.2923 20.7436 15.1736 20.7436C17.055 20.7436 18.5858 19.2128 18.5858 17.3314V1.22852H22.6308C22.6308 1.57914 22.665 1.92121 22.7248 2.25472C23.0156 3.79404 23.9221 5.11956 25.1963 5.94908C26.0857 6.53059 27.129 6.86411 28.2578 6.86411V10.9091C26.1664 10.9091 24.2199 10.2359 22.6393 9.10226Z" fill="white"/>
+</svg></div></a><a href="https://www.instagram.com/linktr.ee/" target="_blank" class="footer-app-social-link is-social-icon w-inline-block"><div class="social-icon w-embed"><svg width="36" height="26" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M18 1.53711C14.8866 1.53711 14.4969 1.54985 13.2742 1.60589C12.0541 1.66192 11.2205 1.85552 10.4913 2.1389C9.72652 2.4267 9.0337 2.87786 8.46117 3.46092C7.87822 4.03355 7.42707 4.72634 7.13914 5.49109C6.85576 6.22024 6.66153 7.05383 6.60613 8.2746C6.55073 9.49664 6.53735 9.88574 6.53735 12.9998C6.53735 16.1138 6.55009 16.5029 6.60613 17.7255C6.66217 18.9457 6.85576 19.7793 7.13914 20.5084C7.42694 21.2732 7.8781 21.9661 8.46117 22.5386C9.09798 23.1754 9.73798 23.5677 10.4913 23.8606C11.2205 24.144 12.0541 24.3382 13.2742 24.3936C14.4969 24.449 14.8866 24.4624 18 24.4624C21.1134 24.4624 21.5031 24.4497 22.7258 24.3936C23.9459 24.3376 24.7795 24.144 25.5087 23.8606C26.2735 23.5728 26.9663 23.1216 27.5388 22.5386C28.1756 21.9018 28.5679 21.2618 28.8609 20.5084C29.1442 19.7793 29.3385 18.9457 29.3939 17.7255C29.4493 16.5029 29.4626 16.1131 29.4626 12.9998C29.4626 9.88637 29.4499 9.49664 29.3939 8.27396C29.3378 7.05383 29.1442 6.22024 28.8609 5.49109C28.573 4.72629 28.1219 4.03347 27.5388 3.46092C26.9662 2.87797 26.2734 2.42683 25.5087 2.1389C24.7795 1.85552 23.9459 1.66129 22.7252 1.60589C21.5031 1.55048 21.114 1.53711 18 1.53711ZM17.9995 16.8256C17.4972 16.8256 16.9998 16.7266 16.5358 16.5344C16.0718 16.3422 15.6501 16.0605 15.295 15.7053C14.9398 15.3502 14.6581 14.9286 14.4659 14.4645C14.2737 14.0005 14.1748 13.5031 14.1748 13.0009C14.1748 12.4986 14.2737 12.0013 14.4659 11.5372C14.6581 11.0732 14.9398 10.6516 15.295 10.2964C15.6501 9.94124 16.0718 9.65952 16.5358 9.46731C16.9998 9.2751 17.4972 9.17617 17.9995 9.17617C19.0138 9.17617 19.9867 9.57913 20.7039 10.2964C21.4212 11.0137 21.8242 11.9865 21.8242 13.0009C21.8242 14.0152 21.4212 14.9881 20.7039 15.7053C19.9867 16.4226 19.0138 16.8256 17.9995 16.8256V16.8256ZM17.9995 7.10907C16.4369 7.10907 14.9383 7.72981 13.8333 8.83474C12.7284 9.93967 12.1077 11.4383 12.1077 13.0009C12.1077 14.5635 12.7284 16.0621 13.8333 17.167C14.9383 18.2719 16.4369 18.8927 17.9995 18.8927C19.5621 18.8927 21.0607 18.2719 22.1656 17.167C23.2705 16.0621 23.8913 14.5635 23.8913 13.0009C23.8913 11.4383 23.2705 9.93967 22.1656 8.83474C21.0607 7.72981 19.5621 7.10907 17.9995 7.10907ZM25.6056 7.00209C25.6056 7.37146 25.4588 7.7257 25.1977 7.98688C24.9365 8.24807 24.5822 8.3948 24.2129 8.3948C23.8435 8.3948 23.4892 8.24807 23.2281 7.98688C22.9669 7.7257 22.8201 7.37146 22.8201 7.00209C22.8201 6.63272 22.9669 6.27847 23.2281 6.01729C23.4892 5.75611 23.8435 5.60938 24.2129 5.60938C24.5822 5.60937 24.9365 5.75611 25.1977 6.01729C25.4588 6.27847 25.6056 6.63272 25.6056 7.00209" fill="white"/>
+</svg></div></a></div></div></div></div></div></div><div class="_w-footer-legal"><div class="_w-flags"><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/666b44696cafd33dbf47aef3_Container.svg" loading="lazy" alt="Australian Aboriginal flag" height="Auto" class="aboriginal-footer-flag"/><img src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/666b44694653c36473453f36_Container-1.svg" loading="lazy" alt="Torres Strait Islander Flag" class="torres-footer-flag"/></div><p class="p footer-legal-p">We acknowledge the Traditional Custodians of the land on which our office stands, The Wurundjeri people of the Kulin Nation, and pay our respects to Elders past, present and emerging. Linktree Pty Ltd (ABN 68 608 721 562), 1-9 Sackville St, Collingwood VIC 3066</p></div></div></section></div><div class="intercom-embed w-embed w-iframe"><iframe id="intercom-frame" style="position: absolute !important; opacity: 0 !important; width: 1px !important; height: 1px !important; top: 0 !important; left: 0 !important; border: none !important; display: block !important; z-index: -1 !important; pointer-events: none;" aria-hidden="true" tabindex="-1" title="Intercom"></iframe></div><script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=666255f7f2126f4e8cec6f8f" type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script><script src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/js/marketing-sub-pages-s.schunk.770e19531daceeea.js" type="text/javascript" integrity="sha384-fLj9AbnbNwh+CPgpUqdjITN7Vz6X+UgbAnq74S26A+41OZq/SV9z8IlOJ8Xq0Egz" crossorigin="anonymous"></script><script src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/js/marketing-sub-pages-s.schunk.b2ce14101321326c.js" type="text/javascript" integrity="sha384-1fHeqJKuiD6DwVNNjouB/OdurNfX1tcnHc98PlBEUyZUBcfafDo6UPuBXyZAbkAC" crossorigin="anonymous"></script><script src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/js/marketing-sub-pages-s.schunk.5b529be94e2c36b5.js" type="text/javascript" integrity="sha384-zq0bLhKDK3VU0bbnmaIqXjGvFYPtiq8DRm7g3OfINEWMEzq+Ov2DMWHq3uQZlW++" crossorigin="anonymous"></script><script src="https://cdn.prod.website-files.com/666255f7f2126f4e8cec6f8f/js/marketing-sub-pages-s.c218a93e.722e9e42d5507f5d.js" type="text/javascript" integrity="sha384-Ms65GHdCP/MF43cfHT91mjO/a0HdEqi6AzJSeWkT4/OzOp7zs8tPV+Yn+a5fM0bL" crossorigin="anonymous"></script><!-- Code to show DataGrail cookie preferences when cookie preference footer button is clicked -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const cookiePrefsLink = document.querySelector('.footer-link.ot-sdk-show-settings');
+  if (cookiePrefsLink) {
+    cookiePrefsLink.addEventListener("click", function(event) {
+      event.preventDefault();
+
+      const api = window?.DG_BANNER_API;
+      if (!api || typeof api.config !== 'function' || typeof api.showLayer !== 'function' || typeof api.showConsentBanner !== 'function') {
+        return;
+      }
+
+      const config = api.config?.();
+      const layers = config?.layout?.consent_layers || {};
+
+      const categoriesLayer = Object.values(layers).find(layer => {
+        const id = (layer?.banner_api_id || '').toLowerCase();
+        return id.includes('categories');
+      });
+
+      if (categoriesLayer?.banner_api_id) {
+        api.showLayer(categoriesLayer.banner_api_id);
+      } else {
+        api.showConsentBanner();
+      }
+    });
+  }
+});
+</script>
+
+<!-- Adora -->
+<script type="text/javascript" async src="https://assets.production.linktr.ee/consent-scripts/adora-website.js"></script>
+
+<!-- DataDog -->
+<script type="text/javascript" async src="https://assets.production.linktr.ee/consent-scripts/datadog-rum-website.js?v=3"></script>
+
+<!-- LT Events -->
+<script type="text/javascript" defer src="https://assets.production.linktr.ee/consent-scripts/linktree-events.js"></script>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PJM4GV8"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+
+
+<script>
+  (async function () {
+
+    async function isLoggedIn() {
+      const loginCookie = Cookies.get("lt_uid");
+      if (!loginCookie) {
+        return false;
+      }
+
+      try {
+        // Need to check the server, Safari seems to hold on to cookies after logout
+        const response = await fetch('/api/token/');
+
+        if (!response.ok) {
+          Cookies.remove("lt_uid"); 
+          return false;
+        }
+
+        const json = await response.json();
+        if (json?.accessToken) {
+          return true;
+        } 
+      } catch (error) {
+        console.warn('Network error or JSON parsing error during token validation. Assuming user is still logged in.', error);
+        return true; // Optimistic: assume logged in if API is unreachable or response is malformed.
+      }
+
+      Cookies.remove("lt_uid");
+      return false; 
+    }
+
+    document.body.setAttribute("data-user-status", "fetching");
+    const userLoggedIn = await isLoggedIn();  
+    window.userLoggedIn = userLoggedIn;
+    if (userLoggedIn) {
+      updateNavBarButtons();
+    } else {
+      resetCtaLinks();
+      document.body.setAttribute("data-user-status", "non-authenticated");
+    }
+	document.dispatchEvent(new CustomEvent('LinktreeAuth', { detail: { authenticated: userLoggedIn } }))
+  })();
+  
+  function updateNavBarButtons() {
+    const logInButt = document.getElementById('logInButton');
+    const signUpButt = document.getElementById('signUpButton');
+    if (logInButt) {
+    	logInButt.innerText = 'Admin';
+    	logInButt.href = '/admin';
+    }
+    if (signUpButt) {
+	    signUpButt.innerText = 'Log out';
+    	signUpButt.href = '/logout';
+    }
+	document.body.setAttribute('data-user-status', 'authenticated');
+  }
+  
+  // CTA links deep link to specific admin pages, if user is logged out, just take them to register
+  function resetCtaLinks() { 
+    const elements = document.querySelectorAll('[data-auth-link]');
+    elements.forEach((el) => {
+      if (el.tagName === 'A') {
+        el.setAttribute("href", "https://linktr.ee/register");
+      } else if (el.tagName === 'BUTTON') {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          window.location.href = "https://linktr.ee/register";
+        });
+      }
+    });
+  }
+  
+  
+  function setupProtectedInput(inputElementId) {
+    const inputElement = document.getElementById(inputElementId);
+    if (!inputElement) return;
+  
+    const protectedValue = 'linktr.ee/';
+    
+    if (!inputElement.value) {
+      inputElement.value = protectedValue;
+    }
+
+    inputElement.addEventListener('input', () => {
+      const currentValue = inputElement.value;
+      // Handle paste and input
+      if (!currentValue.startsWith(protectedValue)) {
+        inputElement.value = protectedValue;
+        return;
+      }
+        
+      const userInput = currentValue.slice(protectedValue.length).trim();
+      inputElement.value = protectedValue + userInput;
+    });
+
+    // Prevent cursor from moving before protected value
+    inputElement.addEventListener('click', () => {
+      const position = Math.max(protectedValue.length, inputElement.selectionStart);
+      inputElement.setSelectionRange(position, position);
+    });
+  }
+  setupProtectedInput('username-header');
+  setupProtectedInput('username-footer');
+  
+  var form = document.getElementById('Claim-your-linktree-form-footer')
+  if (form) {
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      var user = document.getElementById('username-footer').value.slice('linktr.ee/'.length)
+      window.location = 'https://linktr.ee/register?username=' + user;
+    });
+  }
+  
+</script>
+
+<script>
+(function () {    
+  if (window.location.pathname.includes('/join-linktree-pro-for-free')) {
+    document.getElementById('signUpButton').href = 'https://linktr.ee/register?freeTrial=true&freeTrialEntryPoint=PAID_MEDIA&frequency=annual';
+  }
+})();
+  
+</script>
+
+
+<!-- [Attributes by Finsweet] Disable scrolling -->
+<script defer src="https://cdn.jsdelivr.net/npm/@finsweet/attributes-scrolldisable@1/scrolldisable.js"></script>
+
+
+<!-- Statsig -- Wait until CEP.js is loaded and has set sessionStorage.browserId and then initial Statsig. Retry every 500ms until it's loaded.  -->
+<script type="text/plain" data-consent-id="3Y32b5nwkvSXWxxMhvLVOL">
+  (function initializeStatsig() {
+    const MAX_RETRIES = 10;
+    let retryCount = 0;
+
+    function checkAndInitStatsig() {
+      const browserId = deviceId;
+      if (!browserId && retryCount < MAX_RETRIES) {
+        retryCount++;
+        setTimeout(checkAndInitStatsig, 500);
+        return;
+      }
+
+      if (!browserId) {
+        console.warn("Failed to initialize Statsig: browserId not found after maximum retries");
+        return;
+      }
+
+      // Initialize Statsig with the browserId
+      window.statsigUser = {
+        customIDs: {
+          stableID: browserId,
+        },
+      };
+
+      const script = document.createElement("script");
+      script.src =
+         "https://cdn.jsdelivr.net/npm/statsig-sidecar/dist/index.min.js?apikey=client-Yt2aefGbdNyvtoxMAgOY2lwA4QZ1R7EwQxVhfgeYZrJ";
+      document.head.appendChild(script);
+    }
+
+    checkAndInitStatsig();
+  })();
+</script>
+
+
+
+<script type="text/plain" data-consent-id="4DFJEBIPrQp1FUbMkvFYca">
+  // Need to wait for OneTrust to load so the GTM triggers have access to the consent values
+  const cookieHandler = (event) => {
+    if (event.data === 'cookie-update-event') {
+      setTimeout(() => { // need to wait for GTM to finish loading tags
+      	dataLayer.push({ event: "ViewContent" });
+      }, 1000);
+      window.removeEventListener('message', cookieHandler);
+    }
+  }
+  window.addEventListener("message", cookieHandler);
+  
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("logInButton").addEventListener("click", function () {
+      dataLayer.push({
+        event: "log-in-button-click",
+      });
+    });
+    document
+      .getElementById("signUpButton")
+      .addEventListener("click", function () {
+        dataLayer.push({
+          event: "sign-up-button-click",
+        });
+      });
+  });
+</script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.innerWidth <= 479) {
+      const navItems = document.querySelectorAll('.nav-link-item');
+
+      navItems.forEach(item => {
+        item.addEventListener("click", function () {
+          const chevron = item.querySelector('.nav-chevron-icon-prev');
+          if (chevron) {
+            if (chevron.style.display === "none" || chevron.style.display === "") {
+              chevron.style.display = "inline-block"; // or "block" depending on layout
+            } else {
+              chevron.style.display = "none";
+            }
+          }
+        });
+      });
+    }
+    
+    const queryString = window.location.search;
+    if (queryString) {
+      const links = document.querySelectorAll('a');
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (href.includes('/register') || href.includes('/login')))  {
+          const newHref = href.includes('?') ? `${href}&${queryString.substring(1)}` : `${href}${queryString}`;
+          link.setAttribute('href', newHref);
+        }
+      });
+    }
+  });
+</script><script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+<script src="//unpkg.com/alpinejs" defer></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var swiper = new Swiper('.swiper.is-swiper-scroll', {
+  direction: "vertical",
+    autoplay: {
+    delay: 2000,
+    disableOnInteraction: false,
+    },
+    freeMode: false,
+    centeredSlides: true,
+    slidesPerView: 'auto',
+    speed: 300,
+    loop: true,
+    mousewheel: {
+      forceToAxis: true,
+      invert: false,
+      sensitivity: 1
+    },
+    allowTouchMove: true,
+    mousewheel: false,
+
+    });
+
+    // Use Intersection Observer to control autoplay
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          swiper.autoplay.start();
+        } else {
+          swiper.autoplay.stop();
+        }
+      });
+    }, {
+      threshold: 0.5 // Adjust as needed, 0.5 means 50% of the Swiper must be visible
+    });
+
+    observer.observe(document.querySelector('.swiper.is-swiper-scroll'));
+  });
+  
+  // Hero Swiper
+  new Swiper ('.start-swiper-vertical', {
+    direction: 'vertical',
+    slidesPerView: 1,
+    spaceBetween: 40,
+    loop: true,
+    grabCursor: true,
+    allowTouchMove: true,
+    freemode: true,
+    speed: 4000,
+    lazy: false,
+    keyboard: {
+      enabled: false,
+    },
+
+    autoplay: {
+      delay: 0, 
+      speed: 1000,
+      disableOnInteraction: false,
+      pauseOnMouseEnter: true,
+    },
+    breakpoints: {
+      '@0.75': {
+        spaceBetween: 20,
+      },
+      '@1.00': {
+        spaceBetween: 40,
+      },
+      0: {
+        direction: 'horizontal',
+        slidesPerView: 'auto',
+      },
+      489: {
+        direction: 'vertical',
+
+      }
+    },
+  })
+</script>
+
+
+<!-- add arrows & pagination html markup by code -->
+<script>
+  var swiperNodes = "";
+  var pagination = '<div class=swiper-pagination></div>';
+  var next_prev_buttons = '<div class="swiper-button-prev"></div><div class="swiper-button-next"></div>'; 
+  var scrollbar = '<div class="swiper-scrollbar"></div>';
+  var swiperNodes = swiperNodes.concat(pagination, next_prev_buttons);
+  /* loop throw all swipers on the page */
+  $('.swiper').each(function( index ) {
+    $( this ).append(swiperNodes);
+  });
+</script>
+
+<!-- swiper Initialize -->
+<script>
+  var mySwiper = new Swiper ('.start-swiper', {
+  	slidesPerView: 'auto',
+    spaceBetween: 16,
+    centeredSlides: true,
+    loop: true,
+    grabCursor: true,
+    allowTouchMove: true,
+    freemode: true,
+    speed: 4500,
+    lazy: false,
+    navigation: {
+      nextEl: '.arrow-next',
+      prevEl: '.arrow-prev',
+    },
+    keyboard: {
+      enabled: false,
+    },
+       breakpoints: {
+      0: { /* when window >=0px - webflow mobile portriat */
+        slidesPerView: 1.1,
+        spaceBetween: 20,
+      },
+      480: { /* when window >= 478px - webflow mobile landscape */
+        slidesPerView: 'auto',
+        spaceBetween: 16,
+      }
+    },
+    autoplay: {
+    delay: 0, 
+    speed: 100,
+    disableOnInteraction: false,
+    pauseOnMouseEnter: true,
+},
+  })
+</script>
+
+
+<!-- swiper Initialize -->
+<script>
+  var mySwiper = new Swiper ('.reg-swiper', {
+ 		mousewheel: {
+    invert: false,
+    forceToAxis: true,
+  	},
+  // Optional parameters
+    slidesPerView: 1,
+    spaceBetween: 16,
+    loop: false,
+    speed: 400,
+    centeredSlides: false,
+    centeredSlidesBounds: true,
+    lazy: true,
+    navigation: {
+      nextEl: '.arrow-next',
+      prevEl: '.arrow-prev',
+    },
+    keyboard: {
+      enabled: false,
+    },
+       breakpoints: {
+      0: { /* when window >=0px - webflow mobile portriat */
+        slidesPerView: 1.1,
+        spaceBetween: 16,
+        centeredSlides: true,
+           },
+      480: { /* when window >= 478px - webflow mobile landscape */
+        slidesPerView: 0,
+        spaceBetween: 0,
+      }
+},
+  })
+</script>
+
+<!-- swiper Initialize -->
+<script>
+  var mySwiper = new Swiper ('.testimonial-swiper', {
+ 		mousewheel: {
+    invert: false,
+    forceToAxis: true,
+  	},
+  // Optional parameters
+    slidesPerView: 1,
+    spaceBetween: 0,
+    loop: true,
+    speed: 250,
+    centeredSlides: true,
+    lazy: true,
+		allowTouchMove: true,
+    mousewheel: false,
+    navigation: {
+      nextEl: '.testimonial-swiper_next',
+      prevEl: '.testimonial-swiper_prev',
+    },
+    keyboard: {
+      enabled: false,
+    },
+       breakpoints: {
+      0: { /* when window >=0px - webflow mobile portriat */
+        slidesPerView: 1,
+        spaceBetween: 0,
+           }
+},
+  })
+</script>
+
+
+<!-- swiper Initialize -->
+<script>
+  var mySwiper = new Swiper ('.fade-swiper', {
+ 		mousewheel: {
+    invert: false,
+    forceToAxis: true,
+  	},
+  // Optional parameters
+    slidesPerView: 'auto',
+    spaceBetween: 0,
+    loop: true,
+    centeredSlides: true,
+    speed: 0.1,
+    lazy: true,
+    allowTouchMove: false,
+    mousewheel: false,
+    navigation: {
+      nextEl: '.arrow-next',
+      prevEl: '.arrow-prev',
+    },
+    keyboard: {
+      enabled: false,
+    },
+       breakpoints: {
+      0: { /* when window >=0px - webflow mobile portriat */
+        slidesPerView: 0,
+        spaceBetween: 0,
+           },
+     480: { /* when window >= 478px - webflow mobile landscape */
+        slidesPerView: 0,
+        spaceBetween: 0,
+       }
+},
+    autoplay: {
+    		speed: .01,
+    		delay: 3000,
+    		disableOnInteraction: false,
+					},
+  })
+</script>
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  const menuLinks = document.querySelectorAll('.menu-link');
+
+  menuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      menuLinks.forEach(link => link.classList.remove('active'));
+      link.classList.add('active');
+    });
+  });
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+
+    document.querySelectorAll('.section').forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.clientHeight;
+      if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
+        current = section.getAttribute('id');
+      }
+    });
+
+    menuLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href').includes(current)) {
+        link.classList.add('active');
+      }
+    });
+  });
+});
+</script>
+    
+    
+    <script>
+   // Append form username to URL
+document.getElementById("Claim-your-linktree-form-header").addEventListener("submit", function(e){
+   e.preventDefault();
+ 
+   // Get the value from the email input field
+  var usernameValue = document.getElementById("username-header").value.slice("linktr.ee/".length)
+
+   // Redirect to the destination page with the email as a URL parameter
+   window.location = "https://linktr.ee/register?username=" + usernameValue;
+});
+  
+  document.getElementById("Claim-your-linktree-form-footer").addEventListener("submit", function(e){
+   e.preventDefault();
+ 
+   // Get the value from the email input field
+  var usernameValue = document.getElementById("username-footer").value.slice("linktr.ee/".length)
+  
+   // Redirect to the destination page with the email as a URL parameter
+   window.location = "https://linktr.ee/register?username=" + usernameValue;
+});
+</script>
+
+
+
+<script>
+const usernamePlaceholder = document.getElementById('username-header')
+const textInput = document.getElementById('username-header')
+
+function addInputText(){
+	textInput.value = "linktr.ee/"
+}
+
+usernamePlaceholder.addEventListener("click", addInputText);
+</script>
+
+<script>
+const usernamePlaceholderFooter = document.getElementById('username-footer')
+const textInputFooter = document.getElementById('username-footer')
+
+function addInputTextFooter(){
+	textInputFooter.value = "linktr.ee/"
+}
+
+usernamePlaceholderFooter.addEventListener("click", addInputTextFooter);
+</script>
+
+<!-- FAQ accordion Open/Close -->
+<script>
+  (function ($) {
+    'use strict';
+    $(".faq-head").on("click", function () {
+      $(this).find(".toggle-arrow-faq").toggleClass("rotate");
+      $(".toggle-arrow-faq").not($(this).find(".toggle-arrow-faq")).removeClass("rotate");
+      $(this).next().slideToggle(300);
+      $(".faq-body").not($(this).next()).slideUp("fast");
+    });
+  }(jQuery));
+</script>
+
+<script>
+function isSafari() {
+  const userAgent = navigator.userAgent;
+  return userAgent.includes('Safari') && !userAgent.includes('Chrome');
+}
+
+// Run the script when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  if (isSafari()) {
+    const video = document.getElementById('customize-your-linktree');
+
+    if (video) {
+      const firstSource = video.querySelector('source');
+      if (firstSource) {
+        video.removeChild(firstSource);
+        console.log('Detected Safari, removed the first video source.');
+        video.load();
+      }
+    }
+  }
+});
+</script>
+</body></html>

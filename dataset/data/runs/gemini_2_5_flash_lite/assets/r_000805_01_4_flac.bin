@@ -1,0 +1,82 @@
+<!--  Copyright (c) 2000-2009  Josh Coalson, 2011-2022 Xiph.Org Foundation -->
+<!-- Permission is granted to copy, distribute and/or modify this document -->
+<!-- under the terms of the GNU Free Documentation License, Version 1.1 -->
+<!-- or any later version published by the Free Software Foundation; -->
+<!-- with no invariant sections. -->
+<!-- A copy of the license can be found at http://www.gnu.org/copyleft/fdl.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="Josh Coalson" />
+	<meta name="description" content="A free, open source codec for lossless audio compression and decompression" />
+	<meta name="keywords" content="free,lossless,audio,codec,encoder,decoder,compression,compressor,archival,archive,archiving,backup,music" />
+	<link rel="shortcut icon" type="image/x-icon" href="/flac/favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/flac/flac.css" />
+	<link type="application/atom+xml" rel="alternate" href="/flac/feeds/feed.xml" title="FLAC - Free Lossless Audio Codec" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FLAC - What is FLAC?</title>
+</head>
+
+<body>
+
+<div class="logo">
+	<a href="/flac/index.html"><img src="/flac/images/logo130.gif" alt="FLAC Logo" id="logo" /></a>
+</div>
+
+
+<div class="navbar" id="navbar">
+	<div>
+		<a href="/flac/index.html">home</a>
+		<a href="/flac/faq.html">faq</a>
+		<a href="/flac/download.html">download</a>
+		<a href="/flac/links.html">links</a>
+	</div>
+	<div>
+		<a href="/flac/documentation.html">documentation</a>
+		<a href="/flac/changelog.html">changelog</a>
+		<a href="/flac/developers.html">developers</a>
+	</div>
+</div>
+
+
+<div class="content">
+
+<h1>What is FLAC?</h1>
+
+<b>FLAC</b> stands for <b>Free Lossless Audio Codec</b>, an audio format similar to MP3, but lossless, meaning that audio is compressed in FLAC without any loss in quality.  This is similar to how Zip works, except with FLAC you will get much better compression because it is designed specifically for audio, and you can play back compressed FLAC files in your favorite player (or your car or home stereo, see <a href="links.html#hardware">supported devices</a>) just like you would an MP3 file.<br />
+<br />
+FLAC stands out as the <a href="comparison.html">fastest and most widely supported lossless audio codec</a>, and the only one that at once is non-proprietary, is unencumbered by patents, has an open-source reference implementation, has a well documented format and API, and has several other independent implementations.<br />
+<br />
+See <a href="features.html">About FLAC</a> for more, or <a href="documentation_tasks.html">Using FLAC</a> for how to play FLAC files, rip CDs to FLAC, etc.
+
+<h2>News</h2>
+
+<div id="newsbox">
+
+<h3><a href="/flac/2025/02/11/flac-1-5-0-released.html">FLAC 1.5.0 released</a> - 11 Feb 2025</h3>
+
+<h3><a href="/flac/2024/12/19/rfc-9639-published.html">FLAC is now formally specified in RFC 9639</a> - 19 Dec 2024</h3>
+
+<h3><a href="/flac/2023/06/23/flac-1-4-3-released.html">FLAC 1.4.3 released</a> - 23 Jun 2023</h3>
+
+<h3><a href="/flac/2022/10/22/flac-1-4-2-released.html">FLAC 1.4.2 released</a> - 22 Oct 2022</h3>
+
+<h3><a href="/flac/2022/09/22/flac-1-4-1-released.html">FLAC 1.4.1 released</a> - 22 Sep 2022</h3>
+
+<br />
+<p><a href="news.html">More news</a></p>
+</div>
+
+
+
+
+
+<div class="copyright">
+	<hr />
+	Copyright (c) 2000-2009  Josh Coalson, 2011-2022 Xiph.Org Foundation
+</div>
+</div>
+
+</body>
+</html>

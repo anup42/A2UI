@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script defer type="text/javascript" src="main.js"></script>
+
+<script>(window.BOOMR_mq=window.BOOMR_mq||[]).push(["addVar",{"rua.upush":"false","rua.cpush":"false","rua.upre":"false","rua.cpre":"false","rua.uprl":"false","rua.cprl":"false","rua.cprf":"false","rua.trans":"","rua.cook":"false","rua.ims":"false","rua.ufprl":"false","rua.cfprl":"false","rua.isuxp":"false","rua.texp":"norulematch","rua.ceh":"false","rua.ueh":"false","rua.ieh.st":"0"}]);</script>
+                              <script>!function(e){var n="https://s.go-mpulse.net/boomerang/";if("True"=="True")e.BOOMR_config=e.BOOMR_config||{},e.BOOMR_config.PageParams=e.BOOMR_config.PageParams||{},e.BOOMR_config.PageParams.pci=!0,n="https://s2.go-mpulse.net/boomerang/";if(window.BOOMR_API_key="NUQAY-8VUBZ-F3A34-9S9YM-R3AEP",function(){function e(){if(!r){var e=document.createElement("script");e.id="boomr-scr-as",e.src=window.BOOMR.url,e.async=!0,o.appendChild(e),r=!0}}function t(e){r=!0;var n,t,a,i,d=document,O=window;if(window.BOOMR.snippetMethod=e?"if":"i",t=function(e,n){var t=d.createElement("script");t.id=n||"boomr-if-as",t.src=window.BOOMR.url,BOOMR_lstart=(new Date).getTime(),e=e||d.body,e.appendChild(t)},!window.addEventListener&&window.attachEvent&&navigator.userAgent.match(/MSIE [67]\./))return window.BOOMR.snippetMethod="s",void t(o,"boomr-async");a=document.createElement("IFRAME"),a.src="about:blank",a.title="",a.role="presentation",a.loading="eager",i=(a.frameElement||a).style,i.width=0,i.height=0,i.border=0,i.display="none",o.appendChild(a);try{O=a.contentWindow,d=O.document.open()}catch(_){n=document.domain,a.src="javascript:var d=document.open();d.domain='"+n+"';void 0;",O=a.contentWindow,d=O.document.open()}if(n)d._boomrl=function(){this.domain=n,t()},d.write("<bo"+"dy onload='document._boomrl();'>");else if(O._boomrl=function(){t()},O.addEventListener)O.addEventListener("load",O._boomrl,!1);else if(O.attachEvent)O.attachEvent("onload",O._boomrl);d.close()}function a(e){window.BOOMR_onload=e&&e.timeStamp||(new Date).getTime()}if(!window.BOOMR||!window.BOOMR.version&&!window.BOOMR.snippetExecuted){window.BOOMR=window.BOOMR||{},window.BOOMR.snippetStart=(new Date).getTime(),window.BOOMR.snippetExecuted=!0,window.BOOMR.snippetVersion=14,window.BOOMR.url=n+"NUQAY-8VUBZ-F3A34-9S9YM-R3AEP";var i=document.currentScript||document.getElementsByTagName("script")[0],o=i.parentNode,r=!1,d=document.createElement("link");if(d.relList&&"function"==typeof d.relList.supports&&d.relList.supports("preload")&&"as"in d)window.BOOMR.snippetMethod="p",d.href=window.BOOMR.url,d.rel="preload",d.as="script",d.addEventListener("load",e),d.addEventListener("error",function(){t(!0)}),setTimeout(function(){if(!r)t(!0)},3e3),BOOMR_lstart=(new Date).getTime(),o.appendChild(d);else t(!1);if(window.addEventListener)window.addEventListener("load",a,!1);else if(window.attachEvent)window.attachEvent("onload",a)}}(),"".length>0)if(e&&"performance"in e&&e.performance&&"function"==typeof e.performance.setResourceTimingBufferSize)e.performance.setResourceTimingBufferSize();!function(){if(BOOMR=e.BOOMR||{},BOOMR.plugins=BOOMR.plugins||{},!BOOMR.plugins.AK){var n=""=="true"?1:0,t="",a="pkvrfeyxbpl5w2mdq4jq-f-683af7043-clientnsv4-s.akamaihd.net",i="false"=="true"?2:1,o={"ak.v":"39","ak.cp":"953620","ak.ai":parseInt("610950",10),"ak.ol":"0","ak.cr":5,"ak.ipv":4,"ak.proto":"http/1.1","ak.rid":"dd9a3b18","ak.r":49735,"ak.a2":n,"ak.m":"","ak.n":"essl","ak.bpcip":"122.171.18.0","ak.cport":2992,"ak.gh":"23.11.215.149","ak.quicv":"","ak.tlsv":"tls1.3","ak.0rtt":"","ak.0rtt.ed":"","ak.csrc":"-","ak.acc":"bbr","ak.t":"1770227475","ak.ak":"hOBiQwZUYzCg5VSAfCLimQ==kStDAceU2adRw/aA8qWeygdclCnDxTVvrK8kJTPrhR+jvqe4NiwoclIFECOjxXgkeswoUYUZbqXSB+29/ge5vCF6eevXOi4UVhxxcykqyJgLv+uBctY53nJJFHV7rUYLkIDHDrE0V6RyfV2Ve82PrNdBm0/8eFmn4IYECYBIaNcpg6c2+3Pmz7gqoIzIxLfG8mF3sTjtS9KSblPtViD1zNOxyr2NOUxtrdokzZQ9nuNrK9t8x8BHHkmpe2EAuQAE/VArXgPMcvhH7D69OhESeNTXW7NiB5x2Ntd6j3+p0TdxfCB4UABD8Y02qe+5wkeH+A6jzNnX3Xy186kq1ihZ5zf5168pji95yiVKsd0N1DERKNkCs/ap53FGdJP1v507MJWxRKsa1aj1RVR+JuLTGsqKbKsXrRVLxusUlwSY2Xc=","ak.pv":"97","ak.dpoabenc":"","ak.tf":i};if(""!==t)o["ak.ruds"]=t;var r={i:!1,av:function(n){var t="http.initiator";if(n&&(!n[t]||"spa_hard"===n[t]))o["ak.feo"]=void 0!==e.aFeoApplied?1:0,BOOMR.addVar(o)},rv:function(){var e=["ak.bpcip","ak.cport","ak.cr","ak.csrc","ak.gh","ak.ipv","ak.m","ak.n","ak.ol","ak.proto","ak.quicv","ak.tlsv","ak.0rtt","ak.0rtt.ed","ak.r","ak.acc","ak.t","ak.tf"];BOOMR.removeVar(e)}};BOOMR.plugins.AK={akVars:o,akDNSPreFetchDomain:a,init:function(){if(!r.i){var e=BOOMR.subscribe;e("before_beacon",r.av,null,null),e("onbeacon",r.rv,null,null),r.i=!0}return this},is_complete:function(){return!0}}}}()}(window);</script></head>
+
+<body onload="renderPage()">
+    <div id="target">Loading...</div>
+
+    <script id="template" type="x-tmpl-mustache">
+        <main>
+            <section class="o-hero-home">
+                <header class="o-hero-home__header a-bg-speed theme--dark" style="--theme-text-color:#FFFFFF;" data-track-visibility="o-hero-home__header--animated">
+                    <div class="o-hero-home__header-container">
+                        <div class="o-hero-home__header-copy">
+                            <h1 class="a-type-h1 o-hero-home__title o-hero-home--pre-animation-state">{{heroTitle}}</h1>
+                            <p class="a-type-p o-hero-home__copy o-hero-home--pre-animation-state">{{{heroCopy}}}</p>
+                            <div class="o-hero-home__cta-container o-hero-home--pre-animation-state">
+                                <a class="a-cta--primary" href="#storelocator" target="_self" title="{{heroCta1}}" aria-label="{{heroCta1}}" data-cta-banner data-event="internalBannerClick" data-event-category="brand campaign" data-event-action="click" data-navigation-url="#storelocator" data-product-finding-method="landing page cta" data-internal-brand-campaign="landing page:find gear in-store">{{heroCta1}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            </section>
+        </main>
+    </script>
+    <script src="https://unpkg.com/mustache@latest"></script>
+    <script>
+        function renderPage() {
+            //store translations in data object
+            var data = {
+                en_us: {
+                    heroTitle: "We'll be back on track as soon as possible",
+                    heroCopy: "Our site is down temporarily. You can register for site updates at <a href=\"mailto:maintenance@brooksrunning.com\">maintenance@brooksrunning.com</a>. In the meantime, you still have options for in-store shopping.",
+                    heroCta1: "Find gear in-store",
+                    heroCta2: "Shop via Amazon",
+                    heroCta2Url: "https://www.amazon.com/stores/Brooks/Brooks/page/B6834DFA-396F-4E38-98F6-3D2739393271",
+                    heroImageAlt: "Sleigh on top of a illustrated tree",
+                    masonryHeader: "Here's what we're all about",
+                    masonryLogoImageAlt: "Illustration of Brooks Logo",
+                    masonryMarquee: "Run with us banner",
+                    masonryCard1Alt: "Two women running down a path",
+                    masonryCard1Header: "Wondering what drives our brand?",
+                    masonryCard1Copy: "Inspiring everyone to run their path to a better self.",
+                    masonryCard2Alt: "Illustration of a microscope and ",
+                    masonryCard2Header: "Before the run, a lot of science.",
+                    masonryCard2Copy: "Every shoe, short, bra, and shirt comes at the end of a rigorous development process. We design, test, and refine each product so that all our gear provides distraction-free comfort. In fact, if we’re doing it right, you’ll completely forget about your shoes and gear.",
+                    masonryCard3Alt: "Runner giving a thumbs up",
+                    masonryCard3Header: "Until we all run on equal ground",
+                    masonryCard3Copy: "We’re committed to diversity, equity, and inclusion.",
+                    columnsContainerHeader: "We protect the planet we run on",
+                    columnsContainerCopy: "This planet is our home. And because 150 million people run outside, it's critical we take care of it. That's why we've committed to being carbon neutral by 2040, using recycled or renewable materials, and continually finding ways to reduce energy use and waste."
+                },
+                en_ca: {  
+                    heroTitle: "We'll be back on track as soon as possible",
+                    heroCopy: "Our site is down temporarily. You can register for site updates at <a href=\"mailto:maintenance@brooksrunning.com\">maintenance@brooksrunning.com</a>. In the meantime, you still have options for in-store shopping.",
+                    heroCta1: "Find gear in-store",
+                    heroCta2: "Shop via Amazon",
+                    heroCta2Url: "https://www.amazon.ca/stores/Brooks/Brooks/page/B6834DFA-396F-4E38-98F6-3D2739393271",
+                    heroImageAlt: "Sleigh on top of a illustrated tree",
+                    masonryHeader: "Here's what we're all about",
+                    masonryLogoImageAlt: "Illustration of Brooks Logo",
+                    masonryMarquee: "Run with us banner",
+                    masonryCard1Alt: "Two women running down a path",
+                    masonryCard1Header: "Wondering what drives our brand?",
+                    masonryCard1Copy: "Inspiring everyone to run their path to a better self.",
+                    masonryCard2Alt: "Illustration of a microscope and ",
+                    masonryCard2Header: "Before the run, a lot of science.",
+                    masonryCard2Copy: "Every shoe, short, bra, and shirt comes at the end of a rigorous development process. We design, test, and refine each product so that all our gear provides distraction-free comfort. In fact, if we’re doing it right, you’ll completely forget about your shoes and gear.",
+                    masonryCard3Alt: "Runner giving a thumbs up",
+                    masonryCard3Header: "Until we all run on equal ground",
+                    masonryCard3Copy: "We’re committed to diversity, equity, and inclusion.",
+                    columnsContainerHeader: "We protect the planet we run on",
+                    columnsContainerCopy: "This planet is our home. And because 150 million people run outside, it's critical we take care of it. That's why we've committed to being carbon neutral by 2040, using recycled or renewable materials, and continually finding ways to reduce energy use and waste."
+                },
+                en: { 
+                    heroTitle: "We'll be back on track as soon as possible",
+                    heroCopy: "Our site is down temporarily. You can register for site updates at <a href=\"mailto:maintenance@brooksrunning.com\">maintenance@brooksrunning.com</a>. In the meantime, you still have options for in-store shopping.",
+                    heroCta1: "Find gear in-store",
+                    heroImageAlt: "Sleigh on top of a illustrated tree",
+                    masonryHeader: "Here's what we're all about",
+                    masonryLogoImageAlt: "Illustration of Brooks Logo",
+                    masonryMarquee: "Run with us banner",
+                    masonryCard1Alt: "Two women running down a path",
+                    masonryCard1Header: "Wondering what drives our brand?",
+                    masonryCard1Copy: "Inspiring everyone to run their path to a better self.",
+                    masonryCard2Alt: "Illustration of a microscope and ",
+                    masonryCard2Header: "Before the run, a lot of science.",
+                    masonryCard2Copy: "Every shoe, short, bra, and shirt comes at the end of a rigorous development process. We design, test, and refine each product so that all our gear provides distraction-free comfort. In fact, if we’re doing it right, you’ll completely forget about your shoes and gear.",
+                    masonryCard3Alt: "Runner giving a thumbs up",
+                    masonryCard3Header: "Until we all run on equal ground",
+                    masonryCard3Copy: "We’re committed to diversity, equity, and inclusion.",
+                    columnsContainerHeader: "We protect the planet we run on",
+                    columnsContainerCopy: "This planet is our home. And because 150 million people run outside, it's critical we take care of it. That's why we've committed to being carbon neutral by 2040, using recycled or renewable materials, and continually finding ways to reduce energy use and waste."
+                },
+                de: { 
+                    heroTitle: "Wir sind bald wieder vollständig für dich da.",
+                    heroCopy: "Aufgrund einer großen Nachfrage ist unsere Website vorübergehend nicht zugänglich. Sie können sich für Website-Updates unter <a href=\"mailto:maintenance@brooksrunning.com\">maintenance@brooksrunning.com</a> registrieren. In der Zwischenzeit stehen dir Optionen zum Einkauf im Geschäft zur Verfügung.",
+                    heroCta1: "Finde Ausrüstung im Geschäft",
+                    heroImageAlt: "Schlitten auf einer Illustration eines Baums.",
+                    masonryHeader: "Darum geht es uns",
+                    masonryLogoImageAlt: "Illustration eines Brooks-Logos",
+                    masonryMarquee: false,
+                    masonryCard1Alt: "Zwei Frauen laufen über einen Weg",
+                    masonryCard1Header: "Möchtest du wissen, was hinter unserer Marke steht?",
+                    masonryCard1Copy: "Wir inspirieren jede\*n, sich auf den Weg zu einer besseren Version ihrer selbst zu begeben.",
+                    masonryCard2Alt: "Illustration eines Mikroskops und",
+                    masonryCard2Header: "Vor dem Lauf gibt es viel Wissenschaft.",
+                    masonryCard2Copy: "Jeder Schuh, jede Shorts, jeder BH und jedes T-Shirt durchläuft einen rigorosen Entwicklungsprozess. Wir entwickeln, testen und verfeinern jedes Produkt, damit dir unsere gesamte Ausrüstung störungsfreien Komfort bietet. Machen wir unsere Arbeit richtig, bemerkst du weder deine Schuhe noch deine Ausrüstung.",
+                    masonryCard3Alt: "Läufer\*innen halten ihre Daumen hoch",
+                    masonryCard3Header: "Bis wir alle zu gleichen Bedingungen laufen können.",
+                    masonryCard3Copy: "Wir engagieren uns für Vielfalt, Gleichheit und Inklusion.",
+                    columnsContainerHeader: "Wir schützen den Planeten, auf dem wir laufen",
+                    columnsContainerCopy: "Der Planet ist unsere Heimat. Und da weltweit mehr als 150 Millionen Menschen draußen laufen, ist es uns natürlich wichtig, dass wir uns um unseren Planeten kümmern. Daher haben wir es uns zum Ziel gesetzt, bis 2040 Kohlenstoffneutralität zu erreichen, indem wir recycelte oder erneuerbare Materialien verwenden und stets neue Wege zur Reduzierung von Stromverbrauch und Abfall finden."
+                },
+                es: {  
+                    heroTitle: "Estaremos de vuelta lo antes posible",
+                    heroCopy: "Nuestro sitio está inactivo temporalmente debido a un gran volumen de solicitudes. Puede registrarse para actualizaciones del sitio en <a href=\"mailto:maintenance@brooksrunning.com\">maintenance@brooksrunning.com</a>. Mientras tanto, sigues teniendo opciones de comprar en la tienda.",
+                    heroCta1: "Encuentra equipo en la tienda",
+                    heroImageAlt: "Trineo sobre la ilustración de un árbol",
+                    masonryHeader: "Esto es de lo que se trata",
+                    masonryLogoImageAlt: "Ilustración del logotipo de Brooks",
+                    masonryMarquee: false,
+                    masonryCard1Alt: "Dos mujeres bajan corriendo por un camino",
+                    masonryCard1Header: "¿Te preguntas qué impulsa nuestra marca?",
+                    masonryCard1Copy: "Inspirando a todos a correr su camino hacia un mejor yo.",
+                    masonryCard2Alt: "Ilustración de un microscopio y",
+                    masonryCard2Header: "Hay mucha ciencia detrás del hecho de correr.",
+                    masonryCard2Copy: "Cada zapatilla, pantalón corto, sujetador y camisa es el resultado de un riguroso proceso de desarrollo. Diseñamos, probamos y perfeccionamos cada producto para que todo nuestro equipo proporciona una comodidad libre de distracciones. De hecho, si lo estamos haciendo bien, te olvidarás por completo de las zapatillas y el quipo.",
+                    masonryCard3Alt: "Corredor con el pulgar hacia arriba",
+                    masonryCard3Header: "Hasta que todos corramos en igualdad de condiciones",
+                    masonryCard3Copy: "Estamos comprometidos con la diversidad, la igualdad y la inclusión.",
+                    columnsContainerHeader: "Protegemos el planeta en el que corremos",
+                    columnsContainerCopy: "El planeta es nuestro hogar. Y dado que más de 150 millones de personas corren en el exterior, es fundamental que lo cuidemos. Por ese motivo nos hemos comprometido a producir sin emisiones de carbono para 2040, utilizando materiales reciclados o renovables y buscando continuamente formas de reducir el uso y el desperdicio de energía."
+                },
+                fr: { 
+                    heroTitle: "Le site sera opérationnel dès que possible",
+                    heroCopy: "Notre site est temporairement indisponible en raison d’un volume élevé de demandes. Vous pouvez vous inscrire aux mises à jour du site à <a href=\"mailto:maintenance@brooksrunning.com\">maintenance@brooksrunning.com</a>. En attendant, tu peux toujours faire tes achats en magasin.",
+                    heroCta1: "Trouve du matériel en magasin",
+                    heroImageAlt: "Traîneau au sommet d’un arbre illustré",
+                    masonryHeader: "Voici notre raison d’être",
+                    masonryLogoImageAlt: "Illustration du logo Brooks",
+                    masonryMarquee: false,
+                    masonryCard1Alt: "Deux femmes courant sur un chemin",
+                    masonryCard1Header: "Tu te demandes ce qui anime notre marque ?",
+                    masonryCard1Copy: "Inspirer chacun à suivre son chemin vers une meilleure version de lui-même.",
+                    masonryCard2Alt: "Illustration d’un microscope et",
+                    masonryCard2Header: "Beaucoup de science avant les runs.",
+                    masonryCard2Copy: "Chaque chaussure, short, brassière et t-shirt est le résultat d’un processus de développement rigoureux. Nous concevons, testons et affinons chaque produit afin que tous nos équipements offrent un confort sans distraction. En effet, si nous le faisons correctement, tu oublieras complètement tes chaussures et ton équipement.",
+                    masonryCard3Alt: "Runner qui lève le pouce",
+                    masonryCard3Header: "Jusqu’à ce que nous courions tous sur un pied d’égalité",
+                    masonryCard3Copy: "Nous nous engageons en faveur de la diversité, de l’équité et de l’inclusion.",
+                    columnsContainerHeader: "Nous protégeons la planète sur laquelle nous courons",
+                    columnsContainerCopy: "Cette Terre est notre maison. Et parce que 150 millions de personnes pratiquent le running dehors, il est vital que nous en prenions soin. C’est pourquoi nous nous sommes engagés à devenir neutres en carbone d’ici 2040, en utilisant des matériaux recyclés ou renouvelables, et en trouvant continuellement des moyens de réduire la consommation d’énergie et les déchets."
+                },
+                fr_ca: { 
+                    heroTitle: "Il reprendra la route dès que possible",
+                    heroCopy: "Notre site est temporairement indisponible en raison d’un volume élevé de demandes. Vous pouvez vous inscrire aux mises à jour du site à <a href=\"mailto:maintenance@brooksrunning.com\" style=\"color:#fff; text-decoration:underline;\">maintenance@brooksrunning.com</a>. En attendant, vous avez toujours la possibilité de faire vos achats en ligne et en magasin.",
+                    heroCta1: "Trouver de l’équipement en magasin",
+                    heroCta2: "Acheter sur Amazon",
+                    heroImageAlt: "Traîneau au sommet d’un arbre illustré",
+                    masonryHeader: "Découvrez qui nous sommes",
+                    masonryLogoImageAlt: "Illustration du logo Brooks",
+                    masonryMarquee: false,
+                    masonryCard1Alt: "Deux femmes courant sur un chemin",
+                    masonryCard1Header: "Vous voulez connaître la motivation derrière notre marque?",
+                    masonryCard1Copy: "Inspirer chacun à suivre son chemin vers une meilleure version de soi même.",
+                    masonryCard2Alt: "Illustration d’un microscope et",
+                    masonryCard2Header: "Avant la course, il y a la science.",
+                    masonryCard2Copy: "Chaque chaussure, short, soutien gorge et t-shirt est le résultat d’un processus de développement rigoureux. Nous concevons, testons et affinons chaque produit afin que tous nos équipements offrent un confort sans distraction. En fait, si nous faisons bien les choses, vous oublierez complètement vos chaussures et votre équipement.",
+                    masonryCard3Alt: "Runner qui lève le pouce",
+                    masonryCard3Header: "Courir ensemble, sur un même pied d’égalité",
+                    masonryCard3Copy: "Nous nous engageons à promouvoir la diversité, l’équité et l’inclusion.",
+                    columnsContainerHeader: "Nous protégeons la planète sur laquelle nous courons",
+                    columnsContainerCopy: "Cette planète est notre maison. Et parce que 150 millions de personnes pratiquent la course à l’extérieur, il est vital que nous en prenions soin. C’est pourquoi nous nous engageons à devenir carboneutres d’ici 2040, à utiliser des matériaux recyclés ou renouvelables et à trouver en permanence des moyens de réduire notre consommation d’énergie et nos déchets."
+                },
+                it: { 
+                    heroTitle: "Saremo di nuovo in pista quanto prima",
+                    heroCopy: "Il nostro sito è temporaneamente offline a causa dell’alto volume di richieste. Puoi iscriverti agli aggiornamenti del sito su <a href=\"mailto:maintenance@brooksrunning.com\">maintenance@brooksrunning.com</a>. Nel frattempo, puoi scegliere di continuare i tuoi acquisti in negozio.",
+                    heroCta1: "Trova i prodotti in negozio",
+                    heroImageAlt: "Slitta sulla cima di un albero illustrato",
+                    masonryHeader: "Ecco ciò che siamo",
+                    masonryLogoImageAlt: "Immagine del logo Brooks",
+                    masonryMarquee: false,
+                    masonryCard1Alt: "Due donne che corrono lungo un sentiero",
+                    masonryCard1Header: "Ti stai chiedendo cosa guida il nostro brand?",
+                    masonryCard1Copy: "Ispirare tutti a percorrere la propria strada per realizzare la migliore versione di se stessi.",
+                    masonryCard2Alt: "Immagine di un microscopio e",
+                    masonryCard2Header: "Dietro la corsa c’è molta scienza.",
+                    masonryCard2Copy: "Ogni scarpa, pantaloncino, reggiseno e camicia è realizzato dopo un rigoroso processo di sviluppo. Progettiamo, testiamo e perfezioniamo ogni singolo prodotto in modo che tutte la nostre attrezzature siano confortevoli e prive di distrazioni. Se tutto questo è fatto come si deve, ti dimenticherai completamente di indossare le tue scarpe e il tuo abbigliamento.",
+                    masonryCard3Alt: "Runner che mostra il pollice in su",
+                    masonryCard3Header: "Finché non correremo tutti alle stesse condizioni",
+                    masonryCard3Copy: "Siamo impegnati a favore della diversità, dell’equità e dell’inclusione.",
+                    columnsContainerHeader: "Noi proteggiamo il pianeta su cui corriamo",
+                    columnsContainerCopy: "Questo pianeta è la nostra casa. E poiché ci sono 150 milioni di persone che corrono, è fondamentale che ce ne prendiamo cura. Ecco perché ci siamo impegnati a raggiungere zero emissioni di carbonio entro il 2040, a utilizzare materiali riciclati o rinnovabili e a trovare continuamente nuove modalità per ridurre l’impiego di energia e i rifiuti."
+                },
+                nl: {
+                    heroTitle: "We zijn snel weer in de race",
+                    heroCopy: "Onze site is tijdelijk offline. Je kunt je aanmelden voor site-updates op <a href=\"mailto:maintenance@brooksrunning.com\">maintenance@brooksrunning.com</a>. Ondertussen kun je nog steeds in de winkel shoppen.",
+                    heroCta1: "Vind je gear in de winkel"
+                }
+            };
+
+            //get the user's browser language setting and determine which language to display
+            var useLocalizedContent = true;
+            var browserLanguage = window.navigator.language || window.navigator.languages;
+            console.log({browserLanguage});
+
+            var languageToDisplay = 'en';
+
+            if (useLocalizedContent) {
+                if (browserLanguage.includes('en-US') || browserLanguage == 'en') {
+                    languageToDisplay = 'en_us';
+                } else if (browserLanguage == 'en-CA') {
+                    languageToDisplay = 'en_ca';
+                } else if (browserLanguage == 'fr-CA') {
+                    languageToDisplay = "fr_ca";
+                } else if(browserLanguage.includes('de')) {
+                    languageToDisplay = 'de';
+                } else if (browserLanguage.includes('it')) {
+                    languageToDisplay = 'it';
+                } else if (browserLanguage.includes('es')) {
+                    languageToDisplay = 'es';
+                } else if (browserLanguage.includes('fr')) {
+                    languageToDisplay = 'fr';
+                } else if(browserLanguage.includes('nl')) {
+                    languageToDisplay = 'nl';
+                } else {
+                    languageToDisplay = 'en';
+                }
+            }
+
+            console.log({languageToDisplay});
+
+            //create object to pass to mustache renderer
+            var localizedCopy = data[languageToDisplay] || data['en']; // localized
+
+            console.log({localizedCopy});
+
+            //render localized content in mustache template
+            var template = document.getElementById("template").innerHTML;
+            var rendered = Mustache.render(template, localizedCopy);
+            document.getElementById("target").innerHTML = rendered;
+        }
+    </script>
+
+    <div class="dealer-store-locator" id="storelocator" style="margin: 0% 5%">
+        <div id="lcly-button-0">
+            <a id="lcly-link-0" href="//www.locally.com" target="_blank">Powered By Locally.com</a>
+        </div>
+        <script src="//www.locally.com/stores/map.js?company_id=76&amp;inline=1&amp;company_name=Brooks+Running" defer></script>
+    </div>
+</body>
+</html>
