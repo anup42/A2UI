@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+import time
 import hashlib
 import mimetypes
 import re
@@ -233,6 +234,7 @@ def run_stage2(
             grouped = {"all": queries}
             intent_order = ["all"]
 
+        use_gemini_batch = adapter.spec.provider == "gemini" and hasattr(adapter, "generate_batch")
         for intent in intent_order:
             rows = grouped[intent]
             idx = 0
@@ -249,25 +251,45 @@ def run_stage2(
                 ]
                 if not batch:
                     continue
-                created = _process_query_batch(
-                    batch,
-                    batch_prompt_template,
-                    prompt_template,
-                    adapter,
-                    writer,
-                    existing_ids,
-                    existing_hashes,
-                    assets_dir,
-                    url_cache,
-                    max_tokens,
-                    seed,
-                    rate_limiter,
-                    cache,
-                    logger,
-                    max_attempts,
-                    batch_fallback_per_query,
-                    temperatures[0] if temperatures else 0.7,
-                )
+                if use_gemini_batch:
+                    created = _process_query_batch_gemini(
+                        batch,
+                        prompt_template,
+                        adapter,
+                        writer,
+                        existing_ids,
+                        existing_hashes,
+                        assets_dir,
+                        url_cache,
+                        max_tokens,
+                        seed,
+                        rate_limiter,
+                        cache,
+                        logger,
+                        max_attempts,
+                        batch_fallback_per_query,
+                        temperatures[0] if temperatures else 0.7,
+                    )
+                else:
+                    created = _process_query_batch(
+                        batch,
+                        batch_prompt_template,
+                        prompt_template,
+                        adapter,
+                        writer,
+                        existing_ids,
+                        existing_hashes,
+                        assets_dir,
+                        url_cache,
+                        max_tokens,
+                        seed,
+                        rate_limiter,
+                        cache,
+                        logger,
+                        max_attempts,
+                        batch_fallback_per_query,
+                        temperatures[0] if temperatures else 0.7,
+                    )
                 total_created += created
                 if max_total is not None and total_created >= max_total:
                     logger.info("Stage2 reached max_total=%s", max_total)
@@ -729,4 +751,215 @@ def _process_query_batch(
         existing_hashes.add(norm_hash)
         logger.info("Stage2 created response_id=%s", response_id)
         created += 1
+    return created
+
+
+def _process_query_batch_gemini(
+    queries: list[dict],
+    single_prompt_template: str,
+    adapter: BaseLLMAdapter,
+    writer: JsonlWriter,
+    existing_ids: set[str],
+    existing_hashes: set[str],
+    assets_dir: Path,
+    url_cache: dict[str, Path],
+    max_tokens: int,
+    seed: int,
+    rate_limiter: RateLimiter,
+    cache: PromptCache,
+    logger,
+    max_attempts: int,
+    fallback_per_query: bool,
+    temperature: float,
+) -> int:
+    if not queries:
+        return 0
+
+    entries: list[dict] = []
+    for q in queries:
+        qid = q.get("query_id")
+        qtext = q.get("query_text")
+        if not qid or not qtext:
+            logger.warning("Stage2 batch skip missing query_id/query_text: %s", q)
+            continue
+        response_id = _make_response_id(qid, 1)
+        if response_id in existing_ids:
+            continue
+        prompt = render_prompt(single_prompt_template, query_text=qtext)
+        prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}")
+        entries.append(
+            {
+                "query_id": qid,
+                "response_id": response_id,
+                "prompt": prompt,
+                "prompt_hash": prompt_hash,
+            }
+        )
+
+    if not entries:
+        return 0
+
+    def _write_response(
+        response_id: str,
+        query_id: str,
+        response_text: str,
+        latency_ms: float,
+        input_tokens: int,
+        output_tokens: int,
+        provider: str,
+        model: str,
+    ) -> bool:
+        if not response_text:
+            return False
+        norm_hash = hash_text(normalize_text(response_text))
+        if norm_hash in existing_hashes:
+            logger.info("Stage2 duplicate response query_id=%s", query_id)
+            return False
+        assets = _download_assets(
+            response_text,
+            response_id,
+            assets_dir,
+            logger,
+            url_cache,
+        )
+        record = {
+            "response_id": response_id,
+            "query_id": query_id,
+            "n_idx": 1,
+            "response_text": response_text,
+            "created_at": datetime.utcnow().isoformat() + "Z",
+            "assets": assets,
+            "gen": {
+                "provider": provider,
+                "model": model,
+                "latency_ms": latency_ms,
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "cost_usd": None,
+            },
+        }
+        writer.append(record)
+        existing_ids.add(response_id)
+        existing_hashes.add(norm_hash)
+        logger.info("Stage2 created response_id=%s", response_id)
+        return True
+
+    created = 0
+    pending: list[dict] = []
+    for entry in entries:
+        cached = cache.get(entry["prompt_hash"])
+        if cached:
+            raw_text = cached.text.strip()
+            if _write_response(
+                entry["response_id"],
+                entry["query_id"],
+                raw_text,
+                0.0,
+                0,
+                0,
+                adapter.spec.provider,
+                adapter.spec.model,
+            ):
+                created += 1
+        else:
+            pending.append(entry)
+
+    if not pending:
+        return created
+
+    prompts = [entry["prompt"] for entry in pending]
+    seeds = [seed + idx for idx in range(len(pending))]
+    results: list | None = None
+
+    def _call_batch():
+        rate_limiter.acquire()
+        return adapter.generate_batch(
+            prompts=prompts,
+            system=None,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            seeds=seeds,
+            json_mode=False,
+            batch_name=f"stage2_{int(time.time())}",
+        )
+
+    try:
+        results = with_retry(_call_batch, max_attempts=max_attempts)
+    except Exception as exc:
+        if isinstance(exc, LLMRateLimitError):
+            logger.error(
+                "Stage2 rate limit info: limits=%s headers=%s",
+                exc.limits or "unset",
+                exc.headers or "none",
+            )
+        logger.warning("Stage2 batch failed; falling back to single calls: %s", exc)
+        results = None
+
+    def _generate_single(entry: dict) -> None:
+        prompt = entry["prompt"]
+
+        def _call():
+            rate_limiter.acquire()
+            return adapter.generate(
+                prompt=prompt,
+                system=None,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                seed=seed,
+                json_mode=False,
+            )
+
+        result = with_retry(_call, max_attempts=max_attempts)
+        if result.error:
+            logger.error("Stage2 error query_id=%s: %s", entry["query_id"], result.error)
+            return
+        response_text = result.text.strip()
+        cache.set(entry["prompt_hash"], result.text, result.raw)
+        nonlocal created
+        if _write_response(
+            entry["response_id"],
+            entry["query_id"],
+            response_text,
+            result.latency_ms,
+            result.input_tokens,
+            result.output_tokens,
+            result.provider,
+            result.model,
+        ):
+            created += 1
+
+    if results is None:
+        for entry in pending:
+            _generate_single(entry)
+        return created
+
+    if len(results) != len(pending):
+        logger.warning(
+            "Stage2 batch size mismatch: expected=%s got=%s",
+            len(pending),
+            len(results),
+        )
+
+    for entry, result in zip(pending, results):
+        if result is None:
+            continue
+        if result.error:
+            logger.warning("Stage2 batch error query_id=%s: %s", entry["query_id"], result.error)
+            if fallback_per_query:
+                _generate_single(entry)
+            continue
+        response_text = result.text.strip()
+        cache.set(entry["prompt_hash"], result.text, result.raw)
+        if _write_response(
+            entry["response_id"],
+            entry["query_id"],
+            response_text,
+            result.latency_ms,
+            result.input_tokens,
+            result.output_tokens,
+            result.provider,
+            result.model,
+        ):
+            created += 1
+
     return created
