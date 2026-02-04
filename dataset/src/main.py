@@ -125,6 +125,12 @@ def main() -> None:
     parser.add_argument("--run_id", type=str, default=None, help="Override run id")
     parser.add_argument("--print_limits", action="store_true", help="Print configured model limits")
     parser.add_argument("--list_models", action="store_true", help="List models for a provider")
+    parser.add_argument(
+        "--genui_batch_size",
+        type=int,
+        default=None,
+        help="Override GenUI batch size for stage 3 (default from run.yaml)",
+    )
     args = parser.parse_args()
 
     root = ROOT
@@ -136,6 +142,10 @@ def main() -> None:
     run_cfg = load_yaml(configs_dir / "run.yaml").get("run", {})
     eval_cfg = load_yaml(configs_dir / "run.yaml").get("evaluation", {})
     benchmark_cfg = load_yaml(configs_dir / "run.yaml").get("benchmark", {})
+    genui_batch_size = run_cfg.get("genui_batch_size", 100)
+    if args.genui_batch_size is not None:
+        genui_batch_size = args.genui_batch_size
+    genui_batch_size = int(genui_batch_size)
 
     output_dir = Path(run_cfg.get("output_dir", "data/runs"))
     if not output_dir.is_absolute():
@@ -255,7 +265,7 @@ def main() -> None:
                 candidates_per_response=int(run_cfg.get("genui_candidates_per_response", 1)),
                 max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
                 max_tokens=int(run_cfg.get("genui_max_tokens", 1024)),
-                batch_size=int(run_cfg.get("genui_batch_size", 100)),
+                batch_size=genui_batch_size,
                 seed=int(benchmark_cfg.get("fixed_seed", 123)),
                 rate_limiter=rate_limiter,
                 cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
@@ -342,7 +352,7 @@ def main() -> None:
             max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
             max_tokens=int(run_cfg.get("genui_max_tokens", 1024)),
             prompt_max_tokens=int(prompt_max_tokens) if prompt_max_tokens else None,
-            batch_size=int(run_cfg.get("genui_batch_size", 100)),
+            batch_size=genui_batch_size,
             seed=int(run_cfg.get("seed", 42)),
             rate_limiter=rate_limiter,
             cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
@@ -382,4 +392,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
