@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import time
+from itertools import zip_longest
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -159,6 +160,7 @@ def run_stage3(
     rate_limiter: RateLimiter,
     cache: PromptCache,
     logger,
+    batch_size: int = 100,
     max_total: int | None = None,
     max_attempts: int = 3,
     aggregates_path: Path | None = None,
@@ -187,8 +189,351 @@ def run_stage3(
             logger.warning("Stage3 aggregates failed: %s", exc)
 
     total_created = 0
+    pending: list[dict[str, Any]] = []
+    use_batch = adapter.spec.provider == "gemini" and hasattr(adapter, "generate_batch")
+    if batch_size <= 0:
+        batch_size = 100
+    stop = False
+
+    def _build_prompt_for(response_id: str, response_text: str, assets_list: list[dict]) -> str:
+        asset_context = _build_asset_context(assets_list)
+        prompt_response_text = response_text
+        if asset_context:
+            prompt_response_text = f"{response_text}\n\n{asset_context}"
+
+        prompt = render_prompt(prompt_template, response_text=prompt_response_text)
+        if prompt_max_tokens:
+            prompt_tokens = count_tokens(prompt)
+            if prompt_tokens > prompt_max_tokens:
+                # First attempt: drop asset context to save tokens.
+                prompt = render_prompt(prompt_template, response_text=response_text)
+                prompt_tokens = count_tokens(prompt)
+            if prompt_tokens > prompt_max_tokens:
+                base_prompt = render_prompt(prompt_template, response_text="")
+                base_tokens = count_tokens(base_prompt)
+                budget = max(200, prompt_max_tokens - base_tokens)
+                trimmed_text, truncated = _truncate_tokens(response_text, budget)
+                if truncated:
+                    logger.warning(
+                        "Stage3 prompt truncated response_id=%s tokens=%s budget=%s",
+                        response_id,
+                        count_tokens(response_text),
+                        budget,
+                    )
+                prompt = render_prompt(prompt_template, response_text=trimmed_text)
+        return prompt
+
+    def _process_generated(
+        task: dict[str, Any],
+        raw_text: str,
+        raw_payload: Any,
+        latency_ms: float,
+        input_tokens: int,
+        output_tokens: int,
+        provider: str,
+        model: str,
+        error: str | None,
+    ) -> None:
+        nonlocal total_created
+        ui_id = task["ui_id"]
+        response_id = task["response_id"]
+        query_id = task["query_id"]
+        response_text = task["response_text"]
+        assets_list = task["assets_list"]
+        prompt = task["prompt"]
+
+        parsed_ok = True
+        errors: list[str] = []
+        try:
+            genui_json = extract_json(raw_text)
+        except Exception as exc:
+            parsed_ok = False
+            genui_json = None
+            errors.append(f"json_parse_error: {exc}")
+
+        schema_valid_strict = False
+        schema_valid_lenient = False
+        repair_needed = False
+
+        if parsed_ok and genui_json is not None:
+            schema_valid_strict, schema_errors, validator_ok = _validate_schema(
+                schema, genui_json, schema_path.parent
+            )
+            if schema_valid_strict:
+                schema_valid_lenient = True
+            else:
+                errors.extend(schema_errors)
+                if not validator_ok:
+                    schema_valid_lenient = True
+
+        repair_attempts = 0
+        while (not parsed_ok or not schema_valid_strict) and repair_attempts < max_repair_attempts:
+            repair_attempts += 1
+            repair_needed = True
+            repair_prompt = (
+                "The previous output was not valid JSON or failed schema validation. "
+                "Fix the output to be valid JSON that satisfies the schema. "
+                f"Errors: {errors}.\n"
+                "Return ONLY the corrected JSON."
+            )
+            repaired_text = f"{repair_prompt}\n\nOriginal:\n{raw_text}"
+
+            def _repair_call():
+                rate_limiter.acquire()
+                return adapter.generate(
+                    prompt=repaired_text,
+                    system=None,
+                    temperature=0.2,
+                    max_tokens=max_tokens,
+                    seed=seed + 100 + repair_attempts,
+                    json_mode=True if adapter.spec.supports_json_mode else False,
+                )
+
+            try:
+                result = with_retry(_repair_call, max_attempts=max_attempts)
+            except Exception as exc:
+                if isinstance(exc, LLMRateLimitError):
+                    logger.error(
+                        "Stage3 rate limit info: limits=%s headers=%s",
+                        exc.limits or "unset",
+                        exc.headers or "none",
+                    )
+                raise
+            if result.error:
+                errors.append(f"repair_error: {result.error}")
+                raise RuntimeError(result.error)
+            raw_text = result.text
+            try:
+                genui_json = extract_json(raw_text)
+                parsed_ok = True
+            except Exception as exc:
+                parsed_ok = False
+                errors.append(f"repair_json_parse_error: {exc}")
+                continue
+
+            schema_valid_strict, schema_errors, validator_ok = _validate_schema(
+                schema, genui_json, schema_path.parent
+            )
+            if schema_valid_strict:
+                schema_valid_lenient = True
+            else:
+                errors.extend(schema_errors)
+                if not validator_ok:
+                    schema_valid_lenient = True
+
+        if not parsed_ok or genui_json is None or not schema_valid_strict:
+            # Final fallback: build a minimal valid GenUICraft message list.
+            fallback_text = _apply_asset_replacements(response_text, assets_list)
+            surface_id = f"surface_{query_id}"
+            catalog_id = "https://genui.local/specification/v0_9/standard_catalog.json"
+            genui_json = [
+                {
+                    "version": "v0.9",
+                    "createSurface": {
+                        "surfaceId": surface_id,
+                        "catalogId": catalog_id,
+                    },
+                },
+                {
+                    "version": "v0.9",
+                    "updateComponents": {
+                        "surfaceId": surface_id,
+                        "components": [
+                            {
+                                "id": "root",
+                                "component": "Column",
+                                "children": ["text_1"],
+                            },
+                            {
+                                "id": "text_1",
+                                "component": "Text",
+                                "text": fallback_text,
+                                "variant": "body",
+                            },
+                        ],
+                    },
+                },
+            ]
+            # Re-validate schema for fallback.
+            parsed_ok = True
+            errors = ["fallback_generated"]
+            schema_valid_strict, schema_errors, validator_ok = _validate_schema(
+                schema, genui_json, schema_path.parent
+            )
+            if schema_valid_strict:
+                schema_valid_lenient = True
+            else:
+                errors.extend(schema_errors)
+                if not validator_ok:
+                    schema_valid_lenient = True
+
+        toon = encode_toon(genui_json)
+        toon_ok = roundtrip_ok(genui_json, toon)
+
+        metrics = {
+            "content_coverage": content_coverage(response_text, genui_json),
+            "dup_rate": dup_rate(genui_json),
+            "lint_score": lint_score(genui_json),
+            "output_tokens_toon": count_tokens(toon),
+            "output_tokens_json": count_tokens(json.dumps(genui_json, ensure_ascii=False)),
+        }
+
+        short_errors = [e[:300] + ("..." if len(e) > 300 else "") for e in errors]
+        record = {
+            "ui_id": ui_id,
+            "response_id": response_id,
+            "query_id": query_id,
+            "genui_json": genui_json,
+            "assets": assets_list,
+            "toon": toon,
+            "validation": {
+                "json_parse_ok": parsed_ok,
+                "schema_valid_strict": schema_valid_strict,
+                "schema_valid_lenient": schema_valid_lenient,
+                "toon_roundtrip_ok": toon_ok,
+                "errors": short_errors,
+                "repair_attempts": repair_attempts,
+                "repair_needed": repair_needed,
+            },
+            "metrics": metrics,
+            "gen": {
+                "provider": provider,
+                "model": model,
+                "prompt_version": "genui_gen_v1",
+                "latency_ms": latency_ms,
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "cost_usd": None,
+                "error": error,
+            },
+            "created_at": datetime.utcnow().isoformat() + "Z",
+        }
+        writer.append(record)
+        existing_ids.add(ui_id)
+        logger.info("Stage3 created ui_id=%s schema_ok=%s", ui_id, schema_valid_strict)
+        total_created += 1
+
+        if errors:
+            error_path = artifacts_dir / f"error_{ui_id}.json"
+            error_payload = {
+                "prompt": prompt,
+                "raw_text": raw_text,
+                "errors": errors,
+            }
+            error_path.write_text(
+                json.dumps(error_payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+
+    def _generate_single(task: dict[str, Any]) -> None:
+        def _call():
+            rate_limiter.acquire()
+            return adapter.generate(
+                prompt=task["prompt"],
+                system=None,
+                temperature=0.2,
+                max_tokens=max_tokens,
+                seed=task["seed"],
+                json_mode=True if adapter.spec.supports_json_mode else False,
+            )
+
+        try:
+            result = with_retry(_call, max_attempts=max_attempts)
+        except Exception as exc:
+            if isinstance(exc, LLMRateLimitError):
+                logger.error(
+                    "Stage3 rate limit info: limits=%s headers=%s",
+                    exc.limits or "unset",
+                    exc.headers or "none",
+                )
+            raise
+        if result.error:
+            logger.error("Stage3 error response_id=%s: %s", task["response_id"], result.error)
+            raise RuntimeError(result.error)
+        cache.set(task["prompt_hash"], result.text, result.raw)
+        _process_generated(
+            task,
+            result.text,
+            result.raw,
+            result.latency_ms,
+            result.input_tokens,
+            result.output_tokens,
+            result.provider,
+            result.model,
+            result.error,
+        )
+
+    def _flush_pending() -> None:
+        nonlocal pending
+        if not pending:
+            return
+        tasks = pending
+        pending = []
+        results = None
+
+        if use_batch and len(tasks) > 1:
+            prompts = [task["prompt"] for task in tasks]
+            seeds = [task["seed"] for task in tasks]
+
+            def _call_batch():
+                rate_limiter.acquire()
+                return adapter.generate_batch(
+                    prompts=prompts,
+                    system=None,
+                    temperature=0.2,
+                    max_tokens=max_tokens,
+                    seeds=seeds,
+                    json_mode=True if adapter.spec.supports_json_mode else False,
+                    batch_name=f"stage3_{int(time.time())}",
+                )
+
+            try:
+                results = with_retry(_call_batch, max_attempts=max_attempts)
+            except Exception as exc:
+                if isinstance(exc, LLMRateLimitError):
+                    logger.error(
+                        "Stage3 rate limit info: limits=%s headers=%s",
+                        exc.limits or "unset",
+                        exc.headers or "none",
+                    )
+                logger.warning("Stage3 batch failed; falling back to single calls: %s", exc)
+                results = None
+
+        if results is None:
+            for task in tasks:
+                _generate_single(task)
+            return
+
+        if len(results) != len(tasks):
+            logger.warning(
+                "Stage3 batch size mismatch: expected=%s got=%s",
+                len(tasks),
+                len(results),
+            )
+
+        for task, result in zip_longest(tasks, results):
+            if result is None:
+                raise RuntimeError("Stage3 batch missing result")
+            if result.error:
+                logger.error("Stage3 error response_id=%s: %s", task["response_id"], result.error)
+                raise RuntimeError(result.error)
+            cache.set(task["prompt_hash"], result.text, result.raw)
+            _process_generated(
+                task,
+                result.text,
+                result.raw,
+                result.latency_ms,
+                result.input_tokens,
+                result.output_tokens,
+                result.provider,
+                result.model,
+                result.error,
+            )
+
     try:
         for response in iter_jsonl(responses_path):
+            if stop:
+                break
             response_id = response.get("response_id")
             query_id = response.get("query_id")
             response_text = response.get("response_text")
@@ -199,270 +544,57 @@ def run_stage3(
                 continue
 
             for c_idx in range(1, candidates_per_response + 1):
-                if max_total is not None and total_created >= max_total:
-                    logger.info("Stage3 reached max_total=%s", max_total)
-                    return
+                if stop:
+                    break
+                if max_total is not None:
+                    remaining = max_total - total_created
+                    if remaining <= 0:
+                        stop = True
+                        break
+                    if len(pending) >= remaining:
+                        stop = True
+                        break
 
                 ui_id = _make_ui_id(query_id, n_idx, c_idx)
                 if ui_id in existing_ids:
                     continue
 
-                asset_context = _build_asset_context(assets_list)
-                prompt_response_text = response_text
-                if asset_context:
-                    prompt_response_text = f"{response_text}\n\n{asset_context}"
-
-                prompt = render_prompt(prompt_template, response_text=prompt_response_text)
-                if prompt_max_tokens:
-                    prompt_tokens = count_tokens(prompt)
-                    if prompt_tokens > prompt_max_tokens:
-                        # First attempt: drop asset context to save tokens.
-                        prompt = render_prompt(prompt_template, response_text=response_text)
-                        prompt_tokens = count_tokens(prompt)
-                    if prompt_tokens > prompt_max_tokens:
-                        base_prompt = render_prompt(prompt_template, response_text="")
-                        base_tokens = count_tokens(base_prompt)
-                        budget = max(200, prompt_max_tokens - base_tokens)
-                        trimmed_text, truncated = _truncate_tokens(response_text, budget)
-                        if truncated:
-                            logger.warning(
-                                "Stage3 prompt truncated response_id=%s tokens=%s budget=%s",
-                                response_id,
-                                count_tokens(response_text),
-                                budget,
-                            )
-                        prompt = render_prompt(prompt_template, response_text=trimmed_text)
+                prompt = _build_prompt_for(response_id, response_text, assets_list)
                 prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}")
-
-                cached = cache.get(prompt_hash)
-                if cached:
-                    raw_text = cached.text
-                    raw_payload = cached.raw
-                    latency_ms = 0.0
-                    input_tokens = 0
-                    output_tokens = 0
-                    provider = adapter.spec.provider
-                    model = adapter.spec.model
-                    error = None
-                else:
-
-                    def _call():
-                        rate_limiter.acquire()
-                        return adapter.generate(
-                            prompt=prompt,
-                            system=None,
-                            temperature=0.2,
-                            max_tokens=max_tokens,
-                            seed=seed + c_idx,
-                            json_mode=True if adapter.spec.supports_json_mode else False,
-                        )
-
-                    try:
-                        result = with_retry(_call, max_attempts=max_attempts)
-                    except Exception as exc:
-                        if isinstance(exc, LLMRateLimitError):
-                            logger.error(
-                                "Stage3 rate limit info: limits=%s headers=%s",
-                                exc.limits or "unset",
-                                exc.headers or "none",
-                            )
-                        raise
-                    if result.error:
-                        logger.error("Stage3 error response_id=%s: %s", response_id, result.error)
-                        raise RuntimeError(result.error)
-                    raw_text = result.text
-                    raw_payload = result.raw
-                    latency_ms = result.latency_ms
-                    input_tokens = result.input_tokens
-                    output_tokens = result.output_tokens
-                    provider = result.provider
-                    model = result.model
-                    error = result.error
-                    cache.set(prompt_hash, raw_text, raw_payload)
-
-                parsed_ok = True
-                errors: list[str] = []
-                try:
-                    genui_json = extract_json(raw_text)
-                except Exception as exc:
-                    parsed_ok = False
-                    genui_json = None
-                    errors.append(f"json_parse_error: {exc}")
-
-                schema_valid_strict = False
-                schema_valid_lenient = False
-                repair_needed = False
-
-                if parsed_ok and genui_json is not None:
-                    schema_valid_strict, schema_errors, validator_ok = _validate_schema(
-                        schema, genui_json, schema_path.parent
-                    )
-                    if schema_valid_strict:
-                        schema_valid_lenient = True
-                    else:
-                        errors.extend(schema_errors)
-                        if not validator_ok:
-                            schema_valid_lenient = True
-
-                repair_attempts = 0
-                while (not parsed_ok or not schema_valid_strict) and repair_attempts < max_repair_attempts:
-                    repair_attempts += 1
-                    repair_needed = True
-                    repair_prompt = (
-                        "The previous output was not valid JSON or failed schema validation. "
-                        "Fix the output to be valid JSON that satisfies the schema. "
-                        f"Errors: {errors}.\n"
-                        "Return ONLY the corrected JSON."
-                    )
-                    repaired_text = f"{repair_prompt}\n\nOriginal:\n{raw_text}"
-
-                    def _repair_call():
-                        rate_limiter.acquire()
-                        return adapter.generate(
-                            prompt=repaired_text,
-                            system=None,
-                            temperature=0.2,
-                            max_tokens=max_tokens,
-                            seed=seed + 100 + repair_attempts,
-                            json_mode=True if adapter.spec.supports_json_mode else False,
-                        )
-
-                    try:
-                        result = with_retry(_repair_call, max_attempts=max_attempts)
-                    except Exception as exc:
-                        if isinstance(exc, LLMRateLimitError):
-                            logger.error(
-                                "Stage3 rate limit info: limits=%s headers=%s",
-                                exc.limits or "unset",
-                                exc.headers or "none",
-                            )
-                        raise
-                    if result.error:
-                        errors.append(f"repair_error: {result.error}")
-                        raise RuntimeError(result.error)
-                    raw_text = result.text
-                    try:
-                        genui_json = extract_json(raw_text)
-                        parsed_ok = True
-                    except Exception as exc:
-                        parsed_ok = False
-                        errors.append(f"repair_json_parse_error: {exc}")
-                        continue
-
-                    schema_valid_strict, schema_errors, validator_ok = _validate_schema(
-                        schema, genui_json, schema_path.parent
-                    )
-                    if schema_valid_strict:
-                        schema_valid_lenient = True
-                    else:
-                        errors.extend(schema_errors)
-                        if not validator_ok:
-                            schema_valid_lenient = True
-
-                if not parsed_ok or genui_json is None or not schema_valid_strict:
-                    # Final fallback: build a minimal valid GenUICraft message list.
-                    fallback_text = _apply_asset_replacements(response_text, assets_list)
-                    surface_id = f"surface_{query_id}"
-                    catalog_id = "https://genui.local/specification/v0_9/standard_catalog.json"
-                    genui_json = [
-                        {
-                            "version": "v0.9",
-                            "createSurface": {
-                                "surfaceId": surface_id,
-                                "catalogId": catalog_id,
-                            },
-                        },
-                        {
-                            "version": "v0.9",
-                            "updateComponents": {
-                                "surfaceId": surface_id,
-                                "components": [
-                                    {
-                                        "id": "root",
-                                        "component": "Column",
-                                        "children": ["text_1"],
-                                    },
-                                    {
-                                        "id": "text_1",
-                                        "component": "Text",
-                                        "text": fallback_text,
-                                        "variant": "body",
-                                    },
-                                ],
-                            },
-                        },
-                    ]
-                    # Re-validate schema for fallback.
-                    parsed_ok = True
-                    errors = ["fallback_generated"]
-                    schema_valid_strict, schema_errors, validator_ok = _validate_schema(
-                        schema, genui_json, schema_path.parent
-                    )
-                    if schema_valid_strict:
-                        schema_valid_lenient = True
-                    else:
-                        errors.extend(schema_errors)
-                        if not validator_ok:
-                            schema_valid_lenient = True
-
-                toon = encode_toon(genui_json)
-                toon_ok = roundtrip_ok(genui_json, toon)
-
-                metrics = {
-                    "content_coverage": content_coverage(response_text, genui_json),
-                    "dup_rate": dup_rate(genui_json),
-                    "lint_score": lint_score(genui_json),
-                    "output_tokens_toon": count_tokens(toon),
-                    "output_tokens_json": count_tokens(json.dumps(genui_json, ensure_ascii=False)),
-                }
-
-                short_errors = [e[:300] + ("..." if len(e) > 300 else "") for e in errors]
-                record = {
+                task = {
                     "ui_id": ui_id,
                     "response_id": response_id,
                     "query_id": query_id,
-                    "genui_json": genui_json,
-                    "assets": assets_list,
-                    "toon": toon,
-                    "validation": {
-                        "json_parse_ok": parsed_ok,
-                        "schema_valid_strict": schema_valid_strict,
-                        "schema_valid_lenient": schema_valid_lenient,
-                        "toon_roundtrip_ok": toon_ok,
-                        "errors": short_errors,
-                        "repair_attempts": repair_attempts,
-                        "repair_needed": repair_needed,
-                    },
-                    "metrics": metrics,
-                    "gen": {
-                        "provider": provider,
-                        "model": model,
-                        "prompt_version": "genui_gen_v1",
-                        "latency_ms": latency_ms,
-                        "input_tokens": input_tokens,
-                        "output_tokens": output_tokens,
-                        "cost_usd": None,
-                        "error": error,
-                    },
-                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "response_text": response_text,
+                    "assets_list": assets_list,
+                    "prompt": prompt,
+                    "prompt_hash": prompt_hash,
+                    "seed": seed + c_idx,
                 }
-                writer.append(record)
-                existing_ids.add(ui_id)
-                logger.info("Stage3 created ui_id=%s schema_ok=%s", ui_id, schema_valid_strict)
-                total_created += 1
 
-                if errors:
-                    error_path = artifacts_dir / f"error_{ui_id}.json"
-                    error_payload = {
-                        "prompt": prompt,
-                        "raw_text": raw_text,
-                        "errors": errors,
-                    }
-                    error_path.write_text(
-                        json.dumps(error_payload, ensure_ascii=False, indent=2),
-                        encoding="utf-8",
+                cached = cache.get(prompt_hash)
+                if cached:
+                    _process_generated(
+                        task,
+                        cached.text,
+                        cached.raw,
+                        0.0,
+                        0,
+                        0,
+                        adapter.spec.provider,
+                        adapter.spec.model,
+                        None,
                     )
+                    continue
+
+                if not use_batch:
+                    _generate_single(task)
+                    continue
+
+                pending.append(task)
+                if len(pending) >= batch_size:
+                    _flush_pending()
+
+        _flush_pending()
     finally:
         _write_aggregates()
-
-

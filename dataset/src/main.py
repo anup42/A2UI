@@ -255,6 +255,7 @@ def main() -> None:
                 candidates_per_response=int(run_cfg.get("genui_candidates_per_response", 1)),
                 max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
                 max_tokens=int(run_cfg.get("genui_max_tokens", 1024)),
+                batch_size=int(run_cfg.get("genui_batch_size", 100)),
                 seed=int(benchmark_cfg.get("fixed_seed", 123)),
                 rate_limiter=rate_limiter,
                 cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
@@ -341,6 +342,7 @@ def main() -> None:
             max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
             max_tokens=int(run_cfg.get("genui_max_tokens", 1024)),
             prompt_max_tokens=int(prompt_max_tokens) if prompt_max_tokens else None,
+            batch_size=int(run_cfg.get("genui_batch_size", 100)),
             seed=int(run_cfg.get("seed", 42)),
             rate_limiter=rate_limiter,
             cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
@@ -380,5 +382,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
 
