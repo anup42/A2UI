@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime
 import time
 import hashlib
@@ -22,6 +21,33 @@ from utils.retry import with_retry
 def _make_response_id(query_id: str, n_idx: int) -> str:
     suffix = query_id.replace("q_", "")
     return f"r_{suffix}_{n_idx:02d}"
+
+
+
+_TRANSIENT_ERROR_MARKERS = (
+    "getaddrinfo failed",
+    "temporary failure in name resolution",
+    "name or service not known",
+    "timed out",
+    "timeout",
+    "connection reset",
+    "connection aborted",
+    "connection refused",
+    "remote end closed connection",
+    "http 5",
+)
+
+
+def _is_transient_error(message: str) -> bool:
+    if not message:
+        return False
+    lowered = message.lower()
+    return any(marker in lowered for marker in _TRANSIENT_ERROR_MARKERS)
+
+
+def _sleep_backoff(attempt: int) -> None:
+    delay = min(30.0, 2.0 ** (attempt - 1))
+    time.sleep(delay)
 
 
 _URL_RE = re.compile(r"https?://[^\s<>\"')]+")
@@ -196,7 +222,6 @@ def run_stage2(
     max_attempts: int = 3,
 ) -> None:
     prompt_template = load_prompt(prompt_path)
-    batch_prompt_template = load_prompt(batch_prompt_path) if batch_prompt_path else ""
 
     existing_ids = {row.get("response_id") for row in iter_jsonl(responses_path)}
     existing_hashes = set()
@@ -210,91 +235,6 @@ def run_stage2(
     url_cache: dict[str, Path] = {}
 
     total_created = 0
-
-    if query_batch_size > 1:
-        queries = []
-        for q in iter_jsonl(queries_path):
-            if not isinstance(q, dict):
-                continue
-            if not q.get("query_id") or not q.get("query_text"):
-                logger.warning("Stage2 skipping query without id/text: %s", q)
-                continue
-            queries.append(q)
-        if group_by_intent:
-            grouped: dict[str, list[dict]] = {}
-            order: list[str] = []
-            for q in queries:
-                intent = q.get("intent", "unknown")
-                if intent not in grouped:
-                    grouped[intent] = []
-                    order.append(intent)
-                grouped[intent].append(q)
-            intent_order = order
-        else:
-            grouped = {"all": queries}
-            intent_order = ["all"]
-
-        use_gemini_batch = adapter.spec.provider == "gemini" and hasattr(adapter, "generate_batch")
-        for intent in intent_order:
-            rows = grouped[intent]
-            idx = 0
-            while idx < len(rows):
-                if max_total is not None and total_created >= max_total:
-                    logger.info("Stage2 reached max_total=%s", max_total)
-                    return
-                batch = rows[idx: idx + query_batch_size]
-                idx += query_batch_size
-                # filter already-completed
-                batch = [
-                    q for q in batch
-                    if _make_response_id(q.get("query_id", ""), 1) not in existing_ids
-                ]
-                if not batch:
-                    continue
-                if use_gemini_batch:
-                    created = _process_query_batch_gemini(
-                        batch,
-                        prompt_template,
-                        adapter,
-                        writer,
-                        existing_ids,
-                        existing_hashes,
-                        assets_dir,
-                        url_cache,
-                        max_tokens,
-                        seed,
-                        rate_limiter,
-                        cache,
-                        logger,
-                        max_attempts,
-                        batch_fallback_per_query,
-                        temperatures[0] if temperatures else 0.7,
-                    )
-                else:
-                    created = _process_query_batch(
-                        batch,
-                        batch_prompt_template,
-                        prompt_template,
-                        adapter,
-                        writer,
-                        existing_ids,
-                        existing_hashes,
-                        assets_dir,
-                        url_cache,
-                        max_tokens,
-                        seed,
-                        rate_limiter,
-                        cache,
-                        logger,
-                        max_attempts,
-                        batch_fallback_per_query,
-                        temperatures[0] if temperatures else 0.7,
-                    )
-                total_created += created
-                if max_total is not None and total_created >= max_total:
-                    logger.info("Stage2 reached max_total=%s", max_total)
-                    return
-        return
 
     for query in iter_jsonl(queries_path):
         query_id = query.get("query_id")
@@ -341,20 +281,50 @@ def run_stage2(
                         seed=seed + n_idx,
                         json_mode=batch > 1 and adapter.spec.supports_json_mode,
                     )
-
-                try:
-                    result = with_retry(_call, max_attempts=max_attempts)
-                except Exception as exc:
-                    if isinstance(exc, LLMRateLimitError):
-                        logger.error(
-                            "Stage2 rate limit info: limits=%s headers=%s",
-                            exc.limits or "unset",
-                            exc.headers or "none",
+            
+                result = None
+                for attempt in range(1, max_attempts + 1):
+                    try:
+                        result = with_retry(_call, max_attempts=1)
+                    except Exception as exc:
+                        if isinstance(exc, LLMRateLimitError):
+                            logger.error(
+                                "Stage2 rate limit info: limits=%s headers=%s",
+                                exc.limits or "unset",
+                                exc.headers or "none",
+                            )
+                            raise
+                        if attempt < max_attempts:
+                            logger.warning(
+                                "Stage2 transient exception query_id=%s attempt=%s/%s err=%s",
+                                query_id,
+                                attempt,
+                                max_attempts,
+                                exc,
+                            )
+                            _sleep_backoff(attempt)
+                            continue
+                        raise
+                    if not result.error:
+                        break
+                    if _is_transient_error(result.error) and attempt < max_attempts:
+                        logger.warning(
+                            "Stage2 transient error query_id=%s attempt=%s/%s err=%s",
+                            query_id,
+                            attempt,
+                            max_attempts,
+                            result.error,
                         )
-                    raise
-                if result.error:
+                        _sleep_backoff(attempt)
+                        continue
                     logger.error("Stage2 error query_id=%s: %s", query_id, result.error)
-                    raise RuntimeError(result.error)
+                    result = None
+                    break
+            
+                if result is None or result.error:
+                    n_idx += 1
+                    remaining -= 1
+                    continue
                 raw_text = result.text.strip()
                 latency_ms = result.latency_ms
                 input_tokens = result.input_tokens
@@ -362,7 +332,6 @@ def run_stage2(
                 provider = result.provider
                 model = result.model
                 cache.set(prompt_hash, result.text, result.raw)
-
             responses: list[str]
             if batch > 1:
                 try:
@@ -422,544 +391,3 @@ def run_stage2(
             if batch == 1 and not responses:
                 n_idx += 1
                 remaining -= 1
-
-
-def _process_query_batch(
-    queries: list[dict],
-    batch_prompt_template: str,
-    single_prompt_template: str,
-    adapter: BaseLLMAdapter,
-    writer: JsonlWriter,
-    existing_ids: set[str],
-    existing_hashes: set[str],
-    assets_dir: Path,
-    url_cache: dict[str, Path],
-    max_tokens: int,
-    seed: int,
-    rate_limiter: RateLimiter,
-    cache: PromptCache,
-    logger,
-    max_attempts: int,
-    fallback_per_query: bool,
-    temperature: float,
-) -> int:
-    if not queries:
-        return 0
-    payload = []
-    for q in queries:
-        qid = q.get("query_id")
-        qtext = q.get("query_text")
-        if not qid or not qtext:
-            logger.warning("Stage2 batch skip missing query_id/query_text: %s", q)
-            continue
-        payload.append({"query_id": qid, "query_text": qtext})
-    if not payload:
-        return 0
-    queries_json = json.dumps(payload, ensure_ascii=False)
-    prompt = batch_prompt_template or (
-        "Return JSON array of {query_id, response_text} for these queries:\n" + queries_json
-    )
-    prompt = render_prompt(prompt, queries_json=queries_json)
-    prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}")
-
-    cached = cache.get(prompt_hash)
-    if cached:
-        raw_text = cached.text.strip()
-        latency_ms = 0.0
-        input_tokens = 0
-        output_tokens = 0
-        provider = adapter.spec.provider
-        model = adapter.spec.model
-    else:
-        def _call():
-            rate_limiter.acquire()
-            return adapter.generate(
-                prompt=prompt,
-                system=None,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                seed=seed,
-                json_mode=adapter.spec.supports_json_mode,
-            )
-
-        try:
-            result = with_retry(_call, max_attempts=max_attempts)
-        except Exception as exc:
-            # If rate limited, split the batch to reduce request size.
-            if isinstance(exc, LLMRateLimitError):
-                logger.error(
-                    "Stage2 rate limit info: limits=%s headers=%s",
-                    exc.limits or "unset",
-                    exc.headers or "none",
-                )
-                if len(queries) > 1:
-                    mid = len(queries) // 2
-                    return _process_query_batch(
-                        queries[:mid],
-                        batch_prompt_template,
-                        single_prompt_template,
-                        adapter,
-                        writer,
-                        existing_ids,
-                        existing_hashes,
-                        assets_dir,
-                        url_cache,
-                        max_tokens,
-                        seed,
-                        rate_limiter,
-                        cache,
-                        logger,
-                        max_attempts,
-                        fallback_per_query,
-                        temperature,
-                    ) + _process_query_batch(
-                        queries[mid:],
-                        batch_prompt_template,
-                        single_prompt_template,
-                        adapter,
-                        writer,
-                        existing_ids,
-                        existing_hashes,
-                        assets_dir,
-                        url_cache,
-                        max_tokens,
-                        seed,
-                        rate_limiter,
-                        cache,
-                        logger,
-                        max_attempts,
-                        fallback_per_query,
-                        temperature,
-                    )
-            if "429" in str(exc) and len(queries) > 1:
-                mid = len(queries) // 2
-                return _process_query_batch(
-                    queries[:mid],
-                    batch_prompt_template,
-                    single_prompt_template,
-                    adapter,
-                    writer,
-                    existing_ids,
-                    existing_hashes,
-                    assets_dir,
-                    url_cache,
-                    max_tokens,
-                    seed,
-                    rate_limiter,
-                    cache,
-                    logger,
-                    max_attempts,
-                    fallback_per_query,
-                    temperature,
-                ) + _process_query_batch(
-                    queries[mid:],
-                    batch_prompt_template,
-                    single_prompt_template,
-                    adapter,
-                    writer,
-                    existing_ids,
-                    existing_hashes,
-                    assets_dir,
-                    url_cache,
-                    max_tokens,
-                    seed,
-                    rate_limiter,
-                    cache,
-                    logger,
-                    max_attempts,
-                    fallback_per_query,
-                    temperature,
-                )
-            logger.error("Stage2 batch error: %s", exc)
-            return 0
-        if result.error:
-            logger.error("Stage2 batch error: %s", result.error)
-            return 0
-        raw_text = result.text.strip()
-        latency_ms = result.latency_ms
-        input_tokens = result.input_tokens
-        output_tokens = result.output_tokens
-        provider = result.provider
-        model = result.model
-        cache.set(prompt_hash, result.text, result.raw)
-
-    try:
-        parsed = extract_json(raw_text)
-    except Exception as exc:
-        logger.error("Stage2 batch parse error: %s", exc)
-        parsed = []
-        # Fallback: attempt to recover list of objects from raw text
-        if raw_text:
-            recovered = []
-            depth = 0
-            start = None
-            in_string = False
-            escape = False
-            for i, ch in enumerate(raw_text):
-                if ch == "\\" and in_string:
-                    escape = not escape
-                    continue
-                if ch == '"' and not escape:
-                    in_string = not in_string
-                escape = False if ch != "\\" else escape
-                if in_string:
-                    continue
-                if ch == "{":
-                    if depth == 0:
-                        start = i
-                    depth += 1
-                elif ch == "}":
-                    depth -= 1
-                    if depth == 0 and start is not None:
-                        chunk = raw_text[start : i + 1]
-                        try:
-                            obj = json.loads(chunk)
-                            if isinstance(obj, dict):
-                                recovered.append(obj)
-                        except Exception:
-                            pass
-                        start = None
-            if recovered:
-                parsed = recovered
-            elif len(queries) > 1:
-                logger.warning("Stage2 batch parse failed; splitting batch size=%s", len(queries))
-                mid = len(queries) // 2
-                return _process_query_batch(
-                    queries[:mid],
-                    batch_prompt_template,
-                    single_prompt_template,
-                    adapter,
-                    writer,
-                    existing_ids,
-                    existing_hashes,
-                    assets_dir,
-                    url_cache,
-                    max_tokens,
-                    seed,
-                    rate_limiter,
-                    cache,
-                    logger,
-                    max_attempts,
-                    fallback_per_query,
-                    temperature,
-                ) + _process_query_batch(
-                    queries[mid:],
-                    batch_prompt_template,
-                    single_prompt_template,
-                    adapter,
-                    writer,
-                    existing_ids,
-                    existing_hashes,
-                    assets_dir,
-                    url_cache,
-                    max_tokens,
-                    seed,
-                    rate_limiter,
-                    cache,
-                    logger,
-                    max_attempts,
-                    fallback_per_query,
-                    temperature,
-                )
-
-    responses_by_id = {}
-    if isinstance(parsed, list):
-        for item in parsed:
-            if not isinstance(item, dict):
-                continue
-            qid = item.get("query_id")
-            text = item.get("response_text")
-            if qid and text:
-                responses_by_id[str(qid)] = str(text).strip()
-
-    created = 0
-    for q in queries:
-        qid = q.get("query_id")
-        qtext = q.get("query_text")
-        if not qid or not qtext:
-            logger.warning("Stage2 batch skip missing query_id/query_text: %s", q)
-            continue
-        response_text = responses_by_id.get(qid, "").strip()
-        if not response_text and fallback_per_query:
-            single_prompt = render_prompt(single_prompt_template, query_text=qtext)
-            single_hash = hash_text(f"{adapter.spec.name}:{single_prompt}")
-            cached_single = cache.get(single_hash)
-            if cached_single:
-                response_text = cached_single.text.strip()
-            else:
-                def _single_call():
-                    rate_limiter.acquire()
-                    return adapter.generate(
-                        prompt=single_prompt,
-                        system=None,
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                        seed=seed,
-                        json_mode=False,
-                    )
-
-                try:
-                    single_result = with_retry(_single_call, max_attempts=max_attempts)
-                except Exception as exc:
-                    if isinstance(exc, LLMRateLimitError):
-                        logger.error(
-                            "Stage2 rate limit info: limits=%s headers=%s",
-                            exc.limits or "unset",
-                            exc.headers or "none",
-                        )
-                    logger.error("Stage2 fallback error query_id=%s: %s", qid, exc)
-                    continue
-                if single_result.error:
-                    logger.error("Stage2 fallback error query_id=%s: %s", qid, single_result.error)
-                    continue
-                response_text = single_result.text.strip()
-                cache.set(single_hash, single_result.text, single_result.raw)
-
-        if not response_text:
-            continue
-        response_id = _make_response_id(qid, 1)
-        if response_id in existing_ids:
-            continue
-        norm_hash = hash_text(normalize_text(response_text))
-        if norm_hash in existing_hashes:
-            continue
-        assets = _download_assets(
-            response_text,
-            response_id,
-            assets_dir,
-            logger,
-            url_cache,
-        )
-        record = {
-            "response_id": response_id,
-            "query_id": qid,
-            "n_idx": 1,
-            "response_text": response_text,
-            "created_at": datetime.utcnow().isoformat() + "Z",
-            "assets": assets,
-            "gen": {
-                "provider": provider,
-                "model": model,
-                "latency_ms": latency_ms,
-                "input_tokens": input_tokens,
-                "output_tokens": output_tokens,
-                "cost_usd": None,
-            },
-        }
-        writer.append(record)
-        existing_ids.add(response_id)
-        existing_hashes.add(norm_hash)
-        logger.info("Stage2 created response_id=%s", response_id)
-        created += 1
-    return created
-
-
-def _process_query_batch_gemini(
-    queries: list[dict],
-    single_prompt_template: str,
-    adapter: BaseLLMAdapter,
-    writer: JsonlWriter,
-    existing_ids: set[str],
-    existing_hashes: set[str],
-    assets_dir: Path,
-    url_cache: dict[str, Path],
-    max_tokens: int,
-    seed: int,
-    rate_limiter: RateLimiter,
-    cache: PromptCache,
-    logger,
-    max_attempts: int,
-    fallback_per_query: bool,
-    temperature: float,
-) -> int:
-    if not queries:
-        return 0
-
-    entries: list[dict] = []
-    for q in queries:
-        qid = q.get("query_id")
-        qtext = q.get("query_text")
-        if not qid or not qtext:
-            logger.warning("Stage2 batch skip missing query_id/query_text: %s", q)
-            continue
-        response_id = _make_response_id(qid, 1)
-        if response_id in existing_ids:
-            continue
-        prompt = render_prompt(single_prompt_template, query_text=qtext)
-        prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}")
-        entries.append(
-            {
-                "query_id": qid,
-                "response_id": response_id,
-                "prompt": prompt,
-                "prompt_hash": prompt_hash,
-            }
-        )
-
-    if not entries:
-        return 0
-
-    def _write_response(
-        response_id: str,
-        query_id: str,
-        response_text: str,
-        latency_ms: float,
-        input_tokens: int,
-        output_tokens: int,
-        provider: str,
-        model: str,
-    ) -> bool:
-        if not response_text:
-            return False
-        norm_hash = hash_text(normalize_text(response_text))
-        if norm_hash in existing_hashes:
-            logger.info("Stage2 duplicate response query_id=%s", query_id)
-            return False
-        assets = _download_assets(
-            response_text,
-            response_id,
-            assets_dir,
-            logger,
-            url_cache,
-        )
-        record = {
-            "response_id": response_id,
-            "query_id": query_id,
-            "n_idx": 1,
-            "response_text": response_text,
-            "created_at": datetime.utcnow().isoformat() + "Z",
-            "assets": assets,
-            "gen": {
-                "provider": provider,
-                "model": model,
-                "latency_ms": latency_ms,
-                "input_tokens": input_tokens,
-                "output_tokens": output_tokens,
-                "cost_usd": None,
-            },
-        }
-        writer.append(record)
-        existing_ids.add(response_id)
-        existing_hashes.add(norm_hash)
-        logger.info("Stage2 created response_id=%s", response_id)
-        return True
-
-    created = 0
-    pending: list[dict] = []
-    for entry in entries:
-        cached = cache.get(entry["prompt_hash"])
-        if cached:
-            raw_text = cached.text.strip()
-            if _write_response(
-                entry["response_id"],
-                entry["query_id"],
-                raw_text,
-                0.0,
-                0,
-                0,
-                adapter.spec.provider,
-                adapter.spec.model,
-            ):
-                created += 1
-        else:
-            pending.append(entry)
-
-    if not pending:
-        return created
-
-    prompts = [entry["prompt"] for entry in pending]
-    seeds = [seed + idx for idx in range(len(pending))]
-    results: list | None = None
-
-    def _call_batch():
-        rate_limiter.acquire()
-        return adapter.generate_batch(
-            prompts=prompts,
-            system=None,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            seeds=seeds,
-            json_mode=False,
-            batch_name=f"stage2_{int(time.time())}",
-        )
-
-    try:
-        results = with_retry(_call_batch, max_attempts=max_attempts)
-    except Exception as exc:
-        if isinstance(exc, LLMRateLimitError):
-            logger.error(
-                "Stage2 rate limit info: limits=%s headers=%s",
-                exc.limits or "unset",
-                exc.headers or "none",
-            )
-        logger.warning("Stage2 batch failed; falling back to single calls: %s", exc)
-        results = None
-
-    def _generate_single(entry: dict) -> None:
-        prompt = entry["prompt"]
-
-        def _call():
-            rate_limiter.acquire()
-            return adapter.generate(
-                prompt=prompt,
-                system=None,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                seed=seed,
-                json_mode=False,
-            )
-
-        result = with_retry(_call, max_attempts=max_attempts)
-        if result.error:
-            logger.error("Stage2 error query_id=%s: %s", entry["query_id"], result.error)
-            return
-        response_text = result.text.strip()
-        cache.set(entry["prompt_hash"], result.text, result.raw)
-        nonlocal created
-        if _write_response(
-            entry["response_id"],
-            entry["query_id"],
-            response_text,
-            result.latency_ms,
-            result.input_tokens,
-            result.output_tokens,
-            result.provider,
-            result.model,
-        ):
-            created += 1
-
-    if results is None:
-        for entry in pending:
-            _generate_single(entry)
-        return created
-
-    if len(results) != len(pending):
-        logger.warning(
-            "Stage2 batch size mismatch: expected=%s got=%s",
-            len(pending),
-            len(results),
-        )
-
-    for entry, result in zip(pending, results):
-        if result is None:
-            continue
-        if result.error:
-            logger.warning("Stage2 batch error query_id=%s: %s", entry["query_id"], result.error)
-            if fallback_per_query:
-                _generate_single(entry)
-            continue
-        response_text = result.text.strip()
-        cache.set(entry["prompt_hash"], result.text, result.raw)
-        if _write_response(
-            entry["response_id"],
-            entry["query_id"],
-            response_text,
-            result.latency_ms,
-            result.input_tokens,
-            result.output_tokens,
-            result.provider,
-            result.model,
-        ):
-            created += 1
-
-    return created

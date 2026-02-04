@@ -4,6 +4,9 @@ import argparse
 import json
 import os
 import sys
+import time
+import subprocess
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 
@@ -117,6 +120,99 @@ def _load_env(root: Path) -> None:
                 os.environ[pending_key] = ",".join(pending_parts)
 
 
+def _endpoint_ready(endpoint: str, timeout_s: float = 2.0) -> bool:
+    check_url = endpoint
+    if check_url.endswith("/v1/chat/completions"):
+        check_url = check_url.replace("/v1/chat/completions", "/v1/models")
+    try:
+        with urllib.request.urlopen(check_url, timeout=timeout_s) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+
+def _wait_for_endpoint(endpoint: str, timeout_s: float = 120.0) -> bool:
+    start = time.time()
+    while time.time() - start < timeout_s:
+        if _endpoint_ready(endpoint):
+            return True
+        time.sleep(1.0)
+    return False
+
+
+def _maybe_start_vllm(spec: ModelSpec, args, logger):
+    if not args.start_vllm:
+        return None
+    if args.stage not in (1, 2, 3):
+        return None
+    if spec.provider.lower() != "local":
+        return None
+    model_lower = spec.model.lower()
+    if "qwen3-coder" not in model_lower and "deepseek-coder" not in model_lower:
+        return None
+
+    endpoint = spec.endpoint or "http://localhost:8000/v1/chat/completions"
+    if _endpoint_ready(endpoint):
+        logger.info("vLLM already running at %s", endpoint)
+        return None
+
+    model_path = args.vllm_model_path or os.environ.get("QWEN_MODEL_PATH")
+    if not model_path:
+        raise SystemExit("Missing QWEN model path. Use --vllm_model_path or set QWEN_MODEL_PATH.")
+
+    script = ROOT / "scripts" / "serve_qwen_vllm.py"
+    if not script.exists():
+        script = ROOT / "scripts" / "serve_qwen_vllm.py"
+    cmd = [
+        sys.executable,
+        str(script),
+        "--model-path",
+        model_path,
+        "--served-model-name",
+        spec.model,
+        "--gpus",
+        str(args.vllm_gpus),
+        "--host",
+        args.vllm_host,
+        "--port",
+        str(args.vllm_port),
+        "--dtype",
+        args.vllm_dtype,
+        "--gpu-memory-utilization",
+        str(args.vllm_gpu_mem_util),
+    ]
+    if args.vllm_max_model_len:
+        cmd += ["--max-model-len", str(args.vllm_max_model_len)]
+    if args.vllm_swap_space:
+        cmd += ["--swap-space", str(args.vllm_swap_space)]
+    if args.vllm_trust_remote_code:
+        cmd.append("--trust-remote-code")
+    if args.vllm_cuda_visible_devices:
+        cmd += ["--cuda-visible-devices", args.vllm_cuda_visible_devices]
+
+    logger.info("Starting vLLM server: %s", " ".join(cmd))
+    proc = subprocess.Popen(cmd)
+    if not _wait_for_endpoint(endpoint, timeout_s=args.vllm_start_timeout):
+        proc.terminate()
+        raise RuntimeError(f"vLLM failed to start within {args.vllm_start_timeout}s")
+    logger.info("vLLM ready at %s", endpoint)
+    return proc
+
+
+def _stop_vllm(proc, logger) -> None:
+    if proc is None:
+        return
+    try:
+        proc.terminate()
+        proc.wait(timeout=10)
+    except Exception:
+        try:
+            proc.kill()
+        except Exception:
+            pass
+    logger.info("vLLM server stopped")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", type=int, choices=[1, 2, 3, 4], help="Run a single stage")
@@ -130,6 +226,33 @@ def main() -> None:
         type=int,
         default=None,
         help="Override GenUI batch size for stage 3 (default from run.yaml)",
+    )
+    parser.add_argument("--start_vllm", action="store_true", help="Auto-start local vLLM server")
+    parser.add_argument("--vllm_model_path", type=str, default=None, help="Local Qwen model folder path")
+    parser.add_argument("--vllm_gpus", type=int, default=4, help="Tensor-parallel GPU count for vLLM")
+    parser.add_argument("--vllm_host", type=str, default="0.0.0.0", help="vLLM host")
+    parser.add_argument("--vllm_port", type=int, default=8000, help="vLLM port")
+    parser.add_argument("--vllm_dtype", type=str, default="float16", help="vLLM dtype")
+    parser.add_argument(
+        "--vllm_gpu_mem_util",
+        type=float,
+        default=0.90,
+        help="vLLM GPU memory utilization (0-1)",
+    )
+    parser.add_argument("--vllm_max_model_len", type=int, default=None, help="vLLM max model length")
+    parser.add_argument("--vllm_swap_space", type=int, default=None, help="vLLM swap space (GB)")
+    parser.add_argument("--vllm_trust_remote_code", action="store_true", help="vLLM trust remote code")
+    parser.add_argument(
+        "--vllm_cuda_visible_devices",
+        type=str,
+        default=None,
+        help="Comma-separated CUDA device ids for vLLM",
+    )
+    parser.add_argument(
+        "--vllm_start_timeout",
+        type=int,
+        default=120,
+        help="Timeout (seconds) to wait for vLLM to be ready",
     )
     args = parser.parse_args()
 
@@ -296,98 +419,102 @@ def main() -> None:
     if prompt_max_tokens is None and adapter.spec.provider == "gauss":
         prompt_max_tokens = 6000
 
-    if args.stage == 1:
-        run_stage1(
-            intents_file=root / run_cfg.get("intents_file", "intents.info"),
-            prompt_path=prompts_dir / "query_gen.md",
-            adapter=adapter,
-            run_dir=run_paths.run_dir,
-            queries_path=run_paths.queries_path,
-            k_per_intent=int(run_cfg.get("k_queries_per_intent", 20)),
-            batch_size=int(run_cfg.get("batch_size_queries", 10)),
-            intent_batch_size=int(run_cfg.get("stage1_intent_batch_size", 1)),
-            seed=int(run_cfg.get("seed", 42)),
-            temperature=0.7,
-            max_tokens=int(run_cfg.get("query_max_tokens", 512)),
-            rate_limiter=rate_limiter,
-            cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
-            logger=logger,
-            max_total=run_cfg.get("max_queries_total"),
-            max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 3)),
-            fill_missing_with_fallback=bool(run_cfg.get("stage1_fill_missing_with_fallback", True)),
-            max_attempts=int(run_cfg.get("max_attempts", 3)),
-        )
-        return
+    server_proc = _maybe_start_vllm(spec, args, logger)
+    try:
+        if args.stage == 1:
+            run_stage1(
+                intents_file=root / run_cfg.get("intents_file", "intents.info"),
+                prompt_path=prompts_dir / "query_gen.md",
+                adapter=adapter,
+                run_dir=run_paths.run_dir,
+                queries_path=run_paths.queries_path,
+                k_per_intent=int(run_cfg.get("k_queries_per_intent", 20)),
+                batch_size=int(run_cfg.get("batch_size_queries", 10)),
+                intent_batch_size=int(run_cfg.get("stage1_intent_batch_size", 1)),
+                seed=int(run_cfg.get("seed", 42)),
+                temperature=0.7,
+                max_tokens=int(run_cfg.get("query_max_tokens", 512)),
+                rate_limiter=rate_limiter,
+                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                logger=logger,
+                max_total=run_cfg.get("max_queries_total"),
+                max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 3)),
+                fill_missing_with_fallback=bool(run_cfg.get("stage1_fill_missing_with_fallback", True)),
+                max_attempts=int(run_cfg.get("max_attempts", 3)),
+            )
+            return
 
-    if args.stage == 2:
-        run_stage2(
-            queries_path=run_paths.queries_path,
-            prompt_path=prompts_dir / "response_gen.md",
-            batch_prompt_path=prompts_dir / "response_gen_batch.md",
-            adapter=adapter,
-            responses_path=run_paths.responses_path,
-            n_per_query=int(run_cfg.get("n_responses_per_query", 2)),
-            batch_size=int(run_cfg.get("response_batch_size", 1)),
-            query_batch_size=int(run_cfg.get("query_batch_size", 1)),
-            group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
-            batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
-            temperatures=_ensure_list(run_cfg.get("response_temperatures", [0.7])),
-            max_tokens=int(run_cfg.get("response_max_tokens", 512)),
-            seed=int(run_cfg.get("seed", 42)),
-            rate_limiter=rate_limiter,
-            cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
-            logger=logger,
-            max_total=run_cfg.get("max_responses_total"),
-            max_attempts=int(run_cfg.get("max_attempts", 3)),
-        )
-        return
+        if args.stage == 2:
+            run_stage2(
+                queries_path=run_paths.queries_path,
+                prompt_path=prompts_dir / "response_gen.md",
+                batch_prompt_path=prompts_dir / "response_gen_batch.md",
+                adapter=adapter,
+                responses_path=run_paths.responses_path,
+                n_per_query=int(run_cfg.get("n_responses_per_query", 2)),
+                batch_size=int(run_cfg.get("response_batch_size", 1)),
+                query_batch_size=int(run_cfg.get("query_batch_size", 1)),
+                group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
+                batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
+                temperatures=_ensure_list(run_cfg.get("response_temperatures", [0.7])),
+                max_tokens=int(run_cfg.get("response_max_tokens", 512)),
+                seed=int(run_cfg.get("seed", 42)),
+                rate_limiter=rate_limiter,
+                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                logger=logger,
+                max_total=run_cfg.get("max_responses_total"),
+                max_attempts=int(run_cfg.get("max_attempts", 3)),
+            )
+            return
 
-    if args.stage == 3:
-        run_stage3(
-            responses_path=run_paths.responses_path,
-            prompt_path=prompts_dir / "genui_gen.md",
-            adapter=adapter,
-            genui_path=run_paths.genui_path,
-            schema_path=schema_dir / "genui.schema.json",
-            artifacts_dir=run_paths.artifacts_dir,
-            candidates_per_response=int(run_cfg.get("genui_candidates_per_response", 1)),
-            max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
-            max_tokens=int(run_cfg.get("genui_max_tokens", 1024)),
-            prompt_max_tokens=int(prompt_max_tokens) if prompt_max_tokens else None,
-            batch_size=genui_batch_size,
-            seed=int(run_cfg.get("seed", 42)),
-            rate_limiter=rate_limiter,
-            cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
-            logger=logger,
-            max_total=run_cfg.get("max_genui_total"),
-            max_attempts=int(run_cfg.get("max_attempts", 3)),
-            aggregates_path=run_paths.aggregates_path,
-            aggregate_weights=eval_cfg.get("weights", {}),
-        )
-        logger.info("Stage3 complete.")
-        return
+        if args.stage == 3:
+            run_stage3(
+                responses_path=run_paths.responses_path,
+                prompt_path=prompts_dir / "genui_gen.md",
+                adapter=adapter,
+                genui_path=run_paths.genui_path,
+                schema_path=schema_dir / "genui.schema.json",
+                artifacts_dir=run_paths.artifacts_dir,
+                candidates_per_response=int(run_cfg.get("genui_candidates_per_response", 1)),
+                max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
+                max_tokens=int(run_cfg.get("genui_max_tokens", 1024)),
+                prompt_max_tokens=int(prompt_max_tokens) if prompt_max_tokens else None,
+                batch_size=genui_batch_size,
+                seed=int(run_cfg.get("seed", 42)),
+                rate_limiter=rate_limiter,
+                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                logger=logger,
+                max_total=run_cfg.get("max_genui_total"),
+                max_attempts=int(run_cfg.get("max_attempts", 3)),
+                aggregates_path=run_paths.aggregates_path,
+                aggregate_weights=eval_cfg.get("weights", {}),
+            )
+            logger.info("Stage3 complete.")
+            return
 
-    if args.stage == 4:
-        render_cfg = run_cfg.get("render", {})
-        output_dir = run_paths.run_dir / render_cfg.get("output_dir", "rendered")
-        assets_dir = root / render_cfg.get("assets_dir", "renderer/lit")
-        viewport = render_cfg.get("viewport", {"width": 1280, "height": 720})
-        run_stage4(
-            genui_path=run_paths.genui_path,
-            output_dir=output_dir,
-            assets_dir=assets_dir,
-            server_root=root,
-            logger=logger,
-            max_total=render_cfg.get("max_total"),
-            render_images=bool(render_cfg.get("render_images", True)),
-            image_format=str(render_cfg.get("image_format", "png")),
-            viewport=viewport if isinstance(viewport, dict) else {"width": 1280, "height": 720},
-            timeout_ms=int(render_cfg.get("timeout_ms", 15000)),
-            wait_ms=int(render_cfg.get("wait_ms", 200)),
-            use_http_server=bool(render_cfg.get("use_http_server", True)),
-        )
-        logger.info("Stage4 complete. Rendered outputs stored at %s", output_dir)
-        return
+        if args.stage == 4:
+            render_cfg = run_cfg.get("render", {})
+            output_dir = run_paths.run_dir / render_cfg.get("output_dir", "rendered")
+            assets_dir = root / render_cfg.get("assets_dir", "renderer/lit")
+            viewport = render_cfg.get("viewport", {"width": 1280, "height": 720})
+            run_stage4(
+                genui_path=run_paths.genui_path,
+                output_dir=output_dir,
+                assets_dir=assets_dir,
+                server_root=root,
+                logger=logger,
+                max_total=render_cfg.get("max_total"),
+                render_images=bool(render_cfg.get("render_images", True)),
+                image_format=str(render_cfg.get("image_format", "png")),
+                viewport=viewport if isinstance(viewport, dict) else {"width": 1280, "height": 720},
+                timeout_ms=int(render_cfg.get("timeout_ms", 15000)),
+                wait_ms=int(render_cfg.get("wait_ms", 200)),
+                use_http_server=bool(render_cfg.get("use_http_server", True)),
+            )
+            logger.info("Stage4 complete. Rendered outputs stored at %s", output_dir)
+            return
+    finally:
+        _stop_vllm(server_proc, logger)
 
     parser.print_help()
 

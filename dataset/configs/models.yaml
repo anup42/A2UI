@@ -58,6 +58,36 @@ models:
     model: mock
     supports_json_mode: false
     endpoint: http://localhost:8000/v1/chat/completions
+  - name: qwen3_coder_30b_a3b_vllm_4x
+    provider: local
+    model: qwen3-coder-30b-a3b-instruct
+    supports_json_mode: false
+    endpoint: http://localhost:8000/v1/chat/completions
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Local vLLM (4x V100) - launch server via dataset/scripts/serve_qwen_vllm.py --gpus 4"
+  - name: qwen3_coder_30b_a3b_vllm_8x
+    provider: local
+    model: qwen3-coder-30b-a3b-instruct
+    supports_json_mode: false
+    endpoint: http://localhost:8000/v1/chat/completions
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Local vLLM (8x V100) - launch server via dataset/scripts/serve_qwen_vllm.py --gpus 8"
+  - name: deepseek_coder_v2_lite_vllm_4x
+    provider: local
+    model: deepseek-coder-v2-lite-instruct
+    supports_json_mode: false
+    endpoint: http://localhost:8000/v1/chat/completions
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Local vLLM (4x V100) - launch server via dataset/scripts/serve_qwen_vllm.py --gpus 4"
   - name: openrouter_default
     provider: openrouter
     model: openrouter/auto
