@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Optional
 import re
 
-from pipeline.storage import JsonlWriter, iter_jsonl, load_existing_ids
+from pipeline.storage import JsonlWriter, iter_jsonl, load_existing_ids, load_jsonl_by_key
 
 
 def _looks_like_components_list(value: Any) -> bool:
@@ -252,7 +252,17 @@ def _convert_component_v09_to_v08(component: dict[str, Any]) -> dict[str, Any]:
             "component": {"Icon": {"name": _dynamic_string(component.get("name"))}},
         }
     if comp_type in ("Column", "Row", "List"):
-        children = component.get("children") or []
+        children = component.get("children")
+        if isinstance(children, dict):
+            explicit_list = children.get("explicitList") if "explicitList" in children else None
+            if isinstance(explicit_list, list):
+                children = explicit_list
+            else:
+                children = []
+        if children is None:
+            children = []
+        if not isinstance(children, list):
+            children = [children]
         payload: dict[str, Any] = {"children": {"explicitList": children}}
         if comp_type in ("Column", "Row"):
             justify = component.get("justify")
@@ -535,7 +545,8 @@ def run_stage4(
     template = template_path.read_text(encoding="utf-8")
 
     render_log_path = output_dir.parent / "render.jsonl"
-    existing = load_existing_ids(render_log_path, "ui_id")
+    existing_rows = load_jsonl_by_key(render_log_path, "ui_id")
+    existing = set(existing_rows.keys())
     writer = JsonlWriter(render_log_path)
 
     server = None
@@ -559,8 +570,15 @@ def run_stage4(
     created = 0
     for row in iter_jsonl(genui_path):
         ui_id = row.get("ui_id")
-        if not ui_id or ui_id in existing:
+        if not ui_id:
             continue
+        if ui_id in existing:
+            prev = existing_rows.get(ui_id) or {}
+            prev_render = prev.get("render") if isinstance(prev, dict) else None
+            prev_error = prev_render.get("error") if isinstance(prev_render, dict) else None
+            prev_image = prev.get("image_path") if isinstance(prev, dict) else None
+            if not (render_images and (prev_error or not prev_image)):
+                continue
         if max_total is not None and created >= max_total:
             logger.info("Stage4 reached max_total=%s", max_total)
             break

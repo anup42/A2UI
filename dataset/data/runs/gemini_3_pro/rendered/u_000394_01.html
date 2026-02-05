@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "japan-rail-cost-comparison"}}, {"surfaceUpdate": {"surfaceId": "japan-rail-cost-comparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "description", "cost-comparison-table", "summary-section", "quick-actions"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Japan Rail Cost Comparison: Tokyo to Osaka (2025)"}, "usageHint": "h1"}}}, {"id": "description", "component": {"Text": {"text": {"literalString": "This comparison evaluates the cost-effectiveness of the Japan Rail (JR) Pass following the 2023 price increase."}, "usageHint": "body"}}}, {"id": "cost-comparison-table", "component": {"Column": {"children": {"explicitList": ["table-header", "individual-tickets-row", "jr-pass-row", "difference-row"]}, "alignment": "start"}}}, {"id": "table-header", "component": {"Row": {"children": {"explicitList": ["option-header", "description-header", "total-cost-jpy-header", "total-cost-usd-header"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "option-header", "component": {"Text": {"text": {"literalString": "Option"}, "usageHint": "h4"}}}, {"id": "description-header", "component": {"Text": {"text": {"literalString": "Description"}, "usageHint": "h4"}}}, {"id": "total-cost-jpy-header", "component": {"Text": {"text": {"literalString": "Total Cost (JPY)"}, "usageHint": "h4"}}}, {"id": "total-cost-usd-header", "component": {"Text": {"text": {"literalString": "Total Cost (USD Est.)"}, "usageHint": "h4"}}}, {"id": "individual-tickets-row", "component": {"Row": {"children": {"explicitList": ["individual-tickets-label", "individual-tickets-desc", "individual-tickets-jpy", "individual-tickets-usd"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "individual-tickets-label", "component": {"Text": {"text": {"literalString": "Individual Tickets"}, "usageHint": "body"}}}, {"id": "individual-tickets-desc", "component": {"Text": {"text": {"literalString": "Round trip via Nozomi Shinkansen"}, "usageHint": "body"}}}, {"id": "individual-tickets-jpy", "component": {"Text": {"text": {"literalString": "¥29,440"}, "usageHint": "body"}}}, {"id": "individual-tickets-usd", "component": {"Text": {"text": {"literalString": "~$195"}, "usageHint": "body"}}}, {"id": "jr-pass-row", "component": {"Row": {"children": {"explicitList": ["jr-pass-label", "jr-pass-desc", "jr-pass-jpy", "jr-pass-usd"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "jr-pass-label", "component": {"Text": {"text": {"literalString": "7-Day JR Pass"}, "usageHint": "body"}}}, {"id": "jr-pass-desc", "component": {"Text": {"text": {"literalString": "Standard 'Whole Japan' Pass"}, "usageHint": "body"}}}, {"id": "jr-pass-jpy", "component": {"Text": {"text": {"literalString": "¥50,000"}, "usageHint": "body"}}}, {"id": "jr-pass-usd", "component": {"Text": {"text": {"literalString": "~$335"}, "usageHint": "body"}}}, {"id": "difference-row", "component": {"Row": {"children": {"explicitList": ["difference-label", "difference-desc", "difference-jpy", "difference-usd"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "difference-label", "component": {"Text": {"text": {"literalString": "Difference"}, "usageHint": "body"}}}, {"id": "difference-desc", "component": {"Text": {"text": {"literalString": "Savings by buying individual tickets"}, "usageHint": "body"}}}, {"id": "difference-jpy", "component": {"Text": {"text": {"literalString": "-¥20,560"}, "usageHint": "body"}}}, {"id": "difference-usd", "component": {"Text": {"text": {"literalString": "-$140"}, "usageHint": "body"}}}, {"id": "summary-section", "component": {"Column": {"children": {"explicitList": ["summary-title", "summary-point-1", "summary-point-2", "summary-point-3"]}, "alignment": "start"}}}, {"id": "summary-title", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h3"}}}, {"id": "summary-point-1", "component": {"Text": {"text": {"literalString": "- For a simple round trip between Tokyo and Osaka, individual tickets are significantly cheaper."}, "usageHint": "body"}}}, {"id": "summary-point-2", "component": {"Text": {"text": {"literalString": "- The JR Pass only becomes cost-effective if you plan to visit additional distant cities (e.g., Hiroshima or Kanazawa) within the same 7-day window."}, "usageHint": "body"}}}, {"id": "summary-point-3", "component": {"Text": {"text": {"literalString": "Assumptions: Individual ticket prices are for reserved seats on the Nozomi (fastest) train. 4-day passes do not exist for 'Whole Japan'; the 7-day pass is the minimum national option."}, "usageHint": "caption"}}}, {"id": "quick-actions", "component": {"Column": {"children": {"explicitList": ["buy-tickets-button", "jr-pass-calculator-button"]}, "alignment": "start"}}}, {"id": "buy-tickets-button", "component": {"Button": {"child": "buy-tickets-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.westjr.co.jp/global/en/ticket/overview/"}}]}}}}, {"id": "buy-tickets-text", "component": {"Text": {"text": {"literalString": "Buy Individual Tickets"}, "usageHint": "body"}}}, {"id": "jr-pass-calculator-button", "component": {"Button": {"child": "jr-pass-calculator-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.japan-guide.com/railpass/"}}]}}}}, {"id": "jr-pass-calculator-text", "component": {"Text": {"text": {"literalString": "JR Pass Calculator"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

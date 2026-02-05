@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "flight-comparison-surface"}}, {"surfaceUpdate": {"surfaceId": "flight-comparison-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-text", "comparison-table", "recommendation-text", "verification-header", "verification-steps", "example-options-header", "example-options-list", "quick-actions-row"]}, "distribution": "start", "alignment": "start"}}}, {"id": "header-text", "component": {"Text": {"text": {"literalString": "Flight Comparison: Paris to New York"}, "usageHint": "h1"}}}, {"id": "comparison-table", "component": {"Column": {"children": {"explicitList": ["comparison-header-row", "option-a-row", "option-b-row"]}, "distribution": "start", "alignment": "start"}}}, {"id": "comparison-header-row", "component": {"Row": {"children": {"explicitList": ["option-header", "route-type-header", "total-travel-time-header", "price-header", "key-attribute-header"]}, "distribution": "spaceBetween"}}}, {"id": "option-header", "component": {"Text": {"text": {"literalString": "Option"}, "usageHint": "body"}}}, {"id": "route-type-header", "component": {"Text": {"text": {"literalString": "Route Type"}, "usageHint": "body"}}}, {"id": "total-travel-time-header", "component": {"Text": {"text": {"literalString": "Total Travel Time"}, "usageHint": "body"}}}, {"id": "price-header", "component": {"Text": {"text": {"literalString": "Price"}, "usageHint": "body"}}}, {"id": "key-attribute-header", "component": {"Text": {"text": {"literalString": "Key Attribute"}, "usageHint": "body"}}}, {"id": "option-a-row", "component": {"Row": {"children": {"explicitList": ["option-a-label", "option-a-route-type", "option-a-travel-time", "option-a-price", "option-a-attribute"]}, "distribution": "spaceBetween"}}}, {"id": "option-a-label", "component": {"Text": {"text": {"literalString": "Option A"}, "usageHint": "body"}}}, {"id": "option-a-route-type", "component": {"Text": {"text": {"literalString": "1-Stop (Dublin)"}, "usageHint": "body"}}}, {"id": "option-a-travel-time", "component": {"Text": {"text": {"literalString": "13 Hours"}, "usageHint": "body"}}}, {"id": "option-a-price", "component": {"Text": {"text": {"literalString": "$650"}, "usageHint": "body"}}}, {"id": "option-a-attribute", "component": {"Text": {"text": {"literalString": "Lower Cost"}, "usageHint": "body"}}}, {"id": "option-b-row", "component": {"Row": {"children": {"explicitList": ["option-b-label", "option-b-route-type", "option-b-travel-time", "option-b-price", "option-b-attribute"]}, "distribution": "spaceBetween"}}}, {"id": "option-b-label", "component": {"Text": {"text": {"literalString": "Option B"}, "usageHint": "body"}}}, {"id": "option-b-route-type", "component": {"Text": {"text": {"literalString": "Direct"}, "usageHint": "body"}}}, {"id": "option-b-travel-time", "component": {"Text": {"text": {"literalString": "8 Hours"}, "usageHint": "body"}}}, {"id": "option-b-price", "component": {"Text": {"text": {"literalString": "$920"}, "usageHint": "body"}}}, {"id": "option-b-attribute", "component": {"Text": {"text": {"literalString": "Fastest Route"}, "usageHint": "body"}}}, {"id": "recommendation-text", "component": {"Text": {"text": {"literalString": "Recommendation: I recommend Option B (Direct Flight). When traveling with a toddler, minimizing total travel time and avoiding the logistics of a 4-hour layover is usually worth the premium. The 5-hour time saving significantly reduces the risk of toddler fatigue and simplifies the journey."}, "usageHint": "body"}}}, {"id": "verification-header", "component": {"Text": {"text": {"literalString": "Live Verification Framework"}, "usageHint": "h2"}}}, {"id": "verification-steps", "component": {"List": {"children": {"explicitList": ["step-1", "step-2", "step-3", "step-4"]}, "direction": "vertical"}}}, {"id": "step-1", "component": {"Text": {"text": {"literalString": "1. Visit a flight aggregator (e.g., Google Flights or Skyscanner)."}, "usageHint": "body"}}}, {"id": "step-2", "component": {"Text": {"text": {"literalString": "2. Enter CDG to JFK for Dec 15 and return Dec 22."}, "usageHint": "body"}}}, {"id": "step-3", "component": {"Text": {"text": {"literalString": "3. Filter for Direct flights only to see if Option B's price has fluctuated."}, "usageHint": "body"}}}, {"id": "step-4", "component": {"Text": {"text": {"literalString": "4. Check the specific airline's baggage policy for strollers and car seats."}, "usageHint": "body"}}}, {"id": "example-options-header", "component": {"Text": {"text": {"literalString": "Example Live Options (Synthetic Data)"}, "usageHint": "h2"}}}, {"id": "example-options-list", "component": {"List": {"children": {"explicitList": ["example-option-1", "example-option-2", "example-option-3"]}, "direction": "vertical"}}}, {"id": "example-option-1", "component": {"Text": {"text": {"literalString": "Option 1: Air France | Direct | 8h 15m | $945 | Best Rating"}, "usageHint": "body"}}}, {"id": "example-option-2", "component": {"Text": {"text": {"literalString": "Option 2: Delta Airlines | Direct | 8h 20m | $915 | Most Reliable"}, "usageHint": "body"}}}, {"id": "example-option-3", "component": {"Text": {"text": {"literalString": "Option 3: Aer Lingus | 1-Stop (DUB) | 12h 45m | $630 | Budget Choice"}, "usageHint": "body"}}}, {"id": "quick-actions-row", "component": {"Row": {"children": {"explicitList": ["search-google-flights-button", "cdg-airport-guide-button"]}, "distribution": "start", "alignment": "center"}}}, {"id": "search-google-flights-button", "component": {"Button": {"child": "search-google-flights-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.google.com/travel/flights"}}]}}}}, {"id": "search-google-flights-text", "component": {"Text": {"text": {"literalString": "Search Google Flights"}, "usageHint": "body"}}}, {"id": "cdg-airport-guide-button", "component": {"Button": {"child": "cdg-airport-guide-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.parisaeroport.fr/en/passengers/access/paris-charles-de-gaulle"}}]}}}}, {"id": "cdg-airport-guide-text", "component": {"Text": {"text": {"literalString": "CDG Airport Guide"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

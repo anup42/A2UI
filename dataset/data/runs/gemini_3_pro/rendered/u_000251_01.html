@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "zone7gardening"}}, {"surfaceUpdate": {"surfaceId": "zone7gardening", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "planting-timeline-section", "harvest-windows-section", "crop-summary-section", "quick-actions-section"]}, "distribution": "start", "alignment": "center"}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "ZONE 7 VEGETABLE GARDENING SCHEDULE 2024"}, "usageHint": "h1"}}}, {"id": "planting-timeline-section", "component": {"Column": {"children": {"explicitList": ["planting-timeline-header", "planting-timeline-content"]}, "distribution": "start", "alignment": "start"}}}, {"id": "planting-timeline-header", "component": {"Text": {"text": {"literalString": "PLANTING TIMELINE"}, "usageHint": "h2"}}}, {"id": "planting-timeline-content", "component": {"List": {"children": {"explicitList": ["february-indoor-starting", "march-hardening-off", "april-outdoor-transplanting"]}, "direction": "vertical"}}}, {"id": "february-indoor-starting", "component": {"Column": {"children": {"explicitList": ["february-header", "february-week1", "february-week3"]}, "distribution": "start", "alignment": "start"}}}, {"id": "february-header", "component": {"Text": {"text": {"literalString": "FEBRUARY: INDOOR SEED STARTING"}, "usageHint": "h3"}}}, {"id": "february-week1", "component": {"Text": {"text": {"literalString": "- Week 1: Start Peppers and Eggplants indoors (require 8-10 weeks before transplant)."}, "usageHint": "body"}}}, {"id": "february-week3", "component": {"Text": {"text": {"literalString": "- Week 3: Start Tomatoes and Kale indoors (require 6-8 weeks before transplant)."}, "usageHint": "body"}}}, {"id": "march-hardening-off", "component": {"Column": {"children": {"explicitList": ["march-header", "march-week4"]}, "distribution": "start", "alignment": "start"}}}, {"id": "march-header", "component": {"Text": {"text": {"literalString": "MARCH: HARDENING OFF"}, "usageHint": "h3"}}}, {"id": "march-week4", "component": {"Text": {"text": {"literalString": "- Week 4: Begin moving Kale seedlings outdoors for short periods to acclimate."}, "usageHint": "body"}}}, {"id": "april-outdoor-transplanting", "component": {"Column": {"children": {"explicitList": ["april-header", "april-week2", "april-week4"]}, "distribution": "start", "alignment": "start"}}}, {"id": "april-header", "component": {"Text": {"text": {"literalString": "APRIL: OUTDOOR TRANSPLANTING"}, "usageHint": "h3"}}}, {"id": "april-week2", "component": {"Text": {"text": {"literalString": "- Week 2: Transplant Kale into the garden (can handle light frost)."}, "usageHint": "body"}}}, {"id": "april-week4", "component": {"Text": {"text": {"literalString": "- Week 4: Transplant Tomatoes and Peppers (ensure night temperatures are consistently above 50 F)."}, "usageHint": "body"}}}, {"id": "harvest-windows-section", "component": {"Column": {"children": {"explicitList": ["harvest-windows-header", "harvest-windows-content"]}, "distribution": "start", "alignment": "start"}}}, {"id": "harvest-windows-header", "component": {"Text": {"text": {"literalString": "HARVEST WINDOWS"}, "usageHint": "h2"}}}, {"id": "harvest-windows-content", "component": {"List": {"children": {"explicitList": ["kale-harvest", "tomatoes-harvest", "peppers-harvest"]}, "direction": "vertical"}}}, {"id": "kale-harvest", "component": {"Text": {"text": {"literalString": "- Kale: Late May through July (Spring crop); September through December (Fall crop)."}, "usageHint": "body"}}}, {"id": "tomatoes-harvest", "component": {"Text": {"text": {"literalString": "- Tomatoes: July through October (depending on variety: cherry vs. beefsteak)."}, "usageHint": "body"}}}, {"id": "peppers-harvest", "component": {"Text": {"text": {"literalString": "- Peppers: August through October (peppers need heat to ripen fully)."}, "usageHint": "body"}}}, {"id": "crop-summary-section", "component": {"Column": {"children": {"explicitList": ["crop-summary-header", "crop-summary-cards"]}, "distribution": "start", "alignment": "start"}}}, {"id": "crop-summary-header", "component": {"Text": {"text": {"literalString": "CROP SUMMARY CARDS"}, "usageHint": "h2"}}}, {"id": "crop-summary-cards", "component": {"Row": {"children": {"explicitList": ["tomato-card", "pepper-card", "kale-card"]}, "distribution": "spaceAround", "alignment": "start"}}}, {"id": "tomato-card", "component": {"Card": {"child": "tomato-card-content"}}}, {"id": "tomato-card-content", "component": {"Column": {"children": {"explicitList": ["tomato-title", "tomato-description", "tomato-harvest", "tomato-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "tomato-title", "component": {"Text": {"text": {"literalString": "Tomato (Indeterminate)"}, "usageHint": "h3"}}}, {"id": "tomato-description", "component": {"Text": {"text": {"literalString": "High-yield vines requiring staking"}, "usageHint": "body"}}}, {"id": "tomato-harvest", "component": {"Text": {"text": {"literalString": "Harvest: 70-90 days"}, "usageHint": "body"}}}, {"id": "tomato-link", "component": {"Button": {"child": "tomato-link-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.almanac.com/plant/tomatoes"}}]}}}}, {"id": "tomato-link-text", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "pepper-card", "component": {"Card": {"child": "pepper-card-content"}}}, {"id": "pepper-card-content", "component": {"Column": {"children": {"explicitList": ["pepper-title", "pepper-description", "pepper-harvest", "pepper-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "pepper-title", "component": {"Text": {"text": {"literalString": "Bell Pepper"}, "usageHint": "h3"}}}, {"id": "pepper-description", "component": {"Text": {"text": {"literalString": "Sweet fruit requiring full sun"}, "usageHint": "body"}}}, {"id": "pepper-harvest", "component": {"Text": {"text": {"literalString": "Harvest: 60-80 days"}, "usageHint": "body"}}}, {"id": "pepper-link", "component": {"Button": {"child": "pepper-link-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.almanac.com/plant/bell-peppers"}}]}}}}, {"id": "pepper-link-text", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "kale-card", "component": {"Card": {"child": "kale-card-content"}}}, {"id": "kale-card-content", "component": {"Column": {"children": {"explicitList": ["kale-title", "kale-description", "kale-harvest", "kale-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "kale-title", "component": {"Text": {"text": {"literalString": "Curly Kale"}, "usageHint": "h3"}}}, {"id": "kale-description", "component": {"Text": {"text": {"literalString": "Cold-hardy leafy green"}, "usageHint": "body"}}}, {"id": "kale-harvest", "component": {"Text": {"text": {"literalString": "Harvest: 50-65 days"}, "usageHint": "body"}}}, {"id": "kale-link", "component": {"Button": {"child": "kale-link-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.almanac.com/plant/kale"}}]}}}}, {"id": "kale-link-text", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "quick-actions-section", "component": {"Column": {"children": {"explicitList": ["quick-actions-header", "quick-actions-buttons"]}, "distribution": "start", "alignment": "start"}}}, {"id": "quick-actions-header", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h2"}}}, {"id": "quick-actions-buttons", "component": {"Row": {"children": {"explicitList": ["buy-seeds-button", "frost-dates-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "buy-seeds-button", "component": {"Button": {"child": "buy-seeds-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.burpee.com"}}]}}}}, {"id": "buy-seeds-button-text", "component": {"Text": {"text": {"literalString": "Buy Seeds Online"}, "usageHint": "body"}}}, {"id": "frost-dates-button", "component": {"Button": {"child": "frost-dates-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.almanac.com/gardening/frostdates"}}]}}}}, {"id": "frost-dates-button-text", "component": {"Text": {"text": {"literalString": "Local Frost Dates"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "mechanical-keyboard-value-analysis"}}, {"surfaceUpdate": {"surfaceId": "mechanical-keyboard-value-analysis", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "comparison-table-card", "recommendation-card", "quick-actions-row"]}, "distribution": "start", "alignment": "start"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Mechanical Keyboard Value Analysis"}, "usageHint": "h1"}}}, {"id": "comparison-table-card", "component": {"Card": {"child": "comparison-table"}}}, {"id": "comparison-table", "component": {"Column": {"children": {"explicitList": ["comparison-table-header", "keychron-q1-pro-row", "nuphy-halo75-row", "logitech-mx-mechanical-row"]}, "distribution": "start", "alignment": "start"}}}, {"id": "comparison-table-header", "component": {"Row": {"children": {"explicitList": ["model-header", "price-header", "hot-swappable-header", "wireless-header", "switch-type-header"]}, "distribution": "spaceAround"}}}, {"id": "model-header", "component": {"Text": {"text": {"literalString": "Model"}, "usageHint": "h4"}}}, {"id": "price-header", "component": {"Text": {"text": {"literalString": "Price"}, "usageHint": "h4"}}}, {"id": "hot-swappable-header", "component": {"Text": {"text": {"literalString": "Hot-swappable"}, "usageHint": "h4"}}}, {"id": "wireless-header", "component": {"Text": {"text": {"literalString": "Wireless"}, "usageHint": "h4"}}}, {"id": "switch-type-header", "component": {"Text": {"text": {"literalString": "Switch Type"}, "usageHint": "h4"}}}, {"id": "keychron-q1-pro-row", "component": {"Row": {"children": {"explicitList": ["keychron-q1-pro-model", "keychron-q1-pro-price", "keychron-q1-pro-hot-swappable", "keychron-q1-pro-wireless", "keychron-q1-pro-switch-type"]}, "distribution": "spaceAround"}}}, {"id": "keychron-q1-pro-model", "component": {"Text": {"text": {"literalString": "Keychron Q1 Pro"}, "usageHint": "body"}}}, {"id": "keychron-q1-pro-price", "component": {"Text": {"text": {"literalString": "$199"}, "usageHint": "body"}}}, {"id": "keychron-q1-pro-hot-swappable", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "keychron-q1-pro-wireless", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "keychron-q1-pro-switch-type", "component": {"Text": {"text": {"literalString": "K Pro Red (Linear)"}, "usageHint": "body"}}}, {"id": "nuphy-halo75-row", "component": {"Row": {"children": {"explicitList": ["nuphy-halo75-model", "nuphy-halo75-price", "nuphy-halo75-hot-swappable", "nuphy-halo75-wireless", "nuphy-halo75-switch-type"]}, "distribution": "spaceAround"}}}, {"id": "nuphy-halo75-model", "component": {"Text": {"text": {"literalString": "NuPhy Halo75"}, "usageHint": "body"}}}, {"id": "nuphy-halo75-price", "component": {"Text": {"text": {"literalString": "$130"}, "usageHint": "body"}}}, {"id": "nuphy-halo75-hot-swappable", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "nuphy-halo75-wireless", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "nuphy-halo75-switch-type", "component": {"Text": {"text": {"literalString": "Night Breeze (Linear)"}, "usageHint": "body"}}}, {"id": "logitech-mx-mechanical-row", "component": {"Row": {"children": {"explicitList": ["logitech-mx-mechanical-model", "logitech-mx-mechanical-price", "logitech-mx-mechanical-hot-swappable", "logitech-mx-mechanical-wireless", "logitech-mx-mechanical-switch-type"]}, "distribution": "spaceAround"}}}, {"id": "logitech-mx-mechanical-model", "component": {"Text": {"text": {"literalString": "Logitech MX Mechanical"}, "usageHint": "body"}}}, {"id": "logitech-mx-mechanical-price", "component": {"Text": {"text": {"literalString": "$150"}, "usageHint": "body"}}}, {"id": "logitech-mx-mechanical-hot-swappable", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "logitech-mx-mechanical-wireless", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "logitech-mx-mechanical-switch-type", "component": {"Text": {"text": {"literalString": "Tactile Quiet"}, "usageHint": "body"}}}, {"id": "recommendation-card", "component": {"Card": {"child": "recommendation-content"}}}, {"id": "recommendation-content", "component": {"Column": {"children": {"explicitList": ["recommendation-title", "recommendation-reasoning"]}, "distribution": "start", "alignment": "start"}}}, {"id": "recommendation-title", "component": {"Text": {"text": {"literalString": "Recommendation"}, "usageHint": "h2"}}}, {"id": "recommendation-subtitle", "component": {"Text": {"text": {"literalString": "Best Value for a Programmer"}, "usageHint": "h3"}}}, {"id": "recommendation-reasoning", "component": {"Column": {"children": {"explicitList": ["reasoning-point-1", "reasoning-point-2", "reasoning-point-3", "reasoning-point-4", "note-on-silence"]}, "distribution": "start", "alignment": "start"}}}, {"id": "reasoning-point-1", "component": {"Text": {"text": {"literalString": "1. Price: At $130, it is the most affordable of the three while still offering premium features."}, "usageHint": "body"}}}, {"id": "reasoning-point-2", "component": {"Text": {"text": {"literalString": "2. Customization: It is fully hot-swappable, allowing you to easily swap the \"Night Breeze\" switches for even quieter silent switches (like Boba U4 or Cherry MX Silent) without soldering."}, "usageHint": "body"}}}, {"id": "reasoning-point-3", "component": {"Text": {"text": {"literalString": "3. Layout: It features a 75% layout, which is highly preferred by programmers for its dedicated function row and arrow keys in a compact footprint."}, "usageHint": "body"}}}, {"id": "reasoning-point-4", "component": {"Text": {"text": {"literalString": "4. Quality: It offers a superior typing experience compared to the non-hotswappable Logitech and is more budget-friendly than the enthusiast-grade Keychron Q1 Pro."}, "usageHint": "body"}}}, {"id": "note-on-silence", "component": {"Text": {"text": {"literalString": "Note on Silence: While the Night Breeze and K Pro Red switches are linear, they are not \"silent\" switches. For a truly silent experience, you should use the hot-swap feature to install dedicated silent switches."}, "usageHint": "body"}}}, {"id": "quick-actions-row", "component": {"Row": {"children": {"explicitList": ["view-nuphy-halo75-button"]}, "distribution": "start", "alignment": "center"}}}, {"id": "view-nuphy-halo75-button", "component": {"Button": {"child": "view-nuphy-halo75-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://nuphy.com/products/halo75"}}]}}}}, {"id": "view-nuphy-halo75-text", "component": {"Text": {"text": {"literalString": "View NuPhy Halo75"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

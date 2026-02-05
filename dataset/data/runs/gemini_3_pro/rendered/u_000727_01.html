@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "gre-vocab-criticism-praise"}}, {"surfaceUpdate": {"surfaceId": "gre-vocab-criticism-praise", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "criticism-section", "praise-section", "practice-button"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "GRE Vocabulary: Criticism and Praise"}, "usageHint": "h1"}}}, {"id": "criticism-section", "component": {"Column": {"children": {"explicitList": ["criticism-title", "castigate-entry", "invective-entry", "vituperation-entry", "opprobrium-entry", "diatribe-entry", "berate-entry", "lambaste-entry"]}, "alignment": "start"}}}, {"id": "criticism-title", "component": {"Text": {"text": {"literalString": "Words of Criticism:"}, "usageHint": "h2"}}}, {"id": "castigate-entry", "component": {"Column": {"children": {"explicitList": ["castigate-word", "castigate-example"]}, "alignment": "start"}}}, {"id": "castigate-word", "component": {"Text": {"text": {"literalString": "Castigate (verb): To reprimand severely."}, "usageHint": "body"}}}, {"id": "castigate-example", "component": {"Text": {"text": {"literalString": "Example: The director castigated the lead actor for arriving late to every rehearsal."}, "usageHint": "caption"}}}, {"id": "invective-entry", "component": {"Column": {"children": {"explicitList": ["invective-word", "invective-example"]}, "alignment": "start"}}}, {"id": "invective-word", "component": {"Text": {"text": {"literalString": "Invective (noun): Insulting, abusive, or highly critical language."}, "usageHint": "body"}}}, {"id": "invective-example", "component": {"Text": {"text": {"literalString": "Example: The politician's speech was filled with invective against his opponents."}, "usageHint": "caption"}}}, {"id": "vituperation-entry", "component": {"Column": {"children": {"explicitList": ["vituperation-word", "vituperation-example"]}, "alignment": "start"}}}, {"id": "vituperation-word", "component": {"Text": {"text": {"literalString": "Vituperation (noun): Bitter and abusive language."}, "usageHint": "body"}}}, {"id": "vituperation-example", "component": {"Text": {"text": {"literalString": "Example: No amount of vituperation from the critics could dampen the artist's spirits."}, "usageHint": "caption"}}}, {"id": "opprobrium-entry", "component": {"Column": {"children": {"explicitList": ["opprobrium-word", "opprobrium-example"]}, "alignment": "start"}}}, {"id": "opprobrium-word", "component": {"Text": {"text": {"literalString": "Opprobrium (noun): Harsh criticism or censure."}, "usageHint": "body"}}}, {"id": "opprobrium-example", "component": {"Text": {"text": {"literalString": "Example: The company faced public opprobrium after the environmental scandal was revealed."}, "usageHint": "caption"}}}, {"id": "diatribe-entry", "component": {"Column": {"children": {"explicitList": ["diatribe-word", "diatribe-example"]}, "alignment": "start"}}}, {"id": "diatribe-word", "component": {"Text": {"text": {"literalString": "Diatribe (noun): A forceful and bitter verbal attack against someone or something."}, "usageHint": "body"}}}, {"id": "diatribe-example", "component": {"Text": {"text": {"literalString": "Example: The journalist launched a lengthy diatribe against the new tax policy."}, "usageHint": "caption"}}}, {"id": "berate-entry", "component": {"Column": {"children": {"explicitList": ["berate-word", "berate-example"]}, "alignment": "start"}}}, {"id": "berate-word", "component": {"Text": {"text": {"literalString": "Berate (verb): To scold or criticize someone angrily."}, "usageHint": "body"}}}, {"id": "berate-example", "component": {"Text": {"text": {"literalString": "Example: The coach began to berate the players for their lack of effort in the second half."}, "usageHint": "caption"}}}, {"id": "lambaste-entry", "component": {"Column": {"children": {"explicitList": ["lambaste-word", "lambaste-example"]}, "alignment": "start"}}}, {"id": "lambaste-word", "component": {"Text": {"text": {"literalString": "Lambaste (verb): To criticize someone or something harshly."}, "usageHint": "body"}}}, {"id": "lambaste-example", "component": {"Text": {"text": {"literalString": "Example: The professor lambasted the student's thesis for lacking original research."}, "usageHint": "caption"}}}, {"id": "praise-section", "component": {"Column": {"children": {"explicitList": ["praise-title", "adulation-entry", "encomium-entry", "laudatory-entry", "venerate-entry", "panegyric-entry", "accolade-entry", "eulogize-entry", "approbation-entry"]}, "alignment": "start"}}}, {"id": "praise-title", "component": {"Text": {"text": {"literalString": "Words of Praise:"}, "usageHint": "h2"}}}, {"id": "adulation-entry", "component": {"Column": {"children": {"explicitList": ["adulation-word", "adulation-example"]}, "alignment": "start"}}}, {"id": "adulation-word", "component": {"Text": {"text": {"literalString": "Adulation (noun): Excessive admiration or praise."}, "usageHint": "body"}}}, {"id": "adulation-example", "component": {"Text": {"text": {"literalString": "Example: The pop star basked in the adulation of her screaming fans."}, "usageHint": "caption"}}}, {"id": "encomium-entry", "component": {"Column": {"children": {"explicitList": ["encomium-word", "encomium-example"]}, "alignment": "start"}}}, {"id": "encomium-word", "component": {"Text": {"text": {"literalString": "Encomium (noun): A speech or piece of writing that praises someone or something highly."}, "usageHint": "body"}}}, {"id": "encomium-example", "component": {"Text": {"text": {"literalString": "Example: The retired general received a glowing encomium during the ceremony."}, "usageHint": "caption"}}}, {"id": "laudatory-entry", "component": {"Column": {"children": {"explicitList": ["laudatory-word", "laudatory-example"]}, "alignment": "start"}}}, {"id": "laudatory-word", "component": {"Text": {"text": {"literalString": "Laudatory (adj): Expressing praise and commendation."}, "usageHint": "body"}}}, {"id": "laudatory-example", "component": {"Text": {"text": {"literalString": "Example: The reviewer wrote a laudatory article about the chef's innovative menu."}, "usageHint": "caption"}}}, {"id": "venerate-entry", "component": {"Column": {"children": {"explicitList": ["venerate-word", "venerate-example"]}, "alignment": "start"}}}, {"id": "venerate-word", "component": {"Text": {"text": {"literalString": "Venerate (verb): To regard with great respect; revere."}, "usageHint": "body"}}}, {"id": "venerate-example", "component": {"Text": {"text": {"literalString": "Example: Many cultures venerate their ancestors through annual festivals."}, "usageHint": "caption"}}}, {"id": "panegyric-entry", "component": {"Column": {"children": {"explicitList": ["panegyric-word", "panegyric-example"]}, "alignment": "start"}}}, {"id": "panegyric-word", "component": {"Text": {"text": {"literalString": "Panegyric (noun): A public speech or published text in praise of someone or something."}, "usageHint": "body"}}}, {"id": "panegyric-example", "component": {"Text": {"text": {"literalString": "Example: The poet delivered a moving panegyric at the funeral of his mentor."}, "usageHint": "caption"}}}, {"id": "accolade-entry", "component": {"Column": {"children": {"explicitList": ["accolade-word", "accolade-example"]}, "alignment": "start"}}}, {"id": "accolade-word", "component": {"Text": {"text": {"literalString": "Accolade (noun): An award or privilege granted as a special honor or as an acknowledgment of merit."}, "usageHint": "body"}}}, {"id": "accolade-example", "component": {"Text": {"text": {"literalString": "Example: Winning the Nobel Prize is the ultimate accolade for any scientist."}, "usageHint": "caption"}}}, {"id": "eulogize-entry", "component": {"Column": {"children": {"explicitList": ["eulogize-word", "eulogize-example"]}, "alignment": "start"}}}, {"id": "eulogize-word", "component": {"Text": {"text": {"literalString": "Eulogize (verb): To praise highly in speech or writing, especially in a funeral oration."}, "usageHint": "body"}}}, {"id": "eulogize-example", "component": {"Text": {"text": {"literalString": "Example: Friends gathered to eulogize the local hero for his years of service."}, "usageHint": "caption"}}}, {"id": "approbation-entry", "component": {"Column": {"children": {"explicitList": ["approbation-word", "approbation-example"]}, "alignment": "start"}}}, {"id": "approbation-word", "component": {"Text": {"text": {"literalString": "Approbation (noun): Approval or praise."}, "usageHint": "body"}}}, {"id": "approbation-example", "component": {"Text": {"text": {"literalString": "Example: The new opera was met with great approbation from the audience."}, "usageHint": "caption"}}}, {"id": "practice-button", "component": {"Button": {"child": "practice-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.maguosh.com/gre-vocabulary-flashcards"}}]}}}}, {"id": "practice-button-text", "component": {"Text": {"text": {"literalString": "Practice GRE Vocab"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

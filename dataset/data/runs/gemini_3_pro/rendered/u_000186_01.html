@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "winter-blizzard-emergency-kit-toronto"}}, {"surfaceUpdate": {"surfaceId": "winter-blizzard-emergency-kit-toronto", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "car-icon-and-title", "essential-survival-items-card", "vehicle-recovery-safety-card", "strategic-checklist-card", "quick-actions-row"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Winter Blizzard Emergency Kit (Toronto)"}, "usageHint": "h1"}}}, {"id": "car-icon-and-title", "component": {"Row": {"children": {"explicitList": ["car-icon", "kit-title"]}, "alignment": "center"}}}, {"id": "car-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_2_car.png"}, "usageHint": "icon"}}}, {"id": "kit-title", "component": {"Text": {"text": {"literalString": "Essential Survival Items"}, "usageHint": "h2"}}}, {"id": "essential-survival-items-card", "component": {"Card": {"child": "essential-survival-items-column"}}}, {"id": "essential-survival-items-column", "component": {"Column": {"children": {"explicitList": ["essential-survival-items-title", "essential-survival-items-list"]}}}}, {"id": "essential-survival-items-title", "component": {"Text": {"text": {"literalString": "Essential Survival Items"}, "usageHint": "h3"}}}, {"id": "essential-survival-items-list", "component": {"List": {"children": {"explicitList": ["warmth-item", "heat-source-item", "energy-item", "tools-item", "visibility-item"]}, "direction": "vertical"}}}, {"id": "warmth-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-warmth", "warmth-text"]}}}}, {"id": "snow-icon-warmth", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "warmth-text", "component": {"Text": {"text": {"literalString": "Warmth: Mylar emergency blankets, wool blankets, and extra winter clothing (hats, waterproof gloves, thermal socks)."}, "usageHint": "body"}}}, {"id": "heat-source-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-heat", "heat-source-text"]}}}}, {"id": "snow-icon-heat", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "heat-source-text", "component": {"Text": {"text": {"literalString": "Heat Source: Chemical hand and toe warmers (10+ packs)."}, "usageHint": "body"}}}, {"id": "energy-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-energy", "energy-text"]}}}}, {"id": "snow-icon-energy", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "energy-text", "component": {"Text": {"text": {"literalString": "Energy: High-calorie, non-perishable snacks (energy bars, dried fruit, nuts) and 2-3 liters of water (keep in an insulated bag to prevent freezing)."}, "usageHint": "body"}}}, {"id": "tools-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-tools", "tools-text"]}}}}, {"id": "snow-icon-tools", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "tools-text", "component": {"Text": {"text": {"literalString": "Tools: Small collapsible snow shovel, ice scraper, and snow brush."}, "usageHint": "body"}}}, {"id": "visibility-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-visibility", "visibility-text"]}}}}, {"id": "snow-icon-visibility", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "visibility-text", "component": {"Text": {"text": {"literalString": "Visibility: LED flashlight with extra batteries, and road flares or reflective triangles."}, "usageHint": "body"}}}, {"id": "vehicle-recovery-safety-card", "component": {"Card": {"child": "vehicle-recovery-safety-column"}}}, {"id": "vehicle-recovery-safety-column", "component": {"Column": {"children": {"explicitList": ["vehicle-recovery-safety-title", "vehicle-recovery-safety-list"]}}}}, {"id": "vehicle-recovery-safety-title", "component": {"Text": {"text": {"literalString": "Vehicle Recovery & Safety"}, "usageHint": "h3"}}}, {"id": "vehicle-recovery-safety-list", "component": {"List": {"children": {"explicitList": ["traction-item", "power-item", "communication-item", "first-aid-item"]}, "direction": "vertical"}}}, {"id": "traction-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-traction", "traction-text"]}}}}, {"id": "snow-icon-traction", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "traction-text", "component": {"Text": {"text": {"literalString": "Traction: A bag of sand, salt, or non-clumping kitty litter; traction mats."}, "usageHint": "body"}}}, {"id": "power-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-power", "power-text"]}}}}, {"id": "snow-icon-power", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "power-text", "component": {"Text": {"text": {"literalString": "Power: Heavy-duty jumper cables or a portable jump-starter power bank."}, "usageHint": "body"}}}, {"id": "communication-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-communication", "communication-text"]}}}}, {"id": "snow-icon-communication", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "communication-text", "component": {"Text": {"text": {"literalString": "Communication: Portable phone charger/power bank and a whistle to signal for help."}, "usageHint": "body"}}}, {"id": "first-aid-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-first-aid", "first-aid-text"]}}}}, {"id": "snow-icon-first-aid", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "first-aid-text", "component": {"Text": {"text": {"literalString": "First Aid: Basic medical kit including any personal medications."}, "usageHint": "body"}}}, {"id": "strategic-checklist-card", "component": {"Card": {"child": "strategic-checklist-column"}}}, {"id": "strategic-checklist-column", "component": {"Column": {"children": {"explicitList": ["strategic-checklist-title", "strategic-checklist-list"]}}}}, {"id": "strategic-checklist-title", "component": {"Text": {"text": {"literalString": "Strategic Checklist"}, "usageHint": "h3"}}}, {"id": "strategic-checklist-list", "component": {"List": {"children": {"explicitList": ["fuel-item", "exhaust-item", "stay-put-item"]}, "direction": "vertical"}}}, {"id": "fuel-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-fuel", "fuel-text"]}}}}, {"id": "snow-icon-fuel", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "fuel-text", "component": {"Text": {"text": {"literalString": "Fuel: Keep your gas tank at least half full at all times during winter."}, "usageHint": "body"}}}, {"id": "exhaust-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-exhaust", "exhaust-text"]}}}}, {"id": "snow-icon-exhaust", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "exhaust-text", "component": {"Text": {"text": {"literalString": "Exhaust: If stuck, ensure the exhaust pipe is clear of snow before running the engine for heat (to prevent carbon monoxide poisoning)."}, "usageHint": "body"}}}, {"id": "stay-put-item", "component": {"Row": {"children": {"explicitList": ["snow-icon-stay-put", "stay-put-text"]}}}}, {"id": "snow-icon-stay-put", "component": {"Image": {"url": {"literalString": "/assets/r_000186_01_1_snow.png"}, "usageHint": "icon"}}}, {"id": "stay-put-text", "component": {"Text": {"text": {"literalString": "Stay Put: In a blizzard, it is generally safer to stay with your vehicle than to walk for help in whiteout conditions."}, "usageHint": "body"}}}, {"id": "quick-actions-row", "component": {"Row": {"children": {"explicitList": ["ontario-road-conditions-button", "red-cross-prep-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "ontario-road-conditions-button", "component": {"Button": {"child": "ontario-road-conditions-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://511on.ca/"}}]}}}}, {"id": "ontario-road-conditions-text", "component": {"Text": {"text": {"literalString": "Ontario Road Conditions"}, "usageHint": "body"}}}, {"id": "red-cross-prep-button", "component": {"Button": {"child": "red-cross-prep-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.redcross.ca/how-we-help/prepare-for-emergencies"}}]}}}}, {"id": "red-cross-prep-text", "component": {"Text": {"text": {"literalString": "Red Cross Emergency Prep"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

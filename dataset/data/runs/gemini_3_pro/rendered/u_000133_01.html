@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "playstation-plus-tiers"}}, {"surfaceUpdate": {"surfaceId": "playstation-plus-tiers", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "summary", "feature-table", "quick-actions"]}, "distribution": "start", "alignment": "start"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "PlayStation Plus Tiers"}, "usageHint": "h1"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "PlayStation Plus is divided into tiers. The Essential tier provides the basic online experience, while the Extra tier adds a massive library of downloadable games."}, "usageHint": "body"}}}, {"id": "feature-table", "component": {"Column": {"children": {"explicitList": ["table-header", "table-row-price", "table-row-monthly-games", "table-row-game-catalog", "table-row-cloud-streaming", "table-row-online-multiplayer", "table-row-cloud-storage"]}, "distribution": "start", "alignment": "start"}}}, {"id": "table-header", "component": {"Row": {"children": {"explicitList": ["header-feature", "header-essential", "header-extra"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "header-feature", "component": {"Text": {"text": {"literalString": "Feature"}, "usageHint": "h4"}}}, {"id": "header-essential", "component": {"Text": {"text": {"literalString": "PlayStation Plus Essential"}, "usageHint": "h4"}}}, {"id": "header-extra", "component": {"Text": {"text": {"literalString": "PlayStation Plus Extra"}, "usageHint": "h4"}}}, {"id": "table-row-price", "component": {"Row": {"children": {"explicitList": ["label-price", "value-price-essential", "value-price-extra"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "label-price", "component": {"Text": {"text": {"literalString": "Monthly Price (USD)"}, "usageHint": "body"}}}, {"id": "value-price-essential", "component": {"Text": {"text": {"literalString": "$9.99"}, "usageHint": "body"}}}, {"id": "value-price-extra", "component": {"Text": {"text": {"literalString": "$14.99"}, "usageHint": "body"}}}, {"id": "table-row-monthly-games", "component": {"Row": {"children": {"explicitList": ["label-monthly-games", "value-monthly-games-essential", "value-monthly-games-extra"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "label-monthly-games", "component": {"Text": {"text": {"literalString": "Monthly Games"}, "usageHint": "body"}}}, {"id": "value-monthly-games-essential", "component": {"Text": {"text": {"literalString": "3 free games to keep"}, "usageHint": "body"}}}, {"id": "value-monthly-games-extra", "component": {"Text": {"text": {"literalString": "3 free games to keep"}, "usageHint": "body"}}}, {"id": "table-row-game-catalog", "component": {"Row": {"children": {"explicitList": ["label-game-catalog", "value-game-catalog-essential", "value-game-catalog-extra"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "label-game-catalog", "component": {"Text": {"text": {"literalString": "Game Catalog"}, "usageHint": "body"}}}, {"id": "value-game-catalog-essential", "component": {"Text": {"text": {"literalString": "No access"}, "usageHint": "body"}}}, {"id": "value-game-catalog-extra", "component": {"Text": {"text": {"literalString": "Access to ~400 PS4 and PS5 games"}, "usageHint": "body"}}}, {"id": "table-row-cloud-streaming", "component": {"Row": {"children": {"explicitList": ["label-cloud-streaming", "value-cloud-streaming-essential", "value-cloud-streaming-extra"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "label-cloud-streaming", "component": {"Text": {"text": {"literalString": "Cloud Streaming"}, "usageHint": "body"}}}, {"id": "value-cloud-streaming-essential", "component": {"Text": {"text": {"literalString": "Not Available"}, "usageHint": "body"}}}, {"id": "value-cloud-streaming-extra", "component": {"Text": {"text": {"literalString": "Not Available (Premium only)"}, "usageHint": "body"}}}, {"id": "table-row-online-multiplayer", "component": {"Row": {"children": {"explicitList": ["label-online-multiplayer", "value-online-multiplayer-essential", "value-online-multiplayer-extra"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "label-online-multiplayer", "component": {"Text": {"text": {"literalString": "Online Multiplayer"}, "usageHint": "body"}}}, {"id": "value-online-multiplayer-essential", "component": {"Text": {"text": {"literalString": "Included"}, "usageHint": "body"}}}, {"id": "value-online-multiplayer-extra", "component": {"Text": {"text": {"literalString": "Included"}, "usageHint": "body"}}}, {"id": "table-row-cloud-storage", "component": {"Row": {"children": {"explicitList": ["label-cloud-storage", "value-cloud-storage-essential", "value-cloud-storage-extra"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "label-cloud-storage", "component": {"Text": {"text": {"literalString": "Cloud Storage"}, "usageHint": "body"}}}, {"id": "value-cloud-storage-essential", "component": {"Text": {"text": {"literalString": "Included"}, "usageHint": "body"}}}, {"id": "value-cloud-storage-extra", "component": {"Text": {"text": {"literalString": "Included"}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Row": {"children": {"explicitList": ["compare-tiers-button"]}, "distribution": "start", "alignment": "center"}}}, {"id": "compare-tiers-button", "component": {"Button": {"child": "compare-tiers-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.playstation.com/en-us/ps-plus/"}}]}, "primary": true}}}, {"id": "compare-tiers-button-text", "component": {"Text": {"text": {"literalString": "Compare Tiers on PlayStation.com"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

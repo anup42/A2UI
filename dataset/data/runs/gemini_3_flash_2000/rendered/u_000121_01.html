@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "music-service-comparison"}}, {"surfaceUpdate": {"surfaceId": "music-service-comparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-text", "assumptions-text", "summary-card", "details-tabs", "actions-row", "sources-column"]}}}}, {"id": "header-text", "component": {"Text": {"text": {"literalString": "Spotify vs. Apple Music"}, "usageHint": "h2"}}}, {"id": "assumptions-text", "component": {"Text": {"text": {"literalString": "Assumptions: Comparison is based on current individual premium subscription tiers as of early 2024."}, "usageHint": "caption"}}}, {"id": "summary-card", "component": {"Card": {"child": "summary-table-col"}}}, {"id": "summary-table-col", "component": {"Column": {"children": {"explicitList": ["table-header-row", "table-divider-1", "table-row-1", "table-row-2", "table-row-3"]}}}}, {"id": "table-header-row", "component": {"Row": {"children": {"explicitList": ["th-feat", "th-spot", "th-apple"]}}}}, {"id": "th-feat", "component": {"Text": {"text": {"literalString": "**Feature**"}, "usageHint": "body"}}}, {"id": "th-spot", "component": {"Text": {"text": {"literalString": "**Spotify**"}, "usageHint": "body"}}}, {"id": "th-apple", "component": {"Text": {"text": {"literalString": "**Apple Music**"}, "usageHint": "body"}}}, {"id": "table-divider-1", "component": {"Divider": {}}}, {"id": "table-row-1", "component": {"Row": {"children": {"explicitList": ["tr1-c1", "tr1-c2", "tr1-c3"]}}}}, {"id": "tr1-c1", "component": {"Text": {"text": {"literalString": "Audio Quality"}, "usageHint": "body"}}}, {"id": "tr1-c2", "component": {"Text": {"text": {"literalString": "320kbps"}, "usageHint": "body"}}}, {"id": "tr1-c3", "component": {"Text": {"text": {"literalString": "Lossless"}, "usageHint": "body"}}}, {"id": "table-row-2", "component": {"Row": {"children": {"explicitList": ["tr2-c1", "tr2-c2", "tr2-c3"]}}}}, {"id": "tr2-c1", "component": {"Text": {"text": {"literalString": "Library Size"}, "usageHint": "body"}}}, {"id": "tr2-c2", "component": {"Text": {"text": {"literalString": "100M+"}, "usageHint": "body"}}}, {"id": "tr2-c3", "component": {"Text": {"text": {"literalString": "100M+"}, "usageHint": "body"}}}, {"id": "table-row-3", "component": {"Row": {"children": {"explicitList": ["tr3-c1", "tr3-c2", "tr3-c3"]}}}}, {"id": "tr3-c1", "component": {"Text": {"text": {"literalString": "Discovery"}, "usageHint": "body"}}}, {"id": "tr3-c2", "component": {"Text": {"text": {"literalString": "AI-Heavy"}, "usageHint": "body"}}}, {"id": "tr3-c3", "component": {"Text": {"text": {"literalString": "Human Curation"}, "usageHint": "body"}}}, {"id": "details-tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Audio Quality"}, "child": "audio-detail-col"}, {"title": {"literalString": "Library Size"}, "child": "library-detail-col"}, {"title": {"literalString": "Discovery"}, "child": "discovery-detail-col"}]}}}, {"id": "audio-detail-col", "component": {"Column": {"children": {"explicitList": ["audio-icon", "audio-spotify-desc", "audio-apple-desc"]}}}}, {"id": "audio-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000121_01_1_speaker.png"}, "usageHint": "icon"}}}, {"id": "audio-spotify-desc", "component": {"Text": {"text": {"literalString": "**Spotify:** Uses Ogg Vorbis (max 320kbps). Spotify HiFi is not yet widely available."}, "usageHint": "body"}}}, {"id": "audio-apple-desc", "component": {"Text": {"text": {"literalString": "**Apple Music:** Uses ALAC (Lossless up to 24-bit/192kHz). Includes Spatial Audio with Dolby Atmos."}, "usageHint": "body"}}}, {"id": "library-detail-col", "component": {"Column": {"children": {"explicitList": ["library-icon", "library-spotify-desc", "library-apple-desc"]}}}}, {"id": "library-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000121_01_2_music.png"}, "usageHint": "icon"}}}, {"id": "library-spotify-desc", "component": {"Text": {"text": {"literalString": "**Spotify:** 100M+ songs. Deep integration of 5M+ podcast titles and audiobooks."}, "usageHint": "body"}}}, {"id": "library-apple-desc", "component": {"Text": {"text": {"literalString": "**Apple Music:** 100M+ songs. Includes dedicated Apple Music Classical app."}, "usageHint": "body"}}}, {"id": "discovery-detail-col", "component": {"Column": {"children": {"explicitList": ["discovery-icon", "discovery-spotify-desc", "discovery-apple-desc"]}}}}, {"id": "discovery-icon", "component": {"Icon": {"name": {"literalString": "search"}}}}, {"id": "discovery-spotify-desc", "component": {"Text": {"text": {"literalString": "**Spotify:** Renowned for algorithms like Discover Weekly and Release Radar using collaborative filtering."}, "usageHint": "body"}}}, {"id": "discovery-apple-desc", "component": {"Text": {"text": {"literalString": "**Apple Music:** Blend of human editorial and algorithms. Features Discovery Station and live radio like Apple Music 1."}, "usageHint": "body"}}}, {"id": "actions-row", "component": {"Row": {"children": {"explicitList": ["btn-spotify", "btn-apple"]}, "distribution": "start"}}}, {"id": "btn-spotify", "component": {"Button": {"child": "btn-spotify-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.spotify.com/premium/"}}]}}}}, {"id": "btn-spotify-text", "component": {"Text": {"text": {"literalString": "Compare Spotify Plans"}, "usageHint": "body"}}}, {"id": "btn-apple", "component": {"Button": {"child": "btn-apple-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.apple.com/apple-music/"}}]}}}}, {"id": "btn-apple-text", "component": {"Text": {"text": {"literalString": "Compare Apple Music Plans"}, "usageHint": "body"}}}, {"id": "sources-column", "component": {"Column": {"children": {"explicitList": ["source-header", "source-1", "source-2"]}}}}, {"id": "source-header", "component": {"Text": {"text": {"literalString": "Sources:"}, "usageHint": "caption"}}}, {"id": "source-1", "component": {"Text": {"text": {"literalString": "• [Apple Support](https://support.apple.com/en-us/HT212182)"}, "usageHint": "caption"}}}, {"id": "source-2", "component": {"Text": {"text": {"literalString": "• [Spotify Support](https://support.spotify.com/article/audio-quality/)"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

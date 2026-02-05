@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000083"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000083", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "btn_9", "btn_10", "btn_11", "text_12"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "SUMMARY\nThe Toyota Corolla is the most cost-effective option for your trip. Despite the Tesla Model 3 offering free charging, the Corolla's lower daily rental rate results in a total saving of $70. The Ford Explorer is the most expensive option due to high rental costs and lower fuel efficiency."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "ASSUMPTIONS\n- Rental rates are base prices and do not include local taxes, insurance, or security deposits.\n- Gas prices remain constant at $4.00 per gallon for the duration of the 600-mile trip.\n- The Tesla Model 3 charging remains 100% free at designated stations as specified."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "COST COMPARISON TABLE\nVehicle | Rental (3 Days) | Fuel Cost | Total Cost\nToyota Corolla | $135.00 | $80.00 | $215.00\nTesla Model 3 | $285.00 | $0.00 | $285.00\nFord Explorer | $255.00 | $120.00 | $375.00"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "DETAILED CALCULATION\n- Toyota Corolla: ($45 x 3 days) + (600 miles / 30 mpg x $4.00) = $135 + $80 = $215.\n- Tesla Model 3: ($95 x 3 days) + $0 fuel = $285.\n- Ford Explorer: ($85 x 3 days) + (600 miles / 20 mpg x $4.00) = $255 + $120 = $375."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "RENTAL OPTIONS\nOption 1: Toyota Corolla | Best value for solo travelers or small groups seeking maximum savings | $215 Total | https://www.hertz.com\nOption 2: Tesla Model 3 | Higher cost but offers a premium electric driving experience | $285 Total | https://www.turo.com\nOption 3: Ford Explorer | Most expensive choice; best only if extra cargo space is required | $375 Total | https://www.enterprise.com"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "OFFLINE VERIFICATION FRAMEWORK\nTo verify these costs with real-time data at the time of booking:\n1. Multiply the current daily rate by the number of rental days.\n2. Divide your estimated total mileage by the vehicle's combined MPG rating.\n3. Multiply that result by the current local gas price.\n4. Add the rental total and fuel total together to find the true cost."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "EXAMPLE CURRENT MARKET RATES (SYNTHETIC)\n- Compact Car: $38 - $52 per day | 33 MPG\n- Standard SUV: $70 - $95 per day | 22 MPG\n- Electric Sedan: $85 - $120 per day | Free or Paid Supercharging"}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "- Best Value: /assets/r_000083_01_1_low-price.png\n- Fuel Efficiency: /assets/r_000083_01_2_gas-station.png\n- Distance: /assets/r_000083_01_3_route.png"}, "usageHint": "body"}}}, {"id": "btn_label_9", "component": {"Text": {"text": {"literalString": "Book Toyota Corolla"}, "usageHint": "body"}}}, {"id": "btn_9", "component": {"Button": {"child": "btn_label_9", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.expedia.com/Cars"}}]}, "primary": true}}}, {"id": "btn_label_10", "component": {"Text": {"text": {"literalString": "Find Free Charging"}, "usageHint": "body"}}}, {"id": "btn_10", "component": {"Button": {"child": "btn_label_10", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.plugshare.com"}}]}, "primary": true}}}, {"id": "btn_label_11", "component": {"Text": {"text": {"literalString": "Check Local Gas Prices"}, "usageHint": "body"}}}, {"id": "btn_11", "component": {"Button": {"child": "btn_label_11", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.gasbuddy.com"}}]}, "primary": true}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "- https://www.fueleconomy.gov\n- https://www.eia.gov/petroleum/gasdiesel/"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

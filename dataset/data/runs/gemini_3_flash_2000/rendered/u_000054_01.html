@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "python-js-syntax-comparison"}}, {"surfaceUpdate": {"surfaceId": "python-js-syntax-comparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_section", "table_section", "snippets_section", "differences_section", "footer_section"]}, "alignment": "stretch"}}}, {"id": "header_section", "component": {"Column": {"children": {"explicitList": ["title", "summary_text", "assumptions_text"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Python vs. JavaScript: Syntax Comparison"}, "usageHint": "h2"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "Python and JavaScript represent two different approaches to syntax. Python emphasizes readability through significant whitespace, while JavaScript follows a C-style syntax using curly braces and semicolons."}, "usageHint": "body"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "**Assumptions:**\n- JavaScript: Modern ES6+ (let, const, arrow functions).\n- Python: Python 3.x standards."}, "usageHint": "caption"}}}, {"id": "table_section", "component": {"Column": {"children": {"explicitList": ["table_title", "table_card"]}}}}, {"id": "table_title", "component": {"Text": {"text": {"literalString": "Syntax at a Glance"}, "usageHint": "h3"}}}, {"id": "table_card", "component": {"Card": {"child": "table_content"}}}, {"id": "table_content", "component": {"Column": {"children": {"explicitList": ["table_row_header", "table_div_1", "table_row_1", "table_row_2", "table_row_3", "table_row_4", "table_row_5", "table_row_6"]}}}}, {"id": "table_row_header", "component": {"Row": {"children": {"explicitList": ["th_cat", "th_py", "th_js"]}, "distribution": "spaceBetween"}}}, {"id": "th_cat", "component": {"Text": {"text": {"literalString": "**Category**"}, "usageHint": "body"}}}, {"id": "th_py", "component": {"Text": {"text": {"literalString": "**Python**"}, "usageHint": "body"}}}, {"id": "th_js", "component": {"Text": {"text": {"literalString": "**JavaScript**"}, "usageHint": "body"}}}, {"id": "table_div_1", "component": {"Divider": {}}}, {"id": "table_row_1", "component": {"Row": {"children": {"explicitList": ["t1_c", "t1_p", "t1_j"]}}}}, {"id": "t1_c", "component": {"Text": {"text": {"literalString": "Variable Keywords"}, "usageHint": "body"}}}, {"id": "t1_p", "component": {"Text": {"text": {"literalString": "None"}, "usageHint": "body"}}}, {"id": "t1_j", "component": {"Text": {"text": {"literalString": "var, let, const"}, "usageHint": "body"}}}, {"id": "table_row_2", "component": {"Row": {"children": {"explicitList": ["t2_c", "t2_p", "t2_j"]}}}}, {"id": "t2_c", "component": {"Text": {"text": {"literalString": "Function Keywords"}, "usageHint": "body"}}}, {"id": "t2_p", "component": {"Text": {"text": {"literalString": "def"}, "usageHint": "body"}}}, {"id": "t2_j", "component": {"Text": {"text": {"literalString": "function, =>"}, "usageHint": "body"}}}, {"id": "table_row_3", "component": {"Row": {"children": {"explicitList": ["t3_c", "t3_p", "t3_j"]}}}}, {"id": "t3_c", "component": {"Text": {"text": {"literalString": "Block Delimiters"}, "usageHint": "body"}}}, {"id": "t3_p", "component": {"Text": {"text": {"literalString": "Indentation"}, "usageHint": "body"}}}, {"id": "t3_j", "component": {"Text": {"text": {"literalString": "Curly Braces { }"}, "usageHint": "body"}}}, {"id": "table_row_4", "component": {"Row": {"children": {"explicitList": ["t4_c", "t4_p", "t4_j"]}}}}, {"id": "t4_c", "component": {"Text": {"text": {"literalString": "Naming"}, "usageHint": "body"}}}, {"id": "t4_p", "component": {"Text": {"text": {"literalString": "snake_case"}, "usageHint": "body"}}}, {"id": "t4_j", "component": {"Text": {"text": {"literalString": "camelCase"}, "usageHint": "body"}}}, {"id": "table_row_5", "component": {"Row": {"children": {"explicitList": ["t5_c", "t5_p", "t5_j"]}}}}, {"id": "t5_c", "component": {"Text": {"text": {"literalString": "Line Termination"}, "usageHint": "body"}}}, {"id": "t5_p", "component": {"Text": {"text": {"literalString": "Newline"}, "usageHint": "body"}}}, {"id": "t5_j", "component": {"Text": {"text": {"literalString": "Semicolon"}, "usageHint": "body"}}}, {"id": "table_row_6", "component": {"Row": {"children": {"explicitList": ["t6_c", "t6_p", "t6_j"]}}}}, {"id": "t6_c", "component": {"Text": {"text": {"literalString": "Constants"}, "usageHint": "body"}}}, {"id": "t6_p", "component": {"Text": {"text": {"literalString": "Convention"}, "usageHint": "body"}}}, {"id": "t6_j", "component": {"Text": {"text": {"literalString": "Enforced (const)"}, "usageHint": "body"}}}, {"id": "snippets_section", "component": {"Column": {"children": {"explicitList": ["snippets_title", "snippets_tabs"]}}}}, {"id": "snippets_title", "component": {"Text": {"text": {"literalString": "Code Snippets"}, "usageHint": "h3"}}}, {"id": "snippets_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Variables"}, "child": "var_snippet_row"}, {"title": {"literalString": "Functions"}, "child": "fn_snippet_row"}]}}}, {"id": "var_snippet_row", "component": {"Row": {"children": {"explicitList": ["var_py_col", "var_js_col"]}}}}, {"id": "var_py_col", "component": {"Column": {"children": {"explicitList": ["var_py_label", "var_py_code"]}}}}, {"id": "var_py_label", "component": {"Text": {"text": {"literalString": "**Python**"}, "usageHint": "caption"}}}, {"id": "var_py_code", "component": {"Text": {"text": {"literalString": "```python\nname = \"Alice\"\nage = 30\nis_active = True\nscores = [1, 2, 3]\n```"}, "usageHint": "body"}}}, {"id": "var_js_col", "component": {"Column": {"children": {"explicitList": ["var_js_label", "var_js_code"]}}}}, {"id": "var_js_label", "component": {"Text": {"text": {"literalString": "**JavaScript**"}, "usageHint": "caption"}}}, {"id": "var_js_code", "component": {"Text": {"text": {"literalString": "```javascript\nconst name = \"Alice\";\nlet age = 30;\nlet isActive = true;\nconst scores = [1, 2, 3];\n```"}, "usageHint": "body"}}}, {"id": "fn_snippet_row", "component": {"Row": {"children": {"explicitList": ["fn_py_col", "fn_js_col"]}}}}, {"id": "fn_py_col", "component": {"Column": {"children": {"explicitList": ["fn_py_label", "fn_py_code"]}}}}, {"id": "fn_py_label", "component": {"Text": {"text": {"literalString": "**Python**"}, "usageHint": "caption"}}}, {"id": "fn_py_code", "component": {"Text": {"text": {"literalString": "```python\ndef greet(user):\n    return f\"Hello, {user}\"\n\ndef add(a, b=10):\n    return a + b\n```"}, "usageHint": "body"}}}, {"id": "fn_js_col", "component": {"Column": {"children": {"explicitList": ["fn_js_label", "fn_js_code"]}}}}, {"id": "fn_js_label", "component": {"Text": {"text": {"literalString": "**JavaScript**"}, "usageHint": "caption"}}}, {"id": "fn_js_code", "component": {"Text": {"text": {"literalString": "```javascript\nfunction greet(user) {\n  return `Hello, ${user}`;\n}\n\nconst add = (a, b = 10) => {\n  return a + b;\n};\n```"}, "usageHint": "body"}}}, {"id": "differences_section", "component": {"Column": {"children": {"explicitList": ["diff_title", "diff_list"]}}}}, {"id": "diff_title", "component": {"Text": {"text": {"literalString": "Key Differences"}, "usageHint": "h3"}}}, {"id": "diff_list", "component": {"Text": {"text": {"literalString": "- **Variables:** Python uses direct assignment. JS requires `let` or `const`.\n- **Scoping:** JS has block-level scope; Python is generally function-scoped.\n- **Function Syntax:** Python uses `def` and colons. JS uses `function` or `=>`.\n- **Logic Blocks:** Python relies on indentation. JS uses `{ }` brackets."}, "usageHint": "body"}}}, {"id": "footer_section", "component": {"Column": {"children": {"explicitList": ["actions_row", "icons_row", "sources_text"]}, "alignment": "center"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_practice_py", "btn_practice_js"]}, "distribution": "center"}}}, {"id": "btn_practice_py", "component": {"Button": {"child": "btn_py_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.python.org/shell/"}}]}, "primary": true}}}, {"id": "btn_py_text", "component": {"Text": {"text": {"literalString": "Practice Python"}, "usageHint": "body"}}}, {"id": "btn_practice_js", "component": {"Button": {"child": "btn_js_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://playcode.io/javascript"}}]}}}}, {"id": "btn_js_text", "component": {"Text": {"text": {"literalString": "Practice JavaScript"}, "usageHint": "body"}}}, {"id": "icons_row", "component": {"Row": {"children": {"explicitList": ["icon_var", "icon_code"]}, "distribution": "center"}}}, {"id": "icon_var", "component": {"Image": {"url": {"literalString": "/assets/r_000054_01_1_variable.png"}, "usageHint": "icon"}}}, {"id": "icon_code", "component": {"Image": {"url": {"literalString": "/assets/r_000054_01_3_code.png"}, "usageHint": "icon"}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Sources: Python Docs, MDN Web Docs"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000228"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000228", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "icon_row_12", "icon_row_13", "text_14", "text_15", "text_16", "btn_17", "btn_18", "btn_19", "text_20"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions: The puppy is a breed expected to weigh over 50 lbs as an adult and currently has no diagnosed orthopedic conditions."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Summary\nLarge breed puppies require a specific nutritional balance to ensure they do not grow too quickly, which can lead to developmental orthopedic diseases like hip dysplasia. The focus is on moderate energy intake, controlled calcium levels, and specific joint-supporting compounds."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Key Ingredients and Nutrients"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "1. Controlled Calcium and Phosphorus\nLarge breeds are sensitive to excess calcium. Look for a Calcium-to-Phosphorus ratio between 1.1:1 and 1.5:1. High calcium levels can cause bones to grow too fast for the supporting soft tissue."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "2. High-Quality Animal Protein\nLook for specific named meats (Chicken, Lamb, Salmon) as the first ingredient. Protein supports lean muscle mass without adding the excessive calories found in fats."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "3. Glucosamine and Chondroitin\nThese are the building blocks of cartilage. While often added to adult food, including them in puppy food helps support joint lubrication and structural integrity during the heaviest growth phases."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "4. Omega-3 Fatty Acids (DHA and EPA)\nUsually sourced from Fish Oil or Algae Meal. DHA is critical for brain and vision development, while EPA helps manage inflammation in developing joints."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "5. L-Carnitine\nThis amino acid helps the body convert fat into energy, promoting a lean body condition and reducing the physical load on developing bones."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "Nutritional Balance Table\nNutrient | Recommended Level (Dry Matter) | Primary Benefit\nCalcium | 1.0% to 1.5% | Prevents skeletal deformities\nPhosphorus | 0.8% to 1.0% | Balances calcium absorption\nProtein | 26% to 30% | Supports muscle development\nFat | 12% to 15% | Prevents rapid weight gain\nGlucosamine | 400+ mg/kg | Cartilage health"}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "Example Product Options\nThese examples represent common high-quality formulations designed for large breed puppies."}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "Option 1: Hill's Science Diet Large Breed Puppy | Chicken Meal & Oats | Controlled Calcium | https://www.hillspet.com\nOption 2: Purina Pro Plan Large Breed Puppy | Chicken & Rice | High DHA/EPA | https://www.purina.com\nOption 3: Royal Canin Maxi Puppy | Specialized Kibble Shape | Optimal Digestion | https://www.royalcanin.com\nOption 4: Blue Buffalo Life Protection Large Breed | Deboned Chicken | L-Carnitine added | https://www.bluebuffalo.com"}, "usageHint": "body"}}}, {"id": "icon_img_12", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/color/48/bone.png"}, "usageHint": "icon"}}}, {"id": "icon_label_12", "component": {"Text": {"text": {"literalString": "Joint Health"}, "usageHint": "body"}}}, {"id": "icon_row_12", "component": {"Row": {"children": {"explicitList": ["icon_img_12", "icon_label_12"]}, "alignment": "center"}}}, {"id": "icon_img_13", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/color/48/increase.png"}, "usageHint": "icon"}}}, {"id": "icon_label_13", "component": {"Text": {"text": {"literalString": "Controlled Growth"}, "usageHint": "body"}}}, {"id": "icon_row_13", "component": {"Row": {"children": {"explicitList": ["icon_img_13", "icon_label_13"]}, "alignment": "center"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "- Brain Development: /assets/r_000132_01_1_brain.png"}, "usageHint": "body"}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "- Large Breed Growth Chart: /assets/r_000228_01_4_photo-1583511655857-d19b40a7a54e.jpg\n- Healthy Joint Illustration: /assets/r_000228_01_5_photo-1583337130417-3346a1be7dee.jpg"}, "usageHint": "body"}}}, {"id": "text_16", "component": {"Text": {"text": {"literalString": "Checklist for Buyers\n- Confirm the bag specifically states \"Large Breed Puppy.\"\n- Verify the AAFCO statement says the food is \"formulated for the growth of large size dogs (70 lb. or more as an adult).\"\n- Avoid \"All Life Stages\" food unless it specifically meets large breed puppy requirements.\n- Check that the first three ingredients are not fillers like corn or soy."}, "usageHint": "body"}}}, {"id": "btn_label_17", "component": {"Text": {"text": {"literalString": "Find a Veterinary Nutritionist"}, "usageHint": "body"}}}, {"id": "btn_17", "component": {"Button": {"child": "btn_label_17", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://acvn.org/directory/"}}]}, "primary": true}}}, {"id": "btn_label_18", "component": {"Text": {"text": {"literalString": "Calculate Puppy Calories"}, "usageHint": "body"}}}, {"id": "btn_18", "component": {"Button": {"child": "btn_label_18", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://petnutritionalliance.org/dog-calorie-calculator/"}}]}, "primary": true}}}, {"id": "btn_label_19", "component": {"Text": {"text": {"literalString": "Shop Large Breed Food"}, "usageHint": "body"}}}, {"id": "btn_19", "component": {"Button": {"child": "btn_label_19", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.chewy.com/b/large-breed-puppy-food-11440"}}]}, "primary": true}}}, {"id": "text_20", "component": {"Text": {"text": {"literalString": "- https://www.akc.org/expert-advice/nutrition/best-dog-food-choosing-whats-right-for-your-dog/\n- https://vcahospitals.com/know-your-pet/nutritional-requirements-of-large-and-giant-breed-puppies\n- https://www.aafco.org/consumers/understanding-pet-food/reading-labels/"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

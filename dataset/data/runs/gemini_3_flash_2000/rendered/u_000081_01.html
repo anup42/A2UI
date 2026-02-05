@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "marathon-training-plan"}}, {"surfaceUpdate": {"surfaceId": "marathon-training-plan", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_title", "assumptions_card", "schedule_tabs", "summary_header", "summary_card", "checklist_header", "checklist_col", "actions_row", "sources_text"]}, "alignment": "stretch"}}}, {"id": "header_title", "component": {"Text": {"text": {"literalString": "4-WEEK MARATHON TRAINING SCHEDULE"}, "usageHint": "h1"}}}, {"id": "assumptions_card", "component": {"Card": {"child": "assumptions_text"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "**ASSUMPTIONS**\nThe runner is currently healthy, injury-free, and comfortable running 10km at a steady pace. This 4-week plan is an intensive 'bridge' program designed to rapidly increase mileage. Note: a standard marathon training cycle typically requires 16-20 weeks."}, "usageHint": "body"}}}, {"id": "schedule_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Week 1"}, "child": "week1_col"}, {"title": {"literalString": "Week 2"}, "child": "week2_col"}, {"title": {"literalString": "Week 3"}, "child": "week3_col"}, {"title": {"literalString": "Week 4"}, "child": "week4_col"}]}}}, {"id": "week1_col", "component": {"Column": {"children": {"explicitList": ["w1_mon", "w1_tue", "w1_wed", "w1_thu", "w1_fri", "w1_sat", "w1_sun"]}}}}, {"id": "w1_mon", "component": {"Text": {"text": {"literalString": "Monday: Rest Day"}, "usageHint": "body"}}}, {"id": "w1_tue", "component": {"Text": {"text": {"literalString": "Tuesday: 5km Easy Run (Conversational pace)"}, "usageHint": "body"}}}, {"id": "w1_wed", "component": {"Text": {"text": {"literalString": "Wednesday: 6km Cross-Training (Cycling, swimming, or strength)"}, "usageHint": "body"}}}, {"id": "w1_thu", "component": {"Text": {"text": {"literalString": "Thursday: 7km Tempo Run (1km warm up, 5km at goal pace, 1km cool down)"}, "usageHint": "body"}}}, {"id": "w1_fri", "component": {"Text": {"text": {"literalString": "Friday: Rest Day"}, "usageHint": "body"}}}, {"id": "w1_sat", "component": {"Text": {"text": {"literalString": "Saturday: 12km Long Run (Slow and steady)"}, "usageHint": "body"}}}, {"id": "w1_sun", "component": {"Text": {"text": {"literalString": "Sunday: 3km Active Recovery Walk"}, "usageHint": "body"}}}, {"id": "week2_col", "component": {"Column": {"children": {"explicitList": ["w2_mon", "w2_tue", "w2_wed", "w2_thu", "w2_fri", "w2_sat", "w2_sun"]}}}}, {"id": "w2_mon", "component": {"Text": {"text": {"literalString": "Monday: Rest Day"}, "usageHint": "body"}}}, {"id": "w2_tue", "component": {"Text": {"text": {"literalString": "Tuesday: 6km Easy Run"}, "usageHint": "body"}}}, {"id": "w2_wed", "component": {"Text": {"text": {"literalString": "Wednesday: 7km Cross-Training (Focus on core and legs)"}, "usageHint": "body"}}}, {"id": "w2_thu", "component": {"Text": {"text": {"literalString": "Thursday: 8km Hill Repeats or Intervals (Fast bursts)"}, "usageHint": "body"}}}, {"id": "w2_fri", "component": {"Text": {"text": {"literalString": "Friday: Rest Day"}, "usageHint": "body"}}}, {"id": "w2_sat", "component": {"Text": {"text": {"literalString": "Saturday: 16km Long Run (Maintain a consistent, slow pace)"}, "usageHint": "body"}}}, {"id": "w2_sun", "component": {"Text": {"text": {"literalString": "Sunday: 4km Active Recovery Walk"}, "usageHint": "body"}}}, {"id": "week3_col", "component": {"Column": {"children": {"explicitList": ["w3_mon", "w3_tue", "w3_wed", "w3_thu", "w3_fri", "w3_sat", "w3_sun"]}}}}, {"id": "w3_mon", "component": {"Text": {"text": {"literalString": "Monday: Rest Day"}, "usageHint": "body"}}}, {"id": "w3_tue", "component": {"Text": {"text": {"literalString": "Tuesday: 8km Easy Run"}, "usageHint": "body"}}}, {"id": "w3_wed", "component": {"Text": {"text": {"literalString": "Wednesday: 8km Cross-Training"}, "usageHint": "body"}}}, {"id": "w3_thu", "component": {"Text": {"text": {"literalString": "Thursday: 10km Tempo Run (Goal marathon pace)"}, "usageHint": "body"}}}, {"id": "w3_fri", "component": {"Text": {"text": {"literalString": "Friday: Rest Day"}, "usageHint": "body"}}}, {"id": "w3_sat", "component": {"Text": {"text": {"literalString": "Saturday: 22km Long Run (The primary endurance test)"}, "usageHint": "body"}}}, {"id": "w3_sun", "component": {"Text": {"text": {"literalString": "Sunday: 5km Active Recovery Walk"}, "usageHint": "body"}}}, {"id": "week4_col", "component": {"Column": {"children": {"explicitList": ["w4_mon", "w4_tue", "w4_wed", "w4_thu", "w4_fri", "w4_sat", "w4_sun"]}}}}, {"id": "w4_mon", "component": {"Text": {"text": {"literalString": "Monday: Rest Day"}, "usageHint": "body"}}}, {"id": "w4_tue", "component": {"Text": {"text": {"literalString": "Tuesday: 6km Easy Run"}, "usageHint": "body"}}}, {"id": "w4_wed", "component": {"Text": {"text": {"literalString": "Wednesday: 5km Easy Run"}, "usageHint": "body"}}}, {"id": "w4_thu", "component": {"Text": {"text": {"literalString": "Thursday: Rest Day"}, "usageHint": "body"}}}, {"id": "w4_fri", "component": {"Text": {"text": {"literalString": "Friday: Rest Day"}, "usageHint": "body"}}}, {"id": "w4_sat", "component": {"Text": {"text": {"literalString": "Saturday: 10km Maintenance Run or Event Day"}, "usageHint": "body"}}}, {"id": "w4_sun", "component": {"Text": {"text": {"literalString": "Sunday: Rest and Recovery"}, "usageHint": "body"}}}, {"id": "summary_header", "component": {"Text": {"text": {"literalString": "WEEKLY PROGRESSION SUMMARY"}, "usageHint": "h2"}}}, {"id": "summary_card", "component": {"Card": {"child": "summary_table_col"}}}, {"id": "summary_table_col", "component": {"Column": {"children": {"explicitList": ["sum_row_h", "sum_row_1", "sum_row_2", "sum_row_3", "sum_row_4"]}}}}, {"id": "sum_row_h", "component": {"Row": {"children": {"explicitList": ["sum_h1", "sum_h2", "sum_h3", "sum_h4"]}, "distribution": "spaceBetween"}}}, {"id": "sum_h1", "component": {"Text": {"text": {"literalString": "**Week**"}, "usageHint": "caption"}}}, {"id": "sum_h2", "component": {"Text": {"text": {"literalString": "**Total**"}, "usageHint": "caption"}}}, {"id": "sum_h3", "component": {"Text": {"text": {"literalString": "**Longest**"}, "usageHint": "caption"}}}, {"id": "sum_h4", "component": {"Text": {"text": {"literalString": "**Focus**"}, "usageHint": "caption"}}}, {"id": "sum_row_1", "component": {"Row": {"children": {"explicitList": ["sum_1_1", "sum_1_2", "sum_1_3", "sum_1_4"]}, "distribution": "spaceBetween"}}}, {"id": "sum_1_1", "component": {"Text": {"text": {"literalString": "Week 1"}, "usageHint": "body"}}}, {"id": "sum_1_2", "component": {"Text": {"text": {"literalString": "33km"}, "usageHint": "body"}}}, {"id": "sum_1_3", "component": {"Text": {"text": {"literalString": "12km"}, "usageHint": "body"}}}, {"id": "sum_1_4", "component": {"Text": {"text": {"literalString": "Base Endurance"}, "usageHint": "body"}}}, {"id": "sum_row_2", "component": {"Row": {"children": {"explicitList": ["sum_2_1", "sum_2_2", "sum_2_3", "sum_2_4"]}, "distribution": "spaceBetween"}}}, {"id": "sum_2_1", "component": {"Text": {"text": {"literalString": "Week 2"}, "usageHint": "body"}}}, {"id": "sum_2_2", "component": {"Text": {"text": {"literalString": "41km"}, "usageHint": "body"}}}, {"id": "sum_2_3", "component": {"Text": {"text": {"literalString": "16km"}, "usageHint": "body"}}}, {"id": "sum_2_4", "component": {"Text": {"text": {"literalString": "Intensity/Strength"}, "usageHint": "body"}}}, {"id": "sum_row_3", "component": {"Row": {"children": {"explicitList": ["sum_3_1", "sum_3_2", "sum_3_3", "sum_3_4"]}, "distribution": "spaceBetween"}}}, {"id": "sum_3_1", "component": {"Text": {"text": {"literalString": "Week 3"}, "usageHint": "body"}}}, {"id": "sum_3_2", "component": {"Text": {"text": {"literalString": "53km"}, "usageHint": "body"}}}, {"id": "sum_3_3", "component": {"Text": {"text": {"literalString": "22km"}, "usageHint": "body"}}}, {"id": "sum_3_4", "component": {"Text": {"text": {"literalString": "Peak Volume"}, "usageHint": "body"}}}, {"id": "sum_row_4", "component": {"Row": {"children": {"explicitList": ["sum_4_1", "sum_4_2", "sum_4_3", "sum_4_4"]}, "distribution": "spaceBetween"}}}, {"id": "sum_4_1", "component": {"Text": {"text": {"literalString": "Week 4"}, "usageHint": "body"}}}, {"id": "sum_4_2", "component": {"Text": {"text": {"literalString": "21km"}, "usageHint": "body"}}}, {"id": "sum_4_3", "component": {"Text": {"text": {"literalString": "10km"}, "usageHint": "body"}}}, {"id": "sum_4_4", "component": {"Text": {"text": {"literalString": "Taper/Recovery"}, "usageHint": "body"}}}, {"id": "checklist_header", "component": {"Text": {"text": {"literalString": "TRAINING CHECKLIST"}, "usageHint": "h2"}}}, {"id": "checklist_col", "component": {"Column": {"children": {"explicitList": ["check_1", "check_2", "check_3", "check_4"]}}}}, {"id": "check_1", "component": {"Text": {"text": {"literalString": "• Footwear: Use shoes with at least 100km of 'break-in' distance."}, "usageHint": "body"}}}, {"id": "check_2", "component": {"Text": {"text": {"literalString": "• Hydration: Aim for 250ml of fluids every 20 minutes during long runs."}, "usageHint": "body"}}}, {"id": "check_3", "component": {"Text": {"text": {"literalString": "• Fueling: Practice consuming energy gels or carbohydrates during the Week 3 long run."}, "usageHint": "body"}}}, {"id": "check_4", "component": {"Text": {"text": {"literalString": "• Recovery: Use a foam roller on hamstrings and calves after every Thursday and Saturday session."}, "usageHint": "body"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_log", "btn_nutrition", "btn_safety"]}, "distribution": "spaceEvenly"}}}, {"id": "btn_log", "component": {"Button": {"child": "btn_log_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/marathon-log-template"}}]}, "primary": true}}}, {"id": "btn_log_text", "component": {"Text": {"text": {"literalString": "Training Log"}, "usageHint": "body"}}}, {"id": "btn_nutrition", "component": {"Button": {"child": "btn_nutrition_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/marathon-fueling"}}]}, "primary": true}}}, {"id": "btn_nutrition_text", "component": {"Text": {"text": {"literalString": "Nutrition Guide"}, "usageHint": "body"}}}, {"id": "btn_safety", "component": {"Button": {"child": "btn_safety_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/running-safety"}}]}, "primary": true}}}, {"id": "btn_safety_text", "component": {"Text": {"text": {"literalString": "Injury Prevention"}, "usageHint": "body"}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Sources: /runnersworld-training, /halhigdon-marathon"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "classic_scifi_movies"}}, {"surfaceUpdate": {"surfaceId": "classic_scifi_movies", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "assumptions", "movie_1", "movie_2", "movie_3", "movie_4", "movie_5", "divider_1", "quick_actions_header", "quick_actions_row", "divider_2", "sources_header", "sources_list"]}, "alignment": "stretch"}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "Classic Sci-Fi Movies"}, "usageHint": "h2"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: Classic movies are defined as those with high critical acclaim, significant cultural impact, and historical importance to the science fiction genre."}, "usageHint": "body"}}}, {"id": "movie_1", "component": {"Card": {"child": "movie_1_col"}}}, {"id": "movie_1_col", "component": {"Column": {"children": {"explicitList": ["m1_title_row", "m1_dir_row", "m1_premise_row"]}}}}, {"id": "m1_title_row", "component": {"Row": {"children": {"explicitList": ["icon_proj_1", "m1_title_text"]}, "alignment": "center"}}}, {"id": "icon_proj_1", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_1_movie-projector.png"}}}}, {"id": "m1_title_text", "component": {"Text": {"text": {"literalString": "2001: A Space Odyssey (1968)"}, "usageHint": "h4"}}}, {"id": "m1_dir_row", "component": {"Row": {"children": {"explicitList": ["icon_clap_1", "m1_dir_text"]}, "alignment": "center"}}}, {"id": "icon_clap_1", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_2_clapperboard.png"}}}}, {"id": "m1_dir_text", "component": {"Text": {"text": {"literalString": "Director: Stanley Kubrick"}, "usageHint": "body"}}}, {"id": "m1_premise_row", "component": {"Row": {"children": {"explicitList": ["icon_book_1", "m1_premise_text"]}, "alignment": "start"}}}, {"id": "icon_book_1", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_3_open-book.png"}}}}, {"id": "m1_premise_text", "component": {"Text": {"text": {"literalString": "Premise: After a mysterious monolith is discovered on the moon, a spacecraft is sent to Jupiter to investigate the origins of humanity."}, "usageHint": "body"}}}, {"id": "movie_2", "component": {"Card": {"child": "movie_2_col"}}}, {"id": "movie_2_col", "component": {"Column": {"children": {"explicitList": ["m2_title_row", "m2_dir_row", "m2_premise_row"]}}}}, {"id": "m2_title_row", "component": {"Row": {"children": {"explicitList": ["icon_proj_2", "m2_title_text"]}, "alignment": "center"}}}, {"id": "icon_proj_2", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_1_movie-projector.png"}}}}, {"id": "m2_title_text", "component": {"Text": {"text": {"literalString": "Blade Runner (1982)"}, "usageHint": "h4"}}}, {"id": "m2_dir_row", "component": {"Row": {"children": {"explicitList": ["icon_clap_2", "m2_dir_text"]}, "alignment": "center"}}}, {"id": "icon_clap_2", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_2_clapperboard.png"}}}}, {"id": "m2_dir_text", "component": {"Text": {"text": {"literalString": "Director: Ridley Scott"}, "usageHint": "body"}}}, {"id": "m2_premise_row", "component": {"Row": {"children": {"explicitList": ["icon_book_2", "m2_premise_text"]}, "alignment": "start"}}}, {"id": "icon_book_2", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_3_open-book.png"}}}}, {"id": "m2_premise_text", "component": {"Text": {"text": {"literalString": "Premise: In a rain-soaked dystopian future, a retired police officer is forced back into service to hunt down four escaped bioengineered beings."}, "usageHint": "body"}}}, {"id": "movie_3", "component": {"Card": {"child": "movie_3_col"}}}, {"id": "movie_3_col", "component": {"Column": {"children": {"explicitList": ["m3_title_row", "m3_dir_row", "m3_premise_row"]}}}}, {"id": "m3_title_row", "component": {"Row": {"children": {"explicitList": ["icon_proj_3", "m3_title_text"]}, "alignment": "center"}}}, {"id": "icon_proj_3", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_1_movie-projector.png"}}}}, {"id": "m3_title_text", "component": {"Text": {"text": {"literalString": "Star Wars: A New Hope (1977)"}, "usageHint": "h4"}}}, {"id": "m3_dir_row", "component": {"Row": {"children": {"explicitList": ["icon_clap_3", "m3_dir_text"]}, "alignment": "center"}}}, {"id": "icon_clap_3", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_2_clapperboard.png"}}}}, {"id": "m3_dir_text", "component": {"Text": {"text": {"literalString": "Director: George Lucas"}, "usageHint": "body"}}}, {"id": "m3_premise_row", "component": {"Row": {"children": {"explicitList": ["icon_book_3", "m3_premise_text"]}, "alignment": "start"}}}, {"id": "icon_book_3", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_3_open-book.png"}}}}, {"id": "m3_premise_text", "component": {"Text": {"text": {"literalString": "Premise: A young farm boy joins a group of rebels and a wise knight to rescue a princess and destroy a planet-killing space station."}, "usageHint": "body"}}}, {"id": "movie_4", "component": {"Card": {"child": "movie_4_col"}}}, {"id": "movie_4_col", "component": {"Column": {"children": {"explicitList": ["m4_title_row", "m4_dir_row", "m4_premise_row"]}}}}, {"id": "m4_title_row", "component": {"Row": {"children": {"explicitList": ["icon_proj_4", "m4_title_text"]}, "alignment": "center"}}}, {"id": "icon_proj_4", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_1_movie-projector.png"}}}}, {"id": "m4_title_text", "component": {"Text": {"text": {"literalString": "Alien (1979)"}, "usageHint": "h4"}}}, {"id": "m4_dir_row", "component": {"Row": {"children": {"explicitList": ["icon_clap_4", "m4_dir_text"]}, "alignment": "center"}}}, {"id": "icon_clap_4", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_2_clapperboard.png"}}}}, {"id": "m4_dir_text", "component": {"Text": {"text": {"literalString": "Director: Ridley Scott"}, "usageHint": "body"}}}, {"id": "m4_premise_row", "component": {"Row": {"children": {"explicitList": ["icon_book_4", "m4_premise_text"]}, "alignment": "start"}}}, {"id": "icon_book_4", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_3_open-book.png"}}}}, {"id": "m4_premise_text", "component": {"Text": {"text": {"literalString": "Premise: The crew of a commercial space tug investigates a distress signal and finds themselves trapped with a predatory extraterrestrial lifeform."}, "usageHint": "body"}}}, {"id": "movie_5", "component": {"Card": {"child": "movie_5_col"}}}, {"id": "movie_5_col", "component": {"Column": {"children": {"explicitList": ["m5_title_row", "m5_dir_row", "m5_premise_row"]}}}}, {"id": "m5_title_row", "component": {"Row": {"children": {"explicitList": ["icon_proj_5", "m5_title_text"]}, "alignment": "center"}}}, {"id": "icon_proj_5", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_1_movie-projector.png"}}}}, {"id": "m5_title_text", "component": {"Text": {"text": {"literalString": "The Terminator (1984)"}, "usageHint": "h4"}}}, {"id": "m5_dir_row", "component": {"Row": {"children": {"explicitList": ["icon_clap_5", "m5_dir_text"]}, "alignment": "center"}}}, {"id": "icon_clap_5", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_2_clapperboard.png"}}}}, {"id": "m5_dir_text", "component": {"Text": {"text": {"literalString": "Director: James Cameron"}, "usageHint": "body"}}}, {"id": "m5_premise_row", "component": {"Row": {"children": {"explicitList": ["icon_book_5", "m5_premise_text"]}, "alignment": "start"}}}, {"id": "icon_book_5", "component": {"Icon": {"name": {"path": "/assets/r_000035_01_3_open-book.png"}}}}, {"id": "m5_premise_text", "component": {"Text": {"text": {"literalString": "Premise: A cyborg assassin is sent back in time to kill a woman whose future son is destined to lead the human resistance against machines."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "quick_actions_header", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h4"}}}, {"id": "quick_actions_row", "component": {"Row": {"children": {"explicitList": ["btn_youtube", "btn_imdb"]}, "distribution": "start"}}}, {"id": "btn_youtube", "component": {"Button": {"child": "txt_youtube", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.youtube.com"}}]}, "primary": true}}}, {"id": "txt_youtube", "component": {"Text": {"text": {"literalString": "Search Trailers on YouTube"}, "usageHint": "body"}}}, {"id": "btn_imdb", "component": {"Button": {"child": "txt_imdb", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.imdb.com/search/title/?genres=sci-fi"}}]}}}}, {"id": "txt_imdb", "component": {"Text": {"text": {"literalString": "Browse Sci-Fi on IMDb"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "sources_header", "component": {"Text": {"text": {"literalString": "Sources"}, "usageHint": "h4"}}}, {"id": "sources_list", "component": {"Column": {"children": {"explicitList": ["src_1", "src_2"]}}}}, {"id": "src_1", "component": {"Text": {"text": {"literalString": "https://www.afi.com/afis-10-top-10/"}, "usageHint": "caption"}}}, {"id": "src_2", "component": {"Text": {"text": {"literalString": "https://www.rottentomatoes.com/guide/best-sci-fi-movies-of-all-time/"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

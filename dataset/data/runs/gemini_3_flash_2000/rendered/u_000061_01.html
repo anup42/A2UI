@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000061"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000061", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "btn_11", "btn_12", "text_13", "text_14", "text_15"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\n- The plan is Lacto-Ovo Vegetarian (includes eggs and dairy).\n- Calorie counts are approximate estimates based on standard serving sizes.\n- Daily totals aim for approximately 2000 calories (+/- 50 kcal).\n- Basic cooking oils, salt, and spices are assumed to be in your pantry."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Weekly Meal Plan Overview"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Monday\n- Breakfast: Greek yogurt (1 cup) with 1/2 cup granola and 1 cup blueberries (450 kcal)\n- Lunch: Chickpea salad wrap with 1 whole wheat tortilla, 1/2 cup chickpeas, 1/4 avocado, and greens (550 kcal)\n- Dinner: Red lentil dahl (1.5 cups) served with 1 cup cooked brown rice and sautéed spinach (650 kcal)\n- Snack: 1 large apple with 2 tablespoons of natural peanut butter (350 kcal)"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Tuesday\n- Breakfast: Overnight oats with 1/2 cup oats, 1 cup milk, 1 tablespoon chia seeds, and 10 crushed almonds (480 kcal)\n- Lunch: Quinoa bowl with 1 cup quinoa, 1/2 cup roasted sweet potatoes, 1/2 cup black beans, and tahini dressing (520 kcal)\n- Dinner: Paneer Tikka Masala (1 cup) with 1 piece of garlic naan and side salad (650 kcal)\n- Snack: 1 cup hummus with 1 cup sliced carrots and bell peppers (350 kcal)"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Wednesday\n- Breakfast: 2 scrambled eggs on 2 slices of whole-grain toast with 1/2 cup sautéed mushrooms (450 kcal)\n- Lunch: Mediterranean pasta salad with 1.5 cups whole wheat pasta, feta cheese, olives, cherry tomatoes, and vinaigrette (580 kcal)\n- Dinner: Vegetarian bean chili (2 cups) topped with 1 ounce cheddar cheese and a side of cornbread (620 kcal)\n- Snack: 1 cup cottage cheese with 1/2 cup canned pineapple chunks (350 kcal)"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Thursday\n- Breakfast: Protein smoothie with 1 scoop plant protein, 1 frozen banana, 1 tablespoon almond butter, and 1 cup spinach (460 kcal)\n- Lunch: Tofu stir-fry with 1/2 block firm tofu, 2 cups mixed broccoli and snap peas, served over 1 cup brown rice (540 kcal)\n- Dinner: Two large bell peppers stuffed with quinoa, corn, black beans, and melted pepper jack cheese (650 kcal)\n- Snack: 1/4 cup walnuts and 4 dried apricots (350 kcal)"}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Friday\n- Breakfast: 2 slices of avocado toast on sourdough with 2 poached eggs and red pepper flakes (500 kcal)\n- Lunch: Caprese sandwich with fresh mozzarella, tomato slices, basil pesto, and balsamic glaze on a ciabatta roll (550 kcal)\n- Dinner: Mushroom and pea risotto (1.5 cups) with a side of roasted asparagus and parmesan cheese (600 kcal)\n- Snack: 1 cup Greek yogurt with 1 tablespoon honey and 1 tablespoon hemp seeds (350 kcal)"}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Saturday\n- Breakfast: 3 whole wheat pancakes topped with 1/2 cup strawberries and 2 tablespoons maple syrup (500 kcal)\n- Lunch: Two falafel pitas with 4 falafel balls, cucumber-tomato salad, and 2 tablespoons tahini sauce (550 kcal)\n- Dinner: 3 slices of thin-crust veggie pizza with bell peppers, onions, olives, and mushrooms (600 kcal)\n- Snack: 1.5 cups steamed edamame with sea salt (350 kcal)"}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "Sunday\n- Breakfast: Tofu scramble with 1/2 block tofu, turmeric, bell peppers, onions, and 2 slices of toast (480 kcal)\n- Lunch: Black bean burger on a whole wheat bun with a side of baked sweet potato fries (570 kcal)\n- Dinner: Eggplant Parmesan (2 slices) served over 1 cup of spaghetti with marinara sauce (600 kcal)\n- Snack: 1 medium protein bar and 1 medium orange (350 kcal)"}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "Nutritional Summary Table\nDay | Breakfast | Lunch | Dinner | Snack | Total Calories\nMonday | 450 | 550 | 650 | 350 | 2000\nTuesday | 480 | 520 | 650 | 350 | 2000\nWednesday | 450 | 580 | 620 | 350 | 2000\nThursday | 460 | 540 | 650 | 350 | 2000\nFriday | 500 | 550 | 600 | 350 | 2000\nSaturday | 500 | 550 | 600 | 350 | 2000\nSunday | 480 | 570 | 600 | 350 | 2000"}, "usageHint": "body"}}}, {"id": "btn_label_11", "component": {"Text": {"text": {"literalString": "Download Grocery List"}, "usageHint": "body"}}}, {"id": "btn_11", "component": {"Button": {"child": "btn_label_11", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/vegetarian-grocery-list"}}]}, "primary": true}}}, {"id": "btn_label_12", "component": {"Text": {"text": {"literalString": "View Recipe Details"}, "usageHint": "body"}}}, {"id": "btn_12", "component": {"Button": {"child": "btn_label_12", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/vegetarian-recipes-2000cal"}}]}, "primary": true}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "- Breakfast: /assets/r_000061_01_1_breakfast.png\n- Lunch: /assets/r_000061_01_2_salad.png\n- Dinner: /assets/r_000061_01_3_dinner.png\n- Snack: /assets/r_000061_01_4_apple.png"}, "usageHint": "body"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "- Chickpea Salad Wrap: /assets/r_000061_01_5_photo-1540713434306-58505cf1b6fc.jpg\n- Lentil Dahl: /assets/r_000061_01_6_photo-1546833999-b9f581a1996d.jpg\n- Avocado Toast: /assets/r_000061_01_7_photo-1525351484163-7529414344d8.jpg"}, "usageHint": "body"}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "- https://www.choosemyplate.gov\n- https://www.eatright.org"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

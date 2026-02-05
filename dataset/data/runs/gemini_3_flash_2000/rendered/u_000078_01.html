@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "investment_report_001"}}, {"surfaceUpdate": {"surfaceId": "investment_report_001", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_text", "summary_card", "details_tabs", "actions_divider", "quick_actions_row", "sources_col"]}, "alignment": "stretch"}}}, {"id": "header_text", "component": {"Text": {"text": {"literalString": "Investment Growth Analysis"}, "usageHint": "h2"}}}, {"id": "summary_card", "component": {"Card": {"child": "summary_content"}}}, {"id": "summary_content", "component": {"Column": {"children": {"explicitList": ["summary_title", "summary_body", "icons_row"]}}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h3"}}}, {"id": "summary_body", "component": {"Text": {"text": {"literalString": "The final amount of the investment after 10 years is **$16,288.95**. The total interest earned over this period is **$6,288.95**."}, "usageHint": "body"}}}, {"id": "icons_row", "component": {"Row": {"children": {"explicitList": ["icon_p_col", "icon_r_col", "icon_t_col", "icon_f_col"]}, "distribution": "spaceAround"}}}, {"id": "icon_p_col", "component": {"Column": {"children": {"explicitList": ["icon_p_img", "icon_p_label"]}, "alignment": "center"}}}, {"id": "icon_p_img", "component": {"Image": {"url": {"literalString": "/assets/r_000078_01_1_money-bag.png"}, "usageHint": "icon"}}}, {"id": "icon_p_label", "component": {"Text": {"text": {"literalString": "$10k Principal"}, "usageHint": "caption"}}}, {"id": "icon_r_col", "component": {"Column": {"children": {"explicitList": ["icon_r_img", "icon_r_label"]}, "alignment": "center"}}}, {"id": "icon_r_img", "component": {"Image": {"url": {"literalString": "/assets/r_000078_01_2_percentage.png"}, "usageHint": "icon"}}}, {"id": "icon_r_label", "component": {"Text": {"text": {"literalString": "5% Rate"}, "usageHint": "caption"}}}, {"id": "icon_t_col", "component": {"Column": {"children": {"explicitList": ["icon_t_img", "icon_t_label"]}, "alignment": "center"}}}, {"id": "icon_t_img", "component": {"Image": {"url": {"literalString": "/assets/r_000078_01_3_calendar.png"}, "usageHint": "icon"}}}, {"id": "icon_t_label", "component": {"Text": {"text": {"literalString": "10 Years"}, "usageHint": "caption"}}}, {"id": "icon_f_col", "component": {"Column": {"children": {"explicitList": ["icon_f_img", "icon_f_label"]}, "alignment": "center"}}}, {"id": "icon_f_img", "component": {"Image": {"url": {"literalString": "/assets/r_000078_01_4_checked-user-male.png"}, "usageHint": "icon"}}}, {"id": "icon_f_label", "component": {"Text": {"text": {"literalString": "$16.3k Final"}, "usageHint": "caption"}}}, {"id": "details_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Calculation"}, "child": "tab_calc_col"}, {"title": {"literalString": "Growth Table"}, "child": "tab_table_col"}, {"title": {"literalString": "Assumptions"}, "child": "tab_assumptions_col"}]}}}, {"id": "tab_calc_col", "component": {"Column": {"children": {"explicitList": ["formula_title", "formula_text", "variables_title", "variables_text", "steps_title", "steps_text"]}}}}, {"id": "formula_title", "component": {"Text": {"text": {"literalString": "Compound Interest Formula"}, "usageHint": "h4"}}}, {"id": "formula_text", "component": {"Text": {"text": {"literalString": "A = P(1 + r/n)^(nt)"}, "usageHint": "body"}}}, {"id": "variables_title", "component": {"Text": {"text": {"literalString": "Variables"}, "usageHint": "h5"}}}, {"id": "variables_text", "component": {"Text": {"text": {"literalString": "- A: Future Value\n- P: Principal ($10,000)\n- r: Annual Rate (0.05)\n- n: Compounding Frequency (1)\n- t: Years (10)"}, "usageHint": "body"}}}, {"id": "steps_title", "component": {"Text": {"text": {"literalString": "Calculation Steps"}, "usageHint": "h5"}}}, {"id": "steps_text", "component": {"Text": {"text": {"literalString": "1. Rate/Freq: 0.05 / 1 = 0.05\n2. Add 1: 1 + 0.05 = 1.05\n3. Exponent: 1 * 10 = 10\n4. Power: (1.05)^10 = 1.6288946\n5. Multiply: $10,000 * 1.6288946 = $16,288.95"}, "usageHint": "body"}}}, {"id": "tab_table_col", "component": {"Column": {"children": {"explicitList": ["table_header", "table_row_1", "table_row_2", "table_row_3", "table_row_5", "table_row_10"]}}}}, {"id": "table_header", "component": {"Row": {"children": {"explicitList": ["th_year", "th_start", "th_interest", "th_end"]}}}}, {"id": "th_year", "component": {"Text": {"text": {"literalString": "Year"}, "usageHint": "caption"}}}, {"id": "th_start", "component": {"Text": {"text": {"literalString": "Starting"}, "usageHint": "caption"}}}, {"id": "th_interest", "component": {"Text": {"text": {"literalString": "Interest"}, "usageHint": "caption"}}}, {"id": "th_end", "component": {"Text": {"text": {"literalString": "Ending"}, "usageHint": "caption"}}}, {"id": "table_row_1", "component": {"Row": {"children": {"explicitList": ["tr1_y", "tr1_s", "tr1_i", "tr1_e"]}}}}, {"id": "tr1_y", "component": {"Text": {"text": {"literalString": "1"}, "usageHint": "body"}}}, {"id": "tr1_s", "component": {"Text": {"text": {"literalString": "$10,000.00"}, "usageHint": "body"}}}, {"id": "tr1_i", "component": {"Text": {"text": {"literalString": "$500.00"}, "usageHint": "body"}}}, {"id": "tr1_e", "component": {"Text": {"text": {"literalString": "$10,500.00"}, "usageHint": "body"}}}, {"id": "table_row_2", "component": {"Row": {"children": {"explicitList": ["tr2_y", "tr2_s", "tr2_i", "tr2_e"]}}}}, {"id": "tr2_y", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "tr2_s", "component": {"Text": {"text": {"literalString": "$10,500.00"}, "usageHint": "body"}}}, {"id": "tr2_i", "component": {"Text": {"text": {"literalString": "$525.00"}, "usageHint": "body"}}}, {"id": "tr2_e", "component": {"Text": {"text": {"literalString": "$11,025.00"}, "usageHint": "body"}}}, {"id": "table_row_3", "component": {"Row": {"children": {"explicitList": ["tr3_y", "tr3_s", "tr3_i", "tr3_e"]}}}}, {"id": "tr3_y", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "tr3_s", "component": {"Text": {"text": {"literalString": "$11,025.00"}, "usageHint": "body"}}}, {"id": "tr3_i", "component": {"Text": {"text": {"literalString": "$551.25"}, "usageHint": "body"}}}, {"id": "tr3_e", "component": {"Text": {"text": {"literalString": "$11,576.25"}, "usageHint": "body"}}}, {"id": "table_row_5", "component": {"Row": {"children": {"explicitList": ["tr5_y", "tr5_s", "tr5_i", "tr5_e"]}}}}, {"id": "tr5_y", "component": {"Text": {"text": {"literalString": "5"}, "usageHint": "body"}}}, {"id": "tr5_s", "component": {"Text": {"text": {"literalString": "$12,155.06"}, "usageHint": "body"}}}, {"id": "tr5_i", "component": {"Text": {"text": {"literalString": "$607.75"}, "usageHint": "body"}}}, {"id": "tr5_e", "component": {"Text": {"text": {"literalString": "$12,762.82"}, "usageHint": "body"}}}, {"id": "table_row_10", "component": {"Row": {"children": {"explicitList": ["tr10_y", "tr10_s", "tr10_i", "tr10_e"]}}}}, {"id": "tr10_y", "component": {"Text": {"text": {"literalString": "10"}, "usageHint": "body"}}}, {"id": "tr10_s", "component": {"Text": {"text": {"literalString": "$15,513.28"}, "usageHint": "body"}}}, {"id": "tr10_i", "component": {"Text": {"text": {"literalString": "$775.67"}, "usageHint": "body"}}}, {"id": "tr10_e", "component": {"Text": {"text": {"literalString": "$16,288.95"}, "usageHint": "body"}}}, {"id": "tab_assumptions_col", "component": {"Column": {"children": {"explicitList": ["assumptions_text"]}}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "- The annual interest rate remains fixed at 5%.\n- No additional deposits or withdrawals are made.\n- Compounding occurs exactly once per year."}, "usageHint": "body"}}}, {"id": "actions_divider", "component": {"Divider": {}}}, {"id": "quick_actions_row", "component": {"Row": {"children": {"explicitList": ["btn_calc", "btn_inflation"]}, "distribution": "start"}}}, {"id": "btn_calc", "component": {"Button": {"child": "btn_calc_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator"}}]}, "primary": true}}}, {"id": "btn_calc_text", "component": {"Text": {"text": {"literalString": "Use Calculator"}, "usageHint": "body"}}}, {"id": "btn_inflation", "component": {"Button": {"child": "btn_inflation_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.investopedia.com/articles/investing/090715/how-inflation-affects-your-savings.asp"}}]}}}}, {"id": "btn_inflation_text", "component": {"Text": {"text": {"literalString": "Inflation Impact"}, "usageHint": "body"}}}, {"id": "sources_col", "component": {"Column": {"children": {"explicitList": ["sources_title", "source_1", "source_2"]}}}}, {"id": "sources_title", "component": {"Text": {"text": {"literalString": "Sources"}, "usageHint": "caption"}}}, {"id": "source_1", "component": {"Button": {"child": "source_1_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.investopedia.com/terms/c/compoundinterest.asp"}}]}}}}, {"id": "source_1_text", "component": {"Text": {"text": {"literalString": "Investopedia: Compound Interest"}, "usageHint": "body"}}}, {"id": "source_2", "component": {"Button": {"child": "source_2_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.sec.gov/education/capital-raising/building-wealth/compound-interest"}}]}}}}, {"id": "source_2_text", "component": {"Text": {"text": {"literalString": "SEC.gov: Building Wealth"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

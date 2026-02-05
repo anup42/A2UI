@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "apartment_dog_guide"}}, {"surfaceUpdate": {"surfaceId": "apartment_dog_guide", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["icons_row", "sec_summary_title", "sec_summary_text", "sec_assumptions_title", "sec_assumptions_col", "divider_1", "sec_candidates_title", "candidates_row", "divider_2", "sec_table_title", "table_col", "divider_3", "sec_temp_title", "temp_tabs", "sec_actions_row", "sec_sources_col"]}, "alignment": "stretch"}}}, {"id": "icons_row", "component": {"Row": {"children": {"explicitList": ["icon_home", "icon_health", "icon_family"]}, "distribution": "start"}}}, {"id": "icon_home", "component": {"Icon": {"name": {"path": "/assets/r_000047_01_4_home.png"}}}}, {"id": "icon_health", "component": {"Icon": {"name": {"path": "/assets/r_000047_01_5_medical-heart.png"}}}}, {"id": "icon_family", "component": {"Icon": {"name": {"literalString": "person"}}}}, {"id": "sec_summary_title", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h2"}}}, {"id": "sec_summary_text", "component": {"Text": {"text": {"literalString": "Finding the right dog for an apartment involves balancing size, energy levels, and grooming needs. The following breeds are widely recognized for their low-allergen coats and gentle dispositions."}, "usageHint": "body"}}}, {"id": "sec_assumptions_title", "component": {"Text": {"text": {"literalString": "Assumptions"}, "usageHint": "h3"}}}, {"id": "sec_assumptions_col", "component": {"Column": {"children": {"explicitList": ["assump_1", "assump_2"]}}}}, {"id": "assump_1", "component": {"Text": {"text": {"literalString": "• The household has time for daily walks despite living in an apartment."}, "usageHint": "body"}}}, {"id": "assump_2", "component": {"Text": {"text": {"literalString": "• Children in the home are supervised and taught to handle small breeds gently."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "sec_candidates_title", "component": {"Text": {"text": {"literalString": "Top 3 Candidates"}, "usageHint": "h3"}}}, {"id": "candidates_row", "component": {"Row": {"children": {"explicitList": ["card_1", "card_2", "card_3"]}, "distribution": "spaceBetween"}}}, {"id": "card_1", "component": {"Card": {"child": "card_1_col"}}}, {"id": "card_1_col", "component": {"Column": {"children": {"explicitList": ["card_1_title", "card_1_desc", "card_1_badge"]}}}}, {"id": "card_1_title", "component": {"Text": {"text": {"literalString": "Bichon Frise"}, "usageHint": "h4"}}}, {"id": "card_1_desc", "component": {"Text": {"text": {"literalString": "A playful, sturdy companion that thrives in small spaces."}, "usageHint": "body"}}}, {"id": "card_1_badge", "component": {"Text": {"text": {"literalString": "High Kid-Friendliness"}, "usageHint": "caption"}}}, {"id": "card_2", "component": {"Card": {"child": "card_2_col"}}}, {"id": "card_2_col", "component": {"Column": {"children": {"explicitList": ["card_2_title", "card_2_desc", "card_2_badge"]}}}}, {"id": "card_2_title", "component": {"Text": {"text": {"literalString": "Miniature Poodle"}, "usageHint": "h4"}}}, {"id": "card_2_desc", "component": {"Text": {"text": {"literalString": "Exceptionally smart and easy to train for apartment rules."}, "usageHint": "body"}}}, {"id": "card_2_badge", "component": {"Text": {"text": {"literalString": "Top Intelligence"}, "usageHint": "caption"}}}, {"id": "card_3", "component": {"Card": {"child": "card_3_col"}}}, {"id": "card_3_col", "component": {"Column": {"children": {"explicitList": ["card_3_title", "card_3_desc", "card_3_badge"]}}}}, {"id": "card_3_title", "component": {"Text": {"text": {"literalString": "Maltese"}, "usageHint": "h4"}}}, {"id": "card_3_desc", "component": {"Text": {"text": {"literalString": "A gentle, affectionate lap dog that requires minimal indoor exercise."}, "usageHint": "body"}}}, {"id": "card_3_badge", "component": {"Text": {"text": {"literalString": "Low Exercise Needs"}, "usageHint": "caption"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "sec_table_title", "component": {"Text": {"text": {"literalString": "Comparison Table"}, "usageHint": "h3"}}}, {"id": "table_col", "component": {"Column": {"children": {"explicitList": ["table_h", "table_r1", "table_r2", "table_r3"]}}}}, {"id": "table_h", "component": {"Row": {"children": {"explicitList": ["th1", "th2", "th3", "th4"]}, "distribution": "spaceBetween"}}}, {"id": "th1", "component": {"Text": {"text": {"literalString": "Breed"}, "usageHint": "caption"}}}, {"id": "th2", "component": {"Text": {"text": {"literalString": "Weight"}, "usageHint": "caption"}}}, {"id": "th3", "component": {"Text": {"text": {"literalString": "Energy"}, "usageHint": "caption"}}}, {"id": "th4", "component": {"Text": {"text": {"literalString": "Shedding"}, "usageHint": "caption"}}}, {"id": "table_r1", "component": {"Row": {"children": {"explicitList": ["tr1_1", "tr1_2", "tr1_3", "tr1_4"]}, "distribution": "spaceBetween"}}}, {"id": "tr1_1", "component": {"Text": {"text": {"literalString": "Bichon Frise"}, "usageHint": "body"}}}, {"id": "tr1_2", "component": {"Text": {"text": {"literalString": "12-18 lbs"}, "usageHint": "body"}}}, {"id": "tr1_3", "component": {"Text": {"text": {"literalString": "Moderate"}, "usageHint": "body"}}}, {"id": "tr1_4", "component": {"Text": {"text": {"literalString": "Very Low"}, "usageHint": "body"}}}, {"id": "table_r2", "component": {"Row": {"children": {"explicitList": ["tr2_1", "tr2_2", "tr2_3", "tr2_4"]}, "distribution": "spaceBetween"}}}, {"id": "tr2_1", "component": {"Text": {"text": {"literalString": "Mini Poodle"}, "usageHint": "body"}}}, {"id": "tr2_2", "component": {"Text": {"text": {"literalString": "10-15 lbs"}, "usageHint": "body"}}}, {"id": "tr2_3", "component": {"Text": {"text": {"literalString": "Moderate"}, "usageHint": "body"}}}, {"id": "tr2_4", "component": {"Text": {"text": {"literalString": "Very Low"}, "usageHint": "body"}}}, {"id": "table_r3", "component": {"Row": {"children": {"explicitList": ["tr3_1", "tr3_2", "tr3_3", "tr3_4"]}, "distribution": "spaceBetween"}}}, {"id": "tr3_1", "component": {"Text": {"text": {"literalString": "Maltese"}, "usageHint": "body"}}}, {"id": "tr3_2", "component": {"Text": {"text": {"literalString": "4-7 lbs"}, "usageHint": "body"}}}, {"id": "tr3_3", "component": {"Text": {"text": {"literalString": "Low"}, "usageHint": "body"}}}, {"id": "tr3_4", "component": {"Text": {"text": {"literalString": "Very Low"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "sec_temp_title", "component": {"Text": {"text": {"literalString": "Temperament Descriptions"}, "usageHint": "h3"}}}, {"id": "temp_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Bichon Frise"}, "child": "temp_desc_1"}, {"title": {"literalString": "Mini Poodle"}, "child": "temp_desc_2"}, {"title": {"literalString": "Maltese"}, "child": "temp_desc_3"}]}}}, {"id": "temp_desc_1", "component": {"Text": {"text": {"literalString": "Known as the \"merry\" dog, they have a cheerful and resilient attitude. They are less fragile than many other small breeds, making them more suitable for households with children. They are social and get along well with other pets."}, "usageHint": "body"}}}, {"id": "temp_desc_2", "component": {"Text": {"text": {"literalString": "These dogs are highly intelligent and eager to please, which makes them easy to train for apartment living (such as reducing barking). They are sensitive, loyal, and generally very patient with children they know well."}, "usageHint": "body"}}}, {"id": "temp_desc_3", "component": {"Text": {"text": {"literalString": "This breed is the quintessential lap dog. They are extremely affectionate and devoted to their family. While they are small, they are surprisingly fearless, though they prefer a calm environment and gentle play."}, "usageHint": "body"}}}, {"id": "sec_actions_row", "component": {"Row": {"children": {"explicitList": ["btn_shelter", "btn_quiz"]}, "distribution": "center"}}}, {"id": "btn_shelter", "component": {"Button": {"child": "btn_shelter_label", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.petfinder.com"}}]}, "primary": true}}}, {"id": "btn_shelter_label", "component": {"Text": {"text": {"literalString": "Find Local Shelters"}, "usageHint": "body"}}}, {"id": "btn_quiz", "component": {"Button": {"child": "btn_quiz_label", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.akc.org/dog-breed-selector/"}}]}}}}, {"id": "btn_quiz_label", "component": {"Text": {"text": {"literalString": "Breed Compatibility Quiz"}, "usageHint": "body"}}}, {"id": "sec_sources_col", "component": {"Column": {"children": {"explicitList": ["source_title", "source_1", "source_2"]}}}}, {"id": "source_title", "component": {"Text": {"text": {"literalString": "Sources:"}, "usageHint": "caption"}}}, {"id": "source_1", "component": {"Text": {"text": {"literalString": "• AKC Hypoallergenic Dogs"}, "usageHint": "caption"}}}, {"id": "source_2", "component": {"Text": {"text": {"literalString": "• AKC Best Apartment Dogs"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

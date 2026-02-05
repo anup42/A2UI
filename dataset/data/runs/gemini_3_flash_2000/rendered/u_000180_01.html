@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000180"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000180", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "btn_9", "btn_10", "btn_11", "icon_row_12", "icon_row_13", "text_14", "icon_row_15", "icon_row_16", "icon_row_17", "text_18"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\n- Prices are estimated based on standard MSRP and common retail listings; actual prices may vary by region and current sales.\n- USB-C Power Delivery is assumed to be at least 65W, which is sufficient for most design laptops (MacBook Pro 14, etc.).\n- Color accuracy requirements focus on the sRGB gamut as requested, though these models also offer high Rec.709 and DCI-P3 coverage."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "VERIFICATION FRAMEWORK\nTo verify live pricing and availability:\n1. Search major retailers (Amazon, B&H Photo, Best Buy) using the specific model numbers provided.\n2. Visit the manufacturer's official product page to confirm the exact USB-C Power Delivery (PD) wattage matches your laptop's requirements.\n3. Check professional review sites like RTINGS or PCMag for recent color calibration tests to ensure units meet the 99% sRGB threshold."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "EXAMPLE RECOMMENDED MODELS (SYNTHETIC DATA)"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Option 1: ASUS ProArt PA279CV | Professional-grade 4K IPS with 100% sRGB and factory calibration | Price: $449 | https://www.asus.com/us/displays-desktops/monitors/proart/proart-display-pa279cv/"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Option 2: Dell UltraSharp U2723QE | Premium 4K IPS Black panel with superior 2000:1 contrast and 90W PD | Price: $579 | https://www.dell.com/en-us/shop/dell-ultrasharp-27-4k-usb-c-hub-monitor-u2723qe/apd/210-bdpu/monitors-monitor-accessories"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Option 3: BenQ PD2705U | Designer series 4K IPS with sRGB/Rec.709 color modes and KVM switch | Price: $539 | https://www.benq.com/en-us/monitor/designer/pd2705u.html"}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "COMPARISON TABLE"}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Model Name | Panel Type | sRGB Coverage | USB-C Power | Est. Price\nASUS PA279CV | IPS | 100% | 65W | $449\nDell U2723QE | IPS Black | 100% | 90W | $579\nBenQ PD2705U | IPS | 99% | 65W | $539"}, "usageHint": "body"}}}, {"id": "btn_label_9", "component": {"Text": {"text": {"literalString": "Compare ASUS ProArt"}, "usageHint": "body"}}}, {"id": "btn_9", "component": {"Button": {"child": "btn_label_9", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.asus.com/us/displays-desktops/monitors/proart/"}}]}, "primary": true}}}, {"id": "btn_label_10", "component": {"Text": {"text": {"literalString": "View Dell UltraSharp Deals"}, "usageHint": "body"}}}, {"id": "btn_10", "component": {"Button": {"child": "btn_label_10", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.dell.com/en-us/shop/monitors-monitor-accessories/ar/4009"}}]}, "primary": true}}}, {"id": "btn_label_11", "component": {"Text": {"text": {"literalString": "Explore BenQ DesignVue"}, "usageHint": "body"}}}, {"id": "btn_11", "component": {"Button": {"child": "btn_label_11", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.benq.com/en-us/monitor/designer.html"}}]}, "primary": true}}}, {"id": "icon_img_12", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/4k-visual-characteristic.png"}, "usageHint": "icon"}}}, {"id": "icon_label_12", "component": {"Text": {"text": {"literalString": "Resolution"}, "usageHint": "body"}}}, {"id": "icon_row_12", "component": {"Row": {"children": {"explicitList": ["icon_img_12", "icon_label_12"]}, "alignment": "center"}}}, {"id": "icon_img_13", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/color-wheel.png"}, "usageHint": "icon"}}}, {"id": "icon_label_13", "component": {"Text": {"text": {"literalString": "Color"}, "usageHint": "body"}}}, {"id": "icon_row_13", "component": {"Row": {"children": {"explicitList": ["icon_img_13", "icon_label_13"]}, "alignment": "center"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "- Connectivity: /assets/r_000180_01_3_usb-c.png\n- Price: /assets/r_000167_01_4_price-tag.png"}, "usageHint": "body"}}}, {"id": "icon_img_15", "component": {"Image": {"url": {"literalString": "https://dlcdnwebimgs.asus.com/gain/3909798E-8B7C-4C67-B9B5-1F9D4F0A4E9E/w717/h525"}, "usageHint": "icon"}}}, {"id": "icon_label_15", "component": {"Text": {"text": {"literalString": "ASUS ProArt PA279CV"}, "usageHint": "body"}}}, {"id": "icon_row_15", "component": {"Row": {"children": {"explicitList": ["icon_img_15", "icon_label_15"]}, "alignment": "center"}}}, {"id": "icon_img_16", "component": {"Image": {"url": {"literalString": "https://i.dell.com/media/global-site-design/product_images/dell_client_products/monitors/u_series/u2723qe/monitor-u2723qe-front.png"}, "usageHint": "icon"}}}, {"id": "icon_label_16", "component": {"Text": {"text": {"literalString": "Dell UltraSharp U2723QE"}, "usageHint": "body"}}}, {"id": "icon_row_16", "component": {"Row": {"children": {"explicitList": ["icon_img_16", "icon_label_16"]}, "alignment": "center"}}}, {"id": "icon_img_17", "component": {"Image": {"url": {"literalString": "https://image.benq.com/is/image/benqco/01-pd2705u-front-1?$ResponsivePreset$"}, "usageHint": "icon"}}}, {"id": "icon_label_17", "component": {"Text": {"text": {"literalString": "BenQ PD2705U"}, "usageHint": "body"}}}, {"id": "icon_row_17", "component": {"Row": {"children": {"explicitList": ["icon_img_17", "icon_label_17"]}, "alignment": "center"}}}, {"id": "text_18", "component": {"Text": {"text": {"literalString": "- https://www.rtings.com/monitor/reviews/best/by-usage/graphic-design\n- https://www.asus.com/us/proart/\n- https://www.dell.com/en-us/lp/ultrasharp-monitors"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

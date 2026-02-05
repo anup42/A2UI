@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "spanish-verb-conjugation-escribir"}}, {"surfaceUpdate": {"surfaceId": "spanish-verb-conjugation-escribir", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "conjugation-table-header", "conjugation-table-body", "quick-actions-header", "practice-button"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Spanish Verb Conjugation: escribir (to write)"}, "usageHint": "h1"}}}, {"id": "conjugation-table-header", "component": {"Row": {"children": {"explicitList": ["pronoun-header", "present-header", "preterite-header", "imperfect-header", "future-header", "conditional-header"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "pronoun-header", "component": {"Text": {"text": {"literalString": "Pronoun"}, "usageHint": "h2"}}}, {"id": "present-header", "component": {"Text": {"text": {"literalString": "Present"}, "usageHint": "h2"}}}, {"id": "preterite-header", "component": {"Text": {"text": {"literalString": "Preterite"}, "usageHint": "h2"}}}, {"id": "imperfect-header", "component": {"Text": {"text": {"literalString": "Imperfect"}, "usageHint": "h2"}}}, {"id": "future-header", "component": {"Text": {"text": {"literalString": "Future"}, "usageHint": "h2"}}}, {"id": "conditional-header", "component": {"Text": {"text": {"literalString": "Conditional"}, "usageHint": "h2"}}}, {"id": "conjugation-table-body", "component": {"Column": {"children": {"explicitList": ["row-yo", "row-tu", "row-el", "row-nosotros", "row-vosotros", "row-ellos"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "row-yo", "component": {"Row": {"children": {"explicitList": ["yo-pronoun", "yo-present", "yo-preterite", "yo-imperfect", "yo-future", "yo-conditional"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "yo-pronoun", "component": {"Text": {"text": {"literalString": "yo"}, "usageHint": "body"}}}, {"id": "yo-present", "component": {"Text": {"text": {"literalString": "escribo"}, "usageHint": "body"}}}, {"id": "yo-preterite", "component": {"Text": {"text": {"literalString": "escribí"}, "usageHint": "body"}}}, {"id": "yo-imperfect", "component": {"Text": {"text": {"literalString": "escribía"}, "usageHint": "body"}}}, {"id": "yo-future", "component": {"Text": {"text": {"literalString": "escribiré"}, "usageHint": "body"}}}, {"id": "yo-conditional", "component": {"Text": {"text": {"literalString": "escribiría"}, "usageHint": "body"}}}, {"id": "row-tu", "component": {"Row": {"children": {"explicitList": ["tu-pronoun", "tu-present", "tu-preterite", "tu-imperfect", "tu-future", "tu-conditional"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "tu-pronoun", "component": {"Text": {"text": {"literalString": "tú"}, "usageHint": "body"}}}, {"id": "tu-present", "component": {"Text": {"text": {"literalString": "escribes"}, "usageHint": "body"}}}, {"id": "tu-preterite", "component": {"Text": {"text": {"literalString": "escribiste"}, "usageHint": "body"}}}, {"id": "tu-imperfect", "component": {"Text": {"text": {"literalString": "escribías"}, "usageHint": "body"}}}, {"id": "tu-future", "component": {"Text": {"text": {"literalString": "escribirás"}, "usageHint": "body"}}}, {"id": "tu-conditional", "component": {"Text": {"text": {"literalString": "escribirías"}, "usageHint": "body"}}}, {"id": "row-el", "component": {"Row": {"children": {"explicitList": ["el-pronoun", "el-present", "el-preterite", "el-imperfect", "el-future", "el-conditional"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "el-pronoun", "component": {"Text": {"text": {"literalString": "él/ella/usted"}, "usageHint": "body"}}}, {"id": "el-present", "component": {"Text": {"text": {"literalString": "escribe"}, "usageHint": "body"}}}, {"id": "el-preterite", "component": {"Text": {"text": {"literalString": "escribió"}, "usageHint": "body"}}}, {"id": "el-imperfect", "component": {"Text": {"text": {"literalString": "escribía"}, "usageHint": "body"}}}, {"id": "el-future", "component": {"Text": {"text": {"literalString": "escribirá"}, "usageHint": "body"}}}, {"id": "el-conditional", "component": {"Text": {"text": {"literalString": "escribiría"}, "usageHint": "body"}}}, {"id": "row-nosotros", "component": {"Row": {"children": {"explicitList": ["nosotros-pronoun", "nosotros-present", "nosotros-preterite", "nosotros-imperfect", "nosotros-future", "nosotros-conditional"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "nosotros-pronoun", "component": {"Text": {"text": {"literalString": "nosotros"}, "usageHint": "body"}}}, {"id": "nosotros-present", "component": {"Text": {"text": {"literalString": "escribimos"}, "usageHint": "body"}}}, {"id": "nosotros-preterite", "component": {"Text": {"text": {"literalString": "escribimos"}, "usageHint": "body"}}}, {"id": "nosotros-imperfect", "component": {"Text": {"text": {"literalString": "escribíamos"}, "usageHint": "body"}}}, {"id": "nosotros-future", "component": {"Text": {"text": {"literalString": "escribiremos"}, "usageHint": "body"}}}, {"id": "nosotros-conditional", "component": {"Text": {"text": {"literalString": "escribiríamos"}, "usageHint": "body"}}}, {"id": "row-vosotros", "component": {"Row": {"children": {"explicitList": ["vosotros-pronoun", "vosotros-present", "vosotros-preterite", "vosotros-imperfect", "vosotros-future", "vosotros-conditional"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "vosotros-pronoun", "component": {"Text": {"text": {"literalString": "vosotros"}, "usageHint": "body"}}}, {"id": "vosotros-present", "component": {"Text": {"text": {"literalString": "escribís"}, "usageHint": "body"}}}, {"id": "vosotros-preterite", "component": {"Text": {"text": {"literalString": "escribisteis"}, "usageHint": "body"}}}, {"id": "vosotros-imperfect", "component": {"Text": {"text": {"literalString": "escribíais"}, "usageHint": "body"}}}, {"id": "vosotros-future", "component": {"Text": {"text": {"literalString": "escribiréis"}, "usageHint": "body"}}}, {"id": "vosotros-conditional", "component": {"Text": {"text": {"literalString": "escribiríais"}, "usageHint": "body"}}}, {"id": "row-ellos", "component": {"Row": {"children": {"explicitList": ["ellos-pronoun", "ellos-present", "ellos-preterite", "ellos-imperfect", "ellos-future", "ellos-conditional"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "ellos-pronoun", "component": {"Text": {"text": {"literalString": "ellos/ellas/ustedes"}, "usageHint": "body"}}}, {"id": "ellos-present", "component": {"Text": {"text": {"literalString": "escriben"}, "usageHint": "body"}}}, {"id": "ellos-preterite", "component": {"Text": {"text": {"literalString": "escribieron"}, "usageHint": "body"}}}, {"id": "ellos-imperfect", "component": {"Text": {"text": {"literalString": "escribían"}, "usageHint": "body"}}}, {"id": "ellos-future", "component": {"Text": {"text": {"literalString": "escribirán"}, "usageHint": "body"}}}, {"id": "ellos-conditional", "component": {"Text": {"text": {"literalString": "escribirían"}, "usageHint": "body"}}}, {"id": "quick-actions-header", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h2"}}}, {"id": "practice-button", "component": {"Button": {"child": "practice-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.spanishdict.com/conjugate/escribir"}}]}}}}, {"id": "practice-button-text", "component": {"Text": {"text": {"literalString": "Practice Spanish Verbs"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

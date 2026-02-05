@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "milan-shopping-guide"}}, {"surfaceUpdate": {"surfaceId": "milan-shopping-guide", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "description", "high-end-boutiques-title", "high-end-boutiques-list", "historical-cafes-title", "historical-cafes-list", "shopping-schedule-title", "shopping-schedule-list", "images-row", "quick-actions-row"]}, "distribution": "start", "alignment": "center"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "1-Day Shopping Guide: Milan Quadrilatero della Moda"}, "usageHint": "h1"}}}, {"id": "description", "component": {"Text": {"text": {"literalString": "This district, bounded by Via Montenapoleone, Via della Spiga, Via Sant'Andrea, and Via Manzoni, is the heart of Italian high fashion."}, "usageHint": "body"}}}, {"id": "high-end-boutiques-title", "component": {"Text": {"text": {"literalString": "High-End Boutiques"}, "usageHint": "h2"}}}, {"id": "high-end-boutiques-list", "component": {"List": {"children": {"explicitList": ["prada-card", "armani-card", "versace-card"]}, "direction": "vertical"}}}, {"id": "prada-card", "component": {"Card": {"child": "prada-content"}}}, {"id": "prada-content", "component": {"Column": {"children": {"explicitList": ["prada-title", "prada-description"]}}}}, {"id": "prada-title", "component": {"Text": {"text": {"literalString": "Prada"}, "usageHint": "h3"}}}, {"id": "prada-description", "component": {"Text": {"text": {"literalString": "Flagship store with iconic leather goods and ready-to-wear | Via Montenapoleone, 8, 20121 Milano"}, "usageHint": "body"}}}, {"id": "armani-card", "component": {"Card": {"child": "armani-content"}}}, {"id": "armani-content", "component": {"Column": {"children": {"explicitList": ["armani-title", "armani-description"]}}}}, {"id": "armani-title", "component": {"Text": {"text": {"literalString": "Giorgio Armani"}, "usageHint": "h3"}}}, {"id": "armani-description", "component": {"Text": {"text": {"literalString": "Elegant multi-concept store including home and fashion | Via Alessandro Manzoni, 31, 20121 Milano"}, "usageHint": "body"}}}, {"id": "versace-card", "component": {"Card": {"child": "versace-content"}}}, {"id": "versace-content", "component": {"Column": {"children": {"explicitList": ["versace-title", "versace-description"]}}}}, {"id": "versace-title", "component": {"Text": {"text": {"literalString": "Versace"}, "usageHint": "h3"}}}, {"id": "versace-description", "component": {"Text": {"text": {"literalString": "Bold, luxurious Italian designs in a stunning interior | Via Montenapoleone, 11, 20121 Milano"}, "usageHint": "body"}}}, {"id": "historical-cafes-title", "component": {"Text": {"text": {"literalString": "Historical Cafes for Breaks"}, "usageHint": "h2"}}}, {"id": "historical-cafes-list", "component": {"List": {"children": {"explicitList": ["marchesi-card", "cova-card"]}, "direction": "vertical"}}}, {"id": "marchesi-card", "component": {"Card": {"child": "marchesi-content"}}}, {"id": "marchesi-content", "component": {"Column": {"children": {"explicitList": ["marchesi-title", "marchesi-description"]}}}}, {"id": "marchesi-title", "component": {"Text": {"text": {"literalString": "Pasticceria Marchesi 1824"}, "usageHint": "h3"}}}, {"id": "marchesi-description", "component": {"Text": {"text": {"literalString": "Historic pastry shop with green marble interiors | Via Montenapoleone, 9, 20121 Milano"}, "usageHint": "body"}}}, {"id": "cova-card", "component": {"Card": {"child": "cova-content"}}}, {"id": "cova-content", "component": {"Column": {"children": {"explicitList": ["cova-title", "cova-description"]}}}}, {"id": "cova-title", "component": {"Text": {"text": {"literalString": "Cova Montenapoleone"}, "usageHint": "h3"}}}, {"id": "cova-description", "component": {"Text": {"text": {"literalString": "One of Italy's oldest pasticcerias, famous for panettone | Via Montenapoleone, 8, 20121 Milano"}, "usageHint": "body"}}}, {"id": "shopping-schedule-title", "component": {"Text": {"text": {"literalString": "Shopping Schedule"}, "usageHint": "h2"}}}, {"id": "shopping-schedule-list", "component": {"List": {"children": {"explicitList": ["schedule-item-1", "schedule-item-2", "schedule-item-3", "schedule-item-4", "schedule-item-5"]}, "direction": "vertical"}}}, {"id": "schedule-item-1", "component": {"Text": {"text": {"literalString": "- 10:00 AM: Start at Via Montenapoleone for luxury flagship stores."}, "usageHint": "body"}}}, {"id": "schedule-item-2", "component": {"Text": {"text": {"literalString": "- 12:30 PM: Espresso and pastry break at Cova."}, "usageHint": "body"}}}, {"id": "schedule-item-3", "component": {"Text": {"text": {"literalString": "- 01:30 PM: Explore the quieter, pedestrian-only Via della Spiga."}, "usageHint": "body"}}}, {"id": "schedule-item-4", "component": {"Text": {"text": {"literalString": "- 04:00 PM: Afternoon tea at Marchesi 1824."}, "usageHint": "body"}}}, {"id": "schedule-item-5", "component": {"Text": {"text": {"literalString": "- 05:30 PM: Visit the Armani/Manzoni 31 concept store."}, "usageHint": "body"}}}, {"id": "images-row", "component": {"Row": {"children": {"explicitList": ["quadrilatero-image", "marchesi-image"]}, "distribution": "center", "alignment": "center"}}}, {"id": "quadrilatero-image", "component": {"Image": {"url": {"literalString": "/images/milan-shopping.jpg"}, "usageHint": "mediumFeature", "fit": "contain"}}}, {"id": "marchesi-image", "component": {"Image": {"url": {"literalString": "/images/marchesi-milan.jpg"}, "usageHint": "mediumFeature", "fit": "contain"}}}, {"id": "quick-actions-row", "component": {"Row": {"children": {"explicitList": ["open-map-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "open-map-button", "component": {"Button": {"child": "open-map-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.google.com/maps/search/Quadrilatero+della+Moda"}}]}}}}, {"id": "open-map-text", "component": {"Text": {"text": {"literalString": "Open Map of District"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

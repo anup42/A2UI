@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000209"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000209", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "btn_5", "btn_6", "icon_row_7", "icon_row_8", "icon_row_9", "text_10", "text_11"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "ASSUMPTIONS:\n- Prices are based on standard retail averages and may vary by vendor or seasonal promotion.\n- Pet hair performance is prioritized based on suction power (Pa) and brush roll design (tangle-resistant or high-agitation).\n- All recommended models include the self-emptying base station within the $600 budget."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "VERIFICATION STEPS:\n1. Search the model name on major retail sites (Amazon, Best Buy, Walmart) to confirm the current price is under $600.\n2. Check the \"Specifications\" section for LiDAR or \"Precision Laser Mapping\" to ensure navigation accuracy.\n3. Confirm the \"Self-Empty\" or \"Auto-Empty\" station is included in the specific bundle.\n4. Filter user reviews for keywords like \"pet hair\" and \"carpet\" to verify real-world effectiveness."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "COMPARISON TABLE:\nModel Name | Navigation | Suction Power | Base Type | Specialized Pet Feature\nRoborock Q5+ | LiDAR | 2700 Pa | Bagged | Floating rubber brush for agitation\nShark Matrix | LiDAR | High Suction | Bagless | Self-cleaning brushroll for long hair\nEufy L60 SES | LiDAR | 5000 Pa | Bagged | Hair-cutting mechanism in the base\nDreame D10 Plus | LiDAR | 4000 Pa | Bagged | High-pressure suction for deep carpet"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "RECOMMENDED OPTIONS (EXAMPLE):\nOption 1: Roborock Q5+ | Known for industry-leading carpet agitation and a durable rubber brush that resists hair tangles. | Price: $479.99 | https://www.roborock.com\nOption 2: Shark Matrix Self-Empty | Features a bagless base (no recurring costs) and a specialized brushroll that removes hair wrap while cleaning. | Price: $399.00 | https://www.sharkclean.com\nOption 3: Eufy L60 with SES | Offers extreme suction power and a unique station that cuts hair off the brush automatically. | Price: $349.99 | https://www.eufy.com\nOption 4: Dreame D10 Plus | A cost-effective LiDAR model with high suction and a large 2.5L dust bag for extended hands-free use. | Price: $399.99 | https://www.dreametech.com"}, "usageHint": "body"}}}, {"id": "btn_label_5", "component": {"Text": {"text": {"literalString": "Compare Pet Vacuums on Amazon"}, "usageHint": "body"}}}, {"id": "btn_5", "component": {"Button": {"child": "btn_label_5", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.amazon.com/s?k=robot+vacuum+lidar+self+empty+pet+hair"}}]}, "primary": true}}}, {"id": "btn_label_6", "component": {"Text": {"text": {"literalString": "View Expert Reviews on RTINGS"}, "usageHint": "body"}}}, {"id": "btn_6", "component": {"Button": {"child": "btn_label_6", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.rtings.com/vacuum/reviews/best/robot-pet-hair"}}]}, "primary": true}}}, {"id": "icon_img_7", "component": {"Image": {"url": {"literalString": "https://m.media-amazon.com/images/I/61S8nE-qUuL.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_7", "component": {"Text": {"text": {"literalString": "Roborock Q5 Plus"}, "usageHint": "body"}}}, {"id": "icon_row_7", "component": {"Row": {"children": {"explicitList": ["icon_img_7", "icon_label_7"]}, "alignment": "center"}}}, {"id": "icon_img_8", "component": {"Image": {"url": {"literalString": "https://m.media-amazon.com/images/I/71u9S8H-YFL.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_8", "component": {"Text": {"text": {"literalString": "Shark Matrix AI"}, "usageHint": "body"}}}, {"id": "icon_row_8", "component": {"Row": {"children": {"explicitList": ["icon_img_8", "icon_label_8"]}, "alignment": "center"}}}, {"id": "icon_img_9", "component": {"Image": {"url": {"literalString": "https://m.media-amazon.com/images/I/61b7l9xWpSL.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_9", "component": {"Text": {"text": {"literalString": "Eufy L60 SES"}, "usageHint": "body"}}}, {"id": "icon_row_9", "component": {"Row": {"children": {"explicitList": ["icon_img_9", "icon_label_9"]}, "alignment": "center"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "- Navigation: /assets/r_000209_01_4_radar.png\n- Pet Care: /assets/r_000209_01_5_dog-footprint.png\n- Self-Empty: /assets/r_000209_01_6_trash.png"}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "- https://www.rtings.com\n- https://www.nytimes.com/wirecutter/reviews/best-robot-vacuum/\n- https://www.vacuumwars.com"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

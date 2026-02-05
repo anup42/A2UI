@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "rustic_vegan_wedding_menu"}}, {"surfaceUpdate": {"surfaceId": "rustic_vegan_wedding_menu", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_row", "summary_text", "assumptions_text", "divider_1", "tabs_menu", "divider_2", "summary_title", "summary_list", "divider_3", "wine_title", "wine_list", "divider_4", "actions_row", "sources_text"]}, "alignment": "stretch"}}}, {"id": "header_row", "component": {"Row": {"children": {"explicitList": ["header_icon", "header_title"]}, "alignment": "center"}}}, {"id": "header_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000053_01_2_vegan-food.png"}, "usageHint": "icon"}}}, {"id": "header_title", "component": {"Text": {"text": {"literalString": "Rustic Italian Vegan Wedding Menu"}, "usageHint": "h1"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "The Rustic Italian Vegan Wedding Menu focuses on 'Cucina Povera' traditions elevated through high-quality seasonal ingredients and modern techniques. The flavors emphasize wood-fired aromatics, fresh herbs, and rich umami profiles derived from vegetables rather than dairy."}, "usageHint": "body"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "Assumptions: This menu assumes a late summer or early autumn wedding to take advantage of peak tomato and stone fruit seasons. It also assumes a standard professional catering setup capable of high-heat roasting and precision plating."}, "usageHint": "caption"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "tabs_menu", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Appetizer"}, "child": "c1_content"}, {"title": {"literalString": "Salad"}, "child": "c2_content"}, {"title": {"literalString": "Cleanser"}, "child": "c3_content"}, {"title": {"literalString": "Main"}, "child": "c4_content"}, {"title": {"literalString": "Dessert"}, "child": "c5_content"}]}}}, {"id": "c1_content", "component": {"Column": {"children": {"explicitList": ["c1_img", "c1_txt"]}}}}, {"id": "c1_img", "component": {"Image": {"url": {"literalString": "/assets/r_000053_01_4_photo-1541529086526-db283c563270.jpg"}, "usageHint": "largeFeature", "fit": "cover"}}}, {"id": "c1_txt", "component": {"Text": {"text": {"literalString": "**Wild Mushroom and Truffle Arancini**\n\nCrispy risotto spheres stuffed with a ragu of porcini and cremini mushrooms, served over a bed of roasted garlic cashew cream and finished with a drizzle of white truffle oil and micro-basil."}, "usageHint": "body"}}}, {"id": "c2_content", "component": {"Column": {"children": {"explicitList": ["c2_txt"]}}}}, {"id": "c2_txt", "component": {"Text": {"text": {"literalString": "**Heirloom Tomato and Sourdough Panzanella**\n\nThick-cut cubes of wood-fired sourdough tossed with vine-ripened heirloom tomatoes, pickled red onions, capers, and a white balsamic vinaigrette. Garnished with torn opal basil and toasted pine nuts."}, "usageHint": "body"}}}, {"id": "c3_content", "component": {"Column": {"children": {"explicitList": ["c3_txt"]}}}}, {"id": "c3_txt", "component": {"Text": {"text": {"literalString": "**Lemon and Fresh Basil Granita**\n\nA light, icy infusion of Sicilian lemon zest and muddled sweet basil to refresh the tongue between the acidity of the salad and the richness of the main course."}, "usageHint": "body"}}}, {"id": "c4_content", "component": {"Column": {"children": {"explicitList": ["c4_img", "c4_txt"]}}}}, {"id": "c4_img", "component": {"Image": {"url": {"literalString": "/assets/r_000053_01_6_photo-1626074353765-517a681e40be.jpg"}, "usageHint": "largeFeature", "fit": "cover"}}}, {"id": "c4_txt", "component": {"Text": {"text": {"literalString": "**Eggplant Osso Buco over Creamy Polenta**\n\nThick-cut, slow-braised eggplant rounds simmered in a rich tomato and red wine reduction with mirepoix vegetables. Served over stone-ground yellow polenta enriched with nutritional yeast and olive oil, topped with a bright lemon-parsley gremolata."}, "usageHint": "body"}}}, {"id": "c5_content", "component": {"Column": {"children": {"explicitList": ["c5_img", "c5_txt"]}}}}, {"id": "c5_img", "component": {"Image": {"url": {"literalString": "/assets/r_000053_01_7_photo-1488477181946-6428a0291777.jpg"}, "usageHint": "largeFeature", "fit": "cover"}}}, {"id": "c5_txt", "component": {"Text": {"text": {"literalString": "**Vanilla Bean Panna Cotta with Balsamic Berries**\n\nA silky coconut and almond milk-based panna cotta infused with Madagascar vanilla bean. Topped with a medley of strawberries and blackberries macerated in aged balsamic vinegar and served with a lacey almond tuille."}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "Course Summaries"}, "usageHint": "h2"}}}, {"id": "summary_list", "component": {"List": {"children": {"explicitList": []}, "direction": "vertical"}}}, {"id": "summary_card_item", "component": {"Card": {"child": "summary_card_col"}}}, {"id": "summary_card_col", "component": {"Column": {"children": {"explicitList": ["summary_card_title", "summary_card_sub", "summary_card_profile"]}}}}, {"id": "summary_card_title", "component": {"Text": {"text": {"path": "title"}, "usageHint": "h4"}}}, {"id": "summary_card_sub", "component": {"Text": {"text": {"path": "subtitle"}, "usageHint": "body"}}}, {"id": "summary_card_profile", "component": {"Text": {"text": {"path": "profile"}, "usageHint": "caption"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "wine_title", "component": {"Text": {"text": {"literalString": "Wine Pairing Guide"}, "usageHint": "h2"}}}, {"id": "wine_list", "component": {"List": {"children": {"explicitList": []}, "direction": "vertical"}}}, {"id": "wine_row_item", "component": {"Row": {"children": {"explicitList": ["wine_course_txt", "wine_pairing_txt", "wine_profile_txt"]}, "distribution": "spaceBetween"}}}, {"id": "wine_course_txt", "component": {"Text": {"text": {"path": "course"}, "usageHint": "body"}}}, {"id": "wine_pairing_txt", "component": {"Text": {"text": {"path": "pairing"}, "usageHint": "body"}}}, {"id": "wine_profile_txt", "component": {"Text": {"text": {"path": "profile"}, "usageHint": "caption"}}}, {"id": "divider_4", "component": {"Divider": {}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_shop", "btn_hire"]}, "distribution": "spaceEvenly"}}}, {"id": "btn_shop", "component": {"Button": {"child": "btn_shop_txt", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.forksoverknives.com/recipes/"}}]}, "primary": true}}}, {"id": "btn_shop_txt", "component": {"Text": {"text": {"literalString": "Download Shopping List"}, "usageHint": "body"}}}, {"id": "btn_hire", "component": {"Button": {"child": "btn_hire_txt", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.theknot.com/marketplace/wedding-catering"}}]}}}}, {"id": "btn_hire_txt", "component": {"Text": {"text": {"literalString": "Hire Vegan Caterer"}, "usageHint": "body"}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Sources:\n- https://www.viva.org.uk/lifestyle/vegan-wine-guide\n- https://www.greatitalianfoodtrade.it/en/tradizioni/cucina-povera-the-history-of-italian-food"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

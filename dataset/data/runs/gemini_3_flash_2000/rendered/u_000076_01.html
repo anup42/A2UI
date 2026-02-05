@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "python-vs-java-comparison"}}, {"surfaceUpdate": {"surfaceId": "python-vs-java-comparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions", "sec1_header", "desc1", "sec2_header", "desc2", "sec3_title", "desc3", "table_title", "table_col", "actions_row", "sources"]}, "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "PYTHON VS JAVA: FEATURE COMPARISON"}, "usageHint": "h1"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: This comparison refers to Python 3.x and Java 17/21 (LTS versions). It assumes standard implementations (CPython and Oracle JDK/OpenJDK)."}, "usageHint": "caption"}}}, {"id": "sec1_header", "component": {"Row": {"children": {"explicitList": ["icon1", "title1"]}, "alignment": "center"}}}, {"id": "icon1", "component": {"Image": {"url": {"literalString": "/assets/r_000076_01_1_type.png"}, "usageHint": "icon"}}}, {"id": "title1", "component": {"Text": {"text": {"literalString": "1. Typing Discipline"}, "usageHint": "h3"}}}, {"id": "desc1", "component": {"Text": {"text": {"literalString": "**Python (Dynamic):** Types are associated with values, not variables. You can reassign a variable to a different type without error. This allows for rapid development but requires extensive unit testing.\n\n**Java (Static):** Types are checked at compile time. Every variable must have a declared type. This adds an extra layer of safety, catching mismatches before the program runs."}, "usageHint": "body"}}}, {"id": "sec2_header", "component": {"Row": {"children": {"explicitList": ["icon2", "title2"]}, "alignment": "center"}}}, {"id": "icon2", "component": {"Image": {"url": {"literalString": "/assets/r_000076_01_2_edit-property.png"}, "usageHint": "icon"}}}, {"id": "title2", "component": {"Text": {"text": {"literalString": "2. Syntax Verbosity"}, "usageHint": "h3"}}}, {"id": "desc2", "component": {"Text": {"text": {"literalString": "**Python (Concise):** Uses significant whitespace (indentation) instead of curly braces. Focuses on readability and reduces boilerplate.\n\n**Java (Verbose):** Rigid structure where everything is inside a class. Uses curly braces and semicolons. Requires more lines for the same operations due to explicit definitions."}, "usageHint": "body"}}}, {"id": "sec3_title", "component": {"Text": {"text": {"literalString": "3. Primary Use Cases"}, "usageHint": "h3"}}}, {"id": "desc3", "component": {"Text": {"text": {"literalString": "**Python:** Leading for AI, Machine Learning, Data Science (NumPy, PyTorch), automation, and rapid web backend (Django/Flask).\n\n**Java:** Industry standard for Enterprise applications, high-frequency trading, Android development, and Big Data tools (Hadoop, Kafka)."}, "usageHint": "body"}}}, {"id": "table_title", "component": {"Text": {"text": {"literalString": "Comparison Table"}, "usageHint": "h4"}}}, {"id": "table_col", "component": {"Column": {"children": {"explicitList": ["row_h", "div1", "row1", "div2", "row2", "div3", "row3", "div4", "row4", "div5", "row5", "div6", "row6"]}}}}, {"id": "row_h", "component": {"Row": {"children": {"explicitList": ["h_f", "h_p", "h_j"]}}}}, {"id": "h_f", "component": {"Text": {"text": {"literalString": "**Feature**"}, "usageHint": "body"}}}, {"id": "h_p", "component": {"Text": {"text": {"literalString": "**Python**"}, "usageHint": "body"}}}, {"id": "h_j", "component": {"Text": {"text": {"literalString": "**Java**"}, "usageHint": "body"}}}, {"id": "div1", "component": {"Divider": {}}}, {"id": "row1", "component": {"Row": {"children": {"explicitList": ["r1_f", "r1_p", "r1_j"]}}}}, {"id": "r1_f", "component": {"Text": {"text": {"literalString": "Typing Discipline"}, "usageHint": "body"}}}, {"id": "r1_p", "component": {"Text": {"text": {"literalString": "Dynamic"}, "usageHint": "body"}}}, {"id": "r1_j", "component": {"Text": {"text": {"literalString": "Static"}, "usageHint": "body"}}}, {"id": "div2", "component": {"Divider": {}}}, {"id": "row2", "component": {"Row": {"children": {"explicitList": ["r2_f", "r2_p", "r2_j"]}}}}, {"id": "r2_f", "component": {"Text": {"text": {"literalString": "Syntax Philosophy"}, "usageHint": "body"}}}, {"id": "r2_p", "component": {"Text": {"text": {"literalString": "Concise"}, "usageHint": "body"}}}, {"id": "r2_j", "component": {"Text": {"text": {"literalString": "Explicit"}, "usageHint": "body"}}}, {"id": "div3", "component": {"Divider": {}}}, {"id": "row3", "component": {"Row": {"children": {"explicitList": ["r3_f", "r3_p", "r3_j"]}}}}, {"id": "r3_f", "component": {"Text": {"text": {"literalString": "Execution Model"}, "usageHint": "body"}}}, {"id": "r3_p", "component": {"Text": {"text": {"literalString": "Interpreted"}, "usageHint": "body"}}}, {"id": "r3_j", "component": {"Text": {"text": {"literalString": "JIT Compiled"}, "usageHint": "body"}}}, {"id": "div4", "component": {"Divider": {}}}, {"id": "row4", "component": {"Row": {"children": {"explicitList": ["r4_f", "r4_p", "r4_j"]}}}}, {"id": "r4_f", "component": {"Text": {"text": {"literalString": "Memory"}, "usageHint": "body"}}}, {"id": "r4_p", "component": {"Text": {"text": {"literalString": "Auto GC"}, "usageHint": "body"}}}, {"id": "r4_j", "component": {"Text": {"text": {"literalString": "Auto GC"}, "usageHint": "body"}}}, {"id": "div5", "component": {"Divider": {}}}, {"id": "row5", "component": {"Row": {"children": {"explicitList": ["r5_f", "r5_p", "r5_j"]}}}}, {"id": "r5_f", "component": {"Text": {"text": {"literalString": "Concurrency"}, "usageHint": "body"}}}, {"id": "r5_p", "component": {"Text": {"text": {"literalString": "Multi-processing"}, "usageHint": "body"}}}, {"id": "r5_j", "component": {"Text": {"text": {"literalString": "Multi-threading"}, "usageHint": "body"}}}, {"id": "div6", "component": {"Divider": {}}}, {"id": "row6", "component": {"Row": {"children": {"explicitList": ["r6_f", "r6_p", "r6_j"]}}}}, {"id": "r6_f", "component": {"Text": {"text": {"literalString": "Performance"}, "usageHint": "body"}}}, {"id": "r6_p", "component": {"Text": {"text": {"literalString": "Moderate"}, "usageHint": "body"}}}, {"id": "r6_j", "component": {"Text": {"text": {"literalString": "High"}, "usageHint": "body"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn1", "btn2", "btn3"]}, "distribution": "spaceAround"}}}, {"id": "btn1", "component": {"Button": {"child": "btn1_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://docs.python.org/3/"}}]}}}}, {"id": "btn1_text", "component": {"Text": {"text": {"literalString": "Python Docs"}, "usageHint": "body"}}}, {"id": "btn2", "component": {"Button": {"child": "btn2_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://docs.oracle.com/en/java/"}}]}}}}, {"id": "btn2_text", "component": {"Text": {"text": {"literalString": "Java Docs"}, "usageHint": "body"}}}, {"id": "btn3", "component": {"Button": {"child": "btn3_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://replit.com/languages/python3"}}]}}}}, {"id": "btn3_text", "component": {"Text": {"text": {"literalString": "Compare Syntax"}, "usageHint": "body"}}}, {"id": "sources", "component": {"Text": {"text": {"literalString": "Sources: python.org, dev.java, stackoverflow.co"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

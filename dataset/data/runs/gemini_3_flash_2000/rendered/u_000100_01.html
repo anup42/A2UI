@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000100"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000100", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "btn_8", "btn_9", "icon_row_10", "text_11", "text_12"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions: This recommendation assumes you have access to standard kitchen equipment and basic pantry staples like olive oil, salt, and pepper. It also assumes you have access to a digital streaming service or rental platform to view the film."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Date Night Pairing: The Roman Escape"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Movie Spotlight\nMovie Title: Roman Holiday (1953)\nGenre: Romantic Comedy\nRelease Year: 1953\nDescription: A bored and sheltered princess (Audrey Hepburn) escapes her guardians and falls in love with an American newsman (Gregory Peck) while exploring Rome on a Vespa. It is a charming, lighthearted classic that perfectly captures the romantic atmosphere of Italy."}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Meal Spotlight\nDish Name: Authentic Spaghetti Carbonara\nCuisine: Italian (Roman)\nTotal Cook Time: 20 Minutes\nDescription: A rich and creamy pasta dish that relies on the heat of the noodles to create a silky sauce from eggs and cheese. It is elegant, decadent, and incredibly quick to prepare, leaving more time for the movie."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Ingredients and Preparation\n- Pasta: 200g Spaghetti or Rigatoni\n- Protein: 100g Guanciale or Pancetta, diced\n- Sauce: 2 large eggs plus 1 yolk, 50g grated Pecorino Romano or Parmesan cheese\n- Seasoning: Plenty of freshly cracked black pepper\n- Steps: Boil the pasta in salted water. While it cooks, fry the pork in a pan until crispy. Whisk eggs and cheese in a bowl. Drain pasta (reserve some water), toss it in the pan with the pork, remove from heat, and quickly stir in the egg mixture to create a creamy sauce."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Live Availability Verification\nTo check where to watch the movie or find local ingredient prices:\n1. Visit a streaming aggregator like JustWatch to see which platform currently hosts the film in your region.\n2. Check your local grocery store app (e.g., Instacart, Kroger, or Whole Foods) to verify the current price of Pecorino Romano or Guanciale."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Example Options (Alternative Pairings)\nOption 1: Pillow Talk (1959) | A playful battle of the sexes over a telephone party line | 102 mins | Watch on Amazon\nOption 2: The Apartment (1960) | A bittersweet romance set in a corporate office | 125 mins | Watch on Apple TV\nOption 3: Charade (1963) | A stylish mix of romance and mystery in Paris | 113 mins | Watch on Vudu"}, "usageHint": "body"}}}, {"id": "btn_label_8", "component": {"Text": {"text": {"literalString": "Watch Roman Holiday"}, "usageHint": "body"}}}, {"id": "btn_8", "component": {"Button": {"child": "btn_label_8", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.amazon.com/Roman-Holiday-Audrey-Hepburn/dp/B000I9S72E"}}]}, "primary": true}}}, {"id": "btn_label_9", "component": {"Text": {"text": {"literalString": "View Carbonara Recipe"}, "usageHint": "body"}}}, {"id": "btn_9", "component": {"Button": {"child": "btn_label_9", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.bonappetit.com/recipe/simple-carbonara"}}]}, "primary": true}}}, {"id": "icon_img_10", "component": {"Image": {"url": {"literalString": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Roman_holiday_poster.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_10", "component": {"Text": {"text": {"literalString": "Movie Scene"}, "usageHint": "body"}}}, {"id": "icon_row_10", "component": {"Row": {"children": {"explicitList": ["icon_img_10", "icon_label_10"]}, "alignment": "center"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "- Prepared Dish: /assets/r_000100_01_2_photo-1612874742237-6526221588e3.jpg"}, "usageHint": "body"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "- Time: /assets/r_000100_01_3_time--v1.png\n- Movie: /assets/r_000100_01_4_movie-projector.png\n- Food: /assets/r_000100_01_5_spaghetti.png"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

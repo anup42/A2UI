@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "hotel-comparison-surface"}}, {"surfaceUpdate": {"surfaceId": "hotel-comparison-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "comparison-table", "recommendation-section", "analysis-section", "availability-steps", "quick-actions"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Hotel Comparison for Paris Stay"}, "usageHint": "h1"}}}, {"id": "comparison-table", "component": {"Column": {"children": {"explicitList": ["table-header", "hotel-a-row", "hotel-b-row", "hotel-c-row"]}, "alignment": "center"}}}, {"id": "table-header", "component": {"Row": {"children": {"explicitList": ["header-hotel", "header-neighborhood", "header-nightly-rate", "header-breakfast", "header-total", "header-rating"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "header-hotel", "component": {"Text": {"text": {"literalString": "Hotel"}, "usageHint": "h4"}}}, {"id": "header-neighborhood", "component": {"Text": {"text": {"literalString": "Neighborhood"}, "usageHint": "h4"}}}, {"id": "header-nightly-rate", "component": {"Text": {"text": {"literalString": "Nightly Rate"}, "usageHint": "h4"}}}, {"id": "header-breakfast", "component": {"Text": {"text": {"literalString": "Breakfast"}, "usageHint": "h4"}}}, {"id": "header-total", "component": {"Text": {"text": {"literalString": "Total (3 Nights)"}, "usageHint": "h4"}}}, {"id": "header-rating", "component": {"Text": {"text": {"literalString": "Rating"}, "usageHint": "h4"}}}, {"id": "hotel-a-row", "component": {"Row": {"children": {"explicitList": ["hotel-a-name", "hotel-a-neighborhood", "hotel-a-nightly-rate", "hotel-a-breakfast", "hotel-a-total", "hotel-a-rating"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "hotel-a-name", "component": {"Text": {"text": {"literalString": "Hotel A"}, "usageHint": "body"}}}, {"id": "hotel-a-neighborhood", "component": {"Text": {"text": {"literalString": "Le Marais"}, "usageHint": "body"}}}, {"id": "hotel-a-nightly-rate", "component": {"Text": {"text": {"literalString": "$250"}, "usageHint": "body"}}}, {"id": "hotel-a-breakfast", "component": {"Text": {"text": {"literalString": "+$25/day"}, "usageHint": "body"}}}, {"id": "hotel-a-total", "component": {"Text": {"text": {"literalString": "$825"}, "usageHint": "body"}}}, {"id": "hotel-a-rating", "component": {"Text": {"text": {"literalString": "4.5/5"}, "usageHint": "body"}}}, {"id": "hotel-b-row", "component": {"Row": {"children": {"explicitList": ["hotel-b-name", "hotel-b-neighborhood", "hotel-b-nightly-rate", "hotel-b-breakfast", "hotel-b-total", "hotel-b-rating"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "hotel-b-name", "component": {"Text": {"text": {"literalString": "Hotel B"}, "usageHint": "body"}}}, {"id": "hotel-b-neighborhood", "component": {"Text": {"text": {"literalString": "Saint-Germain"}, "usageHint": "body"}}}, {"id": "hotel-b-nightly-rate", "component": {"Text": {"text": {"literalString": "$280"}, "usageHint": "body"}}}, {"id": "hotel-b-breakfast", "component": {"Text": {"text": {"literalString": "Included"}, "usageHint": "body"}}}, {"id": "hotel-b-total", "component": {"Text": {"text": {"literalString": "$840"}, "usageHint": "body"}}}, {"id": "hotel-b-rating", "component": {"Text": {"text": {"literalString": "4.7/5"}, "usageHint": "body"}}}, {"id": "hotel-c-row", "component": {"Row": {"children": {"explicitList": ["hotel-c-name", "hotel-c-neighborhood", "hotel-c-nightly-rate", "hotel-c-breakfast", "hotel-c-total", "hotel-c-rating"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "hotel-c-name", "component": {"Text": {"text": {"literalString": "Hotel C"}, "usageHint": "body"}}}, {"id": "hotel-c-neighborhood", "component": {"Text": {"text": {"literalString": "Montmartre"}, "usageHint": "body"}}}, {"id": "hotel-c-nightly-rate", "component": {"Text": {"text": {"literalString": "$190"}, "usageHint": "body"}}}, {"id": "hotel-c-breakfast", "component": {"Text": {"text": {"literalString": "Included"}, "usageHint": "body"}}}, {"id": "hotel-c-total", "component": {"Text": {"text": {"literalString": "$570"}, "usageHint": "body"}}}, {"id": "hotel-c-rating", "component": {"Text": {"text": {"literalString": "4.0/5"}, "usageHint": "body"}}}, {"id": "recommendation-section", "component": {"Column": {"children": {"explicitList": ["recommendation-title", "recommendation-text"]}}}}, {"id": "recommendation-title", "component": {"Text": {"text": {"literalString": "Recommendation"}, "usageHint": "h3"}}}, {"id": "recommendation-text", "component": {"Text": {"text": {"literalString": "Hotel B (Saint-Germain)"}, "usageHint": "body"}}}, {"id": "analysis-section", "component": {"Column": {"children": {"explicitList": ["analysis-title", "analysis-best-value", "analysis-location", "analysis-convenience"]}}}}, {"id": "analysis-title", "component": {"Text": {"text": {"literalString": "Analysis"}, "usageHint": "h3"}}}, {"id": "analysis-best-value", "component": {"Column": {"children": {"explicitList": ["analysis-best-value-title", "analysis-best-value-point1", "analysis-best-value-point2"]}}}}, {"id": "analysis-best-value-title", "component": {"Text": {"text": {"literalString": "Best Value:"}, "usageHint": "h4"}}}, {"id": "analysis-best-value-point1", "component": {"Text": {"text": {"literalString": "- While Hotel C is the cheapest, Hotel B offers a significantly higher rating (4.7) and a more central, premium location (Saint-Germain-des-Prés)."}, "usageHint": "body"}}}, {"id": "analysis-best-value-point2", "component": {"Text": {"text": {"literalString": "- For only $15 more total than Hotel A (once breakfast is added to A)."}, "usageHint": "body"}}}, {"id": "analysis-location", "component": {"Column": {"children": {"explicitList": ["analysis-location-title", "analysis-location-point"]}}}}, {"id": "analysis-location-title", "component": {"Text": {"text": {"literalString": "Location:"}, "usageHint": "h4"}}}, {"id": "analysis-location-point", "component": {"Text": {"text": {"literalString": "- Saint-Germain is more central for major sightseeing compared to Montmartre (Hotel C), which is further north."}, "usageHint": "body"}}}, {"id": "analysis-convenience", "component": {"Column": {"children": {"explicitList": ["analysis-convenience-title", "analysis-convenience-point"]}}}}, {"id": "analysis-convenience-title", "component": {"Text": {"text": {"literalString": "Convenience:"}, "usageHint": "h4"}}}, {"id": "analysis-convenience-point", "component": {"Text": {"text": {"literalString": "- Having breakfast included at a high-rated establishment in a central district makes Hotel B the most balanced choice for a couple."}, "usageHint": "body"}}}, {"id": "availability-steps", "component": {"Column": {"children": {"explicitList": ["availability-steps-title", "step-1", "step-2", "step-3"]}}}}, {"id": "availability-steps-title", "component": {"Text": {"text": {"literalString": "Steps to Verify Live Availability"}, "usageHint": "h3"}}}, {"id": "step-1", "component": {"Text": {"text": {"literalString": "1. Go to a booking platform (e.g., Booking.com or Expedia)."}, "usageHint": "body"}}}, {"id": "step-2", "component": {"Text": {"text": {"literalString": "2. Enter dates: 2024-12-20 to 2024-12-23."}, "usageHint": "body"}}}, {"id": "step-3", "component": {"Text": {"text": {"literalString": "3. Filter for 'Breakfast Included' and 'Rating 4.5+'."}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Column": {"children": {"explicitList": ["quick-actions-title", "search-booking-com-button", "search-expedia-button"]}}}}, {"id": "quick-actions-title", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h3"}}}, {"id": "search-booking-com-button", "component": {"Button": {"child": "search-booking-com-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.booking.com"}}]}}}}, {"id": "search-booking-com-text", "component": {"Text": {"text": {"literalString": "Search Booking.com"}, "usageHint": "body"}}}, {"id": "search-expedia-button", "component": {"Button": {"child": "search-expedia-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.expedia.com"}}]}}}}, {"id": "search-expedia-text", "component": {"Text": {"text": {"literalString": "Search Expedia"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

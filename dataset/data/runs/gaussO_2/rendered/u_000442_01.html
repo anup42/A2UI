@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "jaxThorneProfile"}}, {"surfaceUpdate": {"surfaceId": "jaxThorneProfile", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["headerRow", "profileImage", "basicInfoSection", "cyberneticSection", "backstorySection", "quickActionsSection"]}}}}, {"id": "headerRow", "component": {"Row": {"children": {"explicitList": ["headerText"]}, "distribution": "center"}}}, {"id": "headerText", "component": {"Text": {"text": {"literalString": "CHARACTER PROFILE: JAX THORNE"}, "usageHint": "h2"}}}, {"id": "profileImage", "component": {"Image": {"url": {"literalString": "/images/jax_thorne.jpg"}, "usageHint": "largeFeature", "fit": "cover"}}}, {"id": "basicInfoSection", "component": {"Column": {"children": {"explicitList": ["basicInfoHeader", "nameText", "ageText", "occupationText", "locationText", "physicalDescriptionText"]}}}}, {"id": "basicInfoHeader", "component": {"Text": {"text": {"literalString": "BASIC INFORMATION"}, "usageHint": "h3"}}}, {"id": "nameText", "component": {"Text": {"text": {"literalString": "- Name: Jax Thorne"}, "usageHint": "body"}}}, {"id": "ageText", "component": {"Text": {"text": {"literalString": "- Age: 29"}, "usageHint": "body"}}}, {"id": "occupationText", "component": {"Text": {"text": {"literalString": "- Occupation: Freelance Data Courier"}, "usageHint": "body"}}}, {"id": "locationText", "component": {"Text": {"text": {"literalString": "- Location: Sector 7, Neo-Tokyo"}, "usageHint": "body"}}}, {"id": "physicalDescriptionText", "component": {"Text": {"text": {"literalString": "- Physical Description: Wiry build, olive skin marked by glowing neon-blue subcutaneous circuitry. Shaved head with a neural port at the base of the skull. Usually wears a high-collar, reflective tech-wear jacket and polarized haptic goggles."}, "usageHint": "body"}}}, {"id": "cyberneticSection", "component": {"Column": {"children": {"explicitList": ["cyberneticHeader", "ghostLinkText"]}}}}, {"id": "cyberneticHeader", "component": {"Text": {"text": {"literalString": "UNIQUE CYBERNETIC ENHANCEMENT"}, "usageHint": "h3"}}}, {"id": "ghostLinkText", "component": {"Text": {"text": {"literalString": "- The Ghost-Link Drive: A custom-built, internal solid-state storage array fused directly to the spinal column. It allows Jax to encrypt and store up to 500 Petabytes of data within his own nervous system, making the data undetectable by external scanners but causing severe neurological strain during transfers."}, "usageHint": "body"}}}, {"id": "backstorySection", "component": {"Column": {"children": {"explicitList": ["backstoryHeader", "backstoryText"]}}}}, {"id": "backstoryHeader", "component": {"Text": {"text": {"literalString": "BACKSTORY"}, "usageHint": "h3"}}}, {"id": "backstoryText", "component": {"Text": {"text": {"literalString": "Jax Thorne did not come to Neo-Tokyo to be a thief; he came to be a programmer. However, in a city where the air is owned by corporations and the light is a subscription service, talent is rarely enough. Three years ago, Jax's younger sister, Miri, contracted 'Circuit-Fever,' a degenerative neural decay caused by low-grade ocular implants. The cost for the specialized nanites required to save her was more than a lifetime of coding could provide. Desperate, Jax approached the Kuro-Hana Syndicate, a brutal organization that controls the flow of illicit tech in the undercity.\n\nThey gave him the credits, but the interest rates were designed to be inescapable. When Miri recovered, the Syndicate came to collect. Unable to pay, Jax was forced into their service as a 'mule'—a data courier. To maximize his efficiency, the Syndicate forcibly installed the Ghost-Link Drive, a prototype that turns his very consciousness into a hard drive. Every gigabit he carries burns a little more of his memory away, a slow erosion of his identity.\n\nCurrently, Jax owes the Syndicate 1.2 million credits. He lives in a four-by-six sleeping pod, spending his nights dodging corporate security drones and rival gangs to deliver corporate secrets. He is a ghost in the machine, running through the rain-slicked streets of Neo-Tokyo, knowing that if he ever stops running, the debt will finally be settled with his life. He isn't just carrying data anymore; he's carrying the weight of a debt that grows faster than he can sprint."}, "usageHint": "body"}}}, {"id": "quickActionsSection", "component": {"Column": {"children": {"explicitList": ["quickActionsHeader", "quickActionsText", "cyberpunkButton"]}}}}, {"id": "quickActionsHeader", "component": {"Text": {"text": {"literalString": "Quick Actions:"}, "usageHint": "h3"}}}, {"id": "quickActionsText", "component": {"Text": {"text": {"literalString": "[Button: Cyberpunk Worldbuilding Guide]"}, "usageHint": "body"}}}, {"id": "cyberpunkButton", "component": {"Button": {"child": "cyberpunkButtonText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.worldanvil.com/w/cyberpunk"}}]}, "primary": true}}}, {"id": "cyberpunkButtonText", "component": {"Text": {"text": {"literalString": "Cyberpunk Worldbuilding Guide"}, "usageHint": "body"}}}, {"id": "iconsSection", "component": {"Column": {"children": {"explicitList": ["iconsHeader", "iconsText"]}}}}, {"id": "iconsHeader", "component": {"Text": {"text": {"literalString": "Icons:"}, "usageHint": "h3"}}}, {"id": "iconsText", "component": {"Text": {"text": {"literalString": "- Tech: Neural Port\n- Status: In Debt\n- Skill: Stealth Navigation"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

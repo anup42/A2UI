@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "tv-tech-comparison-2024"}}, {"surfaceUpdate": {"surfaceId": "tv-tech-comparison-2024", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-image", "main-title", "assumptions-text", "summary-section", "differences-section", "comparison-table-card", "recommendation-card", "products-section", "actions-row", "sources-section"]}}}}, {"id": "header-image", "component": {"Image": {"url": {"literalString": "/assets/images/oled-vs-qled-comparison.png"}, "usageHint": "header", "fit": "cover"}}}, {"id": "main-title", "component": {"Text": {"text": {"literalString": "OLED vs. QLED: The Best Choice for Bright Living Rooms"}, "usageHint": "h1"}}}, {"id": "assumptions-text", "component": {"Text": {"text": {"literalString": "Assumptions: This comparison assumes you are looking at current generation (2023-2024) 4K HDR televisions. A bright living room is defined as a space with significant natural light or large windows that cause glare on the screen."}, "usageHint": "caption"}}}, {"id": "summary-section", "component": {"Column": {"children": {"explicitList": ["summary-title", "summary-oled", "summary-qled"]}}}}, {"id": "summary-title", "component": {"Text": {"text": {"literalString": "Summary of Technologies"}, "usageHint": "h2"}}}, {"id": "summary-oled", "component": {"Text": {"text": {"literalString": "**OLED (Organic Light Emitting Diode)** uses self-emissive pixels that produce their own light. When a pixel is off, it is perfectly black. This creates incredible contrast but limits maximum brightness."}, "usageHint": "body"}}}, {"id": "summary-qled", "component": {"Text": {"text": {"literalString": "**QLED (Quantum Dot LED)** is a traditional LCD panel with a LED backlight and a layer of quantum dots to enhance color. High-end versions (Neo QLED or Mini-LED) use thousands of tiny backlights to improve contrast."}, "usageHint": "body"}}}, {"id": "differences-section", "component": {"Column": {"children": {"explicitList": ["diff-title", "diff-contrast", "diff-burnin", "diff-brightness"]}}}}, {"id": "diff-title", "component": {"Text": {"text": {"literalString": "Key Differences"}, "usageHint": "h2"}}}, {"id": "diff-contrast", "component": {"Row": {"children": {"explicitList": ["icon-contrast", "text-contrast"]}, "alignment": "center"}}}, {"id": "icon-contrast", "component": {"Icon": {"name": {"path": "/assets/icons/contrast.png"}}}}, {"id": "text-contrast", "component": {"Text": {"text": {"literalString": "**Contrast Ratio:** OLED offers infinite contrast with perfect blacks. QLED is very high but may show 'blooming' around bright objects."}, "usageHint": "body"}}}, {"id": "diff-burnin", "component": {"Row": {"children": {"explicitList": ["icon-warning", "text-burnin"]}, "alignment": "center"}}}, {"id": "icon-warning", "component": {"Icon": {"name": {"path": "/assets/icons/warning.png"}}}}, {"id": "text-burnin", "component": {"Text": {"text": {"literalString": "**Burn-in Risk:** OLED has a moderate risk with static elements. QLED has negligible risk due to inorganic materials."}, "usageHint": "body"}}}, {"id": "diff-brightness", "component": {"Row": {"children": {"explicitList": ["icon-brightness", "text-brightness"]}, "alignment": "center"}}}, {"id": "icon-brightness", "component": {"Icon": {"name": {"path": "/assets/icons/brightness.png"}}}}, {"id": "text-brightness", "component": {"Text": {"text": {"literalString": "**Peak Brightness:** QLED is superior (1,500-3,000+ nits), making it ideal for sunlight. OLED (600-1,200 nits) struggles with glare."}, "usageHint": "body"}}}, {"id": "comparison-table-card", "component": {"Card": {"child": "table-container"}}}, {"id": "table-container", "component": {"Column": {"children": {"explicitList": ["table-header", "table-divider-1", "table-row-contrast", "table-row-burnin", "table-row-brightness", "table-row-env"]}}}}, {"id": "table-header", "component": {"Row": {"children": {"explicitList": ["th-cat", "th-oled", "th-qled"]}}}}, {"id": "th-cat", "component": {"Text": {"text": {"literalString": "**Category**"}, "usageHint": "body"}}}, {"id": "th-oled", "component": {"Text": {"text": {"literalString": "**OLED**"}, "usageHint": "body"}}}, {"id": "th-qled", "component": {"Text": {"text": {"literalString": "**QLED**"}, "usageHint": "body"}}}, {"id": "table-divider-1", "component": {"Divider": {}}}, {"id": "table-row-contrast", "component": {"Row": {"children": {"explicitList": ["tr-c-label", "tr-c-oled", "tr-c-qled"]}}}}, {"id": "tr-c-label", "component": {"Text": {"text": {"literalString": "Contrast"}, "usageHint": "body"}}}, {"id": "tr-c-oled", "component": {"Text": {"text": {"literalString": "Infinite"}, "usageHint": "body"}}}, {"id": "tr-c-qled", "component": {"Text": {"text": {"literalString": "High"}, "usageHint": "body"}}}, {"id": "table-row-burnin", "component": {"Row": {"children": {"explicitList": ["tr-b-label", "tr-b-oled", "tr-b-qled"]}}}}, {"id": "tr-b-label", "component": {"Text": {"text": {"literalString": "Burn-in"}, "usageHint": "body"}}}, {"id": "tr-b-oled", "component": {"Text": {"text": {"literalString": "Possible"}, "usageHint": "body"}}}, {"id": "tr-b-qled", "component": {"Text": {"text": {"literalString": "Negligible"}, "usageHint": "body"}}}, {"id": "table-row-brightness", "component": {"Row": {"children": {"explicitList": ["tr-br-label", "tr-br-oled", "tr-br-qled"]}}}}, {"id": "tr-br-label", "component": {"Text": {"text": {"literalString": "Brightness"}, "usageHint": "body"}}}, {"id": "tr-br-oled", "component": {"Text": {"text": {"literalString": "600-1200 nits"}, "usageHint": "body"}}}, {"id": "tr-br-qled", "component": {"Text": {"text": {"literalString": "1500-3000+ nits"}, "usageHint": "body"}}}, {"id": "table-row-env", "component": {"Row": {"children": {"explicitList": ["tr-e-label", "tr-e-oled", "tr-e-qled"]}}}}, {"id": "tr-e-label", "component": {"Text": {"text": {"literalString": "Best For"}, "usageHint": "body"}}}, {"id": "tr-e-oled", "component": {"Text": {"text": {"literalString": "Dark Rooms"}, "usageHint": "body"}}}, {"id": "tr-e-qled", "component": {"Text": {"text": {"literalString": "Bright Rooms"}, "usageHint": "body"}}}, {"id": "recommendation-card", "component": {"Card": {"child": "rec-column"}}}, {"id": "rec-column", "component": {"Column": {"children": {"explicitList": ["rec-title", "rec-text"]}}}}, {"id": "rec-title", "component": {"Text": {"text": {"literalString": "Recommendation for a Bright Living Room"}, "usageHint": "h2"}}}, {"id": "rec-text", "component": {"Text": {"text": {"literalString": "For a bright living room, **QLED (specifically Mini-LED models)** is the superior choice. The high peak brightness is necessary to overcome ambient light and glare from windows. While OLED offers a better dark-room experience, it often looks washed out or reflective when competing with bright daylight."}, "usageHint": "body"}}}, {"id": "products-section", "component": {"Column": {"children": {"explicitList": ["products-title", "product-list"]}}}}, {"id": "products-title", "component": {"Text": {"text": {"literalString": "Product Options"}, "usageHint": "h2"}}}, {"id": "product-list", "component": {"List": {"children": {"explicitList": ["prod-card-1", "prod-card-2", "prod-card-3"]}, "direction": "vertical"}}}, {"id": "prod-card-1", "component": {"Card": {"child": "prod-col-1"}}}, {"id": "prod-col-1", "component": {"Column": {"children": {"explicitList": ["prod-1-name", "prod-1-desc", "prod-1-price", "prod-1-btn"]}}}}, {"id": "prod-1-name", "component": {"Text": {"text": {"literalString": "Samsung QN90C (QLED)"}, "usageHint": "h4"}}}, {"id": "prod-1-desc", "component": {"Text": {"text": {"literalString": "Best for bright rooms with industry-leading peak brightness."}, "usageHint": "body"}}}, {"id": "prod-1-price", "component": {"Text": {"text": {"literalString": "Price: Premium"}, "usageHint": "caption"}}}, {"id": "prod-1-btn", "component": {"Button": {"child": "prod-1-btn-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/external/samsung-qled"}}]}}}}, {"id": "prod-1-btn-text", "component": {"Text": {"text": {"literalString": "View on Samsung"}, "usageHint": "body"}}}, {"id": "prod-card-2", "component": {"Card": {"child": "prod-col-2"}}}, {"id": "prod-col-2", "component": {"Column": {"children": {"explicitList": ["prod-2-name", "prod-2-desc", "prod-2-price", "prod-2-btn"]}}}}, {"id": "prod-2-name", "component": {"Text": {"text": {"literalString": "LG C3 OLED"}, "usageHint": "h4"}}}, {"id": "prod-2-desc", "component": {"Text": {"text": {"literalString": "Best for movies and gaming in rooms with controlled lighting."}, "usageHint": "body"}}}, {"id": "prod-2-price", "component": {"Text": {"text": {"literalString": "Price: Mid-Range"}, "usageHint": "caption"}}}, {"id": "prod-2-btn", "component": {"Button": {"child": "prod-2-btn-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/external/lg-oled"}}]}}}}, {"id": "prod-2-btn-text", "component": {"Text": {"text": {"literalString": "View on LG"}, "usageHint": "body"}}}, {"id": "prod-card-3", "component": {"Card": {"child": "prod-col-3"}}}, {"id": "prod-col-3", "component": {"Column": {"children": {"explicitList": ["prod-3-name", "prod-3-desc", "prod-3-price", "prod-3-btn"]}}}}, {"id": "prod-3-name", "component": {"Text": {"text": {"literalString": "Sony X95L (Mini-LED)"}, "usageHint": "h4"}}}, {"id": "prod-3-desc", "component": {"Text": {"text": {"literalString": "Mini-LED with excellent color accuracy and high brightness."}, "usageHint": "body"}}}, {"id": "prod-3-price", "component": {"Text": {"text": {"literalString": "Price: Premium"}, "usageHint": "caption"}}}, {"id": "prod-3-btn", "component": {"Button": {"child": "prod-3-btn-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/external/sony-miniled"}}]}}}}, {"id": "prod-3-btn-text", "component": {"Text": {"text": {"literalString": "View on Sony"}, "usageHint": "body"}}}, {"id": "actions-row", "component": {"Row": {"children": {"explicitList": ["btn-compare", "btn-guide"]}, "distribution": "center"}}}, {"id": "btn-compare", "component": {"Button": {"child": "btn-compare-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/external/rtings-compare"}}]}, "primary": true}}}, {"id": "btn-compare-text", "component": {"Text": {"text": {"literalString": "Compare TV Models"}, "usageHint": "body"}}}, {"id": "btn-guide", "component": {"Button": {"child": "btn-guide-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/external/cr-bright-room-guide"}}]}}}}, {"id": "btn-guide-text", "component": {"Text": {"text": {"literalString": "Bright Room Guide"}, "usageHint": "body"}}}, {"id": "sources-section", "component": {"Column": {"children": {"explicitList": ["sources-title", "source-1", "source-2"]}}}}, {"id": "sources-title", "component": {"Text": {"text": {"literalString": "Sources"}, "usageHint": "caption"}}}, {"id": "source-1", "component": {"Text": {"text": {"literalString": "• RTINGS: Real-life OLED Burn-in Test"}, "usageHint": "caption"}}}, {"id": "source-2", "component": {"Text": {"text": {"literalString": "• CNET: OLED vs QLED TVs Compared"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

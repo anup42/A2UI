@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "skincare_routine_surface"}}, {"surfaceUpdate": {"surfaceId": "skincare_routine_surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_image", "main_title", "assumptions_box", "routine_tabs", "divider_1", "ingredients_title", "ingredients_table", "divider_2", "products_title", "products_scroll", "divider_3", "quick_actions_row", "sources_footer"]}, "alignment": "stretch"}}}, {"id": "header_image", "component": {"Image": {"url": {"literalString": "/assets/r_000077_01_6_photo-1556228720-195a672e8a03.jpg"}, "usageHint": "header", "fit": "cover"}}}, {"id": "main_title", "component": {"Text": {"text": {"literalString": "Oily & Acne-Prone Skincare Routine"}, "usageHint": "h1"}}}, {"id": "assumptions_box", "component": {"Card": {"child": "assumptions_text"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "**Assumptions:** This routine assumes oily/acne-prone skin without severe cystic acne. No known allergies to Salicylic Acid or Niacinamide."}, "usageHint": "caption"}}}, {"id": "routine_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Morning (AM)"}, "child": "am_routine_col"}, {"title": {"literalString": "Evening (PM)"}, "child": "pm_routine_col"}]}}}, {"id": "am_routine_col", "component": {"Column": {"children": {"explicitList": ["am_intro", "am_step_1", "am_step_2", "am_step_3", "am_step_4", "am_step_5"]}}}}, {"id": "am_intro", "component": {"Row": {"children": {"explicitList": ["am_icon", "am_focus_text"]}, "alignment": "center"}}}, {"id": "am_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000077_01_1_sun.png"}, "usageHint": "icon"}}}, {"id": "am_focus_text", "component": {"Text": {"text": {"literalString": "**Focus:** Protection and Oil Control"}, "usageHint": "body"}}}, {"id": "am_step_1", "component": {"Text": {"text": {"literalString": "**Step 1: Cleanser** - Removes sebum and sweat without stripping the barrier."}, "usageHint": "body"}}}, {"id": "am_step_2", "component": {"Text": {"text": {"literalString": "**Step 2: Toner** - Balances pH and provides lightweight hydration."}, "usageHint": "body"}}}, {"id": "am_step_3", "component": {"Text": {"text": {"literalString": "**Step 3: Serum** - Niacinamide (oil control) or Vitamin C (brightening)."}, "usageHint": "body"}}}, {"id": "am_step_4", "component": {"Text": {"text": {"literalString": "**Step 4: Oil-Free Moisturizer** - Prevents compensatory oil overproduction."}, "usageHint": "body"}}}, {"id": "am_step_5", "component": {"Text": {"text": {"literalString": "**Step 5: Sunscreen (SPF 30+)** - Prevents post-acne marks from darkening."}, "usageHint": "body"}}}, {"id": "pm_routine_col", "component": {"Column": {"children": {"explicitList": ["pm_intro", "pm_step_1", "pm_step_2", "pm_step_3", "pm_step_4"]}}}}, {"id": "pm_intro", "component": {"Row": {"children": {"explicitList": ["pm_icon", "pm_focus_text"]}, "alignment": "center"}}}, {"id": "pm_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000077_01_2_moon.png"}, "usageHint": "icon"}}}, {"id": "pm_focus_text", "component": {"Text": {"text": {"literalString": "**Focus:** Deep Cleansing and Treatment"}, "usageHint": "body"}}}, {"id": "pm_step_1", "component": {"Text": {"text": {"literalString": "**Step 1: Double Cleanse** - Micellar water followed by water-based cleanser."}, "usageHint": "body"}}}, {"id": "pm_step_2", "component": {"Text": {"text": {"literalString": "**Step 2: Exfoliating Treatment** - BHA/Salicylic Acid to unclog pores."}, "usageHint": "body"}}}, {"id": "pm_step_3", "component": {"Text": {"text": {"literalString": "**Step 3: Spot Treatment** - Benzoyl Peroxide for active blemishes."}, "usageHint": "body"}}}, {"id": "pm_step_4", "component": {"Text": {"text": {"literalString": "**Step 4: Night Moisturizer** - Supports skin repair and prevents irritation."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "ingredients_title", "component": {"Text": {"text": {"literalString": "Key Ingredient Comparison"}, "usageHint": "h3"}}}, {"id": "ingredients_table", "component": {"Column": {"children": {"explicitList": ["ing_row_header", "ing_row_1", "ing_row_2", "ing_row_3", "ing_row_4", "ing_row_5"]}}}}, {"id": "ing_row_header", "component": {"Row": {"children": {"explicitList": ["ing_h1", "ing_h2", "ing_h3"]}, "distribution": "spaceBetween"}}}, {"id": "ing_h1", "component": {"Text": {"text": {"literalString": "**Ingredient**"}, "usageHint": "caption"}}}, {"id": "ing_h2", "component": {"Text": {"text": {"literalString": "**Benefit**"}, "usageHint": "caption"}}}, {"id": "ing_h3", "component": {"Text": {"text": {"literalString": "**Time**"}, "usageHint": "caption"}}}, {"id": "ing_row_1", "component": {"Row": {"children": {"explicitList": ["ing_1_n", "ing_1_b", "ing_1_t"]}}}}, {"id": "ing_1_n", "component": {"Text": {"text": {"literalString": "Salicylic Acid"}, "usageHint": "body"}}}, {"id": "ing_1_b", "component": {"Text": {"text": {"literalString": "Unclogs pores"}, "usageHint": "body"}}}, {"id": "ing_1_t", "component": {"Text": {"text": {"literalString": "PM"}, "usageHint": "body"}}}, {"id": "ing_row_2", "component": {"Row": {"children": {"explicitList": ["ing_2_n", "ing_2_b", "ing_2_t"]}}}}, {"id": "ing_2_n", "component": {"Text": {"text": {"literalString": "Niacinamide"}, "usageHint": "body"}}}, {"id": "ing_2_b", "component": {"Text": {"text": {"literalString": "Controls sebum"}, "usageHint": "body"}}}, {"id": "ing_2_t", "component": {"Text": {"text": {"literalString": "AM/PM"}, "usageHint": "body"}}}, {"id": "ing_row_3", "component": {"Row": {"children": {"explicitList": ["ing_3_n", "ing_3_b", "ing_3_t"]}}}}, {"id": "ing_3_n", "component": {"Text": {"text": {"literalString": "Benzoyl Peroxide"}, "usageHint": "body"}}}, {"id": "ing_3_b", "component": {"Text": {"text": {"literalString": "Kills bacteria"}, "usageHint": "body"}}}, {"id": "ing_3_t", "component": {"Text": {"text": {"literalString": "PM"}, "usageHint": "body"}}}, {"id": "ing_row_4", "component": {"Row": {"children": {"explicitList": ["ing_4_n", "ing_4_b", "ing_4_t"]}}}}, {"id": "ing_4_n", "component": {"Text": {"text": {"literalString": "Hyaluronic Acid"}, "usageHint": "body"}}}, {"id": "ing_4_b", "component": {"Text": {"text": {"literalString": "Hydrates"}, "usageHint": "body"}}}, {"id": "ing_4_t", "component": {"Text": {"text": {"literalString": "AM/PM"}, "usageHint": "body"}}}, {"id": "ing_row_5", "component": {"Row": {"children": {"explicitList": ["ing_5_n", "ing_5_b", "ing_5_t"]}}}}, {"id": "ing_5_n", "component": {"Text": {"text": {"literalString": "Zinc PCA"}, "usageHint": "body"}}}, {"id": "ing_5_b", "component": {"Text": {"text": {"literalString": "Reduces shine"}, "usageHint": "body"}}}, {"id": "ing_5_t", "component": {"Text": {"text": {"literalString": "AM"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "products_title", "component": {"Text": {"text": {"literalString": "Recommended Products"}, "usageHint": "h3"}}}, {"id": "products_scroll", "component": {"List": {"children": {"explicitList": ["prod_card_1", "prod_card_2", "prod_card_3", "prod_card_4", "prod_card_5"]}, "direction": "horizontal"}}}, {"id": "prod_card_1", "component": {"Card": {"child": "prod_col_1"}}}, {"id": "prod_col_1", "component": {"Column": {"children": {"explicitList": ["prod_name_1", "prod_desc_1", "prod_price_1", "prod_btn_1"]}}}}, {"id": "prod_name_1", "component": {"Text": {"text": {"literalString": "CeraVe Foaming Cleanser"}, "usageHint": "h5"}}}, {"id": "prod_desc_1", "component": {"Text": {"text": {"literalString": "Removes oil without disrupting barrier."}, "usageHint": "caption"}}}, {"id": "prod_price_1", "component": {"Text": {"text": {"literalString": "$15"}, "usageHint": "body"}}}, {"id": "prod_btn_1", "component": {"Button": {"child": "btn_txt_1", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.cerave.com"}}]}}}}, {"id": "btn_txt_1", "component": {"Text": {"text": {"literalString": "View"}, "usageHint": "body"}}}, {"id": "prod_card_2", "component": {"Card": {"child": "prod_col_2"}}}, {"id": "prod_col_2", "component": {"Column": {"children": {"explicitList": ["prod_name_2", "prod_desc_2", "prod_price_2", "prod_btn_2"]}}}}, {"id": "prod_name_2", "component": {"Text": {"text": {"literalString": "Paula's Choice 2% BHA"}, "usageHint": "h5"}}}, {"id": "prod_desc_2", "component": {"Text": {"text": {"literalString": "Deeply clears pores and smooths texture."}, "usageHint": "caption"}}}, {"id": "prod_price_2", "component": {"Text": {"text": {"literalString": "$34"}, "usageHint": "body"}}}, {"id": "prod_btn_2", "component": {"Button": {"child": "btn_txt_2", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.paulaschoice.com"}}]}}}}, {"id": "btn_txt_2", "component": {"Text": {"text": {"literalString": "View"}, "usageHint": "body"}}}, {"id": "prod_card_3", "component": {"Card": {"child": "prod_col_3"}}}, {"id": "prod_col_3", "component": {"Column": {"children": {"explicitList": ["prod_name_3", "prod_desc_3", "prod_price_3", "prod_btn_3"]}}}}, {"id": "prod_name_3", "component": {"Text": {"text": {"literalString": "LRP Effaclar Mat"}, "usageHint": "h5"}}}, {"id": "prod_desc_3", "component": {"Text": {"text": {"literalString": "Mattifies skin and refines pores."}, "usageHint": "caption"}}}, {"id": "prod_price_3", "component": {"Text": {"text": {"literalString": "$32"}, "usageHint": "body"}}}, {"id": "prod_btn_3", "component": {"Button": {"child": "btn_txt_3", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.laroche-posay.us"}}]}}}}, {"id": "btn_txt_3", "component": {"Text": {"text": {"literalString": "View"}, "usageHint": "body"}}}, {"id": "prod_card_4", "component": {"Card": {"child": "prod_col_4"}}}, {"id": "prod_col_4", "component": {"Column": {"children": {"explicitList": ["prod_name_4", "prod_desc_4", "prod_price_4", "prod_btn_4"]}}}}, {"id": "prod_name_4", "component": {"Text": {"text": {"literalString": "Neutrogena Hydro Boost"}, "usageHint": "h5"}}}, {"id": "prod_desc_4", "component": {"Text": {"text": {"literalString": "Ultra-lightweight hydration."}, "usageHint": "caption"}}}, {"id": "prod_price_4", "component": {"Text": {"text": {"literalString": "$20"}, "usageHint": "body"}}}, {"id": "prod_btn_4", "component": {"Button": {"child": "btn_txt_4", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.neutrogena.com"}}]}}}}, {"id": "btn_txt_4", "component": {"Text": {"text": {"literalString": "View"}, "usageHint": "body"}}}, {"id": "prod_card_5", "component": {"Card": {"child": "prod_col_5"}}}, {"id": "prod_col_5", "component": {"Column": {"children": {"explicitList": ["prod_name_5", "prod_desc_5", "prod_price_5", "prod_btn_5"]}}}}, {"id": "prod_name_5", "component": {"Text": {"text": {"literalString": "EltaMD UV Clear SPF 46"}, "usageHint": "h5"}}}, {"id": "prod_desc_5", "component": {"Text": {"text": {"literalString": "Formulated for acne-prone skin."}, "usageHint": "caption"}}}, {"id": "prod_price_5", "component": {"Text": {"text": {"literalString": "$41"}, "usageHint": "body"}}}, {"id": "prod_btn_5", "component": {"Button": {"child": "btn_txt_5", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://eltamd.com"}}]}}}}, {"id": "btn_txt_5", "component": {"Text": {"text": {"literalString": "View"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "quick_actions_row", "component": {"Row": {"children": {"explicitList": ["action_btn_1", "action_btn_2", "action_btn_3"]}, "distribution": "spaceEvenly"}}}, {"id": "action_btn_1", "component": {"Button": {"child": "act_txt_1", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.ulta.com/shop/skin-care/acne-blemishes"}}]}, "primary": true}}}, {"id": "act_txt_1", "component": {"Text": {"text": {"literalString": "Shop Acne"}, "usageHint": "body"}}}, {"id": "action_btn_2", "component": {"Button": {"child": "act_txt_2", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.aad.org/public/diseases/acne"}}]}}}}, {"id": "act_txt_2", "component": {"Text": {"text": {"literalString": "Consult Derm"}, "usageHint": "body"}}}, {"id": "action_btn_3", "component": {"Button": {"child": "act_txt_3", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.paulaschoice.com/ingredient-dictionary"}}]}}}}, {"id": "act_txt_3", "component": {"Text": {"text": {"literalString": "Ingredients"}, "usageHint": "body"}}}, {"id": "sources_footer", "component": {"Text": {"text": {"literalString": "Sources: American Academy of Dermatology, Mayo Clinic."}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

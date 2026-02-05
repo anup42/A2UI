@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000154"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000154", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "text_12", "text_13", "text_14", "text_15", "text_16", "btn_17", "btn_18", "text_19"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\nThis comparison focuses on the US market as of mid-2024. Library sizes and availability are based on general industry standards and historical release patterns."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Summary:\nCrunchyroll remains the primary destination for dedicated anime fans who want the largest volume of content and immediate access to new releases from Japan. Netflix serves as a premium curator, focusing on high-production exclusives and mainstream hits that appeal to a broader audience."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Comparison Overview:"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Feature: Simulcast Availability\nCrunchyroll: Industry leader. Releases 40-50 new titles per season, often within one hour of the Japanese broadcast.\nNetflix: Selective. While they have moved toward weekly releases for certain titles (e.g., Delicious in Dungeon), many series are still released in batches months after the Japanese airing."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Feature: English Dub Support\nCrunchyroll: Extensive. Offers \"Simuldubs\" for most popular series, with dubs typically starting 2 to 4 weeks after the subtitled premiere.\nNetflix: High Quality. Produces high-budget dubs in multiple languages simultaneously. When a show drops, the dub is usually available immediately for the entire batch."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Feature: Genre Variety\nCrunchyroll: Deep and Niche. Covers everything from mainstream Shonen to obscure Slice-of-Life, Isekai, and niche sports anime.\nNetflix: Curated and Original. Focuses on \"Prestige\" anime, Sci-Fi, and dark fantasy. They invest heavily in unique originals that aren't found elsewhere."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Library Comparison Table:"}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Platform | Library Size (approx) | Primary Strength | Best For\nCrunchyroll | 1,300+ Titles | Seasonal Volume | Hardcore fans / Weekly viewers\nNetflix | 300+ Titles | Exclusive Originals | Casual viewers / High-budget seekers"}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "- Simulcast: /assets/r_000154_01_1_clock.png\n- Dubbing: /assets/r_000154_01_2_microphone.png\n- Variety: /assets/r_000154_01_3_stack.png"}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "Top Series Recommendations (EXAMPLE):"}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "Option 1: Jujutsu Kaisen | Supernatural Action | Crunchyroll | High-intensity Shonen with weekly updates.\nOption 2: Cyberpunk: Edgerunners | Sci-Fi / Action | Netflix | High-production exclusive with a complete story.\nOption 3: One Piece | Long-running Adventure | Crunchyroll | Access to over 1,100 episodes including latest simulcasts.\nOption 4: Blue Eye Samurai | Historical Drama | Netflix | Critically acclaimed original with adult themes."}, "usageHint": "body"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "Detailed Analysis:"}, "usageHint": "body"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "1. Simulcast Availability\nCrunchyroll is the undisputed winner for fans who want to participate in the \"seasonal\" conversation. Their seasonal lineup is massive. Netflix is improving by securing \"exclusive simulcasts,\" but their library remains significantly smaller in terms of new weekly content."}, "usageHint": "body"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "2. English Dub Support\nCrunchyroll has the largest quantity of English dubs in existence. However, Netflix is often praised for the \"global\" feel of its dubs, frequently providing 10+ language options at launch, which is superior for multi-lingual households."}, "usageHint": "body"}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "3. Genre Variety\nIf you are looking for niche genres like \"Iyashikei\" (healing) or specific \"Isekai\" tropes, Crunchyroll is the only viable option. Netflix tends to stick to genres with broad Western appeal, such as psychological thrillers, high-fantasy, and sci-fi."}, "usageHint": "body"}}}, {"id": "text_16", "component": {"Text": {"text": {"literalString": "Verification Framework:\nTo check current seasonal lineups and dub availability:\n1. Visit LiveChart.me or Anime News Network for seasonal \"where to watch\" guides.\n2. Check the \"Recently Added\" or \"Simulcast Calendar\" on the Crunchyroll home page.\n3. Search the \"Anime\" category on Netflix and filter by \"Audio: English.\""}, "usageHint": "body"}}}, {"id": "btn_label_17", "component": {"Text": {"text": {"literalString": "View Crunchyroll Plans"}, "usageHint": "body"}}}, {"id": "btn_17", "component": {"Button": {"child": "btn_label_17", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.crunchyroll.com/welcome"}}]}, "primary": true}}}, {"id": "btn_label_18", "component": {"Text": {"text": {"literalString": "View Netflix Anime"}, "usageHint": "body"}}}, {"id": "btn_18", "component": {"Button": {"child": "btn_label_18", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.netflix.com/browse/genre/7424"}}]}, "primary": true}}}, {"id": "text_19", "component": {"Text": {"text": {"literalString": "- https://www.crunchyroll.com\n- https://www.netflix.com\n- https://www.animenewsnetwork.com"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

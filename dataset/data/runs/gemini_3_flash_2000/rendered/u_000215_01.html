@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "drill_comparison_surface"}}, {"surfaceUpdate": {"surfaceId": "drill_comparison_surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["summary_section", "assumptions_section", "comparison_section", "recommendations_section", "verification_section", "actions_section"]}}}}, {"id": "summary_section", "component": {"Column": {"children": {"explicitList": ["summary_title", "summary_text"]}}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "SUMMARY"}, "usageHint": "h2"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "DeWalt and Milwaukee offer premium brushless 18V/20V kits specifically designed for high-end DIY and professional use. These kits typically include the drill, two lithium-ion batteries, a charger, and a carrying bag or case. DeWalt uses the 20V Max branding, while Milwaukee uses the M18 system; both operate at the same nominal voltage."}, "usageHint": "body"}}}, {"id": "assumptions_section", "component": {"Column": {"children": {"explicitList": ["assumptions_title", "assumptions_list"]}}}}, {"id": "assumptions_title", "component": {"Text": {"text": {"literalString": "ASSUMPTIONS"}, "usageHint": "h3"}}}, {"id": "assumptions_list", "component": {"List": {"children": {"explicitList": ["assump_1", "assump_2", "assump_3"]}, "direction": "vertical"}}}, {"id": "assump_1", "component": {"Text": {"text": {"literalString": "• You require a 1/2-inch chuck for standard drill bits."}, "usageHint": "body"}}}, {"id": "assump_2", "component": {"Text": {"text": {"literalString": "• DIY projects include tasks like deck building, shelving, and general home repairs."}, "usageHint": "body"}}}, {"id": "assump_3", "component": {"Text": {"text": {"literalString": "• You prefer the latest brushless technology for longer motor life and runtime."}, "usageHint": "body"}}}, {"id": "comparison_section", "component": {"Column": {"children": {"explicitList": ["comparison_title", "comparison_table"]}}}}, {"id": "comparison_title", "component": {"Text": {"text": {"literalString": "DRILL KIT SPECIFICATION COMPARISON"}, "usageHint": "h3"}}}, {"id": "comparison_table", "component": {"Column": {"children": {"explicitList": ["table_header", "table_row_1", "table_row_2", "table_row_3"]}}}}, {"id": "table_header", "component": {"Row": {"children": {"explicitList": ["h_brand", "h_model", "h_torque", "h_batt", "h_weight"]}}}}, {"id": "h_brand", "component": {"Text": {"text": {"literalString": "**Brand**"}, "usageHint": "body"}}}, {"id": "h_model", "component": {"Text": {"text": {"literalString": "**Model**"}, "usageHint": "body"}}}, {"id": "h_torque", "component": {"Text": {"text": {"literalString": "**Max Torque**"}, "usageHint": "body"}}}, {"id": "h_batt", "component": {"Text": {"text": {"literalString": "**Battery**"}, "usageHint": "body"}}}, {"id": "h_weight", "component": {"Text": {"text": {"literalString": "**Weight**"}, "usageHint": "body"}}}, {"id": "table_row_1", "component": {"Row": {"children": {"explicitList": ["r1_brand", "r1_model", "r1_torque", "r1_batt", "r1_weight"]}}}}, {"id": "r1_brand", "component": {"Text": {"text": {"literalString": "DeWalt"}, "usageHint": "body"}}}, {"id": "r1_model", "component": {"Text": {"text": {"literalString": "DCD800P2"}, "usageHint": "body"}}}, {"id": "r1_torque", "component": {"Text": {"text": {"literalString": "900 in-lbs"}, "usageHint": "body"}}}, {"id": "r1_batt", "component": {"Text": {"text": {"literalString": "5.0Ah"}, "usageHint": "body"}}}, {"id": "r1_weight", "component": {"Text": {"text": {"literalString": "2.8 lbs"}, "usageHint": "body"}}}, {"id": "table_row_2", "component": {"Row": {"children": {"explicitList": ["r2_brand", "r2_model", "r2_torque", "r2_batt", "r2_weight"]}}}}, {"id": "r2_brand", "component": {"Text": {"text": {"literalString": "Milwaukee"}, "usageHint": "body"}}}, {"id": "r2_model", "component": {"Text": {"text": {"literalString": "2904-22"}, "usageHint": "body"}}}, {"id": "r2_torque", "component": {"Text": {"text": {"literalString": "1,400 in-lbs"}, "usageHint": "body"}}}, {"id": "r2_batt", "component": {"Text": {"text": {"literalString": "5.0Ah"}, "usageHint": "body"}}}, {"id": "r2_weight", "component": {"Text": {"text": {"literalString": "3.3 lbs"}, "usageHint": "body"}}}, {"id": "table_row_3", "component": {"Row": {"children": {"explicitList": ["r3_brand", "r3_model", "r3_torque", "r3_batt", "r3_weight"]}}}}, {"id": "r3_brand", "component": {"Text": {"text": {"literalString": "DeWalt"}, "usageHint": "body"}}}, {"id": "r3_model", "component": {"Text": {"text": {"literalString": "DCD791D2"}, "usageHint": "body"}}}, {"id": "r3_torque", "component": {"Text": {"text": {"literalString": "460 UWO"}, "usageHint": "body"}}}, {"id": "r3_batt", "component": {"Text": {"text": {"literalString": "2.0Ah"}, "usageHint": "body"}}}, {"id": "r3_weight", "component": {"Text": {"text": {"literalString": "2.6 lbs"}, "usageHint": "body"}}}, {"id": "recommendations_section", "component": {"Column": {"children": {"explicitList": ["recommendations_title", "rec_list"]}}}}, {"id": "recommendations_title", "component": {"Text": {"text": {"literalString": "RECOMMENDED KIT OPTIONS"}, "usageHint": "h3"}}}, {"id": "rec_list", "component": {"List": {"children": {"explicitList": ["rec_card_1", "rec_card_2", "rec_card_3"]}, "direction": "vertical"}}}, {"id": "rec_card_1", "component": {"Card": {"child": "rec_col_1"}}}, {"id": "rec_col_1", "component": {"Column": {"children": {"explicitList": ["rec_title_1", "rec_sum_1", "rec_attr_row_1", "rec_price_1"]}}}}, {"id": "rec_title_1", "component": {"Text": {"text": {"literalString": "Option 1: DeWalt 20V MAX XR Brushless 1/2-in. Drill/Driver Kit (DCD800P2)"}, "usageHint": "h4"}}}, {"id": "rec_sum_1", "component": {"Text": {"text": {"literalString": "A high-power, compact drill featuring a 3-mode LED light for dark workspaces."}, "usageHint": "body"}}}, {"id": "rec_attr_row_1", "component": {"Row": {"children": {"explicitList": ["icon_power_1", "rec_attr_1"]}, "alignment": "center"}}}, {"id": "icon_power_1", "component": {"Image": {"url": {"literalString": "/assets/r_000215_01_3_lightning-bolt.png"}, "usageHint": "icon"}}}, {"id": "rec_attr_1", "component": {"Text": {"text": {"literalString": "Excellent power-to-weight ratio for tight spaces."}, "usageHint": "caption"}}}, {"id": "rec_price_1", "component": {"Text": {"text": {"literalString": "$229.00"}, "usageHint": "h5"}}}, {"id": "rec_card_2", "component": {"Card": {"child": "rec_col_2"}}}, {"id": "rec_col_2", "component": {"Column": {"children": {"explicitList": ["rec_title_2", "rec_sum_2", "rec_attr_row_2", "rec_price_2"]}}}}, {"id": "rec_title_2", "component": {"Text": {"text": {"literalString": "Option 2: Milwaukee M18 FUEL Brushless Hammer Drill Kit (2904-22)"}, "usageHint": "h4"}}}, {"id": "rec_sum_2", "component": {"Text": {"text": {"literalString": "The most powerful drill in the lineup, featuring AutoStop control for enhanced safety."}, "usageHint": "body"}}}, {"id": "rec_attr_row_2", "component": {"Row": {"children": {"explicitList": ["icon_durability_2", "rec_attr_2"]}, "alignment": "center"}}}, {"id": "icon_durability_2", "component": {"Image": {"url": {"literalString": "/assets/r_000215_01_5_shield.png"}, "usageHint": "icon"}}}, {"id": "rec_attr_2", "component": {"Text": {"text": {"literalString": "Highest torque in its class for heavy-duty drilling."}, "usageHint": "caption"}}}, {"id": "rec_price_2", "component": {"Text": {"text": {"literalString": "$299.00"}, "usageHint": "h5"}}}, {"id": "rec_card_3", "component": {"Card": {"child": "rec_col_3"}}}, {"id": "rec_col_3", "component": {"Column": {"children": {"explicitList": ["rec_title_3", "rec_sum_3", "rec_attr_row_3", "rec_price_3"]}}}}, {"id": "rec_title_3", "component": {"Text": {"text": {"literalString": "Option 3: DeWalt 20V MAX XR Brushless Compact Drill Kit (DCD791D2)"}, "usageHint": "h4"}}}, {"id": "rec_sum_3", "component": {"Text": {"text": {"literalString": "A lighter-weight alternative with smaller batteries, ideal for overhead work and assembly."}, "usageHint": "body"}}}, {"id": "rec_attr_row_3", "component": {"Row": {"children": {"explicitList": ["rec_attr_3"]}, "alignment": "center"}}}, {"id": "rec_attr_3", "component": {"Text": {"text": {"literalString": "Ergonomic design reduces user fatigue during long projects."}, "usageHint": "caption"}}}, {"id": "rec_price_3", "component": {"Text": {"text": {"literalString": "$199.00"}, "usageHint": "h5"}}}, {"id": "verification_section", "component": {"Column": {"children": {"explicitList": ["verification_title", "verification_list"]}}}}, {"id": "verification_title", "component": {"Text": {"text": {"literalString": "OFFLINE VERIFICATION FRAMEWORK"}, "usageHint": "h3"}}}, {"id": "verification_list", "component": {"List": {"children": {"explicitList": ["ver_1", "ver_2", "ver_3", "ver_4"]}, "direction": "vertical"}}}, {"id": "ver_1", "component": {"Text": {"text": {"literalString": "1. **Identify the Model**: Ensure the model number ends in 2 (usually indicating a 2-battery kit)."}, "usageHint": "body"}}}, {"id": "ver_2", "component": {"Text": {"text": {"literalString": "2. **Check Battery Amp-Hours (Ah)**: Kits vary by battery size; 5.0Ah lasts longer than 2.0Ah but is heavier."}, "usageHint": "body"}}}, {"id": "ver_3", "component": {"Text": {"text": {"literalString": "3. **Look for Promotions**: Both brands frequently offer a 'Buy a Kit, Get a Free Tool' promotion."}, "usageHint": "body"}}}, {"id": "ver_4", "component": {"Text": {"text": {"literalString": "4. **Verify Motor Type**: Confirm the box explicitly states 'Brushless' or 'XR' (DeWalt) / 'FUEL' (Milwaukee)."}, "usageHint": "body"}}}, {"id": "actions_section", "component": {"Row": {"children": {"explicitList": ["btn_dewalt", "btn_milwaukee"]}, "distribution": "center"}}}, {"id": "btn_dewalt", "component": {"Button": {"child": "btn_txt_dewalt", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.dewalt.com/products/power-tools/drills/drills-and-hammer-drills"}}]}, "primary": true}}}, {"id": "btn_txt_dewalt", "component": {"Text": {"text": {"literalString": "Shop DeWalt 20V Kits"}, "usageHint": "body"}}}, {"id": "btn_milwaukee", "component": {"Button": {"child": "btn_txt_milwaukee", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.milwaukeetool.com/Products/Power-Tools/Drilling/Drill-Drivers"}}]}, "primary": true}}}, {"id": "btn_txt_milwaukee", "component": {"Text": {"text": {"literalString": "Shop Milwaukee M18 Kits"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000019"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000019", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "icon_row_12", "text_13", "btn_14", "btn_15", "btn_16", "btn_17", "text_18"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions: You are using a standard residential modem and router (or a gateway combo unit), and your devices show a strong Wi-Fi signal icon but display an error message such as \"Connected, no internet\" or \"No internet secured.\""}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "TROUBLESHOOTING CHECKLIST OVERVIEW"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Option 1: Power Cycle | Restart hardware to clear temporary glitches | Time: 2-3 mins\nOption 2: Physical Check | Verify all cables are seated correctly | Time: 1 min\nOption 3: ISP Status | Verify if the problem is with your provider | Time: 5 mins\nOption 4: Device Isolation | Determine if the issue is local or network-wide | Time: 2 mins\nOption 5: DNS/IP Reset | Refresh digital addresses and clear cache | Time: 5 mins\nOption 6: Factory Reset | Last resort to clear all custom configurations | Time: 10 mins"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "DETAILED TROUBLESHOOTING STEPS (ORDERED BY COMPLEXITY)"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "1. Power Cycle the Modem and Router\n- Unplug the power cables from both the modem and the router.\n- Wait exactly 30 seconds to allow the capacitors to fully discharge.\n- Plug the modem back in first and wait for the \"Internet\" or \"Online\" light to turn solid.\n- Plug the router back in and wait 2 minutes for the Wi-Fi signal to broadcast."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "2. Inspect Physical Cables\n- Ensure the Ethernet cable running from the wall (or ONT) is firmly clicked into the WAN or Internet port on your router.\n- If using a cable modem, ensure the coaxial pin is straight and the connector is finger-tight.\n- Swap out the Ethernet cable between the modem and router to rule out a hardware short."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "3. Check for ISP Outages\n- Use your cellular data to visit your Internet Service Provider's (ISP) mobile app or status website.\n- Check for reported outages in your specific zip code.\n- Ensure your account is in good standing and not suspended due to billing issues."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "4. Isolate the Problem\n- Attempt to connect a different device (phone, tablet, or another laptop) to the Wi-Fi.\n- If other devices work, the problem is with the specific device's network card or settings.\n- If no devices work, the problem is definitely with the router, modem, or the incoming service line."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "5. Flush DNS and Reset IP (Advanced Software Fix)\n- On Windows: Open Command Prompt as Administrator and type \"ipconfig /flushdns\" followed by \"netsh winsock reset\". Restart the PC.\n- On Mac: Go to System Settings > Network > Wi-Fi > Details > TCP/IP and click \"Renew DHCP Lease.\"\n- Change DNS: In router settings, try setting your Primary DNS to 8.8.8.8 (Google) or 1.1.1.1 (Cloudflare) to bypass provider-side DNS issues."}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "6. Factory Reset the Router\n- Locate the small \"Reset\" pinhole on the back of your router.\n- Use a paperclip to press and hold the button for 15 seconds while the device is powered on.\n- Note: This will erase your Wi-Fi name and password. You will need to set up the network from scratch using the default credentials found on the router's sticker."}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "- Hardware: /assets/r_000019_01_1_router.png"}, "usageHint": "body"}}}, {"id": "icon_img_12", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios-filled/50/000000/wi-fi.png"}, "usageHint": "icon"}}}, {"id": "icon_label_12", "component": {"Text": {"text": {"literalString": "Connectivity"}, "usageHint": "body"}}}, {"id": "icon_row_12", "component": {"Row": {"children": {"explicitList": ["icon_img_12", "icon_label_12"]}, "alignment": "center"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "- Settings: /assets/r_000019_01_3_settings.png\n- Support: /assets/r_000019_01_4_customer-support.png"}, "usageHint": "body"}}}, {"id": "btn_label_14", "component": {"Text": {"text": {"literalString": "Check Xfinity Status"}, "usageHint": "body"}}}, {"id": "btn_14", "component": {"Button": {"child": "btn_label_14", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.xfinity.com/support/status"}}]}, "primary": true}}}, {"id": "btn_label_15", "component": {"Text": {"text": {"literalString": "Check AT&T Status"}, "usageHint": "body"}}}, {"id": "btn_15", "component": {"Button": {"child": "btn_label_15", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.att.com/outages/"}}]}, "primary": true}}}, {"id": "btn_label_16", "component": {"Text": {"text": {"literalString": "Check Spectrum Status"}, "usageHint": "body"}}}, {"id": "btn_16", "component": {"Button": {"child": "btn_label_16", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.spectrum.net/support/internet/network-status"}}]}, "primary": true}}}, {"id": "btn_label_17", "component": {"Text": {"text": {"literalString": "Google DNS Guide"}, "usageHint": "body"}}}, {"id": "btn_17", "component": {"Button": {"child": "btn_label_17", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://developers.google.com/speed/public-dns/docs/using"}}]}, "primary": true}}}, {"id": "text_18", "component": {"Text": {"text": {"literalString": "- https://www.lifewire.com/troubleshooting-wi-fi-connection-problems-818231\n- https://www.pcmag.com/how-to/10-ways-to-fix-your-wi-fi-connection"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

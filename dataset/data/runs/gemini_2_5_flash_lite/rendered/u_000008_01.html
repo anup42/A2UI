@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "python-vs-java-comparison"}}, {"surfaceUpdate": {"surfaceId": "python-vs-java-comparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "comparison-table", "learning-path-title", "learning-path-list", "quick-actions-title", "quick-actions-buttons"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "PYTHON VS JAVA COMPARISON (2024)"}, "usageHint": "h1"}}}, {"id": "comparison-table", "component": {"Column": {"children": {"explicitList": ["comparison-header", "memory-management-row", "syntax-complexity-row", "execution-speed-row", "common-use-cases-row"]}, "alignment": "stretch"}}}, {"id": "comparison-header", "component": {"Row": {"children": {"explicitList": ["feature-header", "python-header", "java-header"]}, "distribution": "spaceBetween"}}}, {"id": "feature-header", "component": {"Text": {"text": {"literalString": "Feature"}, "usageHint": "h3"}}}, {"id": "python-header", "component": {"Text": {"text": {"literalString": "Python"}, "usageHint": "h3"}}}, {"id": "java-header", "component": {"Text": {"text": {"literalString": "Java"}, "usageHint": "h3"}}}, {"id": "memory-management-row", "component": {"Row": {"children": {"explicitList": ["memory-management-feature", "memory-management-python", "memory-management-java"]}, "distribution": "spaceBetween"}}}, {"id": "memory-management-feature", "component": {"Text": {"text": {"literalString": "Memory Management"}, "usageHint": "body"}}}, {"id": "memory-management-python", "component": {"Text": {"text": {"literalString": "Automatic (Garbage Collection)"}, "usageHint": "body"}}}, {"id": "memory-management-java", "component": {"Text": {"text": {"literalString": "Automatic (Garbage Collection)"}, "usageHint": "body"}}}, {"id": "syntax-complexity-row", "component": {"Row": {"children": {"explicitList": ["syntax-complexity-feature", "syntax-complexity-python", "syntax-complexity-java"]}, "distribution": "spaceBetween"}}}, {"id": "syntax-complexity-feature", "component": {"Text": {"text": {"literalString": "Syntax Complexity"}, "usageHint": "body"}}}, {"id": "syntax-complexity-python", "component": {"Text": {"text": {"literalString": "Low (Concise, readable)"}, "usageHint": "body"}}}, {"id": "syntax-complexity-java", "component": {"Text": {"text": {"literalString": "High (Boilerplate, verbose)"}, "usageHint": "body"}}}, {"id": "execution-speed-row", "component": {"Row": {"children": {"explicitList": ["execution-speed-feature", "execution-speed-python", "execution-speed-java"]}, "distribution": "spaceBetween"}}}, {"id": "execution-speed-feature", "component": {"Text": {"text": {"literalString": "Execution Speed"}, "usageHint": "body"}}}, {"id": "execution-speed-python", "component": {"Text": {"text": {"literalString": "Slower (Interpreted)"}, "usageHint": "body"}}}, {"id": "execution-speed-java", "component": {"Text": {"text": {"literalString": "Faster (JIT Compiled)"}, "usageHint": "body"}}}, {"id": "common-use-cases-row", "component": {"Row": {"children": {"explicitList": ["common-use-cases-feature", "common-use-cases-python", "common-use-cases-java"]}, "distribution": "spaceBetween"}}}, {"id": "common-use-cases-feature", "component": {"Text": {"text": {"literalString": "Common Use Cases"}, "usageHint": "body"}}}, {"id": "common-use-cases-python", "component": {"Text": {"text": {"literalString": "AI/ML, Data Science, Scripting"}, "usageHint": "body"}}}, {"id": "common-use-cases-java", "component": {"Text": {"text": {"literalString": "Enterprise Apps, Android, Backend"}, "usageHint": "body"}}}, {"id": "learning-path-title", "component": {"Text": {"text": {"literalString": "5-STEP PYTHON LEARNING PATH"}, "usageHint": "h2"}}}, {"id": "learning-path-list", "component": {"List": {"children": {"explicitList": ["step-1", "step-2", "step-3", "step-4", "step-5"]}, "direction": "vertical"}}}, {"id": "step-1", "component": {"Text": {"text": {"literalString": "1. Basic Syntax: Learn variables, data types, and control flow (if/else, loops)."}, "usageHint": "body"}}}, {"id": "step-2", "component": {"Text": {"text": {"literalString": "2. Functions and Modules: Master reusable code and the import system."}, "usageHint": "body"}}}, {"id": "step-3", "component": {"Text": {"text": {"literalString": "3. Data Structures: Deep dive into lists, dictionaries, sets, and tuples."}, "usageHint": "body"}}}, {"id": "step-4", "component": {"Text": {"text": {"literalString": "4. Object-Oriented Programming: Understand classes, inheritance, and methods."}, "usageHint": "body"}}}, {"id": "step-5", "component": {"Text": {"text": {"literalString": "5. Project Application: Build a simple web scraper or data visualization tool."}, "usageHint": "body"}}}, {"id": "quick-actions-title", "component": {"Text": {"text": {"literalString": "QUICK ACTIONS"}, "usageHint": "h2"}}}, {"id": "quick-actions-buttons", "component": {"Row": {"children": {"explicitList": ["python-docs-button", "java-docs-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "python-docs-button", "component": {"Button": {"child": "python-docs-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000008_01_1_3.html"}}]}}}}, {"id": "python-docs-text", "component": {"Text": {"text": {"literalString": "Python Official Docs"}, "usageHint": "body"}}}, {"id": "java-docs-button", "component": {"Button": {"child": "java-docs-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000008_01_2_java.html"}}]}}}}, {"id": "java-docs-text", "component": {"Text": {"text": {"literalString": "Java Documentation"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

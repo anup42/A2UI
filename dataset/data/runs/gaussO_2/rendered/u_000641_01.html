@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "tokyo_itinerary"}}, {"surfaceUpdate": {"surfaceId": "tokyo_itinerary", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "itinerary_summary", "day1", "day2", "day3", "day4", "day5", "cost_estimate", "quick_actions"]}}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "5-Day Tokyo Itinerary for Families with Kids (Ages 8 & 10)"}, "usageHint": "h2"}}}, {"id": "itinerary_summary", "component": {"Text": {"text": {"literalString": "This itinerary focuses on Tokyo's vibrant anime culture, cutting-edge technology, and family-friendly museums."}, "usageHint": "body"}}}, {"id": "day1", "component": {"Column": {"children": {"explicitList": ["day1_header", "day1_morning", "day1_afternoon", "day1_evening"]}}}}, {"id": "day1_header", "component": {"Text": {"text": {"literalString": "Day 1: Akihabara (The Electric Town)"}, "usageHint": "h3"}}}, {"id": "day1_morning", "component": {"Text": {"text": {"literalString": "Morning: Explore the multi-story Radio Kaikan for anime merchandise."}, "usageHint": "body"}}}, {"id": "day1_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Visit a themed cafe (e.g., Square Enix Cafe) and the Gigo Arcade."}, "usageHint": "body"}}}, {"id": "day1_evening", "component": {"Text": {"text": {"literalString": "Evening: Experience the neon lights and interactive electronics stores."}, "usageHint": "body"}}}, {"id": "day2", "component": {"Column": {"children": {"explicitList": ["day2_header", "day2_morning", "day2_afternoon", "day2_evening"]}}}}, {"id": "day2_header", "component": {"Text": {"text": {"literalString": "Day 2: Odaiba (Tech and Fun)"}, "usageHint": "h3"}}}, {"id": "day2_morning", "component": {"Text": {"text": {"literalString": "Morning: Miraikan (National Museum of Emerging Science and Innovation) for robotics."}, "usageHint": "body"}}}, {"id": "day2_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: teamLab Planets for an immersive digital art experience."}, "usageHint": "body"}}}, {"id": "day2_evening", "component": {"Text": {"text": {"literalString": "Evening: See the life-sized Unicorn Gundam Statue."}, "usageHint": "body"}}}, {"id": "day3", "component": {"Column": {"children": {"explicitList": ["day3_header", "day3_morning", "day3_afternoon", "day3_evening"]}}}}, {"id": "day3_header", "component": {"Text": {"text": {"literalString": "Day 3: Mitaka and Kichijoji (Studio Ghibli)"}, "usageHint": "h3"}}}, {"id": "day3_morning", "component": {"Text": {"text": {"literalString": "Morning: Ghibli Museum (requires booking months in advance)."}, "usageHint": "body"}}}, {"id": "day3_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Inokashira Park and the Ghibli-themed shops."}, "usageHint": "body"}}}, {"id": "day3_evening", "component": {"Text": {"text": {"literalString": "Evening: Explore the kid-friendly atmosphere of Kichijoji."}, "usageHint": "body"}}}, {"id": "day4", "component": {"Column": {"children": {"explicitList": ["day4_header", "day4_morning", "day4_afternoon", "day4_evening"]}}}}, {"id": "day4_header", "component": {"Text": {"text": {"literalString": "Day 4: Ueno (Culture and Science)"}, "usageHint": "h3"}}}, {"id": "day4_morning", "component": {"Text": {"text": {"literalString": "Morning: National Museum of Nature and Science (interactive dinosaur and tech exhibits)."}, "usageHint": "body"}}}, {"id": "day4_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Ueno Zoo or the Tokyo National Museum."}, "usageHint": "body"}}}, {"id": "day4_evening", "component": {"Text": {"text": {"literalString": "Evening: Ameya Yokocho market for snacks."}, "usageHint": "body"}}}, {"id": "day5", "component": {"Column": {"children": {"explicitList": ["day5_header", "day5_morning", "day5_afternoon", "day5_evening"]}}}}, {"id": "day5_header", "component": {"Text": {"text": {"literalString": "Day 5: Shibuya and Harajuku (Modern Trends)"}, "usageHint": "h3"}}}, {"id": "day5_morning", "component": {"Text": {"text": {"literalString": "Morning: Nintendo TOKYO and Pokemon Center Shibuya in Parco."}, "usageHint": "body"}}}, {"id": "day5_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Takeshita Street in Harajuku for colorful snacks and 3D latte art."}, "usageHint": "body"}}}, {"id": "day5_evening", "component": {"Text": {"text": {"literalString": "Evening: Shibuya Crossing and the Hachiko statue."}, "usageHint": "body"}}}, {"id": "cost_estimate", "component": {"Column": {"children": {"explicitList": ["cost_header", "cost_accommodation", "cost_food", "cost_transport", "cost_activities", "cost_total"]}}}}, {"id": "cost_header", "component": {"Text": {"text": {"literalString": "Estimated Daily Costs (USD for family of 4):"}, "usageHint": "h3"}}}, {"id": "cost_accommodation", "component": {"Text": {"text": {"literalString": "Accommodation: $250 - $400"}, "usageHint": "body"}}}, {"id": "cost_food", "component": {"Text": {"text": {"literalString": "Food: $150 - $200"}, "usageHint": "body"}}}, {"id": "cost_transport", "component": {"Text": {"text": {"literalString": "Transport: $40 - $60"}, "usageHint": "body"}}}, {"id": "cost_activities", "component": {"Text": {"text": {"literalString": "Activities: $100 - $200"}, "usageHint": "body"}}}, {"id": "cost_total", "component": {"Text": {"text": {"literalString": "Total: $540 - $860 per day"}, "usageHint": "body"}}}, {"id": "quick_actions", "component": {"Row": {"children": {"explicitList": ["book_ghibli", "book_teamlab"]}}}}, {"id": "book_ghibli", "component": {"Button": {"child": "book_ghibli_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000641_01_1_tickets.html"}}]}}}}, {"id": "book_ghibli_text", "component": {"Text": {"text": {"literalString": "Book Ghibli Museum"}, "usageHint": "body"}}}, {"id": "book_teamlab", "component": {"Button": {"child": "book_teamlab_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000641_01_2_planets.html"}}]}}}}, {"id": "book_teamlab_text", "component": {"Text": {"text": {"literalString": "teamLab Planets Tickets"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

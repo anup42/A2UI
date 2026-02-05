@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "bathroom_paint_recommendation"}}, {"surfaceUpdate": {"surfaceId": "bathroom_paint_recommendation", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_title", "assumptions_text", "summary_card", "divider_1", "comparison_title", "comparison_table", "divider_2", "reasons_title", "reasons_list", "divider_3", "products_title", "products_tabs", "bathroom_image", "actions_row", "sources_column"]}}}}, {"id": "header_title", "component": {"Text": {"text": {"literalString": "Bathroom Paint Sheen Guide"}, "usageHint": "h2"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "Assumptions: Standard ventilation (exhaust fan/window); wall surfaces only."}, "usageHint": "caption"}}}, {"id": "summary_card", "component": {"Card": {"child": "summary_content"}}}, {"id": "summary_content", "component": {"Text": {"text": {"literalString": "**Summary:** Semi-Gloss is the most recommended sheen for high-moisture bathroom environments, providing the ideal balance of moisture resistance and durability."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "comparison_title", "component": {"Text": {"text": {"literalString": "Sheen Comparison"}, "usageHint": "h3"}}}, {"id": "comparison_table", "component": {"Column": {"children": {"explicitList": ["table_header", "row_flat", "row_eggshell", "row_satin", "row_semigloss", "row_highgloss"]}}}}, {"id": "table_header", "component": {"Row": {"children": {"explicitList": ["h_sheen", "h_moist", "h_dur", "h_use"]}, "distribution": "spaceBetween"}}}, {"id": "h_sheen", "component": {"Text": {"text": {"literalString": "**Sheen**"}, "usageHint": "body"}}}, {"id": "h_moist", "component": {"Text": {"text": {"literalString": "**Moisture**"}, "usageHint": "body"}}}, {"id": "h_dur", "component": {"Text": {"text": {"literalString": "**Durability**"}, "usageHint": "body"}}}, {"id": "h_use", "component": {"Text": {"text": {"literalString": "**Best Use**"}, "usageHint": "body"}}}, {"id": "row_flat", "component": {"Row": {"children": {"explicitList": ["t1_1", "t1_2", "t1_3", "t1_4"]}}}}, {"id": "t1_1", "component": {"Text": {"text": {"literalString": "Flat"}, "usageHint": "body"}}}, {"id": "t1_2", "component": {"Text": {"text": {"literalString": "Very Low"}, "usageHint": "body"}}}, {"id": "t1_3", "component": {"Text": {"text": {"literalString": "Low"}, "usageHint": "body"}}}, {"id": "t1_4", "component": {"Text": {"text": {"literalString": "Ceilings"}, "usageHint": "body"}}}, {"id": "row_eggshell", "component": {"Row": {"children": {"explicitList": ["t2_1", "t2_2", "t2_3", "t2_4"]}}}}, {"id": "t2_1", "component": {"Text": {"text": {"literalString": "Eggshell"}, "usageHint": "body"}}}, {"id": "t2_2", "component": {"Text": {"text": {"literalString": "Low"}, "usageHint": "body"}}}, {"id": "t2_3", "component": {"Text": {"text": {"literalString": "Moderate"}, "usageHint": "body"}}}, {"id": "t2_4", "component": {"Text": {"text": {"literalString": "Living areas"}, "usageHint": "body"}}}, {"id": "row_satin", "component": {"Row": {"children": {"explicitList": ["t3_1", "t3_2", "t3_3", "t3_4"]}}}}, {"id": "t3_1", "component": {"Text": {"text": {"literalString": "Satin"}, "usageHint": "body"}}}, {"id": "t3_2", "component": {"Text": {"text": {"literalString": "Moderate"}, "usageHint": "body"}}}, {"id": "t3_3", "component": {"Text": {"text": {"literalString": "High"}, "usageHint": "body"}}}, {"id": "t3_4", "component": {"Text": {"text": {"literalString": "Kitchens"}, "usageHint": "body"}}}, {"id": "row_semigloss", "component": {"Row": {"children": {"explicitList": ["t4_1", "t4_2", "t4_3", "t4_4"]}}}}, {"id": "t4_1", "component": {"Text": {"text": {"literalString": "Semi-Gloss"}, "usageHint": "body"}}}, {"id": "t4_2", "component": {"Text": {"text": {"literalString": "High"}, "usageHint": "body"}}}, {"id": "t4_3", "component": {"Text": {"text": {"literalString": "Very High"}, "usageHint": "body"}}}, {"id": "t4_4", "component": {"Text": {"text": {"literalString": "Bathrooms"}, "usageHint": "body"}}}, {"id": "row_highgloss", "component": {"Row": {"children": {"explicitList": ["t5_1", "t5_2", "t5_3", "t5_4"]}}}}, {"id": "t5_1", "component": {"Text": {"text": {"literalString": "High-Gloss"}, "usageHint": "body"}}}, {"id": "t5_2", "component": {"Text": {"text": {"literalString": "Very High"}, "usageHint": "body"}}}, {"id": "t5_3", "component": {"Text": {"text": {"literalString": "Extreme"}, "usageHint": "body"}}}, {"id": "t5_4", "component": {"Text": {"text": {"literalString": "Accents"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "reasons_title", "component": {"Text": {"text": {"literalString": "Why Semi-Gloss?"}, "usageHint": "h3"}}}, {"id": "reasons_list", "component": {"Column": {"children": {"explicitList": ["reason_1", "reason_2", "reason_3", "reason_4"]}}}}, {"id": "reason_1", "component": {"Row": {"children": {"explicitList": ["icon_1", "text_1"]}, "alignment": "center"}}}, {"id": "icon_1", "component": {"Icon": {"name": {"literalString": "check"}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "**Moisture Barrier:** Prevents steam from soaking into drywall."}, "usageHint": "body"}}}, {"id": "reason_2", "component": {"Row": {"children": {"explicitList": ["icon_2", "text_2"]}, "alignment": "center"}}}, {"id": "icon_2", "component": {"Icon": {"name": {"literalString": "check"}}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "**Mildew Resistance:** Slicker finish resists mold growth."}, "usageHint": "body"}}}, {"id": "reason_3", "component": {"Row": {"children": {"explicitList": ["icon_3", "text_3"]}, "alignment": "center"}}}, {"id": "icon_3", "component": {"Icon": {"name": {"path": "/assets/r_000071_01_3_shield.png"}}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "**Scrubbability:** Withstands frequent cleaning of soap scum."}, "usageHint": "body"}}}, {"id": "reason_4", "component": {"Row": {"children": {"explicitList": ["icon_4", "text_4"]}, "alignment": "center"}}}, {"id": "icon_4", "component": {"Icon": {"name": {"literalString": "visibility"}}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "**Light Reflection:** Makes small bathrooms feel brighter."}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "products_title", "component": {"Text": {"text": {"literalString": "Recommended Products"}, "usageHint": "h3"}}}, {"id": "products_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Aura Bath & Spa"}, "child": "prod_1"}, {"title": {"literalString": "Emerald Interior"}, "child": "prod_2"}, {"title": {"literalString": "Premium Plus"}, "child": "prod_3"}]}}}, {"id": "prod_1", "component": {"Column": {"children": {"explicitList": ["prod_1_text"]}}}}, {"id": "prod_1_text", "component": {"Text": {"text": {"literalString": "**Benjamin Moore Aura Bath & Spa:** Specifically formulated for high-humidity with a matte-like finish. High Moisture Resistance."}, "usageHint": "body"}}}, {"id": "prod_2", "component": {"Column": {"children": {"explicitList": ["prod_2_text"]}}}}, {"id": "prod_2_text", "component": {"Text": {"text": {"literalString": "**Sherwin-Williams Emerald Interior:** Excellent antimicrobial properties to resist mold and mildew. High Durability."}, "usageHint": "body"}}}, {"id": "prod_3", "component": {"Column": {"children": {"explicitList": ["prod_3_text"]}}}}, {"id": "prod_3_text", "component": {"Text": {"text": {"literalString": "**Behr Premium Plus Ultra:** Cost-effective option providing a mildew-resistant coating. Great Value."}, "usageHint": "body"}}}, {"id": "bathroom_image", "component": {"Image": {"url": {"literalString": "/assets/r_000196_01_5_photo-1584622650111-993a426fbf0a.jpg"}, "usageHint": "largeFeature", "fit": "cover"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_shop", "btn_calc"]}, "distribution": "spaceEvenly"}}}, {"id": "btn_shop", "component": {"Button": {"child": "btn_shop_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.homedepot.com/b/Paint-Interior-Paint/N-5yc1vZar2d"}}]}, "primary": true}}}, {"id": "btn_shop_text", "component": {"Text": {"text": {"literalString": "Shop Paint"}, "usageHint": "body"}}}, {"id": "btn_calc", "component": {"Button": {"child": "btn_calc_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.lowes.com/n/calculators/paint-calculator"}}]}}}}, {"id": "btn_calc_text", "component": {"Text": {"text": {"literalString": "Calculate Needs"}, "usageHint": "body"}}}, {"id": "sources_column", "component": {"Column": {"children": {"explicitList": ["sources_label", "source_1", "source_2", "source_3"]}}}}, {"id": "sources_label", "component": {"Text": {"text": {"literalString": "Sources:"}, "usageHint": "caption"}}}, {"id": "source_1", "component": {"Text": {"text": {"literalString": "• Home Depot: Best Paint for Bathrooms"}, "usageHint": "caption"}}}, {"id": "source_2", "component": {"Text": {"text": {"literalString": "• Benjamin Moore: Interior Finish Guide"}, "usageHint": "caption"}}}, {"id": "source_3", "component": {"Text": {"text": {"literalString": "• Bob Vila: Best Paint for Bathrooms"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

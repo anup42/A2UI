@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "techgear-corp-analysis"}}, {"surfaceUpdate": {"surfaceId": "techgear-corp-analysis", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "performance-data-card", "growth-data-card", "summary-stats-card", "visualization-recommendation-card", "table-card"]}, "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Analysis for TechGear Corp (2023)"}, "usageHint": "h1"}}}, {"id": "performance-data-card", "component": {"Card": {"child": "performance-data-column"}}}, {"id": "performance-data-column", "component": {"Column": {"children": {"explicitList": ["performance-data-title", "q1-revenue", "q2-revenue", "q3-revenue", "q4-revenue"]}, "alignment": "start"}}}, {"id": "performance-data-title", "component": {"Text": {"text": {"literalString": "Quarterly Performance Data:"}, "usageHint": "h3"}}}, {"id": "q1-revenue", "component": {"Text": {"text": {"literalString": "Q1 Revenue: $450,000"}, "usageHint": "body"}}}, {"id": "q2-revenue", "component": {"Text": {"text": {"literalString": "Q2 Revenue: $380,000"}, "usageHint": "body"}}}, {"id": "q3-revenue", "component": {"Text": {"text": {"literalString": "Q3 Revenue: $510,000"}, "usageHint": "body"}}}, {"id": "q4-revenue", "component": {"Text": {"text": {"literalString": "Q4 Revenue: $620,000"}, "usageHint": "body"}}}, {"id": "growth-data-card", "component": {"Card": {"child": "growth-data-column"}}}, {"id": "growth-data-column", "component": {"Column": {"children": {"explicitList": ["growth-data-title", "q1-q2-growth", "q2-q3-growth", "q3-q4-growth"]}, "alignment": "start"}}}, {"id": "growth-data-title", "component": {"Text": {"text": {"literalString": "Growth Calculations:"}, "usageHint": "h3"}}}, {"id": "q1-q2-growth", "component": {"Text": {"text": {"literalString": "Q1 to Q2: 15.56% Decline"}, "usageHint": "body"}}}, {"id": "q2-q3-growth", "component": {"Text": {"text": {"literalString": "Q2 to Q3: 34.21% Increase"}, "usageHint": "body"}}}, {"id": "q3-q4-growth", "component": {"Text": {"text": {"literalString": "Q3 to Q4: 21.57% Increase"}, "usageHint": "body"}}}, {"id": "summary-stats-card", "component": {"Card": {"child": "summary-stats-column"}}}, {"id": "summary-stats-column", "component": {"Column": {"children": {"explicitList": ["summary-stats-title", "total-annual-revenue", "average-quarterly-revenue"]}, "alignment": "start"}}}, {"id": "summary-stats-title", "component": {"Text": {"text": {"literalString": "Summary Statistics:"}, "usageHint": "h3"}}}, {"id": "total-annual-revenue", "component": {"Text": {"text": {"literalString": "Total Annual Revenue: $1,960,000"}, "usageHint": "body"}}}, {"id": "average-quarterly-revenue", "component": {"Text": {"text": {"literalString": "Average Quarterly Revenue: $490,000"}, "usageHint": "body"}}}, {"id": "visualization-recommendation-card", "component": {"Card": {"child": "visualization-recommendation-column"}}}, {"id": "visualization-recommendation-column", "component": {"Column": {"children": {"explicitList": ["visualization-recommendation-title", "visualization-recommendation-text"]}, "alignment": "start"}}}, {"id": "visualization-recommendation-title", "component": {"Text": {"text": {"literalString": "Visualization Recommendation:"}, "usageHint": "h3"}}}, {"id": "visualization-recommendation-text", "component": {"Text": {"text": {"literalString": "A Combination Chart (Line and Bar) is recommended. Use Bars to represent the absolute revenue for each quarter to show volume, and an overlaying Line to represent the percentage growth rate. This highlights the sharp recovery in Q3 and the peak volume in Q4."}, "usageHint": "body"}}}, {"id": "table-card", "component": {"Card": {"child": "table-column"}}}, {"id": "table-column", "component": {"Column": {"children": {"explicitList": ["table-title", "data-table"]}, "alignment": "start"}}}, {"id": "table-title", "component": {"Text": {"text": {"literalString": "Table:"}, "usageHint": "h3"}}}, {"id": "data-table", "component": {"List": {"children": {"explicitList": ["table-header", "q1-row", "q2-row", "q3-row", "q4-row"]}, "direction": "vertical"}}}, {"id": "table-header", "component": {"Row": {"children": {"explicitList": ["quarter-header", "revenue-header", "growth-header"]}, "distribution": "spaceBetween"}}}, {"id": "quarter-header", "component": {"Text": {"text": {"literalString": "Quarter"}, "usageHint": "body"}}}, {"id": "revenue-header", "component": {"Text": {"text": {"literalString": "Revenue"}, "usageHint": "body"}}}, {"id": "growth-header", "component": {"Text": {"text": {"literalString": "Growth %"}, "usageHint": "body"}}}, {"id": "q1-row", "component": {"Row": {"children": {"explicitList": ["q1-quarter", "q1-revenue-value", "q1-growth-value"]}, "distribution": "spaceBetween"}}}, {"id": "q1-quarter", "component": {"Text": {"text": {"literalString": "Q1"}, "usageHint": "body"}}}, {"id": "q1-revenue-value", "component": {"Text": {"text": {"literalString": "$450,000"}, "usageHint": "body"}}}, {"id": "q1-growth-value", "component": {"Text": {"text": {"literalString": "N/A"}, "usageHint": "body"}}}, {"id": "q2-row", "component": {"Row": {"children": {"explicitList": ["q2-quarter", "q2-revenue-value", "q2-growth-value"]}, "distribution": "spaceBetween"}}}, {"id": "q2-quarter", "component": {"Text": {"text": {"literalString": "Q2"}, "usageHint": "body"}}}, {"id": "q2-revenue-value", "component": {"Text": {"text": {"literalString": "$380,000"}, "usageHint": "body"}}}, {"id": "q2-growth-value", "component": {"Text": {"text": {"literalString": "-15.56%"}, "usageHint": "body"}}}, {"id": "q3-row", "component": {"Row": {"children": {"explicitList": ["q3-quarter", "q3-revenue-value", "q3-growth-value"]}, "distribution": "spaceBetween"}}}, {"id": "q3-quarter", "component": {"Text": {"text": {"literalString": "Q3"}, "usageHint": "body"}}}, {"id": "q3-revenue-value", "component": {"Text": {"text": {"literalString": "$510,000"}, "usageHint": "body"}}}, {"id": "q3-growth-value", "component": {"Text": {"text": {"literalString": "+34.21%"}, "usageHint": "body"}}}, {"id": "q4-row", "component": {"Row": {"children": {"explicitList": ["q4-quarter", "q4-revenue-value", "q4-growth-value"]}, "distribution": "spaceBetween"}}}, {"id": "q4-quarter", "component": {"Text": {"text": {"literalString": "Q4"}, "usageHint": "body"}}}, {"id": "q4-revenue-value", "component": {"Text": {"text": {"literalString": "$620,000"}, "usageHint": "body"}}}, {"id": "q4-growth-value", "component": {"Text": {"text": {"literalString": "+21.57%"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

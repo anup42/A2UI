@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "gluten-free-christmas-dinner-plan"}}, {"surfaceUpdate": {"surfaceId": "gluten-free-christmas-dinner-plan", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "menu-section", "countdown-section", "prep-cards-section"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "GLUTEN-FREE CHRISTMAS DINNER PLAN (12 GUESTS)"}, "usageHint": "h1"}}}, {"id": "menu-section", "component": {"Column": {"children": {"explicitList": ["menu-title", "menu-list"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "menu-title", "component": {"Text": {"text": {"literalString": "MENU"}, "usageHint": "h2"}}}, {"id": "menu-list", "component": {"List": {"children": {"explicitList": ["main-dish", "side-1", "side-2", "side-3", "dessert-1", "dessert-2"]}, "direction": "vertical"}}}, {"id": "main-dish", "component": {"Text": {"text": {"literalString": "- Main: Herb-Roasted Turkey with GF Cider Gravy"}, "usageHint": "body"}}}, {"id": "side-1", "component": {"Text": {"text": {"literalString": "- Side 1: Sausage and Apple Stuffing (using GF bread cubes)"}, "usageHint": "body"}}}, {"id": "side-2", "component": {"Text": {"text": {"literalString": "- Side 2: Honey-Glazed Roasted Carrots with Thyme"}, "usageHint": "body"}}}, {"id": "side-3", "component": {"Text": {"text": {"literalString": "- Side 3: Garlic Mashed Potatoes (naturally GF)"}, "usageHint": "body"}}}, {"id": "dessert-1", "component": {"Text": {"text": {"literalString": "- Dessert 1: Flourless Chocolate Cake with Raspberry Coulis"}, "usageHint": "body"}}}, {"id": "dessert-2", "component": {"Text": {"text": {"literalString": "- Dessert 2: GF Pumpkin Pie with Almond Flour Crust"}, "usageHint": "body"}}}, {"id": "countdown-section", "component": {"Column": {"children": {"explicitList": ["countdown-title", "countdown-date-24", "countdown-date-25"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "countdown-title", "component": {"Text": {"text": {"literalString": "COOKING COUNTDOWN (DEC 24 - DEC 25)"}, "usageHint": "h2"}}}, {"id": "countdown-date-24", "component": {"Column": {"children": {"explicitList": ["date-24-title", "time-10-00-24", "time-14-00-24", "time-18-00-24"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "date-24-title", "component": {"Text": {"text": {"literalString": "DECEMBER 24"}, "usageHint": "h3"}}}, {"id": "time-10-00-24", "component": {"Text": {"text": {"literalString": "- 10:00: Prepare GF Pie Crust and Flourless Chocolate Cake; store."}, "usageHint": "body"}}}, {"id": "time-14-00-24", "component": {"Text": {"text": {"literalString": "- 14:00: Chop vegetables for stuffing and sides; store in airtight bags."}, "usageHint": "body"}}}, {"id": "time-18-00-24", "component": {"Text": {"text": {"literalString": "- 18:00: Dry-brine the turkey in the refrigerator."}, "usageHint": "body"}}}, {"id": "countdown-date-25", "component": {"Column": {"children": {"explicitList": ["date-25-title", "time-12-00-25", "time-13-30-25", "time-15-00-25", "time-16-30-25", "time-16-45-25", "time-17-15-25", "time-17-40-25", "time-18-00-25"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "date-25-title", "component": {"Text": {"text": {"literalString": "DECEMBER 25"}, "usageHint": "h3"}}}, {"id": "time-12-00-25", "component": {"Text": {"text": {"literalString": "- 12:00: Remove turkey from fridge to reach room temperature."}, "usageHint": "body"}}}, {"id": "time-13-30-25", "component": {"Text": {"text": {"literalString": "- 13:30: Preheat oven and begin roasting turkey."}, "usageHint": "body"}}}, {"id": "time-15-00-25", "component": {"Text": {"text": {"literalString": "- 15:00: Prepare GF stuffing and prep potatoes."}, "usageHint": "body"}}}, {"id": "time-16-30-25", "component": {"Text": {"text": {"literalString": "- 16:30: Remove turkey from oven (if internal temp 165 F); let rest (crucial!)."}, "usageHint": "body"}}}, {"id": "time-16-45-25", "component": {"Text": {"text": {"literalString": "- 16:45: Roast carrots and bake stuffing in the oven."}, "usageHint": "body"}}}, {"id": "time-17-15-25", "component": {"Text": {"text": {"literalString": "- 17:15: Boil and mash potatoes."}, "usageHint": "body"}}}, {"id": "time-17-40-25", "component": {"Text": {"text": {"literalString": "- 17:40: Make GF gravy using pan drippings and cornstarch/GF flour."}, "usageHint": "body"}}}, {"id": "time-18-00-25", "component": {"Text": {"text": {"literalString": "- 18:00: Carve turkey and serve."}, "usageHint": "body"}}}, {"id": "prep-cards-section", "component": {"Column": {"children": {"explicitList": ["prep-cards-title", "prep-card-1", "prep-card-2", "prep-card-3"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "prep-cards-title", "component": {"Text": {"text": {"literalString": "PREPARATION CARDS"}, "usageHint": "h2"}}}, {"id": "prep-card-1", "component": {"Card": {"child": "prep-card-1-content"}}}, {"id": "prep-card-1-content", "component": {"Column": {"children": {"explicitList": ["prep-card-1-icon", "prep-card-1-title", "prep-card-1-details"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "prep-card-1-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000254_01_1_turkey.png"}, "usageHint": "icon", "fit": "contain"}}}, {"id": "prep-card-1-title", "component": {"Text": {"text": {"literalString": "Option 1: Herb Turkey"}, "usageHint": "h3"}}}, {"id": "prep-card-1-details", "component": {"Text": {"text": {"literalString": "12-14 lb bird, butter, sage, rosemary | 3-4 hours cook time"}, "usageHint": "body"}}}, {"id": "prep-card-2", "component": {"Card": {"child": "prep-card-2-content"}}}, {"id": "prep-card-2-content", "component": {"Column": {"children": {"explicitList": ["prep-card-2-title", "prep-card-2-details"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "prep-card-2-title", "component": {"Text": {"text": {"literalString": "Option 2: GF Stuffing"}, "usageHint": "h3"}}}, {"id": "prep-card-2-details", "component": {"Text": {"text": {"literalString": "GF bread, celery, onion, sage, broth | 45 mins bake time"}, "usageHint": "body"}}}, {"id": "prep-card-3", "component": {"Card": {"child": "prep-card-3-content"}}}, {"id": "prep-card-3-content", "component": {"Column": {"children": {"explicitList": ["prep-card-3-title", "prep-card-3-details"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "prep-card-3-title", "component": {"Text": {"text": {"literalString": "Option 3: Flourless Cake"}, "usageHint": "h3"}}}, {"id": "prep-card-3-details", "component": {"Text": {"text": {"literalString": "Dark chocolate, eggs, cocoa powder | Bake 1 day ahead"}, "usageHint": "body"}}}, {"id": "cross-contamination-warning", "component": {"Row": {"children": {"explicitList": ["warning-icon", "warning-text"]}, "distribution": "start", "alignment": "center"}}}, {"id": "warning-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000254_01_2_warning-shield.png"}, "usageHint": "icon", "fit": "contain"}}}, {"id": "warning-text", "component": {"Text": {"text": {"literalString": "Cross-contamination check"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

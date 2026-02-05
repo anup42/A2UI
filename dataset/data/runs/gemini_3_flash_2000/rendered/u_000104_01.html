@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "gatsby_discussion_guide"}}, {"surfaceUpdate": {"surfaceId": "gatsby_discussion_guide", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_section", "assumptions_card", "overview_text", "divider_1", "themes_tabs", "divider_2", "comparison_section", "divider_3", "actions_row", "sources_section"]}, "alignment": "stretch"}}}, {"id": "header_section", "component": {"Row": {"children": {"explicitList": ["header_icon", "header_title"]}, "alignment": "center"}}}, {"id": "header_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000104_01_1_literature.png"}, "usageHint": "icon"}}}, {"id": "header_title", "component": {"Text": {"text": {"literalString": "The Great Gatsby Discussion Guide"}, "usageHint": "h1"}}}, {"id": "assumptions_card", "component": {"Card": {"child": "assumptions_content"}}}, {"id": "assumptions_content", "component": {"Row": {"children": {"explicitList": ["warning_icon", "assumptions_text"]}, "alignment": "center"}}}, {"id": "warning_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000104_01_3_error.png"}, "usageHint": "icon"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "**Assumptions:** It is assumed that all book club members have finished reading the novel and are familiar with the major plot points and the ending."}, "usageHint": "caption"}}}, {"id": "overview_text", "component": {"Text": {"text": {"literalString": "The Great Gatsby by F. Scott Fitzgerald remains a staple of American literature, exploring the decadence of the Jazz Age and the hollow core of the pursuit of success. These questions are designed to spark deep conversation regarding the characters' motivations and the narrator's perspective."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "themes_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Unreliable Narration"}, "child": "list_narration"}, {"title": {"literalString": "Wealth and Class"}, "child": "list_wealth"}, {"title": {"literalString": "The American Dream"}, "child": "list_dream"}]}}}, {"id": "list_narration", "component": {"Column": {"children": {"explicitList": ["q1", "q2", "q3", "q4"]}}}}, {"id": "q1", "component": {"Text": {"text": {"literalString": "1. Nick Carraway opens the novel by claiming he is 'inclined to reserve all judgments.' By the end of the book, do you find this to be true, or is he a highly judgmental narrator?"}, "usageHint": "body"}}}, {"id": "q2", "component": {"Text": {"text": {"literalString": "2. Nick famously states, 'I am one of the few honest people that I have ever known.' Given his role in facilitating Gatsby and Daisy's affair, how does this statement affect your trust in his version of events?"}, "usageHint": "body"}}}, {"id": "q3", "component": {"Text": {"text": {"literalString": "3. How does Nick’s clear infatuation with Gatsby’s 'extraordinary gift for hope' color the way he describes Gatsby’s more questionable or criminal business dealings?"}, "usageHint": "body"}}}, {"id": "q4", "component": {"Text": {"text": {"literalString": "4. If this story were narrated by Daisy Buchanan instead of Nick, how would our perception of Jay Gatsby change?"}, "usageHint": "body"}}}, {"id": "list_wealth", "component": {"Column": {"children": {"explicitList": ["q5", "q6", "q7"]}}}}, {"id": "q5", "component": {"Text": {"text": {"literalString": "5. Compare the 'Old Money' of East Egg (Tom and Daisy) with the 'New Money' of West Egg (Gatsby). What specific behaviors or social cues distinguish the two groups in the novel?"}, "usageHint": "body"}}}, {"id": "q6", "component": {"Text": {"text": {"literalString": "6. Nick describes Tom and Daisy as 'careless people' who 'smashed up things and creatures and then retreated back into their money.' Do you believe wealth makes the characters in the book inherently immoral, or does it simply reveal their existing flaws?"}, "usageHint": "body"}}}, {"id": "q7", "component": {"Text": {"text": {"literalString": "7. In what ways is Myrtle Wilson’s pursuit of wealth and status different from Gatsby’s, and why does the novel treat her social climbing differently?"}, "usageHint": "body"}}}, {"id": "list_dream", "component": {"Column": {"children": {"explicitList": ["q8", "q9", "q10"]}}}}, {"id": "q8", "component": {"Text": {"text": {"literalString": "8. The 'Green Light' is one of the most famous symbols in literature. How does its meaning evolve from the beginning of the book to the final pages?"}, "usageHint": "body"}}}, {"id": "q9", "component": {"Text": {"text": {"literalString": "9. Does Gatsby’s tragic end suggest that the American Dream is an impossible illusion, or was his failure simply due to his specific obsession with the past?"}, "usageHint": "body"}}}, {"id": "q10", "component": {"Text": {"text": {"literalString": "10. The 'Valley of Ashes' sits between the Eggs and New York City. What does this setting represent in the context of the American Dream and those who are left behind by progress?"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "comparison_section", "component": {"Column": {"children": {"explicitList": ["comparison_header_row", "comparison_table_card"]}}}}, {"id": "comparison_header_row", "component": {"Row": {"children": {"explicitList": ["wealth_icon", "comparison_title"]}, "alignment": "center"}}}, {"id": "wealth_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000104_01_2_money-bag.png"}, "usageHint": "icon"}}}, {"id": "comparison_title", "component": {"Text": {"text": {"literalString": "Character Comparison: Old Money vs. New Money"}, "usageHint": "h2"}}}, {"id": "comparison_table_card", "component": {"Card": {"child": "comparison_table_col"}}}, {"id": "comparison_table_col", "component": {"Column": {"children": {"explicitList": ["table_row_header", "table_row_1", "table_row_2", "table_row_3", "table_row_4"]}}}}, {"id": "table_row_header", "component": {"Row": {"children": {"explicitList": ["th_attr", "th_tom", "th_gatsby"]}, "distribution": "spaceBetween"}}}, {"id": "th_attr", "component": {"Text": {"text": {"literalString": "**Attribute**"}, "usageHint": "body"}}}, {"id": "th_tom", "component": {"Text": {"text": {"literalString": "**Tom Buchanan**"}, "usageHint": "body"}}}, {"id": "th_gatsby", "component": {"Text": {"text": {"literalString": "**Jay Gatsby**"}, "usageHint": "body"}}}, {"id": "table_row_1", "component": {"Row": {"children": {"explicitList": ["t1_attr", "t1_tom", "t1_gatsby"]}, "distribution": "spaceBetween"}}}, {"id": "t1_attr", "component": {"Text": {"text": {"literalString": "Source"}, "usageHint": "body"}}}, {"id": "t1_tom", "component": {"Text": {"text": {"literalString": "Inherited fortune"}, "usageHint": "body"}}}, {"id": "t1_gatsby", "component": {"Text": {"text": {"literalString": "Bootlegging"}, "usageHint": "body"}}}, {"id": "table_row_2", "component": {"Row": {"children": {"explicitList": ["t2_attr", "t2_tom", "t2_gatsby"]}, "distribution": "spaceBetween"}}}, {"id": "t2_attr", "component": {"Text": {"text": {"literalString": "Standing"}, "usageHint": "body"}}}, {"id": "t2_tom", "component": {"Text": {"text": {"literalString": "Secure, traditional"}, "usageHint": "body"}}}, {"id": "t2_gatsby", "component": {"Text": {"text": {"literalString": "Precarious, flashy"}, "usageHint": "body"}}}, {"id": "table_row_3", "component": {"Row": {"children": {"explicitList": ["t3_attr", "t3_tom", "t3_gatsby"]}, "distribution": "spaceBetween"}}}, {"id": "t3_attr", "component": {"Text": {"text": {"literalString": "Residence"}, "usageHint": "body"}}}, {"id": "t3_tom", "component": {"Text": {"text": {"literalString": "East Egg"}, "usageHint": "body"}}}, {"id": "t3_gatsby", "component": {"Text": {"text": {"literalString": "West Egg"}, "usageHint": "body"}}}, {"id": "table_row_4", "component": {"Row": {"children": {"explicitList": ["t4_attr", "t4_tom", "t4_gatsby"]}, "distribution": "spaceBetween"}}}, {"id": "t4_attr", "component": {"Text": {"text": {"literalString": "Future View"}, "usageHint": "body"}}}, {"id": "t4_tom", "component": {"Text": {"text": {"literalString": "Cynical"}, "usageHint": "body"}}}, {"id": "t4_gatsby", "component": {"Text": {"text": {"literalString": "Obsessive/Hopeful"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_purchase", "btn_summaries", "btn_pdf"]}, "distribution": "spaceEvenly"}}}, {"id": "btn_purchase", "component": {"Button": {"child": "txt_purchase", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.amazon.com/Great-Gatsby-F-Scott-Fitzgerald/dp/0743273567"}}]}, "primary": true}}}, {"id": "txt_purchase", "component": {"Text": {"text": {"literalString": "Purchase Book"}, "usageHint": "body"}}}, {"id": "btn_summaries", "component": {"Button": {"child": "txt_summaries", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.sparknotes.com/lit/gatsby/"}}]}}}}, {"id": "txt_summaries", "component": {"Text": {"text": {"literalString": "Read Summaries"}, "usageHint": "body"}}}, {"id": "btn_pdf", "component": {"Button": {"child": "txt_pdf", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.arts.gov/sites/default/files/Reader-Resources-Gatsby.pdf"}}]}}}}, {"id": "txt_pdf", "component": {"Text": {"text": {"literalString": "Guide PDF"}, "usageHint": "body"}}}, {"id": "sources_section", "component": {"Column": {"children": {"explicitList": ["sources_header", "source_1", "source_2"]}}}}, {"id": "sources_header", "component": {"Row": {"children": {"explicitList": ["edu_icon", "sources_title"]}, "alignment": "center"}}}, {"id": "edu_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000104_01_4_graduation-cap.png"}, "usageHint": "icon"}}}, {"id": "sources_title", "component": {"Text": {"text": {"literalString": "Sources"}, "usageHint": "h4"}}}, {"id": "source_1", "component": {"Button": {"child": "txt_src1", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.britannica.com/topic/The-Great-Gatsby"}}]}}}}, {"id": "txt_src1", "component": {"Text": {"text": {"literalString": "Britannica: The Great Gatsby"}, "usageHint": "body"}}}, {"id": "source_2", "component": {"Button": {"child": "txt_src2", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.loc.gov/item/25008548/"}}]}}}}, {"id": "txt_src2", "component": {"Text": {"text": {"literalString": "Library of Congress: First Edition"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

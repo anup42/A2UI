@@ -921,3 +921,9 @@
 2026-02-02 21:17:27 INFO dataset: Stage2 created response_id=r_000035_01
 2026-02-02 21:17:27 INFO dataset: Stage2 created response_id=r_000036_01
 2026-02-02 21:17:27 INFO dataset: Stage2 created response_id=r_000037_01
+2026-02-05 17:10:16 INFO dataset: Stage4 HTTP server started on port 63370
+2026-02-05 17:10:18 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini\rendered
+2026-02-05 17:12:27 INFO dataset: Stage4 HTTP server started on port 60760
+2026-02-05 17:12:29 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini\rendered
+2026-02-05 17:52:17 INFO dataset: Stage4 HTTP server started on port 57107
+2026-02-05 17:52:19 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini\rendered

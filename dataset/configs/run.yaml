@@ -52,4 +52,19 @@ evaluation:
     content_coverage: 3.0
     lint_score: 2.0
     dup_rate: -1.0
-    cost_usd: -0.5
+    component_count: 0.4
+    unique_component_types: 0.6
+    container_to_text_ratio: 0.8
+    information_chunking_score: 1.0
+    ui_modularity_score: 0.8
+    ui_decomposition_score: 1.0
+    action_coverage: 1.5
+    url_as_text_rate: -1.0
+    table_pattern_detected: 0.8
+    table_cell_coverage: 1.0
+    section_heading_coverage: 0.8
+    markdown_leakage_rate: -1.0
+    dangling_components_rate: -1.0
+    missing_ids_rate: -1.0
+    intent_expectation_pass: 1.2
+    intent_score: 0.8

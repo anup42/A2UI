@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000207"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000207", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "btn_10", "btn_11", "btn_12", "icon_row_13", "text_14", "text_15", "icon_row_16", "text_17"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\n- You are looking for a pre-built keyboard that is ready for immediate use.\n- Silent refers to office-appropriate noise levels (dampened) rather than absolute zero decibels.\n- You prefer high-end builds given the unlimited budget."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Summary:\nFor a shared office, the ideal keyboard balances a satisfying tactile \"bump\" with sound-dampening technology to avoid disturbing colleagues. Since your budget is unlimited, the focus is on premium materials (aluminum frames), high-quality wireless protocols (2.4GHz for no lag), and superior internal foam to eliminate hollow \"clacking\" sounds."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Top Recommendations:"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Option 1: Logitech G915 TKL Lightspeed\nSummary: An ultra-slim, professional aesthetic with low-profile tactile switches.\nKey Attribute: Best-in-class battery life and dual-connectivity (Bluetooth/2.4GHz).\nLink: https://www.logitechg.com/en-us/products/gaming-keyboards/g915-tkl-wireless.html"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Option 2: Keychron Q3 Max (Tactile)\nSummary: A heavy, full-metal keyboard with multiple layers of acoustic foam for a \"thready\" office sound.\nKey Attribute: Highly customizable with hot-swappable switches and premium PBT keycaps.\nLink: https://www.keychron.com/products/keychron-q3-max-qmk-via-wireless-custom-mechanical-keyboard"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Option 3: Razer DeathStalker V2 Pro TKL\nSummary: Uses optical tactile switches which are quieter and more durable than traditional mechanical ones.\nKey Attribute: Low-profile design reduces wrist strain during long typing sessions.\nLink: https://www.razer.com/gaming-keyboards/razer-deathstalker-v2-pro-tkl"}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Option 4: Filco Majestouch Convertible 3 TKL\nSummary: A \"purist\" keyboard known for legendary build quality and a classic professional look.\nKey Attribute: Exceptional tactile feedback with a reliable multi-device Bluetooth toggle.\nLink: https://www.diatec.co.jp/en/det.php?prod_c=7345"}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Comparison Table:\nModel | Switch Type | Connection | Build Material | Profile\nLogitech G915 TKL | Low-Profile Tactile | 2.4GHz / BT | Aluminum/Plastic | Ultra-Thin\nKeychron Q3 Max | Gateron Jupiter Banana | 2.4GHz / BT | CNC Aluminum | High-Profile\nRazer DeathStalker V2 | Low-Profile Optical | 2.4GHz / BT | Aluminum Plate | Ultra-Thin\nFilco Majestouch 3 | Cherry MX Brown | BT / Wired | Industrial Plastic | Standard"}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "Office Checklist:\n- Sound Dampening: Look for \"Max\" or \"Pro\" versions of keyboards as they usually include internal silicone gaskets to mute noise.\n- Keycap Material: PBT plastic is preferred over ABS; it feels more premium and doesn't become \"shiny\" or greasy over time.\n- Connectivity: Ensure the keyboard has a 2.4GHz USB dongle if your office Wi-Fi interferes with Bluetooth.\n- Aesthetics: For an office, neutral colors (Carbon, Navy, or Space Gray) are generally more appropriate than RGB-heavy designs."}, "usageHint": "body"}}}, {"id": "btn_label_10", "component": {"Text": {"text": {"literalString": "Shop Logitech G915"}, "usageHint": "body"}}}, {"id": "btn_10", "component": {"Button": {"child": "btn_label_10", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.logitechg.com/en-us/products/gaming-keyboards/g915-tkl-wireless.html"}}]}, "primary": true}}}, {"id": "btn_label_11", "component": {"Text": {"text": {"literalString": "Shop Keychron Q3 Max"}, "usageHint": "body"}}}, {"id": "btn_11", "component": {"Button": {"child": "btn_label_11", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.keychron.com/products/keychron-q3-max-qmk-via-wireless-custom-mechanical-keyboard"}}]}, "primary": true}}}, {"id": "btn_label_12", "component": {"Text": {"text": {"literalString": "Compare Silent Switches"}, "usageHint": "body"}}}, {"id": "btn_12", "component": {"Button": {"child": "btn_label_12", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.cherrymx.de/en/cherry-mx/mx-silent/mx-silent-red.html"}}]}, "primary": true}}}, {"id": "icon_img_13", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/wireless-network-status.png"}, "usageHint": "icon"}}}, {"id": "icon_label_13", "component": {"Text": {"text": {"literalString": "Wireless"}, "usageHint": "body"}}}, {"id": "icon_row_13", "component": {"Row": {"children": {"explicitList": ["icon_img_13", "icon_label_13"]}, "alignment": "center"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "- Silent: /assets/r_000207_01_2_mute--v1.png\n- Typing: /assets/r_000207_01_3_keyboard.png\n- Office: /assets/r_000207_01_4_briefcase.png"}, "usageHint": "body"}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "- Logitech G915 TKL: /assets/r_000207_01_5_g915-tkl-gallery-1-carbon-us.png"}, "usageHint": "body"}}}, {"id": "icon_img_16", "component": {"Image": {"url": {"literalString": "https://www.keychron.com/cdn/shop/files/Keychron-Q3-Max-QMK-VIA-Wireless-Custom-Mechanical-Keyboard-ISO-Layout-Collection.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_16", "component": {"Text": {"text": {"literalString": "Keychron Q3 Max"}, "usageHint": "body"}}}, {"id": "icon_row_16", "component": {"Row": {"children": {"explicitList": ["icon_img_16", "icon_label_16"]}, "alignment": "center"}}}, {"id": "text_17", "component": {"Text": {"text": {"literalString": "- https://www.rtings.com/keyboard/reviews/best/mechanical\n- https://www.wirecutter.com/reviews/best-mechanical-keyboards/"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

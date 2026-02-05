@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000002"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000002", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "text_12", "btn_13", "btn_14", "btn_15", "text_16", "text_17", "text_18"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\n- You will be staying in a central location such as the Shimogyo or Nakagyo wards for easy transit access.\n- You will use a Suica/Pasmo card or the Hello Cycling app for local transport.\n- Moderate budget assumes approximately 20,000 - 30,000 JPY per day for the couple (meals, entry fees, local transport).\n- You prefer a mix of iconic sites and quieter cultural experiences."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Verification Framework for Live Data:\n1. Cherry Blossom Timing: Visit the Japan Meteorological Corporation (JMC) website in early 2025 to track the \"Kaika\" (flowering) and \"Mankai\" (full bloom) dates for Kyoto.\n2. Temple Events: Check the official Kyoto City Tourism Association (Kyoto.travel) for special night illuminations which often occur in mid-April.\n3. Reservations: Tea ceremonies and high-end Ryokans should be booked 3-5 months in advance for April dates."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Detailed Itinerary: April 10th - April 15th, 2025"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Day 1: Arrival and Gion Evening\n- Afternoon: Arrive at Kyoto Station via Shinkansen. Check into your accommodation.\n- Evening: Walk through the Gion District. Focus on Hanami-koji street to see the traditional Machiya architecture.\n- Dinner: Kaiseki-style meal or a moderate Izakaya in the Pontocho Alley area."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Day 2: The Spirit of Higashiyama\n- Morning: Visit Kiyomizu-dera Temple early (8:00 AM) to avoid crowds. Enjoy the wooden stage views.\n- Midday: Walk down Sannenzaka and Ninenzaka slopes. Stop for a traditional lunch.\n- Afternoon: Private Tea Ceremony at a traditional tea house (e.g., Camellia or Tea Ceremony En). Learn the Zen principles of \"Wa, Kei, Sei, Jaku.\"\n- Evening: Kodai-ji Temple for the evening Zen garden illumination."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Day 3: Arashiyama Zen and Nature\n- Morning: Tenryu-ji Temple, a head temple of Zen Buddhism with a 14th-century garden.\n- Midday: Walk through the Sagano Bamboo Grove.\n- Afternoon: Okochi Sanso Villa. This former estate offers a quieter atmosphere and includes matcha and a sweet with your entry fee.\n- Evening: Relaxed walk along the Katsura River."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Day 4: The Golden Pavilion and Zen Gardens\n- Morning: Kinkaku-ji (The Golden Pavilion) to see the reflection in the pond.\n- Midday: Ryoan-ji Temple. Spend time contemplating the famous dry landscape (Karesansui) rock garden.\n- Afternoon: Ninna-ji Temple, famous for its late-blooming Omuro cherry trees, which usually peak in mid-April.\n- Evening: Dinner in the northern Kyoto area or return to downtown."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Day 5: Fushimi Inari and the Tea Capital (Uji)\n- Morning: Fushimi Inari Shrine. Walk through the lower loops of the Senbon Torii (thousands of red gates).\n- Midday: Take the JR line to Uji (20 minutes). Uji is the heart of Japanese green tea culture.\n- Afternoon: Visit Byodo-in Temple (featured on the 10 yen coin). Participate in a high-grade Matcha tasting at Taiho-an tea house.\n- Evening: Return to Kyoto for a final farewell dinner."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "Day 6: Nishiki Market and Departure\n- Morning: Nishiki Market (\"Kyoto's Kitchen\") for souvenir shopping and street food snacks.\n- Midday: Visit the Kyoto Imperial Palace Park for a final look at the blossoms.\n- Afternoon: Depart from Kyoto Station."}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "Example Accommodation Options (Synthetic/Plausible):\nOption 1: Ryokan Gion Hatanaka | Traditional inn with communal baths and tea focus | High-Moderate | https://www.gion-hatanaka.jp/\nOption 2: Hotel Alza Kyoto | Boutique hotel near the river with traditional aesthetics | Moderate | https://www.hotelalza.jp/\nOption 3: Citadines Kyoto Karasuma-Gojo | Apartment-style stay with kitchenettes for a relaxed pace | Budget-Moderate | https://www.discoverasr.com/"}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "Example Tea Ceremony Providers (Synthetic/Plausible):\nOption 1: Camellia Tea Ceremony | Highly rated English-speaking ceremonies near Kiyomizu-dera | 3,500 JPY pp | https://www.tea-kyoto.com/\nOption 2: Tea Ceremony En | Authentic Gion location with group or private options | 3,000 JPY pp | https://www.teaceremonyen.com/\nOption 3: Jotokuji Temple | Authentic temple-setting ceremony focused on Zen | 5,000 JPY pp | https://www.jotokuji.jp/"}, "usageHint": "body"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "Estimated Daily Budget for Two (Moderate):\nCategory | Estimated Cost (JPY) | Notes\nFood & Drink | 12,000 | Includes 1 nice dinner and casual lunch/snacks\nTemple Entries | 4,000 | Average 500-800 JPY per person per temple\nLocal Transport | 2,000 | Bus, Subway, and some walking\nTea Ceremony | 7,000 | Based on private or semi-private bookings\nTotal | 25,000 | Approx. $170 USD per day"}, "usageHint": "body"}}}, {"id": "btn_label_13", "component": {"Text": {"text": {"literalString": "View Kyoto Event Calendar"}, "usageHint": "body"}}}, {"id": "btn_13", "component": {"Button": {"child": "btn_label_13", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://kyoto.travel/en/see-and-do/events.html"}}]}, "primary": true}}}, {"id": "btn_label_14", "component": {"Text": {"text": {"literalString": "Purchase JR West Pass"}, "usageHint": "body"}}}, {"id": "btn_14", "component": {"Button": {"child": "btn_label_14", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.westjr.co.jp/global/en/ticket/pass/"}}]}, "primary": true}}}, {"id": "btn_label_15", "component": {"Text": {"text": {"literalString": "Book Tea Ceremony Camellia"}, "usageHint": "body"}}}, {"id": "btn_15", "component": {"Button": {"child": "btn_label_15", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.tea-kyoto.com/"}}]}, "primary": true}}}, {"id": "text_16", "component": {"Text": {"text": {"literalString": "- Kinkaku-ji Temple: /assets/r_000002_01_1_photo-1545569341-9eb8b30979d9.jpg\n- Arashiyama Bamboo Grove: /assets/r_000002_01_2_photo-1493976040374-85c8e12f0c0e.jpg\n- Traditional Tea Ceremony: /assets/r_000002_01_3_photo-1576092768241-dec231879fc3.jpg"}, "usageHint": "body"}}}, {"id": "text_17", "component": {"Text": {"text": {"literalString": "- Schedule: /assets/r_000002_01_4_calendar--v1.png\n- Temple: /assets/r_000002_01_5_pagoda.png\n- Tea: /assets/r_000002_01_6_tea-cup.png\n- Budget: /assets/r_000002_01_7_wallet.png"}, "usageHint": "body"}}}, {"id": "text_18", "component": {"Text": {"text": {"literalString": "- https://kyoto.travel/en/\n- https://www.japan-guide.com/e/e2158.html\n- https://n-kishou.com/corp/news-contents/sakura/"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

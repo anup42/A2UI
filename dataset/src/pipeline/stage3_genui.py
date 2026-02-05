@@ -16,6 +16,8 @@ from pipeline.metrics import (
     count_tokens,
     aggregate_metrics,
     compute_overall_score,
+    compute_ui_metrics,
+    compute_intent_metrics,
 )
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.toon_convert import encode_toon, roundtrip_ok
@@ -146,6 +148,7 @@ def _truncate_tokens(text: str, max_tokens: int) -> tuple[str, bool]:
 
 
 def run_stage3(
+    queries_path: Path | None,
     responses_path: Path,
     prompt_path: Path,
     adapter: BaseLLMAdapter,
@@ -169,6 +172,17 @@ def run_stage3(
     prompt_template = load_prompt(prompt_path)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    intent_lookup: dict[str, dict[str, Any]] = {}
+    if queries_path and queries_path.exists():
+        for row in iter_jsonl(queries_path):
+            query_id = row.get("query_id")
+            if not query_id:
+                continue
+            intent_lookup[query_id] = {
+                "intent": row.get("intent"),
+                "tags": row.get("tags") if isinstance(row.get("tags"), list) else [],
+            }
 
     existing_ids = {row.get("ui_id") for row in iter_jsonl(genui_path)}
     writer = JsonlWriter(genui_path)
@@ -240,6 +254,8 @@ def run_stage3(
         query_id = task["query_id"]
         response_text = task["response_text"]
         assets_list = task["assets_list"]
+        intent_value = task.get("intent")
+        tags_value = task.get("tags") if isinstance(task.get("tags"), list) else []
         prompt = task["prompt"]
 
         parsed_ok = True
@@ -377,12 +393,19 @@ def run_stage3(
             "output_tokens_toon": count_tokens(toon),
             "output_tokens_json": count_tokens(json.dumps(genui_json, ensure_ascii=False)),
         }
+        metrics.update(compute_ui_metrics(response_text, genui_json))
+        intent_metrics = compute_intent_metrics(intent_value, tags_value, response_text, metrics)
+        intent_bucket = intent_metrics.pop("intent_bucket", "unknown")
+        metrics.update(intent_metrics)
 
         short_errors = [e[:300] + ("..." if len(e) > 300 else "") for e in errors]
         record = {
             "ui_id": ui_id,
             "response_id": response_id,
             "query_id": query_id,
+            "intent": intent_value,
+            "tags": tags_value,
+            "intent_bucket": intent_bucket,
             "genui_json": genui_json,
             "assets": assets_list,
             "toon": toon,
@@ -561,12 +584,15 @@ def run_stage3(
 
                 prompt = _build_prompt_for(response_id, response_text, assets_list)
                 prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}")
+                intent_info = intent_lookup.get(query_id, {})
                 task = {
                     "ui_id": ui_id,
                     "response_id": response_id,
                     "query_id": query_id,
                     "response_text": response_text,
                     "assets_list": assets_list,
+                    "intent": intent_info.get("intent"),
+                    "tags": intent_info.get("tags"),
                     "prompt": prompt,
                     "prompt_hash": prompt_hash,
                     "seed": seed + c_idx,

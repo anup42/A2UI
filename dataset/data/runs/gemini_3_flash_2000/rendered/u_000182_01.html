@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "nintendo-switch-oled-info"}}, {"surfaceUpdate": {"surfaceId": "nintendo-switch-oled-info", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-title", "summary-card", "specs-section", "comparison-section", "hardware-section", "actions-row", "sources-section"]}}}}, {"id": "header-title", "component": {"Text": {"text": {"literalString": "Nintendo Switch OLED: 4K Support & Specs"}, "usageHint": "h1"}}}, {"id": "summary-card", "component": {"Card": {"child": "summary-content"}}}, {"id": "summary-content", "component": {"Column": {"children": {"explicitList": ["summary-header", "summary-body", "assumptions-header", "assumptions-body"]}}}}, {"id": "summary-header", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h2"}}}, {"id": "summary-body", "component": {"Text": {"text": {"literalString": "The Nintendo Switch OLED model does not support 4K video output. When connected to a TV via the dock, its maximum video output resolution is 1080p. While the OLED model includes an updated dock with an HDMI 2.0 port that is technically capable of 4K signaling, the console's internal hardware remains limited to a maximum output of 1920 x 1080."}, "usageHint": "body"}}}, {"id": "assumptions-header", "component": {"Text": {"text": {"literalString": "Assumptions"}, "usageHint": "h3"}}}, {"id": "assumptions-body", "component": {"Text": {"text": {"literalString": "This information is based on official technical specifications for the retail Nintendo Switch OLED model. It is assumed the user is asking about the native output of the console and not the use of third-party upscaling hardware or modifications."}, "usageHint": "body"}}}, {"id": "specs-section", "component": {"Column": {"children": {"explicitList": ["specs-header", "spec-item-1", "spec-item-2", "spec-item-3"]}}}}, {"id": "specs-header", "component": {"Text": {"text": {"literalString": "Resolution Specifications"}, "usageHint": "h3"}}}, {"id": "spec-item-1", "component": {"Text": {"text": {"literalString": "• **Max Resolution (Docked):** 1080p (1920 x 1080) at 60 fps"}, "usageHint": "body"}}}, {"id": "spec-item-2", "component": {"Text": {"text": {"literalString": "• **Max Resolution (Handheld):** 720p (1280 x 720)"}, "usageHint": "body"}}}, {"id": "spec-item-3", "component": {"Text": {"text": {"literalString": "• **Max Resolution (Tabletop):** 720p (1280 x 720)"}, "usageHint": "body"}}}, {"id": "comparison-section", "component": {"Column": {"children": {"explicitList": ["comparison-header", "comp-table-container"]}}}}, {"id": "comparison-header", "component": {"Text": {"text": {"literalString": "Comparison Table"}, "usageHint": "h3"}}}, {"id": "comp-table-container", "component": {"Card": {"child": "comp-table-rows"}}}, {"id": "comp-table-rows", "component": {"Column": {"children": {"explicitList": ["row-header", "row-divider-1", "row-1", "row-2", "row-3", "row-4", "row-5"]}}}}, {"id": "row-header", "component": {"Row": {"children": {"explicitList": ["h-feat", "h-oled", "h-std", "h-lite"]}, "distribution": "spaceBetween"}}}, {"id": "h-feat", "component": {"Text": {"text": {"literalString": "**Feature**"}, "usageHint": "caption"}}}, {"id": "h-oled", "component": {"Text": {"text": {"literalString": "**OLED**"}, "usageHint": "caption"}}}, {"id": "h-std", "component": {"Text": {"text": {"literalString": "**Std**"}, "usageHint": "caption"}}}, {"id": "h-lite", "component": {"Text": {"text": {"literalString": "**Lite**"}, "usageHint": "caption"}}}, {"id": "row-divider-1", "component": {"Divider": {}}}, {"id": "row-1", "component": {"Row": {"children": {"explicitList": ["r1-c1", "r1-c2", "r1-c3", "r1-c4"]}, "distribution": "spaceBetween"}}}, {"id": "r1-c1", "component": {"Text": {"text": {"literalString": "Max Docked"}, "usageHint": "caption"}}}, {"id": "r1-c2", "component": {"Text": {"text": {"literalString": "1080p"}, "usageHint": "caption"}}}, {"id": "r1-c3", "component": {"Text": {"text": {"literalString": "1080p"}, "usageHint": "caption"}}}, {"id": "r1-c4", "component": {"Text": {"text": {"literalString": "N/A"}, "usageHint": "caption"}}}, {"id": "row-2", "component": {"Row": {"children": {"explicitList": ["r2-c1", "r2-c2", "r2-c3", "r2-c4"]}, "distribution": "spaceBetween"}}}, {"id": "r2-c1", "component": {"Text": {"text": {"literalString": "Display"}, "usageHint": "caption"}}}, {"id": "r2-c2", "component": {"Text": {"text": {"literalString": "7.0\" OLED"}, "usageHint": "caption"}}}, {"id": "r2-c3", "component": {"Text": {"text": {"literalString": "6.2\" LCD"}, "usageHint": "caption"}}}, {"id": "r2-c4", "component": {"Text": {"text": {"literalString": "5.5\" LCD"}, "usageHint": "caption"}}}, {"id": "row-3", "component": {"Row": {"children": {"explicitList": ["r3-c1", "r3-c2", "r3-c3", "r3-c4"]}, "distribution": "spaceBetween"}}}, {"id": "r3-c1", "component": {"Text": {"text": {"literalString": "LAN Port"}, "usageHint": "caption"}}}, {"id": "r3-c2", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "caption"}}}, {"id": "r3-c3", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "caption"}}}, {"id": "r3-c4", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "caption"}}}, {"id": "row-4", "component": {"Row": {"children": {"explicitList": ["r4-c1", "r4-c2", "r4-c3", "r4-c4"]}, "distribution": "spaceBetween"}}}, {"id": "r4-c1", "component": {"Text": {"text": {"literalString": "4K Output"}, "usageHint": "caption"}}}, {"id": "r4-c2", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "caption"}}}, {"id": "r4-c3", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "caption"}}}, {"id": "r4-c4", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "caption"}}}, {"id": "row-5", "component": {"Row": {"children": {"explicitList": ["r5-c1", "r5-c2", "r5-c3", "r5-c4"]}, "distribution": "spaceBetween"}}}, {"id": "r5-c1", "component": {"Text": {"text": {"literalString": "Handheld"}, "usageHint": "caption"}}}, {"id": "r5-c2", "component": {"Text": {"text": {"literalString": "720p"}, "usageHint": "caption"}}}, {"id": "r5-c3", "component": {"Text": {"text": {"literalString": "720p"}, "usageHint": "caption"}}}, {"id": "r5-c4", "component": {"Text": {"text": {"literalString": "720p"}, "usageHint": "caption"}}}, {"id": "hardware-section", "component": {"Column": {"children": {"explicitList": ["hardware-header", "hw-item-1", "hw-item-2", "hw-item-3"]}}}}, {"id": "hardware-header", "component": {"Text": {"text": {"literalString": "Key Hardware Details"}, "usageHint": "h3"}}}, {"id": "hw-item-1", "component": {"Text": {"text": {"literalString": "• **Processor:** Uses the same NVIDIA Custom Tegra processor as the standard model, which lacks the power for 4K gaming."}, "usageHint": "body"}}}, {"id": "hw-item-2", "component": {"Text": {"text": {"literalString": "• **The Dock:** Features a 4K-ready HDMI 2.0 cable and internal controller, but these are currently utilized only for 1080p output."}, "usageHint": "body"}}}, {"id": "hw-item-3", "component": {"Text": {"text": {"literalString": "• **Handheld Mode:** The main benefit is the increased contrast and color accuracy of the 720p OLED screen, not higher resolution."}, "usageHint": "body"}}}, {"id": "actions-row", "component": {"Row": {"children": {"explicitList": ["btn-specs", "btn-compare"]}, "distribution": "start"}}}, {"id": "btn-specs", "component": {"Button": {"child": "btn-specs-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.nintendo.com/us/switch/system/#specs"}}]}, "primary": true}}}, {"id": "btn-specs-text", "component": {"Text": {"text": {"literalString": "View Official Tech Specs"}, "usageHint": "body"}}}, {"id": "btn-compare", "component": {"Button": {"child": "btn-compare-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.nintendo.com/us/switch/compare/"}}]}}}}, {"id": "btn-compare-text", "component": {"Text": {"text": {"literalString": "Compare Switch Models"}, "usageHint": "body"}}}, {"id": "sources-section", "component": {"Column": {"children": {"explicitList": ["sources-header", "source-1", "source-2"]}}}}, {"id": "sources-header", "component": {"Text": {"text": {"literalString": "Sources"}, "usageHint": "caption"}}}, {"id": "source-1", "component": {"Button": {"child": "source-1-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.nintendo.com/us/switch/oled-model/"}}]}}}}, {"id": "source-1-text", "component": {"Text": {"text": {"literalString": "Nintendo Switch OLED Model Official Page"}, "usageHint": "caption"}}}, {"id": "source-2", "component": {"Button": {"child": "source-2-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://en-americas-support.nintendo.com/app/answers/detail/a_id/22273"}}]}}}}, {"id": "source-2-text", "component": {"Text": {"text": {"literalString": "Nintendo Support: TV Output Resolution"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

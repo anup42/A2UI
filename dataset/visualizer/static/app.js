@@ -10,6 +10,8 @@ const state = {
 const runSelect = document.getElementById("runSelect");
 const refreshBtn = document.getElementById("refreshBtn");
 const summaryEl = document.getElementById("summary");
+const metricsWrap = document.getElementById("metricsWrap");
+const intentWrap = document.getElementById("intentWrap");
 const tabs = document.querySelectorAll(".tab");
 const searchInput = document.getElementById("searchInput");
 const fieldInput = document.getElementById("fieldInput");
@@ -34,6 +36,12 @@ function showMessage(message) {
     </div>
   `;
   tableWrap.innerHTML = `<div class="empty">${message}</div>`;
+  if (metricsWrap) {
+    metricsWrap.innerHTML = "";
+  }
+  if (intentWrap) {
+    intentWrap.innerHTML = "";
+  }
 }
 
 function setSummary(payload) {
@@ -57,6 +65,132 @@ function setSummary(payload) {
       <div class="value">${overall ?? "-"}</div>
     </div>
   `;
+}
+
+function formatValue(value, digits = 3) {
+  if (value === null || value === undefined) {
+    return "-";
+  }
+  if (typeof value === "number") {
+    const fixed = value.toFixed(digits);
+    return fixed.replace(/\.?0+$/, "");
+  }
+  return String(value);
+}
+
+function renderMetricGrid(title, entries) {
+  const section = document.createElement("div");
+  const header = document.createElement("div");
+  header.className = "section-title";
+  header.textContent = title;
+  section.appendChild(header);
+
+  const grid = document.createElement("div");
+  grid.className = "metric-grid";
+  entries.forEach(([label, value]) => {
+    const card = document.createElement("div");
+    card.className = "metric-card";
+    card.innerHTML = `
+      <div class="metric-label">${label}</div>
+      <div class="metric-value">${formatValue(value)}</div>
+    `;
+    grid.appendChild(card);
+  });
+  section.appendChild(grid);
+  return section;
+}
+
+function setMetrics(payload) {
+  if (!metricsWrap) return;
+  const agg = payload.aggregates;
+  metricsWrap.innerHTML = "";
+  intentWrap.innerHTML = "";
+  if (!agg) {
+    metricsWrap.innerHTML = `<div class="empty">No aggregate metrics available.</div>`;
+    return;
+  }
+
+  const coreMetrics = [
+    ["overall_score", agg.overall_score],
+    ["schema_valid_strict_rate", agg.schema_valid_strict_rate],
+    ["content_coverage_avg", agg.content_coverage_avg],
+    ["lint_score_avg", agg.lint_score_avg],
+    ["dup_rate_avg", agg.dup_rate_avg],
+    ["render_ok_rate", agg.render_ok_rate]
+  ];
+
+  const uiMetrics = [
+    ["component_count_avg", agg.component_count_avg],
+    ["unique_component_types_avg", agg.unique_component_types_avg],
+    ["max_tree_depth_avg", agg.max_tree_depth_avg],
+    ["avg_tree_depth_avg", agg.avg_tree_depth_avg],
+    ["container_to_text_ratio_avg", agg.container_to_text_ratio_avg],
+    ["information_chunking_score_avg", agg.information_chunking_score_avg],
+    ["ui_modularity_score_avg", agg.ui_modularity_score_avg]
+  ];
+
+  const actionMetrics = [
+    ["actionable_elements_avg", agg.actionable_elements_avg],
+    ["action_coverage_avg", agg.action_coverage_avg],
+    ["url_as_text_rate_avg", agg.url_as_text_rate_avg],
+    ["table_pattern_detected_rate", agg.table_pattern_detected_rate],
+    ["table_cell_coverage_avg", agg.table_cell_coverage_avg],
+    ["section_heading_coverage_avg", agg.section_heading_coverage_avg],
+    ["markdown_leakage_rate_avg", agg.markdown_leakage_rate_avg]
+  ];
+
+  const intentMetrics = [
+    ["intent_expectation_pass_rate", agg.intent_expectation_pass_rate],
+    ["intent_score_avg", agg.intent_score_avg]
+  ];
+
+  const perfMetrics = [
+    ["latency_ms_avg", agg.latency_ms_avg],
+    ["latency_ms_p95", agg.latency_ms_p95],
+    ["cost_usd_avg", agg.cost_usd_avg]
+  ];
+
+  metricsWrap.appendChild(renderMetricGrid("Core Metrics", coreMetrics));
+  metricsWrap.appendChild(renderMetricGrid("UI Structure Metrics", uiMetrics));
+  metricsWrap.appendChild(renderMetricGrid("Action & Table Metrics", actionMetrics));
+  metricsWrap.appendChild(renderMetricGrid("Intent Metrics", intentMetrics));
+  metricsWrap.appendChild(renderMetricGrid("Performance Metrics", perfMetrics));
+
+  const intentStats = agg.intent_stats || null;
+  if (!intentStats || Object.keys(intentStats).length === 0) {
+    intentWrap.innerHTML = `<div class="empty">No intent stats available.</div>`;
+    return;
+  }
+  const intentHeader = document.createElement("div");
+  intentHeader.className = "section-title";
+  intentHeader.textContent = "Intent Expectations";
+  intentWrap.appendChild(intentHeader);
+
+  const headers = [
+    "intent",
+    "count",
+    "expectation_pass_rate",
+    "intent_score_avg",
+    "table_expected_rate",
+    "table_ok_rate",
+    "action_expected_rate",
+    "action_ok_rate",
+    "section_expected_rate",
+    "section_ok_rate"
+  ];
+  const rows = Object.entries(intentStats).map(([intent, stats]) => [
+    intent,
+    stats.count,
+    formatValue(stats.expectation_pass_rate),
+    formatValue(stats.intent_score_avg),
+    formatValue(stats.table_expected_rate),
+    formatValue(stats.table_ok_rate),
+    formatValue(stats.action_expected_rate),
+    formatValue(stats.action_ok_rate),
+    formatValue(stats.section_expected_rate),
+    formatValue(stats.section_ok_rate)
+  ]);
+  intentWrap.appendChild(createTable(headers, rows));
 }
 
 function setRuns(runs) {
@@ -178,6 +312,7 @@ async function loadSummary() {
   if (!state.runId) return;
   const payload = await fetchJson(`/api/run/${state.runId}/summary`);
   setSummary(payload);
+  setMetrics(payload);
 }
 
 async function loadTab() {

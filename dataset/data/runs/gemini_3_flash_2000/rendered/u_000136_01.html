@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000136"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000136", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "btn_7", "btn_8", "icon_row_9", "icon_row_10", "icon_row_11", "text_12", "text_13"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\nI have assumed you are referring to the standard version of the code as it appeared on the Nintendo Entertainment System (NES), as button labels can vary slightly on modern platforms (e.g., using Circle/Cross instead of B/A)."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Summary:\nThe Konami Code is the most famous cheat code in video game history. It is a specific sequence of button inputs that, when entered during a game's title screen or pause menu, unlocks secret advantages such as extra lives, full power-ups, or hidden characters. It has evolved from a developer's shortcut into a universal symbol of gaming culture."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "The Sequence:\nUp, Up, Down, Down, Left, Right, Left, Right, B, A"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "History and Origin:\nThe code was created in 1986 by Kazuhisa Hashimoto, a developer at Konami. While porting the difficult arcade shooter Gradius to the NES, Hashimoto found the game too hard to play through for testing purposes. He programmed a simple sequence to give his ship all possible upgrades instantly. He intended to remove the code before the game was released but forgot, and it was discovered by players shortly after the game hit shelves."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Historical Significance:\n- The Contra Factor: While it debuted in Gradius, the code gained legendary status with the 1988 release of Contra. The game was notoriously difficult, and the code granted players 30 lives instead of the standard 3. This made the code essential for the average player to finish the game.\n- Birth of the Easter Egg: It helped popularize the concept of hidden secrets in software. This led to a \"word-of-mouth\" marketing era where players shared secrets on playgrounds and in magazines like Nintendo Power.\n- Cultural Iconography: The code has moved beyond gaming into mainstream media. It has appeared in movies like Wreck-It Ralph, television shows, and even as a hidden command on websites for companies like ESPN, Google, and Discord.\n- Accessibility: In an era before adjustable difficulty settings, the Konami Code acted as a primitive \"easy mode,\" allowing a wider audience to enjoy challenging games."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Notable Implementations:\nGame: Gradius | Effect: Full Power-ups | Platform: NES\nGame: Contra | Effect: 30 Lives | Platform: NES\nGame: Teenage Mutant Ninja Turtles III | Effect: Extra Lives | Platform: NES\nGame: Metal Gear Solid 2 | Effect: Map/Unlocks | Platform: PlayStation 2\nGame: Silent Hill 3 | Effect: Douglas in Underwear | Platform: PlayStation 2"}, "usageHint": "body"}}}, {"id": "btn_label_7", "component": {"Text": {"text": {"literalString": "View Full List of Games Using the Code"}, "usageHint": "body"}}}, {"id": "btn_7", "component": {"Button": {"child": "btn_label_7", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://en.wikipedia.org/wiki/List_of_Konami_Code_games"}}]}, "primary": true}}}, {"id": "btn_label_8", "component": {"Text": {"text": {"literalString": "Read the Biography of Kazuhisa Hashimoto"}, "usageHint": "body"}}}, {"id": "btn_8", "component": {"Button": {"child": "btn_label_8", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.nytimes.com/2020/02/26/obituaries/kazuhisa-hashimoto-dead.html"}}]}, "primary": true}}}, {"id": "icon_img_9", "component": {"Image": {"url": {"literalString": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Konami_Code.svg"}, "usageHint": "icon"}}}, {"id": "icon_label_9", "component": {"Text": {"text": {"literalString": "Visual Input Diagram"}, "usageHint": "body"}}}, {"id": "icon_row_9", "component": {"Row": {"children": {"explicitList": ["icon_img_9", "icon_label_9"]}, "alignment": "center"}}}, {"id": "icon_img_10", "component": {"Image": {"url": {"literalString": "https://upload.wikimedia.org/wikipedia/en/b/b1/Contra_nes_boxart.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_10", "component": {"Text": {"text": {"literalString": "Original Contra Box Art"}, "usageHint": "body"}}}, {"id": "icon_row_10", "component": {"Row": {"children": {"explicitList": ["icon_img_10", "icon_label_10"]}, "alignment": "center"}}}, {"id": "icon_img_11", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/color/48/retro-console.png"}, "usageHint": "icon"}}}, {"id": "icon_label_11", "component": {"Text": {"text": {"literalString": "Gaming History"}, "usageHint": "body"}}}, {"id": "icon_row_11", "component": {"Row": {"children": {"explicitList": ["icon_img_11", "icon_label_11"]}, "alignment": "center"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "- Pop Culture: /assets/r_000136_01_4_star.png\n- Secret Discovery: /assets/r_000136_01_5_detective.png"}, "usageHint": "body"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "- https://www.guinnessworldrecords.com/world-records/first-use-of-the-konami-code\n- https://www.konami.com/games/us/en/"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

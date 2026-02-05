@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000057"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000057", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "btn_9", "btn_10", "btn_11", "text_12", "icon_row_13", "text_14", "text_15", "text_16"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "KYOTO 3-DAY AUTUMN ITINERARY: TRADITION AND PHOTOGRAPHY"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Assumptions:\n- You are staying near Kyoto Station for easy transit access.\n- You are using a prepaid IC card (Suica/Pasmo) for local buses and trains.\n- Peak autumn foliage timing can vary by a few days; mid-November is historically excellent for the locations selected."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "OFFLINE FRAMEWORK FOR LIVE DATA VERIFICATION\nTo ensure the best experience, verify the following 24-48 hours before arrival:\n1. Foliage Status: Search for \"Kyoto Autumn Color Report\" on Japan-Guide or the Kyoto City Tourism Association website to see which temples are currently at \"peak.\"\n2. Night Illuminations: Many temples (like Kodai-ji or Kiyomizu-dera) offer special evening light-up events in November. Check official temple websites for specific 2024/2025 dates.\n3. Weather: Check the Japan Meteorological Agency (JMA) website for rain forecasts, as autumn rain can strip leaves quickly."}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "EXAMPLE TRAVEL OPTIONS (SYNTHETIC DATA)\nOption 1: Kansai Thru Pass | 2 or 3-day unlimited transit in the region | 4,500 - 5,500 JPY | https://www.surutto.com\nOption 2: Pocket Wi-Fi Rental | High-speed data for navigation/translation | 800 JPY per day | https://www.japan-wireless.com\nOption 3: Kyoto Sightseeing Pass | 1-day bus and subway pass | 1,100 JPY | https://www.city.kyoto.lg.jp"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "ITINERARY SUMMARY TABLE\nDay | Area | Primary Theme | Key Photo Spot\nDay 1 | Arashiyama | Nature and Zen | Bamboo Grove & River Bridge\nDay 2 | Higashiyama | Historic Streets | Kiyomizu-dera Stage\nDay 3 | Northern Kyoto | Icons and Color | Golden Pavilion & Eikando"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "DAY 1: ARASHIYAMA (WESTERN KYOTO)\n- Sight 1: Sagano Bamboo Grove. Arrive by 7:30 AM to capture the towering stalks without crowds. The morning light filtering through the green is perfect for photography.\n- Sight 2: Tenryu-ji Temple. A UNESCO site with a 14th-century garden. In November, the surrounding mountains provide a stunning autumn backdrop to the Sogenchi Pond.\n- Sight 3: Otagi Nenbutsu-ji. A 15-minute bus ride or 25-minute walk from the center. It features 1,200 unique stone statues and is much quieter than the main grove, offering intimate photo opportunities.\n- Lunch Recommendation: Yudofu Sagano. Traditional boiled tofu served in a beautiful garden setting. Located near Tenryu-ji."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "DAY 2: HIGASHIYAMA (EASTERN KYOTO)\n- Sight 1: Kiyomizu-dera. Famous for its massive wooden stage. The temple is surrounded by hundreds of maple trees that turn vibrant red in mid-November.\n- Sight 2: Sannenzaka and Ninenzaka Slopes. Preserved streets with traditional wooden buildings. Ideal for \"old Japan\" street photography.\n- Sight 3: Kodai-ji Temple. Known for its Zen gardens and bamboo grove. In the evening, they often host a spectacular autumn light-up and projection mapping.\n- Lunch Recommendation: Omen Ginkakuji (Pontocho branch or main). Famous for thick udon noodles served with seasonal Kyoto vegetables."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "DAY 3: NORTHERN AND CENTRAL KYOTO\n- Sight 1: Kinkaku-ji (The Golden Pavilion). The gold leaf reflects brilliantly against the autumn colors and the surrounding pond. Best photographed in the morning light.\n- Sight 2: Ryoan-ji Temple. Home to Japan's most famous rock garden. The contrast of the minimalist stones against the fiery maple leaves over the wall is a classic shot.\n- Sight 3: Eikando Zenrin-ji. Widely considered the best spot in Kyoto for autumn colors. The grounds feature a pond, a pagoda, and over 3,000 maple trees.\n- Lunch Recommendation: Nishiki Market. Known as \"Kyoto's Kitchen.\" Explore dozens of stalls for fresh seafood, pickled vegetables, and street food like takotago (octopus)."}, "usageHint": "body"}}}, {"id": "btn_label_9", "component": {"Text": {"text": {"literalString": "View Live Foliage Map"}, "usageHint": "body"}}}, {"id": "btn_9", "component": {"Button": {"child": "btn_label_9", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.kyokanko.or.jp/koyo/"}}]}, "primary": true}}}, {"id": "btn_label_10", "component": {"Text": {"text": {"literalString": "Book Kyoto Photo Tour"}, "usageHint": "body"}}}, {"id": "btn_10", "component": {"Button": {"child": "btn_label_10", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.viator.com/Kyoto/d332-ttd"}}]}, "primary": true}}}, {"id": "btn_label_11", "component": {"Text": {"text": {"literalString": "Reserve Shinkansen Tickets"}, "usageHint": "body"}}}, {"id": "btn_11", "component": {"Button": {"child": "btn_label_11", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://smart-ex.jp/en/index.php"}}]}, "primary": true}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "- Arashiyama Bamboo Grove: /assets/r_000057_01_1_photo-1493976040374-85c8e12f0c0e.jpg"}, "usageHint": "body"}}}, {"id": "icon_img_13", "component": {"Image": {"url": {"literalString": "https://images.unsplash.com/photo-1528164344705-4754268799af"}, "usageHint": "icon"}}}, {"id": "icon_label_13", "component": {"Text": {"text": {"literalString": "Kiyomizu-dera Stage"}, "usageHint": "body"}}}, {"id": "icon_row_13", "component": {"Row": {"children": {"explicitList": ["icon_img_13", "icon_label_13"]}, "alignment": "center"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "- Kinkaku-ji Gold Pavilion: /assets/r_000057_01_3_photo-1545569341-9eb8b30979d9.jpg"}, "usageHint": "body"}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "- Calendar: /assets/r_000057_01_4_calendar.png\n- Camera: /assets/r_000057_01_5_camera.png\n- Food: /assets/r_000057_01_6_restaurant.png\n- Map: /assets/r_000057_01_7_map.png"}, "usageHint": "body"}}}, {"id": "text_16", "component": {"Text": {"text": {"literalString": "- https://www.insidekyoto.com\n- https://www.japan-guide.com/e/e2158.html\n- https://kyoto.travel/en/"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "thai-green-curry"}}, {"surfaceUpdate": {"surfaceId": "thai-green-curry", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "summary", "paste-section", "main-dish-section", "quick-actions"]}, "distribution": "start", "alignment": "start"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Authentic Thai Green Curry"}, "usageHint": "h1"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "Authentic Thai Green Curry starts with a hand-pounded paste to release essential oils, followed by a quick simmer with coconut milk and aromatics."}, "usageHint": "body"}}}, {"id": "paste-section", "component": {"Card": {"child": "paste-section-content"}}}, {"id": "paste-section-content", "component": {"Column": {"children": {"explicitList": ["paste-title", "paste-ingredients-list", "paste-process"]}, "distribution": "start", "alignment": "start"}}}, {"id": "paste-title", "component": {"Text": {"text": {"literalString": "PART 1: GREEN CURRY PASTE (Mortar and Pestle)"}, "usageHint": "h2"}}}, {"id": "paste-ingredients-list", "component": {"List": {"children": {"explicitList": ["paste-ingredient-1", "paste-ingredient-2", "paste-ingredient-3", "paste-ingredient-4", "paste-ingredient-5", "paste-ingredient-6", "paste-ingredient-7", "paste-ingredient-8", "paste-ingredient-9", "paste-ingredient-10", "paste-ingredient-11"]}, "direction": "vertical"}}}, {"id": "paste-ingredient-1", "component": {"Text": {"text": {"literalString": "- 10-15 Green Bird's Eye Chilies"}, "usageHint": "body"}}}, {"id": "paste-ingredient-2", "component": {"Text": {"text": {"literalString": "- 2 tbsp Chopped Shallots"}, "usageHint": "body"}}}, {"id": "paste-ingredient-3", "component": {"Text": {"text": {"literalString": "- 1 tbsp Chopped Garlic"}, "usageHint": "body"}}}, {"id": "paste-ingredient-4", "component": {"Text": {"text": {"literalString": "- 1 tbsp Chopped Galangal"}, "usageHint": "body"}}}, {"id": "paste-ingredient-5", "component": {"Text": {"text": {"literalString": "- 1 tbsp Sliced Lemongrass (white part only)"}, "usageHint": "body"}}}, {"id": "paste-ingredient-6", "component": {"Text": {"text": {"literalString": "- 1 tsp Sliced Kaffir Lime Peel"}, "usageHint": "body"}}}, {"id": "paste-ingredient-7", "component": {"Text": {"text": {"literalString": "- 1 tsp Chopped Coriander Root"}, "usageHint": "body"}}}, {"id": "paste-ingredient-8", "component": {"Text": {"text": {"literalString": "- 1 tsp Toasted Cumin Seeds"}, "usageHint": "body"}}}, {"id": "paste-ingredient-9", "component": {"Text": {"text": {"literalString": "- 1 tsp Toasted Coriander Seeds"}, "usageHint": "body"}}}, {"id": "paste-ingredient-10", "component": {"Text": {"text": {"literalString": "- 1 tsp Shrimp Paste (Gapi)"}, "usageHint": "body"}}}, {"id": "paste-ingredient-11", "component": {"Text": {"text": {"literalString": "- 1/2 tsp Salt"}, "usageHint": "body"}}}, {"id": "paste-process", "component": {"Text": {"text": {"literalString": "Process: Pound the dry seeds first. Add chilies and salt, pound to a paste. Add fibrous ingredients (lemongrass, galangal, lime peel) one by one, pounding until smooth. Finish with shallots, garlic, and shrimp paste."}, "usageHint": "body"}}}, {"id": "main-dish-section", "component": {"Card": {"child": "main-dish-section-content"}}}, {"id": "main-dish-section-content", "component": {"Column": {"children": {"explicitList": ["main-dish-title", "main-dish-ingredients-list", "instructions-title", "instructions-list"]}, "distribution": "start", "alignment": "start"}}}, {"id": "main-dish-title", "component": {"Text": {"text": {"literalString": "PART 2: MAIN DISH (Serves 3)"}, "usageHint": "h2"}}}, {"id": "main-dish-ingredients-list", "component": {"List": {"children": {"explicitList": ["main-dish-ingredient-1", "main-dish-ingredient-2", "main-dish-ingredient-3", "main-dish-ingredient-4", "main-dish-ingredient-5", "main-dish-ingredient-6", "main-dish-ingredient-7", "main-dish-ingredient-8"]}, "direction": "vertical"}}}, {"id": "main-dish-ingredient-1", "component": {"Text": {"text": {"literalString": "- 500g Chicken Breast, thinly sliced"}, "usageHint": "body"}}}, {"id": "main-dish-ingredient-2", "component": {"Text": {"text": {"literalString": "- 200g Bamboo Shoots (canned/sliced)"}, "usageHint": "body"}}}, {"id": "main-dish-ingredient-3", "component": {"Text": {"text": {"literalString": "- 400ml Coconut Milk (Full fat)"}, "usageHint": "body"}}}, {"id": "main-dish-ingredient-4", "component": {"Text": {"text": {"literalString": "- 2 tbsp Green Curry Paste"}, "usageHint": "body"}}}, {"id": "main-dish-ingredient-5", "component": {"Text": {"text": {"literalString": "- 1 tbsp Palm Sugar"}, "usageHint": "body"}}}, {"id": "main-dish-ingredient-6", "component": {"Text": {"text": {"literalString": "- 1.5 tbsp Fish Sauce"}, "usageHint": "body"}}}, {"id": "main-dish-ingredient-7", "component": {"Text": {"text": {"literalString": "- 5-6 Thai Basil Leaves"}, "usageHint": "body"}}}, {"id": "main-dish-ingredient-8", "component": {"Text": {"text": {"literalString": "- 2 Kaffir Lime Leaves, torn"}, "usageHint": "body"}}}, {"id": "main-dish-ingredient-9", "component": {"Text": {"text": {"literalString": "- 1 Red Chili, sliced (for garnish)"}, "usageHint": "body"}}}, {"id": "instructions-title", "component": {"Text": {"text": {"literalString": "INSTRUCTIONS"}, "usageHint": "h2"}}}, {"id": "instructions-list", "component": {"List": {"children": {"explicitList": ["instruction-1", "instruction-2", "instruction-3", "instruction-4", "instruction-5"]}, "direction": "vertical"}}}, {"id": "instruction-1", "component": {"Text": {"text": {"literalString": "1. Fry Paste: Heat 100ml of coconut milk in a wok until it starts to separate (oil beads appear). Add 2 tbsp paste and fry until fragrant."}, "usageHint": "body"}}}, {"id": "instruction-2", "component": {"Text": {"text": {"literalString": "2. Cook Chicken: Add chicken slices. Stir-fry until the outside is no longer raw."}, "usageHint": "body"}}}, {"id": "instruction-3", "component": {"Text": {"text": {"literalString": "3. Simmer: Add the rest of the coconut milk and bamboo shoots. Bring to a gentle simmer."}, "usageHint": "body"}}}, {"id": "instruction-4", "component": {"Text": {"text": {"literalString": "4. Season: Add fish sauce and palm sugar. Adjust to balance salty, sweet, and spicy."}, "usageHint": "body"}}}, {"id": "instruction-5", "component": {"Text": {"text": {"literalString": "5. Finish: Stir in Kaffir lime leaves and Thai basil. Remove from heat immediately."}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Row": {"children": {"explicitList": ["find-ingredients-button", "mortar-blender-guide-button"]}, "distribution": "start"}}}, {"id": "find-ingredients-button", "component": {"Button": {"child": "find-ingredients-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/thai-pantry"}}]}}}}, {"id": "find-ingredients-text", "component": {"Text": {"text": {"literalString": "Find Thai Ingredients"}, "usageHint": "body"}}}, {"id": "mortar-blender-guide-button", "component": {"Button": {"child": "mortar-blender-guide-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/curry-technique"}}]}}}}, {"id": "mortar-blender-guide-text", "component": {"Text": {"text": {"literalString": "Mortar vs Blender Guide"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

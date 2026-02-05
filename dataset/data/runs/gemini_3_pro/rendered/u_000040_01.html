@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "modularity-comparison"}}, {"surfaceUpdate": {"surfaceId": "modularity-comparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "comparison-section", "quick-actions"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Modularity Comparison: UPPAbaby Vista V2 vs. Baby Jogger City Select 2"}, "usageHint": "h1"}}}, {"id": "comparison-section", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "UPPAbaby Vista V2"}, "child": "uppababy-tab"}, {"title": {"literalString": "Baby Jogger City Select 2"}, "child": "babyjogger-tab"}]}}}, {"id": "uppababy-tab", "component": {"Column": {"children": {"explicitList": ["uppababy-seating", "uppababy-weight", "uppababy-table-row"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "uppababy-seating", "component": {"Card": {"child": "uppababy-seating-content"}}}, {"id": "uppababy-seating-content", "component": {"Column": {"children": {"explicitList": ["uppababy-seating-title", "uppababy-seating-text"]}}}}, {"id": "uppababy-seating-title", "component": {"Text": {"text": {"literalString": "Seating Configurations"}, "usageHint": "h3"}}}, {"id": "uppababy-seating-text", "component": {"Text": {"text": {"literalString": "Offers over 12 configurations. It can hold two seats (Toddler Seat + RumbleSeat), a bassinet, or an infant car seat. When adding the PiggyBack Glider Board, it can transport up to 3 children."}, "usageHint": "body"}}}, {"id": "uppababy-weight", "component": {"Card": {"child": "uppababy-weight-content"}}}, {"id": "uppababy-weight-content", "component": {"Column": {"children": {"explicitList": ["uppababy-weight-title", "uppababy-weight-text"]}}}}, {"id": "uppababy-weight-title", "component": {"Text": {"text": {"literalString": "Maximum Weight Capacity (Primary Seat)"}, "usageHint": "h3"}}}, {"id": "uppababy-weight-text", "component": {"Text": {"text": {"literalString": "50 lbs (22.7 kg)"}, "usageHint": "body"}}}, {"id": "uppababy-table-row", "component": {"Row": {"children": {"explicitList": ["uppababy-total-configs", "uppababy-max-weight", "uppababy-included", "uppababy-secondary-seat"]}, "distribution": "start", "alignment": "start"}}}, {"id": "uppababy-total-configs", "component": {"Card": {"child": "uppababy-total-configs-content"}}}, {"id": "uppababy-total-configs-content", "component": {"Column": {"children": {"explicitList": ["uppababy-total-configs-title", "uppababy-total-configs-value"]}}}}, {"id": "uppababy-total-configs-title", "component": {"Text": {"text": {"literalString": "Total Configs (with Board)"}, "usageHint": "caption"}}}, {"id": "uppababy-total-configs-value", "component": {"Text": {"text": {"literalString": "12+"}, "usageHint": "body"}}}, {"id": "uppababy-max-weight", "component": {"Card": {"child": "uppababy-max-weight-content"}}}, {"id": "uppababy-max-weight-content", "component": {"Column": {"children": {"explicitList": ["uppababy-max-weight-title", "uppababy-max-weight-value"]}}}}, {"id": "uppababy-max-weight-title", "component": {"Text": {"text": {"literalString": "Max Weight (Main Seat)"}, "usageHint": "caption"}}}, {"id": "uppababy-max-weight-value", "component": {"Text": {"text": {"literalString": "50 lbs"}, "usageHint": "body"}}}, {"id": "uppababy-included", "component": {"Card": {"child": "uppababy-included-content"}}}, {"id": "uppababy-included-content", "component": {"Column": {"children": {"explicitList": ["uppababy-included-title", "uppababy-included-value"]}}}}, {"id": "uppababy-included-title", "component": {"Text": {"text": {"literalString": "Included in Box"}, "usageHint": "caption"}}}, {"id": "uppababy-included-value", "component": {"Text": {"text": {"literalString": "Bassinet + Toddler Seat"}, "usageHint": "body"}}}, {"id": "uppababy-secondary-seat", "component": {"Card": {"child": "uppababy-secondary-seat-content"}}}, {"id": "uppababy-secondary-seat-content", "component": {"Column": {"children": {"explicitList": ["uppababy-secondary-seat-title", "uppababy-secondary-seat-value"]}}}}, {"id": "uppababy-secondary-seat-title", "component": {"Text": {"text": {"literalString": "Secondary Seat Name"}, "usageHint": "caption"}}}, {"id": "uppababy-secondary-seat-value", "component": {"Text": {"text": {"literalString": "RumbleSeat"}, "usageHint": "body"}}}, {"id": "babyjogger-tab", "component": {"Column": {"children": {"explicitList": ["babyjogger-seating", "babyjogger-weight", "babyjogger-table-row"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "babyjogger-seating", "component": {"Card": {"child": "babyjogger-seating-content"}}}, {"id": "babyjogger-seating-content", "component": {"Column": {"children": {"explicitList": ["babyjogger-seating-title", "babyjogger-seating-text"]}}}}, {"id": "babyjogger-seating-title", "component": {"Text": {"text": {"literalString": "Seating Configurations"}, "usageHint": "h3"}}}, {"id": "babyjogger-seating-text", "component": {"Text": {"text": {"literalString": "Offers 24+ configurations. This model is highly versatile, allowing for various combinations of two seats, infant car seats, or a bassinet. With the addition of a Glider Board, it also accommodates up to 3 children."}, "usageHint": "body"}}}, {"id": "babyjogger-weight", "component": {"Card": {"child": "babyjogger-weight-content"}}}, {"id": "babyjogger-weight-content", "component": {"Column": {"children": {"explicitList": ["babyjogger-weight-title", "babyjogger-weight-text"]}}}}, {"id": "babyjogger-weight-title", "component": {"Text": {"text": {"literalString": "Maximum Weight Capacity (Primary Seat)"}, "usageHint": "h3"}}}, {"id": "babyjogger-weight-text", "component": {"Text": {"text": {"literalString": "45 lbs (20.4 kg)"}, "usageHint": "body"}}}, {"id": "babyjogger-table-row", "component": {"Row": {"children": {"explicitList": ["babyjogger-total-configs", "babyjogger-max-weight", "babyjogger-included", "babyjogger-secondary-seat"]}, "distribution": "start", "alignment": "start"}}}, {"id": "babyjogger-total-configs", "component": {"Card": {"child": "babyjogger-total-configs-content"}}}, {"id": "babyjogger-total-configs-content", "component": {"Column": {"children": {"explicitList": ["babyjogger-total-configs-title", "babyjogger-total-configs-value"]}}}}, {"id": "babyjogger-total-configs-title", "component": {"Text": {"text": {"literalString": "Total Configs (with Board)"}, "usageHint": "caption"}}}, {"id": "babyjogger-total-configs-value", "component": {"Text": {"text": {"literalString": "24+"}, "usageHint": "body"}}}, {"id": "babyjogger-max-weight", "component": {"Card": {"child": "babyjogger-max-weight-content"}}}, {"id": "babyjogger-max-weight-content", "component": {"Column": {"children": {"explicitList": ["babyjogger-max-weight-title", "babyjogger-max-weight-value"]}}}}, {"id": "babyjogger-max-weight-title", "component": {"Text": {"text": {"literalString": "Max Weight (Main Seat)"}, "usageHint": "caption"}}}, {"id": "babyjogger-max-weight-value", "component": {"Text": {"text": {"literalString": "45 lbs"}, "usageHint": "body"}}}, {"id": "babyjogger-included", "component": {"Card": {"child": "babyjogger-included-content"}}}, {"id": "babyjogger-included-content", "component": {"Column": {"children": {"explicitList": ["babyjogger-included-title", "babyjogger-included-value"]}}}}, {"id": "babyjogger-included-title", "component": {"Text": {"text": {"literalString": "Included in Box"}, "usageHint": "caption"}}}, {"id": "babyjogger-included-value", "component": {"Text": {"text": {"literalString": "Toddler Seat only"}, "usageHint": "body"}}}, {"id": "babyjogger-secondary-seat", "component": {"Card": {"child": "babyjogger-secondary-seat-content"}}}, {"id": "babyjogger-secondary-seat-content", "component": {"Column": {"children": {"explicitList": ["babyjogger-secondary-seat-title", "babyjogger-secondary-seat-value"]}}}}, {"id": "babyjogger-secondary-seat-title", "component": {"Text": {"text": {"literalString": "Secondary Seat Name"}, "usageHint": "caption"}}}, {"id": "babyjogger-secondary-seat-value", "component": {"Text": {"text": {"literalString": "Second Seat Kit"}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Row": {"children": {"explicitList": ["vista-configs-button", "city-select-configs-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "vista-configs-button", "component": {"Button": {"child": "vista-configs-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://uppababy.com/vista-v2/configurations/"}}]}}}}, {"id": "vista-configs-button-text", "component": {"Text": {"text": {"literalString": "Vista V2 Configs"}, "usageHint": "body"}}}, {"id": "city-select-configs-button", "component": {"Button": {"child": "city-select-configs-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.babyjogger.com/strollers/modular-strollers/city-select-2/SAP_2149021.html"}}]}}}}, {"id": "city-select-configs-button-text", "component": {"Text": {"text": {"literalString": "City Select 2 Configs"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

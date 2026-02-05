@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "golden-retriever-diet-guide"}}, {"surfaceUpdate": {"surfaceId": "golden-retriever-diet-guide", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_text", "summary_card", "framework_card", "rec_section_title", "rec_list", "table_section_title", "comparison_card", "checklist_section_title", "checklist_col", "actions_row", "sources_text"]}}}}, {"id": "header_text", "component": {"Text": {"text": {"literalString": "Golden Retriever Nutrition Guide: Chicken-Free & Grain-Inclusive"}, "usageHint": "h1"}}}, {"id": "summary_card", "component": {"Card": {"child": "summary_col"}}}, {"id": "summary_col", "component": {"Column": {"children": {"explicitList": ["summary_title", "summary_body"]}}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h3"}}}, {"id": "summary_body", "component": {"Text": {"text": {"literalString": "Golden Retrievers are prone to skin and digestive sensitivities. Ensure recipes do not contain hidden chicken by-products like chicken fat or poultry meal."}, "usageHint": "body"}}}, {"id": "framework_card", "component": {"Card": {"child": "framework_col"}}}, {"id": "framework_col", "component": {"Column": {"children": {"explicitList": ["fw_title", "fw_item_1", "fw_item_2", "fw_item_3", "fw_item_4"]}}}}, {"id": "fw_title", "component": {"Text": {"text": {"literalString": "Selection Framework"}, "usageHint": "h3"}}}, {"id": "fw_item_1", "component": {"Text": {"text": {"literalString": "1. Verify Primary Protein (Lamb/Salmon)"}, "usageHint": "body"}}}, {"id": "fw_item_2", "component": {"Text": {"text": {"literalString": "2. Scan for Hidden Chicken (Fat/Meal)"}, "usageHint": "body"}}}, {"id": "fw_item_3", "component": {"Text": {"text": {"literalString": "3. High-Quality Grains (Oatmeal/Rice)"}, "usageHint": "body"}}}, {"id": "fw_item_4", "component": {"Text": {"text": {"literalString": "4. Omega Fatty Acids for Skin Health"}, "usageHint": "body"}}}, {"id": "rec_section_title", "component": {"Text": {"text": {"literalString": "Top Recommendations"}, "usageHint": "h2"}}}, {"id": "rec_list", "component": {"List": {"children": {"explicitList": ["card_purina", "card_hills", "card_nutro"]}, "direction": "horizontal"}}}, {"id": "card_purina", "component": {"Card": {"child": "col_purina"}}}, {"id": "col_purina", "component": {"Column": {"children": {"explicitList": ["img_purina", "txt_purina_name", "txt_purina_price", "btn_purina"]}}}}, {"id": "img_purina", "component": {"Image": {"url": {"literalString": "/images/purina-pro-plan-salmon.jpg"}, "usageHint": "mediumFeature"}}}, {"id": "txt_purina_name", "component": {"Text": {"text": {"literalString": "Purina Pro Plan Sensitive"}, "usageHint": "h4"}}}, {"id": "txt_purina_price", "component": {"Text": {"text": {"literalString": "Approx. $75"}, "usageHint": "caption"}}}, {"id": "btn_purina", "component": {"Button": {"child": "txt_btn_purina", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/purina.com"}}]}}}}, {"id": "txt_btn_purina", "component": {"Text": {"text": {"literalString": "View Details"}, "usageHint": "body"}}}, {"id": "card_hills", "component": {"Card": {"child": "col_hills"}}}, {"id": "col_hills", "component": {"Column": {"children": {"explicitList": ["img_hills", "txt_hills_name", "txt_hills_price", "btn_hills"]}}}}, {"id": "img_hills", "component": {"Image": {"url": {"literalString": "/images/hills-sensitive-salmon.jpg"}, "usageHint": "mediumFeature"}}}, {"id": "txt_hills_name", "component": {"Text": {"text": {"literalString": "Hill's Science Diet Adult"}, "usageHint": "h4"}}}, {"id": "txt_hills_price", "component": {"Text": {"text": {"literalString": "Approx. $79"}, "usageHint": "caption"}}}, {"id": "btn_hills", "component": {"Button": {"child": "txt_btn_hills", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/hillspet.com"}}]}}}}, {"id": "txt_btn_hills", "component": {"Text": {"text": {"literalString": "View Details"}, "usageHint": "body"}}}, {"id": "card_nutro", "component": {"Card": {"child": "col_nutro"}}}, {"id": "col_nutro", "component": {"Column": {"children": {"explicitList": ["img_nutro", "txt_nutro_name", "txt_nutro_price", "btn_nutro"]}}}}, {"id": "img_nutro", "component": {"Image": {"url": {"literalString": "/images/nutro-lamb-rice.jpg"}, "usageHint": "mediumFeature"}}}, {"id": "txt_nutro_name", "component": {"Text": {"text": {"literalString": "Nutro Natural Choice"}, "usageHint": "h4"}}}, {"id": "txt_nutro_price", "component": {"Text": {"text": {"literalString": "Approx. $65"}, "usageHint": "caption"}}}, {"id": "btn_nutro", "component": {"Button": {"child": "txt_btn_nutro", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/nutro.com"}}]}}}}, {"id": "txt_btn_nutro", "component": {"Text": {"text": {"literalString": "View Details"}, "usageHint": "body"}}}, {"id": "table_section_title", "component": {"Text": {"text": {"literalString": "Brand Comparison"}, "usageHint": "h2"}}}, {"id": "comparison_card", "component": {"Card": {"child": "comparison_col"}}}, {"id": "comparison_col", "component": {"Column": {"children": {"explicitList": ["row_header", "row_1", "row_2", "row_3", "row_4"]}}}}, {"id": "row_header", "component": {"Row": {"children": {"explicitList": ["th_brand", "th_protein", "th_grain", "th_fat"]}, "distribution": "spaceBetween"}}}, {"id": "th_brand", "component": {"Text": {"text": {"literalString": "Brand"}, "usageHint": "caption"}}}, {"id": "th_protein", "component": {"Text": {"text": {"literalString": "Protein"}, "usageHint": "caption"}}}, {"id": "th_grain", "component": {"Text": {"text": {"literalString": "Grain"}, "usageHint": "caption"}}}, {"id": "th_fat", "component": {"Text": {"text": {"literalString": "Chicken-Free?"}, "usageHint": "caption"}}}, {"id": "row_1", "component": {"Row": {"children": {"explicitList": ["td_1_1", "td_1_2", "td_1_3", "td_1_4"]}, "distribution": "spaceBetween"}}}, {"id": "td_1_1", "component": {"Text": {"text": {"literalString": "Purina"}, "usageHint": "body"}}}, {"id": "td_1_2", "component": {"Text": {"text": {"literalString": "Salmon"}, "usageHint": "body"}}}, {"id": "td_1_3", "component": {"Text": {"text": {"literalString": "Rice"}, "usageHint": "body"}}}, {"id": "td_1_4", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "row_2", "component": {"Row": {"children": {"explicitList": ["td_2_1", "td_2_2", "td_2_3", "td_2_4"]}, "distribution": "spaceBetween"}}}, {"id": "td_2_1", "component": {"Text": {"text": {"literalString": "Hill's"}, "usageHint": "body"}}}, {"id": "td_2_2", "component": {"Text": {"text": {"literalString": "Salmon"}, "usageHint": "body"}}}, {"id": "td_2_3", "component": {"Text": {"text": {"literalString": "Peas"}, "usageHint": "body"}}}, {"id": "td_2_4", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "row_3", "component": {"Row": {"children": {"explicitList": ["td_3_1", "td_3_2", "td_3_3", "td_3_4"]}, "distribution": "spaceBetween"}}}, {"id": "td_3_1", "component": {"Text": {"text": {"literalString": "Nutro"}, "usageHint": "body"}}}, {"id": "td_3_2", "component": {"Text": {"text": {"literalString": "Lamb"}, "usageHint": "body"}}}, {"id": "td_3_3", "component": {"Text": {"text": {"literalString": "Brown Rice"}, "usageHint": "body"}}}, {"id": "td_3_4", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "row_4", "component": {"Row": {"children": {"explicitList": ["td_4_1", "td_4_2", "td_4_3", "td_4_4"]}, "distribution": "spaceBetween"}}}, {"id": "td_4_1", "component": {"Text": {"text": {"literalString": "Wellness"}, "usageHint": "body"}}}, {"id": "td_4_2", "component": {"Text": {"text": {"literalString": "Lamb"}, "usageHint": "body"}}}, {"id": "td_4_3", "component": {"Text": {"text": {"literalString": "Barley"}, "usageHint": "body"}}}, {"id": "td_4_4", "component": {"Text": {"text": {"literalString": "Yes"}, "usageHint": "body"}}}, {"id": "checklist_section_title", "component": {"Text": {"text": {"literalString": "Switching Checklist"}, "usageHint": "h2"}}}, {"id": "checklist_col", "component": {"Column": {"children": {"explicitList": ["check_1", "check_2", "check_3", "check_4"]}}}}, {"id": "check_1", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check_2", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check_3", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check_4", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_compare", "btn_retailer", "btn_vet"]}, "distribution": "spaceAround"}}}, {"id": "btn_compare", "component": {"Button": {"child": "txt_btn_compare", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/chewy.com"}}]}, "primary": true}}}, {"id": "txt_btn_compare", "component": {"Text": {"text": {"literalString": "Compare Prices"}, "usageHint": "body"}}}, {"id": "btn_retailer", "component": {"Button": {"child": "txt_btn_retailer", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/petsmart.com"}}]}}}}, {"id": "txt_btn_retailer", "component": {"Text": {"text": {"literalString": "Find Retailer"}, "usageHint": "body"}}}, {"id": "btn_vet", "component": {"Button": {"child": "txt_btn_vet", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/vcaanimals.com"}}]}}}}, {"id": "txt_btn_vet", "component": {"Text": {"text": {"literalString": "Consult a Vet"}, "usageHint": "body"}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Sources: AKC, Cornell Canine Health Center, AAFCO"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

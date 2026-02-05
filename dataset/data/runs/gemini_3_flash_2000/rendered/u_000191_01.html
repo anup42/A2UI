@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "hugo-awards-recommendations"}}, {"surfaceUpdate": {"surfaceId": "hugo-awards-recommendations", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "assumptions", "summary", "div1", "rec_title", "book1_card", "book2_card", "div2", "table_title", "table_col", "div3", "actions_row", "sources_text"]}, "alignment": "stretch"}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "Hugo Award Winners (2014-2024)"}, "usageHint": "h2"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "*Assumptions: Best Novel category, 2014-2024. Standalones or series with ≤ 3 installments.*"}, "usageHint": "caption"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "The Hugo Award is one of the most prestigious honors in science fiction. Recent winners have leaned toward intricate world-building, political intrigue, and character-driven narratives. The selections below represent the pinnacle of modern sci-fi storytelling."}, "usageHint": "body"}}}, {"id": "div1", "component": {"Divider": {}}}, {"id": "rec_title", "component": {"Text": {"text": {"literalString": "Recommended Books"}, "usageHint": "h3"}}}, {"id": "book1_card", "component": {"Card": {"child": "book1_col"}}}, {"id": "book1_col", "component": {"Column": {"children": {"explicitList": ["book1_name", "book1_desc", "book1_award", "book1_link"]}}}}, {"id": "book1_name", "component": {"Text": {"text": {"literalString": "A Memory Called Empire"}, "usageHint": "h4"}}}, {"id": "book1_desc", "component": {"Text": {"text": {"literalString": "A diplomat investigates her predecessor's death in a sprawling interstellar empire."}, "usageHint": "body"}}}, {"id": "book1_award", "component": {"Text": {"text": {"literalString": "Winner 2020 Hugo Award (Best Novel)"}, "usageHint": "caption"}}}, {"id": "book1_link", "component": {"Button": {"child": "book1_link_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.panmacmillan.com/authors/arkady-martine/a-memory-called-empire/9781529001587"}}]}}}}, {"id": "book1_link_text", "component": {"Text": {"text": {"literalString": "View Publisher Page"}, "usageHint": "body"}}}, {"id": "book2_card", "component": {"Card": {"child": "book2_col"}}}, {"id": "book2_col", "component": {"Column": {"children": {"explicitList": ["book2_name", "book2_desc", "book2_award", "book2_link"]}}}}, {"id": "book2_name", "component": {"Text": {"text": {"literalString": "Some Desperate Glory"}, "usageHint": "h4"}}}, {"id": "book2_desc", "component": {"Text": {"text": {"literalString": "A radicalized young woman navigates a post-Earth universe to avenge her planet."}, "usageHint": "body"}}}, {"id": "book2_award", "component": {"Text": {"text": {"literalString": "Winner 2024 Hugo Award (Best Novel)"}, "usageHint": "caption"}}}, {"id": "book2_link", "component": {"Button": {"child": "book2_link_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.orbitbooks.net/titles/emily-tesh/some-desperate-glory/9780316560078/"}}]}}}}, {"id": "book2_link_text", "component": {"Text": {"text": {"literalString": "View Publisher Page"}, "usageHint": "body"}}}, {"id": "div2", "component": {"Divider": {}}}, {"id": "table_title", "component": {"Text": {"text": {"literalString": "Book Details"}, "usageHint": "h3"}}}, {"id": "table_col", "component": {"Column": {"children": {"explicitList": ["row_h", "row1", "row2"]}}}}, {"id": "row_h", "component": {"Row": {"children": {"explicitList": ["th1", "th2", "th3", "th4", "th5"]}}}}, {"id": "th1", "component": {"Text": {"text": {"literalString": "**Title**"}, "usageHint": "body"}}}, {"id": "th2", "component": {"Text": {"text": {"literalString": "**Author**"}, "usageHint": "body"}}}, {"id": "th3", "component": {"Text": {"text": {"literalString": "**Year**"}, "usageHint": "body"}}}, {"id": "th4", "component": {"Text": {"text": {"literalString": "**Series**"}, "usageHint": "body"}}}, {"id": "th5", "component": {"Text": {"text": {"literalString": "**Genre**"}, "usageHint": "body"}}}, {"id": "row1", "component": {"Row": {"children": {"explicitList": ["td1_1", "td1_2", "td1_3", "td1_4", "td1_5"]}}}}, {"id": "td1_1", "component": {"Text": {"text": {"literalString": "A Memory Called Empire"}, "usageHint": "body"}}}, {"id": "td1_2", "component": {"Text": {"text": {"literalString": "Arkady Martine"}, "usageHint": "body"}}}, {"id": "td1_3", "component": {"Text": {"text": {"literalString": "2020"}, "usageHint": "body"}}}, {"id": "td1_4", "component": {"Text": {"text": {"literalString": "Duology"}, "usageHint": "body"}}}, {"id": "td1_5", "component": {"Text": {"text": {"literalString": "Space Opera"}, "usageHint": "body"}}}, {"id": "row2", "component": {"Row": {"children": {"explicitList": ["td2_1", "td2_2", "td2_3", "td2_4", "td2_5"]}}}}, {"id": "td2_1", "component": {"Text": {"text": {"literalString": "Some Desperate Glory"}, "usageHint": "body"}}}, {"id": "td2_2", "component": {"Text": {"text": {"literalString": "Emily Tesh"}, "usageHint": "body"}}}, {"id": "td2_3", "component": {"Text": {"text": {"literalString": "2024"}, "usageHint": "body"}}}, {"id": "td2_4", "component": {"Text": {"text": {"literalString": "Standalone"}, "usageHint": "body"}}}, {"id": "td2_5", "component": {"Text": {"text": {"literalString": "Military Sci-Fi"}, "usageHint": "body"}}}, {"id": "div3", "component": {"Divider": {}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_history", "btn_library", "btn_buy"]}, "distribution": "spaceBetween"}}}, {"id": "btn_history", "component": {"Button": {"child": "btn_history_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.thehugoawards.org/hugo-history/"}}]}, "primary": true}}}, {"id": "btn_history_text", "component": {"Text": {"text": {"literalString": "View All Hugo Winners"}, "usageHint": "body"}}}, {"id": "btn_library", "component": {"Button": {"child": "btn_library_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.worldcat.org/"}}]}}}}, {"id": "btn_library_text", "component": {"Text": {"text": {"literalString": "Find at a Library"}, "usageHint": "body"}}}, {"id": "btn_buy", "component": {"Button": {"child": "btn_buy_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://bookshop.org/"}}]}}}}, {"id": "btn_buy_text", "component": {"Text": {"text": {"literalString": "Buy on Bookshop.org"}, "usageHint": "body"}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Sources:\n- https://www.thehugoawards.org/hugo-history/2020-hugo-awards/\n- https://www.thehugoawards.org/hugo-history/2024-hugo-awards/\n- https://www.arkadymartine.net/books"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

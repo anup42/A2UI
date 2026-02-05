@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "foundation_reading_guide"}}, {"surfaceUpdate": {"surfaceId": "foundation_reading_guide", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_section", "divider_1", "table_section", "divider_2", "reading_order_section", "divider_3", "pros_cons_section", "divider_4", "actions_row", "footer_section"]}}}}, {"id": "header_section", "component": {"Column": {"children": {"explicitList": ["main_title", "assumptions_text", "summary_text"]}}}}, {"id": "main_title", "component": {"Text": {"text": {"literalString": "Isaac Asimov's Foundation Series Reading Guide"}, "usageHint": "h1"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "Assumptions: This guide focuses on the seven core novels written by Isaac Asimov. It does not include the 'Second Foundation Trilogy' written by other authors or the broader Robot/Empire series unless specified as context."}, "usageHint": "caption"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "Isaac Asimov's Foundation series consists of seven novels written over several decades. Because the prequels were written last, readers often struggle between following the date of publication or the internal timeline of the story. For first-time readers, **Publication Order** is almost universally recommended to preserve the series' central mysteries."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "table_section", "component": {"Column": {"children": {"explicitList": ["table_title", "table_card"]}}}}, {"id": "table_title", "component": {"Text": {"text": {"literalString": "Comparison of Reading Orders"}, "usageHint": "h2"}}}, {"id": "table_card", "component": {"Card": {"child": "table_content"}}}, {"id": "table_content", "component": {"Column": {"children": {"explicitList": ["table_header_row", "table_row_1", "table_row_2", "table_row_3"]}}}}, {"id": "table_header_row", "component": {"Row": {"children": {"explicitList": ["th_1", "th_2", "th_3"]}}}}, {"id": "th_1", "component": {"Text": {"text": {"literalString": "**Order Type**"}, "usageHint": "body"}}}, {"id": "th_2", "component": {"Text": {"text": {"literalString": "**Best For**"}, "usageHint": "body"}}}, {"id": "th_3", "component": {"Text": {"text": {"literalString": "**Primary Advantage**"}, "usageHint": "body"}}}, {"id": "table_row_1", "component": {"Row": {"children": {"explicitList": ["tr1_c1", "tr1_c2", "tr1_c3"]}}}}, {"id": "tr1_c1", "component": {"Text": {"text": {"literalString": "Publication Order"}, "usageHint": "body"}}}, {"id": "tr1_c2", "component": {"Text": {"text": {"literalString": "First-Time Readers"}, "usageHint": "body"}}}, {"id": "tr1_c3", "component": {"Text": {"text": {"literalString": "Preserves plot twists and the mystery of the Second Foundation."}, "usageHint": "body"}}}, {"id": "table_row_2", "component": {"Row": {"children": {"explicitList": ["tr2_c1", "tr2_c2", "tr2_c3"]}}}}, {"id": "tr2_c1", "component": {"Text": {"text": {"literalString": "Chronological Order"}, "usageHint": "body"}}}, {"id": "tr2_c2", "component": {"Text": {"text": {"literalString": "Re-readers"}, "usageHint": "body"}}}, {"id": "tr2_c3", "component": {"Text": {"text": {"literalString": "Provides a linear biography of Hari Seldon and the fall of the Empire."}, "usageHint": "body"}}}, {"id": "table_row_3", "component": {"Row": {"children": {"explicitList": ["tr3_c1", "tr3_c2", "tr3_c3"]}}}}, {"id": "tr3_c1", "component": {"Text": {"text": {"literalString": "Hybrid Order"}, "usageHint": "body"}}}, {"id": "tr3_c2", "component": {"Text": {"text": {"literalString": "Completionists"}, "usageHint": "body"}}}, {"id": "tr3_c3", "component": {"Text": {"text": {"literalString": "Groups the original trilogy first, then the sequels, then the prequels."}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "reading_order_section", "component": {"Column": {"children": {"explicitList": ["ro_title", "ro_list"]}}}}, {"id": "ro_title", "component": {"Text": {"text": {"literalString": "The Recommended Reading Order (Publication)"}, "usageHint": "h2"}}}, {"id": "ro_list", "component": {"List": {"children": {"explicitList": ["book_1", "book_2", "book_3", "book_4", "book_5", "book_6", "book_7"]}, "direction": "vertical"}}}, {"id": "book_1", "component": {"Card": {"child": "book_1_content"}}}, {"id": "book_1_content", "component": {"Column": {"children": {"explicitList": ["b1_title", "b1_desc"]}}}}, {"id": "b1_title", "component": {"Text": {"text": {"literalString": "Option 1: Foundation (1951)"}, "usageHint": "h4"}}}, {"id": "b1_desc", "component": {"Text": {"text": {"literalString": "The establishment of the Encyclopedists on Terminus. **Key: The Original Classic**"}, "usageHint": "body"}}}, {"id": "book_2", "component": {"Card": {"child": "book_2_content"}}}, {"id": "book_2_content", "component": {"Column": {"children": {"explicitList": ["b2_title", "b2_desc"]}}}}, {"id": "b2_title", "component": {"Text": {"text": {"literalString": "Option 2: Foundation and Empire (1952)"}, "usageHint": "h4"}}}, {"id": "b2_desc", "component": {"Text": {"text": {"literalString": "The arrival of the Mule, a mutant threat to the Seldon Plan. **Key: Best Conflict**"}, "usageHint": "body"}}}, {"id": "book_3", "component": {"Card": {"child": "book_3_content"}}}, {"id": "book_3_content", "component": {"Column": {"children": {"explicitList": ["b3_title", "b3_desc"]}}}}, {"id": "b3_title", "component": {"Text": {"text": {"literalString": "Option 3: Second Foundation (1953)"}, "usageHint": "h4"}}}, {"id": "b3_desc", "component": {"Text": {"text": {"literalString": "The search for the hidden protectors of the plan. **Key: Major Plot Twist**"}, "usageHint": "body"}}}, {"id": "book_4", "component": {"Card": {"child": "book_4_content"}}}, {"id": "book_4_content", "component": {"Column": {"children": {"explicitList": ["b4_title", "b4_desc"]}}}}, {"id": "b4_title", "component": {"Text": {"text": {"literalString": "Option 4: Foundation's Edge (1982)"}, "usageHint": "h4"}}}, {"id": "b4_desc", "component": {"Text": {"text": {"literalString": "The search for Earth and the expansion of the galaxy. **Key: Modern Writing**"}, "usageHint": "body"}}}, {"id": "book_5", "component": {"Card": {"child": "book_5_content"}}}, {"id": "book_5_content", "component": {"Column": {"children": {"explicitList": ["b5_title", "b5_desc"]}}}}, {"id": "b5_title", "component": {"Text": {"text": {"literalString": "Option 5: Foundation and Earth (1986)"}, "usageHint": "h4"}}}, {"id": "b5_desc", "component": {"Text": {"text": {"literalString": "The conclusion of the main narrative thread. **Key: Series Finale**"}, "usageHint": "body"}}}, {"id": "book_6", "component": {"Card": {"child": "book_6_content"}}}, {"id": "book_6_content", "component": {"Column": {"children": {"explicitList": ["b6_title", "b6_desc"]}}}}, {"id": "b6_title", "component": {"Text": {"text": {"literalString": "Option 6: Prelude to Foundation (1988)"}, "usageHint": "h4"}}}, {"id": "b6_desc", "component": {"Text": {"text": {"literalString": "Young Hari Seldon discovers Psychohistory (Prequel). **Key: Origin Story**"}, "usageHint": "body"}}}, {"id": "book_7", "component": {"Card": {"child": "book_7_content"}}}, {"id": "book_7_content", "component": {"Column": {"children": {"explicitList": ["b7_title", "b7_desc"]}}}}, {"id": "b7_title", "component": {"Text": {"text": {"literalString": "Option 7: Forward the Foundation (1993)"}, "usageHint": "h4"}}}, {"id": "b7_desc", "component": {"Text": {"text": {"literalString": "Seldon's final years and the collapse of the Empire (Prequel). **Key: Emotional Conclusion**"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "pros_cons_section", "component": {"Column": {"children": {"explicitList": ["pc_title", "pc_tabs"]}}}}, {"id": "pc_title", "component": {"Text": {"text": {"literalString": "Pros and Cons: Publication vs. Chronological"}, "usageHint": "h2"}}}, {"id": "pc_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Publication Order"}, "child": "pc_pub_content"}, {"title": {"literalString": "Chronological Order"}, "child": "pc_chron_content"}]}}}, {"id": "pc_pub_content", "component": {"Column": {"children": {"explicitList": ["pub_icon", "pub_pros", "pub_cons"]}}}}, {"id": "pub_icon", "component": {"Icon": {"name": {"path": "/assets/r_000138_01_1_book.png"}}}}, {"id": "pub_pros", "component": {"Text": {"text": {"literalString": "**Pros:** This order allows you to experience the universe exactly as the world did. The 'Second Foundation' remains a mystery until the third book, as intended. The jump in writing style from the 1950s to the 1980s feels natural rather than jarring."}, "usageHint": "body"}}}, {"id": "pub_cons", "component": {"Text": {"text": {"literalString": "**Cons:** You finish the story with the sequels, then 'go back in time' for the last two books, which can feel like a momentum loss for some."}, "usageHint": "body"}}}, {"id": "pc_chron_content", "component": {"Column": {"children": {"explicitList": ["chron_icon", "chron_pros", "chron_cons_row"]}}}}, {"id": "chron_icon", "component": {"Icon": {"name": {"path": "/assets/r_000138_01_2_historical.png"}}}}, {"id": "chron_pros", "component": {"Text": {"text": {"literalString": "**Pros:** You follow the life of Hari Seldon from start to finish. It provides a more traditional 'rise and fall' narrative structure."}, "usageHint": "body"}}}, {"id": "chron_cons_row", "component": {"Row": {"children": {"explicitList": ["alert_icon", "chron_cons"]}, "alignment": "start"}}}, {"id": "alert_icon", "component": {"Icon": {"name": {"path": "/assets/r_000138_01_3_error.png"}}}}, {"id": "chron_cons", "component": {"Text": {"text": {"literalString": "**Cons: Massive Spoilers.** The prequels (written decades later) assume you already know the secrets of the original trilogy. Furthermore, the prequels connect Foundation to Asimov's 'Robot' series, which might be confusing if you haven't read those books first."}, "usageHint": "body"}}}, {"id": "divider_4", "component": {"Divider": {}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_goodreads", "btn_amazon"]}, "distribution": "center"}}}, {"id": "btn_goodreads", "component": {"Button": {"child": "goodreads_label", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.goodreads.com/series/45948-foundation"}}]}}}}, {"id": "goodreads_label", "component": {"Text": {"text": {"literalString": "View Series on Goodreads"}, "usageHint": "body"}}}, {"id": "btn_amazon", "component": {"Button": {"child": "amazon_label", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.amazon.com/Foundation-7-Book-Bundle-Empire-Forward-ebook/dp/B00699SDR8"}}]}, "primary": true}}}, {"id": "amazon_label", "component": {"Text": {"text": {"literalString": "Buy the Box Set"}, "usageHint": "body"}}}, {"id": "footer_section", "component": {"Column": {"children": {"explicitList": ["sources_title", "source_1", "source_2"]}}}}, {"id": "sources_title", "component": {"Text": {"text": {"literalString": "Sources:"}, "usageHint": "caption"}}}, {"id": "source_1", "component": {"Text": {"text": {"literalString": "- https://www.asimovreviews.net/"}, "usageHint": "caption"}}}, {"id": "source_2", "component": {"Text": {"text": {"literalString": "- https://www.britannica.com/topic/Foundation-by-Asimov"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

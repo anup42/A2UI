@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000096"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000096", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "icon_row_10", "text_11", "btn_12", "btn_13", "text_14"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\n- Standard 52-card deck is used without jokers.\n- Game follows No-Limit betting rules.\n- 2 to 10 players are present."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "THE SETUP\n- A Dealer Button is used to track the rotation of play; it moves one seat left after every hand.\n- Each player is dealt two private cards face down, known as Hole Cards.\n- Five community cards will eventually be dealt face up in the center of the table.\n- Goal: Form the best 5-card hand using any combination of your 2 hole cards and the 5 community cards."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "THE BLINDS\n- Before cards are dealt, two forced bets are placed to ensure there is money in the pot.\n- Small Blind: Placed by the player immediately to the left of the dealer button.\n- Big Blind: Placed by the player to the left of the small blind (usually double the small blind amount)."}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "PRE-FLOP\n- Players look at their hole cards.\n- Betting starts with the player to the left of the Big Blind.\n- Options: Fold (discard hand), Call (match the current bet), or Raise (increase the bet).\n- The round ends when all players have either folded or contributed the same amount of chips."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "THE FLOP\n- The dealer places three community cards face up on the table.\n- A new betting round begins, starting with the first active player to the left of the dealer button.\n- Players can now Check (pass the action to the next player) if no one has bet."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "THE TURN\n- A fourth community card is dealt face up.\n- Another betting round ensues, following the same rules as the Flop."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "THE RIVER\n- The fifth and final community card is dealt face up.\n- The final betting round takes place. This is the last chance for players to bet or bluff."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "THE SHOWDOWN\n- If two or more players remain after the final bet, they reveal their cards.\n- The player with the highest-ranking five-card hand wins the entire pot.\n- If a player bets and everyone else folds, that player wins the pot without having to show their cards."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "HAND RANKINGS (STRENGTH FROM HIGHEST TO LOWEST)\nHand Name | Composition | Example\nRoyal Flush | A, K, Q, J, 10 of the same suit | A-K-Q-J-10 Spades\nStraight Flush | Five consecutive cards of the same suit | 9-8-7-6-5 Hearts\nFour of a Kind | Four cards of the same numerical rank | 8-8-8-8-K\nFull House | Three of a kind plus a pair | J-J-J-3-3\nFlush | Any five cards of the same suit | 2-5-9-J-K Diamonds\nStraight | Five consecutive cards of different suits | 7-6-5-4-3\nThree of a Kind | Three cards of the same numerical rank | 4-4-4-A-9\nTwo Pair | Two different pairs in one hand | Q-Q-5-5-2\nOne Pair | Two cards of the same numerical rank | 10-10-K-4-3\nHigh Card | The highest single card in the hand | Ace High"}, "usageHint": "body"}}}, {"id": "icon_img_10", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/poker-cards.png"}, "usageHint": "icon"}}}, {"id": "icon_label_10", "component": {"Text": {"text": {"literalString": "Setup"}, "usageHint": "body"}}}, {"id": "icon_row_10", "component": {"Row": {"children": {"explicitList": ["icon_img_10", "icon_label_10"]}, "alignment": "center"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "- Blinds: /assets/r_000096_01_2_coins.png\n- Showdown: /assets/r_000096_01_3_trophy.png"}, "usageHint": "body"}}}, {"id": "btn_label_12", "component": {"Text": {"text": {"literalString": "Download Hand Ranking PDF"}, "usageHint": "body"}}}, {"id": "btn_12", "component": {"Button": {"child": "btn_label_12", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.wsop.com/poker-hands/"}}]}, "primary": true}}}, {"id": "btn_label_13", "component": {"Text": {"text": {"literalString": "Play Practice Game"}, "usageHint": "body"}}}, {"id": "btn_13", "component": {"Button": {"child": "btn_label_13", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.replaypoker.com/"}}]}, "primary": true}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "- https://www.bicyclecards.com/how-to-play/texas-holdem-poker/\n- https://www.pokernews.com/poker-rules/texas-holdem.htm"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

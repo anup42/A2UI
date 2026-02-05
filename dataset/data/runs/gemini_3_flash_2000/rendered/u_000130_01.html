@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "phantom_opera_summary"}}, {"surfaceUpdate": {"surfaceId": "phantom_opera_summary", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["img_header", "txt_title", "txt_assumptions", "tabs_main", "divider_footer", "row_actions"]}, "alignment": "stretch"}}}, {"id": "img_header", "component": {"Image": {"url": {"literalString": "/assets/r_000130_01_2_photo-1590523277543-a94d2e4eb00b.jpg"}, "usageHint": "header", "fit": "cover"}}}, {"id": "txt_title", "component": {"Text": {"text": {"literalString": "The Phantom of the Opera"}, "usageHint": "h1"}}}, {"id": "txt_assumptions", "component": {"Text": {"text": {"literalString": "Focuses on the Andrew Lloyd Webber musical adaptation and the 2004 film."}, "usageHint": "caption"}}}, {"id": "tabs_main", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Plot"}, "child": "col_plot"}, {"title": {"literalString": "Conflicts"}, "child": "col_conflicts"}, {"title": {"literalString": "Characters"}, "child": "col_characters"}, {"title": {"literalString": "Media"}, "child": "col_media"}]}}}, {"id": "col_plot", "component": {"Column": {"children": {"explicitList": ["txt_plot_body", "img_mask"]}}}}, {"id": "txt_plot_body", "component": {"Text": {"text": {"literalString": "The story takes place in the 1880s at the Palais Garnier, the Paris Opera House. The building is rumored to be haunted by an Opera Ghost (the Phantom), a disfigured musical genius who lives in the subterranean levels. He has been secretly coaching a young chorus girl, Christine Daae, whom he refers to as the Angel of Music. When the lead soprano walks out, Christine takes her place and becomes an overnight sensation. However, the Phantom's obsession turns violent when he realizes Christine is in love with her childhood friend, Raoul, the Vicomte de Chagny. The story culminates in a dramatic confrontation in the Phantom's underground lair, where he forces Christine to choose between his life and Raoul's."}, "usageHint": "body"}}}, {"id": "img_mask", "component": {"Image": {"url": {"literalString": "/assets/r_000130_01_1_photo-1509248961158-e54f6934749c.jpg"}, "usageHint": "mediumFeature", "fit": "contain"}}}, {"id": "col_conflicts", "component": {"Column": {"children": {"explicitList": ["row_conflict1", "row_conflict2", "row_conflict3"]}}}}, {"id": "row_conflict1", "component": {"Row": {"children": {"explicitList": ["icon_music", "txt_conflict1"]}, "alignment": "center"}}}, {"id": "icon_music", "component": {"Icon": {"name": {"path": "/assets/r_000130_01_3_musical-notes.png"}}}}, {"id": "txt_conflict1", "component": {"Text": {"text": {"literalString": "**Phantom vs. Christine:** A conflict of obsession and debt. The Phantom believes he owns Christine; she feels a connection to his music but is repulsed by his actions."}, "usageHint": "body"}}}, {"id": "row_conflict2", "component": {"Row": {"children": {"explicitList": ["icon_drama", "txt_conflict2"]}, "alignment": "center"}}}, {"id": "icon_drama", "component": {"Icon": {"name": {"path": "/assets/r_000130_01_4_theatre-mask.png"}}}}, {"id": "txt_conflict2", "component": {"Text": {"text": {"literalString": "**Phantom vs. Raoul:** A battle for Christine's soul. Raoul represents light and safety; the Phantom represents darkness and isolation."}, "usageHint": "body"}}}, {"id": "row_conflict3", "component": {"Row": {"children": {"explicitList": ["icon_mystery", "txt_conflict3"]}, "alignment": "center"}}}, {"id": "icon_mystery", "component": {"Icon": {"name": {"path": "/assets/r_000130_01_5_detective.png"}}}}, {"id": "txt_conflict3", "component": {"Text": {"text": {"literalString": "**Christine vs. Raoul:** Raoul views the Phantom as a criminal, while Christine understands his deep suffering."}, "usageHint": "body"}}}, {"id": "col_characters", "component": {"Column": {"children": {"explicitList": ["card_phantom", "card_christine", "card_raoul"]}}}}, {"id": "card_phantom", "component": {"Card": {"child": "col_phantom_info"}}}, {"id": "col_phantom_info", "component": {"Column": {"children": {"explicitList": ["txt_phantom_name", "txt_phantom_role", "txt_phantom_conflict"]}}}}, {"id": "txt_phantom_name", "component": {"Text": {"text": {"literalString": "The Phantom"}, "usageHint": "h4"}}}, {"id": "txt_phantom_role", "component": {"Text": {"text": {"literalString": "Antagonist | Motivation: Obsession and artistic legacy"}, "usageHint": "body"}}}, {"id": "txt_phantom_conflict", "component": {"Text": {"text": {"literalString": "Primary Conflict: Being shunned by society"}, "usageHint": "caption"}}}, {"id": "card_christine", "component": {"Card": {"child": "col_christine_info"}}}, {"id": "col_christine_info", "component": {"Column": {"children": {"explicitList": ["txt_christine_name", "txt_christine_role", "txt_christine_conflict"]}}}}, {"id": "txt_christine_name", "component": {"Text": {"text": {"literalString": "Christine Daae"}, "usageHint": "h4"}}}, {"id": "txt_christine_role", "component": {"Text": {"text": {"literalString": "Protagonist | Motivation: Career success and true love"}, "usageHint": "body"}}}, {"id": "txt_christine_conflict", "component": {"Text": {"text": {"literalString": "Primary Conflict: Fear vs. Compassion"}, "usageHint": "caption"}}}, {"id": "card_raoul", "component": {"Card": {"child": "col_raoul_info"}}}, {"id": "col_raoul_info", "component": {"Column": {"children": {"explicitList": ["txt_raoul_name", "txt_raoul_role", "txt_raoul_conflict"]}}}}, {"id": "txt_raoul_name", "component": {"Text": {"text": {"literalString": "Raoul de Chagny"}, "usageHint": "h4"}}}, {"id": "txt_raoul_role", "component": {"Text": {"text": {"literalString": "Hero | Motivation: Protecting Christine"}, "usageHint": "body"}}}, {"id": "txt_raoul_conflict", "component": {"Text": {"text": {"literalString": "Primary Conflict: Facing the Phantom's traps"}, "usageHint": "caption"}}}, {"id": "col_media", "component": {"Column": {"children": {"explicitList": ["card_media1", "card_media2", "card_media3"]}}}}, {"id": "card_media1", "component": {"Card": {"child": "col_media1_info"}}}, {"id": "col_media1_info", "component": {"Column": {"children": {"explicitList": ["txt_media1_title", "txt_media1_desc", "btn_media1"]}}}}, {"id": "txt_media1_title", "component": {"Text": {"text": {"literalString": "25th Anniversary Performance"}, "usageHint": "h5"}}}, {"id": "txt_media1_desc", "component": {"Text": {"text": {"literalString": "Live at Royal Albert Hall featuring Ramin Karimloo. Rating: 9.0/10"}, "usageHint": "body"}}}, {"id": "btn_media1", "component": {"Button": {"child": "txt_btn_media1", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.imdb.com/title/tt2077886/"}}]}}}}, {"id": "txt_btn_media1", "component": {"Text": {"text": {"literalString": "View on IMDb"}, "usageHint": "body"}}}, {"id": "card_media2", "component": {"Card": {"child": "col_media2_info"}}}, {"id": "col_media2_info", "component": {"Column": {"children": {"explicitList": ["txt_media2_title", "txt_media2_desc", "btn_media2"]}}}}, {"id": "txt_media2_title", "component": {"Text": {"text": {"literalString": "2004 Feature Film"}, "usageHint": "h5"}}}, {"id": "txt_media2_desc", "component": {"Text": {"text": {"literalString": "A lavish cinematic version directed by Joel Schumacher. Visual Spectacle."}, "usageHint": "body"}}}, {"id": "btn_media2", "component": {"Button": {"child": "txt_btn_media2", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.imdb.com/title/tt0293508/"}}]}}}}, {"id": "txt_btn_media2", "component": {"Text": {"text": {"literalString": "View on IMDb"}, "usageHint": "body"}}}, {"id": "card_media3", "component": {"Card": {"child": "col_media3_info"}}}, {"id": "col_media3_info", "component": {"Column": {"children": {"explicitList": ["txt_media3_title", "txt_media3_desc", "btn_media3"]}}}}, {"id": "txt_media3_title", "component": {"Text": {"text": {"literalString": "The Original Novel"}, "usageHint": "h5"}}}, {"id": "txt_media3_desc", "component": {"Text": {"text": {"literalString": "The 1910 gothic mystery by Gaston Leroux. Literary Classic."}, "usageHint": "body"}}}, {"id": "btn_media3", "component": {"Button": {"child": "txt_btn_media3", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.gutenberg.org/ebooks/175"}}]}}}}, {"id": "txt_btn_media3", "component": {"Text": {"text": {"literalString": "Read Online"}, "usageHint": "body"}}}, {"id": "divider_footer", "component": {"Divider": {}}}, {"id": "row_actions", "component": {"Row": {"children": {"explicitList": ["btn_soundtrack", "btn_website"]}, "distribution": "spaceAround"}}}, {"id": "btn_soundtrack", "component": {"Button": {"child": "txt_btn_soundtrack", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://open.spotify.com/album/4vS9Tz6fS6X9XhS2P2lX8Z"}}]}, "primary": true}}}, {"id": "txt_btn_soundtrack", "component": {"Text": {"text": {"literalString": "Listen to Soundtrack"}, "usageHint": "body"}}}, {"id": "btn_website", "component": {"Button": {"child": "txt_btn_website", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.thephantomoftheopera.com/"}}]}}}}, {"id": "txt_btn_website", "component": {"Text": {"text": {"literalString": "Official Website"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

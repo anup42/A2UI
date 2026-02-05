@@ -380,6 +380,7 @@ def main() -> None:
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
             )
             run_stage3(
+                queries_path=model_paths.queries_path,
                 responses_path=model_paths.responses_path,
                 prompt_path=prompts_dir / "genui_gen.md",
                 adapter=adapter,
@@ -469,6 +470,7 @@ def main() -> None:
 
         if args.stage == 3:
             run_stage3(
+                queries_path=run_paths.queries_path,
                 responses_path=run_paths.responses_path,
                 prompt_path=prompts_dir / "genui_gen.md",
                 adapter=adapter,

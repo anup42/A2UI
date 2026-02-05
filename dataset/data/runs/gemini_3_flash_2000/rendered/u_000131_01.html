@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "academy_awards_summary"}}, {"surfaceUpdate": {"surfaceId": "academy_awards_summary", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_section", "divider_1", "verification_section", "divider_2", "table_section", "divider_3", "highlights_section"]}, "alignment": "stretch"}}}, {"id": "header_section", "component": {"Column": {"children": {"explicitList": ["main_title", "assumptions_text", "summary_text"]}}}}, {"id": "main_title", "component": {"Text": {"text": {"literalString": "Academy Award for Best Picture (2015-2020)"}, "usageHint": "h1"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "Assumptions: The years 2015 to 2020 refer to the calendar year of the ceremony."}, "usageHint": "caption"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "The Academy Award for Best Picture is the highest honor in the film industry. The period between 2015 and 2020 saw a diverse range of winners, including biographical dramas, fantasy romances, and the first non-English language film to win the top prize."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "verification_section", "component": {"Column": {"children": {"explicitList": ["verification_title", "verification_list"]}}}}, {"id": "verification_title", "component": {"Text": {"text": {"literalString": "Verification Steps for Official Data"}, "usageHint": "h3"}}}, {"id": "verification_list", "component": {"List": {"children": {"explicitList": ["step_1", "step_2", "step_3"]}, "direction": "vertical"}}}, {"id": "step_1", "component": {"Text": {"text": {"literalString": "1. Visit the official Academy Awards database at awardsdatabase.oscars.org."}, "usageHint": "body"}}}, {"id": "step_2", "component": {"Text": {"text": {"literalString": "2. Select the category 'Best Picture' from the dropdown menu."}, "usageHint": "body"}}}, {"id": "step_3", "component": {"Text": {"text": {"literalString": "3. Enter the specific ceremony year or year range to view the official winners and nominees."}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "table_section", "component": {"Column": {"children": {"explicitList": ["table_title", "table_header_row", "row_2015", "row_2016", "row_2017", "row_2018", "row_2019", "row_2020"]}}}}, {"id": "table_title", "component": {"Text": {"text": {"literalString": "Academy Award Winners Table"}, "usageHint": "h3"}}}, {"id": "table_header_row", "component": {"Row": {"children": {"explicitList": ["h_year", "h_film", "h_director"]}, "distribution": "spaceBetween"}}}, {"id": "h_year", "component": {"Text": {"text": {"literalString": "**Year**"}, "usageHint": "body"}}}, {"id": "h_film", "component": {"Text": {"text": {"literalString": "**Film Title**"}, "usageHint": "body"}}}, {"id": "h_director", "component": {"Text": {"text": {"literalString": "**Director**"}, "usageHint": "body"}}}, {"id": "row_2015", "component": {"Row": {"children": {"explicitList": ["y15", "f15", "d15"]}}}}, {"id": "y15", "component": {"Text": {"text": {"literalString": "2015"}, "usageHint": "body"}}}, {"id": "f15", "component": {"Text": {"text": {"literalString": "Birdman or (The Unexpected Virtue of Ignorance)"}, "usageHint": "body"}}}, {"id": "d15", "component": {"Text": {"text": {"literalString": "Alejandro G. Inarritu"}, "usageHint": "body"}}}, {"id": "row_2016", "component": {"Row": {"children": {"explicitList": ["y16", "f16", "d16"]}}}}, {"id": "y16", "component": {"Text": {"text": {"literalString": "2016"}, "usageHint": "body"}}}, {"id": "f16", "component": {"Text": {"text": {"literalString": "Spotlight"}, "usageHint": "body"}}}, {"id": "d16", "component": {"Text": {"text": {"literalString": "Tom McCarthy"}, "usageHint": "body"}}}, {"id": "row_2017", "component": {"Row": {"children": {"explicitList": ["y17", "f17", "d17"]}}}}, {"id": "y17", "component": {"Text": {"text": {"literalString": "2017"}, "usageHint": "body"}}}, {"id": "f17", "component": {"Text": {"text": {"literalString": "Moonlight"}, "usageHint": "body"}}}, {"id": "d17", "component": {"Text": {"text": {"literalString": "Barry Jenkins"}, "usageHint": "body"}}}, {"id": "row_2018", "component": {"Row": {"children": {"explicitList": ["y18", "f18", "d18"]}}}}, {"id": "y18", "component": {"Text": {"text": {"literalString": "2018"}, "usageHint": "body"}}}, {"id": "f18", "component": {"Text": {"text": {"literalString": "The Shape of Water"}, "usageHint": "body"}}}, {"id": "d18", "component": {"Text": {"text": {"literalString": "Guillermo del Toro"}, "usageHint": "body"}}}, {"id": "row_2019", "component": {"Row": {"children": {"explicitList": ["y19", "f19", "d19"]}}}}, {"id": "y19", "component": {"Text": {"text": {"literalString": "2019"}, "usageHint": "body"}}}, {"id": "f19", "component": {"Text": {"text": {"literalString": "Green Book"}, "usageHint": "body"}}}, {"id": "d19", "component": {"Text": {"text": {"literalString": "Peter Farrelly"}, "usageHint": "body"}}}, {"id": "row_2020", "component": {"Row": {"children": {"explicitList": ["y20", "f20", "d20"]}}}}, {"id": "y20", "component": {"Text": {"text": {"literalString": "2020"}, "usageHint": "body"}}}, {"id": "f20", "component": {"Text": {"text": {"literalString": "Parasite"}, "usageHint": "body"}}}, {"id": "d20", "component": {"Text": {"text": {"literalString": "Bong Joon-ho"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "highlights_section", "component": {"Column": {"children": {"explicitList": ["highlights_title", "highlights_tabs"]}}}}, {"id": "highlights_title", "component": {"Text": {"text": {"literalString": "Film Highlights"}, "usageHint": "h3"}}}, {"id": "highlights_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Birdman"}, "child": "birdman_card"}, {"title": {"literalString": "Spotlight"}, "child": "spotlight_card"}]}}}, {"id": "birdman_card", "component": {"Card": {"child": "birdman_content"}}}, {"id": "birdman_content", "component": {"Column": {"children": {"explicitList": ["birdman_desc", "birdman_attr"]}}}}, {"id": "birdman_desc", "component": {"Text": {"text": {"literalString": "A satirical look at a faded superhero actor attempting a career comeback on Broadway."}, "usageHint": "body"}}}, {"id": "birdman_attr", "component": {"Text": {"text": {"literalString": "Key Attribute: Best Director Winner"}, "usageHint": "caption"}}}, {"id": "spotlight_card", "component": {"Card": {"child": "spotlight_content"}}}, {"id": "spotlight_content", "component": {"Column": {"children": {"explicitList": ["spotlight_desc"]}}}}, {"id": "spotlight_desc", "component": {"Text": {"text": {"literalString": "A procedural drama following the true story of the Boston Globe's investigation into systemic abuse."}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

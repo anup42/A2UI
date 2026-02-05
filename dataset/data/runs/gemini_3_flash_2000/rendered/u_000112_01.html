@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000112"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000112", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "icon_row_9", "icon_row_10", "icon_row_11", "btn_12", "btn_13", "text_14"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions: This comedy set is designed for a general adult audience familiar with remote work culture and standard video conferencing software like Zoom, Microsoft Teams, or Google Meet."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "SET TITLE: CAN YOU SEE MY SCREEN?\nDURATION: 5 MINUTES"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "OPENER: THE VIRTUAL SEANCE (0:00 - 1:00)\n- The \"Business Casual\" lie: Explaining the transition from wearing suits to wearing a nice shirt over neon pajama pants.\n- The Seance Ritual: Every meeting starts like we are talking to ghosts. \"Is there anyone there? Janet, are you with us? Knock once for audio, twice for video.\"\n- The Doorbell Panic: The sudden terror of a delivery driver ringing the bell and the realization that you cannot stand up to answer it because you are not wearing real pants."}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "BIT 1: THE MUTE BUTTON PARADOX (1:00 - 2:15)\n- The \"You're on Mute\" Chorus: It has replaced \"Hello\" as the most common phrase in the English language. \n- The Muted Monologue: Giving the most passionate, career-defining speech of your life for three minutes, only to realize no one heard a word. \n- The Accidental Hot Mic: The horror of your cat knocking over a lamp or your roommate yelling about laundry while the CEO is discussing the annual budget."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "BIT 2: THE WITNESS PROTECTION AESTHETIC (2:15 - 3:30)\n- Lighting Issues: The person sitting in front of a bright window who looks like a silhouette in a true-crime documentary.\n- The Background Abyss: Those fake digital backgrounds where your ears and hair keep disappearing into the Golden Gate Bridge every time you tilt your head.\n- The \"Up-The-Nose\" Angle: Why do people place their laptops on their laps? I don't need to see your ceiling fan and your nostrils for forty-five minutes."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "BIT 3: SCREEN SHARE ROULETTE (3:30 - 4:30)\n- The Lag Face: The internet always freezes your face in the most unflattering, mid-sneeze expression possible while everyone else keeps talking.\n- The Screen Share Panic: That five-second window of pure adrenaline when you share your screen and pray you closed your \"How to start a competitive alpaca farm\" research tabs.\n- The Ghost Typist: The person who doesn't mute themselves and sounds like they are using a 1920s typewriter directly into your brain."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "CLOSER: THE AWKWARD EXIT (4:30 - 5:00)\n- The Wave: Why do we all wave goodbye? We don't wave when we leave a physical conference room. You don't walk backwards out of a door waving at your manager.\n- The Exit Struggle: The frantic three seconds of searching for the \"Leave Meeting\" button while maintaining a frozen, fake smile so they don't see your soul leave your body.\n- The Final Realization: Looking at the \"Meeting Ended\" screen and realizing that entire hour could have been a three-sentence email."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "TABLE: VIDEO CALL ARCHETYPES\nArchetype | Primary Behavior | Common Catchphrase\nThe Ghost | Camera off, mic off, total mystery | \"My internet is unstable today.\"\nThe Multitasker | Aggressive typing, eyes darting | \"Sorry, could you repeat that?\"\nThe Tech-Struggler | Can't find the link or the mute button | \"Is this the right Zoom link?\"\nThe Pet Parent | Constant animal appearances | \"He thinks he's the manager!\"\nThe Ceiling Watcher | Camera angled at the light fixture | (Heavy breathing sounds)"}, "usageHint": "body"}}}, {"id": "icon_img_9", "component": {"Image": {"url": {"literalString": "https://example.com/icons/mic-mute.png"}, "usageHint": "icon"}}}, {"id": "icon_label_9", "component": {"Text": {"text": {"literalString": "Microphone Off"}, "usageHint": "body"}}}, {"id": "icon_row_9", "component": {"Row": {"children": {"explicitList": ["icon_img_9", "icon_label_9"]}, "alignment": "center"}}}, {"id": "icon_img_10", "component": {"Image": {"url": {"literalString": "https://example.com/icons/video-on.png"}, "usageHint": "icon"}}}, {"id": "icon_label_10", "component": {"Text": {"text": {"literalString": "Camera On"}, "usageHint": "body"}}}, {"id": "icon_row_10", "component": {"Row": {"children": {"explicitList": ["icon_img_10", "icon_label_10"]}, "alignment": "center"}}}, {"id": "icon_img_11", "component": {"Image": {"url": {"literalString": "https://example.com/icons/share-screen.png"}, "usageHint": "icon"}}}, {"id": "icon_label_11", "component": {"Text": {"text": {"literalString": "Screen Share"}, "usageHint": "body"}}}, {"id": "icon_row_11", "component": {"Row": {"children": {"explicitList": ["icon_img_11", "icon_label_11"]}, "alignment": "center"}}}, {"id": "btn_label_12", "component": {"Text": {"text": {"literalString": "Tips for Better Lighting"}, "usageHint": "body"}}}, {"id": "btn_12", "component": {"Button": {"child": "btn_label_12", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/lighting-guide"}}]}, "primary": true}}}, {"id": "btn_label_13", "component": {"Text": {"text": {"literalString": "Download Professional Backgrounds"}, "usageHint": "body"}}}, {"id": "btn_13", "component": {"Button": {"child": "btn_label_13", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/virtual-backgrounds"}}]}, "primary": true}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "- https://hbr.org/2020/04/how-to-combat-zoom-fatigue\n- https://www.psychologytoday.com/us/blog/the-power-of-personal-narrative/202005/the-psychology-zoom-fatigue"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

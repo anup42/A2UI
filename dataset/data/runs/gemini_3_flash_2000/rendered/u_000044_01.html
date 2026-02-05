@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000044"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000044", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "icon_row_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "text_12", "text_13", "btn_14", "btn_15", "btn_16", "text_17"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions: This checklist assumes you are doing a multi-day trek (like the W Trek or Fitz Roy) staying in a mix of refugios (huts) and campsites. November is late spring in Patagonia, characterized by high winds and unpredictable rain."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Summary\nPatagonia in November requires a layering system. The \"four seasons in one day\" rule applies, so gear must be waterproof, windproof, and breathable."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "- Clothing: /assets/r_000044_01_1_t-shirt.png\n- Gear: /assets/r_000044_01_2_backpack.png"}, "usageHint": "body"}}}, {"id": "icon_img_4", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/color/48/first-aid-kit.png"}, "usageHint": "icon"}}}, {"id": "icon_label_4", "component": {"Text": {"text": {"literalString": "First Aid"}, "usageHint": "body"}}}, {"id": "icon_row_4", "component": {"Row": {"children": {"explicitList": ["icon_img_4", "icon_label_4"]}, "alignment": "center"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "- Documents: /assets/r_000044_01_4_passport.png"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Packing Checklist"}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Clothing (Layering is Key)\n- Base Layers: 2x moisture-wicking synthetic or merino wool long-sleeve tops.\n- Mid-Layers: 1x breathable fleece jacket and 1x lightweight down or synthetic \"puffy\" jacket.\n- Outer Shell: 1x high-quality waterproof and windproof jacket (Gore-Tex recommended).\n- Hiking Pants: 2x pairs of quick-dry trekking pants (avoid denim).\n- Rain Pants: 1x pair of lightweight waterproof over-pants.\n- Underwear: 4-5x pairs of moisture-wicking fabric.\n- Socks: 4x pairs of wool hiking socks (e.g., Smartwool or Darn Tough) plus 1x pair of thick sleeping socks.\n- Footwear: 1x pair of broken-in waterproof hiking boots and 1x pair of camp shoes (sandals or light sneakers).\n- Accessories: 1x warm beanie, 1x sun hat, 1x pair of waterproof gloves, and 1x neck gaiter (buff)."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Gear and Equipment\n- Backpack: 50-65L pack with a fitted rain cover.\n- Daypack: 15-20L for shorter side trips (if not using the main pack).\n- Sleeping: 0°C (32°F) rated sleeping bag and a lightweight sleeping pad (if camping).\n- Trekking Poles: Highly recommended for steep terrain and wind stability.\n- Hydration: 2L water bladder or 2x 1L reusable wide-mouth bottles.\n- Lighting: Headlamp with extra batteries.\n- Storage: 3x dry bags of various sizes to keep clothes and electronics dry."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "First Aid and Personal Care\n- Blister Care: Moleskin, Compeed, or athletic tape (essential).\n- Medication: Ibuprofen/Acetaminophen, Antihistamines, and any personal prescriptions.\n- Sun/Wind Protection: SPF 50+ sunscreen, lip balm with SPF, and polarized sunglasses.\n- Hygiene: Biodegradable soap, travel towel, wet wipes, and hand sanitizer.\n- Repair Kit: Duct tape (wrapped around poles), safety pins, and a multi-tool."}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "Documents and Essentials\n- Passport: Original document plus a physical photocopy.\n- Entry Forms: PDI slip (received when entering Chile) or migration forms for Argentina.\n- Park Tickets: Digital or printed QR codes for Torres del Paine or Los Glaciares.\n- Insurance: Proof of travel insurance covering high-altitude trekking.\n- Currency: Chilean Pesos (CLP) or Argentine Pesos (ARS) for snacks and tips.\n- Offline Maps: Downloaded maps (AllTrails or Gaia GPS)."}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "Weather Framework (Verification Steps)\nTo check live conditions before departure:\n1. Visit Windguru or Meteoblue and search for \"Torres del Paine\" or \"El Chalten\".\n2. Look specifically at wind gust speeds, as these often dictate trail closures.\n3. Check the \"Wind Chill\" temperature rather than just the ambient temperature."}, "usageHint": "body"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "Example November Weather Averages (Synthetic Data)\nLocation | Avg High | Avg Low | Wind Speed | Rainfall Days\nTorres del Paine | 13 C | 4 C | 25-40 km/h | 8 Days\nEl Chalten | 14 C | 3 C | 20-35 km/h | 6 Days\nUshuaia | 10 C | 2 C | 30-50 km/h | 10 Days"}, "usageHint": "body"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "Top 3 Trail Options (Cards)\nOption 1: The W Trek (Chile) | The classic 4-5 day route through the heart of Torres del Paine | High Difficulty | https://www.parquetorresdelpaine.cl/\nOption 2: Fitz Roy Loop (Argentina) | Stunning granite spires and glacial lakes near El Chalten | Moderate Difficulty | https://www.argentina.gob.ar/parquesnacionales/losglaciares\nOption 3: The O Circuit (Chile) | An 8-day full loop around the Paine Massif for experienced hikers | Very High Difficulty | https://www.parquetorresdelpaine.cl/"}, "usageHint": "body"}}}, {"id": "btn_label_14", "component": {"Text": {"text": {"literalString": "Book Torres del Paine Campsites"}, "usageHint": "body"}}}, {"id": "btn_14", "component": {"Button": {"child": "btn_label_14", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://lastorres.com/en/"}}]}, "primary": true}}}, {"id": "btn_label_15", "component": {"Text": {"text": {"literalString": "Buy Trekking Insurance"}, "usageHint": "body"}}}, {"id": "btn_15", "component": {"Button": {"child": "btn_label_15", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.worldnomads.com/"}}]}, "primary": true}}}, {"id": "btn_label_16", "component": {"Text": {"text": {"literalString": "Check Patagonia Weather"}, "usageHint": "body"}}}, {"id": "btn_16", "component": {"Button": {"child": "btn_label_16", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.windguru.cz/"}}]}, "primary": true}}}, {"id": "text_17", "component": {"Text": {"text": {"literalString": "- https://www.chile.travel/en/\n- https://www.argentina.gob.ar/turismoydeportes\n- https://www.nps.gov/articles/hiking-safety.htm"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

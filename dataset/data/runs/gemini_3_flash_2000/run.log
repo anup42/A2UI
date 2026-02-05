@@ -5770,3 +5770,1140 @@
 2026-02-05 02:17:53 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1518974459161-e13739663e26 err=HTTP Error 404: Not Found
 2026-02-05 02:17:54 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1543832495-2e6025f80b9e err=HTTP Error 404: Not Found
 2026-02-05 02:17:55 INFO dataset: Stage2 created response_id=r_000532_01
+2026-02-05 02:18:45 INFO dataset: Stage2 created response_id=r_000533_01
+2026-02-05 02:19:30 INFO dataset: Stage2 created response_id=r_000534_01
+2026-02-05 02:20:25 INFO dataset: Stage2 created response_id=r_000535_01
+2026-02-05 02:20:50 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/sleeping-island.png err=HTTP Error 404: Not Found
+2026-02-05 02:20:50 INFO dataset: Stage2 created response_id=r_000536_01
+2026-02-05 02:21:15 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1541364983171-a8ba01d95cfc err=HTTP Error 404: Not Found
+2026-02-05 02:21:16 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1599408162172-74424f9b8893 err=HTTP Error 404: Not Found
+2026-02-05 02:21:16 INFO dataset: Stage2 created response_id=r_000537_01
+2026-02-05 02:21:43 INFO dataset: Stage2 created response_id=r_000538_01
+2026-02-05 02:22:12 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/basket.png err=HTTP Error 404: Not Found
+2026-02-05 02:22:12 INFO dataset: Stage2 created response_id=r_000539_01
+2026-02-05 02:22:36 INFO dataset: Stage2 created response_id=r_000540_01
+2026-02-05 02:23:05 WARNING dataset: Stage2 asset download failed url=https://www.example.com/spring-cleaning-checklist.pdf err=HTTP Error 404: Not Found
+2026-02-05 02:23:07 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/bathtub.png err=HTTP Error 404: Not Found
+2026-02-05 02:23:07 INFO dataset: Stage2 created response_id=r_000541_01
+2026-02-05 02:23:30 INFO dataset: Stage2 created response_id=r_000542_01
+2026-02-05 02:23:56 INFO dataset: Stage2 created response_id=r_000543_01
+2026-02-05 02:24:26 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1607919560939-f28876e6e409?auto=format&fit=crop&q=80&w=1000 err=HTTP Error 404: Not Found
+2026-02-05 02:24:26 INFO dataset: Stage2 created response_id=r_000544_01
+2026-02-05 02:24:57 INFO dataset: Stage2 created response_id=r_000545_01
+2026-02-05 02:25:34 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/tree.png err=HTTP Error 404: Not Found
+2026-02-05 02:25:35 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1525625232717-121ad3186247 err=HTTP Error 404: Not Found
+2026-02-05 02:25:35 INFO dataset: Stage2 created response_id=r_000546_01
+2026-02-05 02:26:20 INFO dataset: Stage2 created response_id=r_000547_01
+2026-02-05 02:26:53 INFO dataset: Stage2 created response_id=r_000548_01
+2026-02-05 02:27:26 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/kayaking.png err=HTTP Error 404: Not Found
+2026-02-05 02:27:29 INFO dataset: Stage2 created response_id=r_000549_01
+2026-02-05 02:27:58 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1592841200221-a6898f307bac err=HTTP Error 404: Not Found
+2026-02-05 02:27:59 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1618375531912-77ac368ff13f err=HTTP Error 404: Not Found
+2026-02-05 02:27:59 INFO dataset: Stage2 created response_id=r_000550_01
+2026-02-05 02:28:29 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/floor-tile.png err=HTTP Error 404: Not Found
+2026-02-05 02:28:30 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/paint-roller.png err=HTTP Error 404: Not Found
+2026-02-05 02:28:30 INFO dataset: Stage2 created response_id=r_000551_01
+2026-02-05 02:29:01 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/checked-line.png err=HTTP Error 404: Not Found
+2026-02-05 02:29:01 INFO dataset: Stage2 created response_id=r_000552_01
+2026-02-05 02:29:29 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1599458252573-56ae36390674?q=80&w=400 err=HTTP Error 404: Not Found
+2026-02-05 02:29:31 INFO dataset: Stage2 created response_id=r_000553_01
+2026-02-05 02:29:55 WARNING dataset: Stage2 asset download failed url=https://example.com/art-history-syllabus.pdf err=HTTP Error 404: Not Found
+2026-02-05 02:29:56 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg/1280px-Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg err=HTTP Error 403: Forbidden
+2026-02-05 02:29:56 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg err=HTTP Error 403: Forbidden
+2026-02-05 02:29:56 INFO dataset: Stage2 created response_id=r_000554_01
+2026-02-05 02:30:32 ERROR dataset: Stage2 error query_id=q_000555: Gemini keys exhausted after 3 attempts: HTTP Error 503: Service Unavailable
+2026-02-05 02:31:03 INFO dataset: Stage2 created response_id=r_000556_01
+2026-02-05 02:31:30 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/hiking.png err=HTTP Error 404: Not Found
+2026-02-05 02:31:31 INFO dataset: Stage2 created response_id=r_000557_01
+2026-02-05 02:31:55 INFO dataset: Stage2 created response_id=r_000558_01
+2026-02-05 02:32:25 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/cherry-blossoms.png err=HTTP Error 404: Not Found
+2026-02-05 02:32:26 WARNING dataset: Stage2 asset download failed url=https://www.nps.gov/common/uploads/grid_builder/nama/promo/1F634A21-F99E-6014-9E043B0E84D34123.jpg err=HTTP Error 404: Not Found
+2026-02-05 02:32:28 WARNING dataset: Stage2 asset download failed url=https://www.spymuseum.org/files/resources/spy-museum-exterior-night.jpg err=HTTP Error 404: Not Found
+2026-02-05 02:32:28 INFO dataset: Stage2 created response_id=r_000559_01
+2026-02-05 02:32:59 INFO dataset: Stage2 created response_id=r_000560_01
+2026-02-05 02:33:35 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1547049082-1a12c3bf233d?w=400 err=HTTP Error 404: Not Found
+2026-02-05 02:33:35 INFO dataset: Stage2 created response_id=r_000561_01
+2026-02-05 02:34:05 INFO dataset: Stage2 created response_id=r_000562_01
+2026-02-05 02:34:40 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/campervan.png err=HTTP Error 404: Not Found
+2026-02-05 02:34:41 INFO dataset: Stage2 created response_id=r_000563_01
+2026-02-05 02:35:10 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/96/light-it-up.png err=HTTP Error 404: Not Found
+2026-02-05 02:35:14 INFO dataset: Stage2 created response_id=r_000564_01
+2026-02-05 02:35:44 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/sleeping-pill.png err=HTTP Error 404: Not Found
+2026-02-05 02:35:46 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1548691905-57c36cc8d93f?auto=format&fit=crop&w=400&q=80 err=HTTP Error 404: Not Found
+2026-02-05 02:35:46 INFO dataset: Stage2 created response_id=r_000565_01
+2026-02-05 02:36:21 INFO dataset: Stage2 created response_id=r_000566_01
+2026-02-05 02:36:56 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/spices.png err=HTTP Error 404: Not Found
+2026-02-05 02:36:56 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/flour-bag.png err=HTTP Error 404: Not Found
+2026-02-05 02:36:56 INFO dataset: Stage2 created response_id=r_000567_01
+2026-02-05 02:37:34 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1544787210-228394c3d3e2 err=HTTP Error 404: Not Found
+2026-02-05 02:37:34 INFO dataset: Stage2 created response_id=r_000555_01
+2026-02-05 02:38:03 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/rest.png err=HTTP Error 404: Not Found
+2026-02-05 02:38:03 WARNING dataset: Stage2 asset download failed url=https://example.com/images/bench-press-form.jpg err=HTTP Error 404: Not Found
+2026-02-05 02:38:03 WARNING dataset: Stage2 asset download failed url=https://example.com/images/squat-depth.jpg err=HTTP Error 404: Not Found
+2026-02-05 02:38:04 WARNING dataset: Stage2 asset download failed url=https://example.com/images/lat-pulldown.jpg err=HTTP Error 404: Not Found
+2026-02-05 02:38:04 INFO dataset: Stage2 created response_id=r_000568_01
+2026-02-05 02:38:35 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1508107222753-0c236c335531 err=HTTP Error 404: Not Found
+2026-02-05 02:38:36 INFO dataset: Stage2 created response_id=r_000569_01
+2026-02-05 02:38:59 INFO dataset: Stage2 created response_id=r_000570_01
+2026-02-05 02:39:23 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/000000/bright-mind.png err=HTTP Error 404: Not Found
+2026-02-05 02:39:23 INFO dataset: Stage2 created response_id=r_000571_01
+2026-02-05 02:39:52 INFO dataset: Stage2 created response_id=r_000572_01
+2026-02-05 02:40:20 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/fried-eggs.png err=HTTP Error 404: Not Found
+2026-02-05 02:40:23 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1628548484584-9747c3004106?q=80&w=500 err=HTTP Error 404: Not Found
+2026-02-05 02:40:23 WARNING dataset: Stage2 asset download failed url=https://example.com/keto-veg-plan.pdf err=HTTP Error 404: Not Found
+2026-02-05 02:40:23 INFO dataset: Stage2 created response_id=r_000573_01
+2026-02-05 02:40:46 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/fluency/48/000000/piggy-bank.png err=HTTP Error 404: Not Found
+2026-02-05 02:40:48 INFO dataset: Stage2 created response_id=r_000574_01
+2026-02-05 02:41:11 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/paint-roller.png err=HTTP Error 404: Not Found
+2026-02-05 02:41:12 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/cabinet.png err=HTTP Error 404: Not Found
+2026-02-05 02:41:13 INFO dataset: Stage2 created response_id=r_000575_01
+2026-02-05 02:41:35 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1590736962031-2900388960d7 err=HTTP Error 404: Not Found
+2026-02-05 02:41:35 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1558444479-c84825927d35 err=HTTP Error 404: Not Found
+2026-02-05 02:41:37 INFO dataset: Stage2 created response_id=r_000576_01
+2026-02-05 02:42:14 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/shipping-box.png err=HTTP Error 404: Not Found
+2026-02-05 02:42:15 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/delivery-truck.png err=HTTP Error 404: Not Found
+2026-02-05 02:42:15 INFO dataset: Stage2 created response_id=r_000577_01
+2026-02-05 02:42:38 WARNING dataset: Stage2 asset download failed url=https://www.metmuseum.org/-/media/images/visit/met-fifth-avenue/fifthave_facade_1200x675.jpg err=HTTP Error 404: Not Found
+2026-02-05 02:42:38 WARNING dataset: Stage2 asset download failed url=https://www.thehighline.org/wp-content/uploads/2019/04/High-Line-Map-Section-1.jpg err=HTTP Error 403: Forbidden
+2026-02-05 02:42:40 WARNING dataset: Stage2 asset download failed url=https://summitov.com/wp-content/uploads/2021/09/SOV_Gallery_Transcendence.jpg err=HTTP Error 404: Not Found
+2026-02-05 02:42:41 INFO dataset: Stage2 created response_id=r_000578_01
+2026-02-05 02:43:13 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/pea.png err=HTTP Error 404: Not Found
+2026-02-05 02:43:13 INFO dataset: Stage2 created response_id=r_000579_01
+2026-02-05 02:43:42 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/job-seeker.png err=HTTP Error 404: Not Found
+2026-02-05 02:43:42 INFO dataset: Stage2 created response_id=r_000580_01
+2026-02-05 02:44:16 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/tree.png err=HTTP Error 404: Not Found
+2026-02-05 02:44:17 WARNING dataset: Stage2 asset download failed url=https://example.com/detox-schedule.pdf err=HTTP Error 404: Not Found
+2026-02-05 02:44:17 INFO dataset: Stage2 created response_id=r_000581_01
+2026-02-05 02:44:57 WARNING dataset: Stage2 asset download failed url=https://example.com/c25k-planner.pdf err=HTTP Error 404: Not Found
+2026-02-05 02:44:57 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/running_shoe.png err=HTTP Error 404: Not Found
+2026-02-05 02:44:57 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/walking_man.png err=HTTP Error 404: Not Found
+2026-02-05 02:44:58 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/heart_rate.png err=HTTP Error 404: Not Found
+2026-02-05 02:44:58 WARNING dataset: Stage2 asset download failed url=https://example.com/images/running-posture-diagram.jpg err=HTTP Error 404: Not Found
+2026-02-05 02:44:58 INFO dataset: Stage2 created response_id=r_000582_01
+2026-02-05 02:45:26 INFO dataset: Stage2 created response_id=r_000583_01
+2026-02-05 02:46:03 INFO dataset: Stage2 created response_id=r_000584_01
+2026-02-05 02:46:43 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/sunscreen.png err=HTTP Error 404: Not Found
+2026-02-05 02:46:43 INFO dataset: Stage2 created response_id=r_000585_01
+2026-02-05 02:47:15 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/face-mask.png err=HTTP Error 404: Not Found
+2026-02-05 02:47:17 INFO dataset: Stage2 created response_id=r_000586_01
+2026-02-05 02:47:44 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/spreadsheet.png err=HTTP Error 404: Not Found
+2026-02-05 02:47:44 INFO dataset: Stage2 created response_id=r_000587_01
+2026-02-05 02:48:18 INFO dataset: Stage2 created response_id=r_000588_01
+2026-02-05 02:48:47 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1508104143694-67230495393b err=HTTP Error 404: Not Found
+2026-02-05 02:48:48 INFO dataset: Stage2 created response_id=r_000589_01
+2026-02-05 02:49:28 INFO dataset: Stage2 created response_id=r_000590_01
+2026-02-05 02:50:00 INFO dataset: Stage2 created response_id=r_000591_01
+2026-02-05 02:50:26 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/mop.png err=HTTP Error 404: Not Found
+2026-02-05 02:50:26 INFO dataset: Stage2 created response_id=r_000592_01
+2026-02-05 02:50:50 INFO dataset: Stage2 created response_id=r_000593_01
+2026-02-05 02:51:22 WARNING dataset: Stage2 asset download failed url=https://perso.limsi.fr/pointal/_media/python:cours:mementopython3-english.pdf err=<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1006)>
+2026-02-05 02:51:23 INFO dataset: Stage2 created response_id=r_000594_01
+2026-02-05 02:51:45 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/seedling.png err=HTTP Error 404: Not Found
+2026-02-05 02:51:45 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/wicker-basket.png err=HTTP Error 404: Not Found
+2026-02-05 02:51:47 INFO dataset: Stage2 created response_id=r_000595_01
+2026-02-05 02:52:14 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/champagne-glasses.png err=HTTP Error 404: Not Found
+2026-02-05 02:52:15 INFO dataset: Stage2 created response_id=r_000596_01
+2026-02-05 02:52:47 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/moon-and-stars.png err=HTTP Error 404: Not Found
+2026-02-05 02:52:48 INFO dataset: Stage2 created response_id=r_000597_01
+2026-02-05 02:53:17 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/piggy-bank.png err=HTTP Error 404: Not Found
+2026-02-05 02:53:17 INFO dataset: Stage2 created response_id=r_000598_01
+2026-02-05 02:53:56 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/hiking-boots.png err=HTTP Error 404: Not Found
+2026-02-05 02:53:57 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/hotel.png err=HTTP Error 404: Not Found
+2026-02-05 02:53:57 INFO dataset: Stage2 created response_id=r_000599_01
+2026-02-05 02:54:31 INFO dataset: Stage2 created response_id=r_000600_01
+2026-02-05 02:55:18 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/kitchen-cabinet.png err=HTTP Error 404: Not Found
+2026-02-05 02:55:18 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/paint-roller.png err=HTTP Error 404: Not Found
+2026-02-05 02:55:18 INFO dataset: Stage2 created response_id=r_000601_01
+2026-02-05 02:55:46 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/curls-with-comb.png err=HTTP Error 404: Not Found
+2026-02-05 02:55:47 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/champagne-glasses.png err=HTTP Error 404: Not Found
+2026-02-05 02:55:47 INFO dataset: Stage2 created response_id=r_000602_01
+2026-02-05 02:56:13 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/fluency/48/bell-pepper.png err=HTTP Error 404: Not Found
+2026-02-05 02:56:15 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/USDA_Hardiness_zone_map.jpg/800px-USDA_Hardiness_zone_map.jpg err=HTTP Error 403: Forbidden
+2026-02-05 02:56:16 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1592150621344-acc30bb517ee?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 02:56:16 INFO dataset: Stage2 created response_id=r_000603_01
+2026-02-05 02:57:08 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/checked-shield.png err=HTTP Error 404: Not Found
+2026-02-05 02:57:08 INFO dataset: Stage2 created response_id=r_000604_01
+2026-02-05 02:57:39 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/delivery-truck.png err=HTTP Error 404: Not Found
+2026-02-05 02:57:39 INFO dataset: Stage2 created response_id=r_000605_01
+2026-02-05 02:58:02 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/checked-line.png err=HTTP Error 404: Not Found
+2026-02-05 02:58:02 INFO dataset: Stage2 created response_id=r_000606_01
+2026-02-05 02:58:27 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/flower-multi-color.png err=HTTP Error 404: Not Found
+2026-02-05 02:58:27 INFO dataset: Stage2 created response_id=r_000607_01
+2026-02-05 02:58:55 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/McCormick_Place_West_Building.jpg/640px-McCormick_Place_West_Building.jpg err=HTTP Error 403: Forbidden
+2026-02-05 02:58:55 WARNING dataset: Stage2 asset download failed url=https://images.pexels.com/photos/161963/chicago-city-skyline-illinois-161963.jpeg err=HTTP Error 403: Forbidden
+2026-02-05 02:58:55 INFO dataset: Stage2 created response_id=r_000608_01
+2026-02-05 02:59:18 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/delivery-truck.png err=HTTP Error 404: Not Found
+2026-02-05 02:59:18 INFO dataset: Stage2 created response_id=r_000609_01
+2026-02-05 02:59:44 INFO dataset: Stage2 created response_id=r_000610_01
+2026-02-05 03:00:06 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/suit.png err=HTTP Error 404: Not Found
+2026-02-05 03:00:06 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/hygiene.png err=HTTP Error 404: Not Found
+2026-02-05 03:00:06 INFO dataset: Stage2 created response_id=r_000611_01
+2026-02-05 03:00:33 INFO dataset: Stage2 created response_id=r_000612_01
+2026-02-05 03:00:57 INFO dataset: Stage2 created response_id=r_000613_01
+2026-02-05 03:01:25 INFO dataset: Stage2 created response_id=r_000614_01
+2026-02-05 03:02:00 INFO dataset: Stage2 created response_id=r_000615_01
+2026-02-05 03:02:37 INFO dataset: Stage2 created response_id=r_000616_01
+2026-02-05 03:03:03 INFO dataset: Stage2 created response_id=r_000617_01
+2026-02-05 03:03:33 INFO dataset: Stage2 created response_id=r_000618_01
+2026-02-05 03:04:11 INFO dataset: Stage2 created response_id=r_000619_01
+2026-02-05 03:04:32 INFO dataset: Stage2 created response_id=r_000620_01
+2026-02-05 03:05:04 INFO dataset: Stage2 created response_id=r_000621_01
+2026-02-05 03:05:29 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/message-sent.png err=HTTP Error 404: Not Found
+2026-02-05 03:05:29 INFO dataset: Stage2 created response_id=r_000622_01
+2026-02-05 03:06:05 INFO dataset: Stage2 created response_id=r_000623_01
+2026-02-05 03:06:29 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:06:30 INFO dataset: Stage2 created response_id=r_000624_01
+2026-02-05 03:06:56 INFO dataset: Stage2 created response_id=r_000625_01
+2026-02-05 03:07:23 INFO dataset: Stage2 created response_id=r_000626_01
+2026-02-05 03:07:51 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/coffee-beans.png err=HTTP Error 404: Not Found
+2026-02-05 03:07:52 INFO dataset: Stage2 created response_id=r_000627_01
+2026-02-05 03:08:18 INFO dataset: Stage2 created response_id=r_000628_01
+2026-02-05 03:08:51 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/fluency/48/kitchen.png err=HTTP Error 404: Not Found
+2026-02-05 03:08:52 INFO dataset: Stage2 created response_id=r_000629_01
+2026-02-05 03:09:18 INFO dataset: Stage2 created response_id=r_000630_01
+2026-02-05 03:09:45 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1599408162449-369f649842a1?q=80&w=1000 err=HTTP Error 404: Not Found
+2026-02-05 03:09:45 INFO dataset: Stage2 created response_id=r_000631_01
+2026-02-05 03:10:16 WARNING dataset: Stage2 asset download failed url=https://static.semrush.com/blog/uploads/media/8b/22/8b22588070868a25a072979207869695/google-analytics-4-dashboard.png err=HTTP Error 404: Not Found
+2026-02-05 03:10:16 INFO dataset: Stage2 created response_id=r_000632_01
+2026-02-05 03:10:37 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/distance.png err=HTTP Error 404: Not Found
+2026-02-05 03:10:39 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/water-glass.png err=HTTP Error 404: Not Found
+2026-02-05 03:10:39 INFO dataset: Stage2 created response_id=r_000633_01
+2026-02-05 03:11:01 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/light-it-up.png err=HTTP Error 404: Not Found
+2026-02-05 03:11:01 INFO dataset: Stage2 created response_id=r_000634_01
+2026-02-05 03:11:24 INFO dataset: Stage2 created response_id=r_000635_01
+2026-02-05 03:11:58 INFO dataset: Stage2 created response_id=r_000636_01
+2026-02-05 03:12:40 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/vegetables.png err=HTTP Error 404: Not Found
+2026-02-05 03:12:41 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/grain.png err=HTTP Error 404: Not Found
+2026-02-05 03:12:41 INFO dataset: Stage2 created response_id=r_000637_01
+2026-02-05 03:13:03 INFO dataset: Stage2 created response_id=r_000638_01
+2026-02-05 03:13:26 INFO dataset: Stage2 created response_id=r_000639_01
+2026-02-05 03:13:51 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/light-switch.png err=HTTP Error 404: Not Found
+2026-02-05 03:13:52 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/drywall.png err=HTTP Error 404: Not Found
+2026-02-05 03:13:53 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/paint-roller.png err=HTTP Error 404: Not Found
+2026-02-05 03:13:53 INFO dataset: Stage2 created response_id=r_000640_01
+2026-02-05 03:14:14 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/fluency/48/spreadsheet.png err=HTTP Error 404: Not Found
+2026-02-05 03:14:14 INFO dataset: Stage2 created response_id=r_000641_01
+2026-02-05 03:14:41 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/hygiene.png err=HTTP Error 404: Not Found
+2026-02-05 03:14:42 INFO dataset: Stage2 created response_id=r_000642_01
+2026-02-05 03:15:06 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/opened-folder-key.png err=HTTP Error 404: Not Found
+2026-02-05 03:15:07 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/right-button.png err=HTTP Error 404: Not Found
+2026-02-05 03:15:07 INFO dataset: Stage2 created response_id=r_000643_01
+2026-02-05 03:15:32 INFO dataset: Stage2 created response_id=r_000644_01
+2026-02-05 03:15:58 INFO dataset: Stage2 created response_id=r_000645_01
+2026-02-05 03:16:29 INFO dataset: Stage2 created response_id=r_000646_01
+2026-02-05 03:16:52 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/tokyo-tower.png err=HTTP Error 404: Not Found
+2026-02-05 03:16:52 INFO dataset: Stage2 created response_id=r_000647_01
+2026-02-05 03:17:12 INFO dataset: Stage2 created response_id=r_000648_01
+2026-02-05 03:17:39 WARNING dataset: Stage2 asset download failed url=https://images.example.com/greenstep-blue-sneaker.jpg err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 03:17:39 WARNING dataset: Stage2 asset download failed url=https://images.example.com/ocean-cleanup-action.jpg err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 03:17:39 INFO dataset: Stage2 created response_id=r_000649_01
+2026-02-05 03:18:02 INFO dataset: Stage2 created response_id=r_000650_01
+2026-02-05 03:18:29 INFO dataset: Stage2 created response_id=r_000651_01
+2026-02-05 03:18:57 INFO dataset: Stage2 created response_id=r_000652_01
+2026-02-05 03:19:22 INFO dataset: Stage2 created response_id=r_000653_01
+2026-02-05 03:19:58 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/power.png err=HTTP Error 404: Not Found
+2026-02-05 03:19:58 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/wifi.png err=HTTP Error 404: Not Found
+2026-02-05 03:19:58 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/heat.png err=HTTP Error 404: Not Found
+2026-02-05 03:19:58 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/cool.png err=HTTP Error 404: Not Found
+2026-02-05 03:19:58 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/settings.png err=HTTP Error 404: Not Found
+2026-02-05 03:19:59 WARNING dataset: Stage2 asset download failed url=https://example.com/images/wiring_diagram_24v.png err=HTTP Error 404: Not Found
+2026-02-05 03:19:59 WARNING dataset: Stage2 asset download failed url=https://example.com/images/mobile_app_schedule.png err=HTTP Error 404: Not Found
+2026-02-05 03:19:59 WARNING dataset: Stage2 asset download failed url=https://example.com/images/mounting_guide.png err=HTTP Error 404: Not Found
+2026-02-05 03:19:59 INFO dataset: Stage2 created response_id=r_000654_01
+2026-02-05 03:20:27 WARNING dataset: Stage2 asset download failed url=https://luna1.co/899134.png err=HTTP Error 403: Forbidden
+2026-02-05 03:20:27 WARNING dataset: Stage2 asset download failed url=https://images.ctfassets.net/rz1oowkt5gyp/1I99m6Sba67Yp7B9C6Yy6S/768a35639697f3d6c0f0f1f1f1f1f1f1/Trello_Board.png err=HTTP Error 404: Not Found
+2026-02-05 03:20:32 WARNING dataset: Stage2 asset download failed url=https://wac-cdn.atlassian.com/dam/jcr:82703f83-366d-4950-a94b-4f51478f2f63/Roadmaps%20Hero%20Image.png err=HTTP Error 404: Not Found
+2026-02-05 03:20:32 INFO dataset: Stage2 created response_id=r_000655_01
+2026-02-05 03:20:57 INFO dataset: Stage2 created response_id=r_000656_01
+2026-02-05 03:21:26 INFO dataset: Stage2 created response_id=r_000657_01
+2026-02-05 03:21:56 INFO dataset: Stage2 created response_id=r_000658_01
+2026-02-05 03:22:20 INFO dataset: Stage2 created response_id=r_000659_01
+2026-02-05 03:22:43 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/light-thought.png err=HTTP Error 404: Not Found
+2026-02-05 03:22:43 INFO dataset: Stage2 created response_id=r_000660_01
+2026-02-05 03:23:06 INFO dataset: Stage2 created response_id=r_000661_01
+2026-02-05 03:23:31 INFO dataset: Stage2 created response_id=r_000662_01
+2026-02-05 03:23:57 INFO dataset: Stage2 created response_id=r_000663_01
+2026-02-05 03:24:40 INFO dataset: Stage2 created response_id=r_000664_01
+2026-02-05 03:25:10 INFO dataset: Stage2 created response_id=r_000665_01
+2026-02-05 03:25:45 INFO dataset: Stage2 created response_id=r_000666_01
+2026-02-05 03:26:13 INFO dataset: Stage2 created response_id=r_000667_01
+2026-02-05 03:26:50 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/piggy-bank.png err=HTTP Error 404: Not Found
+2026-02-05 03:26:50 INFO dataset: Stage2 created response_id=r_000668_01
+2026-02-05 03:27:17 INFO dataset: Stage2 created response_id=r_000669_01
+2026-02-05 03:27:55 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/euro.png err=HTTP Error 404: Not Found
+2026-02-05 03:27:55 INFO dataset: Stage2 created response_id=r_000670_01
+2026-02-05 03:28:24 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/cycling.png err=HTTP Error 404: Not Found
+2026-02-05 03:28:26 INFO dataset: Stage2 created response_id=r_000671_01
+2026-02-05 03:28:52 INFO dataset: Stage2 created response_id=r_000672_01
+2026-02-05 03:29:16 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/kanban.png err=HTTP Error 404: Not Found
+2026-02-05 03:29:16 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/agile.png err=HTTP Error 404: Not Found
+2026-02-05 03:29:16 INFO dataset: Stage2 created response_id=r_000673_01
+2026-02-05 03:29:50 INFO dataset: Stage2 created response_id=r_000674_01
+2026-02-05 03:30:34 INFO dataset: Stage2 created response_id=r_000675_01
+2026-02-05 03:31:00 INFO dataset: Stage2 created response_id=r_000676_01
+2026-02-05 03:31:26 INFO dataset: Stage2 created response_id=r_000677_01
+2026-02-05 03:32:05 INFO dataset: Stage2 created response_id=r_000678_01
+2026-02-05 03:32:39 INFO dataset: Stage2 created response_id=r_000679_01
+2026-02-05 03:33:03 INFO dataset: Stage2 created response_id=r_000680_01
+2026-02-05 03:33:28 INFO dataset: Stage2 created response_id=r_000681_01
+2026-02-05 03:33:54 WARNING dataset: Stage2 asset download failed url=https://static.example.com/icons/strategy_icon.png err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 03:33:54 WARNING dataset: Stage2 asset download failed url=https://static.example.com/icons/mic_icon.png err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 03:33:54 WARNING dataset: Stage2 asset download failed url=https://static.example.com/icons/rss_icon.png err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 03:33:54 INFO dataset: Stage2 created response_id=r_000682_01
+2026-02-05 03:34:28 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/london-bridge.png err=HTTP Error 404: Not Found
+2026-02-05 03:34:28 INFO dataset: Stage2 created response_id=r_000683_01
+2026-02-05 03:34:58 INFO dataset: Stage2 created response_id=r_000684_01
+2026-02-05 03:35:23 INFO dataset: Stage2 created response_id=r_000685_01
+2026-02-05 03:35:59 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/000000/hotel.png err=HTTP Error 404: Not Found
+2026-02-05 03:35:59 INFO dataset: Stage2 created response_id=r_000686_01
+2026-02-05 03:36:27 INFO dataset: Stage2 created response_id=r_000687_01
+2026-02-05 03:36:52 INFO dataset: Stage2 created response_id=r_000688_01
+2026-02-05 03:37:29 INFO dataset: Stage2 created response_id=r_000689_01
+2026-02-05 03:37:55 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1546241072-48010ad28c2c err=HTTP Error 404: Not Found
+2026-02-05 03:37:56 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/000000/hotel.png err=HTTP Error 404: Not Found
+2026-02-05 03:37:56 INFO dataset: Stage2 created response_id=r_000690_01
+2026-02-05 03:38:17 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/canned-food.png err=HTTP Error 404: Not Found
+2026-02-05 03:38:17 INFO dataset: Stage2 created response_id=r_000691_01
+2026-02-05 03:38:39 INFO dataset: Stage2 created response_id=r_000692_01
+2026-02-05 03:39:04 INFO dataset: Stage2 created response_id=r_000693_01
+2026-02-05 03:39:36 INFO dataset: Stage2 created response_id=r_000694_01
+2026-02-05 03:40:15 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/cleaning-service.png err=HTTP Error 404: Not Found
+2026-02-05 03:40:16 WARNING dataset: Stage2 asset download failed url=https://example.com/images/printer-sensor-points.jpg err=HTTP Error 404: Not Found
+2026-02-05 03:40:16 WARNING dataset: Stage2 asset download failed url=https://example.com/images/cleaning-rollers.jpg err=HTTP Error 404: Not Found
+2026-02-05 03:40:16 INFO dataset: Stage2 created response_id=r_000695_01
+2026-02-05 03:40:52 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:40:52 INFO dataset: Stage2 created response_id=r_000696_01
+2026-02-05 03:41:22 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1606850780554-b55ea46e76dc?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 03:41:23 INFO dataset: Stage2 created response_id=r_000697_01
+2026-02-05 03:42:03 INFO dataset: Stage2 created response_id=r_000698_01
+2026-02-05 03:42:40 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo- err=HTTP Error 404: Not Found
+2026-02-05 03:42:40 INFO dataset: Stage2 created response_id=r_000699_01
+2026-02-05 03:43:19 INFO dataset: Stage2 created response_id=r_000700_01
+2026-02-05 03:43:41 WARNING dataset: Stage2 asset download failed url=https://example.com/images/sautéed-mushrooms.jpg err='ascii' codec can't encode character '\xe9' in position 16: ordinal not in range(128)
+2026-02-05 03:43:41 WARNING dataset: Stage2 asset download failed url=https://example.com/images/vegan-risotto-final.jpg err=HTTP Error 404: Not Found
+2026-02-05 03:43:41 INFO dataset: Stage2 created response_id=r_000701_01
+2026-02-05 03:44:05 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/chef-knife.png err=HTTP Error 404: Not Found
+2026-02-05 03:44:05 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/oven.png err=HTTP Error 404: Not Found
+2026-02-05 03:44:07 INFO dataset: Stage2 created response_id=r_000702_01
+2026-02-05 03:44:35 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/oven.png err=HTTP Error 404: Not Found
+2026-02-05 03:44:35 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/wheat-free.png err=HTTP Error 404: Not Found
+2026-02-05 03:44:35 INFO dataset: Stage2 created response_id=r_000703_01
+2026-02-05 03:45:15 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1577906030559-facc474ff97d err=HTTP Error 404: Not Found
+2026-02-05 03:45:15 INFO dataset: Stage2 created response_id=r_000704_01
+2026-02-05 03:45:48 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/null/glass-of-water.png err=HTTP Error 404: Not Found
+2026-02-05 03:45:48 INFO dataset: Stage2 created response_id=r_000705_01
+2026-02-05 03:46:21 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:46:21 INFO dataset: Stage2 created response_id=r_000706_01
+2026-02-05 03:46:59 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1546466691-df6206684786?auto=format&fit=crop&q=80&w=500 err=HTTP Error 404: Not Found
+2026-02-05 03:46:59 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/wheat-free.png err=HTTP Error 404: Not Found
+2026-02-05 03:46:59 INFO dataset: Stage2 created response_id=r_000707_01
+2026-02-05 03:47:30 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:47:31 INFO dataset: Stage2 created response_id=r_000708_01
+2026-02-05 03:48:06 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/calories.png err=HTTP Error 404: Not Found
+2026-02-05 03:48:06 INFO dataset: Stage2 created response_id=r_000709_01
+2026-02-05 03:48:39 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1583032015879-e50d22792c90 err=HTTP Error 404: Not Found
+2026-02-05 03:48:40 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1594968973184-9140fa307723 err=HTTP Error 404: Not Found
+2026-02-05 03:48:40 INFO dataset: Stage2 created response_id=r_000710_01
+2026-02-05 03:49:08 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1567622445822-6705011f7c17?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 03:49:08 INFO dataset: Stage2 created response_id=r_000711_01
+2026-02-05 03:49:37 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1585478259715-876acc5be8eb err=HTTP Error 404: Not Found
+2026-02-05 03:49:38 INFO dataset: Stage2 created response_id=r_000712_01
+2026-02-05 03:50:04 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:50:04 INFO dataset: Stage2 created response_id=r_000713_01
+2026-02-05 03:50:30 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:50:30 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1595272284154-3967e7a57044?q=80&w=500&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 03:50:31 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1589113331515-91bb1396f446?q=80&w=500&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 03:50:32 INFO dataset: Stage2 created response_id=r_000714_01
+2026-02-05 03:51:09 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:51:09 INFO dataset: Stage2 created response_id=r_000715_01
+2026-02-05 03:51:34 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/turkey.png err=HTTP Error 404: Not Found
+2026-02-05 03:51:34 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/thermometer.png err=HTTP Error 404: Not Found
+2026-02-05 03:51:34 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/clock.png err=HTTP Error 404: Not Found
+2026-02-05 03:51:34 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/herbs.png err=HTTP Error 404: Not Found
+2026-02-05 03:51:34 WARNING dataset: Stage2 asset download failed url=https://example.com/images/roasted-turkey-breast.jpg err=HTTP Error 404: Not Found
+2026-02-05 03:51:34 WARNING dataset: Stage2 asset download failed url=https://example.com/images/thanksgiving-spread.jpg err=HTTP Error 404: Not Found
+2026-02-05 03:51:34 INFO dataset: Stage2 created response_id=r_000716_01
+2026-02-05 03:52:17 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1590113348895-020757aa6917 err=HTTP Error 404: Not Found
+2026-02-05 03:52:17 WARNING dataset: Stage2 asset download failed url=https://icons.example.com/clock-outline.png err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 03:52:17 WARNING dataset: Stage2 asset download failed url=https://icons.example.com/chef-hat.png err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 03:52:17 WARNING dataset: Stage2 asset download failed url=https://icons.example.com/vegan-leaf.png err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 03:52:17 INFO dataset: Stage2 created response_id=r_000717_01
+2026-02-05 03:52:43 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1594756202469-9ff9799d2e4e?auto=format&fit=crop&q=80&w=1000 err=HTTP Error 404: Not Found
+2026-02-05 03:52:43 INFO dataset: Stage2 created response_id=r_000718_01
+2026-02-05 03:53:28 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/fluency/48/whiskey-glass.png err=HTTP Error 404: Not Found
+2026-02-05 03:53:28 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/fluency/48/medicine-bottle.png err=HTTP Error 404: Not Found
+2026-02-05 03:53:30 INFO dataset: Stage2 created response_id=r_000719_01
+2026-02-05 03:53:57 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:53:57 INFO dataset: Stage2 created response_id=r_000720_01
+2026-02-05 03:54:24 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1590412200988-a436bb715048 err=HTTP Error 404: Not Found
+2026-02-05 03:54:25 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1614534442192-c217db238370 err=HTTP Error 404: Not Found
+2026-02-05 03:54:25 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:54:25 INFO dataset: Stage2 created response_id=r_000721_01
+2026-02-05 03:54:59 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1593030235936-281bc732582b?q=80&w=500 err=HTTP Error 404: Not Found
+2026-02-05 03:55:00 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1544126592-807daa215a75?q=80&w=500 err=HTTP Error 404: Not Found
+2026-02-05 03:55:00 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1603048297172-c92544798d5e?q=80&w=500 err=HTTP Error 404: Not Found
+2026-02-05 03:55:01 INFO dataset: Stage2 created response_id=r_000722_01
+2026-02-05 03:55:32 INFO dataset: Stage2 created response_id=r_000723_01
+2026-02-05 03:56:11 INFO dataset: Stage2 created response_id=r_000724_01
+2026-02-05 03:56:36 INFO dataset: Stage2 created response_id=r_000725_01
+2026-02-05 03:57:08 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:57:08 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/pot.png err=HTTP Error 404: Not Found
+2026-02-05 03:57:09 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1594041680534-e8c8cdebd679 err=HTTP Error 404: Not Found
+2026-02-05 03:57:09 INFO dataset: Stage2 created response_id=r_000726_01
+2026-02-05 03:57:43 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/oven.png err=HTTP Error 404: Not Found
+2026-02-05 03:57:43 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1562233237-10d744a7759d err=HTTP Error 404: Not Found
+2026-02-05 03:57:43 INFO dataset: Stage2 created response_id=r_000727_01
+2026-02-05 03:58:08 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1594313410064-949286950272 err=HTTP Error 404: Not Found
+2026-02-05 03:58:09 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1583224934335-502079040798 err=HTTP Error 404: Not Found
+2026-02-05 03:58:09 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/vegetables.png err=HTTP Error 404: Not Found
+2026-02-05 03:58:09 INFO dataset: Stage2 created response_id=r_000728_01
+2026-02-05 03:58:35 INFO dataset: Stage2 created response_id=r_000729_01
+2026-02-05 03:58:58 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:58:58 INFO dataset: Stage2 created response_id=r_000730_01
+2026-02-05 03:59:26 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1544145945-f904253d0c71?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 03:59:26 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/group.png err=HTTP Error 404: Not Found
+2026-02-05 03:59:26 INFO dataset: Stage2 created response_id=r_000731_01
+2026-02-05 03:59:51 INFO dataset: Stage2 created response_id=r_000732_01
+2026-02-05 04:00:35 INFO dataset: Stage2 created response_id=r_000733_01
+2026-02-05 04:01:00 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 04:01:00 INFO dataset: Stage2 created response_id=r_000734_01
+2026-02-05 04:01:25 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1585478259715-876acc5be8eb err=HTTP Error 404: Not Found
+2026-02-05 04:01:27 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/oven.png err=HTTP Error 404: Not Found
+2026-02-05 04:01:27 INFO dataset: Stage2 created response_id=r_000735_01
+2026-02-05 04:01:56 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/wheat-free.png err=HTTP Error 404: Not Found
+2026-02-05 04:01:56 INFO dataset: Stage2 created response_id=r_000736_01
+2026-02-05 04:02:26 INFO dataset: Stage2 created response_id=r_000737_01
+2026-02-05 04:02:48 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/gluten-free.png err=HTTP Error 404: Not Found
+2026-02-05 04:02:48 INFO dataset: Stage2 created response_id=r_000738_01
+2026-02-05 04:03:13 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/refrigerator.png err=HTTP Error 404: Not Found
+2026-02-05 04:03:13 INFO dataset: Stage2 created response_id=r_000739_01
+2026-02-05 04:03:39 INFO dataset: Stage2 created response_id=r_000740_01
+2026-02-05 04:04:10 INFO dataset: Stage2 created response_id=r_000741_01
+2026-02-05 04:04:37 WARNING dataset: Stage2 asset download failed url=https://example.com/images/starter-goat-cheese.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:04:37 WARNING dataset: Stage2 asset download failed url=https://example.com/images/main-steak-poivre.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:04:37 WARNING dataset: Stage2 asset download failed url=https://example.com/images/dessert-chocolate-mousse.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:04:38 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/appetizer.png err=HTTP Error 404: Not Found
+2026-02-05 04:04:38 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/dinner.png err=HTTP Error 404: Not Found
+2026-02-05 04:04:38 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/dessert.png err=HTTP Error 404: Not Found
+2026-02-05 04:04:38 INFO dataset: Stage2 created response_id=r_000742_01
+2026-02-05 04:05:03 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1633436342359-009104fb4608?auto=format&fit=crop&q=80&w=1000 err=HTTP Error 404: Not Found
+2026-02-05 04:05:04 INFO dataset: Stage2 created response_id=r_000743_01
+2026-02-05 04:05:25 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1547049082-1a12c3bf2b76?auto=format&fit=crop&w=800&q=80 err=HTTP Error 404: Not Found
+2026-02-05 04:05:25 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/group.png err=HTTP Error 404: Not Found
+2026-02-05 04:05:25 INFO dataset: Stage2 created response_id=r_000744_01
+2026-02-05 04:05:48 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/clock.png err=HTTP Error 404: Not Found
+2026-02-05 04:05:48 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/chef-hat.png err=HTTP Error 404: Not Found
+2026-02-05 04:05:48 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/bowl.png err=HTTP Error 404: Not Found
+2026-02-05 04:05:49 WARNING dataset: Stage2 asset download failed url=https://example.com/images/pesto-ingredients.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:05:49 WARNING dataset: Stage2 asset download failed url=https://example.com/images/pesto-mortar.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:05:49 WARNING dataset: Stage2 asset download failed url=https://example.com/images/pesto-final.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:05:49 INFO dataset: Stage2 created response_id=r_000745_01
+2026-02-05 04:06:27 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1588347785102-29442720006b?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 04:06:28 INFO dataset: Stage2 created response_id=r_000746_01
+2026-02-05 04:06:55 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/oven.png err=HTTP Error 404: Not Found
+2026-02-05 04:06:56 INFO dataset: Stage2 created response_id=r_000747_01
+2026-02-05 04:07:24 WARNING dataset: Stage2 asset download failed url=https://static.thenounproject.com/png/prep-time-icon.png err=HTTP Error 404: Not Found
+2026-02-05 04:07:24 WARNING dataset: Stage2 asset download failed url=https://static.thenounproject.com/png/temperature-icon.png err=HTTP Error 404: Not Found
+2026-02-05 04:07:25 WARNING dataset: Stage2 asset download failed url=https://static.thenounproject.com/png/servings-icon.png err=HTTP Error 404: Not Found
+2026-02-05 04:07:26 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1625938140722-23151fa1642c err=HTTP Error 404: Not Found
+2026-02-05 04:07:27 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1630448943398-384469032483 err=HTTP Error 404: Not Found
+2026-02-05 04:07:27 INFO dataset: Stage2 created response_id=r_000748_01
+2026-02-05 04:07:53 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1513137330480-29f730bb479a err=HTTP Error 404: Not Found
+2026-02-05 04:07:53 INFO dataset: Stage2 created response_id=r_000749_01
+2026-02-05 04:08:16 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1544145945-f904253d0c71 err=HTTP Error 404: Not Found
+2026-02-05 04:08:16 INFO dataset: Stage2 created response_id=r_000750_01
+2026-02-05 04:08:44 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/preparation.png err=HTTP Error 404: Not Found
+2026-02-05 04:08:44 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/freezer.png err=HTTP Error 404: Not Found
+2026-02-05 04:08:45 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1590779033100-9f60705a2f3d?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 04:08:46 INFO dataset: Stage2 created response_id=r_000751_01
+2026-02-05 04:09:18 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1569864358642-9d1619702661 err=HTTP Error 404: Not Found
+2026-02-05 04:09:18 INFO dataset: Stage2 created response_id=r_000752_01
+2026-02-05 04:09:47 INFO dataset: Stage2 created response_id=r_000753_01
+2026-02-05 04:10:11 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1551462147-37885acc3c91 err=HTTP Error 404: Not Found
+2026-02-05 04:10:11 INFO dataset: Stage2 created response_id=r_000754_01
+2026-02-05 04:10:39 INFO dataset: Stage2 created response_id=r_000755_01
+2026-02-05 04:11:13 INFO dataset: Stage2 created response_id=r_000756_01
+2026-02-05 04:11:39 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/soda-water.png err=HTTP Error 404: Not Found
+2026-02-05 04:11:39 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/apple-juice.png err=HTTP Error 404: Not Found
+2026-02-05 04:11:39 INFO dataset: Stage2 created response_id=r_000757_01
+2026-02-05 04:12:11 WARNING dataset: Stage2 asset download failed url=https://example.com/images/risotto_milanese_final.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:12:11 WARNING dataset: Stage2 asset download failed url=https://example.com/images/mantecatura_step.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:12:12 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/timer_30min.png err=HTTP Error 404: Not Found
+2026-02-05 04:12:12 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/intermediate_chef.png err=HTTP Error 404: Not Found
+2026-02-05 04:12:12 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/italy_flag.png err=HTTP Error 404: Not Found
+2026-02-05 04:12:12 INFO dataset: Stage2 created response_id=r_000758_01
+2026-02-05 04:12:41 INFO dataset: Stage2 created response_id=r_000759_01
+2026-02-05 04:13:17 INFO dataset: Stage2 created response_id=r_000760_01
+2026-02-05 04:13:48 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 04:13:48 INFO dataset: Stage2 created response_id=r_000761_01
+2026-02-05 04:14:22 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/kitchen-scales.png err=HTTP Error 404: Not Found
+2026-02-05 04:14:23 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/oven.png err=HTTP Error 404: Not Found
+2026-02-05 04:14:23 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1585478259715-876acc5be8eb err=HTTP Error 404: Not Found
+2026-02-05 04:14:23 INFO dataset: Stage2 created response_id=r_000762_01
+2026-02-05 04:14:50 INFO dataset: Stage2 created response_id=r_000763_01
+2026-02-05 04:15:19 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1597075091278-db93193ad336 err=HTTP Error 404: Not Found
+2026-02-05 04:15:20 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/whiskey.png err=HTTP Error 404: Not Found
+2026-02-05 04:15:21 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/dropper.png err=HTTP Error 404: Not Found
+2026-02-05 04:15:21 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/ice-cube.png err=HTTP Error 404: Not Found
+2026-02-05 04:15:21 INFO dataset: Stage2 created response_id=r_000764_01
+2026-02-05 04:15:49 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/group.png err=HTTP Error 404: Not Found
+2026-02-05 04:15:49 INFO dataset: Stage2 created response_id=r_000765_01
+2026-02-05 04:16:20 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/freezer.png err=HTTP Error 404: Not Found
+2026-02-05 04:16:21 INFO dataset: Stage2 created response_id=r_000766_01
+2026-02-05 04:16:49 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/pancakes.png err=HTTP Error 404: Not Found
+2026-02-05 04:16:49 INFO dataset: Stage2 created response_id=r_000767_01
+2026-02-05 04:17:20 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1571115177098-24ec42ed2bb4?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 04:17:20 INFO dataset: Stage2 created response_id=r_000768_01
+2026-02-05 04:17:48 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1621236304195-06ba8d35d647?q=80&w=500 err=HTTP Error 404: Not Found
+2026-02-05 04:17:48 INFO dataset: Stage2 created response_id=r_000769_01
+2026-02-05 04:18:24 INFO dataset: Stage2 created response_id=r_000770_01
+2026-02-05 04:18:56 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1547592115-0dec33b80dd4 err=HTTP Error 404: Not Found
+2026-02-05 04:18:56 INFO dataset: Stage2 created response_id=r_000771_01
+2026-02-05 04:19:21 INFO dataset: Stage2 created response_id=r_000772_01
+2026-02-05 04:19:49 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1626078436897-09419d02102c?auto=format&fit=crop&q=80&w=1000 err=HTTP Error 404: Not Found
+2026-02-05 04:19:49 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/fluency/48/muscle.png err=HTTP Error 404: Not Found
+2026-02-05 04:19:50 INFO dataset: Stage2 created response_id=r_000773_01
+2026-02-05 04:20:23 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1590004953392-5abc2e7df4ee err=HTTP Error 404: Not Found
+2026-02-05 04:20:24 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/jar.png err=HTTP Error 404: Not Found
+2026-02-05 04:20:24 INFO dataset: Stage2 created response_id=r_000774_01
+2026-02-05 04:20:57 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1594968973184-9140fa307769?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 04:20:57 INFO dataset: Stage2 created response_id=r_000775_01
+2026-02-05 04:21:26 INFO dataset: Stage2 created response_id=r_000776_01
+2026-02-05 04:22:04 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1594914104958-546416966604 err=HTTP Error 404: Not Found
+2026-02-05 04:22:05 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/no-peanuts.png err=HTTP Error 404: Not Found
+2026-02-05 04:22:05 INFO dataset: Stage2 created response_id=r_000777_01
+2026-02-05 04:22:40 INFO dataset: Stage2 created response_id=r_000778_01
+2026-02-05 04:23:09 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/clock.png err=HTTP Error 404: Not Found
+2026-02-05 04:23:09 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/difficulty-medium.png err=HTTP Error 404: Not Found
+2026-02-05 04:23:09 WARNING dataset: Stage2 asset download failed url=https://example.com/icons/fire.png err=HTTP Error 404: Not Found
+2026-02-05 04:23:09 WARNING dataset: Stage2 asset download failed url=https://example.com/images/eggplant-sweating.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:23:10 WARNING dataset: Stage2 asset download failed url=https://example.com/images/breaded-eggplant-texture.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:23:10 WARNING dataset: Stage2 asset download failed url=https://example.com/images/crispy-eggplant-parm.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:23:10 INFO dataset: Stage2 created response_id=r_000779_01
+2026-02-05 04:23:45 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1583224914144-80963d76344d err=HTTP Error 404: Not Found
+2026-02-05 04:23:45 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1590333746438-28345022650c err=HTTP Error 404: Not Found
+2026-02-05 04:23:46 INFO dataset: Stage2 created response_id=r_000780_01
+2026-02-05 04:24:15 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1512058560566-427a1bd5a594?auto=format&fit=crop&w=800&q=80 err=HTTP Error 404: Not Found
+2026-02-05 04:24:16 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/group.png err=HTTP Error 404: Not Found
+2026-02-05 04:24:16 INFO dataset: Stage2 created response_id=r_000781_01
+2026-02-05 04:24:55 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/cooking-book.png err=HTTP Error 404: Not Found
+2026-02-05 04:24:55 INFO dataset: Stage2 created response_id=r_000782_01
+2026-02-05 04:25:21 INFO dataset: Stage2 created response_id=r_000783_01
+2026-02-05 04:25:47 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1475129482197-0824137441df err=HTTP Error 404: Not Found
+2026-02-05 04:25:50 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/yen-symbol.png err=HTTP Error 404: Not Found
+2026-02-05 04:25:50 INFO dataset: Stage2 created response_id=r_000784_01
+2026-02-05 04:26:27 INFO dataset: Stage2 created response_id=r_000785_01
+2026-02-05 04:26:56 INFO dataset: Stage2 created response_id=r_000786_01
+2026-02-05 04:27:33 INFO dataset: Stage2 created response_id=r_000787_01
+2026-02-05 04:27:58 INFO dataset: Stage2 created response_id=r_000788_01
+2026-02-05 04:28:33 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/e/e0/Saltimbocca_alla_Romana.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:28:33 INFO dataset: Stage2 created response_id=r_000789_01
+2026-02-05 04:29:01 INFO dataset: Stage2 created response_id=r_000790_01
+2026-02-05 04:29:27 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/hotel.png err=HTTP Error 404: Not Found
+2026-02-05 04:29:28 INFO dataset: Stage2 created response_id=r_000791_01
+2026-02-05 04:29:56 INFO dataset: Stage2 created response_id=r_000792_01
+2026-02-05 04:30:39 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1545652985-5ebb3f5d566c err=HTTP Error 404: Not Found
+2026-02-05 04:30:40 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/coffee-cup.png err=HTTP Error 404: Not Found
+2026-02-05 04:30:41 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/tree.png err=HTTP Error 404: Not Found
+2026-02-05 04:30:41 INFO dataset: Stage2 created response_id=r_000793_01
+2026-02-05 04:31:04 INFO dataset: Stage2 created response_id=r_000794_01
+2026-02-05 04:31:41 INFO dataset: Stage2 created response_id=r_000795_01
+2026-02-05 04:32:12 WARNING dataset: Stage2 asset download failed url=https://www.nps.gov/common/uploads/grid_builder/inde/crop16_9/1649987A-1DD8-B71B-0B7E1730073B7071.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:32:13 WARNING dataset: Stage2 asset download failed url=https://www.nps.gov/common/uploads/grid_builder/inde/crop16_9/1669866F-1DD8-B71B-0B23215D39775080.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:32:13 WARNING dataset: Stage2 asset download failed url=https://images.visitphilly.com/2018/01/Elfreths-Alley-M.-Kennedy-for-VP-1200x900.jpg err=<urlopen error [Errno 11001] getaddrinfo failed>
+2026-02-05 04:32:13 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/cheeseburger.png err=HTTP Error 404: Not Found
+2026-02-05 04:32:13 INFO dataset: Stage2 created response_id=r_000796_01
+2026-02-05 04:32:38 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/contactless-payment.png err=HTTP Error 404: Not Found
+2026-02-05 04:32:39 INFO dataset: Stage2 created response_id=r_000797_01
+2026-02-05 04:33:03 INFO dataset: Stage2 created response_id=r_000798_01
+2026-02-05 04:33:28 INFO dataset: Stage2 created response_id=r_000799_01
+2026-02-05 04:33:51 INFO dataset: Stage2 created response_id=r_000800_01
+2026-02-05 04:34:15 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Hanover_Street_North_End.jpg/800px-Hanover_Street_North_End.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:34:15 INFO dataset: Stage2 created response_id=r_000801_01
+2026-02-05 04:34:49 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/fluency/48/low-temperature.png err=HTTP Error 404: Not Found
+2026-02-05 04:34:49 INFO dataset: Stage2 created response_id=r_000802_01
+2026-02-05 04:35:26 WARNING dataset: Stage2 asset download failed url=https://images.trvl-media.com/lodging/1000000/10000/7400/7313/4688469d.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:35:28 WARNING dataset: Stage2 asset download failed url=https://images.trvl-media.com/lodging/10000000/9350000/9346600/9346549/51a37887.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:35:30 WARNING dataset: Stage2 asset download failed url=https://images.trvl-media.com/lodging/1000000/20000/11400/11388/8688469d.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:35:31 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/wi-fi.png err=HTTP Error 404: Not Found
+2026-02-05 04:35:31 INFO dataset: Stage2 created response_id=r_000803_01
+2026-02-05 04:35:50 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/airplane.png err=HTTP Error 404: Not Found
+2026-02-05 04:35:51 INFO dataset: Stage2 created response_id=r_000804_01
+2026-02-05 04:36:20 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/000000/euro-money.png err=HTTP Error 404: Not Found
+2026-02-05 04:36:21 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Berlin_Kreuzberg_Viktoriapark_Denkmal_Abend.jpg/640px-Berlin_Kreuzberg_Viktoriapark_Denkmal_Abend.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:36:21 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Berlin_Kreuzberg_Chamissoplatz_Haeuserzeile.jpg/640px-Berlin_Kreuzberg_Chamissoplatz_Haeuserzeile.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:36:21 INFO dataset: Stage2 created response_id=r_000805_01
+2026-02-05 04:37:01 WARNING dataset: Stage2 asset download failed url=https://www.boj.or.jp/en/note_tfjgs/note/ed_note/data/set_a.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:37:02 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/ramen.png err=HTTP Error 404: Not Found
+2026-02-05 04:37:02 INFO dataset: Stage2 created response_id=r_000806_01
+2026-02-05 04:37:36 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1501339819358-ee59a11f592e err=HTTP Error 404: Not Found
+2026-02-05 04:37:37 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1521017432531-fbd92d744264 err=HTTP Error 404: Not Found
+2026-02-05 04:37:39 INFO dataset: Stage2 created response_id=r_000807_01
+2026-02-05 04:38:12 WARNING dataset: Stage2 asset download failed url=https://sevenmagicmountains.com/wp-content/uploads/2016/04/SMM_01.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:38:14 WARNING dataset: Stage2 asset download failed url=https://www.californiacuriosities.com/wp-content/uploads/2014/05/bottle_tree_ranch_1.jpg err=HTTP Error 406: Not Acceptable
+2026-02-05 04:38:15 WARNING dataset: Stage2 asset download failed url=https://peggysuesdiner.com/images/home-gallery-1.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:38:16 INFO dataset: Stage2 created response_id=r_000808_01
+2026-02-05 04:38:50 INFO dataset: Stage2 created response_id=r_000809_01
+2026-02-05 04:39:22 INFO dataset: Stage2 created response_id=r_000810_01
+2026-02-05 04:39:48 INFO dataset: Stage2 created response_id=r_000811_01
+2026-02-05 04:40:25 INFO dataset: Stage2 created response_id=r_000812_01
+2026-02-05 04:41:03 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/thai-baht.png err=HTTP Error 404: Not Found
+2026-02-05 04:41:03 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Suvarnabhumi_Airport_Arrival_Hall.jpg/640px-Suvarnabhumi_Airport_Arrival_Hall.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:41:03 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SIM_card_vending_machine.jpg/640px-SIM_card_vending_machine.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:41:03 INFO dataset: Stage2 created response_id=r_000813_01
+2026-02-05 04:41:40 WARNING dataset: Stage2 asset download failed url=https://naturalhistory.si.edu/sites/default/files/styles/social_media/public/media/image/nmnh-exterior-900x600.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:41:43 WARNING dataset: Stage2 asset download failed url=https://www.nga.gov/content/dam/ngaweb/visit/planning/west-building-entrance.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:41:43 INFO dataset: Stage2 created response_id=r_000814_01
+2026-02-05 04:42:05 INFO dataset: Stage2 created response_id=r_000815_01
+2026-02-05 04:42:36 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/e/e0/Botanical_Building_Balboa_Park.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:42:36 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/4/4b/Coronado_Beach_and_Hotel_del_Coronado.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:42:36 INFO dataset: Stage2 created response_id=r_000816_01
+2026-02-05 04:43:04 INFO dataset: Stage2 created response_id=r_000817_01
+2026-02-05 04:43:33 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/left-direction.png err=HTTP Error 404: Not Found
+2026-02-05 04:43:34 WARNING dataset: Stage2 asset download failed url=https://www.rsa.ie/images/default-source/road-safety/roundabouts/roundabout-graphic.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:43:34 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Hard_shoulder_Ireland.jpg/640px-Hard_shoulder_Ireland.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:43:34 INFO dataset: Stage2 created response_id=r_000818_01
+2026-02-05 04:43:55 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/street-food.png err=HTTP Error 404: Not Found
+2026-02-05 04:43:56 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/tuk-tuk.png err=HTTP Error 404: Not Found
+2026-02-05 04:43:57 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/hotel.png err=HTTP Error 404: Not Found
+2026-02-05 04:43:57 INFO dataset: Stage2 created response_id=r_000819_01
+2026-02-05 04:44:28 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1540962351504-03099e0a75c3 err=HTTP Error 404: Not Found
+2026-02-05 04:44:29 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1620660443217-91f945396602 err=HTTP Error 404: Not Found
+2026-02-05 04:44:29 INFO dataset: Stage2 created response_id=r_000820_01
+2026-02-05 04:45:27 INFO dataset: Stage2 created response_id=r_000821_01
+2026-02-05 04:45:56 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/International_Electrical_Outlets.png/1024px-International_Electrical_Outlets.png err=HTTP Error 403: Forbidden
+2026-02-05 04:46:00 INFO dataset: Stage2 created response_id=r_000822_01
+2026-02-05 04:46:34 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/laptop-working.png err=HTTP Error 404: Not Found
+2026-02-05 04:46:34 INFO dataset: Stage2 created response_id=r_000823_01
+2026-02-05 04:47:03 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1551882547-ff43c637f68b err=HTTP Error 404: Not Found
+2026-02-05 04:47:03 INFO dataset: Stage2 created response_id=r_000824_01
+2026-02-05 04:47:31 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/material-rounded/24/departure.png err=HTTP Error 404: Not Found
+2026-02-05 04:47:33 INFO dataset: Stage2 created response_id=r_000825_01
+2026-02-05 04:48:02 INFO dataset: Stage2 created response_id=r_000826_01
+2026-02-05 04:48:27 WARNING dataset: Stage2 asset download failed url=https://www.nps.gov/nama/learn/historyculture/images/NAMA-Aerial-2014.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:48:28 WARNING dataset: Stage2 asset download failed url=https://airandspace.si.edu/sites/default/files/styles/slideshow_lg/public/mms-images/34300h.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:48:28 WARNING dataset: Stage2 asset download failed url=https://americanhistory.si.edu/sites/default/files/styles/header_image/public/externals/87779f72765359998829583764836483.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:48:28 INFO dataset: Stage2 created response_id=r_000827_01
+2026-02-05 04:49:05 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1551632432-073559477385 err=HTTP Error 404: Not Found
+2026-02-05 04:49:06 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/marker-pin.png err=HTTP Error 404: Not Found
+2026-02-05 04:49:06 INFO dataset: Stage2 created response_id=r_000828_01
+2026-02-05 04:49:28 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/000000/light-indicator.png err=HTTP Error 404: Not Found
+2026-02-05 04:49:28 INFO dataset: Stage2 created response_id=r_000829_01
+2026-02-05 04:49:55 INFO dataset: Stage2 created response_id=r_000830_01
+2026-02-05 04:50:20 INFO dataset: Stage2 created response_id=r_000831_01
+2026-02-05 04:50:44 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1590001158193-79013018e2de err=HTTP Error 404: Not Found
+2026-02-05 04:50:44 INFO dataset: Stage2 created response_id=r_000832_01
+2026-02-05 04:51:10 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Zilker_Park_Austin_TX.jpg/640px-Zilker_Park_Austin_TX.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:51:10 INFO dataset: Stage2 created response_id=r_000833_01
+2026-02-05 04:51:50 INFO dataset: Stage2 created response_id=r_000834_01
+2026-02-05 04:52:14 WARNING dataset: Stage2 asset download failed url=https://www.sfmta.com/sites/default/files/styles/standard_page_header/public/images/2017/10/street_cleaning_sign.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:52:16 WARNING dataset: Stage2 asset download failed url=https://www.sfmta.com/sites/default/files/styles/standard_page_header/public/images/2017/05/curb_colors.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:52:17 INFO dataset: Stage2 created response_id=r_000835_01
+2026-02-05 04:52:57 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/moroccan-dirham.png err=HTTP Error 404: Not Found
+2026-02-05 04:52:57 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Berber_rug_Marrakech.jpg/640px-Berber_rug_Marrakech.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:52:57 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Souks_of_Marrakech.jpg/640px-Souks_of_Marrakech.jpg err=HTTP Error 403: Forbidden
+2026-02-05 04:52:57 INFO dataset: Stage2 created response_id=r_000836_01
+2026-02-05 04:53:27 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/cherry-blossom.png err=HTTP Error 404: Not Found
+2026-02-05 04:53:28 INFO dataset: Stage2 created response_id=r_000837_01
+2026-02-05 04:54:09 WARNING dataset: Stage2 asset download failed url=https://example.com/london-pharmacy-map.jpg err=HTTP Error 404: Not Found
+2026-02-05 04:54:09 INFO dataset: Stage2 created response_id=r_000838_01
+2026-02-05 04:54:33 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/euro.png err=HTTP Error 404: Not Found
+2026-02-05 04:54:34 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/british-pounds.png err=HTTP Error 404: Not Found
+2026-02-05 04:54:34 INFO dataset: Stage2 created response_id=r_000839_01
+2026-02-05 04:55:17 INFO dataset: Stage2 created response_id=r_000840_01
+2026-02-05 04:55:42 WARNING dataset: Stage2 asset download failed url=https://images.unsplash.com/photo-1550966841-3ee3ad059041?q=80&w=1000&auto=format&fit=crop err=HTTP Error 404: Not Found
+2026-02-05 04:55:42 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/euro-symbol.png err=HTTP Error 404: Not Found
+2026-02-05 04:55:43 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios-filled/50/english-language.png err=HTTP Error 404: Not Found
+2026-02-05 04:55:43 INFO dataset: Stage2 created response_id=r_000841_01
+2026-02-05 04:56:16 INFO dataset: Stage2 created response_id=r_000842_01
+2026-02-05 04:56:43 INFO dataset: Stage2 created response_id=r_000843_01
+2026-02-05 04:57:08 INFO dataset: Stage2 created response_id=r_000844_01
+2026-02-05 04:57:40 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/material-rounded/24/turn-right.png err=HTTP Error 404: Not Found
+2026-02-05 04:57:41 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/material-rounded/24/sync.png err=HTTP Error 404: Not Found
+2026-02-05 04:57:41 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/material-rounded/24/toll.png err=HTTP Error 404: Not Found
+2026-02-05 04:57:41 INFO dataset: Stage2 created response_id=r_000845_01
+2026-02-05 04:58:13 INFO dataset: Stage2 created response_id=r_000846_01
+2026-02-05 04:58:34 INFO dataset: Stage2 created response_id=r_000847_01
+2026-02-05 04:59:02 INFO dataset: Stage2 created response_id=r_000848_01
+2026-02-05 04:59:41 INFO dataset: Stage2 created response_id=r_000849_01
+2026-02-05 05:00:07 INFO dataset: Stage2 created response_id=r_000850_01
+2026-02-05 05:00:41 INFO dataset: Stage2 created response_id=r_000851_01
+2026-02-05 05:01:07 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/wi-fi.png err=HTTP Error 404: Not Found
+2026-02-05 05:01:08 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/ios/50/office-chair.png err=HTTP Error 404: Not Found
+2026-02-05 05:01:08 INFO dataset: Stage2 created response_id=r_000852_01
+2026-02-05 05:01:33 INFO dataset: Stage2 created response_id=r_000853_01
+2026-02-05 05:02:06 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/flour.png err=HTTP Error 404: Not Found
+2026-02-05 05:02:07 WARNING dataset: Stage2 asset download failed url=https://img.icons8.com/color/48/oven.png err=HTTP Error 404: Not Found
+2026-02-05 05:02:08 INFO dataset: Stage2 created response_id=r_000854_01
+2026-02-05 10:59:00 ERROR dataset: Stage3 error response_id=r_000001_01: batch_timeout
+2026-02-05 10:59:00 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_flash_2000\aggregates.json
+2026-02-05 11:22:59 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-02-05 11:24:27 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-02-05 11:25:10 INFO dataset: Stage3 created ui_id=u_000003_01 schema_ok=True
+2026-02-05 11:26:56 INFO dataset: Stage3 created ui_id=u_000004_01 schema_ok=True
+2026-02-05 11:27:26 INFO dataset: Stage3 created ui_id=u_000005_01 schema_ok=True
+2026-02-05 11:28:56 INFO dataset: Stage3 created ui_id=u_000006_01 schema_ok=True
+2026-02-05 11:30:54 INFO dataset: Stage3 created ui_id=u_000007_01 schema_ok=True
+2026-02-05 11:31:37 INFO dataset: Stage3 created ui_id=u_000008_01 schema_ok=True
+2026-02-05 11:34:32 INFO dataset: Stage3 created ui_id=u_000009_01 schema_ok=True
+2026-02-05 11:35:04 INFO dataset: Stage3 created ui_id=u_000010_01 schema_ok=True
+2026-02-05 11:37:02 INFO dataset: Stage3 created ui_id=u_000011_01 schema_ok=True
+2026-02-05 11:37:32 INFO dataset: Stage3 created ui_id=u_000012_01 schema_ok=True
+2026-02-05 11:39:06 INFO dataset: Stage3 created ui_id=u_000013_01 schema_ok=True
+2026-02-05 11:39:53 INFO dataset: Stage3 created ui_id=u_000014_01 schema_ok=True
+2026-02-05 11:41:12 INFO dataset: Stage3 created ui_id=u_000015_01 schema_ok=True
+2026-02-05 11:43:11 INFO dataset: Stage3 created ui_id=u_000016_01 schema_ok=True
+2026-02-05 11:43:52 INFO dataset: Stage3 created ui_id=u_000017_01 schema_ok=True
+2026-02-05 11:45:42 INFO dataset: Stage3 created ui_id=u_000018_01 schema_ok=True
+2026-02-05 11:47:15 INFO dataset: Stage3 created ui_id=u_000019_01 schema_ok=True
+2026-02-05 11:48:36 INFO dataset: Stage3 created ui_id=u_000020_01 schema_ok=True
+2026-02-05 11:49:07 INFO dataset: Stage3 created ui_id=u_000021_01 schema_ok=True
+2026-02-05 11:50:41 INFO dataset: Stage3 created ui_id=u_000022_01 schema_ok=True
+2026-02-05 11:51:59 INFO dataset: Stage3 created ui_id=u_000023_01 schema_ok=True
+2026-02-05 11:52:43 INFO dataset: Stage3 created ui_id=u_000024_01 schema_ok=True
+2026-02-05 11:54:41 INFO dataset: Stage3 created ui_id=u_000025_01 schema_ok=True
+2026-02-05 11:56:27 INFO dataset: Stage3 created ui_id=u_000026_01 schema_ok=True
+2026-02-05 11:58:00 INFO dataset: Stage3 created ui_id=u_000027_01 schema_ok=True
+2026-02-05 11:59:41 INFO dataset: Stage3 created ui_id=u_000028_01 schema_ok=True
+2026-02-05 12:00:17 INFO dataset: Stage3 created ui_id=u_000029_01 schema_ok=True
+2026-02-05 12:02:15 INFO dataset: Stage3 created ui_id=u_000030_01 schema_ok=True
+2026-02-05 12:04:02 INFO dataset: Stage3 created ui_id=u_000031_01 schema_ok=True
+2026-02-05 12:05:54 INFO dataset: Stage3 created ui_id=u_000032_01 schema_ok=True
+2026-02-05 12:07:48 INFO dataset: Stage3 created ui_id=u_000033_01 schema_ok=True
+2026-02-05 12:08:29 INFO dataset: Stage3 created ui_id=u_000034_01 schema_ok=True
+2026-02-05 12:09:21 INFO dataset: Stage3 created ui_id=u_000035_01 schema_ok=True
+2026-02-05 12:10:10 INFO dataset: Stage3 created ui_id=u_000036_01 schema_ok=True
+2026-02-05 12:11:59 INFO dataset: Stage3 created ui_id=u_000037_01 schema_ok=True
+2026-02-05 12:13:47 INFO dataset: Stage3 created ui_id=u_000038_01 schema_ok=True
+2026-02-05 12:15:28 INFO dataset: Stage3 created ui_id=u_000039_01 schema_ok=True
+2026-02-05 12:16:45 INFO dataset: Stage3 created ui_id=u_000040_01 schema_ok=True
+2026-02-05 12:17:38 INFO dataset: Stage3 created ui_id=u_000041_01 schema_ok=True
+2026-02-05 12:19:33 INFO dataset: Stage3 created ui_id=u_000042_01 schema_ok=True
+2026-02-05 12:20:17 INFO dataset: Stage3 created ui_id=u_000043_01 schema_ok=True
+2026-02-05 12:22:02 INFO dataset: Stage3 created ui_id=u_000044_01 schema_ok=True
+2026-02-05 12:23:54 INFO dataset: Stage3 created ui_id=u_000045_01 schema_ok=True
+2026-02-05 12:25:55 INFO dataset: Stage3 created ui_id=u_000046_01 schema_ok=True
+2026-02-05 12:26:43 INFO dataset: Stage3 created ui_id=u_000047_01 schema_ok=True
+2026-02-05 12:28:31 INFO dataset: Stage3 created ui_id=u_000048_01 schema_ok=True
+2026-02-05 12:30:16 INFO dataset: Stage3 created ui_id=u_000049_01 schema_ok=True
+2026-02-05 12:32:12 INFO dataset: Stage3 created ui_id=u_000050_01 schema_ok=True
+2026-02-05 12:32:47 INFO dataset: Stage3 created ui_id=u_000051_01 schema_ok=True
+2026-02-05 12:34:21 INFO dataset: Stage3 created ui_id=u_000052_01 schema_ok=True
+2026-02-05 12:35:07 INFO dataset: Stage3 created ui_id=u_000053_01 schema_ok=True
+2026-02-05 12:35:54 INFO dataset: Stage3 created ui_id=u_000054_01 schema_ok=True
+2026-02-05 12:37:40 INFO dataset: Stage3 created ui_id=u_000055_01 schema_ok=True
+2026-02-05 12:39:07 INFO dataset: Stage3 created ui_id=u_000056_01 schema_ok=True
+2026-02-05 12:40:38 INFO dataset: Stage3 created ui_id=u_000057_01 schema_ok=True
+2026-02-05 12:42:57 INFO dataset: Stage3 created ui_id=u_000058_01 schema_ok=True
+2026-02-05 12:44:41 INFO dataset: Stage3 created ui_id=u_000059_01 schema_ok=True
+2026-02-05 12:45:18 INFO dataset: Stage3 created ui_id=u_000060_01 schema_ok=True
+2026-02-05 12:47:19 INFO dataset: Stage3 created ui_id=u_000061_01 schema_ok=True
+2026-02-05 12:49:08 INFO dataset: Stage3 created ui_id=u_000062_01 schema_ok=True
+2026-02-05 12:49:54 INFO dataset: Stage3 created ui_id=u_000063_01 schema_ok=True
+2026-02-05 12:51:26 INFO dataset: Stage3 created ui_id=u_000064_01 schema_ok=True
+2026-02-05 12:53:13 INFO dataset: Stage3 created ui_id=u_000065_01 schema_ok=True
+2026-02-05 12:54:57 INFO dataset: Stage3 created ui_id=u_000066_01 schema_ok=True
+2026-02-05 12:56:45 INFO dataset: Stage3 created ui_id=u_000067_01 schema_ok=True
+2026-02-05 12:58:30 INFO dataset: Stage3 created ui_id=u_000068_01 schema_ok=True
+2026-02-05 13:00:28 INFO dataset: Stage3 created ui_id=u_000069_01 schema_ok=True
+2026-02-05 13:02:25 INFO dataset: Stage3 created ui_id=u_000070_01 schema_ok=True
+2026-02-05 13:04:14 INFO dataset: Stage3 created ui_id=u_000071_01 schema_ok=True
+2026-02-05 13:06:12 INFO dataset: Stage3 created ui_id=u_000072_01 schema_ok=True
+2026-02-05 13:08:07 INFO dataset: Stage3 created ui_id=u_000073_01 schema_ok=True
+2026-02-05 13:09:57 INFO dataset: Stage3 created ui_id=u_000074_01 schema_ok=True
+2026-02-05 13:11:32 INFO dataset: Stage3 created ui_id=u_000075_01 schema_ok=True
+2026-02-05 13:12:16 INFO dataset: Stage3 created ui_id=u_000076_01 schema_ok=True
+2026-02-05 13:13:06 INFO dataset: Stage3 created ui_id=u_000077_01 schema_ok=True
+2026-02-05 13:14:02 INFO dataset: Stage3 created ui_id=u_000078_01 schema_ok=True
+2026-02-05 13:14:41 INFO dataset: Stage3 created ui_id=u_000079_01 schema_ok=True
+2026-02-05 13:16:00 INFO dataset: Stage3 created ui_id=u_000080_01 schema_ok=True
+2026-02-05 13:16:49 INFO dataset: Stage3 created ui_id=u_000081_01 schema_ok=True
+2026-02-05 13:18:08 INFO dataset: Stage3 created ui_id=u_000082_01 schema_ok=True
+2026-02-05 13:20:06 INFO dataset: Stage3 created ui_id=u_000083_01 schema_ok=True
+2026-02-05 13:21:27 INFO dataset: Stage3 created ui_id=u_000084_01 schema_ok=True
+2026-02-05 13:22:51 INFO dataset: Stage3 created ui_id=u_000085_01 schema_ok=True
+2026-02-05 13:23:25 INFO dataset: Stage3 created ui_id=u_000086_01 schema_ok=True
+2026-02-05 13:25:08 INFO dataset: Stage3 created ui_id=u_000087_01 schema_ok=True
+2026-02-05 13:26:42 INFO dataset: Stage3 created ui_id=u_000088_01 schema_ok=True
+2026-02-05 13:28:29 INFO dataset: Stage3 created ui_id=u_000089_01 schema_ok=True
+2026-02-05 13:29:09 INFO dataset: Stage3 created ui_id=u_000090_01 schema_ok=True
+2026-02-05 13:30:55 INFO dataset: Stage3 created ui_id=u_000091_01 schema_ok=True
+2026-02-05 13:33:02 INFO dataset: Stage3 created ui_id=u_000092_01 schema_ok=True
+2026-02-05 13:33:57 INFO dataset: Stage3 created ui_id=u_000093_01 schema_ok=True
+2026-02-05 13:35:36 INFO dataset: Stage3 created ui_id=u_000094_01 schema_ok=True
+2026-02-05 13:36:50 INFO dataset: Stage3 created ui_id=u_000095_01 schema_ok=True
+2026-02-05 13:38:27 INFO dataset: Stage3 created ui_id=u_000096_01 schema_ok=True
+2026-02-05 13:39:58 INFO dataset: Stage3 created ui_id=u_000097_01 schema_ok=True
+2026-02-05 13:41:48 INFO dataset: Stage3 created ui_id=u_000098_01 schema_ok=True
+2026-02-05 13:43:23 INFO dataset: Stage3 created ui_id=u_000099_01 schema_ok=True
+2026-02-05 13:46:13 INFO dataset: Stage3 created ui_id=u_000100_01 schema_ok=True
+2026-02-05 13:48:03 INFO dataset: Stage3 created ui_id=u_000101_01 schema_ok=True
+2026-02-05 13:49:43 INFO dataset: Stage3 created ui_id=u_000102_01 schema_ok=True
+2026-02-05 13:51:37 INFO dataset: Stage3 created ui_id=u_000103_01 schema_ok=True
+2026-02-05 13:52:23 INFO dataset: Stage3 created ui_id=u_000104_01 schema_ok=True
+2026-02-05 13:53:07 INFO dataset: Stage3 created ui_id=u_000105_01 schema_ok=True
+2026-02-05 13:54:59 INFO dataset: Stage3 created ui_id=u_000106_01 schema_ok=True
+2026-02-05 13:57:04 INFO dataset: Stage3 created ui_id=u_000107_01 schema_ok=True
+2026-02-05 13:58:31 INFO dataset: Stage3 created ui_id=u_000108_01 schema_ok=True
+2026-02-05 13:59:13 INFO dataset: Stage3 created ui_id=u_000109_01 schema_ok=True
+2026-02-05 13:59:52 INFO dataset: Stage3 created ui_id=u_000110_01 schema_ok=True
+2026-02-05 14:01:54 INFO dataset: Stage3 created ui_id=u_000111_01 schema_ok=True
+2026-02-05 14:08:18 INFO dataset: Stage3 created ui_id=u_000112_01 schema_ok=True
+2026-02-05 14:10:07 INFO dataset: Stage3 created ui_id=u_000113_01 schema_ok=True
+2026-02-05 14:11:37 INFO dataset: Stage3 created ui_id=u_000114_01 schema_ok=True
+2026-02-05 14:14:30 INFO dataset: Stage3 created ui_id=u_000115_01 schema_ok=True
+2026-02-05 14:15:08 INFO dataset: Stage3 created ui_id=u_000116_01 schema_ok=True
+2026-02-05 14:15:53 INFO dataset: Stage3 created ui_id=u_000117_01 schema_ok=True
+2026-02-05 14:17:40 INFO dataset: Stage3 created ui_id=u_000118_01 schema_ok=True
+2026-02-05 14:19:37 INFO dataset: Stage3 created ui_id=u_000119_01 schema_ok=True
+2026-02-05 14:20:20 INFO dataset: Stage3 created ui_id=u_000120_01 schema_ok=True
+2026-02-05 14:20:55 INFO dataset: Stage3 created ui_id=u_000121_01 schema_ok=True
+2026-02-05 14:22:22 INFO dataset: Stage3 created ui_id=u_000122_01 schema_ok=True
+2026-02-05 14:24:01 INFO dataset: Stage3 created ui_id=u_000123_01 schema_ok=True
+2026-02-05 14:25:35 INFO dataset: Stage3 created ui_id=u_000124_01 schema_ok=True
+2026-02-05 14:27:31 INFO dataset: Stage3 created ui_id=u_000125_01 schema_ok=True
+2026-02-05 14:29:31 INFO dataset: Stage3 created ui_id=u_000126_01 schema_ok=True
+2026-02-05 14:30:12 INFO dataset: Stage3 created ui_id=u_000127_01 schema_ok=True
+2026-02-05 14:31:39 INFO dataset: Stage3 created ui_id=u_000128_01 schema_ok=True
+2026-02-05 14:32:08 INFO dataset: Stage3 created ui_id=u_000129_01 schema_ok=True
+2026-02-05 14:32:57 INFO dataset: Stage3 created ui_id=u_000130_01 schema_ok=True
+2026-02-05 14:33:38 INFO dataset: Stage3 created ui_id=u_000131_01 schema_ok=True
+2026-02-05 14:35:30 INFO dataset: Stage3 created ui_id=u_000132_01 schema_ok=True
+2026-02-05 14:37:32 INFO dataset: Stage3 created ui_id=u_000133_01 schema_ok=True
+2026-02-05 14:39:23 INFO dataset: Stage3 created ui_id=u_000134_01 schema_ok=True
+2026-02-05 14:40:18 INFO dataset: Stage3 created ui_id=u_000135_01 schema_ok=True
+2026-02-05 14:52:20 INFO dataset: Stage3 created ui_id=u_000136_01 schema_ok=True
+2026-02-05 14:53:55 INFO dataset: Stage3 created ui_id=u_000137_01 schema_ok=True
+2026-02-05 14:54:44 INFO dataset: Stage3 created ui_id=u_000138_01 schema_ok=True
+2026-02-05 14:56:33 INFO dataset: Stage3 created ui_id=u_000139_01 schema_ok=True
+2026-02-05 14:58:25 INFO dataset: Stage3 created ui_id=u_000140_01 schema_ok=True
+2026-02-05 14:59:07 INFO dataset: Stage3 created ui_id=u_000141_01 schema_ok=True
+2026-02-05 15:00:51 INFO dataset: Stage3 created ui_id=u_000142_01 schema_ok=True
+2026-02-05 15:02:36 INFO dataset: Stage3 created ui_id=u_000143_01 schema_ok=True
+2026-02-05 15:04:07 INFO dataset: Stage3 created ui_id=u_000144_01 schema_ok=True
+2026-02-05 15:05:37 INFO dataset: Stage3 created ui_id=u_000145_01 schema_ok=True
+2026-02-05 15:07:24 INFO dataset: Stage3 created ui_id=u_000146_01 schema_ok=True
+2026-02-05 15:08:53 INFO dataset: Stage3 created ui_id=u_000147_01 schema_ok=True
+2026-02-05 15:10:44 INFO dataset: Stage3 created ui_id=u_000148_01 schema_ok=True
+2026-02-05 15:12:40 INFO dataset: Stage3 created ui_id=u_000149_01 schema_ok=True
+2026-02-05 15:13:27 INFO dataset: Stage3 created ui_id=u_000150_01 schema_ok=True
+2026-02-05 15:15:16 INFO dataset: Stage3 created ui_id=u_000151_01 schema_ok=True
+2026-02-05 15:16:01 INFO dataset: Stage3 created ui_id=u_000152_01 schema_ok=True
+2026-02-05 15:16:41 INFO dataset: Stage3 created ui_id=u_000153_01 schema_ok=True
+2026-02-05 15:18:20 INFO dataset: Stage3 created ui_id=u_000154_01 schema_ok=True
+2026-02-05 15:18:54 INFO dataset: Stage3 created ui_id=u_000155_01 schema_ok=True
+2026-02-05 15:20:42 INFO dataset: Stage3 created ui_id=u_000156_01 schema_ok=True
+2026-02-05 15:22:18 INFO dataset: Stage3 created ui_id=u_000157_01 schema_ok=True
+2026-02-05 15:23:59 INFO dataset: Stage3 created ui_id=u_000158_01 schema_ok=True
+2026-02-05 15:24:31 INFO dataset: Stage3 created ui_id=u_000159_01 schema_ok=True
+2026-02-05 15:27:50 INFO dataset: Stage3 created ui_id=u_000160_01 schema_ok=True
+2026-02-05 15:30:18 INFO dataset: Stage3 created ui_id=u_000161_01 schema_ok=True
+2026-02-05 15:32:03 INFO dataset: Stage3 created ui_id=u_000162_01 schema_ok=True
+2026-02-05 15:35:51 INFO dataset: Stage3 created ui_id=u_000163_01 schema_ok=True
+2026-02-05 15:36:19 INFO dataset: Stage3 created ui_id=u_000164_01 schema_ok=True
+2026-02-05 15:39:09 INFO dataset: Stage3 created ui_id=u_000165_01 schema_ok=True
+2026-02-05 15:40:57 INFO dataset: Stage3 created ui_id=u_000166_01 schema_ok=True
+2026-02-05 15:43:01 INFO dataset: Stage3 created ui_id=u_000167_01 schema_ok=True
+2026-02-05 15:43:39 INFO dataset: Stage3 created ui_id=u_000168_01 schema_ok=True
+2026-02-05 15:44:09 INFO dataset: Stage3 created ui_id=u_000169_01 schema_ok=True
+2026-02-05 15:44:36 INFO dataset: Stage3 created ui_id=u_000170_01 schema_ok=True
+2026-02-05 15:45:27 INFO dataset: Stage3 created ui_id=u_000171_01 schema_ok=True
+2026-02-05 15:47:07 INFO dataset: Stage3 created ui_id=u_000172_01 schema_ok=True
+2026-02-05 15:49:04 INFO dataset: Stage3 created ui_id=u_000173_01 schema_ok=True
+2026-02-05 15:49:40 INFO dataset: Stage3 created ui_id=u_000174_01 schema_ok=True
+2026-02-05 15:53:42 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-02-05 15:55:45 INFO dataset: Stage3 created ui_id=u_000176_01 schema_ok=True
+2026-02-05 15:57:24 INFO dataset: Stage3 created ui_id=u_000177_01 schema_ok=True
+2026-02-05 15:58:05 INFO dataset: Stage3 created ui_id=u_000178_01 schema_ok=True
+2026-02-05 15:59:41 INFO dataset: Stage3 created ui_id=u_000179_01 schema_ok=True
+2026-02-05 16:01:33 INFO dataset: Stage3 created ui_id=u_000180_01 schema_ok=True
+2026-02-05 16:03:19 INFO dataset: Stage3 created ui_id=u_000181_01 schema_ok=True
+2026-02-05 16:04:02 INFO dataset: Stage3 created ui_id=u_000182_01 schema_ok=True
+2026-02-05 16:05:55 INFO dataset: Stage3 created ui_id=u_000183_01 schema_ok=True
+2026-02-05 16:07:33 INFO dataset: Stage3 created ui_id=u_000184_01 schema_ok=True
+2026-02-05 16:09:20 INFO dataset: Stage3 created ui_id=u_000185_01 schema_ok=True
+2026-02-05 16:12:08 INFO dataset: Stage3 created ui_id=u_000186_01 schema_ok=True
+2026-02-05 16:14:01 INFO dataset: Stage3 created ui_id=u_000187_01 schema_ok=True
+2026-02-05 16:17:02 INFO dataset: Stage3 created ui_id=u_000188_01 schema_ok=True
+2026-02-05 16:19:22 INFO dataset: Stage3 created ui_id=u_000189_01 schema_ok=True
+2026-02-05 16:20:39 INFO dataset: Stage3 created ui_id=u_000190_01 schema_ok=True
+2026-02-05 16:21:34 INFO dataset: Stage3 created ui_id=u_000191_01 schema_ok=True
+2026-02-05 16:22:15 INFO dataset: Stage3 created ui_id=u_000192_01 schema_ok=True
+2026-02-05 16:24:06 INFO dataset: Stage3 created ui_id=u_000193_01 schema_ok=True
+2026-02-05 16:26:10 INFO dataset: Stage3 created ui_id=u_000194_01 schema_ok=True
+2026-02-05 16:28:11 INFO dataset: Stage3 created ui_id=u_000195_01 schema_ok=True
+2026-02-05 16:28:58 INFO dataset: Stage3 created ui_id=u_000196_01 schema_ok=True
+2026-02-05 16:29:49 INFO dataset: Stage3 created ui_id=u_000197_01 schema_ok=True
+2026-02-05 16:30:29 INFO dataset: Stage3 created ui_id=u_000198_01 schema_ok=True
+2026-02-05 16:32:25 INFO dataset: Stage3 created ui_id=u_000199_01 schema_ok=True
+2026-02-05 16:35:15 INFO dataset: Stage3 created ui_id=u_000200_01 schema_ok=True
+2026-02-05 16:37:05 INFO dataset: Stage3 created ui_id=u_000201_01 schema_ok=True
+2026-02-05 16:37:38 INFO dataset: Stage3 created ui_id=u_000202_01 schema_ok=True
+2026-02-05 16:39:14 INFO dataset: Stage3 created ui_id=u_000203_01 schema_ok=True
+2026-02-05 16:40:05 INFO dataset: Stage3 created ui_id=u_000204_01 schema_ok=True
+2026-02-05 16:40:48 INFO dataset: Stage3 created ui_id=u_000205_01 schema_ok=True
+2026-02-05 16:41:35 INFO dataset: Stage3 created ui_id=u_000206_01 schema_ok=True
+2026-02-05 16:43:18 INFO dataset: Stage3 created ui_id=u_000207_01 schema_ok=True
+2026-02-05 16:45:08 INFO dataset: Stage3 created ui_id=u_000208_01 schema_ok=True
+2026-02-05 16:46:59 INFO dataset: Stage3 created ui_id=u_000209_01 schema_ok=True
+2026-02-05 16:47:46 INFO dataset: Stage3 created ui_id=u_000210_01 schema_ok=True
+2026-02-05 16:48:29 INFO dataset: Stage3 created ui_id=u_000211_01 schema_ok=True
+2026-02-05 16:50:22 INFO dataset: Stage3 created ui_id=u_000212_01 schema_ok=True
+2026-02-05 16:52:19 INFO dataset: Stage3 created ui_id=u_000213_01 schema_ok=True
+2026-02-05 16:53:08 INFO dataset: Stage3 created ui_id=u_000214_01 schema_ok=True
+2026-02-05 16:54:00 INFO dataset: Stage3 created ui_id=u_000215_01 schema_ok=True
+2026-02-05 16:55:39 INFO dataset: Stage3 created ui_id=u_000216_01 schema_ok=True
+2026-02-05 16:56:21 INFO dataset: Stage3 created ui_id=u_000217_01 schema_ok=True
+2026-02-05 16:57:42 INFO dataset: Stage3 created ui_id=u_000218_01 schema_ok=True
+2026-02-05 16:59:26 INFO dataset: Stage3 created ui_id=u_000219_01 schema_ok=True
+2026-02-05 17:01:16 INFO dataset: Stage3 created ui_id=u_000220_01 schema_ok=True
+2026-02-05 17:02:36 INFO dataset: Stage3 created ui_id=u_000221_01 schema_ok=True
+2026-02-05 17:03:58 INFO dataset: Stage3 created ui_id=u_000222_01 schema_ok=True
+2026-02-05 17:04:44 INFO dataset: Stage3 created ui_id=u_000223_01 schema_ok=True
+2026-02-05 17:06:50 INFO dataset: Stage3 created ui_id=u_000224_01 schema_ok=True
+2026-02-05 17:07:20 INFO dataset: Stage3 created ui_id=u_000225_01 schema_ok=True
+2026-02-05 17:08:49 INFO dataset: Stage3 created ui_id=u_000226_01 schema_ok=True
+2026-02-05 17:10:29 INFO dataset: Stage3 created ui_id=u_000227_01 schema_ok=True
+2026-02-05 17:12:23 INFO dataset: Stage3 created ui_id=u_000228_01 schema_ok=True
+2026-02-05 17:12:37 INFO dataset: Stage4 HTTP server started on port 61253
+2026-02-05 17:13:45 ERROR dataset: Stage4 render error ui_id=u_000036_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer TypeError: value.explicitList.map is not a function
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:61253/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:61253/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:61253/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:61253/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:619:36)
+    at http://127.0.0.1:61253/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:599:45
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:61253/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:599:26)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:61253/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:61253/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+2026-02-05 17:14:41 INFO dataset: Stage4 HTTP server started on port 53861
+2026-02-05 17:15:01 INFO dataset: Stage3 created ui_id=u_000229_01 schema_ok=True
+2026-02-05 17:16:47 INFO dataset: Stage3 created ui_id=u_000230_01 schema_ok=True
+2026-02-05 17:17:37 INFO dataset: Stage3 created ui_id=u_000231_01 schema_ok=True
+2026-02-05 17:18:33 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_flash_2000\rendered
+2026-02-05 17:19:04 INFO dataset: Stage3 created ui_id=u_000232_01 schema_ok=True
+2026-02-05 17:20:58 INFO dataset: Stage3 created ui_id=u_000233_01 schema_ok=True
+2026-02-05 17:22:58 INFO dataset: Stage3 created ui_id=u_000234_01 schema_ok=True
+2026-02-05 17:23:36 INFO dataset: Stage3 created ui_id=u_000235_01 schema_ok=True
+2026-02-05 17:25:31 INFO dataset: Stage3 created ui_id=u_000236_01 schema_ok=True
+2026-02-05 17:28:20 INFO dataset: Stage3 created ui_id=u_000237_01 schema_ok=True
+2026-02-05 17:30:08 INFO dataset: Stage3 created ui_id=u_000238_01 schema_ok=True
+2026-02-05 17:31:52 INFO dataset: Stage3 created ui_id=u_000239_01 schema_ok=True
+2026-02-05 17:34:34 INFO dataset: Stage3 created ui_id=u_000240_01 schema_ok=True
+2026-02-05 17:36:51 INFO dataset: Stage3 created ui_id=u_000241_01 schema_ok=True
+2026-02-05 17:37:38 INFO dataset: Stage3 created ui_id=u_000242_01 schema_ok=True
+2026-02-05 17:39:32 INFO dataset: Stage3 created ui_id=u_000243_01 schema_ok=True
+2026-02-05 17:41:25 INFO dataset: Stage3 created ui_id=u_000244_01 schema_ok=True
+2026-02-05 17:43:18 INFO dataset: Stage3 created ui_id=u_000245_01 schema_ok=True
+2026-02-05 17:44:45 INFO dataset: Stage3 created ui_id=u_000246_01 schema_ok=True
+2026-02-05 17:46:42 INFO dataset: Stage3 created ui_id=u_000247_01 schema_ok=True
+2026-02-05 17:48:35 INFO dataset: Stage3 created ui_id=u_000248_01 schema_ok=True
+2026-02-05 17:49:25 INFO dataset: Stage3 created ui_id=u_000249_01 schema_ok=True
+2026-02-05 17:50:55 INFO dataset: Stage3 created ui_id=u_000250_01 schema_ok=True
+2026-02-05 17:52:29 INFO dataset: Stage3 created ui_id=u_000251_01 schema_ok=True
+2026-02-05 17:54:31 INFO dataset: Stage3 created ui_id=u_000252_01 schema_ok=True
+2026-02-05 17:55:19 INFO dataset: Stage3 created ui_id=u_000253_01 schema_ok=True
+2026-02-05 17:57:17 INFO dataset: Stage3 created ui_id=u_000254_01 schema_ok=True
+2026-02-05 17:59:06 INFO dataset: Stage3 created ui_id=u_000255_01 schema_ok=True
+2026-02-05 18:00:59 INFO dataset: Stage3 created ui_id=u_000256_01 schema_ok=True
+2026-02-05 18:02:36 INFO dataset: Stage3 created ui_id=u_000257_01 schema_ok=True
+2026-02-05 18:04:11 INFO dataset: Stage3 created ui_id=u_000258_01 schema_ok=True
+2026-02-05 18:05:41 INFO dataset: Stage3 created ui_id=u_000259_01 schema_ok=True
+2026-02-05 18:07:41 INFO dataset: Stage3 created ui_id=u_000260_01 schema_ok=True
+2026-02-05 18:09:31 INFO dataset: Stage3 created ui_id=u_000261_01 schema_ok=True
+2026-02-05 18:10:20 INFO dataset: Stage3 created ui_id=u_000262_01 schema_ok=True
+2026-02-05 18:10:57 INFO dataset: Stage3 created ui_id=u_000263_01 schema_ok=True
+2026-02-05 18:12:52 INFO dataset: Stage3 created ui_id=u_000264_01 schema_ok=True
+2026-02-05 18:14:29 INFO dataset: Stage3 created ui_id=u_000265_01 schema_ok=True
+2026-02-05 18:16:04 INFO dataset: Stage3 created ui_id=u_000266_01 schema_ok=True
+2026-02-05 18:17:08 INFO dataset: Stage3 created ui_id=u_000267_01 schema_ok=True
+2026-02-05 18:18:54 INFO dataset: Stage3 created ui_id=u_000268_01 schema_ok=True
+2026-02-05 18:20:27 INFO dataset: Stage3 created ui_id=u_000269_01 schema_ok=True
+2026-02-05 18:22:22 INFO dataset: Stage3 created ui_id=u_000270_01 schema_ok=True
+2026-02-05 18:24:13 INFO dataset: Stage3 created ui_id=u_000271_01 schema_ok=True
+2026-02-05 18:26:05 INFO dataset: Stage3 created ui_id=u_000272_01 schema_ok=True
+2026-02-05 18:27:54 INFO dataset: Stage3 created ui_id=u_000273_01 schema_ok=True
+2026-02-05 18:28:39 INFO dataset: Stage3 created ui_id=u_000274_01 schema_ok=True
+2026-02-05 18:30:31 INFO dataset: Stage3 created ui_id=u_000275_01 schema_ok=True
+2026-02-05 18:32:15 INFO dataset: Stage3 created ui_id=u_000276_01 schema_ok=True
+2026-02-05 18:33:45 INFO dataset: Stage3 created ui_id=u_000277_01 schema_ok=True
+2026-02-05 18:35:30 INFO dataset: Stage3 created ui_id=u_000278_01 schema_ok=True
+2026-02-05 18:40:58 INFO dataset: Stage3 created ui_id=u_000279_01 schema_ok=True
+2026-02-05 18:42:41 INFO dataset: Stage3 created ui_id=u_000280_01 schema_ok=True
+2026-02-05 18:43:16 INFO dataset: Stage3 created ui_id=u_000281_01 schema_ok=True
+2026-02-05 18:44:14 INFO dataset: Stage3 created ui_id=u_000282_01 schema_ok=True
+2026-02-05 18:45:54 INFO dataset: Stage3 created ui_id=u_000283_01 schema_ok=True
+2026-02-05 18:49:05 INFO dataset: Stage3 created ui_id=u_000284_01 schema_ok=True
+2026-02-05 19:00:35 INFO dataset: Stage3 created ui_id=u_000285_01 schema_ok=True
+2026-02-05 19:02:21 INFO dataset: Stage3 created ui_id=u_000286_01 schema_ok=True
+2026-02-05 19:03:57 INFO dataset: Stage3 created ui_id=u_000287_01 schema_ok=True
+2026-02-05 19:05:50 INFO dataset: Stage3 created ui_id=u_000288_01 schema_ok=True
+2026-02-05 19:10:43 INFO dataset: Stage3 created ui_id=u_000289_01 schema_ok=True
+2026-02-05 19:36:36 INFO dataset: Stage3 created ui_id=u_000290_01 schema_ok=True
+2026-02-05 19:39:54 INFO dataset: Stage3 created ui_id=u_000291_01 schema_ok=True
+2026-02-05 19:42:40 INFO dataset: Stage3 created ui_id=u_000292_01 schema_ok=True
+2026-02-05 19:48:44 INFO dataset: Stage3 created ui_id=u_000293_01 schema_ok=True
+2026-02-05 19:54:21 INFO dataset: Stage3 created ui_id=u_000294_01 schema_ok=True
+2026-02-05 20:25:31 INFO dataset: Stage3 created ui_id=u_000295_01 schema_ok=True
+2026-02-05 20:27:05 INFO dataset: Stage3 created ui_id=u_000296_01 schema_ok=True
+2026-02-05 20:29:37 INFO dataset: Stage3 created ui_id=u_000297_01 schema_ok=True
+2026-02-05 20:31:31 INFO dataset: Stage3 created ui_id=u_000298_01 schema_ok=True
+2026-02-05 20:59:39 INFO dataset: Stage3 created ui_id=u_000299_01 schema_ok=True
+2026-02-05 21:00:19 INFO dataset: Stage3 created ui_id=u_000300_01 schema_ok=True
+2026-02-05 21:03:08 INFO dataset: Stage3 created ui_id=u_000301_01 schema_ok=True
+2026-02-05 21:04:51 INFO dataset: Stage3 created ui_id=u_000302_01 schema_ok=True
+2026-02-05 21:06:35 INFO dataset: Stage3 created ui_id=u_000303_01 schema_ok=True
+2026-02-05 21:07:10 INFO dataset: Stage3 created ui_id=u_000304_01 schema_ok=True
+2026-02-05 21:09:04 INFO dataset: Stage3 created ui_id=u_000305_01 schema_ok=True
+2026-02-05 21:10:55 INFO dataset: Stage3 created ui_id=u_000306_01 schema_ok=True
+2026-02-05 21:13:50 INFO dataset: Stage3 created ui_id=u_000307_01 schema_ok=True
+2026-02-05 21:16:27 INFO dataset: Stage3 created ui_id=u_000308_01 schema_ok=True
+2026-02-05 21:18:09 INFO dataset: Stage3 created ui_id=u_000309_01 schema_ok=True
+2026-02-05 21:21:51 INFO dataset: Stage3 created ui_id=u_000310_01 schema_ok=True
+2026-02-05 21:23:12 INFO dataset: Stage3 created ui_id=u_000311_01 schema_ok=True
+2026-02-05 21:25:00 INFO dataset: Stage3 created ui_id=u_000312_01 schema_ok=True
+2026-02-05 21:26:43 INFO dataset: Stage3 created ui_id=u_000313_01 schema_ok=True
+2026-02-05 21:31:54 INFO dataset: Stage3 created ui_id=u_000314_01 schema_ok=True
+2026-02-05 21:34:57 INFO dataset: Stage3 created ui_id=u_000315_01 schema_ok=True
+2026-02-05 21:38:47 INFO dataset: Stage3 created ui_id=u_000316_01 schema_ok=True
+2026-02-05 21:39:53 INFO dataset: Stage3 created ui_id=u_000317_01 schema_ok=True
+2026-02-05 21:41:54 INFO dataset: Stage3 created ui_id=u_000318_01 schema_ok=True
+2026-02-05 21:43:40 INFO dataset: Stage3 created ui_id=u_000319_01 schema_ok=True
+2026-02-05 21:45:44 INFO dataset: Stage3 created ui_id=u_000320_01 schema_ok=True
+2026-02-05 21:47:22 INFO dataset: Stage3 created ui_id=u_000321_01 schema_ok=True
+2026-02-05 21:48:58 INFO dataset: Stage3 created ui_id=u_000322_01 schema_ok=True
+2026-02-05 21:50:32 INFO dataset: Stage3 created ui_id=u_000323_01 schema_ok=True
+2026-02-05 21:53:15 INFO dataset: Stage3 created ui_id=u_000324_01 schema_ok=True
+2026-02-05 21:53:49 INFO dataset: Stage3 created ui_id=u_000325_01 schema_ok=True
+2026-02-05 21:55:42 INFO dataset: Stage3 created ui_id=u_000326_01 schema_ok=True
+2026-02-05 21:57:27 INFO dataset: Stage3 created ui_id=u_000327_01 schema_ok=True
+2026-02-05 21:58:27 INFO dataset: Stage3 created ui_id=u_000328_01 schema_ok=True
+2026-02-05 22:00:56 INFO dataset: Stage3 created ui_id=u_000329_01 schema_ok=True
+2026-02-05 22:01:43 INFO dataset: Stage3 created ui_id=u_000330_01 schema_ok=True
+2026-02-05 22:03:37 INFO dataset: Stage3 created ui_id=u_000331_01 schema_ok=True
+2026-02-05 22:05:49 INFO dataset: Stage3 created ui_id=u_000332_01 schema_ok=True
+2026-02-05 22:06:21 INFO dataset: Stage3 created ui_id=u_000333_01 schema_ok=True
+2026-02-05 22:18:46 INFO dataset: Stage3 created ui_id=u_000334_01 schema_ok=True
+2026-02-05 22:20:24 INFO dataset: Stage3 created ui_id=u_000335_01 schema_ok=True
+2026-02-05 22:21:06 INFO dataset: Stage3 created ui_id=u_000336_01 schema_ok=True
+2026-02-05 22:22:24 INFO dataset: Stage3 created ui_id=u_000337_01 schema_ok=True
+2026-02-05 22:26:13 INFO dataset: Stage3 created ui_id=u_000338_01 schema_ok=True
+2026-02-05 22:29:03 INFO dataset: Stage3 created ui_id=u_000339_01 schema_ok=True
+2026-02-05 22:29:51 INFO dataset: Stage3 created ui_id=u_000340_01 schema_ok=True
+2026-02-05 22:32:46 INFO dataset: Stage3 created ui_id=u_000341_01 schema_ok=True
+2026-02-05 22:34:34 INFO dataset: Stage3 created ui_id=u_000342_01 schema_ok=True
+2026-02-05 22:36:28 INFO dataset: Stage3 created ui_id=u_000343_01 schema_ok=True
+2026-02-05 22:39:10 INFO dataset: Stage3 created ui_id=u_000344_01 schema_ok=True
+2026-02-05 22:41:07 INFO dataset: Stage3 created ui_id=u_000345_01 schema_ok=True
+2026-02-05 22:42:48 INFO dataset: Stage3 created ui_id=u_000346_01 schema_ok=True
+2026-02-05 22:44:10 INFO dataset: Stage3 created ui_id=u_000347_01 schema_ok=True
+2026-02-05 22:45:59 INFO dataset: Stage3 created ui_id=u_000348_01 schema_ok=True
+2026-02-05 22:47:52 INFO dataset: Stage3 created ui_id=u_000349_01 schema_ok=True
+2026-02-05 22:48:35 INFO dataset: Stage3 created ui_id=u_000350_01 schema_ok=True
+2026-02-05 22:50:28 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-02-05 22:51:13 INFO dataset: Stage3 created ui_id=u_000352_01 schema_ok=True
+2026-02-05 22:51:53 INFO dataset: Stage3 created ui_id=u_000353_01 schema_ok=True
+2026-02-05 22:52:33 INFO dataset: Stage3 created ui_id=u_000354_01 schema_ok=True
+2026-02-05 22:54:20 INFO dataset: Stage3 created ui_id=u_000355_01 schema_ok=True
+2026-02-05 22:56:20 INFO dataset: Stage3 created ui_id=u_000356_01 schema_ok=True
+2026-02-05 22:58:03 INFO dataset: Stage3 created ui_id=u_000357_01 schema_ok=True
+2026-02-05 22:58:51 INFO dataset: Stage3 created ui_id=u_000358_01 schema_ok=True
+2026-02-05 23:01:02 INFO dataset: Stage3 created ui_id=u_000359_01 schema_ok=True
+2026-02-05 23:02:45 INFO dataset: Stage3 created ui_id=u_000360_01 schema_ok=True
+2026-02-05 23:04:46 INFO dataset: Stage3 created ui_id=u_000361_01 schema_ok=True
+2026-02-05 23:06:41 INFO dataset: Stage3 created ui_id=u_000362_01 schema_ok=True
+2026-02-05 23:08:46 INFO dataset: Stage3 created ui_id=u_000363_01 schema_ok=True
+2026-02-05 23:10:23 INFO dataset: Stage3 created ui_id=u_000364_01 schema_ok=True
+2026-02-05 23:12:06 INFO dataset: Stage3 created ui_id=u_000365_01 schema_ok=True
+2026-02-05 23:13:49 INFO dataset: Stage3 created ui_id=u_000366_01 schema_ok=True
+2026-02-05 23:15:25 INFO dataset: Stage3 created ui_id=u_000367_01 schema_ok=True
+2026-02-05 23:18:09 INFO dataset: Stage3 created ui_id=u_000368_01 schema_ok=True
+2026-02-05 23:18:55 INFO dataset: Stage3 created ui_id=u_000369_01 schema_ok=True
+2026-02-05 23:21:45 INFO dataset: Stage3 created ui_id=u_000370_01 schema_ok=True
+2026-02-05 23:23:37 INFO dataset: Stage3 created ui_id=u_000371_01 schema_ok=True
+2026-02-05 23:25:22 INFO dataset: Stage3 created ui_id=u_000372_01 schema_ok=True
+2026-02-05 23:27:06 INFO dataset: Stage3 created ui_id=u_000373_01 schema_ok=True
+2026-02-05 23:27:47 INFO dataset: Stage3 created ui_id=u_000374_01 schema_ok=True
+2026-02-05 23:28:33 INFO dataset: Stage3 created ui_id=u_000375_01 schema_ok=True
+2026-02-05 23:29:26 INFO dataset: Stage3 created ui_id=u_000376_01 schema_ok=True
+2026-02-05 23:30:18 INFO dataset: Stage3 created ui_id=u_000377_01 schema_ok=True
+2026-02-05 23:32:09 INFO dataset: Stage3 created ui_id=u_000378_01 schema_ok=True
+2026-02-05 23:33:56 INFO dataset: Stage3 created ui_id=u_000379_01 schema_ok=True
+2026-02-05 23:34:35 INFO dataset: Stage3 created ui_id=u_000380_01 schema_ok=True
+2026-02-05 23:37:25 INFO dataset: Stage3 created ui_id=u_000381_01 schema_ok=True
+2026-02-05 23:38:10 INFO dataset: Stage3 created ui_id=u_000382_01 schema_ok=True
+2026-02-05 23:38:47 INFO dataset: Stage3 created ui_id=u_000383_01 schema_ok=True
+2026-02-05 23:40:32 INFO dataset: Stage3 created ui_id=u_000384_01 schema_ok=True
+2026-02-05 23:41:07 INFO dataset: Stage3 created ui_id=u_000385_01 schema_ok=True
+2026-02-05 23:42:57 INFO dataset: Stage3 created ui_id=u_000386_01 schema_ok=True
+2026-02-05 23:43:40 INFO dataset: Stage3 created ui_id=u_000387_01 schema_ok=True
+2026-02-05 23:45:12 INFO dataset: Stage3 created ui_id=u_000388_01 schema_ok=True
+2026-02-05 23:45:56 INFO dataset: Stage3 created ui_id=u_000389_01 schema_ok=True
+2026-02-05 23:47:35 INFO dataset: Stage3 created ui_id=u_000390_01 schema_ok=True
+2026-02-05 23:48:18 INFO dataset: Stage3 created ui_id=u_000391_01 schema_ok=True
+2026-02-05 23:50:12 INFO dataset: Stage3 created ui_id=u_000392_01 schema_ok=True
+2026-02-05 23:53:09 INFO dataset: Stage3 created ui_id=u_000393_01 schema_ok=True
+2026-02-05 23:55:04 INFO dataset: Stage3 created ui_id=u_000394_01 schema_ok=True
+2026-02-05 23:56:51 INFO dataset: Stage3 created ui_id=u_000395_01 schema_ok=True
+2026-02-05 23:58:30 INFO dataset: Stage3 created ui_id=u_000396_01 schema_ok=True
+2026-02-06 00:00:14 INFO dataset: Stage3 created ui_id=u_000397_01 schema_ok=True
+2026-02-06 00:00:48 INFO dataset: Stage3 created ui_id=u_000398_01 schema_ok=True
+2026-02-06 00:02:43 INFO dataset: Stage3 created ui_id=u_000399_01 schema_ok=True
+2026-02-06 00:04:37 INFO dataset: Stage3 created ui_id=u_000400_01 schema_ok=True
+2026-02-06 00:05:15 INFO dataset: Stage3 created ui_id=u_000401_01 schema_ok=True
+2026-02-06 00:06:56 INFO dataset: Stage3 created ui_id=u_000402_01 schema_ok=True
+2026-02-06 00:07:23 INFO dataset: Stage3 created ui_id=u_000403_01 schema_ok=True
+2026-02-06 00:09:20 INFO dataset: Stage3 created ui_id=u_000404_01 schema_ok=True
+2026-02-06 00:11:16 INFO dataset: Stage3 created ui_id=u_000405_01 schema_ok=True
+2026-02-06 00:13:11 INFO dataset: Stage3 created ui_id=u_000406_01 schema_ok=True
+2026-02-06 00:14:56 INFO dataset: Stage3 created ui_id=u_000407_01 schema_ok=True
+2026-02-06 00:16:24 INFO dataset: Stage3 created ui_id=u_000408_01 schema_ok=True
+2026-02-06 00:18:10 INFO dataset: Stage3 created ui_id=u_000409_01 schema_ok=True
+2026-02-06 00:18:46 INFO dataset: Stage3 created ui_id=u_000410_01 schema_ok=True
+2026-02-06 00:20:11 INFO dataset: Stage3 created ui_id=u_000411_01 schema_ok=True
+2026-02-06 00:21:49 INFO dataset: Stage3 created ui_id=u_000412_01 schema_ok=True
+2026-02-06 00:22:28 INFO dataset: Stage3 created ui_id=u_000413_01 schema_ok=True
+2026-02-06 00:23:53 INFO dataset: Stage3 created ui_id=u_000414_01 schema_ok=True
+2026-02-06 00:25:55 INFO dataset: Stage3 created ui_id=u_000415_01 schema_ok=True
+2026-02-06 00:27:51 INFO dataset: Stage3 created ui_id=u_000416_01 schema_ok=True
+2026-02-06 00:28:33 INFO dataset: Stage3 created ui_id=u_000417_01 schema_ok=True
+2026-02-06 00:30:18 INFO dataset: Stage3 created ui_id=u_000418_01 schema_ok=True
+2026-02-06 00:32:10 INFO dataset: Stage3 created ui_id=u_000419_01 schema_ok=True
+2026-02-06 00:32:51 INFO dataset: Stage3 created ui_id=u_000420_01 schema_ok=True
+2026-02-06 00:34:15 INFO dataset: Stage3 created ui_id=u_000421_01 schema_ok=True
+2026-02-06 00:37:04 INFO dataset: Stage3 created ui_id=u_000423_01 schema_ok=True
+2026-02-06 00:39:03 INFO dataset: Stage3 created ui_id=u_000424_01 schema_ok=True
+2026-02-06 00:40:55 INFO dataset: Stage3 created ui_id=u_000425_01 schema_ok=True
+2026-02-06 00:41:51 INFO dataset: Stage3 created ui_id=u_000426_01 schema_ok=True
+2026-02-06 00:42:42 INFO dataset: Stage3 created ui_id=u_000422_01 schema_ok=True
+2026-02-06 00:43:31 INFO dataset: Stage3 created ui_id=u_000427_01 schema_ok=True
+2026-02-06 00:45:18 INFO dataset: Stage3 created ui_id=u_000428_01 schema_ok=True
+2026-02-06 00:47:10 INFO dataset: Stage3 created ui_id=u_000429_01 schema_ok=True
+2026-02-06 00:48:59 INFO dataset: Stage3 created ui_id=u_000430_01 schema_ok=True
+2026-02-06 00:51:42 INFO dataset: Stage3 created ui_id=u_000431_01 schema_ok=True
+2026-02-06 00:53:36 INFO dataset: Stage3 created ui_id=u_000432_01 schema_ok=True
+2026-02-06 00:54:23 INFO dataset: Stage3 created ui_id=u_000433_01 schema_ok=True
+2026-02-06 00:56:11 INFO dataset: Stage3 created ui_id=u_000434_01 schema_ok=True
+2026-02-06 00:57:51 INFO dataset: Stage3 created ui_id=u_000435_01 schema_ok=True
+2026-02-06 00:58:30 INFO dataset: Stage3 created ui_id=u_000436_01 schema_ok=True
+2026-02-06 00:59:28 INFO dataset: Stage3 created ui_id=u_000437_01 schema_ok=True
+2026-02-06 01:00:09 INFO dataset: Stage3 created ui_id=u_000438_01 schema_ok=True
+2026-02-06 01:01:25 INFO dataset: Stage3 created ui_id=u_000439_01 schema_ok=True
+2026-02-06 01:03:08 INFO dataset: Stage3 created ui_id=u_000440_01 schema_ok=True
+2026-02-06 01:04:59 INFO dataset: Stage3 created ui_id=u_000441_01 schema_ok=True
+2026-02-06 01:06:41 INFO dataset: Stage3 created ui_id=u_000442_01 schema_ok=True
+2026-02-06 01:08:38 INFO dataset: Stage3 created ui_id=u_000443_01 schema_ok=True
+2026-02-06 01:10:00 INFO dataset: Stage3 created ui_id=u_000444_01 schema_ok=True
+2026-02-06 01:11:53 INFO dataset: Stage3 created ui_id=u_000445_01 schema_ok=True
+2026-02-06 01:13:48 INFO dataset: Stage3 created ui_id=u_000446_01 schema_ok=True
+2026-02-06 01:15:03 INFO dataset: Stage3 created ui_id=u_000447_01 schema_ok=True
+2026-02-06 01:16:25 INFO dataset: Stage3 created ui_id=u_000448_01 schema_ok=True
+2026-02-06 01:17:01 INFO dataset: Stage3 created ui_id=u_000449_01 schema_ok=True
+2026-02-06 01:18:54 INFO dataset: Stage3 created ui_id=u_000450_01 schema_ok=True
+2026-02-06 01:20:37 INFO dataset: Stage3 created ui_id=u_000451_01 schema_ok=True
+2026-02-06 01:21:21 INFO dataset: Stage3 created ui_id=u_000452_01 schema_ok=True
+2026-02-06 01:22:00 INFO dataset: Stage3 created ui_id=u_000453_01 schema_ok=True
+2026-02-06 01:23:33 INFO dataset: Stage3 created ui_id=u_000454_01 schema_ok=True
+2026-02-06 01:25:14 INFO dataset: Stage3 created ui_id=u_000455_01 schema_ok=True
+2026-02-06 01:25:54 INFO dataset: Stage3 created ui_id=u_000456_01 schema_ok=True

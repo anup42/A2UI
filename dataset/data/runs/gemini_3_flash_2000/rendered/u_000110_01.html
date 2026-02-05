@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "churro_popcorn_recipe_001"}}, {"surfaceUpdate": {"surfaceId": "churro_popcorn_recipe_001", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["img_hero", "col_header", "row_meta", "tabs_recipe", "divider_1", "col_check", "card_nutr", "row_btns"]}, "alignment": "stretch"}}}, {"id": "img_hero", "component": {"Image": {"url": {"literalString": "/assets/r_000110_01_4_photo-1505686994434-e3cc5abf1330.jpg"}, "usageHint": "header", "fit": "cover"}}}, {"id": "col_header", "component": {"Column": {"children": {"explicitList": ["txt_title", "txt_summary", "txt_assumptions"]}}}}, {"id": "txt_title", "component": {"Text": {"text": {"literalString": "Cinnamon Churro Popcorn Mix"}, "usageHint": "h1"}}}, {"id": "txt_summary", "component": {"Text": {"text": {"literalString": "This recipe creates a Cinnamon Churro Popcorn Mix. It uses a warm butter and brown sugar glaze to coat the popcorn, finished with a hint of cinnamon and chocolate chips for a rich, sweet movie night treat."}, "usageHint": "body"}}}, {"id": "txt_assumptions", "component": {"Text": {"text": {"literalString": "*Assumptions: Access to a stovetop/air-popper and a baking sheet.*"}, "usageHint": "caption"}}}, {"id": "row_meta", "component": {"Row": {"children": {"explicitList": ["icon_time", "txt_time", "icon_flavor", "txt_flavor"]}, "distribution": "start", "alignment": "center"}}}, {"id": "icon_time", "component": {"Image": {"url": {"literalString": "/assets/r_000110_01_1_time.png"}, "usageHint": "icon"}}}, {"id": "txt_time", "component": {"Text": {"text": {"literalString": "Prep: 15 mins"}, "usageHint": "caption"}}}, {"id": "icon_flavor", "component": {"Image": {"url": {"literalString": "/assets/r_000110_01_3_sugar-cube.png"}, "usageHint": "icon"}}}, {"id": "txt_flavor", "component": {"Text": {"text": {"literalString": "Sweet & Spiced"}, "usageHint": "caption"}}}, {"id": "tabs_recipe", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Ingredients"}, "child": "col_ingred"}, {"title": {"literalString": "Preparation"}, "child": "col_prep"}, {"title": {"literalString": "Variations"}, "child": "col_vars"}]}}}, {"id": "col_ingred", "component": {"List": {"children": {"explicitList": ["ingred_1", "ingred_2", "ingred_3", "ingred_4", "ingred_5"]}}}}, {"id": "ingred_1", "component": {"Text": {"text": {"literalString": "• 1/2 cup popcorn kernels"}, "usageHint": "body"}}}, {"id": "ingred_2", "component": {"Text": {"text": {"literalString": "• 4 tablespoons butter"}, "usageHint": "body"}}}, {"id": "ingred_3", "component": {"Text": {"text": {"literalString": "• 1/4 cup brown sugar"}, "usageHint": "body"}}}, {"id": "ingred_4", "component": {"Text": {"text": {"literalString": "• 1 teaspoon cinnamon"}, "usageHint": "body"}}}, {"id": "ingred_5", "component": {"Text": {"text": {"literalString": "• 1/2 cup chocolate chips"}, "usageHint": "body"}}}, {"id": "col_prep", "component": {"List": {"children": {"explicitList": ["step_1", "step_2", "step_3", "step_4", "step_5", "step_6", "step_7"]}}}}, {"id": "step_1", "component": {"Text": {"text": {"literalString": "1. Pop the kernels using your preferred method. Place in a large heat-safe bowl."}, "usageHint": "body"}}}, {"id": "step_2", "component": {"Text": {"text": {"literalString": "2. Melt the butter in a small saucepan or microwave-safe bowl."}, "usageHint": "body"}}}, {"id": "step_3", "component": {"Text": {"text": {"literalString": "3. Stir brown sugar and cinnamon into the melted butter until smooth."}, "usageHint": "body"}}}, {"id": "step_4", "component": {"Text": {"text": {"literalString": "4. Pour mixture over popcorn and toss thoroughly to coat."}, "usageHint": "body"}}}, {"id": "step_5", "component": {"Text": {"text": {"literalString": "5. Spread onto a parchment-lined baking sheet to cool."}, "usageHint": "body"}}}, {"id": "step_6", "component": {"Text": {"text": {"literalString": "6. Sprinkle chocolate chips over the top after 2-3 minutes of cooling."}, "usageHint": "body"}}}, {"id": "step_7", "component": {"Text": {"text": {"literalString": "7. Let sit for 10 minutes until the glaze sets, then serve."}, "usageHint": "body"}}}, {"id": "col_vars", "component": {"Column": {"children": {"explicitList": ["var_1", "var_2", "var_3"]}}}}, {"id": "var_1", "component": {"Text": {"text": {"literalString": "**The Extra Crunch:** Bake at 300F for 10 mins before adding chips."}, "usageHint": "body"}}}, {"id": "var_2", "component": {"Text": {"text": {"literalString": "**The Melty Drizzle:** Melt chocolate chips and drizzle over the tray."}, "usageHint": "body"}}}, {"id": "var_3", "component": {"Text": {"text": {"literalString": "**Salted Cinnamon:** Add 1/2 tsp sea salt to the butter mixture."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "col_check", "component": {"Column": {"children": {"explicitList": ["txt_check_title", "check1", "check2", "check3"]}}}}, {"id": "txt_check_title", "component": {"Text": {"text": {"literalString": "Recipe Checklist"}, "usageHint": "h4"}}}, {"id": "check1", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check2", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check3", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "card_nutr", "component": {"Card": {"child": "col_nutr"}}}, {"id": "col_nutr", "component": {"Column": {"children": {"explicitList": ["txt_nutr_title", "txt_cal", "txt_sug", "txt_fat", "txt_fib"]}}}}, {"id": "txt_nutr_title", "component": {"Text": {"text": {"literalString": "Nutrition (Per Serving)"}, "usageHint": "h5"}}}, {"id": "txt_cal", "component": {"Text": {"text": {"literalString": "Calories: 210"}, "usageHint": "caption"}}}, {"id": "txt_sug", "component": {"Text": {"text": {"literalString": "Sugar: 14g"}, "usageHint": "caption"}}}, {"id": "txt_fat", "component": {"Text": {"text": {"literalString": "Fat: 12g"}, "usageHint": "caption"}}}, {"id": "txt_fib", "component": {"Text": {"text": {"literalString": "Fiber: 3g"}, "usageHint": "caption"}}}, {"id": "row_btns", "component": {"Row": {"children": {"explicitList": ["btn_save", "btn_share"]}, "distribution": "spaceEvenly"}}}, {"id": "btn_save", "component": {"Button": {"child": "txt_save", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/save-recipe"}}]}, "primary": true}}}, {"id": "txt_save", "component": {"Text": {"text": {"literalString": "Save to Recipe Box"}, "usageHint": "body"}}}, {"id": "btn_share", "component": {"Button": {"child": "txt_share", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/share"}}]}}}}, {"id": "txt_share", "component": {"Text": {"text": {"literalString": "Share with Friends"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

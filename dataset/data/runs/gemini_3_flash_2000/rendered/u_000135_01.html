@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "guitar_practice_plan"}}, {"surfaceUpdate": {"surfaceId": "guitar_practice_plan", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_row", "assumptions_card", "overview_section_title", "overview_card", "breakdown_section_title", "weekly_tabs", "checklist_section_title", "checklist_card", "actions_row", "sources_text"]}, "alignment": "stretch"}}}, {"id": "header_row", "component": {"Row": {"children": {"explicitList": ["header_text"]}, "alignment": "center"}}}, {"id": "header_text", "component": {"Text": {"text": {"literalString": "4-Week Guitar Practice Schedule"}, "usageHint": "h1"}}}, {"id": "assumptions_card", "component": {"Card": {"child": "assumptions_text"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "**Assumptions:** Functional acoustic guitar, pick, tuner/app, and 20 minutes of daily commitment."}, "usageHint": "body"}}}, {"id": "overview_section_title", "component": {"Row": {"children": {"explicitList": ["overview_icon", "overview_title_text"]}, "alignment": "center"}}}, {"id": "overview_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000135_01_2_calendar--v1.png"}, "usageHint": "icon"}}}, {"id": "overview_title_text", "component": {"Text": {"text": {"literalString": "Schedule Overview"}, "usageHint": "h2"}}}, {"id": "overview_card", "component": {"Card": {"child": "overview_col"}}}, {"id": "overview_col", "component": {"Column": {"children": {"explicitList": ["ov_row_h", "ov_divider_1", "ov_row_1", "ov_row_2", "ov_row_3", "ov_row_4"]}}}}, {"id": "ov_row_h", "component": {"Row": {"children": {"explicitList": ["ov_h1", "ov_h2", "ov_h3", "ov_h4"]}, "distribution": "spaceBetween"}}}, {"id": "ov_h1", "component": {"Text": {"text": {"literalString": "**Week**"}, "usageHint": "body"}}}, {"id": "ov_h2", "component": {"Text": {"text": {"literalString": "**Chords**"}, "usageHint": "body"}}}, {"id": "ov_h3", "component": {"Text": {"text": {"literalString": "**Strumming**"}, "usageHint": "body"}}}, {"id": "ov_h4", "component": {"Text": {"text": {"literalString": "**Goal**"}, "usageHint": "body"}}}, {"id": "ov_divider_1", "component": {"Divider": {}}}, {"id": "ov_row_1", "component": {"Row": {"children": {"explicitList": ["ov_1_1", "ov_1_2", "ov_1_3", "ov_1_4"]}, "distribution": "spaceBetween"}}}, {"id": "ov_1_1", "component": {"Text": {"text": {"literalString": "1"}, "usageHint": "body"}}}, {"id": "ov_1_2", "component": {"Text": {"text": {"literalString": "G, Em"}, "usageHint": "body"}}}, {"id": "ov_1_3", "component": {"Text": {"text": {"literalString": "Downstrokes"}, "usageHint": "body"}}}, {"id": "ov_1_4", "component": {"Text": {"text": {"literalString": "Clean notes"}, "usageHint": "body"}}}, {"id": "ov_row_2", "component": {"Row": {"children": {"explicitList": ["ov_2_1", "ov_2_2", "ov_2_3", "ov_2_4"]}, "distribution": "spaceBetween"}}}, {"id": "ov_2_1", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "ov_2_2", "component": {"Text": {"text": {"literalString": "C, D"}, "usageHint": "body"}}}, {"id": "ov_2_3", "component": {"Text": {"text": {"literalString": "D-D-U"}, "usageHint": "body"}}}, {"id": "ov_2_4", "component": {"Text": {"text": {"literalString": "Smooth changes"}, "usageHint": "body"}}}, {"id": "ov_row_3", "component": {"Row": {"children": {"explicitList": ["ov_3_1", "ov_3_2", "ov_3_3", "ov_3_4"]}, "distribution": "spaceBetween"}}}, {"id": "ov_3_1", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "ov_3_2", "component": {"Text": {"text": {"literalString": "G, C, D, Em"}, "usageHint": "body"}}}, {"id": "ov_3_3", "component": {"Text": {"text": {"literalString": "D-U-D-U"}, "usageHint": "body"}}}, {"id": "ov_3_4", "component": {"Text": {"text": {"literalString": "4-Chord Prog"}, "usageHint": "body"}}}, {"id": "ov_row_4", "component": {"Row": {"children": {"explicitList": ["ov_4_1", "ov_4_2", "ov_4_3", "ov_4_4"]}, "distribution": "spaceBetween"}}}, {"id": "ov_4_1", "component": {"Text": {"text": {"literalString": "4"}, "usageHint": "body"}}}, {"id": "ov_4_2", "component": {"Text": {"text": {"literalString": "All"}, "usageHint": "body"}}}, {"id": "ov_4_3", "component": {"Text": {"text": {"literalString": "Pop Strum"}, "usageHint": "body"}}}, {"id": "ov_4_4", "component": {"Text": {"text": {"literalString": "Full Song"}, "usageHint": "body"}}}, {"id": "breakdown_section_title", "component": {"Text": {"text": {"literalString": "Weekly Breakdown"}, "usageHint": "h2"}}}, {"id": "weekly_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Week 1"}, "child": "w1_col"}, {"title": {"literalString": "Week 2"}, "child": "w2_col"}, {"title": {"literalString": "Week 3"}, "child": "w3_col"}, {"title": {"literalString": "Week 4"}, "child": "w4_col"}]}}}, {"id": "w1_col", "component": {"Column": {"children": {"explicitList": ["w1_chords", "w1_tech", "w1_ex", "w1_strum"]}}}}, {"id": "w1_chords", "component": {"Text": {"text": {"literalString": "**Focus Chords:** G Major and E Minor (Em)."}, "usageHint": "body"}}}, {"id": "w1_tech", "component": {"Text": {"text": {"literalString": "**Technique:** Press with finger tips. Thumb behind neck for leverage."}, "usageHint": "body"}}}, {"id": "w1_ex", "component": {"Text": {"text": {"literalString": "**Exercise:** Play each string individually in G. Adjust if muffled."}, "usageHint": "body"}}}, {"id": "w1_strum", "component": {"Text": {"text": {"literalString": "**Strumming:** 4 steady downstrokes per beat (1, 2, 3, 4)."}, "usageHint": "body"}}}, {"id": "w2_col", "component": {"Column": {"children": {"explicitList": ["w2_chords", "w2_tech", "w2_ex", "w2_strum"]}}}}, {"id": "w2_chords", "component": {"Text": {"text": {"literalString": "**Focus Chords:** C Major and D Major."}, "usageHint": "body"}}}, {"id": "w2_tech", "component": {"Text": {"text": {"literalString": "**Technique:** C Major requires a wider stretch. Practice placing fingers one by one."}, "usageHint": "body"}}}, {"id": "w2_ex", "component": {"Text": {"text": {"literalString": "**Exercise:** Transition from G to C (most common change)."}, "usageHint": "body"}}}, {"id": "w2_strum", "component": {"Text": {"text": {"literalString": "**Strumming:** Introduce upstrokes. Pattern: Down, Down, Up (1, 2, &)."}, "usageHint": "body"}}}, {"id": "w3_col", "component": {"Column": {"children": {"explicitList": ["w3_chords", "w3_tech", "w3_ex", "w3_strum"]}}}}, {"id": "w3_chords", "component": {"Text": {"text": {"literalString": "**Focus Chords:** Review G, C, D, and Em."}, "usageHint": "body"}}}, {"id": "w3_tech", "component": {"Text": {"text": {"literalString": "**Technique:** Look for 'anchor fingers' that stay near the same frets."}, "usageHint": "body"}}}, {"id": "w3_ex", "component": {"Text": {"text": {"literalString": "**Exercise:** The '60-Second Switch'. Count switches between G and D in 1 min."}, "usageHint": "body"}}}, {"id": "w3_strum", "component": {"Text": {"text": {"literalString": "**Strumming:** Constant motion. Pattern: Down, Up, Down, Up (1, &, 2, &)."}, "usageHint": "body"}}}, {"id": "w4_col", "component": {"Column": {"children": {"explicitList": ["w4_chords", "w4_tech", "w4_ex", "w4_strum"]}}}}, {"id": "w4_chords", "component": {"Text": {"text": {"literalString": "**Focus Chords:** All four chords in various sequences."}, "usageHint": "body"}}}, {"id": "w4_tech", "component": {"Text": {"text": {"literalString": "**Technique:** Keep the right hand moving even if the left hand is late. Rhythm > Perfection."}, "usageHint": "body"}}}, {"id": "w4_ex", "component": {"Text": {"text": {"literalString": "**Exercise:** Play the progression G - D - Em - C repeatedly."}, "usageHint": "body"}}}, {"id": "w4_strum", "component": {"Text": {"text": {"literalString": "**Strumming:** 'Old Faithful' pattern: D, D-U, (skip), U, D-U."}, "usageHint": "body"}}}, {"id": "checklist_section_title", "component": {"Row": {"children": {"explicitList": ["checklist_icon", "checklist_title_text"]}, "alignment": "center"}}}, {"id": "checklist_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000135_01_4_trophy.png"}, "usageHint": "icon"}}}, {"id": "checklist_title_text", "component": {"Text": {"text": {"literalString": "Daily Practice Checklist (20 Mins)"}, "usageHint": "h2"}}}, {"id": "checklist_card", "component": {"Card": {"child": "checklist_col"}}}, {"id": "checklist_col", "component": {"Column": {"children": {"explicitList": ["check_1", "check_2", "check_3", "check_4", "check_5"]}}}}, {"id": "check_1", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check_2", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check_3", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check_4", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "check_5", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["tuner_btn", "chord_btn", "metronome_btn"]}, "distribution": "spaceEvenly"}}}, {"id": "tuner_btn", "component": {"Button": {"child": "tuner_label", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.fender.com/online-guitar-tuner"}}]}, "primary": true}}}, {"id": "tuner_label", "component": {"Text": {"text": {"literalString": "Guitar Tuner"}, "usageHint": "body"}}}, {"id": "chord_btn", "component": {"Button": {"child": "chord_label", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.ultimate-guitar.com/explore"}}]}}}}, {"id": "chord_label", "component": {"Text": {"text": {"literalString": "Chord Library"}, "usageHint": "body"}}}, {"id": "metronome_btn", "component": {"Button": {"child": "metronome_label", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.google.com/search?q=metronome"}}]}}}}, {"id": "metronome_label", "component": {"Text": {"text": {"literalString": "Metronome"}, "usageHint": "body"}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Sources: JustinGuitar, Fender Play"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

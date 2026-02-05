@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000062"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000062", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "btn_12", "btn_13", "btn_14", "text_15", "text_16", "text_17"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions: You are an adult (age 16 or older) whose most recent passport is undamaged, was issued within the last 15 years, and was issued when you were age 16 or older. This allows you to renew by mail using Form DS-82."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Verification Steps for Live Info:\n1. Visit the official U.S. Department of State website (travel.state.gov) to confirm current processing times, as these fluctuate seasonally.\n2. Use the official Fee Calculator on the State Department website to verify if any price adjustments have occurred since your last check.\n3. Check for any local post office closures or appointment requirements if you choose to use their photo services."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Step-by-Step Renewal Process:"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Step 1: Determine Eligibility\nYou can renew by mail if your passport is in your possession, undamaged (other than normal wear), issued when you were 16 or older, and issued within the last 15 years. If you do not meet these criteria, you must apply in person using Form DS-11."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Step 2: Complete Form DS-82\nFill out the U.S. Passport Renewal Application for Eligible Individuals. You can use the online form filler or download a PDF to print and fill out by hand. You must sign and date the form."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Step 3: Collect Supporting Documentation\n- Your most recent U.S. passport.\n- A certified copy of a legal name change document (if your current name is different from the name on your previous passport)."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Step 4: Provide a Passport Photo\nAttach one high-quality color photograph to the application.\n- Size: 2 x 2 inches (51 x 51 mm).\n- Recency: Taken within the last 6 months.\n- Background: Plain white or off-white.\n- Expression: Neutral facial expression or a natural smile, with both eyes open.\n- Attire: No glasses, no hats or head coverings (unless for religious/medical reasons with a signed statement), and no uniforms."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Step 5: Calculate and Pay Fees\nFees must be paid via check or money order made payable to \"U.S. Department of State.\" Write the applicant's full name and date of birth on the front of the check."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "Fee Schedule (EXAMPLE - Standard Rates):\n- Passport Book Renewal: $130\n- Passport Card Renewal: $30\n- Passport Book & Card: $160\n- Expedited Service: +$60 (additional)\n- 1-2 Day Delivery: +$19.53 (additional)"}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "Step 6: Mail the Application\nPlace the application, old passport, name change document, photo, and payment in a large envelope. It is highly recommended to use a trackable delivery service.\n- Standard Mail: Use the address provided on Form DS-82 for your specific state.\n- Expedited Mail: Use the specific \"Expedited Service\" address listed on the form."}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "Processing Timeframes (EXAMPLE):\n- Routine Service: 6 to 8 weeks\n- Expedited Service: 2 to 3 weeks"}, "usageHint": "body"}}}, {"id": "btn_label_12", "component": {"Text": {"text": {"literalString": "Fill Out Form DS-82 Online"}, "usageHint": "body"}}}, {"id": "btn_12", "component": {"Button": {"child": "btn_label_12", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://eforms.state.gov/Forms/ds82.pdf"}}]}, "primary": true}}}, {"id": "btn_label_13", "component": {"Text": {"text": {"literalString": "Track Application Status"}, "usageHint": "body"}}}, {"id": "btn_13", "component": {"Button": {"child": "btn_label_13", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://passportstatus.state.gov/"}}]}, "primary": true}}}, {"id": "btn_label_14", "component": {"Text": {"text": {"literalString": "Calculate Exact Fees"}, "usageHint": "body"}}}, {"id": "btn_14", "component": {"Button": {"child": "btn_label_14", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://travel.state.gov/content/travel/en/passports/how-apply/fees/fee-calculator.html"}}]}, "primary": true}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "- Eligibility: /assets/r_000062_01_2_checked-user-male.png\n- Photo: /assets/r_000057_01_5_camera.png\n- Payment: /assets/r_000062_01_4_check-book.png\n- Shipping: /assets/r_000062_01_5_mailbox-closed-flag-up.png"}, "usageHint": "body"}}}, {"id": "text_16", "component": {"Text": {"text": {"literalString": "Renewal Options Table:\nOption | Cost | Best For | Delivery Speed\nPassport Book | $130 | International air travel | 6-8 weeks\nPassport Card | $30 | Land/Sea travel (Canada/Mexico/Caribbean) | 6-8 weeks\nExpedited Renewal | $190 | Upcoming travel within 3-5 weeks | 2-3 weeks"}, "usageHint": "body"}}}, {"id": "text_17", "component": {"Text": {"text": {"literalString": "- https://travel.state.gov/content/travel/en/passports/have-passport/renew.html\n- https://travel.state.gov/content/travel/en/passports/how-apply/photos.html\n- https://travel.state.gov/content/travel/en/passports/how-apply/fees.html"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

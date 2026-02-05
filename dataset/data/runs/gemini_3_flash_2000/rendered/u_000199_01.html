@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000199"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000199", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "icon_row_5", "text_6", "text_7", "text_8", "text_9", "text_10", "icon_row_11", "icon_row_12", "btn_13", "btn_14", "text_15"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions: Battery life estimates are based on manufacturer claims with Active Noise Cancellation (ANC) enabled and standard volume levels."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Summary\nThis comparison evaluates two of the leading flagship noise-canceling headphones on the market. While both offer industry-leading performance, the Sony WH-1000XM5 leads in raw battery stamina and high-bitrate LDAC support, while the Bose QuietComfort Ultra introduces spatial \"Immersive Audio\" and utilizes the aptX Adaptive codec."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Comparison Table\nFeature | Sony WH-1000XM5 | Bose QuietComfort Ultra\nBattery Life (ANC On) | 30 Hours | 24 Hours\nBattery Life (ANC Off) | 40 Hours | N/A (Always active processing)\nWeight | 250 grams | 252 grams\nBluetooth Codecs | SBC, AAC, LDAC | SBC, AAC, aptX Adaptive\nCharging Time | 3 mins for 3 hours | 15 mins for 2.5 hours\nNoise Cancellation | Dual Processors, 8 Mics | CustomTune Technology"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Detailed Feature Breakdown"}, "usageHint": "body"}}}, {"id": "icon_img_5", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios-filled/50/000000/battery-level.png"}, "usageHint": "icon"}}}, {"id": "icon_label_5", "component": {"Text": {"text": {"literalString": "Battery"}, "usageHint": "body"}}}, {"id": "icon_row_5", "component": {"Row": {"children": {"explicitList": ["icon_img_5", "icon_label_5"]}, "alignment": "center"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "- Sound: /assets/r_000199_01_2_audio-wave.png\n- Weight: /assets/r_000199_01_3_weight.png"}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "1. Battery Life\n- Sony WH-1000XM5: Offers a significant advantage with 30 hours of playback with ANC enabled. It supports USB-PD fast charging.\n- Bose QuietComfort Ultra: Provides 24 hours of playback. This drops to approximately 18 hours if the \"Immersive Audio\" spatial mode is active."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "2. Noise Cancellation Features\n- Sony WH-1000XM5: Uses the Integrated Processor V1 and HD Noise Cancelling Processor QN1. It features an \"Auto NC Optimizer\" that automatically adjusts cancellation based on your environment and wearing conditions (like glasses or hair).\n- Bose QuietComfort Ultra: Features \"CustomTune\" technology that calibrates the sound and ANC to the internal shape of your ear every time you put them on. It includes Quiet, Aware, and Immersion modes."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "3. Supported Audio Codecs\n- Sony WH-1000XM5: Supports LDAC, which allows for high-resolution audio streaming over Bluetooth (up to 990 kbps). It does not support aptX.\n- Bose QuietComfort Ultra: Supports aptX Adaptive via the Snapdragon Sound platform, offering low-latency and high-quality audio for compatible Android devices. It does not support LDAC."}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "4. Weight and Comfort\n- Sony WH-1000XM5: Weighs 250g. It features a \"noiseless\" design with a slimmer headband and non-folding earcups.\n- Bose QuietComfort Ultra: Weighs 252g. Unlike the Sony, these headphones feature a folding design, making them more compact for travel."}, "usageHint": "body"}}}, {"id": "icon_img_11", "component": {"Image": {"url": {"literalString": "https://electronics.sony.com/media/7363403a554a93883a48e7150a639c08/primary.png"}, "usageHint": "icon"}}}, {"id": "icon_label_11", "component": {"Text": {"text": {"literalString": "Sony WH-1000XM5"}, "usageHint": "body"}}}, {"id": "icon_row_11", "component": {"Row": {"children": {"explicitList": ["icon_img_11", "icon_label_11"]}, "alignment": "center"}}}, {"id": "icon_img_12", "component": {"Image": {"url": {"literalString": "https://assets.bose.com/content/dam/QC-ULTRA-HP-Black-Front.png"}, "usageHint": "icon"}}}, {"id": "icon_label_12", "component": {"Text": {"text": {"literalString": "Bose QC Ultra"}, "usageHint": "body"}}}, {"id": "icon_row_12", "component": {"Row": {"children": {"explicitList": ["icon_img_12", "icon_label_12"]}, "alignment": "center"}}}, {"id": "btn_label_13", "component": {"Text": {"text": {"literalString": "View Sony WH-1000XM5 Specs"}, "usageHint": "body"}}}, {"id": "btn_13", "component": {"Button": {"child": "btn_label_13", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.sony.com/electronics/headband-headphones/wh-1000xm5"}}]}, "primary": true}}}, {"id": "btn_label_14", "component": {"Text": {"text": {"literalString": "View Bose QC Ultra Specs"}, "usageHint": "body"}}}, {"id": "btn_14", "component": {"Button": {"child": "btn_label_14", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.bose.com/p/headphones/quietcomfort-ultra-headphones/QCUL-HEADPHONE-OP1.html"}}]}, "primary": true}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "- https://www.sony.com/electronics/headband-headphones/wh-1000xm5/specifications\n- https://www.bose.com/p/headphones/quietcomfort-ultra-headphones/QCUL-HEADPHONE-OP1.html"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

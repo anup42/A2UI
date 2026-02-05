@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "photosynthesis-overview"}}, {"surfaceUpdate": {"surfaceId": "photosynthesis-overview", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "stage1_card", "stage2_card", "summary_table_title", "summary_table"]}, "alignment": "center"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Photosynthesis Process Overview"}, "usageHint": "h1"}}}, {"id": "stage1_card", "component": {"Card": {"child": "stage1_column"}}}, {"id": "stage1_column", "component": {"Column": {"children": {"explicitList": ["stage1_title", "stage1_icon", "stage1_location", "stage1_process", "stage1_inputs", "stage1_outputs"]}}}}, {"id": "stage1_title", "component": {"Text": {"text": {"literalString": "Stage 1: Light-Dependent Reactions"}, "usageHint": "h2"}}}, {"id": "stage1_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000018_01_1_sun.png"}, "usageHint": "icon", "fit": "contain"}}}, {"id": "stage1_location", "component": {"Text": {"text": {"literalString": "Location: Thylakoid membranes of the chloroplast."}, "usageHint": "body"}}}, {"id": "stage1_process", "component": {"Text": {"text": {"literalString": "Process: Chlorophyll absorbs sunlight, which excites electrons to split water molecules."}, "usageHint": "body"}}}, {"id": "stage1_inputs", "component": {"Text": {"text": {"literalString": "Inputs: Sunlight, Water (H2O), ADP, NADP+."}, "usageHint": "body"}}}, {"id": "stage1_outputs", "component": {"Text": {"text": {"literalString": "Outputs: Oxygen (O2) - released as byproduct, ATP, NADPH."}, "usageHint": "body"}}}, {"id": "stage2_card", "component": {"Card": {"child": "stage2_column"}}}, {"id": "stage2_column", "component": {"Column": {"children": {"explicitList": ["stage2_title", "stage2_icon", "stage2_location", "stage2_process", "stage2_inputs", "stage2_outputs"]}}}}, {"id": "stage2_title", "component": {"Text": {"text": {"literalString": "Stage 2: The Calvin Cycle (Light-Independent Reactions)"}, "usageHint": "h2"}}}, {"id": "stage2_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000064_01_2_leaf.png"}, "usageHint": "icon", "fit": "contain"}}}, {"id": "stage2_location", "component": {"Text": {"text": {"literalString": "Location: Stroma of the chloroplast."}, "usageHint": "body"}}}, {"id": "stage2_process", "component": {"Text": {"text": {"literalString": "Process: Uses the energy from Stage 1 to convert carbon dioxide into glucose."}, "usageHint": "body"}}}, {"id": "stage2_inputs", "component": {"Text": {"text": {"literalString": "Inputs: Carbon Dioxide (CO2), ATP, NADPH."}, "usageHint": "body"}}}, {"id": "stage2_outputs", "component": {"Text": {"text": {"literalString": "Outputs: Glucose (Sugar/G3P), ADP, NADP+."}, "usageHint": "body"}}}, {"id": "summary_table_title", "component": {"Text": {"text": {"literalString": "Summary Table"}, "usageHint": "h3"}}}, {"id": "summary_table", "component": {"List": {"children": {"explicitList": ["summary_header", "summary_row_1", "summary_row_2"]}, "direction": "vertical"}}}, {"id": "summary_header", "component": {"Row": {"children": {"explicitList": ["header_stage", "header_input", "header_output", "header_energy"]}, "distribution": "spaceAround"}}}, {"id": "header_stage", "component": {"Text": {"text": {"literalString": "Stage"}, "usageHint": "h4"}}}, {"id": "header_input", "component": {"Text": {"text": {"literalString": "Primary Input"}, "usageHint": "h4"}}}, {"id": "header_output", "component": {"Text": {"text": {"literalString": "Primary Output"}, "usageHint": "h4"}}}, {"id": "header_energy", "component": {"Text": {"text": {"literalString": "Energy Source"}, "usageHint": "h4"}}}, {"id": "summary_row_1", "component": {"Row": {"children": {"explicitList": ["row1_stage", "row1_input", "row1_output", "row1_energy"]}, "distribution": "spaceAround"}}}, {"id": "row1_stage", "component": {"Text": {"text": {"literalString": "Light-Dependent"}, "usageHint": "body"}}}, {"id": "row1_input", "component": {"Text": {"text": {"literalString": "Water + Light"}, "usageHint": "body"}}}, {"id": "row1_output", "component": {"Text": {"text": {"literalString": "Oxygen"}, "usageHint": "body"}}}, {"id": "row1_energy", "component": {"Text": {"text": {"literalString": "Sunlight"}, "usageHint": "body"}}}, {"id": "summary_row_2", "component": {"Row": {"children": {"explicitList": ["row2_stage", "row2_input", "row2_output", "row2_energy"]}, "distribution": "spaceAround"}}}, {"id": "row2_stage", "component": {"Text": {"text": {"literalString": "Calvin Cycle"}, "usageHint": "body"}}}, {"id": "row2_input", "component": {"Text": {"text": {"literalString": "Carbon Dioxide"}, "usageHint": "body"}}}, {"id": "row2_output", "component": {"Text": {"text": {"literalString": "Glucose"}, "usageHint": "body"}}}, {"id": "row2_energy", "component": {"Text": {"text": {"literalString": "ATP / NADPH"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

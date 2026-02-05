@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "travel_laptop_recommendations"}}, {"surfaceUpdate": {"surfaceId": "travel_laptop_recommendations", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_summary", "text_summary", "header_assumptions", "text_assumptions", "header_framework", "text_framework", "tabs_laptops", "header_comparison", "comparison_table", "row_actions", "text_sources"]}}}}, {"id": "header_summary", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h2"}}}, {"id": "text_summary", "component": {"Text": {"text": {"literalString": "Finding a travel laptop requires balancing portability with performance. The following three models were released within the last 2 years, weigh significantly less than 1.3kg, and offer 16GB of RAM while staying within your $1,200 budget."}, "usageHint": "body"}}}, {"id": "header_assumptions", "component": {"Text": {"text": {"literalString": "Assumptions"}, "usageHint": "h3"}}}, {"id": "text_assumptions", "component": {"Text": {"text": {"literalString": "• Prices are based on current US retail averages.\n• Battery life figures are based on manufacturer-rated tests.\n• 16GB RAM configurations are selected."}, "usageHint": "body"}}}, {"id": "header_framework", "component": {"Text": {"text": {"literalString": "Offline Framework for Price Verification"}, "usageHint": "h3"}}}, {"id": "text_framework", "component": {"Text": {"text": {"literalString": "1. Visit a price tracking website.\n2. Check the 90-day price history.\n3. Verify if the 16GB RAM version is a retail SKU.\n4. Check for 'Open Box' or 'Certified Refurbished' options."}, "usageHint": "body"}}}, {"id": "tabs_laptops", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "MacBook Air M3"}, "child": "card_macbook"}, {"title": {"literalString": "Zenbook 14 OLED"}, "child": "card_zenbook"}, {"title": {"literalString": "LG Gram 14"}, "child": "card_lggram"}]}}}, {"id": "card_macbook", "component": {"Card": {"child": "col_macbook"}}}, {"id": "col_macbook", "component": {"Column": {"children": {"explicitList": ["text_mac_summary", "row_mac_attrs"]}}}}, {"id": "text_mac_summary", "component": {"Text": {"text": {"literalString": "The gold standard for travel efficiency with a fanless, silent design. 1.24kg | 15-18 hours battery | $1,099 - $1,199"}, "usageHint": "body"}}}, {"id": "row_mac_attrs", "component": {"Row": {"children": {"explicitList": ["icon_portability_mac", "icon_battery_mac"]}, "distribution": "start"}}}, {"id": "icon_portability_mac", "component": {"Image": {"url": {"literalString": "/assets/r_000198_01_3_airport.png"}, "usageHint": "icon"}}}, {"id": "icon_battery_mac", "component": {"Image": {"url": {"literalString": "/assets/r_000198_01_4_full-battery.png"}, "usageHint": "icon"}}}, {"id": "card_zenbook", "component": {"Card": {"child": "col_zenbook"}}}, {"id": "col_zenbook", "component": {"Column": {"children": {"explicitList": ["text_zen_summary", "row_zen_attrs"]}}}}, {"id": "text_zen_summary", "component": {"Text": {"text": {"literalString": "A premium Windows ultrabook with a stunning display and Intel Core Ultra processors. 1.20kg | 15 hours battery | $999 - $1,149"}, "usageHint": "body"}}}, {"id": "row_zen_attrs", "component": {"Row": {"children": {"explicitList": ["icon_performance_zen", "icon_battery_zen"]}, "distribution": "start"}}}, {"id": "icon_performance_zen", "component": {"Image": {"url": {"literalString": "/assets/r_000198_01_5_speed.png"}, "usageHint": "icon"}}}, {"id": "icon_battery_zen", "component": {"Image": {"url": {"literalString": "/assets/r_000198_01_4_full-battery.png"}, "usageHint": "icon"}}}, {"id": "card_lggram", "component": {"Card": {"child": "col_lggram"}}}, {"id": "col_lggram", "component": {"Column": {"children": {"explicitList": ["text_lg_summary", "row_lg_attrs"]}}}}, {"id": "text_lg_summary", "component": {"Text": {"text": {"literalString": "One of the lightest 14-inch laptops ever made, featuring a massive battery for its size. 0.99kg | 15+ hours battery | $1,099"}, "usageHint": "body"}}}, {"id": "row_lg_attrs", "component": {"Row": {"children": {"explicitList": ["icon_portability_lg", "icon_battery_lg"]}, "distribution": "start"}}}, {"id": "icon_portability_lg", "component": {"Image": {"url": {"literalString": "/assets/r_000198_01_3_airport.png"}, "usageHint": "icon"}}}, {"id": "icon_battery_lg", "component": {"Image": {"url": {"literalString": "/assets/r_000198_01_4_full-battery.png"}, "usageHint": "icon"}}}, {"id": "header_comparison", "component": {"Text": {"text": {"literalString": "Comparison Table"}, "usageHint": "h3"}}}, {"id": "comparison_table", "component": {"Column": {"children": {"explicitList": ["row_comp_h", "row_comp_1", "row_comp_2", "row_comp_3"]}}}}, {"id": "row_comp_h", "component": {"Row": {"children": {"explicitList": ["h_model", "h_weight", "h_ram", "h_price"]}}}}, {"id": "h_model", "component": {"Text": {"text": {"literalString": "**Model**"}, "usageHint": "body"}}}, {"id": "h_weight", "component": {"Text": {"text": {"literalString": "**Weight**"}, "usageHint": "body"}}}, {"id": "h_ram", "component": {"Text": {"text": {"literalString": "**RAM**"}, "usageHint": "body"}}}, {"id": "h_price", "component": {"Text": {"text": {"literalString": "**Price**"}, "usageHint": "body"}}}, {"id": "row_comp_1", "component": {"Row": {"children": {"explicitList": ["c1_model", "c1_weight", "c1_ram", "c1_price"]}}}}, {"id": "c1_model", "component": {"Text": {"text": {"literalString": "MacBook Air M3"}, "usageHint": "body"}}}, {"id": "c1_weight", "component": {"Text": {"text": {"literalString": "1.24 kg"}, "usageHint": "body"}}}, {"id": "c1_ram", "component": {"Text": {"text": {"literalString": "16GB"}, "usageHint": "body"}}}, {"id": "c1_price", "component": {"Text": {"text": {"literalString": "$1,099"}, "usageHint": "body"}}}, {"id": "row_comp_2", "component": {"Row": {"children": {"explicitList": ["c2_model", "c2_weight", "c2_ram", "c2_price"]}}}}, {"id": "c2_model", "component": {"Text": {"text": {"literalString": "Zenbook 14"}, "usageHint": "body"}}}, {"id": "c2_weight", "component": {"Text": {"text": {"literalString": "1.20 kg"}, "usageHint": "body"}}}, {"id": "c2_ram", "component": {"Text": {"text": {"literalString": "16GB"}, "usageHint": "body"}}}, {"id": "c2_price", "component": {"Text": {"text": {"literalString": "$1,049"}, "usageHint": "body"}}}, {"id": "row_comp_3", "component": {"Row": {"children": {"explicitList": ["c3_model", "c3_weight", "c3_ram", "c3_price"]}}}}, {"id": "c3_model", "component": {"Text": {"text": {"literalString": "LG Gram 14"}, "usageHint": "body"}}}, {"id": "c3_weight", "component": {"Text": {"text": {"literalString": "0.99 kg"}, "usageHint": "body"}}}, {"id": "c3_ram", "component": {"Text": {"text": {"literalString": "16GB"}, "usageHint": "body"}}}, {"id": "c3_price", "component": {"Text": {"text": {"literalString": "$1,099"}, "usageHint": "body"}}}, {"id": "row_actions", "component": {"Row": {"children": {"explicitList": ["btn_bestbuy", "btn_amazon", "btn_unidays"]}, "distribution": "spaceBetween"}}}, {"id": "btn_bestbuy", "component": {"Button": {"child": "txt_bestbuy", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.bestbuy.com"}}]}}}}, {"id": "txt_bestbuy", "component": {"Text": {"text": {"literalString": "Compare on Best Buy"}, "usageHint": "body"}}}, {"id": "btn_amazon", "component": {"Button": {"child": "txt_amazon", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.amazon.com"}}]}}}}, {"id": "txt_amazon", "component": {"Text": {"text": {"literalString": "Compare on Amazon"}, "usageHint": "body"}}}, {"id": "btn_unidays", "component": {"Button": {"child": "txt_unidays", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.unidays.com"}}]}}}}, {"id": "txt_unidays", "component": {"Text": {"text": {"literalString": "Student Discounts"}, "usageHint": "body"}}}, {"id": "text_sources", "component": {"Text": {"text": {"literalString": "Sources: RTINGS, UltrabookReview, LaptopMag"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

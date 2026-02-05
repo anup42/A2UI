@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000070"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000070", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "text_12", "text_13", "text_14", "text_15", "text_16", "text_17", "text_18", "text_19", "btn_20", "btn_21", "btn_22", "text_23", "text_24", "text_25"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\n1. The product is within the official return or warranty period.\n2. The user has access to a digital or physical copy of the receipt.\n3. The defect is not the result of accidental damage or misuse."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "EMAIL TEMPLATE"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Subject: Refund Request - Order [Order Number] - [Product Name]"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Dear Customer Service Team,"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "I am writing to formally request a full refund for my recent purchase of [Product Name], as the item I received is defective."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Order Details:\n- Product Name: [Product Name]\n- Order Number: [Order Number]\n- Date of Purchase: [Date of Purchase]"}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Description of Defect:\nUpon receiving and inspecting the product, I discovered the following issue: [Describe the defect in detail, e.g., the device fails to power on / the item arrived with a cracked screen]."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Due to this fault, the product is not fit for its intended purpose. I have attached [photos/videos] of the defect as well as a copy of my purchase confirmation for your reference."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "I would like to request a full refund to my original payment method. Please provide instructions on how to return the defective item and confirm if a prepaid shipping label will be provided."}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "I look forward to your prompt response regarding this matter."}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "Sincerely,"}, "usageHint": "body"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "[Your Full Name]\n[Your Phone Number]\n[Your Shipping Address]"}, "usageHint": "body"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "CHECKLIST FOR SUBMITTING YOUR REQUEST"}, "usageHint": "body"}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "- Attach clear photos or a short video showing the defect.\n- Include a PDF or screenshot of your order confirmation or receipt.\n- Check the company's website to see if they provide a specific \"Return Authorization\" (RMA) number.\n- Ensure the product is repacked in its original packaging if possible."}, "usageHint": "body"}}}, {"id": "text_16", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "text_17", "component": {"Text": {"text": {"literalString": "RESOLUTION OPTIONS COMPARISON"}, "usageHint": "body"}}}, {"id": "text_18", "component": {"Text": {"text": {"literalString": "Option: Full Refund | Summary: Money returned to original payment method | Key Attribute: 5-10 business days\nOption: Replacement | Summary: A brand new unit sent at no extra cost | Key Attribute: 3-7 business days\nOption: Store Credit | Summary: Credit added to your account for future use | Key Attribute: Immediate"}, "usageHint": "body"}}}, {"id": "text_19", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "btn_label_20", "component": {"Text": {"text": {"literalString": "Open Gmail"}, "usageHint": "body"}}}, {"id": "btn_20", "component": {"Button": {"child": "btn_label_20", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://mail.google.com/"}}]}, "primary": true}}}, {"id": "btn_label_21", "component": {"Text": {"text": {"literalString": "Open Outlook"}, "usageHint": "body"}}}, {"id": "btn_21", "component": {"Button": {"child": "btn_label_21", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://outlook.live.com/"}}]}, "primary": true}}}, {"id": "btn_label_22", "component": {"Text": {"text": {"literalString": "FTC Consumer Advice"}, "usageHint": "body"}}}, {"id": "btn_22", "component": {"Button": {"child": "btn_label_22", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://consumer.ftc.gov/articles/refunds-and-exchanges"}}]}, "primary": true}}}, {"id": "text_23", "component": {"Text": {"text": {"literalString": "- Return Packaging Example: /assets/r_000070_01_1_photo-1566576721346-d4a3b4eaeb55.jpg"}, "usageHint": "body"}}}, {"id": "text_24", "component": {"Text": {"text": {"literalString": "- Support: /assets/r_000070_01_2_customer-support.png\n- Refund: /assets/r_000070_01_3_refund.png\n- Shipping: /assets/r_000070_01_4_delivery.png"}, "usageHint": "body"}}}, {"id": "text_25", "component": {"Text": {"text": {"literalString": "- https://www.consumer.ftc.gov/articles/0176-refunds-and-exchanges\n- https://www.usa.gov/consumer-complaints"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

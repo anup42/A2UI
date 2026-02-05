@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "youth-basketball-camp"}}, {"surfaceUpdate": {"surfaceId": "youth-basketball-camp", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "daily-schedule-tabs", "friday-schedule-tab", "checklist-card"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "header", "component": {"Row": {"children": {"explicitList": ["basketball-icon", "title-text"]}, "distribution": "center", "alignment": "center"}}}, {"id": "basketball-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000519_01_1_basketball.png"}, "usageHint": "icon"}}}, {"id": "title-text", "component": {"Text": {"text": {"literalString": "Youth Basketball Camp Schedule"}, "usageHint": "h1"}}}, {"id": "daily-schedule-tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Monday - Thursday"}, "child": "daily-schedule-column"}, {"title": {"literalString": "Friday"}, "child": "friday-schedule-column"}]}}}, {"id": "daily-schedule-column", "component": {"Column": {"children": {"explicitList": ["mon-thu-schedule"]}, "distribution": "start", "alignment": "start"}}}, {"id": "mon-thu-schedule", "component": {"List": {"children": {"explicitList": ["mon-thu-0900", "mon-thu-0930", "mon-thu-1030", "mon-thu-1200", "mon-thu-1300", "mon-thu-1500"]}, "direction": "vertical"}}}, {"id": "mon-thu-0900", "component": {"Text": {"text": {"literalString": "09:00: Warm-ups (Dynamic stretching and cardio)"}, "usageHint": "body"}}}, {"id": "mon-thu-0930", "component": {"Text": {"text": {"literalString": "09:30: Dribbling Drills (Ball handling and crossovers)"}, "usageHint": "body"}}}, {"id": "mon-thu-1030", "component": {"Text": {"text": {"literalString": "10:30: Shooting Practice (Form shooting and free throws)"}, "usageHint": "body"}}}, {"id": "mon-thu-1200", "component": {"Text": {"text": {"literalString": "12:00: Lunch (Rest and hydration)"}, "usageHint": "body"}}}, {"id": "mon-thu-1300", "component": {"Text": {"text": {"literalString": "13:00: Scrimmage Games (5-on-5 controlled play)"}, "usageHint": "body"}}}, {"id": "mon-thu-1500", "component": {"Text": {"text": {"literalString": "15:00: Cool Down and Daily Awards"}, "usageHint": "body"}}}, {"id": "friday-schedule-column", "component": {"Column": {"children": {"explicitList": ["friday-schedule"]}, "distribution": "start", "alignment": "start"}}}, {"id": "friday-schedule", "component": {"List": {"children": {"explicitList": ["fri-0900", "fri-0930", "fri-1100", "fri-1200", "fri-1300", "fri-1400", "fri-1500"]}, "direction": "vertical"}}}, {"id": "fri-0900", "component": {"Text": {"text": {"literalString": "09:00: Final Warm-ups"}, "usageHint": "body"}}}, {"id": "fri-0930", "component": {"Text": {"text": {"literalString": "09:30: Skills Challenge (Obstacle course)"}, "usageHint": "body"}}}, {"id": "fri-1100", "component": {"Text": {"text": {"literalString": "11:00: Bracket Seeding"}, "usageHint": "body"}}}, {"id": "fri-1200", "component": {"Text": {"text": {"literalString": "12:00: Lunch"}, "usageHint": "body"}}}, {"id": "fri-1300", "component": {"Text": {"text": {"literalString": "13:00: Semi-Finals"}, "usageHint": "body"}}}, {"id": "fri-1400", "component": {"Text": {"text": {"literalString": "14:00: Championship Game"}, "usageHint": "body"}}}, {"id": "fri-1500", "component": {"Text": {"text": {"literalString": "15:00: Trophy Presentation and Camp Farewell"}, "usageHint": "body"}}}, {"id": "friday-schedule-tab", "component": {"Column": {"children": {"explicitList": ["friday-schedule"]}, "distribution": "start", "alignment": "start"}}}, {"id": "checklist-card", "component": {"Card": {"child": "checklist-column"}}}, {"id": "checklist-column", "component": {"Column": {"children": {"explicitList": ["checklist-header", "checklist-items"]}, "distribution": "start", "alignment": "start"}}}, {"id": "checklist-header", "component": {"Row": {"children": {"explicitList": ["trophy-icon", "checklist-title"]}, "distribution": "center", "alignment": "center"}}}, {"id": "trophy-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000519_01_2_trophy.png"}, "usageHint": "icon"}}}, {"id": "checklist-title", "component": {"Text": {"text": {"literalString": "Campers Checklist"}, "usageHint": "h3"}}}, {"id": "checklist-items", "component": {"List": {"children": {"explicitList": ["item-water-bottle", "item-shoes", "item-attire", "item-lunch"]}, "direction": "vertical"}}}, {"id": "item-water-bottle", "component": {"Text": {"text": {"literalString": "- Reusable water bottle"}, "usageHint": "body"}}}, {"id": "item-shoes", "component": {"Text": {"text": {"literalString": "- Non-marking basketball shoes"}, "usageHint": "body"}}}, {"id": "item-attire", "component": {"Text": {"text": {"literalString": "- Athletic shorts and jersey"}, "usageHint": "body"}}}, {"id": "item-lunch", "component": {"Text": {"text": {"literalString": "- Healthy lunch and snacks"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

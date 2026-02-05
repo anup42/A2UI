@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "road-trip-itinerary"}}, {"surfaceUpdate": {"surfaceId": "road-trip-itinerary", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "summary", "itinerary-tabs", "recommended-stops-header", "recommended-stops-list", "quick-actions-header", "quick-actions-list"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "Pacific Coast Highway Road Trip: San Francisco to Seattle"}, "usageHint": "h1"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "This 7-day road trip follows the rugged Pacific Coast Highway (Hwy 101) from San Francisco to Seattle, featuring ancient forests and dramatic coastlines."}, "usageHint": "body"}}}, {"id": "itinerary-tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Day 1: San Francisco to Mendocino"}, "child": "itinerary-day-1"}, {"title": {"literalString": "Day 2: Mendocino to Eureka"}, "child": "itinerary-day-2"}, {"title": {"literalString": "Day 3: Eureka to Bandon"}, "child": "itinerary-day-3"}, {"title": {"literalString": "Day 4: Bandon to Newport"}, "child": "itinerary-day-4"}, {"title": {"literalString": "Day 5: Newport to Astoria"}, "child": "itinerary-day-5"}, {"title": {"literalString": "Day 6: Astoria to Lake Quinault"}, "child": "itinerary-day-6"}, {"title": {"literalString": "Day 7: Lake Quinault to Seattle"}, "child": "itinerary-day-7"}]}}}, {"id": "itinerary-day-1", "component": {"Column": {"children": {"explicitList": ["day-1-nature", "day-1-overnight"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "day-1-nature", "component": {"Text": {"text": {"literalString": "Nature Stop: Muir Woods National Monument (Redwood forest)."}, "usageHint": "body"}}}, {"id": "day-1-overnight", "component": {"Text": {"text": {"literalString": "Overnight: Mendocino, CA"}, "usageHint": "body"}}}, {"id": "itinerary-day-2", "component": {"Column": {"children": {"explicitList": ["day-2-nature", "day-2-overnight"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "day-2-nature", "component": {"Text": {"text": {"literalString": "Nature Stop: Avenue of the Giants (Humboldt Redwoods State Park)."}, "usageHint": "body"}}}, {"id": "day-2-overnight", "component": {"Text": {"text": {"literalString": "Overnight: Eureka, CA"}, "usageHint": "body"}}}, {"id": "itinerary-day-3", "component": {"Column": {"children": {"explicitList": ["day-3-nature", "day-3-overnight"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "day-3-nature", "component": {"Text": {"text": {"literalString": "Nature Stop: Redwood National Park (Lady Bird Johnson Grove)."}, "usageHint": "body"}}}, {"id": "day-3-overnight", "component": {"Text": {"text": {"literalString": "Overnight: Bandon, OR"}, "usageHint": "body"}}}, {"id": "itinerary-day-4", "component": {"Column": {"children": {"explicitList": ["day-4-nature", "day-4-overnight"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "day-4-nature", "component": {"Text": {"text": {"literalString": "Nature Stop: Oregon Dunes National Recreation Area."}, "usageHint": "body"}}}, {"id": "day-4-overnight", "component": {"Text": {"text": {"literalString": "Overnight: Newport, OR"}, "usageHint": "body"}}}, {"id": "itinerary-day-5", "component": {"Column": {"children": {"explicitList": ["day-5-nature", "day-5-overnight"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "day-5-nature", "component": {"Text": {"text": {"literalString": "Nature Stop: Cannon Beach (Haystack Rock)."}, "usageHint": "body"}}}, {"id": "day-5-overnight", "component": {"Text": {"text": {"literalString": "Overnight: Astoria, OR"}, "usageHint": "body"}}}, {"id": "itinerary-day-6", "component": {"Column": {"children": {"explicitList": ["day-6-nature", "day-6-overnight"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "day-6-nature", "component": {"Text": {"text": {"literalString": "Nature Stop: Olympic National Park (Ruby Beach)."}, "usageHint": "body"}}}, {"id": "day-6-overnight", "component": {"Text": {"text": {"literalString": "Overnight: Lake Quinault, WA"}, "usageHint": "body"}}}, {"id": "itinerary-day-7", "component": {"Column": {"children": {"explicitList": ["day-7-nature", "day-7-overnight"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "day-7-nature", "component": {"Text": {"text": {"literalString": "Nature Stop: Hoh Rain Forest (Hall of Mosses)."}, "usageHint": "body"}}}, {"id": "day-7-overnight", "component": {"Text": {"text": {"literalString": "Overnight: Seattle, WA"}, "usageHint": "body"}}}, {"id": "recommended-stops-header", "component": {"Text": {"text": {"literalString": "Recommended Stops"}, "usageHint": "h2"}}}, {"id": "recommended-stops-list", "component": {"List": {"children": {"explicitList": ["card-muir-woods", "card-cannon-beach", "card-hoh-rain-forest"]}, "direction": "vertical"}}}, {"id": "card-muir-woods", "component": {"Card": {"child": " Muir Woods"}}}, {"id": " Muir Woods", "component": {"Column": {"children": {"explicitList": ["muir-woods-title", "muir-woods-description", "muir-woods-price", "muir-woods-link"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "muir-woods-title", "component": {"Text": {"text": {"literalString": "Muir Woods"}, "usageHint": "h3"}}}, {"id": "muir-woods-description", "component": {"Text": {"text": {"literalString": "Ancient coastal redwoods near SF"}, "usageHint": "body"}}}, {"id": "muir-woods-price", "component": {"Text": {"text": {"literalString": "$15 entry"}, "usageHint": "body"}}}, {"id": "muir-woods-link", "component": {"Button": {"child": "learn-more-muir-woods", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.nps.gov/muwo"}}]}}}}, {"id": "learn-more-muir-woods", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "card-cannon-beach", "component": {"Card": {"child": "Cannon Beach"}}}, {"id": "Cannon Beach", "component": {"Column": {"children": {"explicitList": ["cannon-beach-title", "cannon-beach-description", "cannon-beach-price", "cannon-beach-link"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "cannon-beach-title", "component": {"Text": {"text": {"literalString": "Cannon Beach"}, "usageHint": "h3"}}}, {"id": "cannon-beach-description", "component": {"Text": {"text": {"literalString": "Iconic Haystack Rock and tide pools"}, "usageHint": "body"}}}, {"id": "cannon-beach-price", "component": {"Text": {"text": {"literalString": "Free"}, "usageHint": "body"}}}, {"id": "cannon-beach-link", "component": {"Button": {"child": "learn-more-cannon-beach", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.cannonbeach.org"}}]}}}}, {"id": "learn-more-cannon-beach", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "card-hoh-rain-forest", "component": {"Card": {"child": "Hoh Rain Forest"}}}, {"id": "Hoh Rain Forest", "component": {"Column": {"children": {"explicitList": ["hoh-rain-forest-title", "hoh-rain-forest-description", "hoh-rain-forest-price", "hoh-rain-forest-link"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "hoh-rain-forest-title", "component": {"Text": {"text": {"literalString": "Hoh Rain Forest"}, "usageHint": "h3"}}}, {"id": "hoh-rain-forest-description", "component": {"Text": {"text": {"literalString": "One of the largest temperate rainforests in the US"}, "usageHint": "body"}}}, {"id": "hoh-rain-forest-price", "component": {"Text": {"text": {"literalString": "$30/car"}, "usageHint": "body"}}}, {"id": "hoh-rain-forest-link", "component": {"Button": {"child": "learn-more-hoh-rain-forest", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.nps.gov/olym"}}]}}}}, {"id": "learn-more-hoh-rain-forest", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "quick-actions-header", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h2"}}}, {"id": "quick-actions-list", "component": {"List": {"children": {"explicitList": ["button-reserve-parking", "button-national-park-passes"]}, "direction": "vertical"}}}, {"id": "button-reserve-parking", "component": {"Button": {"child": "reserve-muir-woods-parking-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://gomuirwoods.com"}}]}}}}, {"id": "reserve-muir-woods-parking-text", "component": {"Text": {"text": {"literalString": "Reserve Muir Woods Parking"}, "usageHint": "body"}}}, {"id": "button-national-park-passes", "component": {"Button": {"child": "national-park-passes-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.nps.gov/planyourvisit/passes.htm"}}]}}}}, {"id": "national-park-passes-text", "component": {"Text": {"text": {"literalString": "National Park Passes"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

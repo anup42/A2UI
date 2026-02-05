@@ -1,3 +1,45 @@
 {
-  "overall_score": 0.0
+  "counts": 22,
+  "schema_valid_strict_rate": 0.0,
+  "content_coverage_avg": 0.5424436908236575,
+  "lint_score_avg": 1.0,
+  "dup_rate_avg": 0.07512356867981611,
+  "component_count_avg": 0.8181818181818182,
+  "unique_component_types_avg": 0.0,
+  "max_tree_depth_avg": 0.18181818181818182,
+  "avg_tree_depth_avg": 0.1590909090909091,
+  "container_to_text_ratio_avg": 0.0,
+  "information_chunking_score_avg": 0.0,
+  "ui_modularity_score_avg": 0.0,
+  "ui_decomposition_score_avg": 0.0,
+  "actionable_elements_avg": 0.0,
+  "action_coverage_avg": 1.0,
+  "url_as_text_rate_avg": 0.0,
+  "table_pattern_detected_rate": 0.0,
+  "table_cell_coverage_avg": 0.0,
+  "section_heading_coverage_avg": 1.0,
+  "markdown_leakage_rate_avg": 0.0,
+  "missing_ids_avg": 0.0,
+  "missing_ids_rate_avg": 0.0,
+  "dangling_components_avg": 0.0,
+  "dangling_components_rate_avg": 0.0,
+  "intent_expectation_pass_rate": 1.0,
+  "intent_score_avg": 1.0,
+  "intent_stats": {
+    "information_retrieval": {
+      "count": 22,
+      "expectation_pass_rate": 1.0,
+      "intent_score_avg": 1.0,
+      "table_expected_rate": 0.0,
+      "table_ok_rate": 0.0,
+      "action_expected_rate": 0.18181818181818182,
+      "action_ok_rate": 0.18181818181818182,
+      "section_expected_rate": 0.2727272727272727,
+      "section_ok_rate": 0.2727272727272727
+    }
+  },
+  "render_ok_rate": null,
+  "latency_ms_avg": 23440.634857524525,
+  "latency_ms_p95": 35840.14916419983,
+  "overall_score": 8.179480231063884
 }

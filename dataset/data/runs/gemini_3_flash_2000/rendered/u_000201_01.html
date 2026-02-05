@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000201"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000201", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "btn_6", "btn_7", "btn_8", "icon_row_9", "icon_row_10", "text_11", "icon_row_12", "text_13", "text_14"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "SUMMARY\nFinding a trail running shoe that offers both stability for flat feet and a waterproof Gore-Tex membrane under $160 requires looking at specific \"TR\" (Trail) versions of stability road shoes or trail-specific models with inherent support features. Most trail shoes lean towards neutral cushioning, but the options below are selected for their wider platforms and structured midsoles which benefit overpronators."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "ASSUMPTIONS\n- You are looking for standard width unless otherwise specified.\n- Prices are based on current market averages and may fluctuate based on seasonal sales.\n- \"Stability\" in trail shoes refers to a firmer midsole or wider base rather than a traditional hard plastic medial post, which can be dangerous on uneven terrain."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "VERIFICATION FRAMEWORK\nTo verify current pricing and availability:\n1. Visit major retailers like REI, Zappos, or Running Warehouse.\n2. Use filters for Gender (Men), Category (Trail), Support (Stability/Support), and Feature (Waterproof/Gore-Tex).\n3. Check the \"Price\" filter to set the maximum at $160.\n4. Look for \"GTX\" in the product name to ensure Gore-Tex integration."}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "EXAMPLE OPTIONS\nOption 1: ASICS GT-2000 12 TR | A trail-hybrid version of a classic stability shoe with Gore-Tex protection. | Price: $140.00 | https://www.asics.com\nOption 2: Salomon XA Pro 3D V9 GTX | A rugged, highly stable trail shoe with a 3D Advanced Chassis for motion control. | Price: $160.00 | https://www.salomon.com\nOption 3: Brooks Cascadia 17 GTX | Features an internal reinforcement system that provides excellent stability on uneven surfaces. | Price: $150.00 - $160.00 | https://www.brooksrunning.com\nOption 4: Saucony Guide 16 TR | A reliable stability shoe with a lugged outsole for light to moderate trails. | Price: $120.00 - $140.00 | https://www.saucony.com"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "COMPARISON TABLE\nModel | Support Level | Waterproof Tech | Best For\nASICS GT-2000 12 TR | Moderate Stability | Gore-Tex | Road-to-Trail transitions\nSalomon XA Pro 3D V9 | High Stability | Gore-Tex | Technical/Rocky terrain\nBrooks Cascadia 17 GTX | Neutral-Stable | Gore-Tex | Long distance trail runs\nSaucony Guide 16 TR | Moderate Stability | RunShield/GTX | Groomed trails and paths"}, "usageHint": "body"}}}, {"id": "btn_label_6", "component": {"Text": {"text": {"literalString": "Shop ASICS GT-2000 TR"}, "usageHint": "body"}}}, {"id": "btn_6", "component": {"Button": {"child": "btn_label_6", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.asics.com/us/en-us/mens-trail-running-shoes/c/as10203000/"}}]}, "primary": true}}}, {"id": "btn_label_7", "component": {"Text": {"text": {"literalString": "Shop Salomon XA Pro"}, "usageHint": "body"}}}, {"id": "btn_7", "component": {"Button": {"child": "btn_label_7", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.salomon.com/en-us/shop/men/shoes/trail-running-shoes.html"}}]}, "primary": true}}}, {"id": "btn_label_8", "component": {"Text": {"text": {"literalString": "Find Stability Shoes at REI"}, "usageHint": "body"}}}, {"id": "btn_8", "component": {"Button": {"child": "btn_label_8", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.rei.com/c/mens-stability-running-shoes"}}]}, "primary": true}}}, {"id": "icon_img_9", "component": {"Image": {"url": {"literalString": "https://images.asics.com/is/image/asics/1011B691_001_SR_RT_GLB"}, "usageHint": "icon"}}}, {"id": "icon_label_9", "component": {"Text": {"text": {"literalString": "ASICS GT-2000 12 TR"}, "usageHint": "body"}}}, {"id": "icon_row_9", "component": {"Row": {"children": {"explicitList": ["icon_img_9", "icon_label_9"]}, "alignment": "center"}}}, {"id": "icon_img_10", "component": {"Image": {"url": {"literalString": "https://images.ctfassets.net/s8m00sh0s8se/salomon-xa-pro-3d-v9-gtx.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_10", "component": {"Text": {"text": {"literalString": "Salomon XA Pro 3D V9 GTX"}, "usageHint": "body"}}}, {"id": "icon_row_10", "component": {"Row": {"children": {"explicitList": ["icon_img_10", "icon_label_10"]}, "alignment": "center"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "- Brooks Cascadia 17 GTX: /assets/r_000201_01_2_110402_014_l_wr.jpg"}, "usageHint": "body"}}}, {"id": "icon_img_12", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios-filled/50/footprint.png"}, "usageHint": "icon"}}}, {"id": "icon_label_12", "component": {"Text": {"text": {"literalString": "Stability"}, "usageHint": "body"}}}, {"id": "icon_row_12", "component": {"Row": {"children": {"explicitList": ["icon_img_12", "icon_label_12"]}, "alignment": "center"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "- Waterproof: /assets/r_000201_01_4_umbrella.png\n- Trail: /assets/r_000201_01_5_mountain.png"}, "usageHint": "body"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "- https://www.runningshoesguru.com\n- https://www.outdoorgearlab.com\n- https://www.runnersworld.com"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

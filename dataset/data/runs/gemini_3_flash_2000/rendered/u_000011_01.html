@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000011"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000011", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "icon_row_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "text_12", "text_13", "btn_14", "btn_15", "btn_16", "text_17"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\nThe recommendations focus on running professional software such as Adobe Premiere Pro, DaVinci Resolve, or Final Cut Pro for 4K H.264/H.265 footage. It is assumed the user prioritizes a smooth timeline experience over the fastest possible render times."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Minimum Recommended Specifications for 4K Editing"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Component | Minimum Specification | Why it matters\nCPU | 8-Core (Intel i7 12th Gen / Ryzen 7 5000 / Apple M1 Pro) | Handles decoding and processing multiple video streams.\nRAM | 32 GB | 4K timelines consume significant memory; 16GB is often a bottleneck.\nGPU | Dedicated with 6GB VRAM (NVIDIA RTX 3060 or better) | Accelerates effects, color grading, and final rendering.\nStorage | 1TB NVMe SSD | High-speed read/write is required to prevent stuttering during playback.\nDisplay | 100% sRGB or DCI-P3 coverage | Essential for accurate color correction and grading."}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Detailed Breakdown"}, "usageHint": "body"}}}, {"id": "icon_img_5", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios-filled/50/000000/cpu.png"}, "usageHint": "icon"}}}, {"id": "icon_label_5", "component": {"Text": {"text": {"literalString": "CPU"}, "usageHint": "body"}}}, {"id": "icon_row_5", "component": {"Row": {"children": {"explicitList": ["icon_img_5", "icon_label_5"]}, "alignment": "center"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "- RAM: /assets/r_000011_01_2_memory-slot.png\n- GPU: /assets/r_000011_01_3_video-card.png\n- Storage: /assets/r_000011_01_4_ssd.png"}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "1. CPU (The Engine)\nFor Windows, look for H-series processors (e.g., i7-13700H) rather than U-series, which are designed for power saving. For Mac, the Apple Silicon M-series (Pro or Max variants) features dedicated media engines that excel at 4K playback."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "2. RAM (The Workspace)\nWhile 16GB is the absolute floor, 32GB is the \"safe\" minimum for 4K. If you plan to use After Effects or heavy motion graphics alongside your editor, consider 64GB."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "3. GPU (The Accelerator)\nNVIDIA is generally preferred for Windows laptops due to CUDA core optimization in Premiere and Resolve. Aim for at least 6GB of Video RAM (VRAM) to avoid \"Out of GPU Memory\" errors during heavy color grading."}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "4. Storage (The Pipeline)\nAvoid laptops with only a 512GB drive. 4K files are massive. Ensure the laptop has an NVMe PCIe Gen 4 slot for the fastest data transfer speeds."}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "Example Laptop Options (Synthetic Examples)"}, "usageHint": "body"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "Option 1: Apple MacBook Pro 14 | M3 Pro Chip, 18GB Unified Memory, 512GB SSD | Best for Final Cut Pro and battery life | https://www.apple.com/macbook-pro/\nOption 2: ASUS ROG Zephyrus G14 | Ryzen 9, RTX 4060 (8GB), 32GB RAM, 1TB SSD | Best portability-to-power ratio | https://www.asus.com/laptops/for-gamers/rog-zephyrus/\nOption 3: Dell XPS 16 | Intel Core Ultra 7, RTX 4050, 32GB RAM, 1TB SSD | Best display and professional design | https://www.dell.com/en-us/shop/dell-laptops/"}, "usageHint": "body"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "Verification Framework for Live Prices\nTo find current market pricing and availability:\n1. Visit major retailers (Amazon, Best Buy, B&H Photo).\n2. Filter by \"RTX 4060\" or \"M3 Pro\" and \"32GB RAM\".\n3. Check for \"Open Box\" or \"Refurbished\" deals to meet the spec requirements at a lower price point."}, "usageHint": "body"}}}, {"id": "btn_label_14", "component": {"Text": {"text": {"literalString": "Compare Laptop CPUs"}, "usageHint": "body"}}}, {"id": "btn_14", "component": {"Button": {"child": "btn_label_14", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.cpubenchmark.net/laptop.html"}}]}, "primary": true}}}, {"id": "btn_label_15", "component": {"Text": {"text": {"literalString": "Adobe Premiere System Specs"}, "usageHint": "body"}}}, {"id": "btn_15", "component": {"Button": {"child": "btn_label_15", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://helpx.adobe.com/premiere-pro/system-requirements.html"}}]}, "primary": true}}}, {"id": "btn_label_16", "component": {"Text": {"text": {"literalString": "Shop Editing Laptops"}, "usageHint": "body"}}}, {"id": "btn_16", "component": {"Button": {"child": "btn_label_16", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.bhphotovideo.com/c/browse/Laptops/ci/18818"}}]}, "primary": true}}}, {"id": "text_17", "component": {"Text": {"text": {"literalString": "- https://helpx.adobe.com/premiere-pro/system-requirements.html\n- https://www.blackmagicdesign.com/products/davinciresolve/techspecs\n- https://support.apple.com/en-us/102044"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

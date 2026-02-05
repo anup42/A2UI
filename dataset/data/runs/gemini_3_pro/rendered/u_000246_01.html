@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "marathon-training-plan"}}, {"surfaceUpdate": {"surfaceId": "marathon-training-plan", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "summary", "assumptions", "weekly-structure-title", "weekly-structure-list", "training-progression-title", "training-progression-table", "key-dates-title", "key-dates-list", "checklist-title", "checklist-list", "quick-actions"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "12-Week Marathon Training Schedule"}, "usageHint": "h1"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "A 12-week beginner-to-marathon training schedule designed for a race on November 24, 2024. This plan adheres to the 10% weekly mileage increase rule."}, "usageHint": "body"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: The runner can currently run 3 miles (5km) comfortably."}, "usageHint": "body"}}}, {"id": "weekly-structure-title", "component": {"Text": {"text": {"literalString": "Weekly Structure"}, "usageHint": "h2"}}}, {"id": "weekly-structure-list", "component": {"List": {"children": {"explicitList": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]}, "direction": "vertical"}}}, {"id": "mon", "component": {"Text": {"text": {"literalString": "Mon: Rest"}, "usageHint": "body"}}}, {"id": "tue", "component": {"Text": {"text": {"literalString": "Tue: Short Run (Easy pace)"}, "usageHint": "body"}}}, {"id": "wed", "component": {"Text": {"text": {"literalString": "Wed: Cross-Training (Cycling, Swimming, or Strength)"}, "usageHint": "body"}}}, {"id": "thu", "component": {"Text": {"text": {"literalString": "Thu: Short Run (Easy pace)"}, "usageHint": "body"}}}, {"id": "fri", "component": {"Text": {"text": {"literalString": "Fri: Rest"}, "usageHint": "body"}}}, {"id": "sat", "component": {"Text": {"text": {"literalString": "Sat: Long Run (Endurance focus)"}, "usageHint": "body"}}}, {"id": "sun", "component": {"Text": {"text": {"literalString": "Sun: Recovery Run (Very easy)"}, "usageHint": "body"}}}, {"id": "training-progression-title", "component": {"Text": {"text": {"literalString": "Training Progression (Example Weeks)"}, "usageHint": "h2"}}}, {"id": "training-progression-table", "component": {"List": {"children": {"explicitList": ["progression-header", "progression-week-1", "progression-week-2", "progression-week-4", "progression-week-8", "progression-week-10", "progression-week-12"]}, "direction": "vertical"}}}, {"id": "progression-header", "component": {"Row": {"children": {"explicitList": ["progression-header-week", "progression-header-tue", "progression-header-thu", "progression-header-sat", "progression-header-sun", "progression-header-total"]}, "distribution": "spaceAround"}}}, {"id": "progression-header-week", "component": {"Text": {"text": {"literalString": "Week"}, "usageHint": "body"}}}, {"id": "progression-header-tue", "component": {"Text": {"text": {"literalString": "Tue (mi)"}, "usageHint": "body"}}}, {"id": "progression-header-thu", "component": {"Text": {"text": {"literalString": "Thu (mi)"}, "usageHint": "body"}}}, {"id": "progression-header-sat", "component": {"Text": {"text": {"literalString": "Sat (Long)"}, "usageHint": "body"}}}, {"id": "progression-header-sun", "component": {"Text": {"text": {"literalString": "Sun (mi)"}, "usageHint": "body"}}}, {"id": "progression-header-total", "component": {"Text": {"text": {"literalString": "Total Miles"}, "usageHint": "body"}}}, {"id": "progression-week-1", "component": {"Row": {"children": {"explicitList": ["progression-week-1-label", "progression-week-1-tue", "progression-week-1-thu", "progression-week-1-sat", "progression-week-1-sun", "progression-week-1-total"]}, "distribution": "spaceAround"}}}, {"id": "progression-week-1-label", "component": {"Text": {"text": {"literalString": "1"}, "usageHint": "body"}}}, {"id": "progression-week-1-tue", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "progression-week-1-thu", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "progression-week-1-sat", "component": {"Text": {"text": {"literalString": "5"}, "usageHint": "body"}}}, {"id": "progression-week-1-sun", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "progression-week-1-total", "component": {"Text": {"text": {"literalString": "13"}, "usageHint": "body"}}}, {"id": "progression-week-2", "component": {"Row": {"children": {"explicitList": ["progression-week-2-label", "progression-week-2-tue", "progression-week-2-thu", "progression-week-2-sat", "progression-week-2-sun", "progression-week-2-total"]}, "distribution": "spaceAround"}}}, {"id": "progression-week-2-label", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "progression-week-2-tue", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "progression-week-2-thu", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "progression-week-2-sat", "component": {"Text": {"text": {"literalString": "6"}, "usageHint": "body"}}}, {"id": "progression-week-2-sun", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "progression-week-2-total", "component": {"Text": {"text": {"literalString": "14"}, "usageHint": "body"}}}, {"id": "progression-week-4", "component": {"Row": {"children": {"explicitList": ["progression-week-4-label", "progression-week-4-tue", "progression-week-4-thu", "progression-week-4-sat", "progression-week-4-sun", "progression-week-4-total"]}, "distribution": "spaceAround"}}}, {"id": "progression-week-4-label", "component": {"Text": {"text": {"literalString": "4"}, "usageHint": "body"}}}, {"id": "progression-week-4-tue", "component": {"Text": {"text": {"literalString": "4"}, "usageHint": "body"}}}, {"id": "progression-week-4-thu", "component": {"Text": {"text": {"literalString": "4"}, "usageHint": "body"}}}, {"id": "progression-week-4-sat", "component": {"Text": {"text": {"literalString": "8"}, "usageHint": "body"}}}, {"id": "progression-week-4-sun", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "progression-week-4-total", "component": {"Text": {"text": {"literalString": "19"}, "usageHint": "body"}}}, {"id": "progression-week-8", "component": {"Row": {"children": {"explicitList": ["progression-week-8-label", "progression-week-8-tue", "progression-week-8-thu", "progression-week-8-sat", "progression-week-8-sun", "progression-week-8-total"]}, "distribution": "spaceAround"}}}, {"id": "progression-week-8-label", "component": {"Text": {"text": {"literalString": "8"}, "usageHint": "body"}}}, {"id": "progression-week-8-tue", "component": {"Text": {"text": {"literalString": "5"}, "usageHint": "body"}}}, {"id": "progression-week-8-thu", "component": {"Text": {"text": {"literalString": "5"}, "usageHint": "body"}}}, {"id": "progression-week-8-sat", "component": {"Text": {"text": {"literalString": "14"}, "usageHint": "body"}}}, {"id": "progression-week-8-sun", "component": {"Text": {"text": {"literalString": "4"}, "usageHint": "body"}}}, {"id": "progression-week-8-total", "component": {"Text": {"text": {"literalString": "28"}, "usageHint": "body"}}}, {"id": "progression-week-10", "component": {"Row": {"children": {"explicitList": ["progression-week-10-label", "progression-week-10-tue", "progression-week-10-thu", "progression-week-10-sat", "progression-week-10-sun", "progression-week-10-total"]}, "distribution": "spaceAround"}}}, {"id": "progression-week-10-label", "component": {"Text": {"text": {"literalString": "10"}, "usageHint": "body"}}}, {"id": "progression-week-10-tue", "component": {"Text": {"text": {"literalString": "6"}, "usageHint": "body"}}}, {"id": "progression-week-10-thu", "component": {"Text": {"text": {"literalString": "6"}, "usageHint": "body"}}}, {"id": "progression-week-10-sat", "component": {"Text": {"text": {"literalString": "18"}, "usageHint": "body"}}}, {"id": "progression-week-10-sun", "component": {"Text": {"text": {"literalString": "5"}, "usageHint": "body"}}}, {"id": "progression-week-10-total", "component": {"Text": {"text": {"literalString": "35"}, "usageHint": "body"}}}, {"id": "progression-week-12", "component": {"Row": {"children": {"explicitList": ["progression-week-12-label", "progression-week-12-tue", "progression-week-12-thu", "progression-week-12-sat", "progression-week-12-sun", "progression-week-12-total"]}, "distribution": "spaceAround"}}}, {"id": "progression-week-12-label", "component": {"Text": {"text": {"literalString": "12"}, "usageHint": "body"}}}, {"id": "progression-week-12-tue", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "progression-week-12-thu", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "progression-week-12-sat", "component": {"Text": {"text": {"literalString": "RACE (26.2)"}, "usageHint": "body"}}}, {"id": "progression-week-12-sun", "component": {"Text": {"text": {"literalString": "0"}, "usageHint": "body"}}}, {"id": "progression-week-12-total", "component": {"Text": {"text": {"literalString": "Taper/Race"}, "usageHint": "body"}}}, {"id": "key-dates-title", "component": {"Text": {"text": {"literalString": "Key Dates"}, "usageHint": "h2"}}}, {"id": "key-dates-list", "component": {"List": {"children": {"explicitList": ["key-date-sept1", "key-date-oct15", "key-date-nov10", "key-date-nov24"]}, "direction": "vertical"}}}, {"id": "key-date-sept1", "component": {"Text": {"text": {"literalString": "Sept 1: Start of Month 2 (Focus on building base)"}, "usageHint": "body"}}}, {"id": "key-date-oct15", "component": {"Text": {"text": {"literalString": "Oct 15: Peak training mileage starts"}, "usageHint": "body"}}}, {"id": "key-date-nov10", "component": {"Text": {"text": {"literalString": "Nov 10: Tapering phase begins (Reduction in mileage)"}, "usageHint": "body"}}}, {"id": "key-date-nov24", "component": {"Text": {"text": {"literalString": "Nov 24: Race Day"}, "usageHint": "body"}}}, {"id": "checklist-title", "component": {"Text": {"text": {"literalString": "Checklist"}, "usageHint": "h2"}}}, {"id": "checklist-list", "component": {"List": {"children": {"explicitList": ["checklist-item-1", "checklist-item-2", "checklist-item-3", "checklist-item-4"]}, "direction": "vertical"}}}, {"id": "checklist-item-1", "component": {"Text": {"text": {"literalString": "- Professional gait analysis and proper running shoes"}, "usageHint": "body"}}}, {"id": "checklist-item-2", "component": {"Text": {"text": {"literalString": "- Hydration pack for long runs"}, "usageHint": "body"}}}, {"id": "checklist-item-3", "component": {"Text": {"text": {"literalString": "- Foam roller for recovery"}, "usageHint": "body"}}}, {"id": "checklist-item-4", "component": {"Text": {"text": {"literalString": "- Anti-chafe balm"}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Row": {"children": {"explicitList": ["find-marathon-button", "running-shoe-guide-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "find-marathon-button", "component": {"Button": {"child": "find-marathon-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.marathonguide.com"}}]}}}}, {"id": "find-marathon-text", "component": {"Text": {"text": {"literalString": "Find a Local Marathon"}, "usageHint": "body"}}}, {"id": "running-shoe-guide-button", "component": {"Button": {"child": "running-shoe-guide-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000246_01_2_gear.html"}}]}}}}, {"id": "running-shoe-guide-text", "component": {"Text": {"text": {"literalString": "Running Shoe Guide"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

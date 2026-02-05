@@ -36,6 +36,43 @@ body {
   padding: 16px 24px;
 }
 
+.metrics {
+  padding: 0 24px 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.metrics .section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 8px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.metric-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
+.metric-card .metric-label {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.metric-card .metric-value {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
 .card {
   background: #ffffff;
   border-radius: 12px;

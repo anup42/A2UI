@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "server-status-report-001"}}, {"surfaceUpdate": {"surfaceId": "server-status-report-001", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "assumptions", "summary-card", "table-section", "insights-section", "steps-section", "actions-row", "sources"]}}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "SERVER STATUS REPORT"}, "usageHint": "h1"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: The provided JSON dataset represents the total number of requests for the current reporting period. All HTTP status codes in the 4xx and 5xx range are calculated as errors."}, "usageHint": "caption"}}}, {"id": "summary-card", "component": {"Card": {"child": "summary-col"}}}, {"id": "summary-col", "component": {"Column": {"children": {"explicitList": ["sum-title", "sum-total", "sum-success", "sum-failed", "sum-rate"]}}}}, {"id": "sum-title", "component": {"Text": {"text": {"literalString": "PERFORMANCE SUMMARY"}, "usageHint": "h3"}}}, {"id": "sum-total", "component": {"Text": {"text": {"literalString": "• Total Requests: 475"}, "usageHint": "body"}}}, {"id": "sum-success", "component": {"Text": {"text": {"literalString": "• Successful Requests (200): 450"}, "usageHint": "body"}}}, {"id": "sum-failed", "component": {"Text": {"text": {"literalString": "• Total Failed Requests: 25"}, "usageHint": "body"}}}, {"id": "sum-rate", "component": {"Text": {"text": {"literalString": "• Overall Error Rate: 5.26%"}, "usageHint": "body"}}}, {"id": "table-section", "component": {"Column": {"children": {"explicitList": ["table-title", "table-header-row", "table-row-200", "table-row-404", "table-row-500"]}}}}, {"id": "table-title", "component": {"Text": {"text": {"literalString": "STATUS DISTRIBUTION TABLE"}, "usageHint": "h3"}}}, {"id": "table-header-row", "component": {"Row": {"children": {"explicitList": ["th-icon", "th-code", "th-count", "th-pct", "th-class"]}, "distribution": "spaceBetween"}}}, {"id": "th-icon", "component": {"Text": {"text": {"literalString": " "}, "usageHint": "body"}}}, {"id": "th-code", "component": {"Text": {"text": {"literalString": "Code"}, "usageHint": "body"}}}, {"id": "th-count", "component": {"Text": {"text": {"literalString": "Count"}, "usageHint": "body"}}}, {"id": "th-pct", "component": {"Text": {"text": {"literalString": "Pct"}, "usageHint": "body"}}}, {"id": "th-class", "component": {"Text": {"text": {"literalString": "Class"}, "usageHint": "body"}}}, {"id": "table-row-200", "component": {"Row": {"children": {"explicitList": ["icon-200", "code-200", "count-200", "pct-200", "class-200"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "icon-200", "component": {"Image": {"url": {"literalString": "/assets/r_000043_01_1_ok.png"}, "usageHint": "icon"}}}, {"id": "code-200", "component": {"Text": {"text": {"literalString": "200"}, "usageHint": "body"}}}, {"id": "count-200", "component": {"Text": {"text": {"literalString": "450"}, "usageHint": "body"}}}, {"id": "pct-200", "component": {"Text": {"text": {"literalString": "94.74%"}, "usageHint": "body"}}}, {"id": "class-200", "component": {"Text": {"text": {"literalString": "Success"}, "usageHint": "body"}}}, {"id": "table-row-404", "component": {"Row": {"children": {"explicitList": ["icon-404", "code-404", "count-404", "pct-404", "class-404"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "icon-404", "component": {"Image": {"url": {"literalString": "/assets/r_000043_01_2_warning-shield.png"}, "usageHint": "icon"}}}, {"id": "code-404", "component": {"Text": {"text": {"literalString": "404"}, "usageHint": "body"}}}, {"id": "count-404", "component": {"Text": {"text": {"literalString": "23"}, "usageHint": "body"}}}, {"id": "pct-404", "component": {"Text": {"text": {"literalString": "4.84%"}, "usageHint": "body"}}}, {"id": "class-404", "component": {"Text": {"text": {"literalString": "Client Error"}, "usageHint": "body"}}}, {"id": "table-row-500", "component": {"Row": {"children": {"explicitList": ["icon-500", "code-500", "count-500", "pct-500", "class-500"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "icon-500", "component": {"Image": {"url": {"literalString": "/assets/r_000040_01_1_high-priority.png"}, "usageHint": "icon"}}}, {"id": "code-500", "component": {"Text": {"text": {"literalString": "500"}, "usageHint": "body"}}}, {"id": "count-500", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "pct-500", "component": {"Text": {"text": {"literalString": "0.42%"}, "usageHint": "body"}}}, {"id": "class-500", "component": {"Text": {"text": {"literalString": "Server Error"}, "usageHint": "body"}}}, {"id": "insights-section", "component": {"Column": {"children": {"explicitList": ["insights-title", "insight-1", "insight-2", "insight-3"]}}}}, {"id": "insights-title", "component": {"Text": {"text": {"literalString": "KEY INSIGHTS"}, "usageHint": "h3"}}}, {"id": "insight-1", "component": {"Text": {"text": {"literalString": "• The system health is generally good, with a success rate exceeding 94%."}, "usageHint": "body"}}}, {"id": "insight-2", "component": {"Text": {"text": {"literalString": "• The error rate of 5.26% is primarily driven by 404 (Not Found) errors, which account for 92% of all failures."}, "usageHint": "body"}}}, {"id": "insight-3", "component": {"Text": {"text": {"literalString": "• Server-side stability is high, as 500 (Internal Server Error) occurrences are extremely low at 0.42%."}, "usageHint": "body"}}}, {"id": "steps-section", "component": {"Column": {"children": {"explicitList": ["steps-title", "step-1-card", "step-2-card", "step-3-card"]}}}}, {"id": "steps-title", "component": {"Text": {"text": {"literalString": "RECOMMENDED NEXT STEPS"}, "usageHint": "h3"}}}, {"id": "step-1-card", "component": {"Card": {"child": "step-1-col"}}}, {"id": "step-1-col", "component": {"Column": {"children": {"explicitList": ["step-1-title", "step-1-desc", "step-1-priority", "step-1-btn"]}}}}, {"id": "step-1-title", "component": {"Text": {"text": {"literalString": "Option 1: Broken Link Audit"}, "usageHint": "h5"}}}, {"id": "step-1-desc", "component": {"Text": {"text": {"literalString": "Scan application for dead links to reduce 404 errors"}, "usageHint": "body"}}}, {"id": "step-1-priority", "component": {"Text": {"text": {"literalString": "Priority: Medium"}, "usageHint": "caption"}}}, {"id": "step-1-btn", "component": {"Button": {"child": "step-1-btn-txt", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/tools/audit"}}]}}}}, {"id": "step-1-btn-txt", "component": {"Text": {"text": {"literalString": "Launch Audit Tool"}, "usageHint": "body"}}}, {"id": "step-2-card", "component": {"Card": {"child": "step-2-col"}}}, {"id": "step-2-col", "component": {"Column": {"children": {"explicitList": ["step-2-title", "step-2-desc", "step-2-priority", "step-2-btn"]}}}}, {"id": "step-2-title", "component": {"Text": {"text": {"literalString": "Option 2: Server Log Inspection"}, "usageHint": "h5"}}}, {"id": "step-2-desc", "component": {"Text": {"text": {"literalString": "Review stack traces for the two 500 error instances"}, "usageHint": "body"}}}, {"id": "step-2-priority", "component": {"Text": {"text": {"literalString": "Priority: High"}, "usageHint": "caption"}}}, {"id": "step-2-btn", "component": {"Button": {"child": "step-2-btn-txt", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/tools/logs"}}]}}}}, {"id": "step-2-btn-txt", "component": {"Text": {"text": {"literalString": "View Logs"}, "usageHint": "body"}}}, {"id": "step-3-card", "component": {"Card": {"child": "step-3-col"}}}, {"id": "step-3-col", "component": {"Column": {"children": {"explicitList": ["step-3-title", "step-3-desc", "step-3-priority", "step-3-btn"]}}}}, {"id": "step-3-title", "component": {"Text": {"text": {"literalString": "Option 3: Monitoring Setup"}, "usageHint": "h5"}}}, {"id": "step-3-desc", "component": {"Text": {"text": {"literalString": "Configure automated alerts for error rates exceeding 5%"}, "usageHint": "body"}}}, {"id": "step-3-priority", "component": {"Text": {"text": {"literalString": "Priority: Low"}, "usageHint": "caption"}}}, {"id": "step-3-btn", "component": {"Button": {"child": "step-3-btn-txt", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/tools/alerts"}}]}}}}, {"id": "step-3-btn-txt", "component": {"Text": {"text": {"literalString": "Configure Alerts"}, "usageHint": "body"}}}, {"id": "actions-row", "component": {"Row": {"children": {"explicitList": ["btn-dashboard", "btn-csv"]}, "distribution": "start"}}}, {"id": "btn-dashboard", "component": {"Button": {"child": "btn-dash-txt", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/dashboard/server-status"}}]}, "primary": true}}}, {"id": "btn-dash-txt", "component": {"Text": {"text": {"literalString": "View Live Dashboard"}, "usageHint": "body"}}}, {"id": "btn-csv", "component": {"Button": {"child": "btn-csv-txt", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/api/logs/export"}}]}}}}, {"id": "btn-csv-txt", "component": {"Text": {"text": {"literalString": "Download Full CSV"}, "usageHint": "body"}}}, {"id": "sources", "component": {"Text": {"text": {"literalString": "Sources: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

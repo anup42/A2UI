@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "lsat-study-schedule"}}, {"surfaceUpdate": {"surfaceId": "lsat-study-schedule", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions", "phase1", "phase2", "phase3", "phase4", "study-module-breakdown-title", "study-module-breakdown-list", "quick-actions-title", "quick-actions-buttons"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "8-Week LSAT Study Schedule"}, "usageHint": "h1"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: 15 hours per week (approx. 2 hours/day + 3 hours on weekends)."}, "usageHint": "caption"}}}, {"id": "phase1", "component": {"Card": {"child": "phase1-content"}}}, {"id": "phase1-content", "component": {"Column": {"children": {"explicitList": ["phase1-title", "phase1-focus", "phase1-breakdown"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "phase1-title", "component": {"Text": {"text": {"literalString": "Phase 1: Foundation (Weeks 1-2)"}, "usageHint": "h3"}}}, {"id": "phase1-focus", "component": {"Text": {"text": {"literalString": "Focus: Logical Reasoning (LR) basics and Analytical Reasoning (AR) setup."}, "usageHint": "body"}}}, {"id": "phase1-breakdown", "component": {"Text": {"text": {"literalString": "Weekly Breakdown: 6 hrs LR, 6 hrs AR, 3 hrs Reading Comp (RC)."}, "usageHint": "body"}}}, {"id": "phase2", "component": {"Card": {"child": "phase2-content"}}}, {"id": "phase2-content", "component": {"Column": {"children": {"explicitList": ["phase2-title", "phase2-focus", "phase2-breakdown"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "phase2-title", "component": {"Text": {"text": {"literalString": "Phase 2: Deep Dive (Weeks 3-5)"}, "usageHint": "h3"}}}, {"id": "phase2-focus", "component": {"Text": {"text": {"literalString": "Focus: Advanced AR (Logic Games) and RC speed reading."}, "usageHint": "body"}}}, {"id": "phase2-breakdown", "component": {"Text": {"text": {"literalString": "Weekly Breakdown: 4 hrs LR, 7 hrs AR, 4 hrs RC."}, "usageHint": "body"}}}, {"id": "phase3", "component": {"Card": {"child": "phase3-content"}}}, {"id": "phase3-content", "component": {"Column": {"children": {"explicitList": ["phase3-title", "phase3-focus", "phase3-breakdown"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "phase3-title", "component": {"Text": {"text": {"literalString": "Phase 3: Integration & Timing (Weeks 6-7)"}, "usageHint": "h3"}}}, {"id": "phase3-focus", "component": {"Text": {"text": {"literalString": "Focus: Full section practice and timing strategies."}, "usageHint": "body"}}}, {"id": "phase3-breakdown", "component": {"Text": {"text": {"literalString": "Weekly Breakdown: 5 hrs LR, 5 hrs AR, 5 hrs RC."}, "usageHint": "body"}}}, {"id": "phase4", "component": {"Card": {"child": "phase4-content"}}}, {"id": "phase4-content", "component": {"Column": {"children": {"explicitList": ["phase4-title", "phase4-focus", "phase4-breakdown"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "phase4-title", "component": {"Text": {"text": {"literalString": "Phase 4: Full Practice & Review (Week 8)"}, "usageHint": "h3"}}}, {"id": "phase4-focus", "component": {"Text": {"text": {"literalString": "Focus: Full-length practice exams and error analysis."}, "usageHint": "body"}}}, {"id": "phase4-breakdown", "component": {"Text": {"text": {"literalString": "Weekly Breakdown: 3 Full Exams (10 hrs), 5 hrs Review."}, "usageHint": "body"}}}, {"id": "study-module-breakdown-title", "component": {"Text": {"text": {"literalString": "Study Module Breakdown"}, "usageHint": "h2"}}}, {"id": "study-module-breakdown-list", "component": {"List": {"children": {"explicitList": ["lr-module", "ar-module", "rc-module"]}, "direction": "vertical"}}}, {"id": "lr-module", "component": {"Card": {"child": "lr-module-content"}}}, {"id": "lr-module-content", "component": {"Column": {"children": {"explicitList": ["lr-module-title", "lr-module-skills", "lr-module-resource"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "lr-module-title", "component": {"Text": {"text": {"literalString": "Module: Logical Reasoning"}, "usageHint": "h4"}}}, {"id": "lr-module-skills", "component": {"Text": {"text": {"literalString": "Key Skills: Flaw identification, Strengthening/Weakening"}, "usageHint": "body"}}}, {"id": "lr-module-resource", "component": {"Text": {"text": {"literalString": "Recommended Resource: PowerScore Bible"}, "usageHint": "body"}}}, {"id": "ar-module", "component": {"Card": {"child": "ar-module-content"}}}, {"id": "ar-module-content", "component": {"Column": {"children": {"explicitList": ["ar-module-title", "ar-module-skills", "ar-module-resource"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "ar-module-title", "component": {"Text": {"text": {"literalString": "Module: Analytical Reasoning"}, "usageHint": "h4"}}}, {"id": "ar-module-skills", "component": {"Text": {"text": {"literalString": "Key Skills: Linear/Grouping games, Inferences"}, "usageHint": "body"}}}, {"id": "ar-module-resource", "component": {"Text": {"text": {"literalString": "Recommended Resource: 7Sage / Khan Academy"}, "usageHint": "body"}}}, {"id": "rc-module", "component": {"Card": {"child": "rc-module-content"}}}, {"id": "rc-module-content", "component": {"Column": {"children": {"explicitList": ["rc-module-title", "rc-module-skills", "rc-module-resource"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "rc-module-title", "component": {"Text": {"text": {"literalString": "Module: Reading Comp"}, "usageHint": "h4"}}}, {"id": "rc-module-skills", "component": {"Text": {"text": {"literalString": "Key Skills: Structure mapping, Tone analysis"}, "usageHint": "body"}}}, {"id": "rc-module-resource", "component": {"Text": {"text": {"literalString": "Recommended Resource: LSAC PrepPlus"}, "usageHint": "body"}}}, {"id": "quick-actions-title", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h2"}}}, {"id": "quick-actions-buttons", "component": {"Row": {"children": {"explicitList": ["start-practice-test-button", "view-video-lessons-button"]}, "distribution": "start", "alignment": "start"}}}, {"id": "start-practice-test-button", "component": {"Button": {"child": "start-practice-test-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000287_01_1_prep.html"}}]}}}}, {"id": "start-practice-test-text", "component": {"Text": {"text": {"literalString": "Start Practice Test"}, "usageHint": "body"}}}, {"id": "view-video-lessons-button", "component": {"Button": {"child": "view-video-lessons-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000287_01_2_lsat.html"}}]}}}}, {"id": "view-video-lessons-text", "component": {"Text": {"text": {"literalString": "View Video Lessons"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+
