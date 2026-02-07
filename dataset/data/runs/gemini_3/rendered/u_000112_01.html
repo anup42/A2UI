@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "laptop-recs-2024"}}, {"surfaceUpdate": {"surfaceId": "laptop-recs-2024", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["txt_title", "txt_assumptions", "col_laptops", "div_1", "txt_verify_title", "txt_verify_steps", "div_2", "txt_tech_title", "col_tech"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "txt_title", "component": {"Text": {"text": {"literalString": "Recommended Laptops for 4K Video Editing ($2,500 Budget)"}, "usageHint": "h2"}}}, {"id": "txt_assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: Recommendations are based on standard retail prices and hardware availability for 4K video editing."}, "usageHint": "body"}}}, {"id": "col_laptops", "component": {"Column": {"children": {"explicitList": []}}}}, {"id": "div_1", "component": {"Divider": {}}}, {"id": "txt_verify_title", "component": {"Text": {"text": {"literalString": "Verification Steps"}, "usageHint": "h3"}}}, {"id": "txt_verify_steps", "component": {"Text": {"text": {"literalString": "Verify specific hardware requirements for your preferred editing software (e.g., Premiere Pro, DaVinci Resolve)."}, "usageHint": "body"}}}, {"id": "div_2", "component": {"Divider": {}}}, {"id": "txt_tech_title", "component": {"Text": {"text": {"literalString": "Technical Specifications"}, "usageHint": "h3"}}}, {"id": "col_tech", "component": {"Column": {"children": {"explicitList": []}}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000112"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000112", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "icon_row_6", "icon_row_7"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions: Recommendations are based on standard retail pricing for 2024. Prices may vary by region and current promotional offers."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Recommended Laptops for 4K Video Editing ($2,500 Budget)"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Option 1: MacBook Pro 14-inch (M3 Pro) | 12-Core CPU, 18-Core GPU | 36GB RAM | Liquid Retina XDR (100% DCI-P3) | [Link: https://www.apple.com/shop/buy-mac/macbook-pro/14-inch]\nOption 2: ASUS ProArt Studiobook 16 OLED | Core i9-13980HX | 32GB RAM | RTX 4070 (8GB VRAM) | 3.2K OLED (100% DCI-P3) | [Link: https://www.asus.com/laptops/for-creators/proart-studiobook/filter?Series=ProArt-Studiobook]\nOption 3: Razer Blade 16 (2024) | Core i9-14900HX | 32GB RAM | RTX 4070 (8GB VRAM) | QHD+ 240Hz (100% DCI-P3) | [Link: https://www.razer.com/gaming-laptops/razer-blade-16]"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Verification Steps for Live Pricing\n1. Visit major retailers (Amazon, B&H Photo, Best Buy).\n2. Look for \"Open Box\" or \"Manufacturer Refurbished\" to fit higher-tier GPUs into the $2,500 budget.\n3. Check for educational discounts if applicable."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Technical Requirements Checklist\n- RAM: 32GB+ (Crucial for 4K timelines and background rendering).\n- VRAM: 8GB (Necessary for hardware acceleration in Premiere Pro/DaVinci Resolve).\n- Display: DCI-P3 coverage ensures color accuracy for cinematic projects."}, "usageHint": "body"}}}, {"id": "icon_img_6", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/video-editing.png"}, "usageHint": "icon"}}}, {"id": "icon_label_6", "component": {"Text": {"text": {"literalString": "Editing"}, "usageHint": "body"}}}, {"id": "icon_row_6", "component": {"Row": {"children": {"explicitList": ["icon_img_6", "icon_label_6"]}, "alignment": "center"}}}, {"id": "icon_img_7", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/monitor.png"}, "usageHint": "icon"}}}, {"id": "icon_label_7", "component": {"Text": {"text": {"literalString": "Display"}, "usageHint": "body"}}}, {"id": "icon_row_7", "component": {"Row": {"children": {"explicitList": ["icon_img_7", "icon_label_7"]}, "alignment": "center"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

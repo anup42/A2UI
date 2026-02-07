@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "projector_comparison_surface"}}, {"surfaceUpdate": {"surfaceId": "projector_comparison_surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["summary_text", "table_card", "findings_header", "findings_list", "actions_row"]}, "alignment": "stretch"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "Based on the provided specifications for 4K projectors, the Optoma UHD38x offers the highest brightness, while the BenQ TK700STi provides the shortest throw ratio for smaller rooms."}, "usageHint": "body"}}}, {"id": "table_card", "component": {"Card": {"child": "table_container"}}}, {"id": "table_container", "component": {"Column": {"children": {"explicitList": ["header_row", "table_divider", "row_benq", "row_optoma", "row_epson"]}}}}, {"id": "header_row", "component": {"Row": {"children": {"explicitList": ["h_model", "h_brightness", "h_throw"]}}}}, {"id": "h_model", "component": {"Text": {"text": {"literalString": "**Model**"}, "usageHint": "body"}}}, {"id": "h_brightness", "component": {"Text": {"text": {"literalString": "**Brightness**"}, "usageHint": "body"}}}, {"id": "h_throw", "component": {"Text": {"text": {"literalString": "**Throw Ratio**"}, "usageHint": "body"}}}, {"id": "table_divider", "component": {"Divider": {}}}, {"id": "row_benq", "component": {"Row": {"children": {"explicitList": ["benq_name", "benq_bright", "benq_throw"]}}}}, {"id": "benq_name", "component": {"Text": {"text": {"literalString": "BenQ TK700STi"}, "usageHint": "body"}}}, {"id": "benq_bright", "component": {"Text": {"text": {"literalString": "3000"}, "usageHint": "body"}}}, {"id": "benq_throw", "component": {"Text": {"text": {"literalString": "0.9 - 1.08"}, "usageHint": "body"}}}, {"id": "row_optoma", "component": {"Row": {"children": {"explicitList": ["optoma_name", "optoma_bright", "optoma_throw"]}}}}, {"id": "optoma_name", "component": {"Text": {"text": {"literalString": "Optoma UHD38x"}, "usageHint": "body"}}}, {"id": "optoma_bright", "component": {"Text": {"text": {"literalString": "4000"}, "usageHint": "body"}}}, {"id": "optoma_throw", "component": {"Text": {"text": {"literalString": "1.5 - 1.66"}, "usageHint": "body"}}}, {"id": "row_epson", "component": {"Row": {"children": {"explicitList": ["epson_name", "epson_bright", "epson_throw"]}}}}, {"id": "epson_name", "component": {"Text": {"text": {"literalString": "Epson Home Cinema 3800"}, "usageHint": "body"}}}, {"id": "epson_bright", "component": {"Text": {"text": {"literalString": "3000"}, "usageHint": "body"}}}, {"id": "epson_throw", "component": {"Text": {"text": {"literalString": "1.32 - 2.15"}, "usageHint": "body"}}}, {"id": "findings_header", "component": {"Text": {"text": {"literalString": "Key Findings"}, "usageHint": "h3"}}}, {"id": "findings_list", "component": {"Column": {"children": {"explicitList": ["finding_brightness", "finding_throw"]}}}}, {"id": "finding_brightness", "component": {"Row": {"children": {"explicitList": ["icon_brightness", "text_brightness"]}, "alignment": "center"}}}, {"id": "icon_brightness", "component": {"Icon": {"name": {"literalString": "star"}}}}, {"id": "text_brightness", "component": {"Text": {"text": {"literalString": "Highest Brightness: Optoma UHD38x (4000 Lumens)"}, "usageHint": "body"}}}, {"id": "finding_throw", "component": {"Row": {"children": {"explicitList": ["icon_lens", "text_throw_finding"]}, "alignment": "center"}}}, {"id": "icon_lens", "component": {"Image": {"url": {"literalString": "/assets/r_000132_01_2_slr-back-side.png"}, "usageHint": "icon"}}}, {"id": "text_throw_finding", "component": {"Text": {"text": {"literalString": "Shortest Throw Ratio: BenQ TK700STi (0.9 - 1.08)"}, "usageHint": "body"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["calc_button"]}, "distribution": "start"}}}, {"id": "calc_button", "component": {"Button": {"child": "calc_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.projectorcentral.com/projection-calculator-pro.cfm"}}]}, "primary": true}}}, {"id": "calc_button_text", "component": {"Text": {"text": {"literalString": "Calculate Throw Distance"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000132"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000132", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "icon_row_4", "text_5", "btn_6"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Summary:\nBased on the provided specifications for 4K projectors, the Optoma UHD38x offers the highest brightness, while the BenQ TK700STi provides the shortest throw ratio for smaller rooms."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Projector Comparison Table:\nModel | Brightness (Lumens) | Throw Ratio\nBenQ TK700STi | 3000 | 0.9 - 1.08\nOptoma UHD38x | 4000 | 1.5 - 1.66\nEpson Home Cinema 3800 | 3000 | 1.32 - 2.15"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Key Findings:\n- Highest Brightness: Optoma UHD38x (4000 Lumens)\n- Shortest Throw Ratio: BenQ TK700STi (0.9 - 1.08)"}, "usageHint": "body"}}}, {"id": "icon_img_4", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/color/48/bright-mind.png"}, "usageHint": "icon"}}}, {"id": "icon_label_4", "component": {"Text": {"text": {"literalString": "Brightness"}, "usageHint": "body"}}}, {"id": "icon_row_4", "component": {"Row": {"children": {"explicitList": ["icon_img_4", "icon_label_4"]}, "alignment": "center"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "- Lens: /assets/r_000132_01_2_slr-back-side.png"}, "usageHint": "body"}}}, {"id": "btn_label_6", "component": {"Text": {"text": {"literalString": "Calculate Throw Distance"}, "usageHint": "body"}}}, {"id": "btn_6", "component": {"Button": {"child": "btn_label_6", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.projectorcentral.com/projection-calculator-pro.cfm"}}]}, "primary": true}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

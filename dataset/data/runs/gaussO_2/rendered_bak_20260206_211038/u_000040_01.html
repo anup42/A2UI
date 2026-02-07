@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "strollerComparison"}}, {"surfaceUpdate": {"surfaceId": "strollerComparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "seatingConfigs", "weightCapacity", "comparisonTable", "quickActions"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Modularity Comparison: UPPAbaby Vista V2 vs. Baby Jogger City Select 2"}, "usageHint": "h2"}}}, {"id": "seatingConfigs", "component": {"Column": {"children": {"explicitList": ["seatingConfigsTitle", "vistaConfigs", "citySelectConfigs"]}}}}, {"id": "seatingConfigsTitle", "component": {"Text": {"text": {"literalString": "Seating Configurations"}, "usageHint": "h3"}}}, {"id": "vistaConfigs", "component": {"Text": {"text": {"literalString": "- UPPAbaby Vista V2: Offers over 12 configurations. It can hold two seats (Toddler Seat + RumbleSeat), a bassinet, or an infant car seat. When adding the PiggyBack Glider Board, it can transport up to 3 children."}, "usageHint": "body"}}}, {"id": "citySelectConfigs", "component": {"Text": {"text": {"literalString": "- Baby Jogger City Select 2: Offers 24+ configurations. This model is highly versatile, allowing for various combinations of two seats, infant car seats, or a bassinet. With the addition of a Glider Board, it also accommodates up to 3 children."}, "usageHint": "body"}}}, {"id": "weightCapacity", "component": {"Column": {"children": {"explicitList": ["weightCapacityTitle", "vistaWeight", "citySelectWeight"]}}}}, {"id": "weightCapacityTitle", "component": {"Text": {"text": {"literalString": "Maximum Weight Capacity (Primary Seat)"}, "usageHint": "h3"}}}, {"id": "vistaWeight", "component": {"Text": {"text": {"literalString": "- UPPAbaby Vista V2: 50 lbs (22.7 kg)"}, "usageHint": "body"}}}, {"id": "citySelectWeight", "component": {"Text": {"text": {"literalString": "- Baby Jogger City Select 2: 45 lbs (20.4 kg)"}, "usageHint": "body"}}}, {"id": "comparisonTable", "component": {"Column": {"children": {"explicitList": ["comparisonTableTitle", "tableHeader", "tableRow1", "tableRow2", "tableRow3", "tableRow4"]}}}}, {"id": "comparisonTableTitle", "component": {"Text": {"text": {"literalString": "Comparison Table"}, "usageHint": "h3"}}}, {"id": "tableHeader", "component": {"Row": {"children": {"explicitList": ["featureHeader", "vistaHeader", "citySelectHeader"]}}}}, {"id": "featureHeader", "component": {"Text": {"text": {"literalString": "Feature"}, "usageHint": "h4"}}}, {"id": "vistaHeader", "component": {"Text": {"text": {"literalString": "UPPAbaby Vista V2"}, "usageHint": "h4"}}}, {"id": "citySelectHeader", "component": {"Text": {"text": {"literalString": "Baby Jogger City Select 2"}, "usageHint": "h4"}}}, {"id": "tableRow1", "component": {"Row": {"children": {"explicitList": ["feature1", "vistaConfigsValue", "citySelectConfigsValue"]}}}}, {"id": "feature1", "component": {"Text": {"text": {"literalString": "Total Configs (with Board)"}, "usageHint": "body"}}}, {"id": "vistaConfigsValue", "component": {"Text": {"text": {"literalString": "12+"}, "usageHint": "body"}}}, {"id": "citySelectConfigsValue", "component": {"Text": {"text": {"literalString": "24+"}, "usageHint": "body"}}}, {"id": "tableRow2", "component": {"Row": {"children": {"explicitList": ["feature2", "vistaWeightValue", "citySelectWeightValue"]}}}}, {"id": "feature2", "component": {"Text": {"text": {"literalString": "Max Weight (Main Seat)"}, "usageHint": "body"}}}, {"id": "vistaWeightValue", "component": {"Text": {"text": {"literalString": "50 lbs"}, "usageHint": "body"}}}, {"id": "citySelectWeightValue", "component": {"Text": {"text": {"literalString": "45 lbs"}, "usageHint": "body"}}}, {"id": "tableRow3", "component": {"Row": {"children": {"explicitList": ["feature3", "vistaIncluded", "citySelectIncluded"]}}}}, {"id": "feature3", "component": {"Text": {"text": {"literalString": "Included in Box"}, "usageHint": "body"}}}, {"id": "vistaIncluded", "component": {"Text": {"text": {"literalString": "Bassinet + Toddler Seat"}, "usageHint": "body"}}}, {"id": "citySelectIncluded", "component": {"Text": {"text": {"literalString": "Toddler Seat only"}, "usageHint": "body"}}}, {"id": "tableRow4", "component": {"Row": {"children": {"explicitList": ["feature4", "vistaSeatName", "citySelectSeatName"]}}}}, {"id": "feature4", "component": {"Text": {"text": {"literalString": "Secondary Seat Name"}, "usageHint": "body"}}}, {"id": "vistaSeatName", "component": {"Text": {"text": {"literalString": "RumbleSeat"}, "usageHint": "body"}}}, {"id": "citySelectSeatName", "component": {"Text": {"text": {"literalString": "Second Seat Kit"}, "usageHint": "body"}}}, {"id": "quickActions", "component": {"Row": {"children": {"explicitList": ["vistaButton", "citySelectButton"]}, "distribution": "spaceBetween"}}}, {"id": "vistaButton", "component": {"Button": {"child": "vistaButtonText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://uppababy.com/vista-v2/configurations/"}}]}, "primary": true}}}, {"id": "vistaButtonText", "component": {"Text": {"text": {"literalString": "Vista V2 Configs"}, "usageHint": "body"}}}, {"id": "citySelectButton", "component": {"Button": {"child": "citySelectButtonText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.babyjogger.com/strollers/modular-strollers/city-select-2/SAP_2149021.html"}}]}, "primary": true}}}, {"id": "citySelectButtonText", "component": {"Text": {"text": {"literalString": "City Select 2 Configs"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "shoe_recommendations"}}, {"surfaceUpdate": {"surfaceId": "shoe_recommendations", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["icon_row", "summary_title", "summary_text", "divider_1", "options_title", "options_list", "divider_2", "table_title", "table_header", "table_row_1", "table_row_2", "table_row_3", "divider_3", "action_row"]}}}}, {"id": "icon_row", "component": {"Row": {"children": {"explicitList": ["icon_shoe", "icon_dist"]}, "distribution": "start"}}}, {"id": "icon_shoe", "component": {"Image": {"url": {"literalString": "/icons/running-shoes.png"}, "usageHint": "icon"}}}, {"id": "icon_dist", "component": {"Image": {"url": {"literalString": "/icons/marathon.png"}, "usageHint": "icon"}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "SUMMARY"}, "usageHint": "h2"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "For high arches and marathon distances, a neutral shoe with significant cushioning is essential to absorb impact and provide a stable platform without over-correcting your gait."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "options_title", "component": {"Text": {"text": {"literalString": "OPTIONS"}, "usageHint": "h2"}}}, {"id": "options_list", "component": {"List": {"children": {"explicitList": ["card_1", "card_2", "card_3"]}, "direction": "vertical"}}}, {"id": "card_1", "component": {"Card": {"child": "card_col_1"}}}, {"id": "card_col_1", "component": {"Column": {"children": {"explicitList": ["c1_title", "c1_desc", "c1_meta"]}}}}, {"id": "c1_title", "component": {"Text": {"text": {"literalString": "Nike Invincible 3"}, "usageHint": "h4"}}}, {"id": "c1_desc", "component": {"Text": {"text": {"literalString": "Features a massive slab of ZoomX foam for maximum energy return and impact protection."}, "usageHint": "body"}}}, {"id": "c1_meta", "component": {"Text": {"text": {"literalString": "Released: 2023 | Drop: 9mm"}, "usageHint": "caption"}}}, {"id": "card_2", "component": {"Card": {"child": "card_col_2"}}}, {"id": "card_col_2", "component": {"Column": {"children": {"explicitList": ["c2_title", "c2_desc", "c2_meta"]}}}}, {"id": "c2_title", "component": {"Text": {"text": {"literalString": "Saucony Triumph 21"}, "usageHint": "h4"}}}, {"id": "c2_desc", "component": {"Text": {"text": {"literalString": "A premium neutral trainer using PWRRUN+ foam for a plush, springy feel."}, "usageHint": "body"}}}, {"id": "c2_meta", "component": {"Text": {"text": {"literalString": "Released: 2023 | Drop: 10mm"}, "usageHint": "caption"}}}, {"id": "card_3", "component": {"Card": {"child": "card_col_3"}}}, {"id": "card_col_3", "component": {"Column": {"children": {"explicitList": ["c3_title", "c3_desc", "c3_meta"]}}}}, {"id": "c3_title", "component": {"Text": {"text": {"literalString": "Brooks Glycerin 21"}, "usageHint": "h4"}}}, {"id": "c3_desc", "component": {"Text": {"text": {"literalString": "Uses nitrogen-infused DNA LOFT v3 for a soft, lightweight ride."}, "usageHint": "body"}}}, {"id": "c3_meta", "component": {"Text": {"text": {"literalString": "Released: 2024 | Drop: 10mm"}, "usageHint": "caption"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "table_title", "component": {"Text": {"text": {"literalString": "COMPARISON TABLE"}, "usageHint": "h2"}}}, {"id": "table_header", "component": {"Row": {"children": {"explicitList": ["th1", "th2", "th3", "th4"]}}}}, {"id": "th1", "component": {"Text": {"text": {"literalString": "Model"}, "usageHint": "caption"}}}, {"id": "th2", "component": {"Text": {"text": {"literalString": "Cushion"}, "usageHint": "caption"}}}, {"id": "th3", "component": {"Text": {"text": {"literalString": "Weight"}, "usageHint": "caption"}}}, {"id": "th4", "component": {"Text": {"text": {"literalString": "Drop"}, "usageHint": "caption"}}}, {"id": "table_row_1", "component": {"Row": {"children": {"explicitList": ["r1c1", "r1c2", "r1c3", "r1c4"]}}}}, {"id": "r1c1", "component": {"Text": {"text": {"literalString": "Nike Invincible 3"}, "usageHint": "body"}}}, {"id": "r1c2", "component": {"Text": {"text": {"literalString": "Max"}, "usageHint": "body"}}}, {"id": "r1c3", "component": {"Text": {"text": {"literalString": "310g"}, "usageHint": "body"}}}, {"id": "r1c4", "component": {"Text": {"text": {"literalString": "9mm"}, "usageHint": "body"}}}, {"id": "table_row_2", "component": {"Row": {"children": {"explicitList": ["r2c1", "r2c2", "r2c3", "r2c4"]}}}}, {"id": "r2c1", "component": {"Text": {"text": {"literalString": "Saucony Triumph 21"}, "usageHint": "body"}}}, {"id": "r2c2", "component": {"Text": {"text": {"literalString": "Max"}, "usageHint": "body"}}}, {"id": "r2c3", "component": {"Text": {"text": {"literalString": "279g"}, "usageHint": "body"}}}, {"id": "r2c4", "component": {"Text": {"text": {"literalString": "10mm"}, "usageHint": "body"}}}, {"id": "table_row_3", "component": {"Row": {"children": {"explicitList": ["r3c1", "r3c2", "r3c3", "r3c4"]}}}}, {"id": "r3c1", "component": {"Text": {"text": {"literalString": "Brooks Glycerin 21"}, "usageHint": "body"}}}, {"id": "r3c2", "component": {"Text": {"text": {"literalString": "Max"}, "usageHint": "body"}}}, {"id": "r3c3", "component": {"Text": {"text": {"literalString": "278g"}, "usageHint": "body"}}}, {"id": "r3c4", "component": {"Text": {"text": {"literalString": "10mm"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "action_row", "component": {"Row": {"children": {"explicitList": ["quiz_btn"]}, "distribution": "center"}}}, {"id": "quiz_btn", "component": {"Button": {"child": "quiz_btn_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/wizard"}}]}, "primary": true}}}, {"id": "quiz_btn_text", "component": {"Text": {"text": {"literalString": "Shoe Finder Quiz"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000127"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000127", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "btn_4", "icon_row_5", "icon_row_6"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "SUMMARY\nFor high arches and marathon distances, a neutral shoe with significant cushioning is essential to absorb impact and provide a stable platform without over-correcting your gait."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "OPTIONS\nOption 1: Nike Invincible 3 | Features a massive slab of ZoomX foam for maximum energy return and impact protection. | Released: 2023 | Drop: 9mm\nOption 2: Saucony Triumph 21 | A premium neutral trainer using PWRRUN+ foam for a plush, springy feel. | Released: 2023 | Drop: 10mm\nOption 3: Brooks Glycerin 21 | Uses nitrogen-infused DNA LOFT v3 for a soft, lightweight ride. | Released: 2024 | Drop: 10mm"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "COMPARISON TABLE\nModel | Cushion Level | Weight (Men's 9) | Heel-to-Toe Drop\nNike Invincible 3 | Max | 310g | 9mm\nSaucony Triumph 21 | Max | 279g | 10mm\nBrooks Glycerin 21 | Max | 278g | 10mm"}, "usageHint": "body"}}}, {"id": "btn_label_4", "component": {"Text": {"text": {"literalString": "Shoe Finder Quiz"}, "usageHint": "body"}}}, {"id": "btn_4", "component": {"Button": {"child": "btn_label_4", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.runningshoesguru.com/wizard/"}}]}, "primary": true}}}, {"id": "icon_img_5", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/running-shoes.png"}, "usageHint": "icon"}}}, {"id": "icon_label_5", "component": {"Text": {"text": {"literalString": "Shoe"}, "usageHint": "body"}}}, {"id": "icon_row_5", "component": {"Row": {"children": {"explicitList": ["icon_img_5", "icon_label_5"]}, "alignment": "center"}}}, {"id": "icon_img_6", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/marathon.png"}, "usageHint": "icon"}}}, {"id": "icon_label_6", "component": {"Text": {"text": {"literalString": "Distance"}, "usageHint": "body"}}}, {"id": "icon_row_6", "component": {"Row": {"children": {"explicitList": ["icon_img_6", "icon_label_6"]}, "alignment": "center"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

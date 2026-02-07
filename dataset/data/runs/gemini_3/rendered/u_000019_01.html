@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "film_noir_recommendations"}}, {"surfaceUpdate": {"surfaceId": "film_noir_recommendations", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_text", "movie_list", "footer_divider", "action_row"]}, "alignment": "stretch"}}}, {"id": "header_text", "component": {"Text": {"text": {"literalString": "FILM NOIR RECOMMENDATIONS (1940s)"}, "usageHint": "h2"}}}, {"id": "movie_list", "component": {"Column": {"children": {"explicitList": ["card_murder", "card_laura"]}}}}, {"id": "card_murder", "component": {"Card": {"child": "content_murder"}}}, {"id": "content_murder", "component": {"Column": {"children": {"explicitList": ["img_murder", "title_murder", "meta_murder", "desc_murder"]}}}}, {"id": "img_murder", "component": {"Image": {"url": {"literalString": "/images/murder_my_sweet.jpg"}, "usageHint": "mediumFeature", "fit": "cover"}}}, {"id": "title_murder", "component": {"Text": {"text": {"literalString": "Option 1: Murder, My Sweet"}, "usageHint": "h4"}}}, {"id": "meta_murder", "component": {"Text": {"text": {"literalString": "Director: Edward Dmytryk | 1944 | 95 minutes"}, "usageHint": "caption"}}}, {"id": "desc_murder", "component": {"Text": {"text": {"literalString": "A quintessential noir featuring private detective Philip Marlowe (Dick Powell) as he is hired by an ex-con to find a former girlfriend, leading into a web of complex deception and high-contrast shadows."}, "usageHint": "body"}}}, {"id": "card_laura", "component": {"Card": {"child": "content_laura"}}}, {"id": "content_laura", "component": {"Column": {"children": {"explicitList": ["img_laura", "title_laura", "meta_laura", "desc_laura"]}}}}, {"id": "img_laura", "component": {"Image": {"url": {"literalString": "/images/laura_1944.jpg"}, "usageHint": "mediumFeature", "fit": "cover"}}}, {"id": "title_laura", "component": {"Text": {"text": {"literalString": "Option 2: Laura"}, "usageHint": "h4"}}}, {"id": "meta_laura", "component": {"Text": {"text": {"literalString": "Director: Otto Preminger | 1944 | 88 minutes"}, "usageHint": "caption"}}}, {"id": "desc_laura", "component": {"Text": {"text": {"literalString": "Detective Mark McPherson investigates the murder of a beautiful advertising executive, only to fall in love with her portrait amidst striking black-and-white cinematography."}, "usageHint": "body"}}}, {"id": "footer_divider", "component": {"Divider": {}}}, {"id": "action_row", "component": {"Row": {"children": {"explicitList": ["btn_imdb"]}, "distribution": "start"}}}, {"id": "btn_imdb", "component": {"Button": {"child": "btn_imdb_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.imdb.com/list/ls059139453/"}}]}, "primary": true}}}, {"id": "btn_imdb_text", "component": {"Text": {"text": {"literalString": "View on IMDb"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000019"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000019", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "btn_4", "icon_row_5", "icon_row_6"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "FILM NOIR RECOMMENDATIONS (1940s)"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Option 1: Murder, My Sweet\n- Director: Edward Dmytryk\n- Year: 1944\n- Runtime: 95 minutes\n- Summary: A quintessential noir featuring private detective Philip Marlowe (Dick Powell) as he is hired by an ex-con to find a former girlfriend, leading into a web of complex deception and high-contrast shadows."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Option 2: Laura\n- Director: Otto Preminger\n- Year: 1944\n- Runtime: 88 minutes\n- Summary: While the protagonist is a police detective rather than a private eye, it fits the requested aesthetic perfectly. Detective Mark McPherson investigates the murder of a beautiful advertising executive, only to fall in love with her portrait amidst striking black-and-white cinematography."}, "usageHint": "body"}}}, {"id": "btn_label_4", "component": {"Text": {"text": {"literalString": "View on IMDb"}, "usageHint": "body"}}}, {"id": "btn_4", "component": {"Button": {"child": "btn_label_4", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.imdb.com/list/ls059139453/"}}]}, "primary": true}}}, {"id": "icon_img_5", "component": {"Image": {"url": {"literalString": "https://example.com/images/murder_my_sweet.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_5", "component": {"Text": {"text": {"literalString": "Murder, My Sweet Poster"}, "usageHint": "body"}}}, {"id": "icon_row_5", "component": {"Row": {"children": {"explicitList": ["icon_img_5", "icon_label_5"]}, "alignment": "center"}}}, {"id": "icon_img_6", "component": {"Image": {"url": {"literalString": "https://example.com/images/laura_1944.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_6", "component": {"Text": {"text": {"literalString": "Laura Poster"}, "usageHint": "body"}}}, {"id": "icon_row_6", "component": {"Row": {"children": {"explicitList": ["icon_img_6", "icon_label_6"]}, "alignment": "center"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

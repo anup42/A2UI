@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "techgear-sales-analysis-2023"}}, {"surfaceUpdate": {"surfaceId": "techgear-sales-analysis-2023", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_row", "data_card", "analysis_card", "summary_card"]}, "alignment": "stretch"}}}, {"id": "header_row", "component": {"Row": {"children": {"explicitList": ["revenue_icon", "title_text"]}, "distribution": "start", "alignment": "center"}}}, {"id": "revenue_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000015_01_2_sales-performance.png"}, "usageHint": "icon"}}}, {"id": "title_text", "component": {"Text": {"text": {"literalString": "TECHGEAR CORP 2023 SALES ANALYSIS"}, "usageHint": "h2"}}}, {"id": "data_card", "component": {"Card": {"child": "data_col"}}}, {"id": "data_col", "component": {"Column": {"children": {"explicitList": ["data_header", "q1_text", "q2_text", "q3_text", "q4_text"]}}}}, {"id": "data_header", "component": {"Text": {"text": {"literalString": "QUARTERLY DATA"}, "usageHint": "h3"}}}, {"id": "q1_text", "component": {"Text": {"text": {"literalString": "- Q1: $1.2M"}, "usageHint": "body"}}}, {"id": "q2_text", "component": {"Text": {"text": {"literalString": "- Q2: $1.5M"}, "usageHint": "body"}}}, {"id": "q3_text", "component": {"Text": {"text": {"literalString": "- Q3: $1.1M"}, "usageHint": "body"}}}, {"id": "q4_text", "component": {"Text": {"text": {"literalString": "- Q4: $2.3M"}, "usageHint": "body"}}}, {"id": "analysis_card", "component": {"Card": {"child": "analysis_col"}}}, {"id": "analysis_col", "component": {"Column": {"children": {"explicitList": ["analysis_header", "chg1_text", "chg2_text", "chg3_text"]}}}}, {"id": "analysis_header", "component": {"Text": {"text": {"literalString": "PERCENTAGE CHANGE ANALYSIS"}, "usageHint": "h3"}}}, {"id": "chg1_text", "component": {"Text": {"text": {"literalString": "- Q2 vs Q1: 25.0% Increase"}, "usageHint": "body"}}}, {"id": "chg2_text", "component": {"Text": {"text": {"literalString": "- Q3 vs Q2: 26.7% Decrease"}, "usageHint": "body"}}}, {"id": "chg3_text", "component": {"Text": {"text": {"literalString": "- Q4 vs Q3: 109.1% Increase"}, "usageHint": "body"}}}, {"id": "summary_card", "component": {"Card": {"child": "summary_col"}}}, {"id": "summary_col", "component": {"Column": {"children": {"explicitList": ["summary_header", "summary_content_row", "recommendation_text"]}}}}, {"id": "summary_header", "component": {"Text": {"text": {"literalString": "SUMMARY"}, "usageHint": "h3"}}}, {"id": "summary_content_row", "component": {"Row": {"children": {"explicitList": ["growth_icon", "summary_desc"]}, "alignment": "start"}}}, {"id": "growth_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000015_01_1_line-chart.png"}, "usageHint": "icon"}}}, {"id": "summary_desc", "component": {"Text": {"text": {"literalString": "Largest Percentage Increase: Q4 saw the largest jump, growing by 109.1% compared to Q3."}, "usageHint": "body"}}}, {"id": "recommendation_text", "component": {"Text": {"text": {"literalString": "Recommended Chart: A Line Chart is best to visualize the growth trend over time, or a Waterfall Chart to show the specific gains and losses between quarters."}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000015"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000015", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "TECHGEAR CORP 2023 SALES ANALYSIS\n\nQUARTERLY DATA\n- Q1: $1.2M\n- Q2: $1.5M\n- Q3: $1.1M\n- Q4: $2.3M\n\nPERCENTAGE CHANGE ANALYSIS\n- Q2 vs Q1: 25.0% Increase\n- Q3 vs Q2: 26.7% Decrease\n- Q4 vs Q3: 109.1% Increase\n\nSUMMARY\n- Largest Percentage Increase: Q4 saw the largest jump, growing by 109.1% compared to Q3.\n- Recommended Chart: A Line Chart is best to visualize the growth trend over time, or a Waterfall Chart to show the specific gains and losses between quarters.\n\nICONS\n- Growth: /assets/r_000015_01_1_line-chart.png\n- Revenue: /assets/r_000015_01_2_sales-performance.png"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

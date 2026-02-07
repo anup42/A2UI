@@ -1,0 +1,8 @@
+{
+  "stamp": "20260206_184932",
+  "source_run": "gemini_2_5_flash_lite",
+  "n_responses": 80,
+  "n_queries": 80,
+  "run_on": "ab_json_on_20260206_184932",
+  "run_off": "ab_json_off_20260206_184932"
+}

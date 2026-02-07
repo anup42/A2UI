@@ -1,0 +1,7 @@
+2026-02-07 01:03:22 INFO dataset: AB model compare start run_id=ab_model_g3pro20_20260206_190843 model_name=gemini_3_pro model=gemini-3-pro-preview
+2026-02-07 01:25:34 ERROR dataset: Stage3 error response_id=r_000001_01: batch_timeout
+2026-02-07 01:25:34 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_model_g3pro20_20260206_190843\aggregates.json
+2026-02-07 02:06:57 ERROR dataset: Stage3 error response_id=r_000001_01: <urlopen error [WinError 10054] An existing connection was forcibly closed by the remote host>
+2026-02-07 02:06:57 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_model_g3pro20_20260206_190843\aggregates.json
+2026-02-07 04:32:15 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your Google project tier'} headers=none
+2026-02-07 04:32:15 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_model_g3pro20_20260206_190843\aggregates.json

@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "star-wars-trivia-surface"}}, {"surfaceUpdate": {"surfaceId": "star-wars-trivia-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_text", "trivia_tabs", "footer_divider", "play_button"]}, "alignment": "stretch"}}}, {"id": "header_text", "component": {"Text": {"text": {"literalString": "STAR WARS ORIGINAL TRILOGY TRIVIA"}, "usageHint": "h4"}}}, {"id": "trivia_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Easy"}, "child": "easy_col"}, {"title": {"literalString": "Medium"}, "child": "medium_col"}, {"title": {"literalString": "Hard"}, "child": "hard_col"}, {"title": {"literalString": "Answers"}, "child": "answers_col"}]}}}, {"id": "easy_col", "component": {"Column": {"children": {"explicitList": ["q1", "q2", "q3", "q4", "q5"]}}}}, {"id": "q1", "component": {"Text": {"text": {"literalString": "1. What is the name of Han Solo's iconic ship?"}, "usageHint": "body"}}}, {"id": "q2", "component": {"Text": {"text": {"literalString": "2. Which planet is the home of Luke Skywalker and his Aunt Beru and Uncle Owen?"}, "usageHint": "body"}}}, {"id": "q3", "component": {"Text": {"text": {"literalString": "3. Who is revealed to be Luke Skywalker's father in 'The Empire Strikes Back'?"}, "usageHint": "body"}}}, {"id": "q4", "component": {"Text": {"text": {"literalString": "4. What color is Luke Skywalker's lightsaber in 'A New Hope'?"}, "usageHint": "body"}}}, {"id": "q5", "component": {"Text": {"text": {"literalString": "5. What is the name of the small, furry creatures that help the Rebels on Endor?"}, "usageHint": "body"}}}, {"id": "medium_col", "component": {"Column": {"children": {"explicitList": ["q6", "q7", "q8", "q9", "q10"]}}}}, {"id": "q6", "component": {"Text": {"text": {"literalString": "6. Who was the original owner of the Millennium Falcon before Han Solo won it in a game of Sabacc?"}, "usageHint": "body"}}}, {"id": "q7", "component": {"Text": {"text": {"literalString": "7. What is the name of the bounty hunter who captures Han Solo in 'The Empire Strikes Back'?"}, "usageHint": "body"}}}, {"id": "q8", "component": {"Text": {"text": {"literalString": "8. Which Rebel pilot is the only one to survive the attacks on both Death Stars?"}, "usageHint": "body"}}}, {"id": "q9", "component": {"Text": {"text": {"literalString": "9. What is the name of the monster Luke fights in the pit beneath Jabba the Hutt's palace?"}, "usageHint": "body"}}}, {"id": "q10", "component": {"Text": {"text": {"literalString": "10. On which moon is the shield generator located that protects the second Death Star?"}, "usageHint": "body"}}}, {"id": "hard_col", "component": {"Column": {"children": {"explicitList": ["q11", "q12", "q13", "q14", "q15"]}}}}, {"id": "q11", "component": {"Text": {"text": {"literalString": "11. What is the number of the trash compactor Luke, Leia, and Han get stuck in?"}, "usageHint": "body"}}}, {"id": "q12", "component": {"Text": {"text": {"literalString": "12. Who is the actor inside the R2-D2 suit throughout the original trilogy?"}, "usageHint": "body"}}}, {"id": "q13", "component": {"Text": {"text": {"literalString": "13. What is the name of the medical droid that treats Luke after the Wampa attack on Hoth?"}, "usageHint": "body"}}}, {"id": "q14", "component": {"Text": {"text": {"literalString": "14. How many languages is C-3PO fluent in?"}, "usageHint": "body"}}}, {"id": "q15", "component": {"Text": {"text": {"literalString": "15. What was the original subtitle/title for 'Return of the Jedi' before it was changed?"}, "usageHint": "body"}}}, {"id": "answers_col", "component": {"Column": {"children": {"explicitList": ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12", "a13", "a14", "a15"]}}}}, {"id": "a1", "component": {"Text": {"text": {"literalString": "1. The Millennium Falcon"}, "usageHint": "caption"}}}, {"id": "a2", "component": {"Text": {"text": {"literalString": "2. Tatooine"}, "usageHint": "caption"}}}, {"id": "a3", "component": {"Text": {"text": {"literalString": "3. Darth Vader"}, "usageHint": "caption"}}}, {"id": "a4", "component": {"Text": {"text": {"literalString": "4. Blue"}, "usageHint": "caption"}}}, {"id": "a5", "component": {"Text": {"text": {"literalString": "5. Ewoks"}, "usageHint": "caption"}}}, {"id": "a6", "component": {"Text": {"text": {"literalString": "6. Lando Calrissian"}, "usageHint": "caption"}}}, {"id": "a7", "component": {"Text": {"text": {"literalString": "7. Boba Fett"}, "usageHint": "caption"}}}, {"id": "a8", "component": {"Text": {"text": {"literalString": "8. Wedge Antilles"}, "usageHint": "caption"}}}, {"id": "a9", "component": {"Text": {"text": {"literalString": "9. The Rancor"}, "usageHint": "caption"}}}, {"id": "a10", "component": {"Text": {"text": {"literalString": "10. The Forest Moon of Endor"}, "usageHint": "caption"}}}, {"id": "a11", "component": {"Text": {"text": {"literalString": "11. 3263827"}, "usageHint": "caption"}}}, {"id": "a12", "component": {"Text": {"text": {"literalString": "12. Kenny Baker"}, "usageHint": "caption"}}}, {"id": "a13", "component": {"Text": {"text": {"literalString": "13. 2-1B"}, "usageHint": "caption"}}}, {"id": "a14", "component": {"Text": {"text": {"literalString": "14. Over six million forms of communication"}, "usageHint": "caption"}}}, {"id": "a15", "component": {"Text": {"text": {"literalString": "15. Revenge of the Jedi"}, "usageHint": "caption"}}}, {"id": "footer_divider", "component": {"Divider": {}}}, {"id": "play_button", "component": {"Button": {"child": "play_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000030_01_1_games-apps.bin"}}]}, "primary": true}}}, {"id": "play_button_text", "component": {"Text": {"text": {"literalString": "Play Online Trivia"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000030"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000030", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "btn_6"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "STAR WARS ORIGINAL TRILOGY TRIVIA (EPISODES IV, V, VI)"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "EASY QUESTIONS\n1. What is the name of Han Solo's iconic ship?\n2. Which planet is the home of Luke Skywalker and his Aunt Beru and Uncle Owen?\n3. Who is revealed to be Luke Skywalker's father in 'The Empire Strikes Back'?\n4. What color is Luke Skywalker's lightsaber in 'A New Hope'?\n5. What is the name of the small, furry creatures that help the Rebels on Endor?"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "MEDIUM QUESTIONS\n6. Who was the original owner of the Millennium Falcon before Han Solo won it in a game of Sabacc?\n7. What is the name of the bounty hunter who captures Han Solo in 'The Empire Strikes Back'?\n8. Which Rebel pilot is the only one to survive the attacks on both Death Stars?\n9. What is the name of the monster Luke fights in the pit beneath Jabba the Hutt's palace?\n10. On which moon is the shield generator located that protects the second Death Star?"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "HARD QUESTIONS\n11. What is the number of the trash compactor Luke, Leia, and Han get stuck in?\n12. Who is the actor inside the R2-D2 suit throughout the original trilogy?\n13. What is the name of the medical droid that treats Luke after the Wampa attack on Hoth?\n14. How many languages is C-3PO fluent in?\n15. What was the original subtitle/title for 'Return of the Jedi' before it was changed?"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "ANSWER KEY\n1. The Millennium Falcon\n2. Tatooine\n3. Darth Vader\n4. Blue\n5. Ewoks\n6. Lando Calrissian\n7. Boba Fett\n8. Wedge Antilles\n9. The Rancor\n10. The Forest Moon of Endor\n11. 3263827\n12. Kenny Baker\n13. 2-1B\n14. Over six million forms of communication\n15. Revenge of the Jedi"}, "usageHint": "body"}}}, {"id": "btn_label_6", "component": {"Text": {"text": {"literalString": "Play Online Trivia"}, "usageHint": "body"}}}, {"id": "btn_6", "component": {"Button": {"child": "btn_label_6", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.starwars.com/games-apps"}}]}, "primary": true}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

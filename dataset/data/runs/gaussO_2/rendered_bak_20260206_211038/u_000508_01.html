@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "ancient_egypt_exhibition"}}, {"surfaceUpdate": {"surfaceId": "ancient_egypt_exhibition", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "schedule_list"]}}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "Official opening day schedule for the Ancient Egypt exhibition in Cairo"}, "usageHint": "h2"}}}, {"id": "schedule_list", "component": {"List": {"children": {"explicitList": ["ribbon_cutting", "tour_a", "lecture", "lunch", "tour_b", "documentary", "reception"]}, "direction": "vertical"}}}, {"id": "ribbon_cutting", "component": {"Row": {"children": {"explicitList": ["ribbon_cutting_icon", "ribbon_cutting_text"]}}}}, {"id": "ribbon_cutting_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000508_01_2_museum.png"}, "usageHint": "icon"}}}, {"id": "ribbon_cutting_text", "component": {"Text": {"text": {"literalString": "09:00 - 10:00: Ribbon Cutting Ceremony (Duration: 60 mins)"}, "usageHint": "body"}}}, {"id": "tour_a", "component": {"Row": {"children": {"explicitList": ["tour_a_icon", "tour_a_text"]}}}}, {"id": "tour_a_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000508_01_2_museum.png"}, "usageHint": "icon"}}}, {"id": "tour_a_text", "component": {"Text": {"text": {"literalString": "10:00 - 11:30: Guided Tour A - The Old Kingdom (Duration: 90 mins)"}, "usageHint": "body"}}}, {"id": "lecture", "component": {"Row": {"children": {"explicitList": ["lecture_icon", "lecture_text"]}}}}, {"id": "lecture_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000508_01_3_scroll.png"}, "usageHint": "icon"}}}, {"id": "lecture_text", "component": {"Text": {"text": {"literalString": "11:30 - 13:00: Lecture on Hieroglyphs and Scribes (Duration: 90 mins)"}, "usageHint": "body"}}}, {"id": "lunch", "component": {"Row": {"children": {"explicitList": ["lunch_icon", "lunch_text"]}}}}, {"id": "lunch_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000252_01_3_restaurant.png"}, "usageHint": "icon"}}}, {"id": "lunch_text", "component": {"Text": {"text": {"literalString": "13:00 - 14:30: Lunch at Museum Cafe (Duration: 90 mins)"}, "usageHint": "body"}}}, {"id": "tour_b", "component": {"Row": {"children": {"explicitList": ["tour_b_icon", "tour_b_text"]}}}}, {"id": "tour_b_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000508_01_2_museum.png"}, "usageHint": "icon"}}}, {"id": "tour_b_text", "component": {"Text": {"text": {"literalString": "14:30 - 16:00: Guided Tour B - The New Kingdom (Duration: 90 mins)"}, "usageHint": "body"}}}, {"id": "documentary", "component": {"Row": {"children": {"explicitList": ["documentary_icon", "documentary_text"]}}}}, {"id": "documentary_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000508_01_3_scroll.png"}, "usageHint": "icon"}}}, {"id": "documentary_text", "component": {"Text": {"text": {"literalString": "16:00 - 18:00: Documentary Screening: Secrets of the Pyramids (Duration: 120 mins)"}, "usageHint": "body"}}}, {"id": "reception", "component": {"Row": {"children": {"explicitList": ["reception_icon", "reception_text"]}}}}, {"id": "reception_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000252_01_3_restaurant.png"}, "usageHint": "icon"}}}, {"id": "reception_text", "component": {"Text": {"text": {"literalString": "18:00 - 20:00: Private Reception and Curator Meet-and-Greet (Duration: 120 mins)"}, "usageHint": "body"}}}, {"id": "quick_actions", "component": {"Row": {"children": {"explicitList": ["book_tickets", "view_map"]}}}}, {"id": "book_tickets", "component": {"Button": {"child": "book_tickets_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.visit-egypt.com/museum-tickets"}}]}}}}, {"id": "book_tickets_text", "component": {"Text": {"text": {"literalString": "Book Tickets"}, "usageHint": "body"}}}, {"id": "view_map", "component": {"Button": {"child": "view_map_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.visit-egypt.com/museum-floorplan"}}]}}}}, {"id": "view_map_text", "component": {"Text": {"text": {"literalString": "View Map"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "modern-board-games-top-5"}}, {"surfaceUpdate": {"surfaceId": "modern-board-games-top-5", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-text", "summary-text", "divider-1", "games-list", "divider-2", "footer-row"]}, "alignment": "stretch"}}}, {"id": "header-text", "component": {"Text": {"text": {"literalString": "Top 5 Modern Board Games"}, "usageHint": "h2"}}}, {"id": "summary-text", "component": {"Text": {"text": {"literalString": "Excluding traditional classics like Chess, these are five of the most influential and high-selling modern board games that have defined the hobby."}, "usageHint": "body"}}}, {"id": "divider-1", "component": {"Divider": {}}}, {"id": "games-list", "component": {"Column": {"children": {"explicitList": ["game-1", "game-2", "game-3", "game-4", "game-5"]}}}}, {"id": "game-1", "component": {"Text": {"text": {"literalString": "1. Catan (1995)"}, "usageHint": "body"}}}, {"id": "game-2", "component": {"Text": {"text": {"literalString": "2. Ticket to Ride (2004)"}, "usageHint": "body"}}}, {"id": "game-3", "component": {"Text": {"text": {"literalString": "3. Pandemic (2008)"}, "usageHint": "body"}}}, {"id": "game-4", "component": {"Text": {"text": {"literalString": "4. 7 Wonders (2010)"}, "usageHint": "body"}}}, {"id": "game-5", "component": {"Text": {"text": {"literalString": "5. Gloomhaven (2017)"}, "usageHint": "body"}}}, {"id": "divider-2", "component": {"Divider": {}}}, {"id": "footer-row", "component": {"Text": {"text": {"literalString": "Data based on historical sales and BGG rankings."}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000137"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000137", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "icon_row_3", "text_4", "text_5"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Summary:\nExcluding traditional classics like Chess, these are five of the most influential and high-selling modern board games that have defined the hobby."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Top 5 Modern Board Games:\n1. Catan | Players collect and trade resources to build settlements and roads on a modular island board.\n2. Ticket to Ride | A cross-country train adventure where players collect cards to claim railway routes connecting North American cities.\n3. Pandemic | A cooperative game where players work as a team of specialists to find cures for four diseases before a global outbreak occurs.\n4. Carcassonne | A tile-placement game where players draw and place tiles to build a medieval landscape of walled cities, monasteries, and roads.\n5. 7 Wonders | A card-drafting game where players lead one of the seven great cities of the Ancient World through three developmental ages."}, "usageHint": "body"}}}, {"id": "icon_img_3", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/color/48/strategy.png"}, "usageHint": "icon"}}}, {"id": "icon_label_3", "component": {"Text": {"text": {"literalString": "Strategy"}, "usageHint": "body"}}}, {"id": "icon_row_3", "component": {"Row": {"children": {"explicitList": ["icon_img_3", "icon_label_3"]}, "alignment": "center"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "- Family: /assets/r_000137_01_2_family.png"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "- https://boardgamegeek.com/browse/boardgame"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

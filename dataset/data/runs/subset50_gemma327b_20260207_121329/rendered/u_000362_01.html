@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000362"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000362", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "text_10", "text_11", "text_12", "text_13", "btn_14", "btn_15", "btn_16", "btn_17"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\n  - The trip dates 2025-05-15 to 2025-05-20 imply 5 full days of activities (May 15th, 16th, 17th, 18th, 19th), with May 20th being a departure day. The itinerary covers these 5 activity days.\n  - The budget of $50 per person per meal is for a main course and perhaps a drink/side, not including very expensive extras or alcohol.\n  - Travel within Tokyo will primarily be via its efficient public transport system (trains/subways)."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Your 5-day Tokyo itinerary focusing on Shinjuku and Shibuya is outlined below, along with restaurant recommendations."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Tokyo 5-Day Itinerary: Shinjuku & Shibuya Focus"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Day-by-Day Plan:\nDay 1: Thursday, May 15, 2025 - Shinjuku Arrival & Gardens\n  Morning: Arrive in Tokyo, check into your accommodation in Shinjuku or Shibuya.\n  Afternoon: Shinjuku Gyoen National Garden - Enjoy a peaceful stroll through this beautiful imperial garden.\n  Late Afternoon: Tokyo Metropolitan Government Building - Head to the free observation decks for panoramic views of Tokyo.\n  Evening: Dinner in Shinjuku. Explore Shinjuku Golden Gai or Omoide Yokocho (Piss Alley) for a glimpse into traditional Tokyo nightlife and small eateries (for atmosphere, not necessarily dinner)."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Day 2: Friday, May 16, 2025 - Shibuya Icons & Views\n  Morning: Shibuya Crossing & Hachiko Statue - Experience the iconic scramble crossing and meet the famous loyal dog statue.\n  Afternoon: Shibuya Sky - Ascend to the rooftop observation deck for breathtaking 360-degree views of the city. Explore Shibuya Center Gai for trendy shops.\n  Evening: Dinner in Shibuya. Enjoy shopping around Shibuya 109 and other department stores."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Day 3: Saturday, May 17, 2025 - Shinjuku Shopping & Culture\n  Morning: Shinjuku Shopping Spree - Explore major department stores like Isetan, Takashimaya Times Square, and Lumine EST for a mix of high-end and trendy Japanese fashion.\n  Afternoon: Samurai Museum (optional) - Immerse yourself in the history of the samurai. Alternatively, explore the quieter side streets of Shinjuku.\n  Evening: Dinner in Shinjuku. Discover the vibrant atmosphere of Kabukicho (Shinjuku's entertainment district) without necessarily engaging in its nightlife."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Day 4: Sunday, May 18, 2025 - Harajuku Fashion & Meiji Jingu\n  Morning: Meiji Jingu Shrine - Visit this serene Shinto shrine dedicated to Emperor Meiji and Empress Shoken, located in a large forested area.\n  Afternoon: Harajuku Exploration - Dive into Takeshita Street for quirky fashion and sweets, then stroll Omotesando for upscale boutiques and cafes. Wander down Cat Street for unique finds.\n  Evening: Dinner in Harajuku or return to Shibuya/Shinjuku. Consider a themed cafe experience if interested."}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "Day 5: Monday, May 19, 2025 - Modern Art & Departure Prep\n  Morning: TeamLab Planets TOKYO (Toyosu) - Experience an immersive digital art museum. (Note: This requires a short train ride from Shinjuku/Shibuya to Toyosu. Book tickets in advance.)\n  Afternoon: Last-minute Souvenir Shopping & Packing - Grab any final gifts or items you might have missed in Shinjuku or Shibuya.\n  Evening: Farewell Dinner - Enjoy a final memorable meal in one of your favorite districts."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "Restaurant Recommendations (Budget: ~$50 per person per meal)"}, "usageHint": "body"}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "These are EXAMPLE recommendations. Prices and availability can vary.\nTo verify live info: Check restaurant websites or use booking platforms like TableCheck, Hot Pepper Gourmet, or OpenTable for current menus, prices, and reservations."}, "usageHint": "body"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "Restaurant 1: Afuri Ramen\n  Summary: Famous for its refreshing yuzu-scented broth, Afuri offers a lighter, yet flavorful ramen experience.\n  Key attribute: Yuzu Shio Ramen, typically under $15 per person.\n  Link: EXAMPLE: https://afuri.com/"}, "usageHint": "body"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "Restaurant 2: Katsukura Shinjuku Takashimaya\n  Summary: A highly-regarded tonkatsu (fried pork cutlet) restaurant offering premium pork, which you grind your own sesame seeds for the sauce.\n  Key attribute: High-quality Tonkatsu sets, around $20-$30 per person.\n  Link: EXAMPLE: https://www.katsukura.jp/"}, "usageHint": "body"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "Restaurant 3: Uobei Sushi (Shibuya)\n  Summary: A lively and modern conveyor-belt sushi restaurant where orders are placed via touch screen and delivered directly to your table on a high-speed lane.\n  Key attribute: Fresh, affordable sushi delivered fast, typically under $20 per person.\n  Link: EXAMPLE: https://www.genkisushi.co.jp/uobei/"}, "usageHint": "body"}}}, {"id": "btn_label_14", "component": {"Text": {"text": {"literalString": "Book Flights to Tokyo"}, "usageHint": "body"}}}, {"id": "btn_14", "component": {"Button": {"child": "btn_label_14", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.google.com/flights"}}]}, "primary": true}}}, {"id": "btn_label_15", "component": {"Text": {"text": {"literalString": "Find Hotels in Shinjuku/Shibuya"}, "usageHint": "body"}}}, {"id": "btn_15", "component": {"Button": {"child": "btn_label_15", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.booking.com/city/jp/tokyo.html"}}]}, "primary": true}}}, {"id": "btn_label_16", "component": {"Text": {"text": {"literalString": "Explore Tokyo Metro Pass"}, "usageHint": "body"}}}, {"id": "btn_16", "component": {"Button": {"child": "btn_label_16", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.tokyometro.jp/en/ticket/travel/"}}]}, "primary": true}}}, {"id": "btn_label_17", "component": {"Text": {"text": {"literalString": "Reserve TeamLab Tickets"}, "usageHint": "body"}}}, {"id": "btn_17", "component": {"Button": {"child": "btn_label_17", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://planets.teamlab.art/tokyo/"}}]}, "primary": true}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

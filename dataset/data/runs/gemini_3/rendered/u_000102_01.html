@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "karaoke-guide"}}, {"surfaceUpdate": {"surfaceId": "karaoke-guide", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_image", "summary_text", "divider_1", "list_title", "song_list"]}, "alignment": "stretch"}}}, {"id": "header_image", "component": {"Image": {"url": {"literalString": "/assets/r_000102_01_1_photo-1516280440614-37939bbacd81.jpg"}, "usageHint": "header", "fit": "cover"}}}, {"id": "summary_text", "component": {"Text": {"text": {"path": "/summary"}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "list_title", "component": {"Text": {"text": {"literalString": "KARAOKE OPTIONS FOR NON-SINGERS"}, "usageHint": "h3"}}}, {"id": "song_list", "component": {"List": {"children": {"explicitList": {"componentId": "song_card", "path": "/songs"}}, "direction": "vertical"}}}, {"id": "song_card", "component": {"Card": {"child": "song_item_layout"}}}, {"id": "song_item_layout", "component": {"Column": {"children": {"explicitList": ["song_header_row", "song_skill_text", "song_description_text"]}}}}, {"id": "song_header_row", "component": {"Row": {"children": {"explicitList": ["song_title_text", "song_artist_text"]}, "distribution": "spaceBetween", "alignment": "center"}}}, {"id": "song_title_text", "component": {"Text": {"text": {"path": "title"}, "usageHint": "h5"}}}, {"id": "song_artist_text", "component": {"Text": {"text": {"path": "artist"}, "usageHint": "caption"}}}, {"id": "song_skill_text", "component": {"Text": {"text": {"literalString": "{'call': 'formatString', 'args': {'value': 'Skill: ${skill}'}, 'returnType': 'string'}"}, "usageHint": "caption"}}}, {"id": "song_description_text", "component": {"Text": {"text": {"path": "description"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000102"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000102", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "SUMMARY\nThese 10 songs are selected for their narrow vocal range, high crowd engagement, and simple melodies, making them perfect for singers who aren't confident in their technical ability.\n\nKARAOKE OPTIONS FOR NON-SINGERS\n\nOption 1: Tequila | The Champs | Skill: Very Low (One Word) | Most famous for having only one spoken lyric.\nOption 2: Sweet Caroline | Neil Diamond | Skill: Low | The crowd usually sings the loudest parts for you.\nOption 3: Don't Stop Believin' | Journey | Skill: Medium-Low | A massive anthem where everyone in the room will join in.\nOption 4: I Want It That Way | Backstreet Boys | Skill: Low | Simple pop structure that relies on group energy.\nOption 5: Mamma Mia | ABBA | Skill: Low | Upbeat and familiar with no difficult high notes.\nOption 6: Hey Jude | The Beatles | Skill: Low | The long outro is just 'Na-na-na,' which is impossible to mess up.\nOption 7: Girls Just Want to Have Fun | Cyndi Lauper | Skill: Medium-Low | Focus on energy and fun rather than perfect pitch.\nOption 8: Stand By Me | Ben E. King | Skill: Low | A steady, slow pace that is easy to follow.\nOption 9: Love Shack | The B-52's | Skill: Low | More about talking/shouting in rhythm than singing.\nOption 10: Friends in Low Places | Garth Brooks | Skill: Low | A bar classic designed for group singalongs.\n\nImages:\n- Karaoke Stage: /assets/r_000102_01_1_photo-1516280440614-37939bbacd81.jpg"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

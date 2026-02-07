@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "camera_comparison_surface"}}, {"surfaceUpdate": {"surfaceId": "camera_comparison_surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["assumptions_section", "divider_1", "options_header", "camera_list", "divider_2", "table_header_text", "comparison_table_container", "divider_3", "action_row"]}}}}, {"id": "assumptions_section", "component": {"Text": {"text": {"path": "/assumptions"}, "usageHint": "caption"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "options_header", "component": {"Text": {"text": {"literalString": "Camera Options"}, "usageHint": "h4"}}}, {"id": "camera_list", "component": {"List": {"children": {"explicitList": {"componentId": "camera_card", "path": "/cameras"}}, "direction": "vertical"}}}, {"id": "camera_card", "component": {"Card": {"child": "camera_card_content"}}}, {"id": "camera_card_content", "component": {"Column": {"children": {"explicitList": ["camera_title_row", "camera_desc", "camera_meta_row"]}}}}, {"id": "camera_title_row", "component": {"Row": {"children": {"explicitList": ["camera_icon", "camera_name"]}, "alignment": "center"}}}, {"id": "camera_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000117_01_2_camera.png"}, "usageHint": "icon"}}}, {"id": "camera_name", "component": {"Text": {"text": {"path": "name"}, "usageHint": "h5"}}}, {"id": "camera_desc", "component": {"Text": {"text": {"path": "description"}, "usageHint": "body"}}}, {"id": "camera_meta_row", "component": {"Row": {"children": {"explicitList": ["camera_sensor_info", "camera_price_info"]}, "distribution": "spaceBetween"}}}, {"id": "camera_sensor_info", "component": {"Text": {"text": {"literalString": "{'call': 'formatString', 'args': {'value': 'Sensor: ${sensor}'}, 'returnType': 'string'}"}, "usageHint": "caption"}}}, {"id": "camera_price_info", "component": {"Text": {"text": {"path": "price"}, "usageHint": "caption"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "table_header_text", "component": {"Text": {"text": {"literalString": "Comparison Table"}, "usageHint": "h4"}}}, {"id": "comparison_table_container", "component": {"Column": {"children": {"explicitList": ["table_header_row", "table_data_list"]}}}}, {"id": "table_header_row", "component": {"Row": {"children": {"explicitList": ["th_model", "th_sensor", "th_ibis", "th_weight"]}, "distribution": "spaceBetween"}}}, {"id": "th_model", "component": {"Text": {"text": {"literalString": "**Model**"}, "usageHint": "caption"}}}, {"id": "th_sensor", "component": {"Text": {"text": {"literalString": "**Sensor**"}, "usageHint": "caption"}}}, {"id": "th_ibis", "component": {"Text": {"text": {"literalString": "**IBIS**"}, "usageHint": "caption"}}}, {"id": "th_weight", "component": {"Text": {"text": {"literalString": "**Weight**"}, "usageHint": "caption"}}}, {"id": "table_data_list", "component": {"List": {"children": {"explicitList": {"componentId": "table_row", "path": "/cameras"}}, "direction": "vertical"}}}, {"id": "table_row", "component": {"Row": {"children": {"explicitList": ["td_model", "td_sensor", "td_ibis", "td_weight"]}, "distribution": "spaceBetween"}}}, {"id": "td_model", "component": {"Text": {"text": {"path": "name"}, "usageHint": "body"}}}, {"id": "td_sensor", "component": {"Text": {"text": {"path": "sensor"}, "usageHint": "body"}}}, {"id": "td_ibis", "component": {"Text": {"text": {"path": "ibis"}, "usageHint": "body"}}}, {"id": "td_weight", "component": {"Text": {"text": {"path": "weight"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "action_row", "component": {"Row": {"children": {"explicitList": ["compare_button"]}, "distribution": "center"}}}, {"id": "compare_button", "component": {"Button": {"child": "compare_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.dpreview.com/products/compare/cameras"}}]}, "primary": true}}}, {"id": "compare_button_text", "component": {"Text": {"text": {"literalString": "Compare on DPReview"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000117"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000117", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "btn_4", "text_5"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "ASSUMPTIONS\nPrices are based on current market averages for new equipment. Weight refers to the camera body with battery and memory card included."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "OPTIONS\nOption 1: Fujifilm X-S20 | Excellent all-rounder with advanced video features and great film simulations. | Sensor: APS-C | Price: ~$1,299 (with 15-45mm lens) | Weight: 491g\nOption 2: Sony Alpha a6700 | Industry-leading autofocus and compact rangefinder-style design. | Sensor: APS-C | Price: ~$1,498 (with 16-50mm lens) | Weight: 493g\nOption 3: OM System OM-5 | Ultra-compact, rugged, and weather-sealed, perfect for outdoor adventure. | Sensor: Micro Four Thirds | Price: ~$1,199 (with 12-45mm lens) | Weight: 414g"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "COMPARISON TABLE\nModel | Sensor Size | IBIS Rating (Stops) | Weight (Body)\nFujifilm X-S20 | APS-C | Up to 7.0 stops | 491g\nSony a6700 | APS-C | Up to 5.0 stops | 493g\nOM System OM-5 | Micro Four Thirds | Up to 7.5 stops | 414g"}, "usageHint": "body"}}}, {"id": "btn_label_4", "component": {"Text": {"text": {"literalString": "Compare on DPReview"}, "usageHint": "body"}}}, {"id": "btn_4", "component": {"Button": {"child": "btn_label_4", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.dpreview.com/products/compare/cameras"}}]}, "primary": true}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "- Camera: /assets/r_000117_01_2_camera.png\n- Weight: /assets/r_000117_01_3_weight.png"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

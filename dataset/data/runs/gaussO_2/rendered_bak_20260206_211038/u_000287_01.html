@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "lsatStudySchedule"}}, {"surfaceUpdate": {"surfaceId": "lsatStudySchedule", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions", "phase1", "phase2", "phase3", "phase4", "studyModule", "quickActions"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "8-Week LSAT Study Schedule"}, "usageHint": "h2"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: 15 hours per week (approx. 2 hours/day + 3 hours on weekends)."}, "usageHint": "body"}}}, {"id": "phase1", "component": {"Card": {"child": "phase1Content"}}}, {"id": "phase1Content", "component": {"Column": {"children": {"explicitList": ["phase1Title", "phase1Focus", "phase1Breakdown"]}}}}, {"id": "phase1Title", "component": {"Text": {"text": {"literalString": "Phase 1: Foundation (Weeks 1-2)"}, "usageHint": "h3"}}}, {"id": "phase1Focus", "component": {"Text": {"text": {"literalString": "Focus: Logical Reasoning (LR) basics and Analytical Reasoning (AR) setup."}, "usageHint": "body"}}}, {"id": "phase1Breakdown", "component": {"Text": {"text": {"literalString": "Weekly Breakdown: 6 hrs LR, 6 hrs AR, 3 hrs Reading Comp (RC)."}, "usageHint": "body"}}}, {"id": "phase2", "component": {"Card": {"child": "phase2Content"}}}, {"id": "phase2Content", "component": {"Column": {"children": {"explicitList": ["phase2Title", "phase2Focus", "phase2Breakdown"]}}}}, {"id": "phase2Title", "component": {"Text": {"text": {"literalString": "Phase 2: Deep Dive (Weeks 3-5)"}, "usageHint": "h3"}}}, {"id": "phase2Focus", "component": {"Text": {"text": {"literalString": "Focus: Advanced AR (Logic Games) and RC speed reading."}, "usageHint": "body"}}}, {"id": "phase2Breakdown", "component": {"Text": {"text": {"literalString": "Weekly Breakdown: 4 hrs LR, 7 hrs AR, 4 hrs RC."}, "usageHint": "body"}}}, {"id": "phase3", "component": {"Card": {"child": "phase3Content"}}}, {"id": "phase3Content", "component": {"Column": {"children": {"explicitList": ["phase3Title", "phase3Focus", "phase3Breakdown"]}}}}, {"id": "phase3Title", "component": {"Text": {"text": {"literalString": "Phase 3: Integration & Timing (Weeks 6-7)"}, "usageHint": "h3"}}}, {"id": "phase3Focus", "component": {"Text": {"text": {"literalString": "Focus: Full section practice and timing strategies."}, "usageHint": "body"}}}, {"id": "phase3Breakdown", "component": {"Text": {"text": {"literalString": "Weekly Breakdown: 5 hrs LR, 5 hrs AR, 5 hrs RC."}, "usageHint": "body"}}}, {"id": "phase4", "component": {"Card": {"child": "phase4Content"}}}, {"id": "phase4Content", "component": {"Column": {"children": {"explicitList": ["phase4Title", "phase4Focus", "phase4Breakdown"]}}}}, {"id": "phase4Title", "component": {"Text": {"text": {"literalString": "Phase 4: Full Practice & Review (Week 8)"}, "usageHint": "h3"}}}, {"id": "phase4Focus", "component": {"Text": {"text": {"literalString": "Focus: Full-length practice exams and error analysis."}, "usageHint": "body"}}}, {"id": "phase4Breakdown", "component": {"Text": {"text": {"literalString": "Weekly Breakdown: 3 Full Exams (10 hrs), 5 hrs Review."}, "usageHint": "body"}}}, {"id": "studyModule", "component": {"Card": {"child": "studyModuleContent"}}}, {"id": "studyModuleContent", "component": {"Column": {"children": {"explicitList": ["studyModuleTitle", "studyModuleTable"]}}}}, {"id": "studyModuleTitle", "component": {"Text": {"text": {"literalString": "Study Module Breakdown"}, "usageHint": "h3"}}}, {"id": "studyModuleTable", "component": {"Text": {"text": {"literalString": "Module | Key Skills | Recommended Resource\nLogical Reasoning | Flaw identification, Strengthening/Weakening | PowerScore Bible\nAnalytical Reasoning | Linear/Grouping games, Inferences | 7Sage / Khan Academy\nReading Comp | Structure mapping, Tone analysis | LSAC PrepPlus"}, "usageHint": "body"}}}, {"id": "quickActions", "component": {"Row": {"children": {"explicitList": ["startPracticeTest", "viewVideoLessons"]}, "distribution": "spaceBetween"}}}, {"id": "startPracticeTest", "component": {"Button": {"child": "startPracticeTestText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000287_01_1_prep.html"}}]}, "primary": true}}}, {"id": "startPracticeTestText", "component": {"Text": {"text": {"literalString": "Start Practice Test"}, "usageHint": "body"}}}, {"id": "viewVideoLessons", "component": {"Button": {"child": "viewVideoLessonsText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000287_01_2_lsat.html"}}]}, "primary": true}}}, {"id": "viewVideoLessonsText", "component": {"Text": {"text": {"literalString": "View Video Lessons"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

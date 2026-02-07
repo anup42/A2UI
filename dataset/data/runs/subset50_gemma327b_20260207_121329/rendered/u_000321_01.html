@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000321"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000321", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "icon_row_5", "icon_row_6", "btn_7", "btn_8"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Traditional Italian Bolognese Sauce (Serves 4)"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Summary:\nThis recipe provides a traditional, rich, and deeply flavorful Bolognese sauce, perfect for serving with fresh pasta. The key to its authentic taste is a slow, patient simmer over three hours, allowing the flavors to meld beautifully. This process creates a thick, luxurious sauce that is a staple of Italian cuisine."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Ingredients:\n-   Olive Oil: 30 ml (2 tablespoons)\n-   Pancetta, diced: 100 grams\n-   Yellow Onion, finely chopped: 150 grams (about 1 medium)\n-   Carrot, finely chopped: 100 grams (about 1 medium)\n-   Celery Stalk, finely chopped: 100 grams (about 1-2 stalks)\n-   Ground Beef (80/20 blend recommended): 300 grams\n-   Ground Pork: 200 grams\n-   Whole Milk: 200 ml\n-   Dry White Wine: 200 ml\n-   Canned Crushed Tomatoes (or tomato passata): 400 grams\n-   Tomato Paste: 30 grams (2 tablespoons)\n-   Beef Broth (or water): 250 ml\n-   Salt: 5 grams (1 teaspoon), plus more to taste\n-   Freshly Ground Black Pepper: 2 grams (1/2 teaspoon), plus more to taste\n-   Freshly Grated Nutmeg: 1 gram (1/4 teaspoon)"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Instructions:\n1.  Prepare the Soffritto: Heat the olive oil in a large, heavy-bottomed pot or Dutch oven over medium heat. Add the diced pancetta and cook until crispy and its fat has rendered, about 5-7 minutes. Remove the crispy pancetta with a slotted spoon and set aside, leaving the rendered fat in the pot.\n2.  Sauté Vegetables: Add the finely chopped onion, carrot, and celery (the \"soffritto\") to the pot. Cook over medium-low heat, stirring occasionally, until the vegetables are very soft and translucent, about 10-15 minutes. Do not let them brown.\n3.  Brown the Meats: Increase the heat to medium. Add the ground beef and ground pork to the pot. Break up the meat with a spoon and cook until it is fully browned and no pink remains, about 8-10 minutes. Drain off any excess fat if necessary.\n4.  Deglaze with Milk and Wine: Pour in the whole milk and bring to a gentle simmer. Cook, stirring occasionally, until the milk has almost completely evaporated and been absorbed by the meat, about 10-15 minutes. This step adds richness and tenderizes the meat. Next, add the dry white wine. Bring to a simmer and cook until the wine has almost completely evaporated, about 5-7 minutes.\n5.  Add Tomatoes and Broth: Stir in the crushed tomatoes, tomato paste, beef broth, salt, pepper, and nutmeg. Return the crispy pancetta to the pot. Bring the sauce to a gentle simmer.\n6.  Slow Simmer: Once simmering, reduce the heat to very low, cover the pot partially (leaving a small gap for steam to escape), and let the sauce gently simmer for at least 3 hours. Stir the sauce every 30-45 minutes to prevent sticking and ensure even cooking. If the sauce becomes too thick during simmering, add a splash more beef broth or water. The goal is a thick, rich sauce.\n7.  Finish and Serve: After 3 hours, the sauce should be deeply colored, thick, and incredibly flavorful. Taste and adjust seasoning (salt, pepper, or nutmeg) if needed. Serve hot with your favorite pasta, traditionally tagliatelle, and a generous grating of Parmigiano-Reggiano cheese."}, "usageHint": "body"}}}, {"id": "icon_img_5", "component": {"Image": {"url": {"literalString": "https://example.com/bolognese_simmering.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_5", "component": {"Text": {"text": {"literalString": "Bolognese Sauce Simmering"}, "usageHint": "body"}}}, {"id": "icon_row_5", "component": {"Row": {"children": {"explicitList": ["icon_img_5", "icon_label_5"]}, "alignment": "center"}}}, {"id": "icon_img_6", "component": {"Image": {"url": {"literalString": "https://example.com/soffritto_ingredients.jpg"}, "usageHint": "icon"}}}, {"id": "icon_label_6", "component": {"Text": {"text": {"literalString": "Soffritto Ingredients"}, "usageHint": "body"}}}, {"id": "icon_row_6", "component": {"Row": {"children": {"explicitList": ["icon_img_6", "icon_label_6"]}, "alignment": "center"}}}, {"id": "btn_label_7", "component": {"Text": {"text": {"literalString": "Find Pasta Pairings"}, "usageHint": "body"}}}, {"id": "btn_7", "component": {"Button": {"child": "btn_label_7", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/pasta-pairings"}}]}, "primary": true}}}, {"id": "btn_label_8", "component": {"Text": {"text": {"literalString": "Shop Bolognese Ingredients Online"}, "usageHint": "body"}}}, {"id": "btn_8", "component": {"Button": {"child": "btn_label_8", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/shop-bolognese-ingredients"}}]}, "primary": true}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

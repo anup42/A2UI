@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "cabin-comparison-surface"}}, {"surfaceUpdate": {"surfaceId": "cabin-comparison-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "assumptions", "divider1", "cabinList", "divider2", "recommendation_header", "recommendation_text", "quick_actions_row", "sources_text"]}, "alignment": "stretch"}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "Cabin Comparison for 10th Anniversary Cruise"}, "usageHint": "h2"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "**Assumptions:** Prices are per person. Total budget $3,000."}, "usageHint": "body"}}}, {"id": "divider1", "component": {"Divider": {}}}, {"id": "cabinList", "component": {"Column": {"children": {"explicitList": []}}}}, {"id": "divider2", "component": {"Divider": {}}}, {"id": "recommendation_header", "component": {"Text": {"text": {"literalString": "Recommendation"}, "usageHint": "h3"}}}, {"id": "recommendation_text", "component": {"Text": {"text": {"literalString": "Based on your preferences for a view and proximity to amenities, the Balcony Cabin on Deck 8 is the best value."}, "usageHint": "body"}}}, {"id": "quick_actions_row", "component": {"Row": {"children": {"explicitList": []}}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Sources: Cruise Line Deck Plans 2024, Seasonal Pricing Guide."}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000155"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000155", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "btn_7", "text_8"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Summary: Cabin Comparison for 10th Anniversary Cruise"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Assumptions: Prices are per person. Total budget $3,500 includes $500 for excursions, leaving $3,000 for the cabin (2 people)."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Cabin Comparison:\n1. Interior ($900/person | $1,800 total)\n- Pros: Lowest price, completely dark for sleep, more budget for dining/spa.\n- Cons: No natural light, no view, smallest room size."}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "2. Oceanview ($1,200/person | $2,400 total)\n- Pros: Natural light, sea views, better sense of direction.\n- Cons: Window does not open, window may be obstructed, no private outdoor space."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "3. Balcony ($1,600/person | $3,200 total)\n- Pros: Private balcony, fresh air, best views for Mediterranean scenery.\n- Cons: Exceeds total budget ($3,700 with excursions), higher price, can be windy."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Recommendation: Oceanview. It is the best value that stays within your $3,000 cabin budget while providing the natural light and sea views appropriate for a special anniversary celebration."}, "usageHint": "body"}}}, {"id": "btn_label_7", "component": {"Text": {"text": {"literalString": "View Deck Plans"}, "usageHint": "body"}}}, {"id": "btn_7", "component": {"Button": {"child": "btn_label_7", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.royalcaribbean.com"}}]}, "primary": true}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "- https://www.cruisecritic.com"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

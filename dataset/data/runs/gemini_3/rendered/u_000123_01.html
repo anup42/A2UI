@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "steam-deck-comparison-surface"}}, {"surfaceUpdate": {"surfaceId": "steam-deck-comparison-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["summary_section", "divider_1", "table_section", "divider_2", "connectivity_section", "divider_3", "action_section"]}, "alignment": "stretch"}}}, {"id": "summary_section", "component": {"Column": {"children": {"explicitList": ["summary_title", "summary_body"]}}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "SUMMARY"}, "usageHint": "h3"}}}, {"id": "summary_body", "component": {"Text": {"text": {"literalString": "The Steam Deck OLED is a mid-generation refresh that improves the display, battery life, and weight, while the Original (LCD) model remains the entry-level budget option."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "table_section", "component": {"Column": {"children": {"explicitList": ["table_title", "table_card"]}}}}, {"id": "table_title", "component": {"Row": {"children": {"explicitList": ["monitor_icon", "table_title_text"]}, "alignment": "center"}}}, {"id": "monitor_icon", "component": {"Icon": {"name": {"path": "/assets/r_000123_01_3_monitor.png"}}}}, {"id": "table_title_text", "component": {"Text": {"text": {"literalString": "COMPARISON TABLE"}, "usageHint": "h4"}}}, {"id": "table_card", "component": {"Card": {"child": "table_content"}}}, {"id": "table_content", "component": {"Column": {"children": {"explicitList": ["row_header", "row_screen", "row_storage", "row_price", "row_refresh", "row_battery", "row_weight"]}}}}, {"id": "row_header", "component": {"Row": {"children": {"explicitList": ["h_feat", "h_lcd", "h_oled"]}}}}, {"id": "h_feat", "component": {"Text": {"text": {"literalString": "**Feature**"}, "usageHint": "body"}}}, {"id": "h_lcd", "component": {"Text": {"text": {"literalString": "**Original LCD**"}, "usageHint": "body"}}}, {"id": "h_oled", "component": {"Text": {"text": {"literalString": "**OLED**"}, "usageHint": "body"}}}, {"id": "row_screen", "component": {"Row": {"children": {"explicitList": ["r1_c1", "r1_c2", "r1_c3"]}}}}, {"id": "r1_c1", "component": {"Text": {"text": {"literalString": "Screen"}, "usageHint": "body"}}}, {"id": "r1_c2", "component": {"Text": {"text": {"literalString": "IPS LCD"}, "usageHint": "body"}}}, {"id": "r1_c3", "component": {"Text": {"text": {"literalString": "HDR OLED"}, "usageHint": "body"}}}, {"id": "row_storage", "component": {"Row": {"children": {"explicitList": ["r2_c1", "r2_c2", "r2_c3"]}}}}, {"id": "r2_c1", "component": {"Text": {"text": {"literalString": "Storage"}, "usageHint": "body"}}}, {"id": "r2_c2", "component": {"Text": {"text": {"literalString": "64GB/256GB/512GB"}, "usageHint": "body"}}}, {"id": "r2_c3", "component": {"Text": {"text": {"literalString": "512GB/1TB"}, "usageHint": "body"}}}, {"id": "row_price", "component": {"Row": {"children": {"explicitList": ["r3_c1", "r3_c2", "r3_c3"]}}}}, {"id": "r3_c1", "component": {"Text": {"text": {"literalString": "Price (USD)"}, "usageHint": "body"}}}, {"id": "r3_c2", "component": {"Text": {"text": {"literalString": "$399 - $649"}, "usageHint": "body"}}}, {"id": "r3_c3", "component": {"Text": {"text": {"literalString": "$549 - $649"}, "usageHint": "body"}}}, {"id": "row_refresh", "component": {"Row": {"children": {"explicitList": ["r4_c1", "r4_c2", "r4_c3"]}}}}, {"id": "r4_c1", "component": {"Text": {"text": {"literalString": "Refresh Rate"}, "usageHint": "body"}}}, {"id": "r4_c2", "component": {"Text": {"text": {"literalString": "60Hz"}, "usageHint": "body"}}}, {"id": "r4_c3", "component": {"Text": {"text": {"literalString": "90Hz"}, "usageHint": "body"}}}, {"id": "row_battery", "component": {"Row": {"children": {"explicitList": ["r5_c1", "r5_c2", "r5_c3"]}}}}, {"id": "r5_c1", "component": {"Text": {"text": {"literalString": "Battery Life"}, "usageHint": "body"}}}, {"id": "r5_c2", "component": {"Text": {"text": {"literalString": "2 - 8 Hours"}, "usageHint": "body"}}}, {"id": "r5_c3", "component": {"Text": {"text": {"literalString": "3 - 12 Hours"}, "usageHint": "body"}}}, {"id": "row_weight", "component": {"Row": {"children": {"explicitList": ["r6_c1", "r6_c2", "r6_c3"]}}}}, {"id": "r6_c1", "component": {"Text": {"text": {"literalString": "Weight"}, "usageHint": "body"}}}, {"id": "r6_c2", "component": {"Text": {"text": {"literalString": "669g"}, "usageHint": "body"}}}, {"id": "r6_c3", "component": {"Text": {"text": {"literalString": "640g"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "connectivity_section", "component": {"Column": {"children": {"explicitList": ["conn_title", "conn_list"]}}}}, {"id": "conn_title", "component": {"Text": {"text": {"literalString": "STORAGE & CONNECTIVITY"}, "usageHint": "h4"}}}, {"id": "conn_list", "component": {"List": {"children": {"explicitList": ["conn_item_1", "conn_item_2"]}, "direction": "vertical"}}}, {"id": "conn_item_1", "component": {"Text": {"text": {"literalString": "• **Original:** Wi-Fi 5, Bluetooth 5.0, 40Wh battery."}, "usageHint": "body"}}}, {"id": "conn_item_2", "component": {"Text": {"text": {"literalString": "• **OLED:** Wi-Fi 6E, Bluetooth 5.3, 50Wh battery, longer charging cable."}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "action_section", "component": {"Row": {"children": {"explicitList": ["store_button"]}, "distribution": "center"}}}, {"id": "store_button", "component": {"Button": {"child": "store_button_label", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000123_01_1_steamdeck.html"}}]}, "primary": true}}}, {"id": "store_button_label", "component": {"Text": {"text": {"literalString": "Visit Steam Deck Store"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000123"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000123", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "btn_4", "icon_row_5", "text_6"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "SUMMARY\nThe Steam Deck OLED is a mid-generation refresh that improves the display, battery life, and weight, while the Original (LCD) model remains the entry-level budget option."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "COMPARISON TABLE\nFeature | Steam Deck (Original LCD) | Steam Deck OLED\nScreen Technology | IPS LCD | HDR OLED\nStorage Options | 64GB (eMMC), 256GB, 512GB | 512GB, 1TB\nLaunch Price (USD) | $399 / $529 / $649 | $549 / $649\nRefresh Rate | 60Hz | 90Hz\nBattery Life | 2 - 8 Hours | 3 - 12 Hours\nWeight | Approx 669g | Approx 640g"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "STORAGE & CONNECTIVITY\n- Original: Wi-Fi 5, Bluetooth 5.0, 40Wh battery.\n- OLED: Wi-Fi 6E, Bluetooth 5.3, 50Wh battery, longer charging cable."}, "usageHint": "body"}}}, {"id": "btn_label_4", "component": {"Text": {"text": {"literalString": "Visit Steam Deck Store"}, "usageHint": "body"}}}, {"id": "btn_4", "component": {"Button": {"child": "btn_label_4", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://store.steampowered.com/steamdeck"}}]}, "primary": true}}}, {"id": "icon_img_5", "component": {"Image": {"url": {"literalString": "https://img.icons8.com/ios/50/game-controller.png"}, "usageHint": "icon"}}}, {"id": "icon_label_5", "component": {"Text": {"text": {"literalString": "Console"}, "usageHint": "body"}}}, {"id": "icon_row_5", "component": {"Row": {"children": {"explicitList": ["icon_img_5", "icon_label_5"]}, "alignment": "center"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "- Screen: /assets/r_000123_01_3_monitor.png"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

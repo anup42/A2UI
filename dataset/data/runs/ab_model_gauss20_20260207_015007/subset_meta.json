@@ -1,0 +1,9 @@
+{
+  "created_at": "2026-02-07T05:32:12.394953Z",
+  "source_run": "gaussO_2",
+  "subset_queries_source": "ab_json_on20_20260206_185542/queries.jsonl",
+  "subset_query_count": 20,
+  "queries_rows": 20,
+  "responses_rows": 20,
+  "genui_rows": 20
+}

@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "flight-comparison-results"}}, {"surfaceUpdate": {"surfaceId": "flight-comparison-results", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["summary_section", "comparison_section", "breakdown_section", "verification_section", "actions_section"]}, "alignment": "stretch"}}}, {"id": "summary_section", "component": {"Column": {"children": {"explicitList": ["summary_title", "summary_text", "assumptions_text"]}}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h3"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "The best option based on your priority for the shortest travel time is **ANA (All Nippon Airways)**. It offers a direct flight with a total duration of 13 hours and 50 minutes, which is 40 minutes faster than British Airways and significantly faster than the connecting flight with Emirates."}, "usageHint": "body"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "*Assumptions: Prices and durations are based on 2 adults in Premium Economy.*"}, "usageHint": "caption"}}}, {"id": "comparison_section", "component": {"Column": {"children": {"explicitList": ["comparison_title", "flight_list"]}}}}, {"id": "comparison_title", "component": {"Text": {"text": {"literalString": "Flight Comparison"}, "usageHint": "h3"}}}, {"id": "flight_list", "component": {"List": {"children": {"explicitList": ["ana_card", "ba_card", "emirates_card"]}, "direction": "vertical"}}}, {"id": "ana_card", "component": {"Card": {"child": "ana_content"}}}, {"id": "ana_content", "component": {"Column": {"children": {"explicitList": ["ana_header", "ana_details", "ana_price", "ana_status"]}}}}, {"id": "ana_header", "component": {"Text": {"text": {"literalString": "Option 1: ANA (Recommended)"}, "usageHint": "h5"}}}, {"id": "ana_details", "component": {"Text": {"text": {"literalString": "Direct • 13h 50m"}, "usageHint": "body"}}}, {"id": "ana_price", "component": {"Text": {"text": {"literalString": "Total Cost: £3,450"}, "usageHint": "body"}}}, {"id": "ana_status", "component": {"Text": {"text": {"literalString": "Status: Fastest option, within budget"}, "usageHint": "caption"}}}, {"id": "ba_card", "component": {"Card": {"child": "ba_content"}}}, {"id": "ba_content", "component": {"Column": {"children": {"explicitList": ["ba_header", "ba_details", "ba_price", "ba_status"]}}}}, {"id": "ba_header", "component": {"Text": {"text": {"literalString": "Option 2: British Airways"}, "usageHint": "h5"}}}, {"id": "ba_details", "component": {"Text": {"text": {"literalString": "Direct • 14h 30m"}, "usageHint": "body"}}}, {"id": "ba_price", "component": {"Text": {"text": {"literalString": "Total Cost: £3,200"}, "usageHint": "body"}}}, {"id": "ba_status", "component": {"Text": {"text": {"literalString": "Status: Most cost-effective direct flight"}, "usageHint": "caption"}}}, {"id": "emirates_card", "component": {"Card": {"child": "emirates_content"}}}, {"id": "emirates_content", "component": {"Column": {"children": {"explicitList": ["emirates_header", "emirates_details", "emirates_price", "emirates_status"]}}}}, {"id": "emirates_header", "component": {"Text": {"text": {"literalString": "Option 3: Emirates"}, "usageHint": "h5"}}}, {"id": "emirates_details", "component": {"Text": {"text": {"literalString": "1 Stop (via Dubai) • 18h 15m"}, "usageHint": "body"}}}, {"id": "emirates_price", "component": {"Text": {"text": {"literalString": "Total Cost: £2,800"}, "usageHint": "body"}}}, {"id": "emirates_status", "component": {"Text": {"text": {"literalString": "Status: Cheapest option, longest travel time"}, "usageHint": "caption"}}}, {"id": "breakdown_section", "component": {"Column": {"children": {"explicitList": ["breakdown_title", "breakdown_card"]}}}}, {"id": "breakdown_title", "component": {"Text": {"text": {"literalString": "Cost Breakdown (ANA)"}, "usageHint": "h3"}}}, {"id": "breakdown_card", "component": {"Card": {"child": "breakdown_list"}}}, {"id": "breakdown_list", "component": {"Column": {"children": {"explicitList": ["breakdown_fare", "breakdown_pax", "breakdown_total", "breakdown_budget"]}}}}, {"id": "breakdown_fare", "component": {"Text": {"text": {"literalString": "Base Fare per Adult: £1,725"}, "usageHint": "body"}}}, {"id": "breakdown_pax", "component": {"Text": {"text": {"literalString": "Number of Passengers: 2"}, "usageHint": "body"}}}, {"id": "breakdown_total", "component": {"Text": {"text": {"literalString": "Total Cost: £3,450"}, "usageHint": "h5"}}}, {"id": "breakdown_budget", "component": {"Text": {"text": {"literalString": "Remaining Budget: £50"}, "usageHint": "body"}}}, {"id": "verification_section", "component": {"Column": {"children": {"explicitList": ["verification_title", "verification_steps"]}}}}, {"id": "verification_title", "component": {"Text": {"text": {"literalString": "Live Verification Steps"}, "usageHint": "h4"}}}, {"id": "verification_steps", "component": {"Text": {"text": {"literalString": "1. Visit official airline websites.\n2. Enter dates (Nov 15 - Nov 25) and route (LHR to HND).\n3. Select Premium Economy to verify current seat availability and final tax-inclusive pricing."}, "usageHint": "body"}}}, {"id": "actions_section", "component": {"Row": {"children": {"explicitList": ["btn_book_ana", "btn_google_flights"]}, "distribution": "start"}}}, {"id": "btn_book_ana", "component": {"Button": {"child": "btn_book_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.ana.co.jp"}}]}, "primary": true}}}, {"id": "btn_book_text", "component": {"Text": {"text": {"literalString": "Book ANA"}, "usageHint": "body"}}}, {"id": "btn_google_flights", "component": {"Button": {"child": "btn_google_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.google.com/travel/flights"}}]}}}}, {"id": "btn_google_text", "component": {"Text": {"text": {"literalString": "Compare on Google Flights"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000041"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000041", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "btn_8", "btn_9", "text_10"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Summary\nThe best option based on your priority for the shortest travel time is ANA (All Nippon Airways). It offers a direct flight with a total duration of 13 hours and 50 minutes, which is 40 minutes faster than British Airways and significantly faster than the connecting flight with Emirates."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Assumptions: Prices and durations are based on the specific data provided in the query for 2 adults in Premium Economy."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Flight Comparison\nOption 1: ANA (Recommended)\n- Type: Direct\n- Travel Time: 13h 50m\n- Total Cost: £3,450\n- Status: Fastest option, within budget"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Option 2: British Airways\n- Type: Direct\n- Travel Time: 14h 30m\n- Total Cost: £3,200\n- Status: Most cost-effective direct flight"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Option 3: Emirates\n- Type: 1 Stop (via Dubai)\n- Travel Time: 18h 15m\n- Total Cost: £2,800\n- Status: Cheapest option, longest travel time"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Cost Breakdown (ANA)\n- Base Fare per Adult: £1,725\n- Number of Passengers: 2\n- Total Cost: £3,450\n- Remaining Budget: £50"}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "Live Verification Steps\n1. Visit the official airline websites (ana.co.jp, britishairways.com, or emirates.com).\n2. Enter the specific dates (Nov 15 - Nov 25) and route (LHR to HND).\n3. Select Premium Economy to verify current seat availability and final tax-inclusive pricing."}, "usageHint": "body"}}}, {"id": "btn_label_8", "component": {"Text": {"text": {"literalString": "Book ANA"}, "usageHint": "body"}}}, {"id": "btn_8", "component": {"Button": {"child": "btn_label_8", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.ana.co.jp"}}]}, "primary": true}}}, {"id": "btn_label_9", "component": {"Text": {"text": {"literalString": "Compare on Google Flights"}, "usageHint": "body"}}}, {"id": "btn_9", "component": {"Button": {"child": "btn_label_9", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.google.com/travel/flights"}}]}, "primary": true}}}, {"id": "text_10", "component": {"Text": {"text": {"literalString": "- https://www.ana.co.jp\n- https://www.britishairways.com"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

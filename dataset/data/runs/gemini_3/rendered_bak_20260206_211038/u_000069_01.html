@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "bankruptcy_comparison_surface"}}, {"surfaceUpdate": {"surfaceId": "bankruptcy_comparison_surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["txt_summary_title", "txt_summary_body", "txt_assumptions", "div_1", "txt_table_title", "col_table", "div_2", "txt_details_title", "col_details", "div_3", "row_actions", "txt_sources"]}}}}, {"id": "txt_summary_title", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h4"}}}, {"id": "txt_summary_body", "component": {"Text": {"text": {"literalString": "Chapter 7 and Chapter 13 are the most common forms of personal bankruptcy in the U.S. Chapter 7 is a liquidation process designed to wipe out unsecured debts quickly, while Chapter 13 is a reorganization plan for individuals with regular income to pay back all or part of their debts over time."}, "usageHint": "body"}}}, {"id": "txt_assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: This overview assumes federal bankruptcy laws apply; state-specific exemptions for property may vary."}, "usageHint": "caption"}}}, {"id": "div_1", "component": {"Divider": {}}}, {"id": "txt_table_title", "component": {"Text": {"text": {"literalString": "Comparison Table"}, "usageHint": "h5"}}}, {"id": "col_table", "component": {"Column": {"children": {"explicitList": ["row_table_h", "row_table_1", "row_table_2", "row_table_3", "row_table_4"]}}}}, {"id": "row_table_h", "component": {"Row": {"children": {"explicitList": ["txt_h_feat", "txt_h_ch7", "txt_h_ch13"]}}}}, {"id": "txt_h_feat", "component": {"Text": {"text": {"literalString": "**Feature**"}, "usageHint": "body"}}}, {"id": "txt_h_ch7", "component": {"Text": {"text": {"literalString": "**Chapter 7**"}, "usageHint": "body"}}}, {"id": "txt_h_ch13", "component": {"Text": {"text": {"literalString": "**Chapter 13**"}, "usageHint": "body"}}}, {"id": "row_table_1", "component": {"Row": {"children": {"explicitList": ["txt_r1_feat", "txt_r1_ch7", "txt_r1_ch13"]}}}}, {"id": "txt_r1_feat", "component": {"Text": {"text": {"literalString": "Eligibility"}, "usageHint": "body"}}}, {"id": "txt_r1_ch7", "component": {"Text": {"text": {"literalString": "Means Test"}, "usageHint": "body"}}}, {"id": "txt_r1_ch13", "component": {"Text": {"text": {"literalString": "Regular Income"}, "usageHint": "body"}}}, {"id": "row_table_2", "component": {"Row": {"children": {"explicitList": ["txt_r2_feat", "txt_r2_ch7", "txt_r2_ch13"]}}}}, {"id": "txt_r2_feat", "component": {"Text": {"text": {"literalString": "Residence"}, "usageHint": "body"}}}, {"id": "txt_r2_ch7", "component": {"Text": {"text": {"literalString": "Risk of loss"}, "usageHint": "body"}}}, {"id": "txt_r2_ch13", "component": {"Text": {"text": {"literalString": "Usually kept"}, "usageHint": "body"}}}, {"id": "row_table_3", "component": {"Row": {"children": {"explicitList": ["txt_r3_feat", "txt_r3_ch7", "txt_r3_ch13"]}}}}, {"id": "txt_r3_feat", "component": {"Text": {"text": {"literalString": "Duration"}, "usageHint": "body"}}}, {"id": "txt_r3_ch7", "component": {"Text": {"text": {"literalString": "3-6 months"}, "usageHint": "body"}}}, {"id": "txt_r3_ch13", "component": {"Text": {"text": {"literalString": "3-5 years"}, "usageHint": "body"}}}, {"id": "row_table_4", "component": {"Row": {"children": {"explicitList": ["txt_r4_feat", "txt_r4_ch7", "txt_r4_ch13"]}}}}, {"id": "txt_r4_feat", "component": {"Text": {"text": {"literalString": "Goal"}, "usageHint": "body"}}}, {"id": "txt_r4_ch7", "component": {"Text": {"text": {"literalString": "Liquidation"}, "usageHint": "body"}}}, {"id": "txt_r4_ch13", "component": {"Text": {"text": {"literalString": "Repayment"}, "usageHint": "body"}}}, {"id": "div_2", "component": {"Divider": {}}}, {"id": "txt_details_title", "component": {"Text": {"text": {"literalString": "Detailed Differences"}, "usageHint": "h5"}}}, {"id": "col_details", "component": {"Column": {"children": {"explicitList": ["card_elig", "card_assets", "card_time"]}}}}, {"id": "card_elig", "component": {"Card": {"child": "col_elig_content"}}}, {"id": "col_elig_content", "component": {"Column": {"children": {"explicitList": ["row_elig_header", "txt_elig_ch7", "txt_elig_ch13"]}}}}, {"id": "row_elig_header", "component": {"Row": {"children": {"explicitList": ["img_law", "txt_elig_title"]}, "alignment": "center"}}}, {"id": "img_law", "component": {"Image": {"url": {"literalString": "/assets/r_000069_01_1_law.png"}, "usageHint": "icon"}}}, {"id": "txt_elig_title", "component": {"Text": {"text": {"literalString": "1. Eligibility Requirements"}, "usageHint": "h5"}}}, {"id": "txt_elig_ch7", "component": {"Text": {"text": {"literalString": "**Chapter 7:** Requires a Means Test to ensure your income is below the state median or that you lack the disposable income to pay creditors."}, "usageHint": "body"}}}, {"id": "txt_elig_ch13", "component": {"Text": {"text": {"literalString": "**Chapter 13:** Open to individuals with a stable income. There are specific debt ceilings (e.g., less than $2.75 million in total debt) that change periodically."}, "usageHint": "body"}}}, {"id": "card_assets", "component": {"Card": {"child": "col_assets_content"}}}, {"id": "col_assets_content", "component": {"Column": {"children": {"explicitList": ["row_assets_header", "txt_assets_ch7", "txt_assets_ch13"]}}}}, {"id": "row_assets_header", "component": {"Row": {"children": {"explicitList": ["img_fin", "txt_assets_title"]}, "alignment": "center"}}}, {"id": "img_fin", "component": {"Image": {"url": {"literalString": "/assets/r_000069_01_2_money-box.png"}, "usageHint": "icon"}}}, {"id": "txt_assets_title", "component": {"Text": {"text": {"literalString": "2. Treatment of Secured Assets"}, "usageHint": "h5"}}}, {"id": "txt_assets_ch7", "component": {"Text": {"text": {"literalString": "**Chapter 7:** If you are behind on your mortgage, Chapter 7 does not provide a way to catch up. If you have significant equity above the legal exemption, the trustee may sell the home to pay creditors."}, "usageHint": "body"}}}, {"id": "txt_assets_ch13", "component": {"Text": {"text": {"literalString": "**Chapter 13:** This is often used to save homes from foreclosure. It allows you to stop foreclosure and pay back the missed mortgage payments (arrears) over the life of the 3 to 5-year plan."}, "usageHint": "body"}}}, {"id": "card_time", "component": {"Card": {"child": "col_time_content"}}}, {"id": "col_time_content", "component": {"Column": {"children": {"explicitList": ["row_time_header", "txt_time_ch7", "txt_time_ch13"]}}}}, {"id": "row_time_header", "component": {"Row": {"children": {"explicitList": ["img_time", "txt_time_title"]}, "alignment": "center"}}}, {"id": "img_time", "component": {"Image": {"url": {"literalString": "/assets/r_000069_01_3_clock.png"}, "usageHint": "icon"}}}, {"id": "txt_time_title", "component": {"Text": {"text": {"literalString": "3. Process Duration"}, "usageHint": "h5"}}}, {"id": "txt_time_ch7", "component": {"Text": {"text": {"literalString": "**Chapter 7:** A relatively fast process. Once filed, the discharge of debt typically occurs within 90 to 120 days."}, "usageHint": "body"}}}, {"id": "txt_time_ch13", "component": {"Text": {"text": {"literalString": "**Chapter 13:** A long-term commitment. You must make monthly payments to a trustee for the duration of the court-approved plan (3 or 5 years) before receiving a discharge."}, "usageHint": "body"}}}, {"id": "div_3", "component": {"Divider": {}}}, {"id": "row_actions", "component": {"Row": {"children": {"explicitList": ["btn_legal_aid", "btn_basics"]}, "distribution": "start"}}}, {"id": "btn_legal_aid", "component": {"Button": {"child": "txt_btn_aid", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.lsc.gov/find-legal-aid"}}]}, "primary": true}}}, {"id": "txt_btn_aid", "component": {"Text": {"text": {"literalString": "Find Legal Aid"}, "usageHint": "body"}}}, {"id": "btn_basics", "component": {"Button": {"child": "txt_btn_basics", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.uscourts.gov/services-forms/bankruptcy/bankruptcy-basics"}}]}}}}, {"id": "txt_btn_basics", "component": {"Text": {"text": {"literalString": "U.S. Courts Bankruptcy Basics"}, "usageHint": "body"}}}, {"id": "txt_sources", "component": {"Text": {"text": {"literalString": "Sources: uscourts.gov, justice.gov"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

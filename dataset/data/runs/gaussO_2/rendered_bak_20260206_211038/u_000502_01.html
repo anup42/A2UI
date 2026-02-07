@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "bootcamp_schedule"}}, {"surfaceUpdate": {"surfaceId": "bootcamp_schedule", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "summary", "week1_schedule", "week2_schedule", "daily_structure", "quick_actions"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "10-Day Intensive Coding Bootcamp Syllabus"}, "usageHint": "h2"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "Assumptions: The bootcamp runs from 09:00 to 17:00 daily. Weekends are excluded from the instructional timeline."}, "usageHint": "body"}}}, {"id": "week1_schedule", "component": {"Column": {"children": {"explicitList": ["week1_title", "day1", "day2", "day3", "day4", "day5"]}}}}, {"id": "week1_title", "component": {"Text": {"text": {"literalString": "Week 1 Schedule:"}, "usageHint": "h3"}}}, {"id": "day1", "component": {"Text": {"text": {"literalString": "Day 1: Monday, Oct 14 - HTML/CSS Foundations"}, "usageHint": "body"}}}, {"id": "day2", "component": {"Text": {"text": {"literalString": "Day 2: Tuesday, Oct 15 - JavaScript Basics & Logic"}, "usageHint": "body"}}}, {"id": "day3", "component": {"Text": {"text": {"literalString": "Day 3: Wednesday, Oct 16 - DOM Manipulation"}, "usageHint": "body"}}}, {"id": "day4", "component": {"Text": {"text": {"literalString": "Day 4: Thursday, Oct 17 - Working with APIs & Fetch"}, "usageHint": "body"}}}, {"id": "day5", "component": {"Text": {"text": {"literalString": "Day 5: Friday, Oct 18 - Introduction to React"}, "usageHint": "body"}}}, {"id": "week2_schedule", "component": {"Column": {"children": {"explicitList": ["week2_title", "day6", "day7", "day8", "day9", "day10"]}}}}, {"id": "week2_title", "component": {"Text": {"text": {"literalString": "Week 2 Schedule:"}, "usageHint": "h3"}}}, {"id": "day6", "component": {"Text": {"text": {"literalString": "Day 6: Monday, Oct 21 - React Components & Props"}, "usageHint": "body"}}}, {"id": "day7", "component": {"Text": {"text": {"literalString": "Day 7: Tuesday, Oct 22 - Advanced State Management"}, "usageHint": "body"}}}, {"id": "day8", "component": {"Text": {"text": {"literalString": "Day 8: Wednesday, Oct 23 - Node.js Environment"}, "usageHint": "body"}}}, {"id": "day9", "component": {"Text": {"text": {"literalString": "Day 9: Thursday, Oct 24 - Express.js Framework"}, "usageHint": "body"}}}, {"id": "day10", "component": {"Text": {"text": {"literalString": "Day 10: Friday, Oct 25 - Final Project Development & Demo"}, "usageHint": "body"}}}, {"id": "daily_structure", "component": {"Column": {"children": {"explicitList": ["daily_title", "time1", "time2", "time3", "time4"]}}}}, {"id": "daily_title", "component": {"Text": {"text": {"literalString": "Daily Structure:"}, "usageHint": "h3"}}}, {"id": "time1", "component": {"Text": {"text": {"literalString": "09:00 - 12:00: Live Lecture and Live Coding"}, "usageHint": "body"}}}, {"id": "time2", "component": {"Text": {"text": {"literalString": "12:00 - 13:00: Lunch Break"}, "usageHint": "body"}}}, {"id": "time3", "component": {"Text": {"text": {"literalString": "13:00 - 16:00: Guided Lab Exercises"}, "usageHint": "body"}}}, {"id": "time4", "component": {"Text": {"text": {"literalString": "16:00 - 17:00: Code Review and Q&A"}, "usageHint": "body"}}}, {"id": "quick_actions", "component": {"Row": {"children": {"explicitList": ["lms_button", "syllabus_button"]}}}}, {"id": "lms_button", "component": {"Button": {"child": "lms_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://bootcamp.com/portal"}}]}}}}, {"id": "lms_button_text", "component": {"Text": {"text": {"literalString": "Access LMS"}, "usageHint": "body"}}}, {"id": "syllabus_button", "component": {"Button": {"child": "syllabus_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://bootcamp.com/syllabus"}}]}}}}, {"id": "syllabus_button_text", "component": {"Text": {"text": {"literalString": "View Syllabus PDF"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

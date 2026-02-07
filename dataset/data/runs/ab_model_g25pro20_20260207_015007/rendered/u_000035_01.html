@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "credit-card-framework-surface"}}, {"surfaceUpdate": {"surfaceId": "credit-card-framework-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions", "divider_1", "criteria_card_1", "criteria_card_2", "criteria_card_3", "criteria_card_4", "criteria_card_5", "divider_2", "rec_title", "rec_text", "divider_3", "ver_title", "ver_step_1", "ver_step_2", "ver_step_3", "divider_4", "ex_title", "ex_card_1", "ex_card_2", "ex_card_3", "divider_5", "actions_title", "compare_button"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Travel Credit Card Evaluation Framework (5-Point)"}, "usageHint": "h1"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: This framework assumes a primary goal of maximizing value for a high-frequency traveler to Japan who prioritizes comfort and cost-offsetting."}, "usageHint": "caption"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "criteria_card_1", "component": {"Card": {"child": "criteria_col_1"}}}, {"id": "criteria_col_1", "component": {"Column": {"children": {"explicitList": ["criteria_row_1", "criteria_desc_1"]}}}}, {"id": "criteria_row_1", "component": {"Row": {"children": {"explicitList": ["criteria_title_1", "criteria_weight_1"]}, "distribution": "spaceBetween"}}}, {"id": "criteria_title_1", "component": {"Text": {"text": {"literalString": "1. No Foreign Transaction Fees"}, "usageHint": "h4"}}}, {"id": "criteria_weight_1", "component": {"Text": {"text": {"literalString": "Weight: 30%"}, "usageHint": "body"}}}, {"id": "criteria_desc_1", "component": {"Text": {"text": {"literalString": "Essential for Japan, where many local shops and restaurants are cash-heavy or use local payment processors. Saving 3% on every transaction outside the US is a guaranteed return."}, "usageHint": "body"}}}, {"id": "criteria_card_2", "component": {"Card": {"child": "criteria_col_2"}}}, {"id": "criteria_col_2", "component": {"Column": {"children": {"explicitList": ["criteria_row_2", "criteria_desc_2"]}}}}, {"id": "criteria_row_2", "component": {"Row": {"children": {"explicitList": ["criteria_title_2", "criteria_weight_2"]}, "distribution": "spaceBetween"}}}, {"id": "criteria_title_2", "component": {"Text": {"text": {"literalString": "2. Point Multipliers on Dining"}, "usageHint": "h4"}}}, {"id": "criteria_weight_2", "component": {"Text": {"text": {"literalString": "Weight: 25%"}, "usageHint": "body"}}}, {"id": "criteria_desc_2", "component": {"Text": {"text": {"literalString": "With a $2,000 monthly spend on travel/dining, a 3x or 4x multiplier translates to 72,000 - 96,000 points annually. In Tokyo, a food mecca, this is where you will accumulate the most rewards."}, "usageHint": "body"}}}, {"id": "criteria_card_3", "component": {"Card": {"child": "criteria_col_3"}}}, {"id": "criteria_col_3", "component": {"Column": {"children": {"explicitList": ["criteria_row_3", "criteria_desc_3"]}}}}, {"id": "criteria_row_3", "component": {"Row": {"children": {"explicitList": ["criteria_title_3", "criteria_weight_3"]}, "distribution": "spaceBetween"}}}, {"id": "criteria_title_3", "component": {"Text": {"text": {"literalString": "3. Annual Fee vs. Credits"}, "usageHint": "h4"}}}, {"id": "criteria_weight_3", "component": {"Text": {"text": {"literalString": "Weight: 20%"}, "usageHint": "body"}}}, {"id": "criteria_desc_3", "component": {"Text": {"text": {"literalString": "Evaluate if the \"effective cost\" is low. If a $550 card offers $300 in travel credits and $200 in dining credits, the $50 net cost is easily justified by the other perks."}, "usageHint": "body"}}}, {"id": "criteria_card_4", "component": {"Card": {"child": "criteria_col_4"}}}, {"id": "criteria_col_4", "component": {"Column": {"children": {"explicitList": ["criteria_row_4", "criteria_desc_4"]}}}}, {"id": "criteria_row_4", "component": {"Row": {"children": {"explicitList": ["criteria_title_4", "criteria_weight_4"]}, "distribution": "spaceBetween"}}}, {"id": "criteria_title_4", "component": {"Text": {"text": {"literalString": "4. Lounge Access"}, "usageHint": "h4"}}}, {"id": "criteria_weight_4", "component": {"Text": {"text": {"literalString": "Weight: 15%"}, "usageHint": "body"}}}, {"id": "criteria_desc_4", "component": {"Text": {"text": {"literalString": "Important for the long-haul flight to Tokyo (approx. 11-14 hours from the US). Access to Priority Pass or carrier-specific lounges (like JAL/ANA partners) significantly improves the transit experience."}, "usageHint": "body"}}}, {"id": "criteria_card_5", "component": {"Card": {"child": "criteria_col_5"}}}, {"id": "criteria_col_5", "component": {"Column": {"children": {"explicitList": ["criteria_row_5", "criteria_desc_5"]}}}}, {"id": "criteria_row_5", "component": {"Row": {"children": {"explicitList": ["criteria_title_5", "criteria_weight_5"]}, "distribution": "spaceBetween"}}}, {"id": "criteria_title_5", "component": {"Text": {"text": {"literalString": "5. Global Entry / TSA PreCheck Credit"}, "usageHint": "h4"}}}, {"id": "criteria_weight_5", "component": {"Text": {"text": {"literalString": "Weight: 10%"}, "usageHint": "body"}}}, {"id": "criteria_desc_5", "component": {"Text": {"text": {"literalString": "A standard perk that saves $100 every 4-5 years. While useful, it is a one-time benefit and shouldn't be the primary driver of the card choice."}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "rec_title", "component": {"Text": {"text": {"literalString": "Recommended Weighting for $2,000 Monthly Spend"}, "usageHint": "h2"}}}, {"id": "rec_text", "component": {"Text": {"text": {"literalString": "Given your high dining and travel spend, you should prioritize Point Multipliers and No Foreign Transaction Fees. A card with 4x on dining will yield enough points for a free round-trip flight to Japan within 12-18 months of regular spending."}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "ver_title", "component": {"Text": {"text": {"literalString": "Verification Steps for 2025"}, "usageHint": "h2"}}}, {"id": "ver_step_1", "component": {"Text": {"text": {"literalString": "1. Check current sign-up bonuses (SUBs) which fluctuate monthly."}, "usageHint": "body"}}}, {"id": "ver_step_2", "component": {"Text": {"text": {"literalString": "2. Confirm if the card's transfer partners include ANA or Japan Airlines for maximum point value."}, "usageHint": "body"}}}, {"id": "ver_step_3", "component": {"Text": {"text": {"literalString": "3. Verify if the lounge network (e.g., Centurion vs. Priority Pass) has good coverage at Haneda (HND) or Narita (NRT)."}, "usageHint": "body"}}}, {"id": "divider_4", "component": {"Divider": {}}}, {"id": "ex_title", "component": {"Text": {"text": {"literalString": "Example Cards for 2025 (Synthetic/Plausible)"}, "usageHint": "h2"}}}, {"id": "ex_card_1", "component": {"Text": {"text": {"literalString": "- Option 1: The Global Voyager | 4x Dining/Travel | $0 Foreign Fee | $250 Annual Fee"}, "usageHint": "body"}}}, {"id": "ex_card_2", "component": {"Text": {"text": {"literalString": "- Option 2: Elite Transit Card | 3x Dining | Lounge Access | $595 Annual Fee"}, "usageHint": "body"}}}, {"id": "ex_card_3", "component": {"Text": {"text": {"literalString": "- Option 3: Simple Traveler | 2x Everything | No Fee | $95 Annual Fee"}, "usageHint": "body"}}}, {"id": "divider_5", "component": {"Divider": {}}}, {"id": "actions_title", "component": {"Text": {"text": {"literalString": "Quick Actions:"}, "usageHint": "body"}}}, {"id": "compare_button", "component": {"Button": {"child": "compare_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.bankrate.com/credit-cards/travel/"}}]}}}}, {"id": "compare_button_text", "component": {"Text": {"text": {"literalString": "Compare Top Travel Cards"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

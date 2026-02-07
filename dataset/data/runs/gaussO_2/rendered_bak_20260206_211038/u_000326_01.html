@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "recipeSurface"}}, {"surfaceUpdate": {"surfaceId": "recipeSurface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["titleText", "summaryText", "divider1", "assumptionsHeader", "assumptionsText", "divider2", "ingredientsHeader", "ingredientsList", "divider3", "instructionsHeader", "instructionsList", "divider4", "nutritionHeader", "nutritionList", "divider5", "quickActionsRow"]}}}}, {"id": "titleText", "component": {"Text": {"text": {"literalString": "Heart-Healthy Lemon Herb Cod with Roasted Vegetables"}, "usageHint": "h2"}}}, {"id": "summaryText", "component": {"Text": {"text": {"literalString": "A heart-healthy, low-sodium dinner featuring lean protein and fiber-rich vegetables seasoned with herbs and citrus instead of salt."}, "usageHint": "body"}}}, {"id": "divider1", "component": {"Divider": {}}}, {"id": "assumptionsHeader", "component": {"Text": {"text": {"literalString": "ASSUMPTIONS"}, "usageHint": "h4"}}}, {"id": "assumptionsText", "component": {"Text": {"text": {"literalString": "- No salt is added during cooking; flavor comes from lemon, garlic, and herbs.\n- Vegetable portions are 1 cup per person."}, "usageHint": "body"}}}, {"id": "divider2", "component": {"Divider": {}}}, {"id": "ingredientsHeader", "component": {"Text": {"text": {"literalString": "INGREDIENTS (Per Serving)"}, "usageHint": "h4"}}}, {"id": "ingredientsList", "component": {"List": {"children": {"explicitList": ["ingredient1", "ingredient2", "ingredient3", "ingredient4", "ingredient5", "ingredient6", "ingredient7", "ingredient8", "ingredient9"]}, "direction": "vertical"}}}, {"id": "ingredient1", "component": {"Text": {"text": {"literalString": "- 150g Cod Fillet"}, "usageHint": "body"}}}, {"id": "ingredient2", "component": {"Text": {"text": {"literalString": "- 1/2 Zucchini, sliced"}, "usageHint": "body"}}}, {"id": "ingredient3", "component": {"Text": {"text": {"literalString": "- 1/2 Red Bell Pepper, chopped"}, "usageHint": "body"}}}, {"id": "ingredient4", "component": {"Text": {"text": {"literalString": "- 1/4 Red Onion, wedged"}, "usageHint": "body"}}}, {"id": "ingredient5", "component": {"Text": {"text": {"literalString": "- 5 Cherry Tomatoes"}, "usageHint": "body"}}}, {"id": "ingredient6", "component": {"Text": {"text": {"literalString": "- 1 tbsp Olive Oil"}, "usageHint": "body"}}}, {"id": "ingredient7", "component": {"Text": {"text": {"literalString": "- 1/2 Lemon (juice and zest)"}, "usageHint": "body"}}}, {"id": "ingredient8", "component": {"Text": {"text": {"literalString": "- 1 tsp Dried Oregano"}, "usageHint": "body"}}}, {"id": "ingredient9", "component": {"Text": {"text": {"literalString": "- 1 clove Garlic, minced"}, "usageHint": "body"}}}, {"id": "divider3", "component": {"Divider": {}}}, {"id": "instructionsHeader", "component": {"Text": {"text": {"literalString": "INSTRUCTIONS"}, "usageHint": "h4"}}}, {"id": "instructionsList", "component": {"List": {"children": {"explicitList": ["instruction1", "instruction2", "instruction3", "instruction4", "instruction5"]}, "direction": "vertical"}}}, {"id": "instruction1", "component": {"Text": {"text": {"literalString": "1. Prep Veggies: Toss zucchini, peppers, onion, and tomatoes with 1/2 tbsp olive oil and oregano."}, "usageHint": "body"}}}, {"id": "instruction2", "component": {"Text": {"text": {"literalString": "2. Roast: Spread vegetables on a baking sheet. Roast at 400 degrees Fahrenheit (200 Celsius) for 15 minutes."}, "usageHint": "body"}}}, {"id": "instruction3", "component": {"Text": {"text": {"literalString": "3. Prep Cod: Brush cod with remaining olive oil, lemon zest, and minced garlic."}, "usageHint": "body"}}}, {"id": "instruction4", "component": {"Text": {"text": {"literalString": "4. Grill/Bake: Move vegetables to one side of the tray and add cod. Roast for another 10-12 minutes until cod is opaque and flakes easily."}, "usageHint": "body"}}}, {"id": "instruction5", "component": {"Text": {"text": {"literalString": "5. Finish: Squeeze fresh lemon juice over everything before serving."}, "usageHint": "body"}}}, {"id": "divider4", "component": {"Divider": {}}}, {"id": "nutritionHeader", "component": {"Text": {"text": {"literalString": "NUTRITIONAL BREAKDOWN (Per Serving)"}, "usageHint": "h4"}}}, {"id": "nutritionList", "component": {"List": {"children": {"explicitList": ["nutrition1", "nutrition2", "nutrition3", "nutrition4", "nutrition5", "nutrition6", "nutrition7"]}, "direction": "vertical"}}}, {"id": "nutrition1", "component": {"Text": {"text": {"literalString": "- Calories: 285 kcal"}, "usageHint": "body"}}}, {"id": "nutrition2", "component": {"Text": {"text": {"literalString": "- Total Fat: 9g"}, "usageHint": "body"}}}, {"id": "nutrition3", "component": {"Text": {"text": {"literalString": "- Saturated Fat: 1.5g"}, "usageHint": "body"}}}, {"id": "nutrition4", "component": {"Text": {"text": {"literalString": "- Protein: 32g"}, "usageHint": "body"}}}, {"id": "nutrition5", "component": {"Text": {"text": {"literalString": "- Sodium: 115mg"}, "usageHint": "body"}}}, {"id": "nutrition6", "component": {"Text": {"text": {"literalString": "- Carbohydrates: 12g"}, "usageHint": "body"}}}, {"id": "nutrition7", "component": {"Text": {"text": {"literalString": "- Fiber: 4g"}, "usageHint": "body"}}}, {"id": "divider5", "component": {"Divider": {}}}, {"id": "quickActionsRow", "component": {"Row": {"children": {"explicitList": ["lowSodiumButton", "heartHealthyButton"]}, "distribution": "spaceBetween"}}}, {"id": "lowSodiumButton", "component": {"Button": {"child": "lowSodiumButtonText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/low-sodium-guide"}}]}}}}, {"id": "lowSodiumButtonText", "component": {"Text": {"text": {"literalString": "Low Sodium Shopping Tips"}, "usageHint": "body"}}}, {"id": "heartHealthyButton", "component": {"Button": {"child": "heartHealthyButtonText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/heart-healthy-recipes"}}]}}}}, {"id": "heartHealthyButtonText", "component": {"Text": {"text": {"literalString": "Heart Healthy Recipes"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

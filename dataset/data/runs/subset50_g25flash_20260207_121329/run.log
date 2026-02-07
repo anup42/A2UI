@@ -1,0 +1,54 @@
+2026-02-07 15:11:52 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-02-07 15:12:40 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-02-07 15:13:50 INFO dataset: Stage3 created ui_id=u_000021_01 schema_ok=True
+2026-02-07 15:14:38 INFO dataset: Stage3 created ui_id=u_000022_01 schema_ok=True
+2026-02-07 15:15:08 INFO dataset: Stage3 created ui_id=u_000031_01 schema_ok=True
+2026-02-07 15:16:12 INFO dataset: Stage3 created ui_id=u_000032_01 schema_ok=True
+2026-02-07 15:16:59 INFO dataset: Stage3 created ui_id=u_000041_01 schema_ok=True
+2026-02-07 15:17:30 INFO dataset: Stage3 created ui_id=u_000042_01 schema_ok=True
+2026-02-07 15:18:32 INFO dataset: Stage3 created ui_id=u_000051_01 schema_ok=True
+2026-02-07 15:19:36 INFO dataset: Stage3 created ui_id=u_000052_01 schema_ok=True
+2026-02-07 15:20:30 INFO dataset: Stage3 created ui_id=u_000201_01 schema_ok=True
+2026-02-07 15:21:13 INFO dataset: Stage3 created ui_id=u_000202_01 schema_ok=True
+2026-02-07 15:22:15 INFO dataset: Stage3 created ui_id=u_000241_01 schema_ok=True
+2026-02-07 15:23:15 INFO dataset: Stage3 created ui_id=u_000242_01 schema_ok=True
+2026-02-07 15:23:41 INFO dataset: Stage3 created ui_id=u_000281_01 schema_ok=True
+2026-02-07 15:24:39 INFO dataset: Stage3 created ui_id=u_000282_01 schema_ok=True
+2026-02-07 15:25:08 INFO dataset: Stage3 created ui_id=u_000321_01 schema_ok=True
+2026-02-07 15:25:13 INFO dataset: Stage3 created ui_id=u_000322_01 schema_ok=True
+2026-02-07 15:25:54 INFO dataset: Stage3 created ui_id=u_000361_01 schema_ok=True
+2026-02-07 15:26:19 INFO dataset: Stage3 created ui_id=u_000362_01 schema_ok=True
+2026-02-07 15:27:15 INFO dataset: Stage3 created ui_id=u_000401_01 schema_ok=True
+2026-02-07 15:27:39 INFO dataset: Stage3 created ui_id=u_000402_01 schema_ok=True
+2026-02-07 15:27:48 INFO dataset: Stage3 created ui_id=u_000441_01 schema_ok=True
+2026-02-07 15:28:49 INFO dataset: Stage3 created ui_id=u_000442_01 schema_ok=True
+2026-02-07 15:29:03 INFO dataset: Stage3 created ui_id=u_000462_01 schema_ok=True
+2026-02-07 15:29:28 INFO dataset: Stage3 created ui_id=u_000481_01 schema_ok=True
+2026-02-07 15:29:30 ERROR dataset: Stage3 error response_id=r_000482_01: <urlopen error [WinError 10054] An existing connection was forcibly closed by the remote host>
+2026-02-07 15:29:30 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25flash_20260207_121329\aggregates.json
+2026-02-07 15:30:49 INFO dataset: Stage3 created ui_id=u_000482_01 schema_ok=True
+2026-02-07 15:31:19 INFO dataset: Stage3 created ui_id=u_000512_01 schema_ok=True
+2026-02-07 15:32:13 INFO dataset: Stage3 created ui_id=u_000521_01 schema_ok=True
+2026-02-07 15:32:38 INFO dataset: Stage3 created ui_id=u_000522_01 schema_ok=True
+2026-02-07 15:33:02 INFO dataset: Stage3 created ui_id=u_000561_01 schema_ok=True
+2026-02-07 15:34:05 INFO dataset: Stage3 created ui_id=u_000562_01 schema_ok=True
+2026-02-07 15:34:55 INFO dataset: Stage3 created ui_id=u_000601_01 schema_ok=True
+2026-02-07 15:36:09 INFO dataset: Stage3 created ui_id=u_000602_01 schema_ok=True
+2026-02-07 15:36:26 INFO dataset: Stage3 created ui_id=u_000605_01 schema_ok=True
+2026-02-07 15:37:07 INFO dataset: Stage3 created ui_id=u_000641_01 schema_ok=True
+2026-02-07 15:38:26 INFO dataset: Stage3 created ui_id=u_000642_01 schema_ok=True
+2026-02-07 15:39:14 INFO dataset: Stage3 created ui_id=u_000681_01 schema_ok=True
+2026-02-07 15:40:26 INFO dataset: Stage3 created ui_id=u_000682_01 schema_ok=True
+2026-02-07 15:41:30 INFO dataset: Stage3 created ui_id=u_000721_01 schema_ok=True
+2026-02-07 15:41:56 INFO dataset: Stage3 created ui_id=u_000722_01 schema_ok=True
+2026-02-07 15:42:20 INFO dataset: Stage3 created ui_id=u_000761_01 schema_ok=True
+2026-02-07 15:42:32 INFO dataset: Stage3 created ui_id=u_000762_01 schema_ok=True
+2026-02-07 15:42:57 INFO dataset: Stage3 created ui_id=u_000801_01 schema_ok=True
+2026-02-07 15:43:49 INFO dataset: Stage3 created ui_id=u_000802_01 schema_ok=True
+2026-02-07 15:44:22 INFO dataset: Stage3 created ui_id=u_000841_01 schema_ok=True
+2026-02-07 15:44:35 INFO dataset: Stage3 created ui_id=u_000842_01 schema_ok=True
+2026-02-07 15:45:26 INFO dataset: Stage3 created ui_id=u_000881_01 schema_ok=True
+2026-02-07 15:45:52 INFO dataset: Stage3 created ui_id=u_000882_01 schema_ok=True
+2026-02-07 15:47:00 INFO dataset: Stage3 created ui_id=u_000884_01 schema_ok=True
+2026-02-07 15:47:00 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25flash_20260207_121329\aggregates.json
+2026-02-07 15:47:00 INFO dataset: Stage3 complete.

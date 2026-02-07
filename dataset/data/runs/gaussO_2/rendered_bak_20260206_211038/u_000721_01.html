@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "satMathStudySchedule"}}, {"surfaceUpdate": {"surfaceId": "satMathStudySchedule", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "week1", "week2", "week3", "week4", "quickActions"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "4-Week SAT Math Study Schedule"}, "usageHint": "h2"}}}, {"id": "week1", "component": {"Card": {"child": "week1Content"}}}, {"id": "week1Content", "component": {"Column": {"children": {"explicitList": ["week1Title", "week1Day1", "week1Day2", "week1Day3", "week1Day4", "week1Day5", "week1Day6"]}}}}, {"id": "week1Title", "component": {"Text": {"text": {"literalString": "Week 1: Heart of Algebra"}, "usageHint": "h3"}}}, {"id": "week1Day1", "component": {"Text": {"text": {"literalString": "Monday: Linear equations in one variable (solving and interpreting)."}, "usageHint": "body"}}}, {"id": "week1Day2", "component": {"Text": {"text": {"literalString": "Tuesday: Linear equations in two variables (graphing and slopes)."}, "usageHint": "body"}}}, {"id": "week1Day3", "component": {"Text": {"text": {"literalString": "Wednesday: Linear functions and modeling real-world scenarios."}, "usageHint": "body"}}}, {"id": "week1Day4", "component": {"Text": {"text": {"literalString": "Thursday: Systems of linear equations (substitution and elimination)."}, "usageHint": "body"}}}, {"id": "week1Day5", "component": {"Text": {"text": {"literalString": "Friday: Linear inequalities in one or two variables."}, "usageHint": "body"}}}, {"id": "week1Day6", "component": {"Text": {"text": {"literalString": "Saturday (3 Hours): Comprehensive review of Week 1 topics + 20-question practice set on Heart of Algebra."}, "usageHint": "body"}}}, {"id": "week2", "component": {"Card": {"child": "week2Content"}}}, {"id": "week2Content", "component": {"Column": {"children": {"explicitList": ["week2Title", "week2Day1", "week2Day2", "week2Day3", "week2Day4", "week2Day5", "week2Day6"]}}}}, {"id": "week2Title", "component": {"Text": {"text": {"literalString": "Week 2: Problem Solving and Data Analysis"}, "usageHint": "h3"}}}, {"id": "week2Day1", "component": {"Text": {"text": {"literalString": "Monday: Ratios, rates, and proportions."}, "usageHint": "body"}}}, {"id": "week2Day2", "component": {"Text": {"text": {"literalString": "Tuesday: Percentages and units of measurement."}, "usageHint": "body"}}}, {"id": "week2Day3", "component": {"Text": {"text": {"literalString": "Wednesday: One-variable data: distributions, mean, median, and mode."}, "usageHint": "body"}}}, {"id": "week2Day4", "component": {"Text": {"text": {"literalString": "Thursday: Two-variable data: scatterplots and linear/exponential models."}, "usageHint": "body"}}}, {"id": "week2Day5", "component": {"Text": {"text": {"literalString": "Friday: Probability and conditional probability."}, "usageHint": "body"}}}, {"id": "week2Day6", "component": {"Text": {"text": {"literalString": "Saturday (3 Hours): Data analysis deep dive + full practice section focusing on tables/graphs."}, "usageHint": "body"}}}, {"id": "week3", "component": {"Card": {"child": "week3Content"}}}, {"id": "week3Content", "component": {"Column": {"children": {"explicitList": ["week3Title", "week3Day1", "week3Day2", "week3Day3", "week3Day4", "week3Day5", "week3Day6"]}}}}, {"id": "week3Title", "component": {"Text": {"text": {"literalString": "Week 3: Passport to Advanced Math"}, "usageHint": "h3"}}}, {"id": "week3Day1", "component": {"Text": {"text": {"literalString": "Monday: Operations with polynomials and factoring."}, "usageHint": "body"}}}, {"id": "week3Day2", "component": {"Text": {"text": {"literalString": "Tuesday: Quadratic equations and functions (vertex and standard form)."}, "usageHint": "body"}}}, {"id": "week3Day3", "component": {"Text": {"text": {"literalString": "Wednesday: Exponential functions and radicals."}, "usageHint": "body"}}}, {"id": "week3Day4", "component": {"Text": {"text": {"literalString": "Thursday: Rational expressions and equations."}, "usageHint": "body"}}}, {"id": "week3Day5", "component": {"Text": {"text": {"literalString": "Friday: Function notation and transformations."}, "usageHint": "body"}}}, {"id": "week3Day6", "component": {"Text": {"text": {"literalString": "Saturday (3 Hours): Advanced math problem set + review of complex quadratic word problems."}, "usageHint": "body"}}}, {"id": "week4", "component": {"Card": {"child": "week4Content"}}}, {"id": "week4Content", "component": {"Column": {"children": {"explicitList": ["week4Title", "week4Day1", "week4Day2", "week4Day3", "week4Day4", "week4Day5", "week4Day6"]}}}}, {"id": "week4Title", "component": {"Text": {"text": {"literalString": "Week 4: Geometry, Trigonometry, and Final Review"}, "usageHint": "h3"}}}, {"id": "week4Day1", "component": {"Text": {"text": {"literalString": "Monday: Area and volume formulas."}, "usageHint": "body"}}}, {"id": "week4Day2", "component": {"Text": {"text": {"literalString": "Tuesday: Lines, angles, and triangles (congruence and similarity)."}, "usageHint": "body"}}}, {"id": "week4Day3", "component": {"Text": {"text": {"literalString": "Wednesday: Right triangle trigonometry and the unit circle."}, "usageHint": "body"}}}, {"id": "week4Day4", "component": {"Text": {"text": {"literalString": "Thursday: Circles (theorems and equations)."}, "usageHint": "body"}}}, {"id": "week4Day5", "component": {"Text": {"text": {"literalString": "Friday: Full review of weak areas identified in weeks 1-3."}, "usageHint": "body"}}}, {"id": "week4Day6", "component": {"Text": {"text": {"literalString": "Saturday (3 Hours): Full-length SAT Math practice test under timed conditions + detailed error analysis."}, "usageHint": "body"}}}, {"id": "quickActions", "component": {"Column": {"children": {"explicitList": ["practiceButton", "officialPracticeButton"]}}}}, {"id": "practiceButton", "component": {"Button": {"child": "practiceButtonText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.khanacademy.org/sat"}}]}}}}, {"id": "practiceButtonText", "component": {"Text": {"text": {"literalString": "Practice on Khan Academy"}, "usageHint": "body"}}}, {"id": "officialPracticeButton", "component": {"Button": {"child": "officialPracticeButtonText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://satsuite.collegeboard.org/digital/digital-practice-questions/math"}}]}}}}, {"id": "officialPracticeButtonText", "component": {"Text": {"text": {"literalString": "Official College Board Practice"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

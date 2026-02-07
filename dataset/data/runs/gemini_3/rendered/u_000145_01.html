@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "car_rental_confirmation_summary"}}, {"surfaceUpdate": {"surfaceId": "car_rental_confirmation_summary", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_text", "reservation_card", "checklist_card", "action_row"]}}}}, {"id": "header_text", "component": {"Text": {"text": {"literalString": "Car Rental Confirmation Summary"}, "usageHint": "h2"}}}, {"id": "reservation_card", "component": {"Card": {"child": "reservation_col"}}}, {"id": "reservation_col", "component": {"Column": {"children": {"explicitList": ["suv_row", "loc_text", "pickup_text", "return_text", "extras_row"]}}}}, {"id": "suv_row", "component": {"Row": {"children": {"explicitList": ["suv_icon", "suv_text"]}, "alignment": "center"}}}, {"id": "suv_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000145_01_2_3085330.png"}, "usageHint": "icon"}}}, {"id": "suv_text", "component": {"Text": {"text": {"literalString": "Full-size SUV (Automatic)"}, "usageHint": "h3"}}}, {"id": "loc_text", "component": {"Text": {"text": {"literalString": "Location: Munich Airport (MUC)"}, "usageHint": "body"}}}, {"id": "pickup_text", "component": {"Text": {"text": {"literalString": "Pickup: 2025-08-10 at 10:00"}, "usageHint": "body"}}}, {"id": "return_text", "component": {"Text": {"text": {"literalString": "Return: 2025-08-17 at 10:00"}, "usageHint": "body"}}}, {"id": "extras_row", "component": {"Row": {"children": {"explicitList": ["ins_icon", "extras_text"]}, "alignment": "center"}}}, {"id": "ins_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000145_01_3_2850401.png"}, "usageHint": "icon"}}}, {"id": "extras_text", "component": {"Text": {"text": {"literalString": "Extras: 2 Child Booster Seats, Full Insurance Coverage"}, "usageHint": "body"}}}, {"id": "checklist_card", "component": {"Card": {"child": "checklist_col"}}}, {"id": "checklist_col", "component": {"Column": {"children": {"explicitList": ["checklist_title", "checklist_list"]}}}}, {"id": "checklist_title", "component": {"Text": {"text": {"literalString": "Driver Checklist"}, "usageHint": "h3"}}}, {"id": "checklist_list", "component": {"List": {"children": {"explicitList": ["check_item_1", "check_item_2", "check_item_3", "check_item_4"]}, "direction": "vertical"}}}, {"id": "check_item_1", "component": {"Text": {"text": {"literalString": "• Valid Driver's License (International Driving Permit required if license is non-EU)"}, "usageHint": "body"}}}, {"id": "check_item_2", "component": {"Text": {"text": {"literalString": "• Passport or National ID card"}, "usageHint": "body"}}}, {"id": "check_item_3", "component": {"Text": {"text": {"literalString": "• Credit Card in the main driver's name (for security deposit)"}, "usageHint": "body"}}}, {"id": "check_item_4", "component": {"Text": {"text": {"literalString": "• Booking Confirmation Voucher (Digital or Printed)"}, "usageHint": "body"}}}, {"id": "action_row", "component": {"Row": {"children": {"explicitList": ["terms_button"]}, "distribution": "start"}}}, {"id": "terms_button", "component": {"Button": {"child": "terms_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000145_01_1_rental-information.html"}}]}, "primary": true}}}, {"id": "terms_button_text", "component": {"Text": {"text": {"literalString": "View Rental Terms"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000145"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000145", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "btn_4", "text_5", "text_6"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Summary: Car Rental Confirmation Summary"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Reservation Details:\n- Location: Munich Airport (MUC)\n- Pickup: 2025-08-10 at 10:00\n- Return: 2025-08-17 at 10:00\n- Vehicle: Full-size SUV (Automatic)\n- Extras: 2 Child Booster Seats, Full Insurance Coverage"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Driver Checklist:\n- Valid Driver's License (International Driving Permit required if license is non-EU)\n- Passport or National ID card\n- Credit Card in the main driver's name (for security deposit)\n- Booking Confirmation Voucher (Digital or Printed)"}, "usageHint": "body"}}}, {"id": "btn_label_4", "component": {"Text": {"text": {"literalString": "View Rental Terms"}, "usageHint": "body"}}}, {"id": "btn_4", "component": {"Button": {"child": "btn_label_4", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.sixt.com/rental-information/"}}]}, "primary": true}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "- SUV: /assets/r_000145_01_2_3085330.png\n- Insurance: /assets/r_000145_01_3_2850401.png"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "- https://www.munich-airport.com/car-rental-89552\n- https://www.sixt.com"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

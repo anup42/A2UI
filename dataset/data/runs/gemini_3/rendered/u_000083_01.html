@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "seinen_anime_recs_01"}}, {"surfaceUpdate": {"surfaceId": "seinen_anime_recs_01", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title_text", "summary_text"]}, "alignment": "stretch"}}}, {"id": "title_text", "component": {"Text": {"text": {"literalString": "SEINEN ANIME RECOMMENDATIONS FOR PSYCHOLOGICAL THRILLER FANS"}, "usageHint": "h2"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "If you enjoyed the high-stakes intellectual battles of 'Death Note' and the deep character studies of 'Monster', these three Seinen series offer the same level of psychological depth and suspense."}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000083"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000083", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "btn_6", "btn_7"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "SEINEN ANIME RECOMMENDATIONS FOR PSYCHOLOGICAL THRILLER FANS"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "SUMMARY\nIf you enjoyed the high-stakes intellectual battles of 'Death Note' and the deep character studies of 'Monster', these three Seinen series offer similar dark, psychological themes."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "RECOMMENDED SERIES\nOption 1: Psycho-Pass | A futuristic society uses a system to determine a person's criminal intent, leading to a hunt for a mastermind who can bypass it. | Genre: Cyberpunk, Psychological | 22 Episodes (S1)\nOption 2: Parasyte: The Maxim | Alien parasites arrive on Earth, taking over human hosts; one boy must coexist with his parasite to survive a secret war. | Genre: Sci-Fi, Horror | 24 Episodes\nOption 3: Erased (Boku dake ga Inai Machi) | A man with the ability to travel back in time a few minutes is sent back 18 years to prevent a serial kidnapping. | Genre: Mystery, Supernatural | 12 Episodes"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "WHY THEY FIT\n- Psycho-Pass: Mirrors the 'cat-and-mouse' detective dynamic found in Death Note and Monster.\n- Parasyte: Explores the philosophical and moral nature of humanity and identity, similar to Monster.\n- Erased: Features a gripping mystery with a chilling antagonist that keeps the viewer guessing until the end."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "- Thriller: /assets/r_000083_01_1_horror.png\n- Mystery: /assets/r_000083_01_2_search.png"}, "usageHint": "body"}}}, {"id": "btn_label_6", "component": {"Text": {"text": {"literalString": "Watch on Crunchyroll"}, "usageHint": "body"}}}, {"id": "btn_6", "component": {"Button": {"child": "btn_label_6", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.crunchyroll.com/"}}]}, "primary": true}}}, {"id": "btn_label_7", "component": {"Text": {"text": {"literalString": "Watch on Hulu"}, "usageHint": "body"}}}, {"id": "btn_7", "component": {"Button": {"child": "btn_label_7", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.hulu.com/"}}]}, "primary": true}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

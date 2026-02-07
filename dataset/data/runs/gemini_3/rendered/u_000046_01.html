@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "digital_ticket_preview_001"}}, {"surfaceUpdate": {"surfaceId": "digital_ticket_preview_001", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_title", "ticket_card", "requirements_section", "assumptions_text", "actions_row"]}, "alignment": "stretch"}}}, {"id": "header_title", "component": {"Text": {"text": {"literalString": "Digital Ticket Preview"}, "usageHint": "h2"}}}, {"id": "ticket_card", "component": {"Card": {"child": "card_content"}}}, {"id": "card_content", "component": {"Column": {"children": {"explicitList": ["show_title", "venue_text", "datetime_text", "divider_1", "seating_label", "seating_value", "divider_2", "cost_label", "cost_breakdown_col"]}}}}, {"id": "show_title", "component": {"Text": {"text": {"literalString": "${/ticket/show}"}, "usageHint": "h3"}}}, {"id": "venue_text", "component": {"Text": {"text": {"literalString": "${/ticket/venue}"}, "usageHint": "body"}}}, {"id": "datetime_text", "component": {"Text": {"text": {"literalString": "${/ticket/date} | ${/ticket/time}"}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "seating_label", "component": {"Text": {"text": {"literalString": "SEATING DETAILS"}, "usageHint": "caption"}}}, {"id": "seating_value", "component": {"Text": {"text": {"literalString": "${/ticket/seating}"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "cost_label", "component": {"Text": {"text": {"literalString": "COST BREAKDOWN"}, "usageHint": "caption"}}}, {"id": "cost_breakdown_col", "component": {"Column": {"children": {"explicitList": ["price_row", "fee_row", "total_row"]}}}}, {"id": "price_row", "component": {"Row": {"children": {"explicitList": ["price_label", "price_val"]}, "distribution": "spaceBetween"}}}, {"id": "price_label", "component": {"Text": {"text": {"literalString": "Ticket Price (£145.00 x 2)"}, "usageHint": "body"}}}, {"id": "price_val", "component": {"Text": {"text": {"literalString": "${formatCurrency(value:/ticket/price, currency:/ticket/currency)}"}, "usageHint": "body"}}}, {"id": "fee_row", "component": {"Row": {"children": {"explicitList": ["fee_label", "fee_val"]}, "distribution": "spaceBetween"}}}, {"id": "fee_label", "component": {"Text": {"text": {"literalString": "Booking Fee (£5.00 x 2)"}, "usageHint": "body"}}}, {"id": "fee_val", "component": {"Text": {"text": {"literalString": "${formatCurrency(value:/ticket/fee, currency:/ticket/currency)}"}, "usageHint": "body"}}}, {"id": "total_row", "component": {"Row": {"children": {"explicitList": ["total_label", "total_val"]}, "distribution": "spaceBetween"}}}, {"id": "total_label", "component": {"Text": {"text": {"literalString": "Total Paid"}, "usageHint": "h5"}}}, {"id": "total_val", "component": {"Text": {"text": {"literalString": "${formatCurrency(value:/ticket/total, currency:/ticket/currency)}"}, "usageHint": "h5"}}}, {"id": "requirements_section", "component": {"Column": {"children": {"explicitList": ["req_title", "req_body"]}}}}, {"id": "req_title", "component": {"Text": {"text": {"literalString": "ENTRY REQUIREMENTS"}, "usageHint": "caption"}}}, {"id": "req_body", "component": {"Text": {"text": {"literalString": "- Please present this digital ticket or a printed copy at the entrance.\n- Security checks are in place; arrive at least 30 minutes before curtain-up.\n- Latecomers may not be admitted until a suitable break in the performance."}, "usageHint": "body"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "Assumptions: Seats F12 and F13 are adjacent. Prices include VAT."}, "usageHint": "caption"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["btn_map"]}, "distribution": "start"}}}, {"id": "btn_map", "component": {"Button": {"child": "btn_map_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/assets/r_000046_01_3_asset.html"}}]}, "primary": true}}}, {"id": "btn_map_text", "component": {"Text": {"text": {"literalString": "View Theatre Map"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000046"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000046", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "btn_7", "btn_8", "text_9"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Digital Ticket Preview"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Show: Wicked the Musical\nVenue: Apollo Victoria Theatre, London\nDate: Saturday, October 12, 2024\nTime: 19:30 (Evening Performance)"}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "Seating Details\n- Section: Stalls\n- Row: F\n- Seats: F12, F13"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Cost Breakdown\n- Ticket Price: £145.00 x 2\n- Booking Fee: £5.00 x 2\n- Total Paid: £300.00"}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "Entry Requirements\n- Please present this digital ticket or a printed copy at the entrance.\n- Security checks are in place; arrive at least 30 minutes before curtain-up.\n- Latecomers may not be admitted until a suitable break in the performance."}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "Assumptions: Seats F12 and F13 are adjacent. Prices include VAT."}, "usageHint": "body"}}}, {"id": "btn_label_7", "component": {"Text": {"text": {"literalString": "View Theatre Map"}, "usageHint": "body"}}}, {"id": "btn_7", "component": {"Button": {"child": "btn_label_7", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.theapollovictoria.com/plan-your-visit"}}]}, "primary": true}}}, {"id": "btn_label_8", "component": {"Text": {"text": {"literalString": "Add to Apple Wallet"}, "usageHint": "body"}}}, {"id": "btn_8", "component": {"Button": {"child": "btn_label_8", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.apple.com/wallet/"}}]}, "primary": true}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "- https://www.theapollovictoria.com"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

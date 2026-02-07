@@ -1,0 +1,31 @@
+2026-02-07 02:29:18 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-02-07 02:30:32 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-02-07 02:32:37 INFO dataset: Stage3 created ui_id=u_000003_01 schema_ok=True
+2026-02-07 02:34:35 INFO dataset: Stage3 created ui_id=u_000004_01 schema_ok=True
+2026-02-07 02:36:36 INFO dataset: Stage3 created ui_id=u_000005_01 schema_ok=True
+2026-02-07 02:37:54 INFO dataset: Stage3 created ui_id=u_000021_01 schema_ok=True
+2026-02-07 02:38:54 INFO dataset: Stage3 created ui_id=u_000022_01 schema_ok=True
+2026-02-07 02:39:30 INFO dataset: Stage3 created ui_id=u_000023_01 schema_ok=True
+2026-02-07 02:45:35 INFO dataset: Stage3 created ui_id=u_000024_01 schema_ok=True
+2026-02-07 02:46:49 INFO dataset: Stage3 created ui_id=u_000025_01 schema_ok=True
+2026-02-07 02:48:53 INFO dataset: Stage3 created ui_id=u_000026_01 schema_ok=True
+2026-02-07 02:51:05 INFO dataset: Stage3 created ui_id=u_000027_01 schema_ok=True
+2026-02-07 02:52:54 INFO dataset: Stage3 created ui_id=u_000031_01 schema_ok=True
+2026-02-07 02:53:21 INFO dataset: Stage3 created ui_id=u_000032_01 schema_ok=True
+2026-02-07 02:55:42 INFO dataset: Stage3 created ui_id=u_000033_01 schema_ok=True
+2026-02-07 02:57:46 INFO dataset: Stage3 created ui_id=u_000034_01 schema_ok=True
+2026-02-07 02:59:46 INFO dataset: Stage3 created ui_id=u_000034_01 schema_ok=True
+2026-02-07 02:59:46 INFO dataset: Stage3 created ui_id=u_000035_01 schema_ok=True
+2026-02-07 03:01:46 INFO dataset: Stage3 created ui_id=u_000035_01 schema_ok=True
+2026-02-07 03:03:28 INFO dataset: Stage3 created ui_id=u_000036_01 schema_ok=True
+2026-02-07 03:04:34 INFO dataset: Stage3 created ui_id=u_000037_01 schema_ok=True
+2026-02-07 03:05:47 INFO dataset: Stage3 created ui_id=u_000038_01 schema_ok=True
+2026-02-07 03:05:47 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_model_gemma327b20_20260207_015007\aggregates.json
+2026-02-07 03:05:47 INFO dataset: Stage3 complete.
+2026-02-07 03:09:54 INFO dataset: Stage3 created ui_id=u_000036_01 schema_ok=True
+2026-02-07 03:11:36 INFO dataset: Stage3 created ui_id=u_000037_01 schema_ok=True
+2026-02-07 03:12:48 INFO dataset: Stage3 created ui_id=u_000038_01 schema_ok=True
+2026-02-07 03:12:48 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_model_gemma327b20_20260207_015007\aggregates.json
+2026-02-07 03:12:48 INFO dataset: Stage3 complete.
+2026-02-07 11:43:47 INFO dataset: Stage4 HTTP server started on port 56262
+2026-02-07 11:44:04 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_model_gemma327b20_20260207_015007\rendered

@@ -1,0 +1,4 @@
+2026-02-07 16:40:32 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-07 16:40:32 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gpt5mini_20260207_121329\aggregates.json
+2026-02-07 16:43:40 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-07 16:43:40 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gpt5mini_20260207_121329\aggregates.json

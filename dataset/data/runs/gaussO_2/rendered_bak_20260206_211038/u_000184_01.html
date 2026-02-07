@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "precipitationComparison"}}, {"surfaceUpdate": {"surfaceId": "precipitationComparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "summaryText", "annualDataTable", "seasonalDifferencesList", "precipitationTable"]}}}}, {"id": "header", "component": {"Row": {"children": {"explicitList": ["seattleIcon", "title", "hiloIcon"]}, "distribution": "center", "alignment": "center"}}}, {"id": "seattleIcon", "component": {"Image": {"url": {"literalString": "/assets/r_000179_01_1_rain.png"}, "usageHint": "icon"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Seattle vs Hilo Precipitation Comparison"}, "usageHint": "h3"}}}, {"id": "hiloIcon", "component": {"Image": {"url": {"literalString": "/assets/r_000179_01_1_rain.png"}, "usageHint": "icon"}}}, {"id": "summaryText", "component": {"Text": {"text": {"literalString": "While Seattle is known for its frequent rain, Hilo, Hawaii, is significantly wetter in terms of total volume. Seattle's precipitation is highly seasonal, characterized by wet winters and very dry summers. Hilo receives heavy rainfall year-round with no true dry season, though it peaks in the autumn and winter months."}, "usageHint": "body"}}}, {"id": "annualDataTable", "component": {"List": {"children": {"explicitList": ["annualDataHeader", "annualDataSeattle", "annualDataHilo"]}, "direction": "vertical"}}}, {"id": "annualDataHeader", "component": {"Text": {"text": {"literalString": "Annual Data Comparison (Inches)"}, "usageHint": "h4"}}}, {"id": "annualDataSeattle", "component": {"Text": {"text": {"literalString": "Seattle, WA | 37.8\" | Nov (6.6\") | July (0.7\")"}, "usageHint": "body"}}}, {"id": "annualDataHilo", "component": {"Text": {"text": {"literalString": "Hilo, HI | 129.2\" | Nov (14.4\") | June (7.4\")"}, "usageHint": "body"}}}, {"id": "seasonalDifferencesList", "component": {"List": {"children": {"explicitList": ["seasonalDifferencesHeader", "winterItem", "summerItem", "intensityItem"]}, "direction": "vertical"}}}, {"id": "seasonalDifferencesHeader", "component": {"Text": {"text": {"literalString": "Seasonal Differences"}, "usageHint": "h4"}}}, {"id": "winterItem", "component": {"Text": {"text": {"literalString": "Winter (Dec-Feb): Seattle is consistently wet (avg ~5\"). Hilo is extremely wet (avg ~10\")."}, "usageHint": "body"}}}, {"id": "summerItem", "component": {"Text": {"text": {"literalString": "Summer (Jun-Aug): Seattle experiences a pronounced dry period (as low as 0.7\"), whereas Hilo's 'driest' month (7.4\") is still wetter than Seattle's wettest month."}, "usageHint": "body"}}}, {"id": "intensityItem", "component": {"Text": {"text": {"literalString": "Intensity: Hilo's rain often comes in heavy tropical downpours, whereas Seattle's rain is frequently a persistent light drizzle."}, "usageHint": "body"}}}, {"id": "precipitationTable", "component": {"List": {"children": {"explicitList": ["precipitationTableHeader", "precipitationTableJan", "precipitationTableFeb", "precipitationTableMar", "precipitationTableApr", "precipitationTableMay", "precipitationTableJun", "precipitationTableJul", "precipitationTableAug", "precipitationTableSep", "precipitationTableOct", "precipitationTableNov", "precipitationTableDec"]}, "direction": "vertical"}}}, {"id": "precipitationTableHeader", "component": {"Text": {"text": {"literalString": "Precipitation Table"}, "usageHint": "h4"}}}, {"id": "precipitationTableJan", "component": {"Text": {"text": {"literalString": "Jan | Seattle (5.6\") | Hilo (9.3\")"}, "usageHint": "body"}}}, {"id": "precipitationTableFeb", "component": {"Text": {"text": {"literalString": "Feb | Seattle (3.5\") | Hilo (10.2\")"}, "usageHint": "body"}}}, {"id": "precipitationTableMar", "component": {"Text": {"text": {"literalString": "Mar | Seattle (3.7\") | Hilo (13.4\")"}, "usageHint": "body"}}}, {"id": "precipitationTableApr", "component": {"Text": {"text": {"literalString": "Apr | Seattle (2.9\") | Hilo (11.5\")"}, "usageHint": "body"}}}, {"id": "precipitationTableMay", "component": {"Text": {"text": {"literalString": "May | Seattle (2.1\") | Hilo (8.1\")"}, "usageHint": "body"}}}, {"id": "precipitationTableJun", "component": {"Text": {"text": {"literalString": "Jun | Seattle (1.6\") | Hilo (7.4\")"}, "usageHint": "body"}}}, {"id": "precipitationTableJul", "component": {"Text": {"text": {"literalString": "Jul | Seattle (0.7\") | Hilo (9.2\")"}, "usageHint": "body"}}}, {"id": "precipitationTableAug", "component": {"Text": {"text": {"literalString": "Aug | Seattle (1.0\") | Hilo (9.8\")"}, "usageHint": "body"}}}, {"id": "precipitationTableSep", "component": {"Text": {"text": {"literalString": "Sep | Seattle (1.5\") | Hilo (9.9\")"}, "usageHint": "body"}}}, {"id": "precipitationTableOct", "component": {"Text": {"text": {"literalString": "Oct | Seattle (3.5\") | Hilo (10.3\")"}, "usageHint": "body"}}}, {"id": "precipitationTableNov", "component": {"Text": {"text": {"literalString": "Nov | Seattle (6.6\") | Hilo (14.4\")"}, "usageHint": "body"}}}, {"id": "precipitationTableDec", "component": {"Text": {"text": {"literalString": "Dec | Seattle (5.4\") | Hilo (11.5\")"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

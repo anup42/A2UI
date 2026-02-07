@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import threading
@@ -443,6 +444,23 @@ def _safe_json_dumps(value: Any) -> str:
     return text.replace("</", "<\\/")
 
 
+def _compute_renderer_assets_hash(assets_dir: Path, template_text: str) -> str:
+    """
+    Hash template + OneUI overlay assets so Stage4 can re-render automatically
+    when styling changes, even if render.jsonl already has successful entries.
+    """
+    hasher = hashlib.sha256()
+    hasher.update(template_text.encode("utf-8"))
+
+    themes_dir = assets_dir / "themes"
+    if themes_dir.exists():
+        for path in sorted(p for p in themes_dir.rglob("*") if p.is_file()):
+            hasher.update(path.relative_to(assets_dir).as_posix().encode("utf-8"))
+            hasher.update(path.read_bytes())
+
+    return hasher.hexdigest()
+
+
 def _ensure_trailing_slash(uri: str) -> str:
     return uri if uri.endswith("/") else uri + "/"
 
@@ -543,6 +561,7 @@ def run_stage4(
     if not template_path.exists():
         raise FileNotFoundError(f"Template not found: {template_path}")
     template = template_path.read_text(encoding="utf-8")
+    renderer_assets_hash = _compute_renderer_assets_hash(assets_dir, template)
 
     render_log_path = output_dir.parent / "render.jsonl"
     existing_rows = load_jsonl_by_key(render_log_path, "ui_id")
@@ -577,7 +596,14 @@ def run_stage4(
             prev_render = prev.get("render") if isinstance(prev, dict) else None
             prev_error = prev_render.get("error") if isinstance(prev_render, dict) else None
             prev_image = prev.get("image_path") if isinstance(prev, dict) else None
-            if not (render_images and (prev_error or not prev_image)):
+            prev_assets_hash = (
+                prev_render.get("renderer_assets_hash")
+                if isinstance(prev_render, dict)
+                else None
+            )
+            needs_rerender_for_assets = prev_assets_hash != renderer_assets_hash
+            needs_rerender_for_image = render_images and (prev_error or not prev_image)
+            if not (needs_rerender_for_assets or needs_rerender_for_image):
                 continue
         if max_total is not None and created >= max_total:
             logger.info("Stage4 reached max_total=%s", max_total)
@@ -627,6 +653,7 @@ def run_stage4(
             "render": {
                 "image_ok": render_error is None and image_path is not None,
                 "error": render_error or renderer_error,
+                "renderer_assets_hash": renderer_assets_hash,
             },
         }
         writer.append(record)

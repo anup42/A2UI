@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from itertools import zip_longest
 from datetime import datetime
 from pathlib import Path
@@ -147,6 +149,39 @@ def _truncate_tokens(text: str, max_tokens: int) -> tuple[str, bool]:
     return trimmed, True
 
 
+def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logger) -> str:
+    provider = (adapter.spec.provider or "").lower()
+    model = (adapter.spec.model or "").lower()
+    compact_enabled = os.getenv("GENUI_COMPACT_PROMPT_FOR_GEMMA", "1").strip().lower()
+    if compact_enabled in {"0", "false", "no", "off"}:
+        return template
+    if provider != "gemini" or not model.startswith("gemma-"):
+        return template
+
+    compact = template
+    marker = "\nSchema ("
+    if marker in template:
+        compact = template.split(marker, 1)[0].rstrip()
+    compact = (
+        f"{compact}\n\n"
+        "Additional strict requirements:\n"
+        "- Use message types: createSurface, updateComponents, updateDataModel, deleteSurface.\n"
+        "- Set version to v0.9.\n"
+        "- Include createSurface before updates.\n"
+        "- In updateComponents, include exactly one root component with id 'root'.\n"
+        "- Output ONLY a JSON array of messages.\n"
+    )
+    before = count_tokens(template)
+    after = count_tokens(compact)
+    logger.info(
+        "Stage3 compact prompt enabled for model=%s tokens=%s->%s",
+        adapter.spec.model,
+        before,
+        after,
+    )
+    return compact
+
+
 def run_stage3(
     queries_path: Path | None,
     responses_path: Path,
@@ -169,7 +204,7 @@ def run_stage3(
     aggregates_path: Path | None = None,
     aggregate_weights: dict[str, float] | None = None,
 ) -> None:
-    prompt_template = load_prompt(prompt_path)
+    prompt_template = _maybe_compact_prompt_template(load_prompt(prompt_path), adapter, logger)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     artifacts_dir.mkdir(parents=True, exist_ok=True)
 
@@ -186,6 +221,11 @@ def run_stage3(
 
     existing_ids = {row.get("ui_id") for row in iter_jsonl(genui_path)}
     writer = JsonlWriter(genui_path)
+    gemini_parallel_workers = (
+        max(1, int(os.getenv("GEMINI_STAGE3_PARALLEL_THREADS", "1")))
+        if adapter.spec.provider == "gemini"
+        else 1
+    )
 
     def _write_aggregates() -> None:
         if not aggregates_path:
@@ -204,7 +244,12 @@ def run_stage3(
 
     total_created = 0
     pending: list[dict[str, Any]] = []
-    use_batch = adapter.spec.provider == "gemini" and hasattr(adapter, "generate_batch")
+    use_parallel = adapter.spec.provider == "gemini" and gemini_parallel_workers > 1
+    use_batch = (
+        adapter.spec.provider == "gemini"
+        and hasattr(adapter, "generate_batch")
+        and not use_parallel
+    )
     if batch_size <= 0:
         batch_size = 100
     stop = False
@@ -448,7 +493,7 @@ def run_stage3(
                 encoding="utf-8",
             )
 
-    def _generate_single(task: dict[str, Any]) -> None:
+    def _generate_single_result(task: dict[str, Any]):
         def _call():
             rate_limiter.acquire()
             return adapter.generate(
@@ -470,6 +515,10 @@ def run_stage3(
                     exc.headers or "none",
                 )
             raise
+        return result
+
+    def _generate_single(task: dict[str, Any]) -> None:
+        result = _generate_single_result(task)
         if result.error:
             logger.error("Stage3 error response_id=%s: %s", task["response_id"], result.error)
             raise RuntimeError(result.error)
@@ -521,6 +570,54 @@ def run_stage3(
                     )
                 logger.warning("Stage3 batch failed; falling back to single calls: %s", exc)
                 results = None
+
+        if use_parallel and results is None and len(tasks) > 1:
+            parallel_results: list[tuple[dict[str, Any], Any]] = []
+            parallel_failed = False
+            parallel_error: Exception | None = None
+            with ThreadPoolExecutor(max_workers=gemini_parallel_workers) as executor:
+                future_to_task = {executor.submit(_generate_single_result, task): task for task in tasks}
+                for future in as_completed(future_to_task):
+                    task = future_to_task[future]
+                    try:
+                        result = future.result()
+                    except Exception as exc:
+                        parallel_failed = True
+                        parallel_error = exc
+                        logger.warning(
+                            "Stage3 parallel worker failed response_id=%s: %s",
+                            task["response_id"],
+                            exc,
+                        )
+                        continue
+                    parallel_results.append((task, result))
+
+            if parallel_failed:
+                logger.warning(
+                    "Stage3 parallel batch degraded to sequential processing due to worker errors: %s",
+                    parallel_error,
+                )
+                for task in tasks:
+                    _generate_single(task)
+                return
+
+            for task, result in parallel_results:
+                if result.error:
+                    logger.error("Stage3 error response_id=%s: %s", task["response_id"], result.error)
+                    raise RuntimeError(result.error)
+                cache.set(task["prompt_hash"], result.text, result.raw)
+                _process_generated(
+                    task,
+                    result.text,
+                    result.raw,
+                    result.latency_ms,
+                    result.input_tokens,
+                    result.output_tokens,
+                    result.provider,
+                    result.model,
+                    result.error,
+                )
+            return
 
         if results is None:
             for task in tasks:
@@ -614,7 +711,12 @@ def run_stage3(
                     continue
 
                 if not use_batch:
-                    _generate_single(task)
+                    if use_parallel:
+                        pending.append(task)
+                        if len(pending) >= gemini_parallel_workers:
+                            _flush_pending()
+                    else:
+                        _generate_single(task)
                     continue
 
                 pending.append(task)

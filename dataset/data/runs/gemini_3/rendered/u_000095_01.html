@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "steam_budget_analysis"}}, {"surfaceUpdate": {"surfaceId": "steam_budget_analysis", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header_row", "game_list_card", "calc_text", "budget_card", "summary_card"]}, "alignment": "stretch"}}}, {"id": "header_row", "component": {"Row": {"children": {"explicitList": ["steam_icon", "title_text"]}, "alignment": "center"}}}, {"id": "steam_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000095_01_1_steam.png"}, "usageHint": "icon"}}}, {"id": "title_text", "component": {"Text": {"text": {"literalString": "Steam Indie Game Budget Analysis"}, "usageHint": "h2"}}}, {"id": "game_list_card", "component": {"Card": {"child": "game_list_col"}}}, {"id": "game_list_col", "component": {"Column": {"children": {"explicitList": {"componentId": "game_item_row", "path": "/games"}}}}}, {"id": "game_item_row", "component": {"Row": {"children": {"explicitList": ["game_name", "game_price"]}, "distribution": "spaceBetween"}}}, {"id": "game_name", "component": {"Text": {"text": {"path": "name"}, "usageHint": "body"}}}, {"id": "game_price", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'args': {'value': {'path': 'price'}, 'currency': 'USD'}, 'returnType': 'string'}"}, "usageHint": "body"}}}, {"id": "calc_text", "component": {"Text": {"text": {"literalString": "7.50 + 10.00 + 12.50 + 5.00 + 15.00 = $50.00"}, "usageHint": "caption"}}}, {"id": "budget_card", "component": {"Card": {"child": "budget_col"}}}, {"id": "budget_col", "component": {"Column": {"children": {"explicitList": ["budget_header", "budget_start_row", "budget_spent_row", "budget_rem_row"]}}}}, {"id": "budget_header", "component": {"Row": {"children": {"explicitList": ["wallet_icon", "budget_title"]}, "alignment": "center"}}}, {"id": "wallet_icon", "component": {"Image": {"url": {"literalString": "/assets/r_000095_01_2_wallet.png"}, "usageHint": "icon"}}}, {"id": "budget_title", "component": {"Text": {"text": {"literalString": "Budget Overview"}, "usageHint": "h4"}}}, {"id": "budget_start_row", "component": {"Row": {"children": {"explicitList": ["start_label", "start_val"]}, "distribution": "spaceBetween"}}}, {"id": "start_label", "component": {"Text": {"text": {"literalString": "Starting Budget"}, "usageHint": "body"}}}, {"id": "start_val", "component": {"Text": {"text": {"literalString": "$100.00"}, "usageHint": "body"}}}, {"id": "budget_spent_row", "component": {"Row": {"children": {"explicitList": ["spent_label", "spent_val"]}, "distribution": "spaceBetween"}}}, {"id": "spent_label", "component": {"Text": {"text": {"literalString": "Total Spent"}, "usageHint": "body"}}}, {"id": "spent_val", "component": {"Text": {"text": {"literalString": "$50.00"}, "usageHint": "body"}}}, {"id": "budget_rem_row", "component": {"Row": {"children": {"explicitList": ["rem_label", "rem_val"]}, "distribution": "spaceBetween"}}}, {"id": "rem_label", "component": {"Text": {"text": {"literalString": "Remaining"}, "usageHint": "body"}}}, {"id": "rem_val", "component": {"Text": {"text": {"literalString": "$50.00"}, "usageHint": "body"}}}, {"id": "summary_card", "component": {"Card": {"child": "summary_col"}}}, {"id": "summary_col", "component": {"Column": {"children": {"explicitList": ["summary_title", "summary_table_header", "summary_divider", "row_subtotal", "row_tax", "row_total", "row_left"]}}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "Summary Table"}, "usageHint": "h4"}}}, {"id": "summary_table_header", "component": {"Row": {"children": {"explicitList": ["header_item", "header_price"]}, "distribution": "spaceBetween"}}}, {"id": "header_item", "component": {"Text": {"text": {"literalString": "Item"}, "usageHint": "caption"}}}, {"id": "header_price", "component": {"Text": {"text": {"literalString": "Price"}, "usageHint": "caption"}}}, {"id": "summary_divider", "component": {"Divider": {}}}, {"id": "row_subtotal", "component": {"Row": {"children": {"explicitList": ["sub_label", "sub_val"]}, "distribution": "spaceBetween"}}}, {"id": "sub_label", "component": {"Text": {"text": {"literalString": "Subtotal"}, "usageHint": "body"}}}, {"id": "sub_val", "component": {"Text": {"text": {"literalString": "$50.00"}, "usageHint": "body"}}}, {"id": "row_tax", "component": {"Row": {"children": {"explicitList": ["tax_label", "tax_val"]}, "distribution": "spaceBetween"}}}, {"id": "tax_label", "component": {"Text": {"text": {"literalString": "Tax (Estimated 0%)"}, "usageHint": "body"}}}, {"id": "tax_val", "component": {"Text": {"text": {"literalString": "$0.00"}, "usageHint": "body"}}}, {"id": "row_total", "component": {"Row": {"children": {"explicitList": ["total_label", "total_val"]}, "distribution": "spaceBetween"}}}, {"id": "total_label", "component": {"Text": {"text": {"literalString": "Total Cost"}, "usageHint": "body"}}}, {"id": "total_val", "component": {"Text": {"text": {"literalString": "$50.00"}, "usageHint": "body"}}}, {"id": "row_left", "component": {"Row": {"children": {"explicitList": ["left_label", "left_val"]}, "distribution": "spaceBetween"}}}, {"id": "left_label", "component": {"Text": {"text": {"literalString": "Budget Left"}, "usageHint": "body"}}}, {"id": "left_val", "component": {"Text": {"text": {"literalString": "$50.00"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000095"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000095", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Steam Indie Game Budget Analysis\n\nGame List & Prices (Hypothetical Sale)\n\n- Hollow Knight: $7.50\n- Stardew Valley: $10.00\n- Hades: $12.50\n- Celeste: $5.00\n- Outer Wilds: $15.00\n\nTotal Cost Calculation\n7.50 + 10.00 + 12.50 + 5.00 + 15.00 = $50.00\n\nBudget Remaining\n- Starting Budget: $100.00\n- Total Spent: $50.00\n- Remaining: $50.00\n\nSummary Table\n\nItem | Price\n--- | ---\nSubtotal | $50.00\nTax (Estimated 0%) | $0.00\nTotal Cost | $50.00\nBudget Left | $50.00\n\nIcons:\n- Gaming: /assets/r_000095_01_1_steam.png\n- Money: /assets/r_000095_01_2_wallet.png"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

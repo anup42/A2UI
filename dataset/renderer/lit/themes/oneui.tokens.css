@@ -1,0 +1,17 @@
+:root {
+  --oneui-color-bg: #f2f4f8;
+  --oneui-color-surface: #ffffff;
+  --oneui-color-surface-alt: #f8f9fc;
+  --oneui-color-primary: #0b57d0;
+  --oneui-color-primary-pressed: #0844a4;
+  --oneui-color-on-primary: #ffffff;
+  --oneui-color-on-surface: #151515;
+  --oneui-color-on-surface-variant: #5f6368;
+  --oneui-color-outline: #d6dae1;
+  --oneui-color-outline-variant: #e3e7ee;
+  --oneui-radius-xl: 24px;
+  --oneui-radius-lg: 18px;
+  --oneui-radius-md: 14px;
+  --oneui-shadow-card: 0 8px 24px rgba(20, 24, 35, 0.08);
+  --oneui-shadow-surface: 0 2px 8px rgba(20, 24, 35, 0.05);
+}

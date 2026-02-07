@@ -14,9 +14,9 @@ run:
   response_temperatures:
   - 0.7
   response_max_tokens: 4096
-  response_batch_size: 10
-  query_batch_size: 10
-  genui_batch_size: 10
+  response_batch_size: 1
+  query_batch_size: 1
+  genui_batch_size: 1
   response_group_by_intent: true
   response_batch_fallback_per_query: true
   query_max_tokens: 20240
@@ -25,7 +25,7 @@ run:
   cache_dir: data/cache
   artifact_dir: artifacts
   dry_run: false
-  call_sleep_seconds: 10
+  call_sleep_seconds: 1
   max_queries_total: 2000
   max_responses_total: 2000
   max_genui_total: 2000

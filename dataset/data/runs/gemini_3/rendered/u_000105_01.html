@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "vancouver-indoor-venues"}}, {"surfaceUpdate": {"surfaceId": "vancouver-indoor-venues", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["txt_title", "txt_summary", "txt_assumptions", "div_1", "list_activities", "div_2", "txt_verif_title", "txt_verif_steps", "row_actions", "txt_sources"]}, "alignment": "start"}}}, {"id": "txt_title", "component": {"Text": {"text": {"literalString": "Vancouver Indoor Activities"}, "usageHint": "h2"}}}, {"id": "txt_summary", "component": {"Text": {"text": {"literalString": "Vancouver offers a wide range of indoor activities, from world-class museums and galleries to unique shopping and recreational centers, perfect for any weather."}, "usageHint": "body"}}}, {"id": "txt_assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: Recommendations are based on popular venues within the city limits."}, "usageHint": "caption"}}}, {"id": "div_1", "component": {"Divider": {}}}, {"id": "list_activities", "component": {"Text": {"text": {"literalString": "• Science World\n• Vancouver Art Gallery\n• Bloedel Conservatory\n• FlyOver Canada\n• Granville Island Public Market"}, "usageHint": "body"}}}, {"id": "div_2", "component": {"Divider": {}}}, {"id": "txt_verif_title", "component": {"Text": {"text": {"literalString": "Verification Steps"}, "usageHint": "h3"}}}, {"id": "txt_verif_steps", "component": {"Text": {"text": {"literalString": "1. Confirm seasonal opening hours.\n2. Check for required timed-entry reservations."}, "usageHint": "body"}}}, {"id": "row_actions", "component": {"Row": {"children": {"explicitList": []}}}}, {"id": "txt_sources", "component": {"Text": {"text": {"literalString": "Sources: Destination Vancouver, TripAdvisor"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000105"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000105", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "icon_row_6", "btn_7", "btn_8", "text_9"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "SUMMARY\nVancouver offers several high-quality indoor venues to keep children active and entertained during the city's frequent rainy days."}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Assumptions: Venues are currently open to the public and suitable for the 5-10 age range."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "INDOOR ACTIVITY CARDS"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "Option 1: Science World | Science Center | The 'Wonder' gallery and live science demonstrations provide hands-on learning that feels like play.\nOption 2: Kidtropolis | Indoor Playland | A massive 'pretend' city where kids can be pilots, doctors, or grocery clerks in an immersive environment.\nOption 3: Extreme Air Park | Trampoline Park | Features massive interconnected trampolines and foam pits, ideal for burning off energy when outdoor parks are wet.\nOption 4: Vancouver Aquarium | Aquarium | The indoor galleries and 4D theater provide an engaging look at marine life without getting rained on.\nOption 5: Clip 'n Climb | Climbing Gym | Provides colorful, themed climbing walls with auto-belay systems that are safe and easy for school-aged children."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "VERIFICATION STEPS\n1. Visit the official website for each venue to check current ticket prices.\n2. Look for 'Timed Entry' requirements, which are common for Science World and the Aquarium.\n3. Check Google Maps for real-time 'busyness' levels to avoid peak crowds."}, "usageHint": "body"}}}, {"id": "icon_img_6", "component": {"Image": {"url": {"literalString": "https://images.unsplash.com/photo-1568311162432-887460980182"}, "usageHint": "icon"}}}, {"id": "icon_label_6", "component": {"Text": {"text": {"literalString": "Science World"}, "usageHint": "body"}}}, {"id": "icon_row_6", "component": {"Row": {"children": {"explicitList": ["icon_img_6", "icon_label_6"]}, "alignment": "center"}}}, {"id": "btn_label_7", "component": {"Text": {"text": {"literalString": "Book Science World"}, "usageHint": "body"}}}, {"id": "btn_7", "component": {"Button": {"child": "btn_label_7", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.scienceworld.ca"}}]}, "primary": true}}}, {"id": "btn_label_8", "component": {"Text": {"text": {"literalString": "Visit Vancouver Aquarium"}, "usageHint": "body"}}}, {"id": "btn_8", "component": {"Button": {"child": "btn_label_8", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.vanaqua.org"}}]}, "primary": true}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "- https://www.destinationvancouver.com"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,97 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }

@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "energy-analysis-london-001"}}, {"surfaceUpdate": {"surfaceId": "energy-analysis-london-001", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-section", "summary-card", "chart-section", "actions-row"]}, "alignment": "stretch"}}}, {"id": "header-section", "component": {"Column": {"children": {"explicitList": ["title", "subtitle", "assumption"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Energy Consumption Analysis: London Smart Home"}, "usageHint": "h2"}}}, {"id": "subtitle", "component": {"Text": {"text": {"literalString": "Week of 2024-05-13"}, "usageHint": "h3"}}}, {"id": "assumption", "component": {"Text": {"text": {"literalString": "Assumptions: Rate of £0.28 per kWh is fixed for the duration of the week."}, "usageHint": "caption"}}}, {"id": "summary-card", "component": {"Card": {"child": "summary-row"}}}, {"id": "summary-row", "component": {"Row": {"children": {"explicitList": ["cons-col", "cost-col", "avg-col"]}, "distribution": "spaceAround"}}}, {"id": "cons-col", "component": {"Column": {"children": {"explicitList": ["icon-energy", "label-cons", "val-cons"]}, "alignment": "center"}}}, {"id": "icon-energy", "component": {"Image": {"url": {"literalString": "/icons/energy.png"}, "usageHint": "icon"}}}, {"id": "label-cons", "component": {"Text": {"text": {"literalString": "Total Usage"}, "usageHint": "caption"}}}, {"id": "val-cons", "component": {"Text": {"text": {"literalString": "102.7 kWh"}, "usageHint": "h4"}}}, {"id": "cost-col", "component": {"Column": {"children": {"explicitList": ["icon-cost", "label-cost", "val-cost"]}, "alignment": "center"}}}, {"id": "icon-cost", "component": {"Image": {"url": {"literalString": "/icons/pound.png"}, "usageHint": "icon"}}}, {"id": "label-cost", "component": {"Text": {"text": {"literalString": "Total Cost"}, "usageHint": "caption"}}}, {"id": "val-cost", "component": {"Text": {"text": {"literalString": "£28.76"}, "usageHint": "h4"}}}, {"id": "avg-col", "component": {"Column": {"children": {"explicitList": ["label-avg", "val-avg"]}, "distribution": "center", "alignment": "center"}}}, {"id": "label-avg", "component": {"Text": {"text": {"literalString": "Daily Avg"}, "usageHint": "caption"}}}, {"id": "val-avg", "component": {"Text": {"text": {"literalString": "£4.11"}, "usageHint": "h4"}}}, {"id": "chart-section", "component": {"Column": {"children": {"explicitList": ["chart-title", "mon-row", "tue-row", "wed-row", "thu-row", "fri-row", "sat-row", "sun-row"]}}}}, {"id": "chart-title", "component": {"Text": {"text": {"literalString": "Daily Consumption (kWh)"}, "usageHint": "h4"}}}, {"id": "mon-row", "component": {"Row": {"children": {"explicitList": ["mon-label", "mon-bar"]}, "alignment": "center"}}}, {"id": "mon-label", "component": {"Text": {"text": {"literalString": "Mon"}, "usageHint": "body"}}}, {"id": "mon-bar", "component": {"Card": {"child": "mon-val"}}}, {"id": "mon-val", "component": {"Text": {"text": {"literalString": "12.5"}, "usageHint": "body"}}}, {"id": "tue-row", "component": {"Row": {"children": {"explicitList": ["tue-label", "tue-bar"]}, "alignment": "center"}}}, {"id": "tue-label", "component": {"Text": {"text": {"literalString": "Tue"}, "usageHint": "body"}}}, {"id": "tue-bar", "component": {"Card": {"child": "tue-val"}}}, {"id": "tue-val", "component": {"Text": {"text": {"literalString": "11.8"}, "usageHint": "body"}}}, {"id": "wed-row", "component": {"Row": {"children": {"explicitList": ["wed-label", "wed-bar"]}, "alignment": "center"}}}, {"id": "wed-label", "component": {"Text": {"text": {"literalString": "Wed"}, "usageHint": "body"}}}, {"id": "wed-bar", "component": {"Card": {"child": "wed-val"}}}, {"id": "wed-val", "component": {"Text": {"text": {"literalString": "14.2"}, "usageHint": "body"}}}, {"id": "thu-row", "component": {"Row": {"children": {"explicitList": ["thu-label", "thu-bar"]}, "alignment": "center"}}}, {"id": "thu-label", "component": {"Text": {"text": {"literalString": "Thu"}, "usageHint": "body"}}}, {"id": "thu-bar", "component": {"Card": {"child": "thu-val"}}}, {"id": "thu-val", "component": {"Text": {"text": {"literalString": "13.5"}, "usageHint": "body"}}}, {"id": "fri-row", "component": {"Row": {"children": {"explicitList": ["fri-label", "fri-bar"]}, "alignment": "center"}}}, {"id": "fri-label", "component": {"Text": {"text": {"literalString": "Fri"}, "usageHint": "body"}}}, {"id": "fri-bar", "component": {"Card": {"child": "fri-val"}}}, {"id": "fri-val", "component": {"Text": {"text": {"literalString": "15.0"}, "usageHint": "body"}}}, {"id": "sat-row", "component": {"Row": {"children": {"explicitList": ["sat-label", "sat-bar"]}, "alignment": "center"}}}, {"id": "sat-label", "component": {"Text": {"text": {"literalString": "Sat"}, "usageHint": "body"}}}, {"id": "sat-bar", "component": {"Card": {"child": "sat-val"}}}, {"id": "sat-val", "component": {"Text": {"text": {"literalString": "18.2"}, "usageHint": "body"}}}, {"id": "sun-row", "component": {"Row": {"children": {"explicitList": ["sun-label", "sun-bar"]}, "alignment": "center"}}}, {"id": "sun-label", "component": {"Text": {"text": {"literalString": "Sun"}, "usageHint": "body"}}}, {"id": "sun-bar", "component": {"Card": {"child": "sun-val"}}}, {"id": "sun-val", "component": {"Text": {"text": {"literalString": "17.5"}, "usageHint": "body"}}}, {"id": "actions-row", "component": {"Row": {"children": {"explicitList": ["btn-tips", "btn-pay"]}, "distribution": "spaceBetween"}}}, {"id": "btn-tips", "component": {"Button": {"child": "text-tips", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/energy-tips"}}]}}}}, {"id": "text-tips", "component": {"Text": {"text": {"literalString": "View Energy Saving Tips"}, "usageHint": "body"}}}, {"id": "btn-pay", "component": {"Button": {"child": "text-pay", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/billing/pay"}}]}, "primary": true}}}, {"id": "text-pay", "component": {"Text": {"text": {"literalString": "Pay Bill Now"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

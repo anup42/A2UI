@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import threading
 import time
 import urllib.parse
 import urllib.request
@@ -12,6 +14,9 @@ from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
 
 
 class GeminiAdapter(BaseLLMAdapter):
+    _rate_lock = threading.Lock()
+    _last_request_at: dict[str, float] = {}
+
     def _load_keys(self) -> list[str]:
         keys = []
         multi = os.getenv("GEMINI_API_KEYS")
@@ -37,7 +42,6 @@ class GeminiAdapter(BaseLLMAdapter):
         lowered = message.lower()
         if "maxoutputtokens" not in lowered and "max_output_tokens" not in lowered:
             return None
-        import re
         match = re.search(r"(?:maxoutputtokens|max_output_tokens)[^0-9]*([0-9]{2,})", lowered)
         if match:
             try:
@@ -45,6 +49,65 @@ class GeminiAdapter(BaseLLMAdapter):
             except Exception:
                 return None
         return None
+
+    def _infer_retry_delay_seconds(self, message: str) -> Optional[float]:
+        if not message:
+            return None
+        # Prefer structured retryDelay when present.
+        try:
+            payload = json.loads(message)
+            details = payload.get("error", {}).get("details", [])
+            if isinstance(details, list):
+                for item in details:
+                    if not isinstance(item, dict):
+                        continue
+                    retry = item.get("retryDelay")
+                    if isinstance(retry, str):
+                        if retry.endswith("s"):
+                            retry = retry[:-1]
+                        return float(retry)
+        except Exception:
+            pass
+        # Fallback to plain-text message format:
+        # "Please retry in 58.694381314s."
+        lowered = message.lower()
+        match = re.search(r"retry in\\s+([0-9]+(?:\\.[0-9]+)?)s", lowered)
+        if match:
+            try:
+                return float(match.group(1))
+            except Exception:
+                return None
+        return None
+
+    def _request_timeout(self) -> float:
+        raw = os.getenv("GEMINI_TIMEOUT_SECONDS", "180")
+        try:
+            timeout = float(raw)
+        except Exception:
+            timeout = 180.0
+        return max(10.0, timeout)
+
+    def _min_interval(self) -> float:
+        # Set GEMINI_MIN_INTERVAL_SECONDS=12.5 for free tier style pacing (5 RPM).
+        raw = os.getenv("GEMINI_MIN_INTERVAL_SECONDS", "0")
+        try:
+            value = float(raw)
+        except Exception:
+            value = 0.0
+        return max(0.0, value)
+
+    def _wait_for_slot(self, api_key: str, min_interval: float) -> None:
+        if min_interval <= 0:
+            return
+        while True:
+            with self._rate_lock:
+                now = time.time()
+                last = self._last_request_at.get(api_key, 0.0)
+                wait = min_interval - (now - last)
+                if wait <= 0:
+                    self._last_request_at[api_key] = now
+                    return
+            time.sleep(min(wait, 1.0))
 
     def generate(
         self,
@@ -103,8 +166,15 @@ class GeminiAdapter(BaseLLMAdapter):
         use_seed = seed is not None
         token_limit = max_tokens
         start = time.time()
+        timeout_seconds = self._request_timeout()
+        min_interval = self._min_interval()
+        retry_backoff = max(1.0, float(os.getenv("GEMINI_RETRY_BACKOFF_SECONDS", "4")))
+        max_rate_limit_retries = max(3, int(os.getenv("GEMINI_RATE_LIMIT_MAX_RETRIES", "20")))
         raw = None
         last_error: Exception | None = None
+        last_rate_detail = ""
+        last_rate_headers: dict[str, str] = {}
+        last_rate_retry_after: float | None = None
         attempts = 0
         cycles = 3
         for _ in range(cycles):
@@ -114,8 +184,11 @@ class GeminiAdapter(BaseLLMAdapter):
                 url = f"{endpoint}?{params}"
                 retry_without_seed = False
                 retry_with_clamp = False
+                rate_limit_retries = 0
                 while True:
                     body = _build_body(use_seed, token_limit)
+                    if json_mode:
+                        body.setdefault("generationConfig", {})["responseMimeType"] = "application/json"
                     data = json.dumps(body).encode("utf-8")
                     req = urllib.request.Request(
                         url,
@@ -123,18 +196,34 @@ class GeminiAdapter(BaseLLMAdapter):
                         headers={"Content-Type": "application/json"},
                     )
                     try:
-                        with urllib.request.urlopen(req, timeout=60) as resp:
+                        self._wait_for_slot(api_key, min_interval)
+                        with urllib.request.urlopen(req, timeout=timeout_seconds) as resp:
                             raw = resp.read().decode("utf-8")
                         break
                     except urllib.error.HTTPError as exc:
                         last_error = exc
                         detail = self._read_http_error_body(exc)
+                        headers = dict(exc.headers.items()) if exc.headers else {}
                         lowered = detail.lower()
                         if exc.code in (401, 403) or "api_key_invalid" in lowered or "api key not valid" in lowered:
                             # Invalid key: try the next key in the list.
                             break
                         if exc.code in (429, 503):
-                            break
+                            last_rate_detail = detail
+                            last_rate_headers = headers
+                            retry_after = self._infer_retry_delay_seconds(detail)
+                            last_rate_retry_after = retry_after
+                            rate_limit_retries += 1
+                            if rate_limit_retries > max_rate_limit_retries:
+                                # Try next key after too many throttled retries on this key.
+                                break
+                            sleep_seconds = max(
+                                min_interval,
+                                retry_backoff,
+                                retry_after if retry_after is not None else 0.0,
+                            )
+                            time.sleep(sleep_seconds)
+                            continue
                         if exc.code == 400:
                             if use_seed and "seed" in lowered and "unsupported" in lowered:
                                 use_seed = False
@@ -178,8 +267,10 @@ class GeminiAdapter(BaseLLMAdapter):
                         last_error = exc
                         # Timeout or transient error -> try next key
                         if isinstance(exc, TimeoutError):
+                            time.sleep(max(min_interval, retry_backoff))
                             continue
                         if "timed out" in str(exc).lower():
+                            time.sleep(max(min_interval, retry_backoff))
                             continue
                         return LLMResult(
                             text="",
@@ -197,11 +288,16 @@ class GeminiAdapter(BaseLLMAdapter):
 
         if raw is None:
             if isinstance(last_error, urllib.error.HTTPError) and last_error.code == 429:
+                limit_detail = dict(self.spec.limits or {})
+                if last_rate_retry_after is not None:
+                    limit_detail["retry_after_s"] = last_rate_retry_after
+                if last_rate_detail:
+                    limit_detail["detail"] = last_rate_detail[:500]
                 raise LLMRateLimitError(
                     provider=self.spec.provider,
                     model=self.spec.model,
-                    limits=self.spec.limits,
-                    headers={},
+                    limits=limit_detail,
+                    headers=last_rate_headers,
                 )
             return LLMResult(
                 text="",
@@ -316,6 +412,9 @@ class GeminiAdapter(BaseLLMAdapter):
 
         poll_timeout = float(os.getenv("GEMINI_BATCH_POLL_TIMEOUT", "300"))
         poll_interval = float(os.getenv("GEMINI_BATCH_POLL_INTERVAL", "2"))
+        timeout_seconds = self._request_timeout()
+        min_interval = self._min_interval()
+        retry_backoff = max(1.0, float(os.getenv("GEMINI_RETRY_BACKOFF_SECONDS", "4")))
         start = time.time()
         last_error: Exception | None = None
 
@@ -342,7 +441,8 @@ class GeminiAdapter(BaseLLMAdapter):
                     headers={"Content-Type": "application/json"},
                 )
                 try:
-                    with urllib.request.urlopen(req, timeout=60) as resp:
+                    self._wait_for_slot(api_key, min_interval)
+                    with urllib.request.urlopen(req, timeout=timeout_seconds) as resp:
                         raw = resp.read().decode("utf-8")
                 except urllib.error.HTTPError as exc:
                     last_error = exc
@@ -351,11 +451,13 @@ class GeminiAdapter(BaseLLMAdapter):
                     if exc.code in (401, 403) or "api_key_invalid" in lowered or "api key not valid" in lowered:
                         continue
                     if exc.code in (429, 503):
+                        time.sleep(max(min_interval, retry_backoff))
                         break
                     return _error_results(f"HTTP {exc.code}: {exc.reason} {detail}".strip(), (time.time() - start) * 1000)
                 except Exception as exc:
                     last_error = exc
                     if isinstance(exc, TimeoutError) or "timed out" in str(exc).lower():
+                        time.sleep(max(min_interval, retry_backoff))
                         continue
                     return _error_results(str(exc), (time.time() - start) * 1000)
 
@@ -379,7 +481,7 @@ class GeminiAdapter(BaseLLMAdapter):
                             return _error_results("batch_timeout", (time.time() - start) * 1000)
                         time.sleep(poll_interval)
                         try:
-                            with urllib.request.urlopen(poll_url, timeout=60) as resp:
+                            with urllib.request.urlopen(poll_url, timeout=timeout_seconds) as resp:
                                 op_raw = resp.read().decode("utf-8")
                             op = json.loads(op_raw)
                         except urllib.error.HTTPError as exc:

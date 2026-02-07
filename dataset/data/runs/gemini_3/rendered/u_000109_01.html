@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "cinema-history-timeline"}}, {"surfaceUpdate": {"surfaceId": "cinema-history-timeline", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["main-title", "milestones-card", "details-title", "details-list", "icons-row", "actions-row", "sources-section"]}, "alignment": "stretch"}}}, {"id": "main-title", "component": {"Text": {"text": {"literalString": "Cinema History Timeline (1890-1930)"}, "usageHint": "h1"}}}, {"id": "milestones-card", "component": {"Card": {"child": "milestones-container"}}}, {"id": "milestones-container", "component": {"Column": {"children": {"explicitList": ["table-header", "table-divider", "row-1895", "row-1902", "row-1915", "row-1927", "row-1929"]}}}}, {"id": "table-header", "component": {"Row": {"children": {"explicitList": ["h-year", "h-event", "h-significance"]}}}}, {"id": "h-year", "component": {"Text": {"text": {"literalString": "**Year**"}, "usageHint": "body"}}}, {"id": "h-event", "component": {"Text": {"text": {"literalString": "**Event**"}, "usageHint": "body"}}}, {"id": "h-significance", "component": {"Text": {"text": {"literalString": "**Significance**"}, "usageHint": "body"}}}, {"id": "table-divider", "component": {"Divider": {}}}, {"id": "row-1895", "component": {"Row": {"children": {"explicitList": ["y-1895", "e-1895", "s-1895"]}}}}, {"id": "y-1895", "component": {"Text": {"text": {"literalString": "1895"}, "usageHint": "body"}}}, {"id": "e-1895", "component": {"Text": {"text": {"literalString": "First Public Screening"}, "usageHint": "body"}}}, {"id": "s-1895", "component": {"Text": {"text": {"literalString": "The Lumiere brothers show 10 short films in Paris, marking the birth of commercial cinema."}, "usageHint": "body"}}}, {"id": "row-1902", "component": {"Row": {"children": {"explicitList": ["y-1902", "e-1902", "s-1902"]}}}}, {"id": "y-1902", "component": {"Text": {"text": {"literalString": "1902"}, "usageHint": "body"}}}, {"id": "e-1902", "component": {"Text": {"text": {"literalString": "A Trip to the Moon"}, "usageHint": "body"}}}, {"id": "s-1902", "component": {"Text": {"text": {"literalString": "Georges Melies introduces complex special effects and narrative storytelling."}, "usageHint": "body"}}}, {"id": "row-1915", "component": {"Row": {"children": {"explicitList": ["y-1915", "e-1915", "s-1915"]}}}}, {"id": "y-1915", "component": {"Text": {"text": {"literalString": "1915"}, "usageHint": "body"}}}, {"id": "e-1915", "component": {"Text": {"text": {"literalString": "The Birth of a Nation"}, "usageHint": "body"}}}, {"id": "s-1915", "component": {"Text": {"text": {"literalString": "D.W. Griffith pioneers modern film techniques like close-ups and cross-cutting."}, "usageHint": "body"}}}, {"id": "row-1927", "component": {"Row": {"children": {"explicitList": ["y-1927", "e-1927", "s-1927"]}}}}, {"id": "y-1927", "component": {"Text": {"text": {"literalString": "1927"}, "usageHint": "body"}}}, {"id": "e-1927", "component": {"Text": {"text": {"literalString": "The Jazz Singer"}, "usageHint": "body"}}}, {"id": "s-1927", "component": {"Text": {"text": {"literalString": "The first feature-length motion picture with synchronized dialogue, ending the silent era."}, "usageHint": "body"}}}, {"id": "row-1929", "component": {"Row": {"children": {"explicitList": ["y-1929", "e-1929", "s-1929"]}}}}, {"id": "y-1929", "component": {"Text": {"text": {"literalString": "1929"}, "usageHint": "body"}}}, {"id": "e-1929", "component": {"Text": {"text": {"literalString": "First Academy Awards"}, "usageHint": "body"}}}, {"id": "s-1929", "component": {"Text": {"text": {"literalString": "The Academy of Motion Picture Arts and Sciences holds its first ceremony to honor excellence."}, "usageHint": "body"}}}, {"id": "details-title", "component": {"Text": {"text": {"literalString": "Timeline Details"}, "usageHint": "h3"}}}, {"id": "details-list", "component": {"List": {"children": {"explicitList": ["detail-1890", "detail-1900", "detail-1920", "detail-1930"]}}}}, {"id": "detail-1890", "component": {"Text": {"text": {"literalString": "• **1890s**: Invention of the Kinetoscope by Thomas Edison's team allowed for individual viewing of moving pictures."}, "usageHint": "body"}}}, {"id": "detail-1900", "component": {"Text": {"text": {"literalString": "• **1900s-1910s**: The rise of Nickelodeons made movies accessible to the working class for five cents."}, "usageHint": "body"}}}, {"id": "detail-1920", "component": {"Text": {"text": {"literalString": "• **1920s**: The Golden Age of Silent Film featured stars like Charlie Chaplin and Buster Keaton before the transition to sound."}, "usageHint": "body"}}}, {"id": "detail-1930", "component": {"Text": {"text": {"literalString": "• **1930**: The Motion Picture Production Code (Hays Code) was adopted, beginning a period of strict self-censorship in Hollywood."}, "usageHint": "body"}}}, {"id": "icons-row", "component": {"Row": {"children": {"explicitList": ["icon-film", "icon-award", "icon-sound"]}, "distribution": "center"}}}, {"id": "icon-film", "component": {"Icon": {"name": {"path": "/icons/film_reel.png"}}}}, {"id": "icon-award", "component": {"Icon": {"name": {"path": "/icons/trophy.png"}}}}, {"id": "icon-sound", "component": {"Icon": {"name": {"path": "/icons/audio.png"}}}}, {"id": "actions-row", "component": {"Row": {"children": {"explicitList": ["btn-history", "btn-oscars"]}, "distribution": "start"}}}, {"id": "btn-history", "component": {"Button": {"child": "txt-history", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.britannica.com/art/history-of-the-motion-picture"}}]}, "primary": true}}}, {"id": "txt-history", "component": {"Text": {"text": {"literalString": "History of Cinema"}, "usageHint": "body"}}}, {"id": "btn-oscars", "component": {"Button": {"child": "txt-oscars", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.oscars.org/history"}}]}, "primary": true}}}, {"id": "txt-oscars", "component": {"Text": {"text": {"literalString": "Academy Awards History"}, "usageHint": "body"}}}, {"id": "sources-section", "component": {"Column": {"children": {"explicitList": ["sources-label", "source-1", "source-2"]}}}}, {"id": "sources-label", "component": {"Text": {"text": {"literalString": "Sources:"}, "usageHint": "caption"}}}, {"id": "source-1", "component": {"Text": {"text": {"literalString": "• Library of Congress: Origins of Motion Pictures"}, "usageHint": "caption"}}}, {"id": "source-2", "component": {"Text": {"text": {"literalString": "• Oscars.org: 1929 Ceremonies"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

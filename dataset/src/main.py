@@ -227,6 +227,12 @@ def main() -> None:
         default=None,
         help="Override GenUI batch size for stage 3 (default from run.yaml)",
     )
+    parser.add_argument(
+        "--rate_limit_qps",
+        type=float,
+        default=None,
+        help="Override global request rate limit (queries per second) without editing run.yaml",
+    )
     parser.add_argument("--start_vllm", action="store_true", help="Auto-start local vLLM server")
     parser.add_argument("--vllm_model_path", type=str, default=None, help="Local Qwen model folder path")
     parser.add_argument("--vllm_gpus", type=int, default=4, help="Tensor-parallel GPU count for vLLM")
@@ -265,6 +271,10 @@ def main() -> None:
     run_cfg = load_yaml(configs_dir / "run.yaml").get("run", {})
     eval_cfg = load_yaml(configs_dir / "run.yaml").get("evaluation", {})
     benchmark_cfg = load_yaml(configs_dir / "run.yaml").get("benchmark", {})
+    effective_rate_limit_qps = float(run_cfg.get("rate_limit_qps", 2))
+    if args.rate_limit_qps is not None:
+        effective_rate_limit_qps = float(args.rate_limit_qps)
+
     genui_batch_size = run_cfg.get("genui_batch_size", 100)
     if args.genui_batch_size is not None:
         genui_batch_size = args.genui_batch_size
@@ -314,7 +324,7 @@ def main() -> None:
             adapter = build_adapter(spec)
             logger.info("Benchmark: generating base queries using %s", spec.name)
         rate_limiter = RateLimiter(
-            float(run_cfg.get("rate_limit_qps", 2)),
+            effective_rate_limit_qps,
             float(run_cfg.get("call_sleep_seconds", 0)),
         )
         run_stage1(
@@ -356,7 +366,7 @@ def main() -> None:
 
             adapter = build_adapter(spec)
             rate_limiter = RateLimiter(
-                float(run_cfg.get("rate_limit_qps", 2)),
+                effective_rate_limit_qps,
                 float(run_cfg.get("call_sleep_seconds", 0)),
             )
             run_stage2(
@@ -412,7 +422,7 @@ def main() -> None:
     spec = model_map.get(args.model) if args.model else specs[0]
     adapter = build_adapter(spec)
     rate_limiter = RateLimiter(
-        float(run_cfg.get("rate_limit_qps", 2)),
+        effective_rate_limit_qps,
         float(run_cfg.get("call_sleep_seconds", 0)),
     )
 

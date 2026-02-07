@@ -3539,3 +3539,71 @@ Icon err=URL can't contain control characters. '/upload\n\nIcon' (found at least
 2026-02-03 18:57:52 INFO dataset: Stage3 created ui_id=u_000209_01 schema_ok=True
 2026-02-03 19:31:03 INFO dataset: Stage3 created ui_id=u_000210_01 schema_ok=True
 2026-02-03 19:53:46 ERROR dataset: Stage3 error response_id=r_000211_01: Gemini keys exhausted after 3 attempts: HTTP Error 503: Service Unavailable
+2026-02-06 21:21:36 INFO dataset: Stage4 HTTP server started on port 62222
+2026-02-06 21:23:36 ERROR dataset: Stage4 render error ui_id=u_000115_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:62222/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:62222/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:62222/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:62222/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:62222/data/runs/gemini_3/rendered/u_000115_01.html:218:23)
+    at init (http://127.0.0.1:62222/data/runs/gemini_3/rendered/u_000115_01.html:231:13)
+2026-02-06 21:23:51 ERROR dataset: Stage4 render error ui_id=u_000115_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:62222/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:62222/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:62222/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:62222/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:62222/data/runs/gemini_3/rendered/u_000115_01.html:218:23)
+    at init (http://127.0.0.1:62222/data/runs/gemini_3/rendered/u_000115_01.html:231:13)
+2026-02-06 21:27:19 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3\rendered
+2026-02-06 23:04:16 INFO dataset: Stage4 HTTP server started on port 62784
+2026-02-06 23:04:24 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3\rendered
+2026-02-06 23:06:40 INFO dataset: Stage4 HTTP server started on port 51861
+2026-02-06 23:09:10 ERROR dataset: Stage4 render error ui_id=u_000115_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:51861/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:51861/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:51861/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:51861/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:51861/data/runs/gemini_3/rendered/u_000115_01.html:315:23)
+    at init (http://127.0.0.1:51861/data/runs/gemini_3/rendered/u_000115_01.html:328:13)
+2026-02-06 23:09:26 ERROR dataset: Stage4 render error ui_id=u_000115_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:51861/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:51861/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:51861/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:51861/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:51861/data/runs/gemini_3/rendered/u_000115_01.html:315:23)
+    at init (http://127.0.0.1:51861/data/runs/gemini_3/rendered/u_000115_01.html:328:13)
+2026-02-06 23:13:41 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3\rendered
+2026-02-06 23:20:58 INFO dataset: Stage4 HTTP server started on port 55564
+2026-02-06 23:23:10 ERROR dataset: Stage4 render error ui_id=u_000115_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55564/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:55564/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:55564/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:55564/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:55564/data/runs/gemini_3/rendered/u_000115_01.html:316:23)
+    at init (http://127.0.0.1:55564/data/runs/gemini_3/rendered/u_000115_01.html:329:13)
+2026-02-06 23:23:25 ERROR dataset: Stage4 render error ui_id=u_000115_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55564/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:55564/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:55564/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:55564/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:55564/data/runs/gemini_3/rendered/u_000115_01.html:316:23)
+    at init (http://127.0.0.1:55564/data/runs/gemini_3/rendered/u_000115_01.html:329:13)
+2026-02-06 23:27:51 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3\rendered
+2026-02-06 23:34:19 INFO dataset: Stage4 HTTP server started on port 59274
+2026-02-06 23:34:20 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3\rendered
+2026-02-06 23:38:42 INFO dataset: Stage4 HTTP server started on port 54370
+2026-02-06 23:41:22 ERROR dataset: Stage4 render error ui_id=u_000115_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:54370/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:54370/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:54370/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:54370/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:54370/data/runs/gemini_3/rendered/u_000115_01.html:316:23)
+    at init (http://127.0.0.1:54370/data/runs/gemini_3/rendered/u_000115_01.html:329:13)
+2026-02-06 23:41:38 ERROR dataset: Stage4 render error ui_id=u_000115_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:54370/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:54370/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:54370/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:54370/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:54370/data/runs/gemini_3/rendered/u_000115_01.html:316:23)
+    at init (http://127.0.0.1:54370/data/runs/gemini_3/rendered/u_000115_01.html:329:13)
+2026-02-06 23:45:43 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3\rendered
