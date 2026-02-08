@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 import hashlib
 import mimetypes
+import os
 import re
 import urllib.parse
 import urllib.request
@@ -87,6 +88,16 @@ _MIME_EXTENSION_MAP = {
 }
 
 
+def _is_truthy(value: str | None) -> bool:
+    if value is None:
+        return False
+    return value.strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _offline_mode_enabled() -> bool:
+    return _is_truthy(os.environ.get("DATASET_OFFLINE_MODE"))
+
+
 def _clean_url(value: str) -> str:
     cleaned = value.strip().strip("()[]{}<>\"'").rstrip(".,;:)]}!?")
     if not cleaned:
@@ -147,6 +158,8 @@ def _download_assets(
     max_bytes: int = 25 * 1024 * 1024,
 ) -> list[dict]:
     assets = []
+    if _offline_mode_enabled():
+        return assets
     urls = _extract_asset_urls(response_text)
     if not urls:
         return assets

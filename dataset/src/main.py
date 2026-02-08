@@ -144,11 +144,19 @@ def _configure_local_model_path(spec: ModelSpec, args, logger) -> None:
     if spec.provider.lower() != "local":
         return
 
+    model_lower = (spec.model or "").lower()
+    if "qwen" in model_lower or "deepseek" in model_lower:
+        # Default to strict offline for local Qwen/DeepSeek runs.
+        os.environ.setdefault("LOCAL_STRICT_OFFLINE", "1")
+        os.environ.setdefault("HF_HUB_OFFLINE", "1")
+        os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+        os.environ.setdefault("HF_DATASETS_OFFLINE", "1")
+        os.environ.setdefault("DATASET_OFFLINE_MODE", "1")
+
     override = args.local_model_path or args.vllm_model_path
     if not override:
         return
 
-    model_lower = (spec.model or "").lower()
     if "qwen" in model_lower:
         os.environ["QWEN_MODEL_PATH"] = override
         logger.info("Using local model path override for Qwen: %s", override)

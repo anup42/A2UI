@@ -84,12 +84,27 @@ Outputs are written to `data/runs/<run_id>/`.
 Qwen and DeepSeek local models now run directly via `transformers` in `LocalAdapter`.
 You do not need to run a vLLM server for these model entries.
 
+Offline behavior:
+- Qwen/DeepSeek local models now default to **strict offline mode**.
+- The adapter will fail fast if local model folders are missing.
+- It will not fall back to Hugging Face network downloads.
+- It will ignore HTTP endpoints unless you explicitly allow them.
+- Stage 2 asset URL downloading is disabled when offline mode is enabled.
+- `src/main.py` auto-sets offline defaults for local Qwen/DeepSeek runs:
+  `LOCAL_STRICT_OFFLINE=1`, `HF_HUB_OFFLINE=1`, `TRANSFORMERS_OFFLINE=1`,
+  `HF_DATASETS_OFFLINE=1`, `DATASET_OFFLINE_MODE=1`.
+
 Set model paths and visible GPUs:
 
 ```
 $env:QWEN_MODEL_PATH="/path/to/Qwen3-Coder-30B-A3B-Instruct"
 $env:DEEPSEEK_MODEL_PATH="/path/to/DeepSeek-Coder-V2-Lite-Instruct"
 $env:CUDA_VISIBLE_DEVICES="0,1,2,3"   # 4x V100 example
+$env:LOCAL_STRICT_OFFLINE="1"
+$env:HF_HUB_OFFLINE="1"
+$env:TRANSFORMERS_OFFLINE="1"
+$env:HF_DATASETS_OFFLINE="1"
+$env:DATASET_OFFLINE_MODE="1"
 ```
 
 Run stages:
@@ -118,6 +133,10 @@ Optional local inference tuning env vars:
 - `LOCAL_MODEL_LOAD_IN_4BIT` (`1` to enable)
 - `LOCAL_MODEL_MAX_MEMORY` (example `14GiB`)
 - `LOCAL_MODEL_OFFLOAD_DIR` (default `.offload`)
+- `LOCAL_STRICT_OFFLINE` (`1`/`0`; default auto-on for qwen/deepseek)
+- `LOCAL_FILES_ONLY` (`1` to enforce local files for all local models)
+- `LOCAL_ALLOW_HTTP_ENDPOINT` (`1` to allow HTTP endpoint even in strict offline mode)
+- `DATASET_OFFLINE_MODE` (`1` disables stage-2 URL asset downloads)
 
 Stage 4 renders GenUICraft JSON to HTML + PNG using the Lit renderer assets copied
 from `renderers/lit/dist` into `renderer/lit`. Image capture uses Playwright

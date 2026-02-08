@@ -30,7 +30,19 @@ class LocalAdapter(BaseLLMAdapter):
             return False
         return value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
+    def _model_is_qwen_or_deepseek(self) -> bool:
+        model_name = (self.spec.model or "").lower()
+        return "qwen" in model_name or "deepseek" in model_name
+
+    def _strict_offline_mode(self) -> bool:
+        raw = os.environ.get("LOCAL_STRICT_OFFLINE")
+        if raw is not None and raw.strip():
+            return self._is_truthy(raw)
+        # Default to strict offline for Qwen/DeepSeek local models.
+        return self._model_is_qwen_or_deepseek()
+
     def _resolve_model_path(self) -> Optional[str]:
+        strict_offline = self._strict_offline_mode()
         endpoint = os.path.expandvars(os.path.expanduser((self.spec.endpoint or "").strip()))
         if endpoint and not self._is_http_endpoint(endpoint):
             return endpoint
@@ -47,7 +59,7 @@ class LocalAdapter(BaseLLMAdapter):
         if self.spec.model and Path(os.path.expandvars(os.path.expanduser(self.spec.model))).exists():
             candidates.insert(0, self.spec.model)
         # If model looks like a Hugging Face repo id, allow loading from hub.
-        if self.spec.model and "/" in self.spec.model:
+        if self.spec.model and "/" in self.spec.model and not strict_offline:
             candidates.append(self.spec.model)
 
         for raw in candidates:
@@ -72,6 +84,14 @@ class LocalAdapter(BaseLLMAdapter):
     def _ensure_local_model_loaded(self) -> None:
         if self._model is not None and self._tokenizer is not None:
             return
+        strict_offline = self._strict_offline_mode()
+        local_files_only = strict_offline or self._is_truthy(os.environ.get("LOCAL_FILES_ONLY"))
+        if strict_offline:
+            # Prevent any accidental network fallback through HF hub.
+            os.environ.setdefault("HF_HUB_OFFLINE", "1")
+            os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+            os.environ.setdefault("HF_DATASETS_OFFLINE", "1")
+
         model_path = self._resolve_model_path()
         if not model_path:
             model_name = (self.spec.model or "").lower()
@@ -80,6 +100,11 @@ class LocalAdapter(BaseLLMAdapter):
             if "deepseek" in model_name:
                 raise RuntimeError("DEEPSEEK_MODEL_PATH is not set for local DeepSeek model")
             raise RuntimeError("LOCAL_MODEL_PATH is not set for provider=local model")
+        if strict_offline and not Path(model_path).exists():
+            raise RuntimeError(
+                "Strict offline mode requires a local model directory path. "
+                "Set QWEN_MODEL_PATH / DEEPSEEK_MODEL_PATH / LOCAL_MODEL_PATH to an existing folder."
+            )
 
         self._model_path = model_path
         try:
@@ -112,6 +137,7 @@ class LocalAdapter(BaseLLMAdapter):
             "trust_remote_code": True,
             "device_map": device_map,
             "low_cpu_mem_usage": True,
+            "local_files_only": local_files_only,
         }
         if attn_impl:
             model_kwargs["attn_implementation"] = attn_impl
@@ -143,12 +169,14 @@ class LocalAdapter(BaseLLMAdapter):
                 model_path,
                 trust_remote_code=True,
                 use_fast=True,
+                local_files_only=local_files_only,
             )
         except Exception:
             self._tokenizer = AutoTokenizer.from_pretrained(
                 model_path,
                 trust_remote_code=True,
                 use_fast=False,
+                local_files_only=local_files_only,
             )
         if self._tokenizer.pad_token_id is None and self._tokenizer.eos_token_id is not None:
             self._tokenizer.pad_token = self._tokenizer.eos_token
@@ -342,6 +370,8 @@ class LocalAdapter(BaseLLMAdapter):
         json_mode: bool = False,
     ) -> LLMResult:
         endpoint = os.path.expandvars(os.path.expanduser((self.spec.endpoint or "").strip()))
-        if endpoint and self._is_http_endpoint(endpoint):
+        strict_offline = self._strict_offline_mode()
+        allow_http_in_offline = self._is_truthy(os.environ.get("LOCAL_ALLOW_HTTP_ENDPOINT"))
+        if endpoint and self._is_http_endpoint(endpoint) and not (strict_offline and not allow_http_in_offline):
             return self._http_generate(prompt, system, temperature, max_tokens, seed, json_mode)
         return self._local_generate(prompt, system, temperature, max_tokens, seed, json_mode)
