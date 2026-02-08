@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "ebc_packing_list_surface"}}, {"surfaceUpdate": {"surfaceId": "ebc_packing_list_surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "assumptions_card", "category_tabs"]}}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "Everest Base Camp Trek Packing List (October)"}, "usageHint": "h1"}}}, {"id": "assumptions_card", "component": {"Card": {"child": "assumptions_content"}}}, {"id": "assumptions_content", "component": {"Column": {"children": {"explicitList": ["assumptions_title", "assumptions_text"]}}}}, {"id": "assumptions_title", "component": {"Text": {"text": {"literalString": "Assumptions"}, "usageHint": "h3"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "• The trek is 10 days on the trail.\n• A porter will carry your main luggage (duffel bag).\n• Staying in teahouses (no tent needed).\n• Temperatures: 15°C day / -10°C night."}, "usageHint": "body"}}}, {"id": "category_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Clothing"}, "child": "clothing_list"}, {"title": {"literalString": "Gear"}, "child": "gear_list"}, {"title": {"literalString": "Hygiene"}, "child": "hygiene_list"}, {"title": {"literalString": "First-Aid"}, "child": "first_aid_list"}]}}}, {"id": "clothing_list", "component": {"Column": {"children": {"explicitList": ["cloth_1", "cloth_2", "cloth_3", "cloth_4", "cloth_5", "cloth_6", "cloth_7", "cloth_8", "cloth_9", "cloth_10"]}}}}, {"id": "cloth_1", "component": {"Text": {"text": {"literalString": "**Base Layers (2-3 sets)**\n• Lightweight, moisture-wicking thermal tops and bottoms (merino wool or synthetic)."}, "usageHint": "body"}}}, {"id": "cloth_2", "component": {"Text": {"text": {"literalString": "**Mid Layers (2-3 items)**\n• Fleece jacket (200-300 weight).\n• Light down jacket or synthetic insulated jacket."}, "usageHint": "body"}}}, {"id": "cloth_3", "component": {"Text": {"text": {"literalString": "**Outer Layers (1-2 items)**\n• Waterproof and windproof shell jacket (Gore-Tex or similar).\n• Warm down jacket (600-800 fill power) for evenings."}, "usageHint": "body"}}}, {"id": "cloth_4", "component": {"Text": {"text": {"literalString": "**Trekking Pants (2 pairs)**\n• Durable, quick-drying trekking trousers.\n• Fleece-lined or warm trekking pants for colder days."}, "usageHint": "body"}}}, {"id": "cloth_5", "component": {"Text": {"text": {"literalString": "**Warm Trousers/Fleece Pants (1 pair)**\n• For evenings at teahouses."}, "usageHint": "body"}}}, {"id": "cloth_6", "component": {"Text": {"text": {"literalString": "**Underwear (5-7 pairs)**\n• Moisture-wicking, comfortable."}, "usageHint": "body"}}}, {"id": "cloth_7", "component": {"Text": {"text": {"literalString": "**Socks (5-6 pairs)**\n• Wool or synthetic trekking socks.\n• Liner socks."}, "usageHint": "body"}}}, {"id": "cloth_8", "component": {"Text": {"text": {"literalString": "**Gloves (2 pairs)**\n• Thin liner gloves.\n• Warm, waterproof outer gloves or mittens."}, "usageHint": "body"}}}, {"id": "cloth_9", "component": {"Text": {"text": {"literalString": "**Headwear (2-3 items)**\n• Warm wool or fleece beanie/hat.\n• Sun hat or cap.\n• Neck gaiter or buff."}, "usageHint": "body"}}}, {"id": "cloth_10", "component": {"Text": {"text": {"literalString": "**Sleepwear**\n• Can use a clean set of base layers."}, "usageHint": "body"}}}, {"id": "gear_list", "component": {"Column": {"children": {"explicitList": ["gear_1", "gear_2", "gear_3", "gear_4", "gear_5", "gear_6", "gear_7", "gear_8", "gear_9"]}}}}, {"id": "gear_1", "component": {"Text": {"text": {"literalString": "**Backpacks**\n• Large duffel bag (80-100L) for porter.\n• Daypack (25-35L) for daily essentials."}, "usageHint": "body"}}}, {"id": "gear_2", "component": {"Text": {"text": {"literalString": "**Sleeping Bag**\n• Rated to at least -10°C (comfort)."}, "usageHint": "body"}}}, {"id": "gear_3", "component": {"Text": {"text": {"literalString": "**Footwear**\n• Sturdy, waterproof trekking boots.\n• Camp shoes, sandals, or crocs."}, "usageHint": "body"}}}, {"id": "gear_4", "component": {"Text": {"text": {"literalString": "**Trekking Poles**\n• Highly recommended for stability."}, "usageHint": "body"}}}, {"id": "gear_5", "component": {"Text": {"text": {"literalString": "**Water Storage**\n• 2 x 1L Nalgene bottles.\n• Hydration reservoir (2-3L)."}, "usageHint": "body"}}}, {"id": "gear_6", "component": {"Text": {"text": {"literalString": "**Headlamp**\n• With fresh batteries and spare set."}, "usageHint": "body"}}}, {"id": "gear_7", "component": {"Text": {"text": {"literalString": "**Eyewear**\n• High-quality sunglasses (Category 3 or 4)."}, "usageHint": "body"}}}, {"id": "gear_8", "component": {"Text": {"text": {"literalString": "**Electronics**\n• Power bank, Camera, Phone, Universal adapter."}, "usageHint": "body"}}}, {"id": "gear_9", "component": {"Text": {"text": {"literalString": "**Miscellaneous**\n• Towel, Padlock, Dry bags, Book, Map, Thermos, Snacks, Shopping bag."}, "usageHint": "body"}}}, {"id": "hygiene_list", "component": {"Column": {"children": {"explicitList": ["hyg_1", "hyg_2", "hyg_3", "hyg_4", "hyg_5", "hyg_6", "hyg_7", "hyg_8"]}}}}, {"id": "hyg_1", "component": {"Text": {"text": {"literalString": "**Toiletries**\n• Toothbrush, paste, biodegradable soap, deodorant."}, "usageHint": "body"}}}, {"id": "hyg_2", "component": {"Text": {"text": {"literalString": "**Hand Sanitizer**\n• Essential for hygiene."}, "usageHint": "body"}}}, {"id": "hyg_3", "component": {"Text": {"text": {"literalString": "**Wet Wipes**\n• For sponge baths or cleaning."}, "usageHint": "body"}}}, {"id": "hyg_4", "component": {"Text": {"text": {"literalString": "**Sun Protection**\n• High SPF sunscreen, Lip balm with SPF."}, "usageHint": "body"}}}, {"id": "hyg_5", "component": {"Text": {"text": {"literalString": "**Toilet Paper**\n• Small roll."}, "usageHint": "body"}}}, {"id": "hyg_6", "component": {"Text": {"text": {"literalString": "**Moisturizer**\n• For face and hands."}, "usageHint": "body"}}}, {"id": "hyg_7", "component": {"Text": {"text": {"literalString": "**Personal Medications**\n• Prescriptions."}, "usageHint": "body"}}}, {"id": "hyg_8", "component": {"Text": {"text": {"literalString": "**Feminine Hygiene**\n• As needed."}, "usageHint": "body"}}}, {"id": "first_aid_list", "component": {"Column": {"children": {"explicitList": ["fa_1"]}}}}, {"id": "fa_1", "component": {"Text": {"text": {"literalString": "**Basic Pain Relief**\n• Ibuprofen"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

@@ -140,12 +140,37 @@ def _wait_for_endpoint(endpoint: str, timeout_s: float = 120.0) -> bool:
     return False
 
 
+def _configure_local_model_path(spec: ModelSpec, args, logger) -> None:
+    if spec.provider.lower() != "local":
+        return
+
+    override = args.local_model_path or args.vllm_model_path
+    if not override:
+        return
+
+    model_lower = (spec.model or "").lower()
+    if "qwen" in model_lower:
+        os.environ["QWEN_MODEL_PATH"] = override
+        logger.info("Using local model path override for Qwen: %s", override)
+        return
+    if "deepseek" in model_lower:
+        os.environ["DEEPSEEK_MODEL_PATH"] = override
+        logger.info("Using local model path override for DeepSeek: %s", override)
+        return
+    os.environ["LOCAL_MODEL_PATH"] = override
+    logger.info("Using local model path override: %s", override)
+
+
 def _maybe_start_vllm(spec: ModelSpec, args, logger):
     if not args.start_vllm:
         return None
     if args.stage not in (1, 2, 3):
         return None
     if spec.provider.lower() != "local":
+        return None
+    endpoint = (spec.endpoint or "").strip()
+    if not endpoint.lower().startswith(("http://", "https://")):
+        logger.info("Skipping vLLM auto-start for %s (local transformers mode)", spec.name)
         return None
     model_lower = spec.model.lower()
     if "qwen3-coder" not in model_lower and "deepseek-coder" not in model_lower:
@@ -156,9 +181,18 @@ def _maybe_start_vllm(spec: ModelSpec, args, logger):
         logger.info("vLLM already running at %s", endpoint)
         return None
 
-    model_path = args.vllm_model_path or os.environ.get("QWEN_MODEL_PATH")
+    if "deepseek-coder" in model_lower:
+        model_path = (
+            args.vllm_model_path
+            or os.environ.get("DEEPSEEK_MODEL_PATH")
+            or os.environ.get("QWEN_MODEL_PATH")
+        )
+    else:
+        model_path = args.vllm_model_path or os.environ.get("QWEN_MODEL_PATH")
     if not model_path:
-        raise SystemExit("Missing QWEN model path. Use --vllm_model_path or set QWEN_MODEL_PATH.")
+        raise SystemExit(
+            "Missing local model path. Use --vllm_model_path or set QWEN_MODEL_PATH / DEEPSEEK_MODEL_PATH."
+        )
 
     script = ROOT / "scripts" / "serve_qwen_vllm.py"
     if not script.exists():
@@ -232,6 +266,12 @@ def main() -> None:
         type=float,
         default=None,
         help="Override global request rate limit (queries per second) without editing run.yaml",
+    )
+    parser.add_argument(
+        "--local_model_path",
+        type=str,
+        default=None,
+        help="Local model folder path override for provider=local transformers mode.",
     )
     parser.add_argument("--start_vllm", action="store_true", help="Auto-start local vLLM server")
     parser.add_argument("--vllm_model_path", type=str, default=None, help="Local Qwen model folder path")
@@ -321,32 +361,33 @@ def main() -> None:
         base_queries_path = run_paths.queries_path
         if not base_queries_path.exists():
             spec = model_map.get(args.model) if args.model else specs[0]
+            _configure_local_model_path(spec, args, logger)
             adapter = build_adapter(spec)
             logger.info("Benchmark: generating base queries using %s", spec.name)
-        rate_limiter = RateLimiter(
-            effective_rate_limit_qps,
-            float(run_cfg.get("call_sleep_seconds", 0)),
-        )
-        run_stage1(
-            intents_file=root / run_cfg.get("intents_file", "intents.info"),
-            prompt_path=prompts_dir / "query_gen.md",
-            adapter=adapter,
-            run_dir=run_paths.run_dir,
-            queries_path=base_queries_path,
-            k_per_intent=int(run_cfg.get("k_queries_per_intent", 20)),
-            batch_size=int(run_cfg.get("batch_size_queries", 10)),
-            intent_batch_size=int(run_cfg.get("stage1_intent_batch_size", 1)),
-            seed=int(run_cfg.get("seed", 42)),
-            temperature=0.7,
-            max_tokens=int(run_cfg.get("query_max_tokens", 512)),
-            rate_limiter=rate_limiter,
-            cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
-            logger=logger,
-            max_total=run_cfg.get("max_queries_total"),
-            max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 3)),
-            fill_missing_with_fallback=bool(run_cfg.get("stage1_fill_missing_with_fallback", True)),
-            max_attempts=int(run_cfg.get("max_attempts", 3)),
-        )
+            rate_limiter = RateLimiter(
+                effective_rate_limit_qps,
+                float(run_cfg.get("call_sleep_seconds", 0)),
+            )
+            run_stage1(
+                intents_file=root / run_cfg.get("intents_file", "intents.info"),
+                prompt_path=prompts_dir / "query_gen.md",
+                adapter=adapter,
+                run_dir=run_paths.run_dir,
+                queries_path=base_queries_path,
+                k_per_intent=int(run_cfg.get("k_queries_per_intent", 20)),
+                batch_size=int(run_cfg.get("batch_size_queries", 10)),
+                intent_batch_size=int(run_cfg.get("stage1_intent_batch_size", 1)),
+                seed=int(run_cfg.get("seed", 42)),
+                temperature=0.7,
+                max_tokens=int(run_cfg.get("query_max_tokens", 512)),
+                rate_limiter=rate_limiter,
+                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                logger=logger,
+                max_total=run_cfg.get("max_queries_total"),
+                max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 3)),
+                fill_missing_with_fallback=bool(run_cfg.get("stage1_fill_missing_with_fallback", True)),
+                max_attempts=int(run_cfg.get("max_attempts", 3)),
+            )
 
         subset_size = int(benchmark_cfg.get("fixed_subset_size", 50))
         subset = _load_subset(base_queries_path, subset_size)
@@ -359,8 +400,9 @@ def main() -> None:
             if not spec:
                 logger.error("Unknown model for benchmark: %s", model_name)
                 continue
+            _configure_local_model_path(spec, args, logger)
             model_run_id = f"{run_id}_{model_name}"
-            model_paths = get_run_paths(data_dir / "runs", model_run_id, run_cfg.get("artifact_dir", "artifacts"))
+            model_paths = get_run_paths(output_dir, model_run_id, run_cfg.get("artifact_dir", "artifacts"))
             model_logger = setup_logger(model_paths.run_dir)
             _write_subset_queries(model_paths.queries_path, subset)
 
@@ -420,6 +462,7 @@ def main() -> None:
         available = ", ".join(sorted(model_map.keys()))
         raise SystemExit(f"Unknown model '{args.model}'. Available: {available}")
     spec = model_map.get(args.model) if args.model else specs[0]
+    _configure_local_model_path(spec, args, logger)
     adapter = build_adapter(spec)
     rate_limiter = RateLimiter(
         effective_rate_limit_qps,

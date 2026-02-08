@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "macbook-comparison-surface"}}, {"surfaceUpdate": {"surfaceId": "macbook-comparison-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["summary_card", "comparison_card", "differences_card", "images_card", "actions_card", "sources_card"]}}}}, {"id": "summary_card", "component": {"Card": {"child": "summary_column"}}}, {"id": "summary_column", "component": {"Column": {"children": {"explicitList": ["assumptions_text", "summary_title", "summary_text"]}}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "Assumptions: This comparison is based on the official technical specifications released by Apple for the standard configurations of both models. \"Base\" refers to the entry-level configuration, and \"Maximum\" refers to the highest build-to-order option available."}, "usageHint": "caption"}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h2"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "The 2022 MacBook Air (M2) offers a significant upgrade over the 2020 M1 model, featuring a more powerful and efficient chip, a modern flat-edge design, a larger and brighter display, and expanded memory support. While the M1 model remains a powerful machine for everyday tasks, the M2 model provides notable performance gains, particularly in graphics-intensive applications, and introduces key quality-of-life improvements like MagSafe charging and a better webcam."}, "usageHint": "body"}}}, {"id": "comparison_card", "component": {"Card": {"child": "comparison_column"}}}, {"id": "comparison_column", "component": {"Column": {"children": {"explicitList": ["comparison_title", "table_header_row", "divider_1", "cpu_row", "divider_2", "gpu_row", "divider_3", "memory_row", "divider_4", "weight_row"]}}}}, {"id": "comparison_title", "component": {"Text": {"text": {"literalString": "Comparison Table"}, "usageHint": "h3"}}}, {"id": "table_header_row", "component": {"Row": {"children": {"explicitList": ["spec_header", "m1_header", "m2_header"]}}}}, {"id": "spec_header", "component": {"Text": {"text": {"literalString": "Specification"}, "usageHint": "body"}}}, {"id": "m1_header", "component": {"Text": {"text": {"literalString": "2020 MacBook Air (M1)"}, "usageHint": "body"}}}, {"id": "m2_header", "component": {"Text": {"text": {"literalString": "2022 MacBook Air (M2)"}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "cpu_row", "component": {"Row": {"children": {"explicitList": ["cpu_spec", "cpu_m1", "cpu_m2"]}}}}, {"id": "cpu_spec", "component": {"Text": {"text": {"literalString": "CPU Cores (Base)"}, "usageHint": "body"}}}, {"id": "cpu_m1", "component": {"Text": {"text": {"literalString": "8-core (4 performance, 4 efficiency)"}, "usageHint": "body"}}}, {"id": "cpu_m2", "component": {"Text": {"text": {"literalString": "8-core (4 performance, 4 efficiency)"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "gpu_row", "component": {"Row": {"children": {"explicitList": ["gpu_spec", "gpu_m1", "gpu_m2"]}}}}, {"id": "gpu_spec", "component": {"Text": {"text": {"literalString": "GPU Cores (Base)"}, "usageHint": "body"}}}, {"id": "gpu_m1", "component": {"Text": {"text": {"literalString": "7-core"}, "usageHint": "body"}}}, {"id": "gpu_m2", "component": {"Text": {"text": {"literalString": "8-core"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "memory_row", "component": {"Row": {"children": {"explicitList": ["memory_spec", "memory_m1", "memory_m2"]}}}}, {"id": "memory_spec", "component": {"Text": {"text": {"literalString": "Maximum Unified Memory"}, "usageHint": "body"}}}, {"id": "memory_m1", "component": {"Text": {"text": {"literalString": "16GB"}, "usageHint": "body"}}}, {"id": "memory_m2", "component": {"Text": {"text": {"literalString": "24GB"}, "usageHint": "body"}}}, {"id": "divider_4", "component": {"Divider": {}}}, {"id": "weight_row", "component": {"Row": {"children": {"explicitList": ["weight_spec", "weight_m1", "weight_m2"]}}}}, {"id": "weight_spec", "component": {"Text": {"text": {"literalString": "Weight"}, "usageHint": "body"}}}, {"id": "weight_m1", "component": {"Text": {"text": {"literalString": "2.8 pounds (1.29 kg)"}, "usageHint": "body"}}}, {"id": "weight_m2", "component": {"Text": {"text": {"literalString": "2.7 pounds (1.24 kg)"}, "usageHint": "body"}}}, {"id": "differences_card", "component": {"Card": {"child": "differences_column"}}}, {"id": "differences_column", "component": {"Column": {"children": {"explicitList": ["differences_title", "processor_title", "processor_text", "design_title", "design_text", "charging_title", "charging_text", "camera_title", "camera_text"]}}}}, {"id": "differences_title", "component": {"Text": {"text": {"literalString": "Key Differences Explained"}, "usageHint": "h3"}}}, {"id": "processor_title", "component": {"Text": {"text": {"literalString": "Processor Performance"}, "usageHint": "h4"}}}, {"id": "processor_text", "component": {"Text": {"text": {"literalString": "The M2 chip delivers an 18% faster CPU, a 35% more powerful GPU, and a 40% faster Neural Engine compared to the M1. It also features increased memory bandwidth, which improves multitasking performance."}, "usageHint": "body"}}}, {"id": "design_title", "component": {"Text": {"text": {"literalString": "Design and Display"}, "usageHint": "h4"}}}, {"id": "design_text", "component": {"Text": {"text": {"literalString": "The M2 Air has a completely new, uniform-thickness design and is slightly lighter. It boasts a larger 13.6-inch Liquid Retina display that is brighter (500 nits vs. 400 nits) and supports 1 billion colors. This display includes a notch for the camera. The M1 Air retains the classic tapered wedge design with a 13.3-inch Retina display."}, "usageHint": "body"}}}, {"id": "charging_title", "component": {"Text": {"text": {"literalString": "Charging and Ports"}, "usageHint": "h4"}}}, {"id": "charging_text", "component": {"Text": {"text": {"literalString": "The M2 Air brings back the dedicated MagSafe 3 charging port, which frees up its two Thunderbolt / USB 4 ports for accessories even while charging. The M1 Air charges via one of its two Thunderbolt / USB 4 ports."}, "usageHint": "body"}}}, {"id": "camera_title", "component": {"Text": {"text": {"literalString": "Camera and Audio"}, "usageHint": "h4"}}}, {"id": "camera_text", "component": {"Text": {"text": {"literalString": "The M2 model features an upgraded 1080p FaceTime HD camera, providing a much clearer image than the 720p camera on the M1 model. It also has an improved four-speaker sound system."}, "usageHint": "body"}}}, {"id": "images_card", "component": {"Card": {"child": "images_column"}}}, {"id": "images_column", "component": {"Column": {"children": {"explicitList": ["images_title", "images_row"]}}}}, {"id": "images_title", "component": {"Text": {"text": {"literalString": "Images"}, "usageHint": "h3"}}}, {"id": "images_row", "component": {"Row": {"children": {"explicitList": ["m1_image_col", "m2_image_col"]}}}}, {"id": "m1_image_col", "component": {"Column": {"children": {"explicitList": ["m1_image", "m1_caption"]}, "alignment": "center"}}}, {"id": "m1_image", "component": {"Image": {"url": {"literalString": "/macbook-air-m1.jpeg"}}}}, {"id": "m1_caption", "component": {"Text": {"text": {"literalString": "2020 MacBook Air (M1) Design"}, "usageHint": "body"}}}, {"id": "m2_image_col", "component": {"Column": {"children": {"explicitList": ["m2_image", "m2_caption"]}, "alignment": "center"}}}, {"id": "m2_image", "component": {"Image": {"url": {"literalString": "/macbook-air-m2.jpeg"}}}}, {"id": "m2_caption", "component": {"Text": {"text": {"literalString": "2022 MacBook Air (M2) Design"}, "usageHint": "body"}}}, {"id": "actions_card", "component": {"Card": {"child": "actions_column"}}}, {"id": "actions_column", "component": {"Column": {"children": {"explicitList": ["actions_title", "compare_button", "m2_specs_button", "m1_specs_button"]}}}}, {"id": "actions_title", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h3"}}}, {"id": "compare_button", "component": {"Button": {"child": "compare_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.apple.com/mac/compare/"}}]}}}}, {"id": "compare_button_text", "component": {"Text": {"text": {"literalString": "Compare Mac Models on Apple.com"}, "usageHint": "body"}}}, {"id": "m2_specs_button", "component": {"Button": {"child": "m2_specs_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.apple.com/macbook-air-13-and-15-m2/specs/"}}]}}}}, {"id": "m2_specs_button_text", "component": {"Text": {"text": {"literalString": "View M2 MacBook Air Tech Specs"}, "usageHint": "body"}}}, {"id": "m1_specs_button", "component": {"Button": {"child": "m1_specs_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://support.apple.com/kb/SP825"}}]}}}}, {"id": "m1_specs_button_text", "component": {"Text": {"text": {"literalString": "View M1 MacBook Air Tech Specs"}, "usageHint": "body"}}}, {"id": "sources_card", "component": {"Card": {"child": "sources_column"}}}, {"id": "sources_column", "component": {"Column": {"children": {"explicitList": ["sources_title", "source_1_button", "source_2_button"]}}}}, {"id": "sources_title", "component": {"Text": {"text": {"literalString": "Sources"}, "usageHint": "h3"}}}, {"id": "source_1_button", "component": {"Button": {"child": "source_1_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.apple.com/newsroom/2022/06/apple-unveils-all-new-macbook-air-supercharged-by-the-new-m2-chip/"}}]}}}}, {"id": "source_1_text", "component": {"Text": {"text": {"literalString": "Apple Newsroom: M2 MacBook Air Unveiling"}, "usageHint": "body"}}}, {"id": "source_2_button", "component": {"Button": {"child": "source_2_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://support.apple.com/kb/SP869"}}]}}}}, {"id": "source_2_text", "component": {"Text": {"text": {"literalString": "Apple Support: M2 MacBook Air Tech Specs"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

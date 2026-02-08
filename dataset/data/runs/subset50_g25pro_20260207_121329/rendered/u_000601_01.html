@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "mortgage-calculator-surface"}}, {"surfaceUpdate": {"surfaceId": "mortgage-calculator-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["summary_title", "summary_text", "divider_1", "details_card", "divider_2", "key_figures_card", "divider_3", "actions_title", "actions_row"]}}}}, {"id": "summary_title", "component": {"Text": {"text": {"literalString": "Summary of Mortgage Calculation"}, "usageHint": "h2"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "Your estimated monthly mortgage payment is **$2,203.95**, and the total interest paid over the 30-year loan term will be **$433,422.00**."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "details_card", "component": {"Card": {"child": "details_tabs"}}}, {"id": "details_tabs", "component": {"Tabs": {"tabItems": [{"title": {"literalString": "Mortgage Details"}, "child": "mortgage_details_column"}, {"title": {"literalString": "Calculation Steps"}, "child": "calculation_steps_column"}]}}}, {"id": "mortgage_details_column", "component": {"Column": {"children": {"explicitList": ["md_home_price_row", "md_down_payment_row", "md_loan_amount_row", "md_interest_rate_row", "md_loan_term_row"]}}}}, {"id": "md_home_price_row", "component": {"Row": {"children": {"explicitList": ["md_home_price_label", "md_home_price_value"]}, "distribution": "spaceBetween"}}}, {"id": "md_home_price_label", "component": {"Text": {"text": {"literalString": "Home Price:"}, "usageHint": "body"}}}, {"id": "md_home_price_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/homePrice'}, 'currency': 'USD', 'decimals': 0}}"}, "usageHint": "body"}}}, {"id": "md_down_payment_row", "component": {"Row": {"children": {"explicitList": ["md_down_payment_label", "md_down_payment_value"]}, "distribution": "spaceBetween"}}}, {"id": "md_down_payment_label", "component": {"Text": {"text": {"literalString": "Down Payment (20%):"}, "usageHint": "body"}}}, {"id": "md_down_payment_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/downPayment'}, 'currency': 'USD', 'decimals': 0}}"}, "usageHint": "body"}}}, {"id": "md_loan_amount_row", "component": {"Row": {"children": {"explicitList": ["md_loan_amount_label", "md_loan_amount_value"]}, "distribution": "spaceBetween"}}}, {"id": "md_loan_amount_label", "component": {"Text": {"text": {"literalString": "Loan Amount (Principal):"}, "usageHint": "body"}}}, {"id": "md_loan_amount_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/loanAmount'}, 'currency': 'USD', 'decimals': 0}}"}, "usageHint": "body"}}}, {"id": "md_interest_rate_row", "component": {"Row": {"children": {"explicitList": ["md_interest_rate_label", "md_interest_rate_value"]}, "distribution": "spaceBetween"}}}, {"id": "md_interest_rate_label", "component": {"Text": {"text": {"literalString": "Annual Interest Rate:"}, "usageHint": "body"}}}, {"id": "md_interest_rate_value", "component": {"Text": {"text": {"literalString": "6.25%"}, "usageHint": "body"}}}, {"id": "md_loan_term_row", "component": {"Row": {"children": {"explicitList": ["md_loan_term_label", "md_loan_term_value"]}, "distribution": "spaceBetween"}}}, {"id": "md_loan_term_label", "component": {"Text": {"text": {"literalString": "Loan Term:"}, "usageHint": "body"}}}, {"id": "md_loan_term_value", "component": {"Text": {"text": {"literalString": "30 years (360 months)"}, "usageHint": "body"}}}, {"id": "calculation_steps_column", "component": {"Column": {"children": {"explicitList": ["step_1", "step_2", "step_3", "step_4", "step_5"]}}}}, {"id": "step_1", "component": {"Text": {"text": {"literalString": "1. Determine the Loan Amount:\n$450,000 (Home Price) - $90,000 (Down Payment) = $360,000"}, "usageHint": "body"}}}, {"id": "step_2", "component": {"Text": {"text": {"literalString": "2. Calculate Monthly Interest Rate:\n6.25% annual rate / 12 months = 0.005208333 monthly rate"}, "usageHint": "body"}}}, {"id": "step_3", "component": {"Text": {"text": {"literalString": "3. Calculate Monthly Mortgage Payment using the formula: M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1]\nResult: $2,203.95"}, "usageHint": "body"}}}, {"id": "step_4", "component": {"Text": {"text": {"literalString": "4. Calculate Total Amount Paid:\n$2,203.95 (Monthly Payment) * 360 (Total Payments) = $793,422.00"}, "usageHint": "body"}}}, {"id": "step_5", "component": {"Text": {"text": {"literalString": "5. Calculate Total Interest Paid:\n$793,422.00 (Total Amount Paid) - $360,000 (Principal Loan Amount) = $433,422.00"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "key_figures_card", "component": {"Card": {"child": "key_figures_column"}}}, {"id": "key_figures_column", "component": {"Column": {"children": {"explicitList": ["kf_title", "kf_home_price_row", "kf_down_payment_row", "kf_loan_amount_row", "kf_interest_rate_row", "kf_loan_term_row", "kf_monthly_payment_row", "kf_total_principal_row", "kf_total_interest_row", "kf_total_amount_row"]}}}}, {"id": "kf_title", "component": {"Text": {"text": {"literalString": "Key Figures"}, "usageHint": "h3"}}}, {"id": "kf_home_price_row", "component": {"Row": {"children": {"explicitList": ["kf_home_price_label", "kf_home_price_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_home_price_label", "component": {"Text": {"text": {"literalString": "Home Price:"}, "usageHint": "body"}}}, {"id": "kf_home_price_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/homePrice'}, 'currency': 'USD', 'decimals': 0}}"}, "usageHint": "body"}}}, {"id": "kf_down_payment_row", "component": {"Row": {"children": {"explicitList": ["kf_down_payment_label", "kf_down_payment_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_down_payment_label", "component": {"Text": {"text": {"literalString": "Down Payment:"}, "usageHint": "body"}}}, {"id": "kf_down_payment_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/downPayment'}, 'currency': 'USD', 'decimals': 0}}"}, "usageHint": "body"}}}, {"id": "kf_loan_amount_row", "component": {"Row": {"children": {"explicitList": ["kf_loan_amount_label", "kf_loan_amount_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_loan_amount_label", "component": {"Text": {"text": {"literalString": "Loan Amount:"}, "usageHint": "body"}}}, {"id": "kf_loan_amount_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/loanAmount'}, 'currency': 'USD', 'decimals': 0}}"}, "usageHint": "body"}}}, {"id": "kf_interest_rate_row", "component": {"Row": {"children": {"explicitList": ["kf_interest_rate_label", "kf_interest_rate_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_interest_rate_label", "component": {"Text": {"text": {"literalString": "Annual Interest Rate:"}, "usageHint": "body"}}}, {"id": "kf_interest_rate_value", "component": {"Text": {"text": {"literalString": "6.25%"}, "usageHint": "body"}}}, {"id": "kf_loan_term_row", "component": {"Row": {"children": {"explicitList": ["kf_loan_term_label", "kf_loan_term_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_loan_term_label", "component": {"Text": {"text": {"literalString": "Loan Term:"}, "usageHint": "body"}}}, {"id": "kf_loan_term_value", "component": {"Text": {"text": {"literalString": "30 Years"}, "usageHint": "body"}}}, {"id": "kf_monthly_payment_row", "component": {"Row": {"children": {"explicitList": ["kf_monthly_payment_label", "kf_monthly_payment_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_monthly_payment_label", "component": {"Text": {"text": {"literalString": "Monthly Payment:"}, "usageHint": "body"}}}, {"id": "kf_monthly_payment_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/monthlyPayment'}, 'currency': 'USD'}}"}, "usageHint": "body"}}}, {"id": "kf_total_principal_row", "component": {"Row": {"children": {"explicitList": ["kf_total_principal_label", "kf_total_principal_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_total_principal_label", "component": {"Text": {"text": {"literalString": "Total Principal Paid:"}, "usageHint": "body"}}}, {"id": "kf_total_principal_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/loanAmount'}, 'currency': 'USD'}}"}, "usageHint": "body"}}}, {"id": "kf_total_interest_row", "component": {"Row": {"children": {"explicitList": ["kf_total_interest_label", "kf_total_interest_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_total_interest_label", "component": {"Text": {"text": {"literalString": "Total Interest Paid:"}, "usageHint": "body"}}}, {"id": "kf_total_interest_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/totalInterest'}, 'currency': 'USD'}}"}, "usageHint": "body"}}}, {"id": "kf_total_amount_row", "component": {"Row": {"children": {"explicitList": ["kf_total_amount_label", "kf_total_amount_value"]}, "distribution": "spaceBetween"}}}, {"id": "kf_total_amount_label", "component": {"Text": {"text": {"literalString": "Total Amount Paid:"}, "usageHint": "body"}}}, {"id": "kf_total_amount_value", "component": {"Text": {"text": {"literalString": "{'call': 'formatCurrency', 'returnType': 'string', 'args': {'value': {'path': '/totalPaid'}, 'currency': 'USD'}}"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "actions_title", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h3"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["button_1", "button_2", "button_3"]}, "distribution": "spaceAround"}}}, {"id": "button_1", "component": {"Button": {"child": "button_1_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/mortgage-options"}}]}}}}, {"id": "button_1_text", "component": {"Text": {"text": {"literalString": "Explore Mortgage Options"}, "usageHint": "body"}}}, {"id": "button_2", "component": {"Button": {"child": "button_2_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/refinance-calculator"}}]}}}}, {"id": "button_2_text", "component": {"Text": {"text": {"literalString": "Refinance Calculator"}, "usageHint": "body"}}}, {"id": "button_3", "component": {"Button": {"child": "button_3_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://example.com/amortization-schedule"}}]}}}}, {"id": "button_3_text", "component": {"Text": {"text": {"literalString": "Mortgage Amortization Schedule"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

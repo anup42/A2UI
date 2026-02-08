@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "flight-recommendation-surface"}}, {"surfaceUpdate": {"surfaceId": "flight-recommendation-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "main_image", "summary_header", "summary_text", "divider_1", "comparison_header", "ana_card", "ba_card", "emirates_card", "divider_2", "trip_details_header", "trip_details_column", "divider_3", "cost_breakdown_header", "cost_breakdown_column", "divider_4", "actions_header", "actions_row"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Flight Recommendation: London to Tokyo"}, "usageHint": "h1"}}}, {"id": "main_image", "component": {"Image": {"url": {"literalString": "/assets/r_000041_01_1_photo-1542051841857-5f90071e7989.jpg"}}}}, {"id": "summary_header", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h3"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "Based on your priority of the shortest travel time, the best option is the All Nippon Airways (ANA) direct flight. At 13 hours and 50 minutes, it is the fastest of the three choices and is within your specified budget of £3,500. While the Emirates flight is the most affordable, its significantly longer travel time and layover make it less ideal for your request."}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "comparison_header", "component": {"Text": {"text": {"literalString": "Flight Comparison"}, "usageHint": "h3"}}}, {"id": "ana_card", "component": {"Card": {"child": "ana_card_content"}}}, {"id": "ana_card_content", "component": {"Column": {"children": {"explicitList": ["ana_title", "ana_summary", "ana_price_row", "ana_time_row", "ana_stops_row"]}}}}, {"id": "ana_title", "component": {"Text": {"text": {"literalString": "Option 1: All Nippon Airways (ANA) - Recommended"}, "usageHint": "h4"}}}, {"id": "ana_summary", "component": {"Text": {"text": {"literalString": "The fastest flight, direct to Tokyo (HND)."}, "usageHint": "body"}}}, {"id": "ana_price_row", "component": {"Row": {"children": {"explicitList": ["ana_price_text"]}, "alignment": "center"}}}, {"id": "ana_price_text", "component": {"Text": {"text": {"literalString": "Total Price: £3,450"}, "usageHint": "body"}}}, {"id": "ana_time_row", "component": {"Row": {"children": {"explicitList": ["ana_time_text"]}, "alignment": "center"}}}, {"id": "ana_time_text", "component": {"Text": {"text": {"literalString": "Travel Time: 13h 50m"}, "usageHint": "body"}}}, {"id": "ana_stops_row", "component": {"Row": {"children": {"explicitList": ["ana_stops_text"]}, "alignment": "center"}}}, {"id": "ana_stops_text", "component": {"Text": {"text": {"literalString": "Stops: Direct"}, "usageHint": "body"}}}, {"id": "ba_card", "component": {"Card": {"child": "ba_card_content"}}}, {"id": "ba_card_content", "component": {"Column": {"children": {"explicitList": ["ba_title", "ba_summary", "ba_price_row", "ba_time_row", "ba_stops_row"]}}}}, {"id": "ba_title", "component": {"Text": {"text": {"literalString": "Option 2: British Airways"}, "usageHint": "h4"}}}, {"id": "ba_summary", "component": {"Text": {"text": {"literalString": "A slightly longer but more affordable direct flight option."}, "usageHint": "body"}}}, {"id": "ba_price_row", "component": {"Row": {"children": {"explicitList": ["ba_price_text"]}, "alignment": "center"}}}, {"id": "ba_price_text", "component": {"Text": {"text": {"literalString": "Total Price: £3,200"}, "usageHint": "body"}}}, {"id": "ba_time_row", "component": {"Row": {"children": {"explicitList": ["ba_time_text"]}, "alignment": "center"}}}, {"id": "ba_time_text", "component": {"Text": {"text": {"literalString": "Travel Time: 14h 30m"}, "usageHint": "body"}}}, {"id": "ba_stops_row", "component": {"Row": {"children": {"explicitList": ["ba_stops_text"]}, "alignment": "center"}}}, {"id": "ba_stops_text", "component": {"Text": {"text": {"literalString": "Stops: Direct"}, "usageHint": "body"}}}, {"id": "emirates_card", "component": {"Card": {"child": "emirates_card_content"}}}, {"id": "emirates_card_content", "component": {"Column": {"children": {"explicitList": ["emirates_title", "emirates_summary", "emirates_price_row", "emirates_time_row", "emirates_stops_row"]}}}}, {"id": "emirates_title", "component": {"Text": {"text": {"literalString": "Option 3: Emirates"}, "usageHint": "h4"}}}, {"id": "emirates_summary", "component": {"Text": {"text": {"literalString": "The most budget-friendly option, but with a longer journey due to a layover in Dubai."}, "usageHint": "body"}}}, {"id": "emirates_price_row", "component": {"Row": {"children": {"explicitList": ["emirates_price_text"]}, "alignment": "center"}}}, {"id": "emirates_price_text", "component": {"Text": {"text": {"literalString": "Total Price: £2,800"}, "usageHint": "body"}}}, {"id": "emirates_time_row", "component": {"Row": {"children": {"explicitList": ["emirates_time_text"]}, "alignment": "center"}}}, {"id": "emirates_time_text", "component": {"Text": {"text": {"literalString": "Travel Time: 18h 15m"}, "usageHint": "body"}}}, {"id": "emirates_stops_row", "component": {"Row": {"children": {"explicitList": ["emirates_stops_text"]}, "alignment": "center"}}}, {"id": "emirates_stops_text", "component": {"Text": {"text": {"literalString": "Stops: 1 (via DXB)"}, "usageHint": "body"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "trip_details_header", "component": {"Text": {"text": {"literalString": "Trip Details"}, "usageHint": "h3"}}}, {"id": "trip_details_column", "component": {"Column": {"children": {"explicitList": ["origin_row", "destination_row", "departure_row", "return_row", "passengers_row", "class_row", "budget_row"]}}}}, {"id": "origin_row", "component": {"Row": {"children": {"explicitList": ["origin_key", "origin_value"]}, "distribution": "spaceBetween"}}}, {"id": "origin_key", "component": {"Text": {"text": {"literalString": "Origin:"}, "usageHint": "body"}}}, {"id": "origin_value", "component": {"Text": {"text": {"literalString": "London (LHR), UK"}, "usageHint": "body"}}}, {"id": "destination_row", "component": {"Row": {"children": {"explicitList": ["destination_key", "destination_value"]}, "distribution": "spaceBetween"}}}, {"id": "destination_key", "component": {"Text": {"text": {"literalString": "Destination:"}, "usageHint": "body"}}}, {"id": "destination_value", "component": {"Text": {"text": {"literalString": "Tokyo (HND), Japan"}, "usageHint": "body"}}}, {"id": "departure_row", "component": {"Row": {"children": {"explicitList": ["departure_key", "departure_value"]}, "distribution": "spaceBetween"}}}, {"id": "departure_key", "component": {"Text": {"text": {"literalString": "Departure:"}, "usageHint": "body"}}}, {"id": "departure_value", "component": {"Text": {"text": {"literalString": "2024-11-15"}, "usageHint": "body"}}}, {"id": "return_row", "component": {"Row": {"children": {"explicitList": ["return_key", "return_value"]}, "distribution": "spaceBetween"}}}, {"id": "return_key", "component": {"Text": {"text": {"literalString": "Return:"}, "usageHint": "body"}}}, {"id": "return_value", "component": {"Text": {"text": {"literalString": "2024-11-25"}, "usageHint": "body"}}}, {"id": "passengers_row", "component": {"Row": {"children": {"explicitList": ["passengers_key", "passengers_value"]}, "distribution": "spaceBetween"}}}, {"id": "passengers_key", "component": {"Text": {"text": {"literalString": "Passengers:"}, "usageHint": "body"}}}, {"id": "passengers_value", "component": {"Text": {"text": {"literalString": "2 Adults"}, "usageHint": "body"}}}, {"id": "class_row", "component": {"Row": {"children": {"explicitList": ["class_key", "class_value"]}, "distribution": "spaceBetween"}}}, {"id": "class_key", "component": {"Text": {"text": {"literalString": "Class:"}, "usageHint": "body"}}}, {"id": "class_value", "component": {"Text": {"text": {"literalString": "Premium Economy"}, "usageHint": "body"}}}, {"id": "budget_row", "component": {"Row": {"children": {"explicitList": ["budget_key", "budget_value"]}, "distribution": "spaceBetween"}}}, {"id": "budget_key", "component": {"Text": {"text": {"literalString": "Budget:"}, "usageHint": "body"}}}, {"id": "budget_value", "component": {"Text": {"text": {"literalString": "£3,500"}, "usageHint": "body"}}}, {"id": "divider_3", "component": {"Divider": {}}}, {"id": "cost_breakdown_header", "component": {"Text": {"text": {"literalString": "Cost Breakdown (Recommended Option: ANA)"}, "usageHint": "h3"}}}, {"id": "cost_breakdown_column", "component": {"Column": {"children": {"explicitList": ["total_price_row", "price_per_passenger_row", "remaining_budget_row", "budget_fit_text"]}}}}, {"id": "total_price_row", "component": {"Row": {"children": {"explicitList": ["total_price_key", "total_price_value"]}, "distribution": "spaceBetween"}}}, {"id": "total_price_key", "component": {"Text": {"text": {"literalString": "Total Price (2 Adults):"}, "usageHint": "body"}}}, {"id": "total_price_value", "component": {"Text": {"text": {"literalString": "£3,450.00"}, "usageHint": "body"}}}, {"id": "price_per_passenger_row", "component": {"Row": {"children": {"explicitList": ["price_per_passenger_key", "price_per_passenger_value"]}, "distribution": "spaceBetween"}}}, {"id": "price_per_passenger_key", "component": {"Text": {"text": {"literalString": "Price per Passenger:"}, "usageHint": "body"}}}, {"id": "price_per_passenger_value", "component": {"Text": {"text": {"literalString": "£1,725.00"}, "usageHint": "body"}}}, {"id": "remaining_budget_row", "component": {"Row": {"children": {"explicitList": ["remaining_budget_key", "remaining_budget_value"]}, "distribution": "spaceBetween"}}}, {"id": "remaining_budget_key", "component": {"Text": {"text": {"literalString": "Remaining Budget:"}, "usageHint": "body"}}}, {"id": "remaining_budget_value", "component": {"Text": {"text": {"literalString": "£50.00"}, "usageHint": "body"}}}, {"id": "budget_fit_text", "component": {"Text": {"text": {"literalString": "This option fits comfortably within your £3,500 budget."}, "usageHint": "body"}}}, {"id": "divider_4", "component": {"Divider": {}}}, {"id": "actions_header", "component": {"Text": {"text": {"literalString": "Quick Actions:"}, "usageHint": "h3"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["ana_button", "ba_button", "emirates_button"]}, "distribution": "spaceAround"}}}, {"id": "ana_button", "component": {"Button": {"child": "ana_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.ana.co.jp/en/gb/"}}]}}}}, {"id": "ana_button_text", "component": {"Text": {"text": {"literalString": "Check Availability on ANA"}, "usageHint": "body"}}}, {"id": "ba_button", "component": {"Button": {"child": "ba_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.britishairways.com"}}]}}}}, {"id": "ba_button_text", "component": {"Text": {"text": {"literalString": "Check Availability on British Airways"}, "usageHint": "body"}}}, {"id": "emirates_button", "component": {"Button": {"child": "emirates_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.emirates.com/uk/english/"}}]}}}}, {"id": "emirates_button_text", "component": {"Text": {"text": {"literalString": "Check Availability on Emirates"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

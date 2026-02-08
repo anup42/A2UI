@@ -2,3 +2,7 @@
 2026-02-07 16:40:32 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gpt5mini_20260207_121329\aggregates.json
 2026-02-07 16:43:40 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
 2026-02-07 16:43:40 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gpt5mini_20260207_121329\aggregates.json
+2026-02-08 02:07:19 INFO dataset: Stage4 HTTP server started on port 57876
+2026-02-08 02:07:20 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gpt5mini_20260207_121329\rendered
+2026-02-08 02:15:37 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-08 02:15:37 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gpt5mini_20260207_121329\aggregates.json

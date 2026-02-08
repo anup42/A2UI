@@ -96,34 +96,31 @@ models:
     endpoint: http://localhost:8000/v1/chat/completions
   - name: qwen3_coder_30b_a3b_vllm_4x
     provider: local
-    model: qwen3-coder-30b-a3b-instruct
+    model: Qwen/Qwen3-Coder-30B-A3B-Instruct
     supports_json_mode: false
-    endpoint: http://localhost:8000/v1/chat/completions
     limits:
       rpm: null
       tpm: null
       rpd: null
-      note: "Local vLLM (4x V100) - launch server via dataset/scripts/serve_qwen_vllm.py --gpus 4"
+      note: "Local Transformers (4x V100). Set QWEN_MODEL_PATH and CUDA_VISIBLE_DEVICES=0,1,2,3"
   - name: qwen3_coder_30b_a3b_vllm_8x
     provider: local
-    model: qwen3-coder-30b-a3b-instruct
+    model: Qwen/Qwen3-Coder-30B-A3B-Instruct
     supports_json_mode: false
-    endpoint: http://localhost:8000/v1/chat/completions
     limits:
       rpm: null
       tpm: null
       rpd: null
-      note: "Local vLLM (8x V100) - launch server via dataset/scripts/serve_qwen_vllm.py --gpus 8"
+      note: "Local Transformers (8x V100). Set QWEN_MODEL_PATH and CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7"
   - name: deepseek_coder_v2_lite_vllm_4x
     provider: local
-    model: deepseek-coder-v2-lite-instruct
+    model: deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct
     supports_json_mode: false
-    endpoint: http://localhost:8000/v1/chat/completions
     limits:
       rpm: null
       tpm: null
       rpd: null
-      note: "Local vLLM (4x V100) - launch server via dataset/scripts/serve_qwen_vllm.py --gpus 4"
+      note: "Local Transformers (4x V100). Set DEEPSEEK_MODEL_PATH and CUDA_VISIBLE_DEVICES=0,1,2,3"
   - name: openrouter_default
     provider: openrouter
     model: openrouter/auto

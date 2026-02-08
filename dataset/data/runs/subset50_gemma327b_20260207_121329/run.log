@@ -154,3 +154,5 @@
 2026-02-08 01:52:20 INFO dataset: Stage3 created ui_id=u_000884_01 schema_ok=True
 2026-02-08 01:52:20 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gemma327b_20260207_121329\aggregates.json
 2026-02-08 01:52:20 INFO dataset: Stage3 complete.
+2026-02-08 02:07:16 INFO dataset: Stage4 HTTP server started on port 57098
+2026-02-08 02:07:19 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gemma327b_20260207_121329\rendered

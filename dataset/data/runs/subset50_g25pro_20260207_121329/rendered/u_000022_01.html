@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "game-night-planner-1"}}, {"surfaceUpdate": {"surfaceId": "game-night-planner-1", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["assumptions_text", "games_title", "game_card_1", "game_card_2", "game_card_3", "divider_1", "grocery_title", "grocery_instructions", "grocery_list_column", "grand_total_text", "divider_2", "sources_text"]}}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "Assumptions:\n- Game complexity ratings and playtimes are based on data from BoardGameGeek.\n- The grocery list assumes no specific dietary restrictions and aims for a general crowd-pleasing selection.\n- Prices for groceries are estimates; local prices in Seattle may vary."}, "usageHint": "caption"}}}, {"id": "games_title", "component": {"Text": {"text": {"literalString": "Board Game Recommendations"}, "usageHint": "h2"}}}, {"id": "game_card_1", "component": {"Card": {"child": "game_row_1"}}}, {"id": "game_row_1", "component": {"Row": {"children": {"explicitList": ["game_image_1", "game_details_1"]}, "alignment": "start"}}}, {"id": "game_image_1", "component": {"Image": {"url": {"literalString": "/asset/7_wonders.jpg"}, "fit": "contain"}}}, {"id": "game_details_1", "component": {"Column": {"children": {"explicitList": ["game_title_1", "game_desc_1", "game_stats_1", "game_button_1"]}, "alignment": "start"}}}, {"id": "game_title_1", "component": {"Text": {"text": {"literalString": "7 Wonders"}, "usageHint": "h4"}}}, {"id": "game_desc_1", "component": {"Text": {"text": {"literalString": "A fast-paced card drafting game where you lead an ancient civilization to glory."}, "usageHint": "body"}}}, {"id": "game_stats_1", "component": {"Text": {"text": {"literalString": "Players: 2-7, Time: 30 min, Complexity: 2.3/5"}, "usageHint": "caption"}}}, {"id": "game_button_1", "component": {"Button": {"child": "game_button_text_1", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://boardgamegeek.com/boardgame/68448/7-wonders"}}]}}}}, {"id": "game_button_text_1", "component": {"Text": {"text": {"literalString": "Learn to play 7 Wonders"}, "usageHint": "body"}}}, {"id": "game_card_2", "component": {"Card": {"child": "game_row_2"}}}, {"id": "game_row_2", "component": {"Row": {"children": {"explicitList": ["game_image_2", "game_details_2"]}, "alignment": "start"}}}, {"id": "game_image_2", "component": {"Image": {"url": {"literalString": "/asset/king_of_tokyo.jpg"}, "fit": "contain"}}}, {"id": "game_details_2", "component": {"Column": {"children": {"explicitList": ["game_title_2", "game_desc_2", "game_stats_2", "game_button_2"]}, "alignment": "start"}}}, {"id": "game_title_2", "component": {"Text": {"text": {"literalString": "King of Tokyo"}, "usageHint": "h4"}}}, {"id": "game_desc_2", "component": {"Text": {"text": {"literalString": "A chaotic dice-rolling game where you play as a giant monster battling to be the last one standing."}, "usageHint": "body"}}}, {"id": "game_stats_2", "component": {"Text": {"text": {"literalString": "Players: 2-6, Time: 30 min, Complexity: 1.5/5"}, "usageHint": "caption"}}}, {"id": "game_button_2", "component": {"Button": {"child": "game_button_text_2", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://boardgamegeek.com/boardgame/70323/king-tokyo"}}]}}}}, {"id": "game_button_text_2", "component": {"Text": {"text": {"literalString": "Learn to play King of Tokyo"}, "usageHint": "body"}}}, {"id": "game_card_3", "component": {"Card": {"child": "game_row_3"}}}, {"id": "game_row_3", "component": {"Row": {"children": {"explicitList": ["game_image_3", "game_details_3"]}, "alignment": "start"}}}, {"id": "game_image_3", "component": {"Image": {"url": {"literalString": "/asset/jamaica.jpg"}, "fit": "contain"}}}, {"id": "game_details_3", "component": {"Column": {"children": {"explicitList": ["game_title_3", "game_desc_3", "game_stats_3", "game_button_3"]}, "alignment": "start"}}}, {"id": "game_title_3", "component": {"Text": {"text": {"literalString": "Jamaica"}, "usageHint": "h4"}}}, {"id": "game_desc_3", "component": {"Text": {"text": {"literalString": "A tactical pirate racing game around the island of Jamaica, filled with treasure and cannon fire."}, "usageHint": "body"}}}, {"id": "game_stats_3", "component": {"Text": {"text": {"literalString": "Players: 2-6, Time: 30-60 min, Complexity: 2.0/5"}, "usageHint": "caption"}}}, {"id": "game_button_3", "component": {"Button": {"child": "game_button_text_3", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://boardgamegeek.com/boardgame/28023/jamaica"}}]}}}}, {"id": "game_button_text_3", "component": {"Text": {"text": {"literalString": "Learn to play Jamaica"}, "usageHint": "body"}}}, {"id": "divider_1", "component": {"Divider": {}}}, {"id": "grocery_title", "component": {"Text": {"text": {"literalString": "Grocery Shopping List (Budget: $60)"}, "usageHint": "h2"}}}, {"id": "grocery_instructions", "component": {"Text": {"text": {"literalString": "This is an EXAMPLE shopping list with estimated prices. Prices can vary significantly based on the store and brand choices. Review the example list below and adjust for your group's preferences."}, "usageHint": "body"}}}, {"id": "grocery_list_column", "component": {"Column": {"children": {"explicitList": ["drinks_title", "cb_soda", "cb_sparkling_water", "cb_juice", "cb_ice", "salty_title", "cb_tortilla_chips", "cb_salsa", "cb_potato_chips", "cb_hummus", "cb_dippers", "sweet_title", "cb_cookies", "cb_candy", "cb_mix"]}, "alignment": "start"}}}, {"id": "drinks_title", "component": {"Text": {"text": {"literalString": "Drinks (Estimated Total: ~$20)"}, "usageHint": "h4"}}}, {"id": "cb_soda", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_sparkling_water", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_juice", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_ice", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "salty_title", "component": {"Text": {"text": {"literalString": "Salty Snacks (Estimated Total: ~$22)"}, "usageHint": "h4"}}}, {"id": "cb_tortilla_chips", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_salsa", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_potato_chips", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_hummus", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_dippers", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "sweet_title", "component": {"Text": {"text": {"literalString": "Sweet Snacks (Estimated Total: ~$14)"}, "usageHint": "h4"}}}, {"id": "cb_cookies", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_candy", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "cb_mix", "component": {"Text": {"text": {"literalString": "[CheckBox]"}, "usageHint": "body"}}}, {"id": "grand_total_text", "component": {"Text": {"text": {"literalString": "Estimated Grand Total: $56.00"}, "usageHint": "h4"}}}, {"id": "divider_2", "component": {"Divider": {}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Sources: https://boardgamegeek.com/"}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+

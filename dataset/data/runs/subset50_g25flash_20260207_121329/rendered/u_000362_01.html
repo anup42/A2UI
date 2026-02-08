@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "tokyo_itinerary_v1"}}, {"surfaceUpdate": {"surfaceId": "tokyo_itinerary_v1", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["assumptions_section", "itinerary_main_title", "day_1_card", "day_2_card", "day_3_card", "day_4_card", "day_5_card", "restaurant_recommendations_section", "quick_actions_section"]}}}}, {"id": "assumptions_section", "component": {"Column": {"children": {"explicitList": ["assumptions_title", "assumption_1", "assumption_2", "assumption_3"]}}}}, {"id": "assumptions_title", "component": {"Text": {"text": {"literalString": "Assumptions:"}, "usageHint": "h3"}}}, {"id": "assumption_1", "component": {"Text": {"text": {"literalString": "- The trip dates 2025-05-15 to 2025-05-20 imply 5 full days of activities (May 15th, 16th, 17th, 18th, 19th), with May 20th being a departure day. The itinerary covers these 5 activity days."}, "usageHint": "body"}}}, {"id": "assumption_2", "component": {"Text": {"text": {"literalString": "- The budget of $50 per person per meal is for a main course and perhaps a drink/side, not including very expensive extras or alcohol."}, "usageHint": "body"}}}, {"id": "assumption_3", "component": {"Text": {"text": {"literalString": "- Travel within Tokyo will primarily be via its efficient public transport system (trains/subways)."}, "usageHint": "body"}}}, {"id": "itinerary_main_title", "component": {"Text": {"text": {"literalString": "Tokyo 5-Day Itinerary: Shinjuku & Shibuya Focus"}, "usageHint": "h2"}}}, {"id": "day_1_card", "component": {"Card": {"child": "day_1_column"}}}, {"id": "day_1_column", "component": {"Column": {"children": {"explicitList": ["day_1_title", "day_1_morning", "day_1_afternoon", "day_1_late_afternoon", "day_1_evening"]}}}}, {"id": "day_1_title", "component": {"Text": {"text": {"literalString": "Day 1: Thursday, May 15, 2025 - Shinjuku Arrival & Gardens"}, "usageHint": "h4"}}}, {"id": "day_1_morning", "component": {"Text": {"text": {"literalString": "Morning: Arrive in Tokyo, check into your accommodation in Shinjuku or Shibuya."}, "usageHint": "body"}}}, {"id": "day_1_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Shinjuku Gyoen National Garden - Enjoy a peaceful stroll through this beautiful imperial garden."}, "usageHint": "body"}}}, {"id": "day_1_late_afternoon", "component": {"Text": {"text": {"literalString": "Late Afternoon: Tokyo Metropolitan Government Building - Head to the free observation decks for panoramic views of Tokyo."}, "usageHint": "body"}}}, {"id": "day_1_evening", "component": {"Text": {"text": {"literalString": "Evening: Dinner in Shinjuku. Explore Shinjuku Golden Gai or Omoide Yokocho (Piss Alley) for a glimpse into traditional Tokyo nightlife and small eateries (for atmosphere, not necessarily dinner)."}, "usageHint": "body"}}}, {"id": "day_2_card", "component": {"Card": {"child": "day_2_column"}}}, {"id": "day_2_column", "component": {"Column": {"children": {"explicitList": ["day_2_title", "day_2_morning", "day_2_afternoon", "day_2_evening"]}}}}, {"id": "day_2_title", "component": {"Text": {"text": {"literalString": "Day 2: Friday, May 16, 2025 - Shibuya Icons & Views"}, "usageHint": "h4"}}}, {"id": "day_2_morning", "component": {"Text": {"text": {"literalString": "Morning: Shibuya Crossing & Hachiko Statue - Experience the iconic scramble crossing and meet the famous loyal dog statue."}, "usageHint": "body"}}}, {"id": "day_2_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Shibuya Sky - Ascend to the rooftop observation deck for breathtaking 360-degree views of the city. Explore Shibuya Center Gai for trendy shops."}, "usageHint": "body"}}}, {"id": "day_2_evening", "component": {"Text": {"text": {"literalString": "Evening: Dinner in Shibuya. Enjoy shopping around Shibuya 109 and other department stores."}, "usageHint": "body"}}}, {"id": "day_3_card", "component": {"Card": {"child": "day_3_column"}}}, {"id": "day_3_column", "component": {"Column": {"children": {"explicitList": ["day_3_title", "day_3_morning", "day_3_afternoon", "day_3_evening"]}}}}, {"id": "day_3_title", "component": {"Text": {"text": {"literalString": "Day 3: Saturday, May 17, 2025 - Shinjuku Shopping & Culture"}, "usageHint": "h4"}}}, {"id": "day_3_morning", "component": {"Text": {"text": {"literalString": "Morning: Shinjuku Shopping Spree - Explore major department stores like Isetan, Takashimaya Times Square, and Lumine EST for a mix of high-end and trendy Japanese fashion."}, "usageHint": "body"}}}, {"id": "day_3_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Samurai Museum (optional) - Immerse yourself in the history of the samurai. Alternatively, explore the quieter side streets of Shinjuku."}, "usageHint": "body"}}}, {"id": "day_3_evening", "component": {"Text": {"text": {"literalString": "Evening: Dinner in Shinjuku. Discover the vibrant atmosphere of Kabukicho (Shinjuku's entertainment district) without necessarily engaging in its nightlife."}, "usageHint": "body"}}}, {"id": "day_4_card", "component": {"Card": {"child": "day_4_column"}}}, {"id": "day_4_column", "component": {"Column": {"children": {"explicitList": ["day_4_title", "day_4_morning", "day_4_afternoon", "day_4_evening"]}}}}, {"id": "day_4_title", "component": {"Text": {"text": {"literalString": "Day 4: Sunday, May 18, 2025 - Harajuku Fashion & Meiji Jingu"}, "usageHint": "h4"}}}, {"id": "day_4_morning", "component": {"Text": {"text": {"literalString": "Morning: Meiji Jingu Shrine - Visit this serene Shinto shrine dedicated to Emperor Meiji and Empress Shoken, located in a large forested area."}, "usageHint": "body"}}}, {"id": "day_4_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Harajuku Exploration - Dive into Takeshita Street for quirky fashion and sweets, then stroll Omotesando for upscale boutiques and cafes. Wander down Cat Street for unique finds."}, "usageHint": "body"}}}, {"id": "day_4_evening", "component": {"Text": {"text": {"literalString": "Evening: Dinner in Harajuku or return to Shibuya/Shinjuku. Consider a themed cafe experience if interested."}, "usageHint": "body"}}}, {"id": "day_5_card", "component": {"Card": {"child": "day_5_column"}}}, {"id": "day_5_column", "component": {"Column": {"children": {"explicitList": ["day_5_title", "day_5_morning", "day_5_afternoon", "day_5_evening"]}}}}, {"id": "day_5_title", "component": {"Text": {"text": {"literalString": "Day 5: Monday, May 19, 2025 - Modern Art & Departure Prep"}, "usageHint": "h4"}}}, {"id": "day_5_morning", "component": {"Text": {"text": {"literalString": "Morning: TeamLab Planets TOKYO (Toyosu) - Experience an immersive digital art museum. (Note: This requires a short train ride from Shinjuku/Shibuya to Toyosu. Book tickets in advance.)"}, "usageHint": "body"}}}, {"id": "day_5_afternoon", "component": {"Text": {"text": {"literalString": "Afternoon: Last-minute Souvenir Shopping & Packing - Grab any final gifts or items you might have missed in Shinjuku or Shibuya."}, "usageHint": "body"}}}, {"id": "day_5_evening", "component": {"Text": {"text": {"literalString": "Evening: Farewell Dinner - Enjoy a final memorable meal in one of your favorite districts."}, "usageHint": "body"}}}, {"id": "restaurant_recommendations_section", "component": {"Column": {"children": {"explicitList": ["restaurants_title", "restaurants_intro_1", "restaurants_intro_2", "restaurant_1_card", "restaurant_2_card", "restaurant_3_card"]}}}}, {"id": "restaurants_title", "component": {"Text": {"text": {"literalString": "Restaurant Recommendations (Budget: ~$50 per person per meal)"}, "usageHint": "h3"}}}, {"id": "restaurants_intro_1", "component": {"Text": {"text": {"literalString": "These are EXAMPLE recommendations. Prices and availability can vary."}, "usageHint": "body"}}}, {"id": "restaurants_intro_2", "component": {"Text": {"text": {"literalString": "To verify live info: Check restaurant websites or use booking platforms like TableCheck, Hot Pepper Gourmet, or OpenTable for current menus, prices, and reservations."}, "usageHint": "body"}}}, {"id": "restaurant_1_card", "component": {"Card": {"child": "restaurant_1_column"}}}, {"id": "restaurant_1_column", "component": {"Column": {"children": {"explicitList": ["restaurant_1_name", "restaurant_1_summary", "restaurant_1_attribute", "restaurant_1_link_button"]}}}}, {"id": "restaurant_1_name", "component": {"Text": {"text": {"literalString": "Afuri Ramen"}, "usageHint": "h4"}}}, {"id": "restaurant_1_summary", "component": {"Text": {"text": {"literalString": "Summary: Famous for its refreshing yuzu-scented broth, Afuri offers a lighter, yet flavorful ramen experience."}, "usageHint": "body"}}}, {"id": "restaurant_1_attribute", "component": {"Text": {"text": {"literalString": "Key attribute: Yuzu Shio Ramen, typically under $15 per person."}, "usageHint": "body"}}}, {"id": "restaurant_1_link_button_text", "component": {"Text": {"text": {"literalString": "Link: EXAMPLE: afuri.com"}, "usageHint": "body"}}}, {"id": "restaurant_1_link_button", "component": {"Button": {"child": "restaurant_1_link_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://afuri.com/"}}]}}}}, {"id": "restaurant_2_card", "component": {"Card": {"child": "restaurant_2_column"}}}, {"id": "restaurant_2_column", "component": {"Column": {"children": {"explicitList": ["restaurant_2_name", "restaurant_2_summary", "restaurant_2_attribute", "restaurant_2_link_button"]}}}}, {"id": "restaurant_2_name", "component": {"Text": {"text": {"literalString": "Katsukura Shinjuku Takashimaya"}, "usageHint": "h4"}}}, {"id": "restaurant_2_summary", "component": {"Text": {"text": {"literalString": "Summary: A highly-regarded tonkatsu (fried pork cutlet) restaurant offering premium pork, which you grind your own sesame seeds for the sauce."}, "usageHint": "body"}}}, {"id": "restaurant_2_attribute", "component": {"Text": {"text": {"literalString": "Key attribute: High-quality Tonkatsu sets, around $20-$30 per person."}, "usageHint": "body"}}}, {"id": "restaurant_2_link_button_text", "component": {"Text": {"text": {"literalString": "Link: EXAMPLE: katsukura.jp"}, "usageHint": "body"}}}, {"id": "restaurant_2_link_button", "component": {"Button": {"child": "restaurant_2_link_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.katsukura.jp/"}}]}}}}, {"id": "restaurant_3_card", "component": {"Card": {"child": "restaurant_3_column"}}}, {"id": "restaurant_3_column", "component": {"Column": {"children": {"explicitList": ["restaurant_3_name", "restaurant_3_summary", "restaurant_3_attribute", "restaurant_3_link_button"]}}}}, {"id": "restaurant_3_name", "component": {"Text": {"text": {"literalString": "Uobei Sushi (Shibuya)"}, "usageHint": "h4"}}}, {"id": "restaurant_3_summary", "component": {"Text": {"text": {"literalString": "Summary: A lively and modern conveyor-belt sushi restaurant where orders are placed via touch screen and delivered directly to your table on a high-speed lane."}, "usageHint": "body"}}}, {"id": "restaurant_3_attribute", "component": {"Text": {"text": {"literalString": "Key attribute: Fresh, affordable sushi delivered fast, typically under $20 per person."}, "usageHint": "body"}}}, {"id": "restaurant_3_link_button_text", "component": {"Text": {"text": {"literalString": "Link: EXAMPLE: genkisushi.co.jp/uobei/"}, "usageHint": "body"}}}, {"id": "restaurant_3_link_button", "component": {"Button": {"child": "restaurant_3_link_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.genkisushi.co.jp/uobei/"}}]}}}}, {"id": "quick_actions_section", "component": {"Column": {"children": {"explicitList": ["quick_actions_title", "book_flights_button", "find_hotels_button", "explore_metro_pass_button", "reserve_teamlab_tickets_button"]}}}}, {"id": "quick_actions_title", "component": {"Text": {"text": {"literalString": "Quick Actions:"}, "usageHint": "h3"}}}, {"id": "book_flights_button_text", "component": {"Text": {"text": {"literalString": "Book Flights to Tokyo"}, "usageHint": "body"}}}, {"id": "book_flights_button", "component": {"Button": {"child": "book_flights_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.google.com/flights"}}]}}}}, {"id": "find_hotels_button_text", "component": {"Text": {"text": {"literalString": "Find Hotels in Shinjuku/Shibuya"}, "usageHint": "body"}}}, {"id": "find_hotels_button", "component": {"Button": {"child": "find_hotels_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.booking.com/city/jp/tokyo.html"}}]}}}}, {"id": "explore_metro_pass_button_text", "component": {"Text": {"text": {"literalString": "Explore Tokyo Metro Pass"}, "usageHint": "body"}}}, {"id": "explore_metro_pass_button", "component": {"Button": {"child": "explore_metro_pass_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.tokyometro.jp/en/ticket/travel/"}}]}}}}, {"id": "reserve_teamlab_tickets_button_text", "component": {"Text": {"text": {"literalString": "Reserve TeamLab Tickets"}, "usageHint": "body"}}}, {"id": "reserve_teamlab_tickets_button", "component": {"Button": {"child": "reserve_teamlab_tickets_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://planets.teamlab.art/tokyo/"}}]}}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
+              color: "#ffffff",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          queued.forEach((item) => renderMessages(item.payload, item.reset));
+
+          if (window.__GenUICraft_MESSAGES__) {
+            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+
