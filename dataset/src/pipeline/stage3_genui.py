@@ -243,6 +243,7 @@ def run_stage3(
             logger.warning("Stage3 aggregates failed: %s", exc)
 
     total_created = 0
+    total_failed = 0
     pending: list[dict[str, Any]] = []
     use_parallel = adapter.spec.provider == "gemini" and gemini_parallel_workers > 1
     use_batch = (
@@ -359,10 +360,23 @@ def run_stage3(
                         exc.limits or "unset",
                         exc.headers or "none",
                     )
-                raise
+                errors.append(f"repair_exception: {exc}")
+                logger.warning(
+                    "Stage3 repair failed ui_id=%s response_id=%s: %s",
+                    ui_id,
+                    response_id,
+                    exc,
+                )
+                break
             if result.error:
                 errors.append(f"repair_error: {result.error}")
-                raise RuntimeError(result.error)
+                logger.warning(
+                    "Stage3 repair returned error ui_id=%s response_id=%s: %s",
+                    ui_id,
+                    response_id,
+                    result.error,
+                )
+                break
             raw_text = result.text
             try:
                 genui_json = extract_json(raw_text)
@@ -493,6 +507,24 @@ def run_stage3(
                 encoding="utf-8",
             )
 
+    def _record_generation_error(task: dict[str, Any], err: str, raw_payload: Any = None) -> None:
+        nonlocal total_failed
+        total_failed += 1
+        logger.error("Stage3 generation error response_id=%s: %s", task.get("response_id"), err)
+        error_path = artifacts_dir / f"error_{task.get('ui_id', 'unknown')}.json"
+        error_payload = {
+            "prompt": task.get("prompt"),
+            "error": err,
+            "raw_payload": raw_payload,
+            "response_id": task.get("response_id"),
+            "query_id": task.get("query_id"),
+            "ui_id": task.get("ui_id"),
+        }
+        error_path.write_text(
+            json.dumps(error_payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
     def _generate_single_result(task: dict[str, Any]):
         def _call():
             rate_limiter.acquire()
@@ -518,10 +550,14 @@ def run_stage3(
         return result
 
     def _generate_single(task: dict[str, Any]) -> None:
-        result = _generate_single_result(task)
+        try:
+            result = _generate_single_result(task)
+        except Exception as exc:
+            _record_generation_error(task, str(exc))
+            return
         if result.error:
-            logger.error("Stage3 error response_id=%s: %s", task["response_id"], result.error)
-            raise RuntimeError(result.error)
+            _record_generation_error(task, result.error, result.raw)
+            return
         cache.set(task["prompt_hash"], result.text, result.raw)
         _process_generated(
             task,
@@ -603,8 +639,8 @@ def run_stage3(
 
             for task, result in parallel_results:
                 if result.error:
-                    logger.error("Stage3 error response_id=%s: %s", task["response_id"], result.error)
-                    raise RuntimeError(result.error)
+                    _record_generation_error(task, result.error, result.raw)
+                    continue
                 cache.set(task["prompt_hash"], result.text, result.raw)
                 _process_generated(
                     task,
@@ -635,8 +671,8 @@ def run_stage3(
             if result is None:
                 raise RuntimeError("Stage3 batch missing result")
             if result.error:
-                logger.error("Stage3 error response_id=%s: %s", task["response_id"], result.error)
-                raise RuntimeError(result.error)
+                _record_generation_error(task, result.error, result.raw)
+                continue
             cache.set(task["prompt_hash"], result.text, result.raw)
             _process_generated(
                 task,
@@ -724,5 +760,9 @@ def run_stage3(
                     _flush_pending()
 
         _flush_pending()
+        if total_failed > 0:
+            logger.warning("Stage3 completed with generation failures=%s created=%s", total_failed, total_created)
+        else:
+            logger.info("Stage3 completed created=%s", total_created)
     finally:
         _write_aggregates()
