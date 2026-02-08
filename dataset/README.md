@@ -110,20 +110,20 @@ $env:DATASET_OFFLINE_MODE="1"
 Run stages:
 
 ```
-python src/main.py --stage 1 --model qwen3_coder_30b_a3b_vllm_4x --run_id qwen3_4x
-python src/main.py --stage 2 --model qwen3_coder_30b_a3b_vllm_4x --run_id qwen3_4x
-python src/main.py --stage 3 --model qwen3_coder_30b_a3b_vllm_4x --run_id qwen3_4x
+python src/main.py --stage 1 --model qwen3_coder_30b_a3b_local_4x --run_id qwen3_4x
+python src/main.py --stage 2 --model qwen3_coder_30b_a3b_local_4x --run_id qwen3_4x
+python src/main.py --stage 3 --model qwen3_coder_30b_a3b_local_4x --run_id qwen3_4x
 
-python src/main.py --stage 1 --model deepseek_coder_v2_lite_vllm_4x --run_id deepseek_4x
-python src/main.py --stage 2 --model deepseek_coder_v2_lite_vllm_4x --run_id deepseek_4x
-python src/main.py --stage 3 --model deepseek_coder_v2_lite_vllm_4x --run_id deepseek_4x
+python src/main.py --stage 1 --model deepseek_coder_v2_lite_local_4x --run_id deepseek_4x
+python src/main.py --stage 2 --model deepseek_coder_v2_lite_local_4x --run_id deepseek_4x
+python src/main.py --stage 3 --model deepseek_coder_v2_lite_local_4x --run_id deepseek_4x
 ```
 
 Optional per-run model path override (without editing env):
 
 ```
-python src/main.py --stage 3 --model qwen3_coder_30b_a3b_vllm_4x --local_model_path /path/to/Qwen3-Coder-30B-A3B-Instruct
-python src/main.py --stage 3 --model deepseek_coder_v2_lite_vllm_4x --local_model_path /path/to/DeepSeek-Coder-V2-Lite-Instruct
+python src/main.py --stage 3 --model qwen3_coder_30b_a3b_local_4x --local_model_path /path/to/Qwen3-Coder-30B-A3B-Instruct
+python src/main.py --stage 3 --model deepseek_coder_v2_lite_local_4x --local_model_path /path/to/DeepSeek-Coder-V2-Lite-Instruct
 ```
 
 Optional local inference tuning env vars:

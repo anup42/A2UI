@@ -94,7 +94,8 @@ models:
     model: mock
     supports_json_mode: false
     endpoint: http://localhost:8000/v1/chat/completions
-  - name: qwen3_coder_30b_a3b_vllm_4x
+  # Local names for Qwen3-Coder-30B-A3B-Instruct
+  - name: qwen3_coder_30b_a3b_local_4x
     provider: local
     model: Qwen/Qwen3-Coder-30B-A3B-Instruct
     supports_json_mode: false
@@ -103,7 +104,7 @@ models:
       tpm: null
       rpd: null
       note: "Local Transformers offline (4x V100). Set QWEN_MODEL_PATH and CUDA_VISIBLE_DEVICES=0,1,2,3"
-  - name: qwen3_coder_30b_a3b_vllm_8x
+  - name: qwen3_coder_30b_a3b_local_8x
     provider: local
     model: Qwen/Qwen3-Coder-30B-A3B-Instruct
     supports_json_mode: false
@@ -112,7 +113,7 @@ models:
       tpm: null
       rpd: null
       note: "Local Transformers offline (8x V100). Set QWEN_MODEL_PATH and CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7"
-  - name: deepseek_coder_v2_lite_vllm_4x
+  - name: deepseek_coder_v2_lite_local_4x
     provider: local
     model: deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct
     supports_json_mode: false
