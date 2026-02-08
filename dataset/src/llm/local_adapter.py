@@ -107,6 +107,9 @@ class LocalAdapter(BaseLLMAdapter):
             )
 
         self._model_path = model_path
+        if self._model_is_qwen_or_deepseek():
+            # Helps reduce allocator fragmentation on long-running local inference.
+            os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
         try:
             import torch  # type: ignore
             from transformers import AutoModelForCausalLM, AutoTokenizer  # type: ignore
@@ -131,6 +134,7 @@ class LocalAdapter(BaseLLMAdapter):
         attn_impl = (os.environ.get("LOCAL_MODEL_ATTN_IMPL") or "").strip()
         offload_dir = (os.environ.get("LOCAL_MODEL_OFFLOAD_DIR") or ".offload").strip()
         max_memory_per_gpu = (os.environ.get("LOCAL_MODEL_MAX_MEMORY") or "").strip()
+        gpu_mem_util = (os.environ.get("LOCAL_MODEL_GPU_MEMORY_UTILIZATION") or "0.88").strip()
         cpu_memory = (os.environ.get("LOCAL_MODEL_CPU_MEMORY") or "64GiB").strip()
 
         model_kwargs: dict[str, Any] = {
@@ -142,12 +146,27 @@ class LocalAdapter(BaseLLMAdapter):
         if attn_impl:
             model_kwargs["attn_implementation"] = attn_impl
 
-        if max_memory_per_gpu and torch.cuda.is_available():
-            max_memory = {idx: max_memory_per_gpu for idx in range(torch.cuda.device_count())}
-            max_memory["cpu"] = cpu_memory
-            model_kwargs["max_memory"] = max_memory
-            model_kwargs["offload_folder"] = offload_dir
-            Path(offload_dir).mkdir(parents=True, exist_ok=True)
+        if torch.cuda.is_available():
+            max_memory: dict[Any, str] | None = None
+            if max_memory_per_gpu:
+                max_memory = {idx: max_memory_per_gpu for idx in range(torch.cuda.device_count())}
+            elif self._model_is_qwen_or_deepseek():
+                # Auto-apply per-GPU memory caps for large local models unless explicitly overridden.
+                try:
+                    frac = float(gpu_mem_util)
+                except Exception:
+                    frac = 0.88
+                frac = min(max(frac, 0.50), 0.98)
+                max_memory = {}
+                for idx in range(torch.cuda.device_count()):
+                    total_gib = torch.cuda.get_device_properties(idx).total_memory / (1024**3)
+                    cap_gib = max(1, int(total_gib * frac))
+                    max_memory[idx] = f"{cap_gib}GiB"
+            if max_memory:
+                max_memory["cpu"] = cpu_memory
+                model_kwargs["max_memory"] = max_memory
+                model_kwargs["offload_folder"] = offload_dir
+                Path(offload_dir).mkdir(parents=True, exist_ok=True)
 
         if load_in_4bit:
             try:
@@ -302,7 +321,22 @@ class LocalAdapter(BaseLLMAdapter):
             self._ensure_local_model_loaded()
             assert self._tokenizer is not None and self._model is not None and self._torch is not None
             full_prompt = self._local_prompt(prompt, system, json_mode)
-            encoded = self._tokenizer(full_prompt, return_tensors="pt")
+            max_input_tokens_raw = (os.environ.get("LOCAL_MODEL_MAX_INPUT_TOKENS") or "").strip()
+            max_input_tokens = 0
+            if max_input_tokens_raw:
+                try:
+                    max_input_tokens = max(0, int(max_input_tokens_raw))
+                except Exception:
+                    max_input_tokens = 0
+            elif self._model_is_qwen_or_deepseek():
+                max_input_tokens = 8192
+
+            tokenizer_kwargs: dict[str, Any] = {"return_tensors": "pt"}
+            if max_input_tokens > 0:
+                tokenizer_kwargs["truncation"] = True
+                tokenizer_kwargs["max_length"] = max_input_tokens
+
+            encoded = self._tokenizer(full_prompt, **tokenizer_kwargs)
             if "input_ids" not in encoded:
                 raise RuntimeError("Tokenizer output missing input_ids")
             prompt_len = int(encoded["input_ids"].shape[-1])
@@ -317,11 +351,30 @@ class LocalAdapter(BaseLLMAdapter):
                 if self._torch.cuda.is_available():
                     self._torch.cuda.manual_seed_all(seed)
 
+            max_new_tokens_raw = (os.environ.get("LOCAL_MODEL_MAX_NEW_TOKENS") or "").strip()
+            max_new_tokens_cap = 0
+            if max_new_tokens_raw:
+                try:
+                    max_new_tokens_cap = max(1, int(max_new_tokens_raw))
+                except Exception:
+                    max_new_tokens_cap = 0
+            elif self._model_is_qwen_or_deepseek():
+                # Safe default for large local models on V100-class GPUs.
+                max_new_tokens_cap = 1024
+            if max_new_tokens_cap > 0:
+                max_tokens = min(int(max_tokens), max_new_tokens_cap)
+
             do_sample = bool(temperature and temperature > 0.0)
             gen_kwargs: dict[str, Any] = {
                 "max_new_tokens": max_tokens,
                 "do_sample": do_sample,
             }
+            use_cache_raw = os.environ.get("LOCAL_MODEL_USE_CACHE", "")
+            if use_cache_raw.strip():
+                gen_kwargs["use_cache"] = self._is_truthy(use_cache_raw)
+            elif self._model_is_qwen_or_deepseek():
+                # Lower peak memory for long prompts.
+                gen_kwargs["use_cache"] = False
             if do_sample:
                 gen_kwargs["temperature"] = max(float(temperature), 1e-5)
                 gen_kwargs["top_p"] = 0.95

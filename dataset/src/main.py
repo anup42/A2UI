@@ -545,6 +545,18 @@ def main() -> None:
     prompt_max_tokens = run_cfg.get("genui_prompt_max_tokens")
     if prompt_max_tokens is None and adapter.spec.provider == "gauss":
         prompt_max_tokens = 6000
+    if args.stage == 3 and adapter.spec.provider == "local":
+        local_prompt_cap_raw = (os.environ.get("LOCAL_STAGE3_PROMPT_MAX_TOKENS") or "8192").strip()
+        try:
+            local_prompt_cap = max(500, int(local_prompt_cap_raw))
+        except Exception:
+            local_prompt_cap = 8192
+        if prompt_max_tokens is None or int(prompt_max_tokens) > local_prompt_cap:
+            prompt_max_tokens = local_prompt_cap
+            logger.info(
+                "Stage3 local prompt token cap applied: %s (LOCAL_STAGE3_PROMPT_MAX_TOKENS)",
+                prompt_max_tokens,
+            )
 
     server_proc = _maybe_start_vllm(spec, args, logger)
     try:
