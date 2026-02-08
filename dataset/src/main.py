@@ -60,6 +60,46 @@ def _compute_aggregates(genui_path: Path, weights: dict) -> dict:
     return aggregate
 
 
+def _count_jsonl_rows(path: Path) -> int:
+    if not path.exists():
+        return 0
+    return sum(1 for _ in iter_jsonl(path))
+
+
+def _expected_stage3_ui_ids(responses_path: Path, candidates_per_response: int) -> set[str]:
+    expected: set[str] = set()
+    if not responses_path.exists():
+        return expected
+    candidate_count = max(1, int(candidates_per_response))
+    for row in iter_jsonl(responses_path):
+        query_id = str(row.get("query_id") or "").strip()
+        if not query_id:
+            continue
+        n_idx_raw = row.get("n_idx", 1)
+        try:
+            n_idx = int(n_idx_raw)
+        except Exception:
+            n_idx = 1
+        suffix = query_id.replace("q_", "")
+        for c_idx in range(1, candidate_count + 1):
+            if c_idx == 1:
+                expected.add(f"u_{suffix}_{n_idx:02d}")
+            else:
+                expected.add(f"u_{suffix}_{n_idx:02d}_{c_idx:02d}")
+    return expected
+
+
+def _is_stage3_complete(responses_path: Path, genui_path: Path, candidates_per_response: int) -> bool:
+    expected = _expected_stage3_ui_ids(responses_path, candidates_per_response)
+    if not expected:
+        return False
+    if not genui_path.exists():
+        return False
+    existing = {str(row.get("ui_id") or "").strip() for row in iter_jsonl(genui_path)}
+    existing.discard("")
+    return expected.issubset(existing)
+
+
 def _ensure_list(value):
     if isinstance(value, list):
         return value
@@ -470,6 +510,31 @@ def main() -> None:
         available = ", ".join(sorted(model_map.keys()))
         raise SystemExit(f"Unknown model '{args.model}'. Available: {available}")
     spec = model_map.get(args.model) if args.model else specs[0]
+
+    # Recompute-only fast path:
+    # If stage 3 outputs already exist for all expected response IDs/candidates,
+    # skip adapter initialization/API calls and refresh aggregates.json directly.
+    if args.stage == 3:
+        stage3_candidates = int(run_cfg.get("genui_candidates_per_response", 1))
+        if _is_stage3_complete(
+            run_paths.responses_path,
+            run_paths.genui_path,
+            stage3_candidates,
+        ):
+            if not run_paths.genui_path.exists():
+                raise SystemExit(f"Missing genui file: {run_paths.genui_path}")
+            aggregates = _compute_aggregates(run_paths.genui_path, eval_cfg.get("weights", {}))
+            run_paths.aggregates_path.write_text(
+                json.dumps(aggregates, indent=2),
+                encoding="utf-8",
+            )
+            logger.info(
+                "Stage3 already complete for run_id=%s. Recomputed aggregates only (%s rows).",
+                run_id,
+                _count_jsonl_rows(run_paths.genui_path),
+            )
+            return
+
     _configure_local_model_path(spec, args, logger)
     adapter = build_adapter(spec)
     rate_limiter = RateLimiter(
