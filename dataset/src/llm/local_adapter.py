@@ -107,9 +107,11 @@ class LocalAdapter(BaseLLMAdapter):
             )
 
         self._model_path = model_path
-        if self._model_is_qwen_or_deepseek():
-            # Helps reduce allocator fragmentation on long-running local inference.
-            os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+        # Allocator tuning is opt-in because some CUDA/PyTorch stacks crash with
+        # expandable_segments (invalid argument in CUDACachingAllocator).
+        local_alloc_conf = (os.environ.get("LOCAL_CUDA_ALLOC_CONF") or "").strip()
+        if local_alloc_conf and "PYTORCH_CUDA_ALLOC_CONF" not in os.environ:
+            os.environ["PYTORCH_CUDA_ALLOC_CONF"] = local_alloc_conf
         try:
             import torch  # type: ignore
             from transformers import AutoModelForCausalLM, AutoTokenizer  # type: ignore
@@ -254,6 +256,13 @@ class LocalAdapter(BaseLLMAdapter):
             with urllib.request.urlopen(req, timeout=60) as resp:
                 raw = resp.read().decode("utf-8")
         except Exception as exc:
+            message = str(exc)
+            lower_msg = message.lower()
+            if "cudacachingallocator.cpp" in lower_msg and "invalid argument" in lower_msg:
+                message = (
+                    f"{message}. Hint: your CUDA allocator config is incompatible with this stack. "
+                    "Unset PYTORCH_CUDA_ALLOC_CONF (and LOCAL_CUDA_ALLOC_CONF), restart, and retry."
+                )
             return LLMResult(
                 text="",
                 raw=None,
@@ -263,7 +272,7 @@ class LocalAdapter(BaseLLMAdapter):
                 cost_usd=None,
                 model=self.spec.model,
                 provider=self.spec.provider,
-                error=str(exc),
+                error=message,
             )
 
         elapsed = (time.time() - start) * 1000

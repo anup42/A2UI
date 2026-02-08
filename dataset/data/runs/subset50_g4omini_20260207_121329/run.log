@@ -1,0 +1,2 @@
+2026-02-08 21:52:31 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-08 21:52:31 ERROR dataset: Stage3 generation error response_id=r_000001_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none

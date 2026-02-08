@@ -133,6 +133,7 @@ Optional local inference tuning env vars:
 - `LOCAL_MODEL_LOAD_IN_4BIT` (`1` to enable)
 - `LOCAL_MODEL_MAX_MEMORY` (example `14GiB`)
 - `LOCAL_MODEL_GPU_MEMORY_UTILIZATION` (default `0.88`; auto cap when `LOCAL_MODEL_MAX_MEMORY` is unset)
+- `LOCAL_CUDA_ALLOC_CONF` (optional; sets `PYTORCH_CUDA_ALLOC_CONF` only if you explicitly provide it)
 - `LOCAL_MODEL_OFFLOAD_DIR` (default `.offload`)
 - `LOCAL_MODEL_MAX_INPUT_TOKENS` (default `8192` for Qwen/DeepSeek)
 - `LOCAL_MODEL_MAX_NEW_TOKENS` (default `1024` for Qwen/DeepSeek)
