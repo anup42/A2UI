@@ -7,3 +7,16 @@
 2026-02-08 02:07:49 ERROR dataset: Stage3 error response_id=r_000001_01: <urlopen error [Errno 11001] getaddrinfo failed>; request={'modelIds': ['your_gauss_model_id_here'], 'prompt_preview': '# genui_gen_v3  You are an GenUICraft generator. Convert the response text into valid GenUICraft JSON using ONLY the schemas and catalog provided below (local copies). Do NOT reference any external UR', 'prompt_length': 57134, 'temperature': 0.2, 'max_new_tokens': 2048, 'seed': 43, 'system': False, 'max_new_tokens_clamped_from': 51200}; endpoint=https://your-gauss-endpoint.example/openapi/chat/v1/messages
 2026-02-08 02:07:49 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gauss_20260207_121329\aggregates.json
 2026-02-08 20:41:36 INFO dataset: Stage3 already complete for run_id=subset50_gauss_20260207_121329. Recomputed aggregates only (50 rows).
+2026-02-09 11:57:15 INFO dataset: Stage4 HTTP server started on port 57898
+2026-02-09 11:57:55 ERROR dataset: Stage4 render error ui_id=u_000202_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:57898/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:57898/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:57898/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:57898/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:57898/data/runs/subset50_gauss_20260207_121329/rendered/u_000202_01.html:316:23)
+    at init (http://127.0.0.1:57898/data/runs/subset50_gauss_20260207_121329/rendered/u_000202_01.html:329:13)
+2026-02-09 11:58:25 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gauss_20260207_121329\rendered
+2026-02-09 11:59:49 INFO dataset: Stage4 HTTP server started on port 55807
+2026-02-09 11:59:51 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gauss_20260207_121329\rendered
+2026-02-09 12:00:11 INFO dataset: Stage4 HTTP server started on port 56037
+2026-02-09 12:00:48 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gauss_20260207_121329\rendered
