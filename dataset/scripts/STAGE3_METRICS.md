@@ -134,6 +134,52 @@ Fields:
 - `intent_expectation_pass` (`0/1`, all required checks passed)
 - `intent_score` (mean pass rate over required checks; `1.0` if no checks required)
 
+### Intent Check Thresholds
+
+When a check is required, pass/fail is computed with these thresholds:
+
+- `table_ok`: `table_pattern_detected >= 1.0` OR `table_cell_coverage >= 0.4`
+- `actions_ok`: `action_coverage >= 0.7`
+- `sections_ok`: `section_heading_coverage >= 0.6`
+
+### Per-Intent Baseline Requirements
+
+Baseline means requirement from intent bucket only, before tag/content heuristics are applied.
+
+| Intent (from `intents.info`) | Normalized bucket | Baseline required checks | Metrics used |
+|---|---|---|---|
+| Information Retrieval | `information_retrieval` | none | heuristic-triggered only |
+| Entertainment | `entertainment` | none | heuristic-triggered only |
+| product_lookup | `product_lookup` | actions | `action_coverage` |
+| Booking | `booking` | actions | `action_coverage` |
+| weather | `weather` | none | heuristic-triggered only |
+| data visualisation | `data_visualization` | table | `table_pattern_detected`, `table_cell_coverage` |
+| Planning | `planning` | sections | `section_heading_coverage` |
+| productivity | `productivity` | none | heuristic-triggered only |
+| Recipe | `recipe` | sections | `section_heading_coverage` |
+| Localization | `localization` | none | heuristic-triggered only |
+| Technical support | `technical_support` | sections | `section_heading_coverage` |
+| Creating Writing | `creative_writing` | none | heuristic-triggered only |
+| Event Schedule | `event_schedule` | actions + sections | `action_coverage`, `section_heading_coverage` |
+| Research Analysis | `research_analysis` | none | heuristic-triggered only |
+| Comparison | `comparison` | table | `table_pattern_detected`, `table_cell_coverage` |
+| calculation | `calculation` | table | `table_pattern_detected`, `table_cell_coverage` |
+| Travel | `travel` | actions + sections | `action_coverage`, `section_heading_coverage` |
+| Navigation | `navigation` | actions | `action_coverage` |
+| Education | `education` | sections | `section_heading_coverage` |
+| Documentation | `documentation` | sections | `section_heading_coverage` |
+| media playback | `media_playback` | none | heuristic-triggered only |
+| qr scanner | `qr_scanner` | none | heuristic-triggered only |
+| status check | `status_check` | actions | `action_coverage` |
+
+### Heuristic Requirement Triggers (Apply To Any Intent)
+
+These can add required checks even if baseline is `none`:
+
+- Table required if response is table-like (markdown/piped table), or tags indicate table-heavy intents.
+- Actions required if response contains URLs and has button-like cues (for example `Quick Actions` or `[Button ...]`), or tags indicate action-heavy intents.
+- Sections required if response contains multiple heading-like blocks, or tags indicate section-heavy intents.
+
 ## Validation Fields (Per Row)
 
 These are not in `metrics`, but are important Stage 3 quality signals:
