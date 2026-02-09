@@ -70,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "revenueAnalysis"}}, {"surfaceUpdate": {"surfaceId": "revenueAnalysis", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "summary", "conclusion", "actions"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "FY2023 Quarterly Revenue Analysis"}, "usageHint": "h2"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "The fourth quarter (Q4) of FY2023 had the highest total revenue growth, with an increase of $18,000 over the third quarter (Q3). Software consistently remained the highest-earning product line throughout the year, showing strong and steady growth each quarter."}, "usageHint": "body"}}}, {"id": "revenueTableTitle", "component": {"Text": {"text": {"literalString": "Revenue Breakdown by Quarter (in thousands USD)"}, "usageHint": "h3"}}}, {"id": "revenueTableDescription", "component": {"Text": {"text": {"literalString": "This table provides the raw data and totals for each quarter."}, "usageHint": "body"}}}, {"id": "growthTableTitle", "component": {"Text": {"text": {"literalString": "Quarter-over-Quarter Growth Analysis"}, "usageHint": "h3"}}}, {"id": "chartTitle", "component": {"Text": {"text": {"literalString": "FY2023 Quarterly Revenue by Product Line"}, "usageHint": "h3"}}}, {"id": "conclusion", "component": {"Text": {"text": {"literalString": "The analysis confirms that the growth from Q3 to Q4 was the highest for the fiscal year, both in absolute terms (+$18k) and percentage terms (+16.1%)."}, "usageHint": "body"}}}, {"id": "actions", "component": {"Row": {"children": {"explicitList": ["exportButton", "forecastButton", "reportButton"]}, "distribution": "spaceBetween"}}}, {"id": "exportButton", "component": {"Button": {"child": "exportButtonText", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "/export/fy2023-revenue.csv"}}]}}}}, {"id": "exportButtonText", "component": {"Text": {"text": {"literalString": "Export Full Data as CSV"}, "usageHint": "body"}}}, {"id": "forecastButton", "component": {"Button": {"child": "forecastButtonText", "action": {"name": "createForecast", "context": [{"key": "quarter", "value": {"literalString": "Q1 2024"}}]}}}}, {"id": "forecastButtonText", "component": {"Text": {"text": {"literalString": "Create Q1 2024 Forecast"}, "usageHint": "body"}}}, {"id": "reportButton", "component": {"Button": {"child": "reportButtonText", "action": {"name": "viewReport", "context": [{"key": "reportType", "value": {"literalString": "productLineProfitability"}}]}}}}, {"id": "reportButtonText", "component": {"Text": {"text": {"literalString": "View Product Line Profitability Report"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "revenueAnalysis"}}, {"surfaceUpdate": {"surfaceId": "revenueAnalysis", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "summary", "conclusion", "actions"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "FY2023 Quarterly Revenue Analysis"}, "usageHint": "h2"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "The fourth quarter (Q4) of FY2023 had the highest total revenue growth, with an increase of $18,000 over the third quarter (Q3). Software consistently remained the highest-earning product line throughout the year, showing strong and steady growth each quarter."}, "usageHint": "body"}}}, {"id": "revenueTableTitle", "component": {"Text": {"text": {"literalString": "Revenue Breakdown by Quarter (in thousands USD)"}, "usageHint": "h3"}}}, {"id": "revenueTableDescription", "component": {"Text": {"text": {"literalString": "This table provides the raw data and totals for each quarter."}, "usageHint": "body"}}}, {"id": "growthTableTitle", "component": {"Text": {"text": {"literalString": "Quarter-over-Quarter Growth Analysis"}, "usageHint": "h3"}}}, {"id": "chartTitle", "component": {"Text": {"text": {"literalString": "FY2023 Quarterly Revenue by Product Line"}, "usageHint": "h3"}}}, {"id": "conclusion", "component": {"Text": {"text": {"literalString": "The analysis confirms that the growth from Q3 to Q4 was the highest for the fiscal year, both in absolute terms (+$18k) and percentage terms (+16.1%)."}, "usageHint": "body"}}}, {"id": "actions", "component": {"Row": {"children": {"explicitList": ["exportButton", "forecastButton", "reportButton"]}, "distribution": "spaceBetween"}}}, {"id": "exportButton", "component": {"Text": {"text": {"literalString": "[Export Full Data as CSV](/export/fy2023-revenue.csv)"}, "usageHint": "body"}}}, {"id": "forecastButton", "component": {"Text": {"text": {"literalString": "Create Q1 2024 Forecast"}, "usageHint": "body"}}}, {"id": "reportButton", "component": {"Text": {"text": {"literalString": "View Product Line Profitability Report"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -193,15 +193,17 @@
               "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
             },
             Button: {
-              background: "linear-gradient(180deg, #2d7df0, var(--oneui-color-primary))",
-              color: "#ffffff",
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
               border: "none",
               "border-radius": "22px",
               "min-height": "44px",
               padding: "11px 20px",
               "font-weight": "700",
               "letter-spacing": "0.01em",
-              "box-shadow": "0 6px 16px rgba(11, 87, 208, 0.28)"
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)"
             },
             Divider: {
               "border-color": "var(--oneui-color-outline-variant)",
@@ -304,7 +306,193 @@
             }
           }
 
-          function renderMessages(payload, reset) {
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          async function renderMessages(payload, reset) {
             const messages = parseMessages(payload);
             if (!Array.isArray(messages)) {
               console.warn("GenUICraft payload was not an array", messages);
@@ -315,6 +503,13 @@
             }
             processor.processMessages(messages);
             renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            await markMissingImages();
             window.__GenUICraft_RENDER_DONE = true;
           }
 
@@ -323,10 +518,12 @@
 
           const queued = window.__GenUICraft_QUEUE || [];
           window.__GenUICraft_QUEUE = [];
-          queued.forEach((item) => renderMessages(item.payload, item.reset));
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
 
           if (window.__GenUICraft_MESSAGES__) {
-            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);

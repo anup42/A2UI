@@ -84,6 +84,7 @@ def main() -> None:
     latency_values: list[float] = []
     render_values: list[float] = []
     intent_stats: dict[str, dict[str, float]] = {}
+    table_ok_values: list[float] = []
 
     total_rows = 0
     with genui_path.open("r", encoding="utf-8", errors="replace") as handle:
@@ -134,6 +135,8 @@ def main() -> None:
             intent_metrics = compute_intent_metrics(intent_value, tags_value, response_text, metrics)
             intent_bucket = intent_metrics.pop("intent_bucket", "unknown") or "unknown"
             metrics.update(intent_metrics)
+            if metrics.get("intent_require_table", 0.0) >= 1.0:
+                table_ok_values.append(_normalize_float(metrics.get("intent_table_ok", 0.0)))
 
             for key, value in metrics.items():
                 sums[key] = sums.get(key, 0.0) + _normalize_float(value)
@@ -234,6 +237,8 @@ def main() -> None:
         "dangling_components_rate_avg": mean("dangling_components_rate"),
         "intent_expectation_pass_rate": mean("intent_expectation_pass"),
         "intent_score_avg": mean("intent_score"),
+        "table_required_rate": mean("intent_require_table"),
+        "table_ok_rate": (sum(table_ok_values) / len(table_ok_values)) if table_ok_values else 0.0,
         "intent_stats": intent_stats_out or None,
         "render_ok_rate": sum(render_values) / len(render_values) if render_values else None,
         "latency_ms_avg": sum(latency_values) / len(latency_values) if latency_values else 0.0,

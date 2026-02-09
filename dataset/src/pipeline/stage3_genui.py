@@ -221,6 +221,13 @@ def run_stage3(
 
     existing_ids = {row.get("ui_id") for row in iter_jsonl(genui_path)}
     writer = JsonlWriter(genui_path)
+    response_text_by_id: dict[str, str] = {}
+    if responses_path.exists():
+        for row in iter_jsonl(responses_path):
+            response_id = row.get("response_id")
+            response_text = row.get("response_text")
+            if isinstance(response_id, str) and isinstance(response_text, str):
+                response_text_by_id[response_id] = response_text
     gemini_parallel_workers = (
         max(1, int(os.getenv("GEMINI_STAGE3_PARALLEL_THREADS", "1")))
         if adapter.spec.provider == "gemini"
@@ -232,6 +239,15 @@ def run_stage3(
             return
         try:
             rows = list(iter_jsonl(genui_path))
+            if response_text_by_id:
+                for row in rows:
+                    if row.get("response_text"):
+                        continue
+                    response_id = row.get("response_id")
+                    if isinstance(response_id, str):
+                        backfill = response_text_by_id.get(response_id)
+                        if isinstance(backfill, str):
+                            row["response_text"] = backfill
             aggregates = aggregate_metrics(rows)
             aggregates["overall_score"] = compute_overall_score(
                 aggregates,

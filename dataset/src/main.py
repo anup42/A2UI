@@ -60,6 +60,40 @@ def _compute_aggregates(genui_path: Path, weights: dict) -> dict:
     return aggregate
 
 
+def _load_response_text_map(responses_path: Path) -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    if not responses_path.exists():
+        return mapping
+    for row in iter_jsonl(responses_path):
+        response_id = row.get("response_id")
+        response_text = row.get("response_text")
+        if isinstance(response_id, str) and isinstance(response_text, str):
+            mapping[response_id] = response_text
+    return mapping
+
+
+def _compute_aggregates_with_backfill(
+    genui_path: Path,
+    responses_path: Path,
+    weights: dict,
+) -> dict:
+    rows = list(iter_jsonl(genui_path))
+    if rows:
+        response_map = _load_response_text_map(responses_path)
+        if response_map:
+            for row in rows:
+                if row.get("response_text"):
+                    continue
+                response_id = row.get("response_id")
+                if isinstance(response_id, str):
+                    backfill = response_map.get(response_id)
+                    if isinstance(backfill, str):
+                        row["response_text"] = backfill
+    aggregate = aggregate_metrics(rows)
+    aggregate["overall_score"] = compute_overall_score(aggregate, weights)
+    return aggregate
+
+
 def _count_jsonl_rows(path: Path) -> int:
     if not path.exists():
         return 0
@@ -310,6 +344,12 @@ def main() -> None:
         help="Override GenUI batch size for stage 3 (default from run.yaml)",
     )
     parser.add_argument(
+        "--render_workers",
+        type=int,
+        default=None,
+        help="Override Stage4 render worker count (default from run.yaml render.parallel_workers or 1).",
+    )
+    parser.add_argument(
         "--rate_limit_qps",
         type=float,
         default=None,
@@ -500,7 +540,11 @@ def main() -> None:
                 aggregates_path=model_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
             )
-            aggregates[model_name] = _compute_aggregates(model_paths.genui_path, eval_cfg.get("weights", {}))
+            aggregates[model_name] = _compute_aggregates_with_backfill(
+                model_paths.genui_path,
+                model_paths.responses_path,
+                eval_cfg.get("weights", {}),
+            )
 
         run_paths.aggregates_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
         logger.info("Benchmark complete. Aggregates stored at %s", run_paths.aggregates_path)
@@ -523,7 +567,11 @@ def main() -> None:
         ):
             if not run_paths.genui_path.exists():
                 raise SystemExit(f"Missing genui file: {run_paths.genui_path}")
-            aggregates = _compute_aggregates(run_paths.genui_path, eval_cfg.get("weights", {}))
+            aggregates = _compute_aggregates_with_backfill(
+                run_paths.genui_path,
+                run_paths.responses_path,
+                eval_cfg.get("weights", {}),
+            )
             run_paths.aggregates_path.write_text(
                 json.dumps(aggregates, indent=2),
                 encoding="utf-8",
@@ -650,6 +698,7 @@ def main() -> None:
                 timeout_ms=int(render_cfg.get("timeout_ms", 15000)),
                 wait_ms=int(render_cfg.get("wait_ms", 200)),
                 use_http_server=bool(render_cfg.get("use_http_server", True)),
+                parallel_workers=int(args.render_workers) if args.render_workers is not None else int(render_cfg.get("parallel_workers", 1)),
             )
             logger.info("Stage4 complete. Rendered outputs stored at %s", output_dir)
             return

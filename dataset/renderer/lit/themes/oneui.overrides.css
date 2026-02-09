@@ -57,4 +57,33 @@ a2ui-text[usage-hint="h3"] {
 a2ui-button {
   display: inline-flex;
   margin-top: 4px;
+  --oneui-color-on-surface: var(--oneui-color-on-primary);
+  --oneui-color-on-surface-variant: var(--oneui-color-on-primary);
+}
+
+a2ui-image.genui-image-missing {
+  position: static;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: transparent;
+}
+
+a2ui-image.genui-image-missing::before {
+  content: "Broken image";
+  position: static;
+  display: inline-block;
+  color: var(--oneui-color-on-surface-variant);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+a2ui-image.genui-image-missing-icon {
+  display: none !important;
+}
+
+a2ui-image.genui-image-unavailable {
+  display: none !important;
 }

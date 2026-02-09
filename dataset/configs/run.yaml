@@ -43,6 +43,7 @@ render:
     height: 720
   timeout_ms: 15000
   wait_ms: 200
+  parallel_workers: 1
 benchmark:
   fixed_subset_size: 10
   fixed_seed: 123

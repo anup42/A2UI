@@ -284,42 +284,125 @@ def _extract_button_actions(components: list[dict[str, Any]]) -> list[str]:
     return urls
 
 
+def _row_text_cell_ids(row_comp: dict[str, Any], index: dict[str, dict[str, Any]]) -> list[str]:
+    if row_comp.get("component") != "Row":
+        return []
+    cells: list[str] = []
+    for child_id in _component_children(row_comp):
+        child = index.get(child_id)
+        if child and child.get("component") == "Text":
+            cells.append(child_id)
+    return cells
+
+
+def _append_if_table_like(rows_out: list[list[str]], row_nodes: list[list[str]], min_rows: int) -> None:
+    if len(row_nodes) < min_rows:
+        return
+    counts = [len(row) for row in row_nodes]
+    if not counts:
+        return
+    # Real tables should have stable columns and at least two columns.
+    if min(counts) < 2:
+        return
+    if len(set(counts)) != 1:
+        return
+    rows_out.extend(row_nodes)
+
+
 def _find_table_rows(components: list[dict[str, Any]]) -> list[list[str]]:
     index = _build_component_index(components)
     rows: list[list[str]] = []
+
+    # Pattern A: List(direction=vertical) -> Row children
     for comp in components:
         if comp.get("component") != "List":
             continue
         if comp.get("direction") not in (None, "vertical"):
             continue
         list_children = _component_children(comp)
-        row_children_counts: list[int] = []
         row_nodes: list[list[str]] = []
         for child_id in list_children:
             child = index.get(child_id)
-            if not child or child.get("component") != "Row":
+            if not child:
                 continue
-            row_children = _component_children(child)
-            if len(row_children) < 2:
+            row_cells = _row_text_cell_ids(child, index)
+            if row_cells:
+                row_nodes.append(row_cells)
+        _append_if_table_like(rows, row_nodes, min_rows=2)
+
+    # Pattern B: Column with divider-separated Row children
+    for comp in components:
+        if comp.get("component") != "Column":
+            continue
+        column_children = _component_children(comp)
+        seq: list[list[str]] = []
+        for child_id in column_children:
+            child = index.get(child_id)
+            if not child:
+                # Unknown refs break sequence.
+                _append_if_table_like(rows, seq, min_rows=3)
+                seq = []
                 continue
-            row_children_counts.append(len(row_children))
-            row_nodes.append(row_children)
-        if row_children_counts and len(set(row_children_counts)) == 1:
-            rows.extend(row_nodes)
+            child_type = child.get("component")
+            if child_type == "Row":
+                row_cells = _row_text_cell_ids(child, index)
+                if row_cells:
+                    seq.append(row_cells)
+                else:
+                    _append_if_table_like(rows, seq, min_rows=3)
+                    seq = []
+            elif child_type == "Divider":
+                # Allow divider separators within a table block.
+                continue
+            else:
+                _append_if_table_like(rows, seq, min_rows=3)
+                seq = []
+        _append_if_table_like(rows, seq, min_rows=3)
+
     return rows
 
 
 def _extract_table_cells_from_response(response_text: str) -> list[str]:
-    lines = [line.strip() for line in response_text.splitlines() if "|" in line]
-    if len(lines) < 2:
-        return []
     cells: list[str] = []
-    for line in lines:
-        if re.match(r"^\s*\|?\s*-+\s*(\|\s*-+\s*)+\|?\s*$", line):
+    if not response_text:
+        return cells
+
+    all_lines = [line.rstrip() for line in response_text.splitlines() if line.strip()]
+
+    # Pattern A: markdown/pipe-style tables.
+    pipe_lines = [line.strip() for line in all_lines if "|" in line]
+    if len(pipe_lines) >= 2:
+        for line in pipe_lines:
+            if re.match(r"^\s*\|?\s*-+\s*(\|\s*-+\s*)+\|?\s*$", line):
+                continue
+            parts = [p.strip() for p in line.strip("|").split("|")]
+            parts = [p for p in parts if p]
+            cells.extend(parts)
+
+    # Pattern B: key/value table-like blocks (e.g., "Metric: Value") with >=3 rows.
+    kv_rows: list[tuple[str, str]] = []
+    for raw_line in all_lines:
+        line = re.sub(r"^\s*(?:[-*]|\d+[.)])\s*", "", raw_line).strip()
+        match = re.match(r"^([^:|]{1,80}):\s+(.+)$", line)
+        if not match:
+            if len(kv_rows) >= 3:
+                for key, value in kv_rows:
+                    cells.extend([key, value])
+            kv_rows = []
             continue
-        parts = [p.strip() for p in line.strip("|").split("|")]
-        parts = [p for p in parts if p]
-        cells.extend(parts)
+        key = match.group(1).strip()
+        value = match.group(2).strip()
+        if key and value and len(key.split()) <= 10:
+            kv_rows.append((key, value))
+        else:
+            if len(kv_rows) >= 3:
+                for key2, value2 in kv_rows:
+                    cells.extend([key2, value2])
+            kv_rows = []
+    if len(kv_rows) >= 3:
+        for key, value in kv_rows:
+            cells.extend([key, value])
+
     return cells
 
 
@@ -480,6 +563,10 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
     table_cell_coverage = 0.0
     if expected_norm:
         table_cell_coverage = len(expected_norm & ir_norm) / len(expected_norm)
+    elif table_pattern_detected >= 1.0:
+        # Some historical runs do not persist response_text in genui.jsonl, so
+        # response-derived table cells are unavailable. Use structural evidence.
+        table_cell_coverage = 1.0 if not (response_text or "").strip() else 0.5
 
     expected_headings = _extract_expected_headings(response_text)
     heading_texts = []
@@ -624,42 +711,68 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         k = max(0, min(k, len(values) - 1))
         return values[k]
 
+    computed_rows: list[dict[str, Any]] = []
+    for row in rows:
+        row_metrics = dict(row.get("metrics", {}))
+        genui_json = row.get("genui_json")
+        if genui_json is None:
+            genui_json = row.get("a2ui_json")
+        response_text = row.get("response_text", "") or ""
+        if genui_json is not None:
+            row_metrics.update(compute_ui_metrics(response_text, genui_json))
+            row_metrics["content_coverage"] = content_coverage(response_text, genui_json)
+            row_metrics["dup_rate"] = dup_rate(genui_json)
+            row_metrics["lint_score"] = lint_score(genui_json)
+            row_metrics.update(
+                compute_intent_metrics(
+                    row.get("intent"),
+                    row.get("tags"),
+                    response_text,
+                    row_metrics,
+                )
+            )
+        computed_rows.append({"row": row, "metrics": row_metrics})
+
     metrics = {
-        "schema_valid_strict": [1.0 if r.get("validation", {}).get("schema_valid_strict") else 0.0 for r in rows],
-        "content_coverage": [r.get("metrics", {}).get("content_coverage", 0.0) for r in rows],
-        "lint_score": [r.get("metrics", {}).get("lint_score", 0.0) for r in rows],
-        "dup_rate": [r.get("metrics", {}).get("dup_rate", 0.0) for r in rows],
-        "component_count": [r.get("metrics", {}).get("component_count", 0.0) for r in rows],
-        "unique_component_types": [r.get("metrics", {}).get("unique_component_types", 0.0) for r in rows],
-        "max_tree_depth": [r.get("metrics", {}).get("max_tree_depth", 0.0) for r in rows],
-        "avg_tree_depth": [r.get("metrics", {}).get("avg_tree_depth", 0.0) for r in rows],
-        "container_to_text_ratio": [r.get("metrics", {}).get("container_to_text_ratio", 0.0) for r in rows],
-        "information_chunking_score": [r.get("metrics", {}).get("information_chunking_score", 0.0) for r in rows],
-        "ui_modularity_score": [r.get("metrics", {}).get("ui_modularity_score", 0.0) for r in rows],
-        "ui_decomposition_score": [r.get("metrics", {}).get("ui_decomposition_score", 0.0) for r in rows],
-        "actionable_elements": [r.get("metrics", {}).get("actionable_elements", 0.0) for r in rows],
-        "action_coverage": [r.get("metrics", {}).get("action_coverage", 0.0) for r in rows],
-        "url_as_text_rate": [r.get("metrics", {}).get("url_as_text_rate", 0.0) for r in rows],
-        "table_pattern_detected": [r.get("metrics", {}).get("table_pattern_detected", 0.0) for r in rows],
-        "table_cell_coverage": [r.get("metrics", {}).get("table_cell_coverage", 0.0) for r in rows],
-        "section_heading_coverage": [r.get("metrics", {}).get("section_heading_coverage", 0.0) for r in rows],
-        "markdown_leakage_rate": [r.get("metrics", {}).get("markdown_leakage_rate", 0.0) for r in rows],
-        "missing_ids": [r.get("metrics", {}).get("missing_ids", 0.0) for r in rows],
-        "missing_ids_rate": [r.get("metrics", {}).get("missing_ids_rate", 0.0) for r in rows],
-        "dangling_components": [r.get("metrics", {}).get("dangling_components", 0.0) for r in rows],
-        "dangling_components_rate": [r.get("metrics", {}).get("dangling_components_rate", 0.0) for r in rows],
-        "intent_expectation_pass": [r.get("metrics", {}).get("intent_expectation_pass", 0.0) for r in rows],
-        "intent_score": [r.get("metrics", {}).get("intent_score", 0.0) for r in rows],
+        "schema_valid_strict": [1.0 if item["row"].get("validation", {}).get("schema_valid_strict") else 0.0 for item in computed_rows],
+        "content_coverage": [item["metrics"].get("content_coverage", 0.0) for item in computed_rows],
+        "lint_score": [item["metrics"].get("lint_score", 0.0) for item in computed_rows],
+        "dup_rate": [item["metrics"].get("dup_rate", 0.0) for item in computed_rows],
+        "component_count": [item["metrics"].get("component_count", 0.0) for item in computed_rows],
+        "unique_component_types": [item["metrics"].get("unique_component_types", 0.0) for item in computed_rows],
+        "max_tree_depth": [item["metrics"].get("max_tree_depth", 0.0) for item in computed_rows],
+        "avg_tree_depth": [item["metrics"].get("avg_tree_depth", 0.0) for item in computed_rows],
+        "container_to_text_ratio": [item["metrics"].get("container_to_text_ratio", 0.0) for item in computed_rows],
+        "information_chunking_score": [item["metrics"].get("information_chunking_score", 0.0) for item in computed_rows],
+        "ui_modularity_score": [item["metrics"].get("ui_modularity_score", 0.0) for item in computed_rows],
+        "ui_decomposition_score": [item["metrics"].get("ui_decomposition_score", 0.0) for item in computed_rows],
+        "actionable_elements": [item["metrics"].get("actionable_elements", 0.0) for item in computed_rows],
+        "action_coverage": [item["metrics"].get("action_coverage", 0.0) for item in computed_rows],
+        "url_as_text_rate": [item["metrics"].get("url_as_text_rate", 0.0) for item in computed_rows],
+        "table_pattern_detected": [item["metrics"].get("table_pattern_detected", 0.0) for item in computed_rows],
+        "table_cell_coverage": [item["metrics"].get("table_cell_coverage", 0.0) for item in computed_rows],
+        "section_heading_coverage": [item["metrics"].get("section_heading_coverage", 0.0) for item in computed_rows],
+        "markdown_leakage_rate": [item["metrics"].get("markdown_leakage_rate", 0.0) for item in computed_rows],
+        "missing_ids": [item["metrics"].get("missing_ids", 0.0) for item in computed_rows],
+        "missing_ids_rate": [item["metrics"].get("missing_ids_rate", 0.0) for item in computed_rows],
+        "dangling_components": [item["metrics"].get("dangling_components", 0.0) for item in computed_rows],
+        "dangling_components_rate": [item["metrics"].get("dangling_components_rate", 0.0) for item in computed_rows],
+        "intent_expectation_pass": [item["metrics"].get("intent_expectation_pass", 0.0) for item in computed_rows],
+        "intent_score": [item["metrics"].get("intent_score", 0.0) for item in computed_rows],
+        "intent_require_table": [item["metrics"].get("intent_require_table", 0.0) for item in computed_rows],
+        "intent_table_ok": [item["metrics"].get("intent_table_ok", 0.0) for item in computed_rows],
         "render_ok": [
-            1.0 if r.get("render", {}).get("image_ok") else 0.0
-            for r in rows
-            if isinstance(r.get("render"), dict)
+            1.0 if item["row"].get("render", {}).get("image_ok") else 0.0
+            for item in computed_rows
+            if isinstance(item["row"].get("render"), dict)
         ],
-        "latency_ms": [r.get("gen", {}).get("latency_ms", 0.0) for r in rows if r.get("gen")],
+        "latency_ms": [item["row"].get("gen", {}).get("latency_ms", 0.0) for item in computed_rows if item["row"].get("gen")],
     }
 
     intent_stats: dict[str, dict[str, float]] = {}
-    for row in rows:
+    for item in computed_rows:
+        row = item["row"]
+        row_metrics = item["metrics"]
         intent_bucket = row.get("intent_bucket") or _normalize_intent(row.get("intent"))
         if not intent_bucket:
             intent_bucket = "unknown"
@@ -678,15 +791,14 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
             },
         )
         stats["count"] += 1.0
-        metrics_row = row.get("metrics", {})
-        stats["expectation_pass"] += float(metrics_row.get("intent_expectation_pass", 0.0))
-        stats["intent_score"] += float(metrics_row.get("intent_score", 0.0))
-        stats["require_table"] += float(metrics_row.get("intent_require_table", 0.0))
-        stats["require_actions"] += float(metrics_row.get("intent_require_actions", 0.0))
-        stats["require_sections"] += float(metrics_row.get("intent_require_sections", 0.0))
-        stats["table_ok"] += float(metrics_row.get("intent_table_ok", 0.0))
-        stats["actions_ok"] += float(metrics_row.get("intent_actions_ok", 0.0))
-        stats["sections_ok"] += float(metrics_row.get("intent_sections_ok", 0.0))
+        stats["expectation_pass"] += float(row_metrics.get("intent_expectation_pass", 0.0))
+        stats["intent_score"] += float(row_metrics.get("intent_score", 0.0))
+        stats["require_table"] += float(row_metrics.get("intent_require_table", 0.0))
+        stats["require_actions"] += float(row_metrics.get("intent_require_actions", 0.0))
+        stats["require_sections"] += float(row_metrics.get("intent_require_sections", 0.0))
+        stats["table_ok"] += float(row_metrics.get("intent_table_ok", 0.0))
+        stats["actions_ok"] += float(row_metrics.get("intent_actions_ok", 0.0))
+        stats["sections_ok"] += float(row_metrics.get("intent_sections_ok", 0.0))
 
     intent_stats_out = {}
     for intent_bucket, stats in intent_stats.items():
@@ -704,6 +816,12 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "section_expected_rate": stats["require_sections"] / count,
             "section_ok_rate": stats["sections_ok"] / count,
         }
+
+    table_ok_values = [
+        metrics["intent_table_ok"][idx]
+        for idx in range(len(computed_rows))
+        if metrics["intent_require_table"][idx] >= 1.0
+    ]
 
     return {
         "counts": len(rows),
@@ -732,6 +850,8 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "dangling_components_rate_avg": mean(metrics["dangling_components_rate"]),
         "intent_expectation_pass_rate": mean(metrics["intent_expectation_pass"]),
         "intent_score_avg": mean(metrics["intent_score"]),
+        "table_required_rate": mean(metrics["intent_require_table"]),
+        "table_ok_rate": mean(table_ok_values) if table_ok_values else 0.0,
         "intent_stats": intent_stats_out or None,
         "render_ok_rate": mean(metrics["render_ok"]) if metrics["render_ok"] else None,
         "latency_ms_avg": mean(metrics["latency_ms"]),

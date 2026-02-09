@@ -63,3 +63,30 @@
     at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:62284/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
     at http://127.0.0.1:62284/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
 2026-02-08 02:07:14 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-09 15:39:49 INFO dataset: Stage4 HTTP server started on port 59348
+2026-02-09 15:39:49 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:40:17 ERROR dataset: Stage4 render error ui_id=u_000442_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "avatar".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59348/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+2026-02-09 15:40:18 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-09 15:43:18 INFO dataset: Stage4 HTTP server started on port 50100
+2026-02-09 15:43:34 ERROR dataset: Stage4 render error ui_id=u_000442_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "avatar".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+2026-02-09 15:43:34 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered

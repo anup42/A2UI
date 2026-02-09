@@ -33,6 +33,23 @@ def _load_aggregates(run_dir: Path, weights: dict, recompute: bool) -> dict | No
         rows = list(iter_jsonl(genui_path))
         if not rows:
             return None
+        responses_path = run_dir / "responses.jsonl"
+        response_map: dict[str, str] = {}
+        if responses_path.exists():
+            for response_row in iter_jsonl(responses_path):
+                response_id = response_row.get("response_id")
+                response_text = response_row.get("response_text")
+                if isinstance(response_id, str) and isinstance(response_text, str):
+                    response_map[response_id] = response_text
+        if response_map:
+            for row in rows:
+                if row.get("response_text"):
+                    continue
+                response_id = row.get("response_id")
+                if isinstance(response_id, str):
+                    backfill = response_map.get(response_id)
+                    if isinstance(backfill, str):
+                        row["response_text"] = backfill
         aggregates = aggregate_metrics(rows)
     aggregates["overall_score"] = compute_overall_score(aggregates, weights)
     return aggregates

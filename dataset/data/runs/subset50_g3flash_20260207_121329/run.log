@@ -52,3 +52,8 @@
 2026-02-07 15:11:10 INFO dataset: Stage3 complete.
 2026-02-08 02:05:41 INFO dataset: Stage4 HTTP server started on port 58290
 2026-02-08 02:06:23 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3flash_20260207_121329\rendered
+2026-02-09 15:39:30 INFO dataset: Stage4 HTTP server started on port 64740
+2026-02-09 15:39:30 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:39:49 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3flash_20260207_121329\rendered
+2026-02-09 15:43:16 INFO dataset: Stage4 HTTP server started on port 50095
+2026-02-09 15:43:17 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3flash_20260207_121329\rendered

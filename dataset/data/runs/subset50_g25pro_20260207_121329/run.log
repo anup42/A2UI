@@ -59,3 +59,49 @@
     at renderMessages (http://127.0.0.1:62598/data/runs/subset50_g25pro_20260207_121329/rendered/u_000481_01.html:316:23)
     at init (http://127.0.0.1:62598/data/runs/subset50_g25pro_20260207_121329/rendered/u_000481_01.html:329:13)
 2026-02-08 02:05:41 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 13:35:08 INFO dataset: Stage4 HTTP server started on port 54679
+2026-02-09 13:35:17 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 14:54:16 INFO dataset: Stage4 HTTP server started on port 64772
+2026-02-09 14:54:16 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 14:54:37 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 14:56:35 INFO dataset: Stage4 HTTP server started on port 59091
+2026-02-09 14:56:36 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:04:26 INFO dataset: Stage4 HTTP server started on port 56309
+2026-02-09 15:04:26 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:04:45 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:07:37 INFO dataset: Stage4 HTTP server started on port 55525
+2026-02-09 15:07:37 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:07:53 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:09:30 INFO dataset: Stage4 HTTP server started on port 56897
+2026-02-09 15:09:30 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:09:47 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:11:52 INFO dataset: Stage4 HTTP server started on port 65330
+2026-02-09 15:11:52 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:12:09 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:21:07 INFO dataset: Stage4 HTTP server started on port 62818
+2026-02-09 15:21:07 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:21:26 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:22:40 INFO dataset: Stage4 HTTP server started on port 50659
+2026-02-09 15:22:40 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:23:00 ERROR dataset: Stage4 render error ui_id=u_000051_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:50659/renderer/lit/vendor/entities/lib/esm/generated/encode-html.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:50659/renderer/lit/vendor/a2ui/index.js
+2026-02-09 15:23:00 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:23:05 INFO dataset: Stage4 HTTP server started on port 64819
+2026-02-09 15:23:05 INFO dataset: Stage4 rendering 1 images with 10 workers
+2026-02-09 15:23:07 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:23:45 INFO dataset: Stage4 HTTP server started on port 65352
+2026-02-09 15:23:45 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:24:03 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:30:03 INFO dataset: Stage4 HTTP server started on port 49943
+2026-02-09 15:30:03 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:30:24 ERROR dataset: Stage4 render error ui_id=u_000002_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:49943/renderer/lit/vendor/markdown-it/lib/index.mjs net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:49943/renderer/lit/vendor/a2ui/index.js
+2026-02-09 15:30:24 ERROR dataset: Stage4 render error ui_id=u_000032_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:49943/renderer/lit/vendor/entities/lib/esm/generated/encode-html.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:49943/renderer/lit/vendor/a2ui/index.js
+2026-02-09 15:30:24 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:30:32 INFO dataset: Stage4 HTTP server started on port 59496
+2026-02-09 15:30:35 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:31:55 INFO dataset: Stage4 HTTP server started on port 63374
+2026-02-09 15:31:55 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-09 15:32:14 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:39:30 INFO dataset: Stage4 HTTP server started on port 64739
+2026-02-09 15:39:30 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered
+2026-02-09 15:43:15 INFO dataset: Stage4 HTTP server started on port 50092
+2026-02-09 15:43:16 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_20260207_121329\rendered

@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from datetime import datetime
 from pathlib import Path
@@ -344,8 +345,85 @@ def _convert_component_v09_to_v08(component: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _extract_open_url_action(component: dict[str, Any]) -> str | None:
+    action = component.get("action")
+    if not isinstance(action, dict):
+        return None
+    fn = action.get("functionCall")
+    if not isinstance(fn, dict):
+        return None
+    if fn.get("call") != "openUrl":
+        return None
+    args = fn.get("args")
+    if isinstance(args, dict):
+        url = args.get("url")
+        if isinstance(url, str):
+            return url.strip() or None
+        if isinstance(url, dict):
+            lit = url.get("literalString")
+            if isinstance(lit, str):
+                return lit.strip() or None
+    return None
+
+
+def _to_clickable_link_text_component(
+    button_component: dict[str, Any], comp_by_id: dict[str, dict[str, Any]]
+) -> dict[str, Any]:
+    comp_id = button_component.get("id") or "component"
+    child_id = button_component.get("child")
+    label = None
+    if isinstance(child_id, str):
+        child_comp = comp_by_id.get(child_id)
+        if isinstance(child_comp, dict) and child_comp.get("component") == "Text":
+            label_value = child_comp.get("text")
+            if isinstance(label_value, str):
+                label = label_value.strip()
+    if not label:
+        label = "Open link"
+    url = _extract_open_url_action(button_component)
+    text = f"[{label}]({url})" if url else label
+    return {
+        "id": comp_id,
+        "component": {
+            "Text": {
+                "text": _dynamic_string(text),
+                "usageHint": "body",
+            }
+        },
+    }
+
+
 def _wrap_components_as_messages(components: list[dict], surface_id: str = "@default") -> list[dict]:
-    converted = [_convert_component_v09_to_v08(comp) for comp in components]
+    comp_by_id: dict[str, dict[str, Any]] = {}
+    for comp in components:
+        if isinstance(comp, dict) and isinstance(comp.get("id"), str):
+            comp_by_id[comp["id"]] = comp
+
+    borderless_button_child_ids: set[str] = set()
+    for comp in components:
+        if not isinstance(comp, dict):
+            continue
+        if comp.get("component") != "Button":
+            continue
+        if comp.get("variant") != "borderless":
+            continue
+        child = comp.get("child")
+        if isinstance(child, str):
+            borderless_button_child_ids.add(child)
+
+    converted: list[dict[str, Any]] = []
+    for comp in components:
+        if not isinstance(comp, dict):
+            continue
+        comp_id = comp.get("id")
+        if isinstance(comp_id, str) and comp_id in borderless_button_child_ids:
+            # Skip text nodes that were only used as borderless button labels.
+            continue
+        if comp.get("component") == "Button" and comp.get("variant") == "borderless":
+            converted.append(_to_clickable_link_text_component(comp, comp_by_id))
+        else:
+            converted.append(_convert_component_v09_to_v08(comp))
+
     root_id = converted[0].get("id") if converted else "root"
     return [
         {"beginRendering": {"root": root_id, "surfaceId": surface_id}},
@@ -542,6 +620,55 @@ class HttpServer:
         self._thread.join(timeout=2)
 
 
+def _render_chunk(
+    chunk: list[dict[str, Any]],
+    viewport: dict[str, int],
+    timeout_ms: int,
+    wait_ms: int,
+) -> list[tuple[str, Optional[str]]]:
+    renderer = HtmlRenderer(viewport=viewport, timeout_ms=timeout_ms, wait_ms=wait_ms)
+    start_error = renderer.start()
+    if start_error:
+        return [(item["ui_id"], start_error) for item in chunk]
+
+    results: list[tuple[str, Optional[str]]] = []
+    try:
+        for item in chunk:
+            error_text = renderer.render(item["url"], item["image_path"])
+            results.append((item["ui_id"], error_text))
+    except Exception as exc:
+        # Fallback so one worker failure does not abort the whole stage.
+        failure = f"render_worker_error: {exc}"
+        for item in chunk:
+            results.append((item["ui_id"], failure))
+    finally:
+        renderer.stop()
+    return results
+
+
+def _render_parallel(
+    tasks: list[dict[str, Any]],
+    workers: int,
+    viewport: dict[str, int],
+    timeout_ms: int,
+    wait_ms: int,
+) -> dict[str, Optional[str]]:
+    workers = max(1, min(int(workers), len(tasks)))
+    chunks = [tasks[i::workers] for i in range(workers)]
+
+    errors_by_ui: dict[str, Optional[str]] = {}
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = [
+            executor.submit(_render_chunk, chunk, viewport, timeout_ms, wait_ms)
+            for chunk in chunks
+            if chunk
+        ]
+        for future in as_completed(futures):
+            for ui_id, render_error in future.result():
+                errors_by_ui[ui_id] = render_error
+    return errors_by_ui
+
+
 def run_stage4(
     genui_path: Path,
     output_dir: Path,
@@ -555,6 +682,7 @@ def run_stage4(
     timeout_ms: int = 15000,
     wait_ms: int = 200,
     use_http_server: bool = True,
+    parallel_workers: int = 1,
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     template_path = assets_dir / "template.html"
@@ -578,15 +706,18 @@ def run_stage4(
     relative_base = Path(os.path.relpath(assets_dir, output_dir)).as_posix()
     asset_base = _ensure_trailing_slash(relative_base)
     viewport = viewport or {"width": 1280, "height": 720}
+    parallel_workers = max(1, int(parallel_workers))
 
     renderer = HtmlRenderer(viewport=viewport, timeout_ms=timeout_ms, wait_ms=wait_ms)
     renderer_error = None
-    if render_images:
+    if render_images and parallel_workers == 1:
         renderer_error = renderer.start()
         if renderer_error:
             logger.error("Stage4 renderer unavailable: %s", renderer_error)
 
     created = 0
+    pending_parallel: list[dict[str, Any]] = []
+    pending_records: list[dict[str, Any]] = []
     for row in iter_jsonl(genui_path):
         ui_id = row.get("ui_id")
         if not ui_id:
@@ -639,28 +770,73 @@ def run_stage4(
                 url = f"http://127.0.0.1:{server.port}/{html_rel}"
             else:
                 url = html_path.as_uri()
-            render_error = renderer.render(url, image_path)
-            if render_error:
-                logger.error("Stage4 render error ui_id=%s: %s", ui_id, render_error)
+            if parallel_workers > 1:
+                pending_parallel.append(
+                    {"ui_id": ui_id, "url": url, "image_path": image_path}
+                )
+                pending_records.append(
+                    {
+                        "ui_id": ui_id,
+                        "response_id": row.get("response_id"),
+                        "query_id": row.get("query_id"),
+                        "html_path": str(html_path.relative_to(output_dir.parent)),
+                        "image_path": str(image_path.relative_to(output_dir.parent)),
+                    }
+                )
+            else:
+                render_error = renderer.render(url, image_path)
+                if render_error:
+                    logger.error("Stage4 render error ui_id=%s: %s", ui_id, render_error)
 
-        record = {
-            "ui_id": ui_id,
-            "response_id": row.get("response_id"),
-            "query_id": row.get("query_id"),
-            "html_path": str(html_path.relative_to(output_dir.parent)),
-            "image_path": str(image_path.relative_to(output_dir.parent)) if image_path else None,
-            "created_at": datetime.utcnow().isoformat() + "Z",
-            "render": {
-                "image_ok": render_error is None and image_path is not None,
-                "error": render_error or renderer_error,
-                "renderer_assets_hash": renderer_assets_hash,
-            },
-        }
-        writer.append(record)
+        if parallel_workers == 1:
+            record = {
+                "ui_id": ui_id,
+                "response_id": row.get("response_id"),
+                "query_id": row.get("query_id"),
+                "html_path": str(html_path.relative_to(output_dir.parent)),
+                "image_path": str(image_path.relative_to(output_dir.parent)) if image_path else None,
+                "created_at": datetime.utcnow().isoformat() + "Z",
+                "render": {
+                    "image_ok": render_error is None and image_path is not None,
+                    "error": render_error or renderer_error,
+                    "renderer_assets_hash": renderer_assets_hash,
+                },
+            }
+            writer.append(record)
         existing.add(ui_id)
         created += 1
 
-    if render_images:
+    if render_images and parallel_workers > 1 and pending_parallel:
+        logger.info(
+            "Stage4 rendering %s images with %s workers",
+            len(pending_parallel),
+            parallel_workers,
+        )
+        render_errors = _render_parallel(
+            tasks=pending_parallel,
+            workers=parallel_workers,
+            viewport=viewport,
+            timeout_ms=timeout_ms,
+            wait_ms=wait_ms,
+        )
+        for record in pending_records:
+            ui_id = record["ui_id"]
+            render_error = render_errors.get(ui_id)
+            if render_error:
+                logger.error("Stage4 render error ui_id=%s: %s", ui_id, render_error)
+            writer.append(
+                {
+                    **record,
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "render": {
+                        "image_ok": render_error is None and record.get("image_path") is not None,
+                        "error": render_error or renderer_error,
+                        "renderer_assets_hash": renderer_assets_hash,
+                    },
+                }
+            )
+
+    if render_images and parallel_workers == 1:
         renderer.stop()
     if server:
         server.stop()
