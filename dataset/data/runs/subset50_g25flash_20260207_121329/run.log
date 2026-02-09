@@ -221,3 +221,115 @@
     at renderMessages (http://127.0.0.1:63395/data/runs/subset50_g25flash_20260207_121329/rendered/u_000881_01.html:504:23)
     at init (http://127.0.0.1:63395/data/runs/subset50_g25flash_20260207_121329/rendered/u_000881_01.html:526:19)
 2026-02-09 15:43:15 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25flash_20260207_121329\rendered
+2026-02-10 00:43:50 INFO dataset: Stage4 HTTP server started on port 49830
+2026-02-10 00:44:08 ERROR dataset: Stage4 render error ui_id=u_000002_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000002_01.html:901:23)
+    at init (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000002_01.html:927:19)
+2026-02-10 00:44:24 ERROR dataset: Stage4 render error ui_id=u_000022_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000022_01.html:901:23)
+    at init (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000022_01.html:927:19)
+2026-02-10 00:44:48 ERROR dataset: Stage4 render error ui_id=u_000241_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000241_01.html:901:23)
+    at init (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000241_01.html:927:19)
+2026-02-10 00:45:04 ERROR dataset: Stage4 render error ui_id=u_000242_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000242_01.html:901:23)
+    at init (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000242_01.html:927:19)
+2026-02-10 00:45:20 ERROR dataset: Stage4 render error ui_id=u_000282_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Row
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:422:27)
+    at http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000282_01.html:901:23)
+    at init (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000282_01.html:927:19)
+2026-02-10 00:46:06 ERROR dataset: Stage4 render error ui_id=u_000881_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:49830/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000881_01.html:901:23)
+    at init (http://127.0.0.1:49830/data/runs/subset50_g25flash_20260207_121329/rendered/u_000881_01.html:927:19)
+2026-02-10 00:46:08 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25flash_20260207_121329\rendered
+2026-02-10 00:52:25 INFO dataset: Stage4 HTTP server started on port 53600
+2026-02-10 00:52:42 ERROR dataset: Stage4 render error ui_id=u_000002_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000002_01.html:901:23)
+    at init (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000002_01.html:927:19)
+2026-02-10 00:52:57 ERROR dataset: Stage4 render error ui_id=u_000022_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000022_01.html:901:23)
+    at init (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000022_01.html:927:19)
+2026-02-10 00:53:12 ERROR dataset: Stage4 render error ui_id=u_000241_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000241_01.html:901:23)
+    at init (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000241_01.html:927:19)
+2026-02-10 00:53:28 ERROR dataset: Stage4 render error ui_id=u_000242_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000242_01.html:901:23)
+    at init (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000242_01.html:927:19)
+2026-02-10 00:53:43 ERROR dataset: Stage4 render error ui_id=u_000282_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Row
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:422:27)
+    at http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000282_01.html:901:23)
+    at init (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000282_01.html:927:19)
+2026-02-10 00:53:58 ERROR dataset: Stage4 render error ui_id=u_000881_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:53600/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000881_01.html:901:23)
+    at init (http://127.0.0.1:53600/data/runs/subset50_g25flash_20260207_121329/rendered/u_000881_01.html:927:19)
+2026-02-10 00:53:59 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25flash_20260207_121329\rendered

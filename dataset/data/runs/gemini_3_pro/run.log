@@ -1844,3 +1844,1180 @@
 2026-02-05 17:34:49 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_pro\rendered
 2026-02-05 17:34:53 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_pro\rendered
 2026-02-05 17:34:58 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_pro\rendered
+2026-02-09 23:48:01 INFO dataset: Stage4 HTTP server started on port 52302
+2026-02-09 23:48:02 INFO dataset: Stage4 rendering 910 images with 10 workers
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000003_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/lit-html/directives/unsafe-html.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/index.mjs net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000050_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/generated/decode-data-xml.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000050_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/generated/decode-data-xml.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000015_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/generated/encode-html.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000015_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/generated/encode-html.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000082_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/index.mjs net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000082_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/index.mjs net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000064_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/generated/encode-html.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000064_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/generated/encode-html.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000094_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/generated/decode-data-html.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000095_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000095_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000095_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000096_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/decode_codepoint.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000097_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_core/normalize.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_core/block.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000094_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/generated/decode-data-html.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000095_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000095_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000095_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000096_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/decode_codepoint.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000097_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_core/normalize.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_core/block.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000149_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/parser_block.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/parser_inline.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000149_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/parser_block.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/parser_inline.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000151_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/column.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/datetime-input.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000151_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/column.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/datetime-input.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000155_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/lit-element/lit-element.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/@lit-labs/signals/lib/html-tag.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000156_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "icon".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000155_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/lit-element/lit-element.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/@lit-labs/signals/lib/html-tag.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000156_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "icon".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000101_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000101_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000101_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000101_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000101_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000101_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000101_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000101_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000105_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_inline/image.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_inline/html_inline.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/mdurl/lib/decode.mjs net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000105_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_inline/image.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_inline/html_inline.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/mdurl/lib/decode.mjs net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000129_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000129_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000130_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000130_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000130_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000130_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000132_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000132_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000132_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000132_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000134_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.tokens.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000135_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.tokens.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000130_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000130_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000130_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000130_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000136_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000132_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000132_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000132_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000132_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000134_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.tokens.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000139_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/types/primitives.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/styles/index.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000135_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.tokens.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000136_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000139_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/types/primitives.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/styles/index.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000066_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000066_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000066_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000066_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000067_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000067_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000067_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000066_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000066_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000066_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000066_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000067_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000067_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000067_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000068_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000068_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000068_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000068_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000069_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000069_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000069_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000069_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000068_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000068_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000068_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000068_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000069_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000069_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000069_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000069_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000071_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000071_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000071_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000071_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000071_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000071_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000071_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000071_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000052_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000052_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000052_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000052_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000052_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000052_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000052_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000052_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000057_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000057_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000057_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000057_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000057_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000057_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000057_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000057_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000058_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000058_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000058_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000058_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000058_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000058_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000058_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000058_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000059_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000059_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000079_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/@lit-labs/signals/lib/html-tag.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/lit-html/directives/map.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/lit-html/directives/ref.js net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000079_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/@lit-labs/signals/lib/html-tag.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/lit-html/directives/map.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/lit-html/directives/ref.js net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000060_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000060_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000060_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000060_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000060_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000060_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000060_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000060_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000173_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000173_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000173_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000173_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000175_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000175_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000175_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000175_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000173_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000173_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000173_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000173_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000175_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000175_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000175_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000175_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000178_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000178_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000178_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000178_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000178_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000178_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000178_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000178_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000106_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000106_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000106_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000106_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000106_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000106_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000106_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000106_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000108_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000108_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000108_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000108_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000201_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000201_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000201_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000201_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000202_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000202_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000202_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000202_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000108_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000108_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000108_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000108_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000201_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000201_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000201_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000201_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000202_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000202_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000202_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000202_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000206_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000206_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000206_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000206_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000206_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000206_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000206_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000206_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000209_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000209_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000209_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000209_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000209_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000209_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000209_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000209_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000210_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000210_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000210_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000210_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000211_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000211_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000211_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000211_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000210_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000210_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000210_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000210_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000211_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000211_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000211_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000211_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000241_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000241_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000241_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000241_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000241_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000241_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000241_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000241_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000243_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000243_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000243_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000243_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000243_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000243_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000243_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000243_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000244_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000244_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000244_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000244_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000244_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000244_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000244_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000244_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000248_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000248_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000248_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000248_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000248_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000248_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000248_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000248_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000249_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000249_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000249_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000249_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000249_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000249_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000249_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000249_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000162_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000162_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000162_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000162_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000162_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000162_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000162_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000162_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000165_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000165_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000165_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000165_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000165_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000165_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000165_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000165_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000167_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000167_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000167_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000167_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000167_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000167_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000167_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000167_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000281_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000281_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000281_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000281_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000281_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000281_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000281_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000281_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000285_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000285_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000285_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000285_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000288_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000288_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000288_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000288_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000285_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000285_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000285_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000285_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000288_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000288_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000288_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000288_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000290_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000290_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000290_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000290_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000291_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000290_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000290_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000290_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000290_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000291_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000321_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000321_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000321_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000321_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000321_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000321_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000321_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000321_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000330_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000330_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000330_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000330_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000330_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000330_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000330_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000330_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000362_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000362_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000362_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000362_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000364_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000364_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000364_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000364_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000364_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000364_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000364_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000364_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000370_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000370_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000370_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000370_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000370_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000370_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000370_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000370_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000374_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000374_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000374_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000374_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000374_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000374_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000374_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000374_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000379_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000379_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000379_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000379_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000379_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000379_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000379_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000379_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000409_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000409_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000409_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000409_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000410_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000410_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000410_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000410_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000409_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000409_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000409_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000409_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000410_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000410_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000410_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000410_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000413_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000413_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000413_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000414_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.tokens.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000413_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000413_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000413_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000414_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.tokens.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000484_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000484_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000484_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000484_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000484_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000484_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000484_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000484_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000489_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000489_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000489_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000489_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000490_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000490_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000490_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000490_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000489_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000489_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000489_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000489_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000490_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000490_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000490_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000490_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000493_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000493_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000493_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000493_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000493_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000493_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000493_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000493_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000521_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000521_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000521_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000521_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000521_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000521_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000521_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000521_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000523_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000523_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000523_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000523_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000524_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_block/hr.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_block/list.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000523_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000523_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000523_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000523_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000526_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000528_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000528_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000528_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000528_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000524_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_block/hr.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/rules_block/list.mjs net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000526_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000529_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000529_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000529_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000529_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000530_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/index.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000528_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000528_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000528_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000528_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000529_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000529_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000529_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000529_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000530_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/index.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000535_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/index.mjs net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000536_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000536_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000536_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000536_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000537_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000537_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000537_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000537_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000535_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/markdown-it/lib/index.mjs net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000536_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000536_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000536_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000536_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000537_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000537_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000537_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000537_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000538_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000538_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000538_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000538_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000540_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000540_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000540_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000538_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000538_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000538_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000538_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000140_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000140_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000140_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000140_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000562_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000540_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000540_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000540_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000563_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000563_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000563_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000563_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000140_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000140_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000140_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000140_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000562_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000563_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000563_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000563_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000563_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000564_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000564_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000564_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000564_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000566_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000566_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000566_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000567_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000564_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000564_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000564_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000564_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000566_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000566_01.html:582:23)
+    at init (http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000566_01.html:604:19)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000567_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000569_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000569_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000569_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000569_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000570_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000570_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000570_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000570_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000569_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000569_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000569_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000569_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000570_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000570_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000570_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000570_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000574_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000574_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000574_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000574_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000575_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/decode_codepoint.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000181_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000181_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000181_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000181_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000574_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000574_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000574_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000574_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000575_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/entities/lib/esm/decode_codepoint.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000181_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000181_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000181_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000181_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000182_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000182_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000182_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000182_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000182_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000182_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000182_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000182_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000183_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000183_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000183_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000183_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000183_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000183_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000183_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000183_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000184_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000184_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000184_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000184_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000184_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000184_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000184_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000184_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000185_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000185_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000185_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000185_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000185_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000185_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000185_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000185_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000188_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000188_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000188_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000188_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000188_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000188_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000188_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000188_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000192_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000192_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000192_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000192_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000193_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000193_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000193_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000193_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000192_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000192_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000192_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000192_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000193_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000193_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000193_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000193_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000604_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000604_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000604_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000604_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000605_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000605_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000605_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000605_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000604_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000604_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000604_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000604_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000605_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000605_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000605_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000605_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000641_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000641_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000641_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000641_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000641_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000641_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000641_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000641_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000213_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000213_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000213_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000213_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000213_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000213_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000213_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000213_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000217_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000217_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000217_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000217_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000218_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000218_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000218_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000218_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000217_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000217_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000217_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000217_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000218_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000218_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000218_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000218_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000222_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000222_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000222_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000222_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000222_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000222_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000222_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000222_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000224_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000224_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000224_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000224_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000225_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000225_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000225_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000225_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000226_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000226_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000226_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000226_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000642_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "body".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000645_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000645_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000645_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000645_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000646_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000646_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000646_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000646_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000648_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000648_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000648_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000648_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000649_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000649_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000649_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000649_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000650_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000650_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000650_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000650_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000227_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000227_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000227_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000227_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000228_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/text-field.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/component-registry.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000231_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000231_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000231_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000231_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000232_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000232_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000232_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000232_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000233_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/button.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/card.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000234_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000234_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000234_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000234_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000235_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000235_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000235_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000235_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000236_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000236_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000236_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000236_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000237_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000237_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000237_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000237_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000254_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000254_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000254_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000254_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000255_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000255_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000255_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000255_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000256_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000256_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000256_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000256_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000257_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000681_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000681_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000681_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000681_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000682_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000682_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000682_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000682_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000683_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000683_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000683_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000683_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000687_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000687_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000687_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000687_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000688_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000688_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000688_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000688_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000689_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000689_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000689_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000689_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000691_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000691_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000691_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000691_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000692_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000692_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000692_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000692_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000693_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000693_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000693_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000693_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000261_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000261_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000261_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000261_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000731_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000731_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000731_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000731_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000381_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000381_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000381_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000381_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000383_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000383_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000383_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000383_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000384_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000384_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000384_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000384_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000385_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000385_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000385_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000385_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000801_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000801_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000801_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000801_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000389_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000389_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000389_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000389_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000802_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000802_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000802_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000802_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000804_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000804_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000804_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000804_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000805_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000805_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000805_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000805_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000806_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000806_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000806_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000806_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000809_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000810_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000810_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000810_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000810_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000811_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000811_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000811_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000811_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000813_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000813_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000813_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000813_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000814_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000814_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000814_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000814_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000815_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000815_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000815_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000815_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000819_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000819_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000819_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000819_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000820_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000820_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000820_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000820_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000393_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000393_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000393_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000393_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000394_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000394_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000394_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000394_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000395_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000395_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000395_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000395_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000764_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000764_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000764_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000764_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000765_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000765_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000765_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000765_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000767_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000767_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000767_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000767_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000768_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000768_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000768_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000768_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000769_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000769_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000769_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000769_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000772_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/core.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000420_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000420_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000420_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000420_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000422_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000422_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000422_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000422_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000423_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000423_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000423_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000423_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000424_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000424_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000424_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000424_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000429_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000429_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000429_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000429_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000431_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000841_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000841_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000841_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000841_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000842_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000842_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000842_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000842_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000848_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000848_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000848_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000848_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000851_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000851_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000851_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000851_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000774_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000774_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000774_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000774_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000857_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000857_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000857_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000857_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000860_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000860_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000860_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000860_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000861_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:52302/renderer/lit/themes/oneui.overrides.css net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; requestfailed: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/ui/ui.js net::ERR_ADDRESS_IN_USE; error: Failed to load resource: net::ERR_ADDRESS_IN_USE; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:52302/renderer/lit/vendor/a2ui/index.js
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000776_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000776_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000776_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000776_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000723_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000723_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000723_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000723_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000730_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000730_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000730_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000730_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000883_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000883_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000883_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000883_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000890_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000890_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000890_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000890_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000893_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000893_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000893_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000893_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000453_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000453_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000453_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000453_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000456_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000456_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000456_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000456_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000463_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000463_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000463_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000463_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000466_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000466_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000466_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000466_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000467_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "body".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000497_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Row
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:422:27)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:619:36)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:599:45
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:599:26)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000500_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000500_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000500_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000500_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000503_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000503_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000503_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000503_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000509_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "header".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:52302/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000511_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000511_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000511_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000511_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000514_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000514_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000514_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000514_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000541_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000541_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000541_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000541_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000544_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000544_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000544_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000544_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000551_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000551_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000551_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000551_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 ERROR dataset: Stage4 render error ui_id=u_000554_01: render_error: Page.goto: net::ERR_ADDRESS_IN_USE at http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000554_01.html
+Call log:
+  - navigating to "http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000554_01.html", waiting until "load"
+; console: requestfailed: http://127.0.0.1:52302/data/runs/gemini_3_pro/rendered/u_000554_01.html net::ERR_ADDRESS_IN_USE
+2026-02-09 23:53:26 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_pro\rendered

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "shipment-summary-surface"}}, {"surfaceUpdate": {"surfaceId": "shipment-summary-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-text", "package-list", "quick-actions-row"]}, "alignment": "stretch"}}}, {"id": "header-text", "component": {"Text": {"text": {"literalString": "Shipment Summary"}, "usageHint": "h1"}}}, {"id": "package-list", "component": {"List": {"children": {"explicitList": ["package-94001-card", "package-94002-card", "package-94003-card"]}, "direction": "vertical"}}}, {"id": "package-94001-card", "component": {"Card": {"child": "package-94001-content"}}}, {"id": "package-94001-content", "component": {"Column": {"children": {"explicitList": ["package-94001-id", "package-94001-status", "package-94001-eta"]}, "alignment": "start"}}}, {"id": "package-94001-id", "component": {"Text": {"text": {"literalString": "Package 94001"}, "usageHint": "h3"}}}, {"id": "package-94001-status", "component": {"Text": {"text": {"literalString": "Tracking Status: Out for Delivery. This item is on a local delivery vehicle in Chicago and should arrive by the end of the day."}, "usageHint": "body"}}}, {"id": "package-94001-eta", "component": {"Text": {"text": {"literalString": "Arrival Estimation: Today (May 20)"}, "usageHint": "body"}}}, {"id": "package-94002-card", "component": {"Card": {"child": "package-94002-content"}}}, {"id": "package-94002-content", "component": {"Column": {"children": {"explicitList": ["package-94002-id", "package-94002-status", "package-94002-eta"]}, "alignment": "start"}}}, {"id": "package-94002-id", "component": {"Text": {"text": {"literalString": "Package 94002"}, "usageHint": "h3"}}}, {"id": "package-94002-status", "component": {"Text": {"text": {"literalString": "Tracking Status: In Transit. This item has reached a major sorting hub in Memphis and will likely require 1-2 more days to reach its destination."}, "usageHint": "body"}}}, {"id": "package-94002-eta", "component": {"Text": {"text": {"literalString": "Arrival Estimation: May 21 - May 22"}, "usageHint": "body"}}}, {"id": "package-94003-card", "component": {"Card": {"child": "package-94003-content"}}}, {"id": "package-94003-content", "component": {"Column": {"children": {"explicitList": ["package-94003-id", "package-94003-status", "package-94003-eta"]}, "alignment": "start"}}}, {"id": "package-94003-id", "component": {"Text": {"text": {"literalString": "Package 94003"}, "usageHint": "h3"}}}, {"id": "package-94003-status", "component": {"Text": {"text": {"literalString": "Tracking Status: Pending. Only the label has been created; the carrier has not yet picked up the item in Seattle."}, "usageHint": "body"}}}, {"id": "package-94003-eta", "component": {"Text": {"text": {"literalString": "Arrival Estimation: May 23 or later"}, "usageHint": "body"}}}, {"id": "quick-actions-row", "component": {"Row": {"children": {"explicitList": ["manage-deliveries-button", "contact-support-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "manage-deliveries-button", "component": {"Button": {"child": "manage-deliveries-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.ups.com/track"}}]}}}}, {"id": "manage-deliveries-text", "component": {"Text": {"text": {"literalString": "Manage Deliveries"}, "usageHint": "body"}}}, {"id": "contact-support-button", "component": {"Button": {"child": "contact-support-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.fedex.com/en-us/customer-support.html"}}]}}}}, {"id": "contact-support-text", "component": {"Text": {"text": {"literalString": "Contact Support"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "shipment-summary-surface"}}, {"surfaceUpdate": {"surfaceId": "shipment-summary-surface", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-text", "package-list", "quick-actions-row"]}, "alignment": "stretch"}}}, {"id": "header-text", "component": {"Text": {"text": {"literalString": "Shipment Summary"}, "usageHint": "h1"}}}, {"id": "package-list", "component": {"List": {"children": {"explicitList": ["package-94001-card", "package-94002-card", "package-94003-card"]}, "direction": "vertical"}}}, {"id": "package-94001-card", "component": {"Card": {"child": "package-94001-content"}}}, {"id": "package-94001-content", "component": {"Column": {"children": {"explicitList": ["package-94001-id", "package-94001-status", "package-94001-eta"]}, "alignment": "start"}}}, {"id": "package-94001-id", "component": {"Text": {"text": {"literalString": "Package 94001"}, "usageHint": "h3"}}}, {"id": "package-94001-status", "component": {"Text": {"text": {"literalString": "Tracking Status: Out for Delivery. This item is on a local delivery vehicle in Chicago and should arrive by the end of the day."}, "usageHint": "body"}}}, {"id": "package-94001-eta", "component": {"Text": {"text": {"literalString": "Arrival Estimation: Today (May 20)"}, "usageHint": "body"}}}, {"id": "package-94002-card", "component": {"Card": {"child": "package-94002-content"}}}, {"id": "package-94002-content", "component": {"Column": {"children": {"explicitList": ["package-94002-id", "package-94002-status", "package-94002-eta"]}, "alignment": "start"}}}, {"id": "package-94002-id", "component": {"Text": {"text": {"literalString": "Package 94002"}, "usageHint": "h3"}}}, {"id": "package-94002-status", "component": {"Text": {"text": {"literalString": "Tracking Status: In Transit. This item has reached a major sorting hub in Memphis and will likely require 1-2 more days to reach its destination."}, "usageHint": "body"}}}, {"id": "package-94002-eta", "component": {"Text": {"text": {"literalString": "Arrival Estimation: May 21 - May 22"}, "usageHint": "body"}}}, {"id": "package-94003-card", "component": {"Card": {"child": "package-94003-content"}}}, {"id": "package-94003-content", "component": {"Column": {"children": {"explicitList": ["package-94003-id", "package-94003-status", "package-94003-eta"]}, "alignment": "start"}}}, {"id": "package-94003-id", "component": {"Text": {"text": {"literalString": "Package 94003"}, "usageHint": "h3"}}}, {"id": "package-94003-status", "component": {"Text": {"text": {"literalString": "Tracking Status: Pending. Only the label has been created; the carrier has not yet picked up the item in Seattle."}, "usageHint": "body"}}}, {"id": "package-94003-eta", "component": {"Text": {"text": {"literalString": "Arrival Estimation: May 23 or later"}, "usageHint": "body"}}}, {"id": "quick-actions-row", "component": {"Row": {"children": {"explicitList": ["manage-deliveries-button", "contact-support-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "manage-deliveries-button", "component": {"Button": {"child": "manage-deliveries-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.ups.com/track"}}]}}}}, {"id": "manage-deliveries-text", "component": {"Text": {"text": {"literalString": "Manage Deliveries"}, "usageHint": "body"}}}, {"id": "contact-support-button", "component": {"Text": {"text": {"literalString": "[Contact Support](https://www.fedex.com/en-us/customer-support.html)"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,99 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }
@@ -190,10 +290,88 @@
               callback(theme);
             }
           });
-
           const processor = v0_8.Data.createSignalA2uiMessageProcessor
             ? v0_8.Data.createSignalA2uiMessageProcessor()
             : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
 
           function renderSurfaces() {
             container.innerHTML = "";
@@ -206,7 +384,193 @@
             }
           }
 
-          function renderMessages(payload, reset) {
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          async function renderMessages(payload, reset) {
             const messages = parseMessages(payload);
             if (!Array.isArray(messages)) {
               console.warn("GenUICraft payload was not an array", messages);
@@ -217,6 +581,13 @@
             }
             processor.processMessages(messages);
             renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            await markMissingImages();
             window.__GenUICraft_RENDER_DONE = true;
           }
 
@@ -225,10 +596,12 @@
 
           const queued = window.__GenUICraft_QUEUE || [];
           window.__GenUICraft_QUEUE = [];
-          queued.forEach((item) => renderMessages(item.payload, item.reset));
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
 
           if (window.__GenUICraft_MESSAGES__) {
-            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);
@@ -240,4 +613,5 @@
     </script>
   </body>
 </html>
+
 

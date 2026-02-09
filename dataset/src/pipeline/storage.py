@@ -15,6 +15,7 @@ class RunPaths:
     metrics_path: Path
     aggregates_path: Path
     artifacts_dir: Path
+    manifest_path: Path
 
 
 class JsonlWriter:
@@ -74,4 +75,6 @@ def get_run_paths(base_dir: Path, run_id: str, artifact_dir_name: str) -> RunPat
         metrics_path=run_dir / "metrics.jsonl",
         aggregates_path=run_dir / "aggregates.json",
         artifacts_dir=artifacts_dir,
+        manifest_path=run_dir / 'run_manifest.json',
     )
+

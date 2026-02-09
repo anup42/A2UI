@@ -27,6 +27,11 @@ from llm.factory import build_adapter, load_model_specs
 from utils.config import load_yaml
 from utils.logging import setup_logger
 from utils.rate_limit import RateLimiter
+from utils.versioning import (
+    build_run_manifest,
+    format_version_report,
+    write_run_manifest,
+)
 
 
 def _resolve_run_id(run_cfg: dict) -> str:
@@ -329,12 +334,40 @@ def _stop_vllm(proc, logger) -> None:
     logger.info("vLLM server stopped")
 
 
+
+def _write_run_manifest_safe(
+    *,
+    root: Path,
+    run_id: str,
+    stage: int | str,
+    spec: ModelSpec,
+    run_paths,
+    run_cfg_path: Path,
+    models_cfg_path: Path,
+    logger,
+) -> None:
+    try:
+        manifest = build_run_manifest(
+            root=root,
+            run_id=run_id,
+            stage=stage,
+            model_spec=spec,
+            run_paths=run_paths,
+            run_cfg_path=run_cfg_path,
+            models_cfg_path=models_cfg_path,
+            argv=sys.argv,
+        )
+        write_run_manifest(run_paths.manifest_path, manifest)
+    except Exception as exc:
+        logger.warning("Failed to write run manifest: %s", exc)
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", type=int, choices=[1, 2, 3, 4], help="Run a single stage")
     parser.add_argument("--model", type=str, default=None, help="Model name from models.yaml")
     parser.add_argument("--benchmark_models", nargs="*", default=None, help="Benchmark models by name")
     parser.add_argument("--run_id", type=str, default=None, help="Override run id")
+    parser.add_argument("--version", action="store_true", help="Print release/component versions and exit")
     parser.add_argument("--print_limits", action="store_true", help="Print configured model limits")
     parser.add_argument("--list_models", action="store_true", help="List models for a provider")
     parser.add_argument(
@@ -392,13 +425,19 @@ def main() -> None:
 
     root = ROOT
     _load_env(root)
+    if args.version:
+        print(format_version_report(root))
+        return
     configs_dir = root / "configs"
     prompts_dir = root / "prompts"
     schema_dir = root / "schema"
+    run_cfg_path = configs_dir / "run.yaml"
+    models_cfg_path = configs_dir / "models.yaml"
 
-    run_cfg = load_yaml(configs_dir / "run.yaml").get("run", {})
-    eval_cfg = load_yaml(configs_dir / "run.yaml").get("evaluation", {})
-    benchmark_cfg = load_yaml(configs_dir / "run.yaml").get("benchmark", {})
+    all_run_cfg = load_yaml(run_cfg_path)
+    run_cfg = all_run_cfg.get("run", {})
+    eval_cfg = all_run_cfg.get("evaluation", {})
+    benchmark_cfg = all_run_cfg.get("benchmark", {})
     effective_rate_limit_qps = float(run_cfg.get("rate_limit_qps", 2))
     if args.rate_limit_qps is not None:
         effective_rate_limit_qps = float(args.rate_limit_qps)
@@ -411,7 +450,7 @@ def main() -> None:
     output_dir = Path(run_cfg.get("output_dir", "data/runs"))
     if not output_dir.is_absolute():
         output_dir = root / output_dir
-    models_cfg = load_yaml(configs_dir / "models.yaml")
+    models_cfg = load_yaml(models_cfg_path)
 
     run_id = args.run_id or _resolve_run_id(run_cfg)
     run_paths = get_run_paths(output_dir, run_id, run_cfg.get("artifact_dir", "artifacts"))
@@ -493,6 +532,16 @@ def main() -> None:
             model_paths = get_run_paths(output_dir, model_run_id, run_cfg.get("artifact_dir", "artifacts"))
             model_logger = setup_logger(model_paths.run_dir)
             _write_subset_queries(model_paths.queries_path, subset)
+            _write_run_manifest_safe(
+                root=root,
+                run_id=model_run_id,
+                stage="benchmark",
+                spec=spec,
+                run_paths=model_paths,
+                run_cfg_path=run_cfg_path,
+                models_cfg_path=models_cfg_path,
+                logger=model_logger,
+            )
 
             adapter = build_adapter(spec)
             rate_limiter = RateLimiter(
@@ -554,6 +603,16 @@ def main() -> None:
         available = ", ".join(sorted(model_map.keys()))
         raise SystemExit(f"Unknown model '{args.model}'. Available: {available}")
     spec = model_map.get(args.model) if args.model else specs[0]
+    _write_run_manifest_safe(
+        root=root,
+        run_id=run_id,
+        stage=args.stage or "unknown",
+        spec=spec,
+        run_paths=run_paths,
+        run_cfg_path=run_cfg_path,
+        models_cfg_path=models_cfg_path,
+        logger=logger,
+    )
 
     # Recompute-only fast path:
     # If stage 3 outputs already exist for all expected response IDs/candidates,

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "investment-growth-summary"}}, {"surfaceUpdate": {"surfaceId": "investment-growth-summary", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-row", "description-text", "growth-chart-card", "investment-options-card", "quick-actions-row"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "header-row", "component": {"Row": {"children": {"explicitList": ["growth-icon", "title-text"]}, "distribution": "start", "alignment": "center"}}}, {"id": "growth-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000227_01_1_graph.png"}, "usageHint": "icon"}}}, {"id": "title-text", "component": {"Text": {"text": {"literalString": "INVESTMENT GROWTH SUMMARY"}, "usageHint": "h1"}}}, {"id": "description-text", "component": {"Text": {"text": {"literalString": "This analysis visualizes the growth of a 5,000 USD initial investment with a 7 percent annual return over 10 years using compound interest.\n\nAssumptions: Interest is compounded annually at the end of each period. No additional deposits or withdrawals are made."}, "usageHint": "body"}}}, {"id": "growth-chart-card", "component": {"Card": {"child": "growth-chart-container"}}}, {"id": "growth-chart-container", "component": {"Column": {"children": {"explicitList": ["growth-table-title", "growth-table", "line-graph-title", "line-graph"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "growth-table-title", "component": {"Text": {"text": {"literalString": "INVESTMENT GROWTH TABLE"}, "usageHint": "h3"}}}, {"id": "growth-table", "component": {"List": {"children": {"explicitList": ["table-header", "table-row-1", "table-row-2", "table-row-3", "table-row-4", "table-row-5", "table-row-6", "table-row-7", "table-row-8", "table-row-9", "table-row-10"]}, "direction": "vertical", "alignment": "stretch"}}}, {"id": "table-header", "component": {"Row": {"children": {"explicitList": ["header-year", "header-starting-balance", "header-interest-earned", "header-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "header-year", "component": {"Text": {"text": {"literalString": "Year"}, "usageHint": "caption"}}}, {"id": "header-starting-balance", "component": {"Text": {"text": {"literalString": "Starting Balance"}, "usageHint": "caption"}}}, {"id": "header-interest-earned", "component": {"Text": {"text": {"literalString": "Interest Earned"}, "usageHint": "caption"}}}, {"id": "header-ending-balance", "component": {"Text": {"text": {"literalString": "Ending Balance"}, "usageHint": "caption"}}}, {"id": "table-row-1", "component": {"Row": {"children": {"explicitList": ["row-1-year", "row-1-starting-balance", "row-1-interest-earned", "row-1-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-1-year", "component": {"Text": {"text": {"literalString": "1"}, "usageHint": "body"}}}, {"id": "row-1-starting-balance", "component": {"Text": {"text": {"literalString": "5,000.00"}, "usageHint": "body"}}}, {"id": "row-1-interest-earned", "component": {"Text": {"text": {"literalString": "350.00"}, "usageHint": "body"}}}, {"id": "row-1-ending-balance", "component": {"Text": {"text": {"literalString": "5,350.00"}, "usageHint": "body"}}}, {"id": "table-row-2", "component": {"Row": {"children": {"explicitList": ["row-2-year", "row-2-starting-balance", "row-2-interest-earned", "row-2-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-2-year", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "row-2-starting-balance", "component": {"Text": {"text": {"literalString": "5,350.00"}, "usageHint": "body"}}}, {"id": "row-2-interest-earned", "component": {"Text": {"text": {"literalString": "374.50"}, "usageHint": "body"}}}, {"id": "row-2-ending-balance", "component": {"Text": {"text": {"literalString": "5,724.50"}, "usageHint": "body"}}}, {"id": "table-row-3", "component": {"Row": {"children": {"explicitList": ["row-3-year", "row-3-starting-balance", "row-3-interest-earned", "row-3-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-3-year", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "row-3-starting-balance", "component": {"Text": {"text": {"literalString": "5,724.50"}, "usageHint": "body"}}}, {"id": "row-3-interest-earned", "component": {"Text": {"text": {"literalString": "400.72"}, "usageHint": "body"}}}, {"id": "row-3-ending-balance", "component": {"Text": {"text": {"literalString": "6,125.22"}, "usageHint": "body"}}}, {"id": "table-row-4", "component": {"Row": {"children": {"explicitList": ["row-4-year", "row-4-starting-balance", "row-4-interest-earned", "row-4-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-4-year", "component": {"Text": {"text": {"literalString": "4"}, "usageHint": "body"}}}, {"id": "row-4-starting-balance", "component": {"Text": {"text": {"literalString": "6,125.22"}, "usageHint": "body"}}}, {"id": "row-4-interest-earned", "component": {"Text": {"text": {"literalString": "428.77"}, "usageHint": "body"}}}, {"id": "row-4-ending-balance", "component": {"Text": {"text": {"literalString": "6,553.99"}, "usageHint": "body"}}}, {"id": "table-row-5", "component": {"Row": {"children": {"explicitList": ["row-5-year", "row-5-starting-balance", "row-5-interest-earned", "row-5-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-5-year", "component": {"Text": {"text": {"literalString": "5"}, "usageHint": "body"}}}, {"id": "row-5-starting-balance", "component": {"Text": {"text": {"literalString": "6,553.99"}, "usageHint": "body"}}}, {"id": "row-5-interest-earned", "component": {"Text": {"text": {"literalString": "458.78"}, "usageHint": "body"}}}, {"id": "row-5-ending-balance", "component": {"Text": {"text": {"literalString": "7,012.77"}, "usageHint": "body"}}}, {"id": "table-row-6", "component": {"Row": {"children": {"explicitList": ["row-6-year", "row-6-starting-balance", "row-6-interest-earned", "row-6-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-6-year", "component": {"Text": {"text": {"literalString": "6"}, "usageHint": "body"}}}, {"id": "row-6-starting-balance", "component": {"Text": {"text": {"literalString": "7,012.77"}, "usageHint": "body"}}}, {"id": "row-6-interest-earned", "component": {"Text": {"text": {"literalString": "490.89"}, "usageHint": "body"}}}, {"id": "row-6-ending-balance", "component": {"Text": {"text": {"literalString": "7,503.66"}, "usageHint": "body"}}}, {"id": "table-row-7", "component": {"Row": {"children": {"explicitList": ["row-7-year", "row-7-starting-balance", "row-7-interest-earned", "row-7-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-7-year", "component": {"Text": {"text": {"literalString": "7"}, "usageHint": "body"}}}, {"id": "row-7-starting-balance", "component": {"Text": {"text": {"literalString": "7,503.66"}, "usageHint": "body"}}}, {"id": "row-7-interest-earned", "component": {"Text": {"text": {"literalString": "525.26"}, "usageHint": "body"}}}, {"id": "row-7-ending-balance", "component": {"Text": {"text": {"literalString": "8,028.92"}, "usageHint": "body"}}}, {"id": "table-row-8", "component": {"Row": {"children": {"explicitList": ["row-8-year", "row-8-starting-balance", "row-8-interest-earned", "row-8-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-8-year", "component": {"Text": {"text": {"literalString": "8"}, "usageHint": "body"}}}, {"id": "row-8-starting-balance", "component": {"Text": {"text": {"literalString": "8,028.92"}, "usageHint": "body"}}}, {"id": "row-8-interest-earned", "component": {"Text": {"text": {"literalString": "562.02"}, "usageHint": "body"}}}, {"id": "row-8-ending-balance", "component": {"Text": {"text": {"literalString": "8,590.94"}, "usageHint": "body"}}}, {"id": "table-row-9", "component": {"Row": {"children": {"explicitList": ["row-9-year", "row-9-starting-balance", "row-9-interest-earned", "row-9-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-9-year", "component": {"Text": {"text": {"literalString": "9"}, "usageHint": "body"}}}, {"id": "row-9-starting-balance", "component": {"Text": {"text": {"literalString": "8,590.94"}, "usageHint": "body"}}}, {"id": "row-9-interest-earned", "component": {"Text": {"text": {"literalString": "601.37"}, "usageHint": "body"}}}, {"id": "row-9-ending-balance", "component": {"Text": {"text": {"literalString": "9,192.31"}, "usageHint": "body"}}}, {"id": "table-row-10", "component": {"Row": {"children": {"explicitList": ["row-10-year", "row-10-starting-balance", "row-10-interest-earned", "row-10-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-10-year", "component": {"Text": {"text": {"literalString": "10"}, "usageHint": "body"}}}, {"id": "row-10-starting-balance", "component": {"Text": {"text": {"literalString": "9,192.31"}, "usageHint": "body"}}}, {"id": "row-10-interest-earned", "component": {"Text": {"text": {"literalString": "643.46"}, "usageHint": "body"}}}, {"id": "row-10-ending-balance", "component": {"Text": {"text": {"literalString": "9,835.77"}, "usageHint": "body"}}}, {"id": "line-graph-title", "component": {"Text": {"text": {"literalString": "LINE GRAPH VISUALIZATION (ENDING BALANCE)"}, "usageHint": "h3"}}}, {"id": "line-graph", "component": {"List": {"children": {"explicitList": ["graph-row-1", "graph-row-2", "graph-row-3", "graph-row-4", "graph-row-5", "graph-row-6", "graph-row-7", "graph-row-8", "graph-row-9", "graph-row-10"]}, "direction": "vertical", "alignment": "stretch"}}}, {"id": "graph-row-1", "component": {"Row": {"children": {"explicitList": ["graph-1-label", "graph-1-bar", "graph-1-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-1-label", "component": {"Text": {"text": {"literalString": "Year 1:"}, "usageHint": "body"}}}, {"id": "graph-1-bar", "component": {"Text": {"text": {"literalString": "[#####]"}, "usageHint": "body"}}}, {"id": "graph-1-value", "component": {"Text": {"text": {"literalString": "5,350"}, "usageHint": "body"}}}, {"id": "graph-row-2", "component": {"Row": {"children": {"explicitList": ["graph-2-label", "graph-2-bar", "graph-2-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-2-label", "component": {"Text": {"text": {"literalString": "Year 2:"}, "usageHint": "body"}}}, {"id": "graph-2-bar", "component": {"Text": {"text": {"literalString": "[######]"}, "usageHint": "body"}}}, {"id": "graph-2-value", "component": {"Text": {"text": {"literalString": "5,725"}, "usageHint": "body"}}}, {"id": "graph-row-3", "component": {"Row": {"children": {"explicitList": ["graph-3-label", "graph-3-bar", "graph-3-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-3-label", "component": {"Text": {"text": {"literalString": "Year 3:"}, "usageHint": "body"}}}, {"id": "graph-3-bar", "component": {"Text": {"text": {"literalString": "[#######]"}, "usageHint": "body"}}}, {"id": "graph-3-value", "component": {"Text": {"text": {"literalString": "6,125"}, "usageHint": "body"}}}, {"id": "graph-row-4", "component": {"Row": {"children": {"explicitList": ["graph-4-label", "graph-4-bar", "graph-4-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-4-label", "component": {"Text": {"text": {"literalString": "Year 4:"}, "usageHint": "body"}}}, {"id": "graph-4-bar", "component": {"Text": {"text": {"literalString": "[########]"}, "usageHint": "body"}}}, {"id": "graph-4-value", "component": {"Text": {"text": {"literalString": "6,554"}, "usageHint": "body"}}}, {"id": "graph-row-5", "component": {"Row": {"children": {"explicitList": ["graph-5-label", "graph-5-bar", "graph-5-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-5-label", "component": {"Text": {"text": {"literalString": "Year 5:"}, "usageHint": "body"}}}, {"id": "graph-5-bar", "component": {"Text": {"text": {"literalString": "[#########]"}, "usageHint": "body"}}}, {"id": "graph-5-value", "component": {"Text": {"text": {"literalString": "7,013"}, "usageHint": "body"}}}, {"id": "graph-row-6", "component": {"Row": {"children": {"explicitList": ["graph-6-label", "graph-6-bar", "graph-6-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-6-label", "component": {"Text": {"text": {"literalString": "Year 6:"}, "usageHint": "body"}}}, {"id": "graph-6-bar", "component": {"Text": {"text": {"literalString": "[##########]"}, "usageHint": "body"}}}, {"id": "graph-6-value", "component": {"Text": {"text": {"literalString": "7,504"}, "usageHint": "body"}}}, {"id": "graph-row-7", "component": {"Row": {"children": {"explicitList": ["graph-7-label", "graph-7-bar", "graph-7-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-7-label", "component": {"Text": {"text": {"literalString": "Year 7:"}, "usageHint": "body"}}}, {"id": "graph-7-bar", "component": {"Text": {"text": {"literalString": "[###########]"}, "usageHint": "body"}}}, {"id": "graph-7-value", "component": {"Text": {"text": {"literalString": "8,029"}, "usageHint": "body"}}}, {"id": "graph-row-8", "component": {"Row": {"children": {"explicitList": ["graph-8-label", "graph-8-bar", "graph-8-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-8-label", "component": {"Text": {"text": {"literalString": "Year 8:"}, "usageHint": "body"}}}, {"id": "graph-8-bar", "component": {"Text": {"text": {"literalString": "[############]"}, "usageHint": "body"}}}, {"id": "graph-8-value", "component": {"Text": {"text": {"literalString": "8,591"}, "usageHint": "body"}}}, {"id": "graph-row-9", "component": {"Row": {"children": {"explicitList": ["graph-9-label", "graph-9-bar", "graph-9-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-9-label", "component": {"Text": {"text": {"literalString": "Year 9:"}, "usageHint": "body"}}}, {"id": "graph-9-bar", "component": {"Text": {"text": {"literalString": "[#############]"}, "usageHint": "body"}}}, {"id": "graph-9-value", "component": {"Text": {"text": {"literalString": "9,192"}, "usageHint": "body"}}}, {"id": "graph-row-10", "component": {"Row": {"children": {"explicitList": ["graph-10-label", "graph-10-bar", "graph-10-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-10-label", "component": {"Text": {"text": {"literalString": "Year 10:"}, "usageHint": "body"}}}, {"id": "graph-10-bar", "component": {"Text": {"text": {"literalString": "[##############]"}, "usageHint": "body"}}}, {"id": "graph-10-value", "component": {"Text": {"text": {"literalString": "9,836"}, "usageHint": "body"}}}, {"id": "investment-options-card", "component": {"Card": {"child": "investment-options-container"}}}, {"id": "investment-options-container", "component": {"Column": {"children": {"explicitList": ["investment-options-title", "investment-options-list"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "investment-options-title", "component": {"Text": {"text": {"literalString": "INVESTMENT OPTIONS"}, "usageHint": "h3"}}}, {"id": "investment-options-list", "component": {"List": {"children": {"explicitList": ["option-1", "option-2", "option-3"]}, "direction": "vertical", "alignment": "stretch"}}}, {"id": "option-1", "component": {"Column": {"children": {"explicitList": ["option-1-title", "option-1-description", "option-1-apy", "option-1-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "option-1-title", "component": {"Text": {"text": {"literalString": "Option 1: High-Yield Savings"}, "usageHint": "h4"}}}, {"id": "option-1-description", "component": {"Text": {"text": {"literalString": "Low risk, FDIC insured"}, "usageHint": "body"}}}, {"id": "option-1-apy", "component": {"Text": {"text": {"literalString": "4.5% APY"}, "usageHint": "body"}}}, {"id": "option-1-link", "component": {"Button": {"child": "option-1-link-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.bankrate.com/banking/savings/best-high-yield-interests-rates/"}}]}}}}, {"id": "option-1-link-text", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "option-2", "component": {"Column": {"children": {"explicitList": ["option-2-title", "option-2-description", "option-2-apy", "option-2-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "option-2-title", "component": {"Text": {"text": {"literalString": "Option 2: S&P 500 Index Fund"}, "usageHint": "h4"}}}, {"id": "option-2-description", "component": {"Text": {"text": {"literalString": "Moderate to high risk, historical growth"}, "usageHint": "body"}}}, {"id": "option-2-apy", "component": {"Text": {"text": {"literalString": "10% Avg"}, "usageHint": "body"}}}, {"id": "option-2-link", "component": {"Button": {"child": "option-2-link-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.vanguard.com"}}]}}}}, {"id": "option-2-link-text", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "option-3", "component": {"Column": {"children": {"explicitList": ["option-3-title", "option-3-description", "option-3-apy", "option-3-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "option-3-title", "component": {"Text": {"text": {"literalString": "Option 3: Treasury Bonds"}, "usageHint": "h4"}}}, {"id": "option-3-description", "component": {"Text": {"text": {"literalString": "Low risk, government backed"}, "usageHint": "body"}}}, {"id": "option-3-apy", "component": {"Text": {"text": {"literalString": "4.2% Fixed"}, "usageHint": "body"}}}, {"id": "option-3-link", "component": {"Button": {"child": "option-3-link-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.treasurydirect.gov"}}]}}}}, {"id": "option-3-link-text", "component": {"Text": {"text": {"literalString": "Learn More"}, "usageHint": "body"}}}, {"id": "quick-actions-row", "component": {"Row": {"children": {"explicitList": ["open-calculator-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "open-calculator-button", "component": {"Button": {"child": "open-calculator-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator"}}]}}}}, {"id": "open-calculator-button-text", "component": {"Text": {"text": {"literalString": "Open Compound Interest Calculator"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "investment-growth-summary"}}, {"surfaceUpdate": {"surfaceId": "investment-growth-summary", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header-row", "description-text", "growth-chart-card", "investment-options-card", "quick-actions-row"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "header-row", "component": {"Row": {"children": {"explicitList": ["growth-icon", "title-text"]}, "distribution": "start", "alignment": "center"}}}, {"id": "growth-icon", "component": {"Image": {"url": {"literalString": "/assets/r_000227_01_1_graph.png"}, "usageHint": "icon"}}}, {"id": "title-text", "component": {"Text": {"text": {"literalString": "INVESTMENT GROWTH SUMMARY"}, "usageHint": "h1"}}}, {"id": "description-text", "component": {"Text": {"text": {"literalString": "This analysis visualizes the growth of a 5,000 USD initial investment with a 7 percent annual return over 10 years using compound interest.\n\nAssumptions: Interest is compounded annually at the end of each period. No additional deposits or withdrawals are made."}, "usageHint": "body"}}}, {"id": "growth-chart-card", "component": {"Card": {"child": "growth-chart-container"}}}, {"id": "growth-chart-container", "component": {"Column": {"children": {"explicitList": ["growth-table-title", "growth-table", "line-graph-title", "line-graph"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "growth-table-title", "component": {"Text": {"text": {"literalString": "INVESTMENT GROWTH TABLE"}, "usageHint": "h3"}}}, {"id": "growth-table", "component": {"List": {"children": {"explicitList": ["table-header", "table-row-1", "table-row-2", "table-row-3", "table-row-4", "table-row-5", "table-row-6", "table-row-7", "table-row-8", "table-row-9", "table-row-10"]}, "direction": "vertical", "alignment": "stretch"}}}, {"id": "table-header", "component": {"Row": {"children": {"explicitList": ["header-year", "header-starting-balance", "header-interest-earned", "header-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "header-year", "component": {"Text": {"text": {"literalString": "Year"}, "usageHint": "caption"}}}, {"id": "header-starting-balance", "component": {"Text": {"text": {"literalString": "Starting Balance"}, "usageHint": "caption"}}}, {"id": "header-interest-earned", "component": {"Text": {"text": {"literalString": "Interest Earned"}, "usageHint": "caption"}}}, {"id": "header-ending-balance", "component": {"Text": {"text": {"literalString": "Ending Balance"}, "usageHint": "caption"}}}, {"id": "table-row-1", "component": {"Row": {"children": {"explicitList": ["row-1-year", "row-1-starting-balance", "row-1-interest-earned", "row-1-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-1-year", "component": {"Text": {"text": {"literalString": "1"}, "usageHint": "body"}}}, {"id": "row-1-starting-balance", "component": {"Text": {"text": {"literalString": "5,000.00"}, "usageHint": "body"}}}, {"id": "row-1-interest-earned", "component": {"Text": {"text": {"literalString": "350.00"}, "usageHint": "body"}}}, {"id": "row-1-ending-balance", "component": {"Text": {"text": {"literalString": "5,350.00"}, "usageHint": "body"}}}, {"id": "table-row-2", "component": {"Row": {"children": {"explicitList": ["row-2-year", "row-2-starting-balance", "row-2-interest-earned", "row-2-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-2-year", "component": {"Text": {"text": {"literalString": "2"}, "usageHint": "body"}}}, {"id": "row-2-starting-balance", "component": {"Text": {"text": {"literalString": "5,350.00"}, "usageHint": "body"}}}, {"id": "row-2-interest-earned", "component": {"Text": {"text": {"literalString": "374.50"}, "usageHint": "body"}}}, {"id": "row-2-ending-balance", "component": {"Text": {"text": {"literalString": "5,724.50"}, "usageHint": "body"}}}, {"id": "table-row-3", "component": {"Row": {"children": {"explicitList": ["row-3-year", "row-3-starting-balance", "row-3-interest-earned", "row-3-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-3-year", "component": {"Text": {"text": {"literalString": "3"}, "usageHint": "body"}}}, {"id": "row-3-starting-balance", "component": {"Text": {"text": {"literalString": "5,724.50"}, "usageHint": "body"}}}, {"id": "row-3-interest-earned", "component": {"Text": {"text": {"literalString": "400.72"}, "usageHint": "body"}}}, {"id": "row-3-ending-balance", "component": {"Text": {"text": {"literalString": "6,125.22"}, "usageHint": "body"}}}, {"id": "table-row-4", "component": {"Row": {"children": {"explicitList": ["row-4-year", "row-4-starting-balance", "row-4-interest-earned", "row-4-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-4-year", "component": {"Text": {"text": {"literalString": "4"}, "usageHint": "body"}}}, {"id": "row-4-starting-balance", "component": {"Text": {"text": {"literalString": "6,125.22"}, "usageHint": "body"}}}, {"id": "row-4-interest-earned", "component": {"Text": {"text": {"literalString": "428.77"}, "usageHint": "body"}}}, {"id": "row-4-ending-balance", "component": {"Text": {"text": {"literalString": "6,553.99"}, "usageHint": "body"}}}, {"id": "table-row-5", "component": {"Row": {"children": {"explicitList": ["row-5-year", "row-5-starting-balance", "row-5-interest-earned", "row-5-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-5-year", "component": {"Text": {"text": {"literalString": "5"}, "usageHint": "body"}}}, {"id": "row-5-starting-balance", "component": {"Text": {"text": {"literalString": "6,553.99"}, "usageHint": "body"}}}, {"id": "row-5-interest-earned", "component": {"Text": {"text": {"literalString": "458.78"}, "usageHint": "body"}}}, {"id": "row-5-ending-balance", "component": {"Text": {"text": {"literalString": "7,012.77"}, "usageHint": "body"}}}, {"id": "table-row-6", "component": {"Row": {"children": {"explicitList": ["row-6-year", "row-6-starting-balance", "row-6-interest-earned", "row-6-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-6-year", "component": {"Text": {"text": {"literalString": "6"}, "usageHint": "body"}}}, {"id": "row-6-starting-balance", "component": {"Text": {"text": {"literalString": "7,012.77"}, "usageHint": "body"}}}, {"id": "row-6-interest-earned", "component": {"Text": {"text": {"literalString": "490.89"}, "usageHint": "body"}}}, {"id": "row-6-ending-balance", "component": {"Text": {"text": {"literalString": "7,503.66"}, "usageHint": "body"}}}, {"id": "table-row-7", "component": {"Row": {"children": {"explicitList": ["row-7-year", "row-7-starting-balance", "row-7-interest-earned", "row-7-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-7-year", "component": {"Text": {"text": {"literalString": "7"}, "usageHint": "body"}}}, {"id": "row-7-starting-balance", "component": {"Text": {"text": {"literalString": "7,503.66"}, "usageHint": "body"}}}, {"id": "row-7-interest-earned", "component": {"Text": {"text": {"literalString": "525.26"}, "usageHint": "body"}}}, {"id": "row-7-ending-balance", "component": {"Text": {"text": {"literalString": "8,028.92"}, "usageHint": "body"}}}, {"id": "table-row-8", "component": {"Row": {"children": {"explicitList": ["row-8-year", "row-8-starting-balance", "row-8-interest-earned", "row-8-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-8-year", "component": {"Text": {"text": {"literalString": "8"}, "usageHint": "body"}}}, {"id": "row-8-starting-balance", "component": {"Text": {"text": {"literalString": "8,028.92"}, "usageHint": "body"}}}, {"id": "row-8-interest-earned", "component": {"Text": {"text": {"literalString": "562.02"}, "usageHint": "body"}}}, {"id": "row-8-ending-balance", "component": {"Text": {"text": {"literalString": "8,590.94"}, "usageHint": "body"}}}, {"id": "table-row-9", "component": {"Row": {"children": {"explicitList": ["row-9-year", "row-9-starting-balance", "row-9-interest-earned", "row-9-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-9-year", "component": {"Text": {"text": {"literalString": "9"}, "usageHint": "body"}}}, {"id": "row-9-starting-balance", "component": {"Text": {"text": {"literalString": "8,590.94"}, "usageHint": "body"}}}, {"id": "row-9-interest-earned", "component": {"Text": {"text": {"literalString": "601.37"}, "usageHint": "body"}}}, {"id": "row-9-ending-balance", "component": {"Text": {"text": {"literalString": "9,192.31"}, "usageHint": "body"}}}, {"id": "table-row-10", "component": {"Row": {"children": {"explicitList": ["row-10-year", "row-10-starting-balance", "row-10-interest-earned", "row-10-ending-balance"]}, "distribution": "spaceAround", "alignment": "center"}}}, {"id": "row-10-year", "component": {"Text": {"text": {"literalString": "10"}, "usageHint": "body"}}}, {"id": "row-10-starting-balance", "component": {"Text": {"text": {"literalString": "9,192.31"}, "usageHint": "body"}}}, {"id": "row-10-interest-earned", "component": {"Text": {"text": {"literalString": "643.46"}, "usageHint": "body"}}}, {"id": "row-10-ending-balance", "component": {"Text": {"text": {"literalString": "9,835.77"}, "usageHint": "body"}}}, {"id": "line-graph-title", "component": {"Text": {"text": {"literalString": "LINE GRAPH VISUALIZATION (ENDING BALANCE)"}, "usageHint": "h3"}}}, {"id": "line-graph", "component": {"List": {"children": {"explicitList": ["graph-row-1", "graph-row-2", "graph-row-3", "graph-row-4", "graph-row-5", "graph-row-6", "graph-row-7", "graph-row-8", "graph-row-9", "graph-row-10"]}, "direction": "vertical", "alignment": "stretch"}}}, {"id": "graph-row-1", "component": {"Row": {"children": {"explicitList": ["graph-1-label", "graph-1-bar", "graph-1-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-1-label", "component": {"Text": {"text": {"literalString": "Year 1:"}, "usageHint": "body"}}}, {"id": "graph-1-bar", "component": {"Text": {"text": {"literalString": "[#####]"}, "usageHint": "body"}}}, {"id": "graph-1-value", "component": {"Text": {"text": {"literalString": "5,350"}, "usageHint": "body"}}}, {"id": "graph-row-2", "component": {"Row": {"children": {"explicitList": ["graph-2-label", "graph-2-bar", "graph-2-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-2-label", "component": {"Text": {"text": {"literalString": "Year 2:"}, "usageHint": "body"}}}, {"id": "graph-2-bar", "component": {"Text": {"text": {"literalString": "[######]"}, "usageHint": "body"}}}, {"id": "graph-2-value", "component": {"Text": {"text": {"literalString": "5,725"}, "usageHint": "body"}}}, {"id": "graph-row-3", "component": {"Row": {"children": {"explicitList": ["graph-3-label", "graph-3-bar", "graph-3-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-3-label", "component": {"Text": {"text": {"literalString": "Year 3:"}, "usageHint": "body"}}}, {"id": "graph-3-bar", "component": {"Text": {"text": {"literalString": "[#######]"}, "usageHint": "body"}}}, {"id": "graph-3-value", "component": {"Text": {"text": {"literalString": "6,125"}, "usageHint": "body"}}}, {"id": "graph-row-4", "component": {"Row": {"children": {"explicitList": ["graph-4-label", "graph-4-bar", "graph-4-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-4-label", "component": {"Text": {"text": {"literalString": "Year 4:"}, "usageHint": "body"}}}, {"id": "graph-4-bar", "component": {"Text": {"text": {"literalString": "[########]"}, "usageHint": "body"}}}, {"id": "graph-4-value", "component": {"Text": {"text": {"literalString": "6,554"}, "usageHint": "body"}}}, {"id": "graph-row-5", "component": {"Row": {"children": {"explicitList": ["graph-5-label", "graph-5-bar", "graph-5-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-5-label", "component": {"Text": {"text": {"literalString": "Year 5:"}, "usageHint": "body"}}}, {"id": "graph-5-bar", "component": {"Text": {"text": {"literalString": "[#########]"}, "usageHint": "body"}}}, {"id": "graph-5-value", "component": {"Text": {"text": {"literalString": "7,013"}, "usageHint": "body"}}}, {"id": "graph-row-6", "component": {"Row": {"children": {"explicitList": ["graph-6-label", "graph-6-bar", "graph-6-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-6-label", "component": {"Text": {"text": {"literalString": "Year 6:"}, "usageHint": "body"}}}, {"id": "graph-6-bar", "component": {"Text": {"text": {"literalString": "[##########]"}, "usageHint": "body"}}}, {"id": "graph-6-value", "component": {"Text": {"text": {"literalString": "7,504"}, "usageHint": "body"}}}, {"id": "graph-row-7", "component": {"Row": {"children": {"explicitList": ["graph-7-label", "graph-7-bar", "graph-7-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-7-label", "component": {"Text": {"text": {"literalString": "Year 7:"}, "usageHint": "body"}}}, {"id": "graph-7-bar", "component": {"Text": {"text": {"literalString": "[###########]"}, "usageHint": "body"}}}, {"id": "graph-7-value", "component": {"Text": {"text": {"literalString": "8,029"}, "usageHint": "body"}}}, {"id": "graph-row-8", "component": {"Row": {"children": {"explicitList": ["graph-8-label", "graph-8-bar", "graph-8-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-8-label", "component": {"Text": {"text": {"literalString": "Year 8:"}, "usageHint": "body"}}}, {"id": "graph-8-bar", "component": {"Text": {"text": {"literalString": "[############]"}, "usageHint": "body"}}}, {"id": "graph-8-value", "component": {"Text": {"text": {"literalString": "8,591"}, "usageHint": "body"}}}, {"id": "graph-row-9", "component": {"Row": {"children": {"explicitList": ["graph-9-label", "graph-9-bar", "graph-9-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-9-label", "component": {"Text": {"text": {"literalString": "Year 9:"}, "usageHint": "body"}}}, {"id": "graph-9-bar", "component": {"Text": {"text": {"literalString": "[#############]"}, "usageHint": "body"}}}, {"id": "graph-9-value", "component": {"Text": {"text": {"literalString": "9,192"}, "usageHint": "body"}}}, {"id": "graph-row-10", "component": {"Row": {"children": {"explicitList": ["graph-10-label", "graph-10-bar", "graph-10-value"]}, "distribution": "start", "alignment": "center"}}}, {"id": "graph-10-label", "component": {"Text": {"text": {"literalString": "Year 10:"}, "usageHint": "body"}}}, {"id": "graph-10-bar", "component": {"Text": {"text": {"literalString": "[##############]"}, "usageHint": "body"}}}, {"id": "graph-10-value", "component": {"Text": {"text": {"literalString": "9,836"}, "usageHint": "body"}}}, {"id": "investment-options-card", "component": {"Card": {"child": "investment-options-container"}}}, {"id": "investment-options-container", "component": {"Column": {"children": {"explicitList": ["investment-options-title", "investment-options-list"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "investment-options-title", "component": {"Text": {"text": {"literalString": "INVESTMENT OPTIONS"}, "usageHint": "h3"}}}, {"id": "investment-options-list", "component": {"List": {"children": {"explicitList": ["option-1", "option-2", "option-3"]}, "direction": "vertical", "alignment": "stretch"}}}, {"id": "option-1", "component": {"Column": {"children": {"explicitList": ["option-1-title", "option-1-description", "option-1-apy", "option-1-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "option-1-title", "component": {"Text": {"text": {"literalString": "Option 1: High-Yield Savings"}, "usageHint": "h4"}}}, {"id": "option-1-description", "component": {"Text": {"text": {"literalString": "Low risk, FDIC insured"}, "usageHint": "body"}}}, {"id": "option-1-apy", "component": {"Text": {"text": {"literalString": "4.5% APY"}, "usageHint": "body"}}}, {"id": "option-1-link", "component": {"Text": {"text": {"literalString": "[Learn More](https://www.bankrate.com/banking/savings/best-high-yield-interests-rates/)"}, "usageHint": "body"}}}, {"id": "option-2", "component": {"Column": {"children": {"explicitList": ["option-2-title", "option-2-description", "option-2-apy", "option-2-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "option-2-title", "component": {"Text": {"text": {"literalString": "Option 2: S&P 500 Index Fund"}, "usageHint": "h4"}}}, {"id": "option-2-description", "component": {"Text": {"text": {"literalString": "Moderate to high risk, historical growth"}, "usageHint": "body"}}}, {"id": "option-2-apy", "component": {"Text": {"text": {"literalString": "10% Avg"}, "usageHint": "body"}}}, {"id": "option-2-link", "component": {"Text": {"text": {"literalString": "[Learn More](https://www.vanguard.com)"}, "usageHint": "body"}}}, {"id": "option-3", "component": {"Column": {"children": {"explicitList": ["option-3-title", "option-3-description", "option-3-apy", "option-3-link"]}, "distribution": "start", "alignment": "start"}}}, {"id": "option-3-title", "component": {"Text": {"text": {"literalString": "Option 3: Treasury Bonds"}, "usageHint": "h4"}}}, {"id": "option-3-description", "component": {"Text": {"text": {"literalString": "Low risk, government backed"}, "usageHint": "body"}}}, {"id": "option-3-apy", "component": {"Text": {"text": {"literalString": "4.2% Fixed"}, "usageHint": "body"}}}, {"id": "option-3-link", "component": {"Text": {"text": {"literalString": "[Learn More](https://www.treasurydirect.gov)"}, "usageHint": "body"}}}, {"id": "quick-actions-row", "component": {"Row": {"children": {"explicitList": ["open-calculator-button"]}, "distribution": "center", "alignment": "center"}}}, {"id": "open-calculator-button", "component": {"Button": {"child": "open-calculator-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator"}}]}}}}, {"id": "open-calculator-button-text", "component": {"Text": {"text": {"literalString": "Open Compound Interest Calculator"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,99 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }
@@ -190,10 +290,88 @@
               callback(theme);
             }
           });
-
           const processor = v0_8.Data.createSignalA2uiMessageProcessor
             ? v0_8.Data.createSignalA2uiMessageProcessor()
             : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
 
           function renderSurfaces() {
             container.innerHTML = "";
@@ -206,7 +384,193 @@
             }
           }
 
-          function renderMessages(payload, reset) {
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          async function renderMessages(payload, reset) {
             const messages = parseMessages(payload);
             if (!Array.isArray(messages)) {
               console.warn("GenUICraft payload was not an array", messages);
@@ -217,6 +581,13 @@
             }
             processor.processMessages(messages);
             renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            await markMissingImages();
             window.__GenUICraft_RENDER_DONE = true;
           }
 
@@ -225,10 +596,12 @@
 
           const queued = window.__GenUICraft_QUEUE || [];
           window.__GenUICraft_QUEUE = [];
-          queued.forEach((item) => renderMessages(item.payload, item.reset));
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
 
           if (window.__GenUICraft_MESSAGES__) {
-            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);
@@ -240,4 +613,5 @@
     </script>
   </body>
 </html>
+
 

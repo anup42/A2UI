@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "household-budget-chicago"}}, {"surfaceUpdate": {"surfaceId": "household-budget-chicago", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "monthly-allocation-table", "discretionary-income-analysis", "suggested-discretionary-spending", "quick-actions"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "HOUSEHOLD BUDGET: CHICAGO, IL"}, "usageHint": "h1"}}}, {"id": "monthly-allocation-table", "component": {"Column": {"children": {"explicitList": ["monthly-allocation-title", "monthly-allocation-header", "rent-row", "savings-row", "groceries-row", "insurance-row", "transportation-row", "utilities-row", "subtotal-fixed-row"]}, "alignment": "stretch"}}}, {"id": "monthly-allocation-title", "component": {"Text": {"text": {"literalString": "MONTHLY ALLOCATION TABLE"}, "usageHint": "h2"}}}, {"id": "monthly-allocation-header", "component": {"Row": {"children": {"explicitList": ["category-header", "amount-header", "percent-income-header"]}, "distribution": "spaceAround"}}}, {"id": "category-header", "component": {"Text": {"text": {"literalString": "CATEGORY"}, "usageHint": "h4"}}}, {"id": "amount-header", "component": {"Text": {"text": {"literalString": "AMOUNT"}, "usageHint": "h4"}}}, {"id": "percent-income-header", "component": {"Text": {"text": {"literalString": "% OF INCOME"}, "usageHint": "h4"}}}, {"id": "rent-row", "component": {"Row": {"children": {"explicitList": ["rent-label", "rent-amount", "rent-percent"]}, "distribution": "spaceAround"}}}, {"id": "rent-label", "component": {"Text": {"text": {"literalString": "Rent"}, "usageHint": "body"}}}, {"id": "rent-amount", "component": {"Text": {"text": {"literalString": "$2,500"}, "usageHint": "body"}}}, {"id": "rent-percent", "component": {"Text": {"text": {"literalString": "33.3%"}, "usageHint": "body"}}}, {"id": "savings-row", "component": {"Row": {"children": {"explicitList": ["savings-label", "savings-amount", "savings-percent"]}, "distribution": "spaceAround"}}}, {"id": "savings-label", "component": {"Text": {"text": {"literalString": "Savings/Investments"}, "usageHint": "body"}}}, {"id": "savings-amount", "component": {"Text": {"text": {"literalString": "$1,000"}, "usageHint": "body"}}}, {"id": "savings-percent", "component": {"Text": {"text": {"literalString": "13.3%"}, "usageHint": "body"}}}, {"id": "groceries-row", "component": {"Row": {"children": {"explicitList": ["groceries-label", "groceries-amount", "groceries-percent"]}, "distribution": "spaceAround"}}}, {"id": "groceries-label", "component": {"Text": {"text": {"literalString": "Groceries"}, "usageHint": "body"}}}, {"id": "groceries-amount", "component": {"Text": {"text": {"literalString": "$800"}, "usageHint": "body"}}}, {"id": "groceries-percent", "component": {"Text": {"text": {"literalString": "10.7%"}, "usageHint": "body"}}}, {"id": "insurance-row", "component": {"Row": {"children": {"explicitList": ["insurance-label", "insurance-amount", "insurance-percent"]}, "distribution": "spaceAround"}}}, {"id": "insurance-label", "component": {"Text": {"text": {"literalString": "Insurance (Health/Auto)"}, "usageHint": "body"}}}, {"id": "insurance-amount", "component": {"Text": {"text": {"literalString": "$500"}, "usageHint": "body"}}}, {"id": "insurance-percent", "component": {"Text": {"text": {"literalString": "6.7%"}, "usageHint": "body"}}}, {"id": "transportation-row", "component": {"Row": {"children": {"explicitList": ["transportation-label", "transportation-amount", "transportation-percent"]}, "distribution": "spaceAround"}}}, {"id": "transportation-label", "component": {"Text": {"text": {"literalString": "Transportation (CTA/Gas)"}, "usageHint": "body"}}}, {"id": "transportation-amount", "component": {"Text": {"text": {"literalString": "$400"}, "usageHint": "body"}}}, {"id": "transportation-percent", "component": {"Text": {"text": {"literalString": "5.3%"}, "usageHint": "body"}}}, {"id": "utilities-row", "component": {"Row": {"children": {"explicitList": ["utilities-label", "utilities-amount", "utilities-percent"]}, "distribution": "spaceAround"}}}, {"id": "utilities-label", "component": {"Text": {"text": {"literalString": "Utilities (Heat/Water/Elec)"}, "usageHint": "body"}}}, {"id": "utilities-amount", "component": {"Text": {"text": {"literalString": "$300"}, "usageHint": "body"}}}, {"id": "utilities-percent", "component": {"Text": {"text": {"literalString": "4.0%"}, "usageHint": "body"}}}, {"id": "subtotal-fixed-row", "component": {"Row": {"children": {"explicitList": ["subtotal-fixed-label", "subtotal-fixed-amount", "subtotal-fixed-percent"]}, "distribution": "spaceAround"}}}, {"id": "subtotal-fixed-label", "component": {"Text": {"text": {"literalString": "Subtotal Fixed"}, "usageHint": "h4"}}}, {"id": "subtotal-fixed-amount", "component": {"Text": {"text": {"literalString": "$5,500"}, "usageHint": "h4"}}}, {"id": "subtotal-fixed-percent", "component": {"Text": {"text": {"literalString": "73.3%"}, "usageHint": "h4"}}}, {"id": "discretionary-income-analysis", "component": {"Column": {"children": {"explicitList": ["discretionary-title", "total-net-income-row", "total-fixed-expenses-row", "remaining-discretionary-row"]}, "alignment": "stretch"}}}, {"id": "discretionary-title", "component": {"Text": {"text": {"literalString": "DISCRETIONARY INCOME ANALYSIS"}, "usageHint": "h2"}}}, {"id": "total-net-income-row", "component": {"Row": {"children": {"explicitList": ["total-net-income-label", "total-net-income-value"]}, "distribution": "spaceBetween"}}}, {"id": "total-net-income-label", "component": {"Text": {"text": {"literalString": "Total Net Income:"}, "usageHint": "body"}}}, {"id": "total-net-income-value", "component": {"Text": {"text": {"literalString": "$7,500"}, "usageHint": "body"}}}, {"id": "total-fixed-expenses-row", "component": {"Row": {"children": {"explicitList": ["total-fixed-expenses-label", "total-fixed-expenses-value"]}, "distribution": "spaceBetween"}}}, {"id": "total-fixed-expenses-label", "component": {"Text": {"text": {"literalString": "Total Fixed Expenses:"}, "usageHint": "body"}}}, {"id": "total-fixed-expenses-value", "component": {"Text": {"text": {"literalString": "$5,500"}, "usageHint": "body"}}}, {"id": "remaining-discretionary-row", "component": {"Row": {"children": {"explicitList": ["remaining-discretionary-label", "remaining-discretionary-value"]}, "distribution": "spaceBetween"}}}, {"id": "remaining-discretionary-label", "component": {"Text": {"text": {"literalString": "Remaining Discretionary:"}, "usageHint": "body"}}}, {"id": "remaining-discretionary-value", "component": {"Text": {"text": {"literalString": "$2,000"}, "usageHint": "body"}}}, {"id": "suggested-discretionary-spending", "component": {"Column": {"children": {"explicitList": ["suggested-discretionary-title", "dining-out-row", "clothing-row", "kids-activities-row", "emergency-buffer-row"]}, "alignment": "stretch"}}}, {"id": "suggested-discretionary-title", "component": {"Text": {"text": {"literalString": "SUGGESTED DISCRETIONARY SPENDING"}, "usageHint": "h2"}}}, {"id": "dining-out-row", "component": {"Row": {"children": {"explicitList": ["dining-out-label", "dining-out-amount"]}, "distribution": "spaceBetween"}}}, {"id": "dining-out-label", "component": {"Text": {"text": {"literalString": "Dining Out / Entertainment"}, "usageHint": "body"}}}, {"id": "dining-out-amount", "component": {"Text": {"text": {"literalString": "$600"}, "usageHint": "body"}}}, {"id": "clothing-row", "component": {"Row": {"children": {"explicitList": ["clothing-label", "clothing-amount"]}, "distribution": "spaceBetween"}}}, {"id": "clothing-label", "component": {"Text": {"text": {"literalString": "Clothing / Household Goods"}, "usageHint": "body"}}}, {"id": "clothing-amount", "component": {"Text": {"text": {"literalString": "$400"}, "usageHint": "body"}}}, {"id": "kids-activities-row", "component": {"Row": {"children": {"explicitList": ["kids-activities-label", "kids-activities-amount"]}, "distribution": "spaceBetween"}}}, {"id": "kids-activities-label", "component": {"Text": {"text": {"literalString": "Kids' Activities / School"}, "usageHint": "body"}}}, {"id": "kids-activities-amount", "component": {"Text": {"text": {"literalString": "$500"}, "usageHint": "body"}}}, {"id": "emergency-buffer-row", "component": {"Row": {"children": {"explicitList": ["emergency-buffer-label", "emergency-buffer-amount"]}, "distribution": "spaceBetween"}}}, {"id": "emergency-buffer-label", "component": {"Text": {"text": {"literalString": "Emergency Buffer / Misc"}, "usageHint": "body"}}}, {"id": "emergency-buffer-amount", "component": {"Text": {"text": {"literalString": "$500"}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Column": {"children": {"explicitList": ["quick-actions-title", "chicago-rental-market-button", "cta-fare-info-button"]}, "alignment": "stretch"}}}, {"id": "quick-actions-title", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h2"}}}, {"id": "chicago-rental-market-button", "component": {"Button": {"child": "chicago-rental-market-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.zumper.com/rent-research/chicago-il"}}]}}}}, {"id": "chicago-rental-market-button-text", "component": {"Text": {"text": {"literalString": "Chicago Rental Market Data"}, "usageHint": "body"}}}, {"id": "cta-fare-info-button", "component": {"Button": {"child": "cta-fare-info-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.transitchicago.com/fares/"}}]}}}}, {"id": "cta-fare-info-button-text", "component": {"Text": {"text": {"literalString": "CTA Fare Info"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "household-budget-chicago"}}, {"surfaceUpdate": {"surfaceId": "household-budget-chicago", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "monthly-allocation-table", "discretionary-income-analysis", "suggested-discretionary-spending", "quick-actions"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "HOUSEHOLD BUDGET: CHICAGO, IL"}, "usageHint": "h1"}}}, {"id": "monthly-allocation-table", "component": {"Column": {"children": {"explicitList": ["monthly-allocation-title", "monthly-allocation-header", "rent-row", "savings-row", "groceries-row", "insurance-row", "transportation-row", "utilities-row", "subtotal-fixed-row"]}, "alignment": "stretch"}}}, {"id": "monthly-allocation-title", "component": {"Text": {"text": {"literalString": "MONTHLY ALLOCATION TABLE"}, "usageHint": "h2"}}}, {"id": "monthly-allocation-header", "component": {"Row": {"children": {"explicitList": ["category-header", "amount-header", "percent-income-header"]}, "distribution": "spaceAround"}}}, {"id": "category-header", "component": {"Text": {"text": {"literalString": "CATEGORY"}, "usageHint": "h4"}}}, {"id": "amount-header", "component": {"Text": {"text": {"literalString": "AMOUNT"}, "usageHint": "h4"}}}, {"id": "percent-income-header", "component": {"Text": {"text": {"literalString": "% OF INCOME"}, "usageHint": "h4"}}}, {"id": "rent-row", "component": {"Row": {"children": {"explicitList": ["rent-label", "rent-amount", "rent-percent"]}, "distribution": "spaceAround"}}}, {"id": "rent-label", "component": {"Text": {"text": {"literalString": "Rent"}, "usageHint": "body"}}}, {"id": "rent-amount", "component": {"Text": {"text": {"literalString": "$2,500"}, "usageHint": "body"}}}, {"id": "rent-percent", "component": {"Text": {"text": {"literalString": "33.3%"}, "usageHint": "body"}}}, {"id": "savings-row", "component": {"Row": {"children": {"explicitList": ["savings-label", "savings-amount", "savings-percent"]}, "distribution": "spaceAround"}}}, {"id": "savings-label", "component": {"Text": {"text": {"literalString": "Savings/Investments"}, "usageHint": "body"}}}, {"id": "savings-amount", "component": {"Text": {"text": {"literalString": "$1,000"}, "usageHint": "body"}}}, {"id": "savings-percent", "component": {"Text": {"text": {"literalString": "13.3%"}, "usageHint": "body"}}}, {"id": "groceries-row", "component": {"Row": {"children": {"explicitList": ["groceries-label", "groceries-amount", "groceries-percent"]}, "distribution": "spaceAround"}}}, {"id": "groceries-label", "component": {"Text": {"text": {"literalString": "Groceries"}, "usageHint": "body"}}}, {"id": "groceries-amount", "component": {"Text": {"text": {"literalString": "$800"}, "usageHint": "body"}}}, {"id": "groceries-percent", "component": {"Text": {"text": {"literalString": "10.7%"}, "usageHint": "body"}}}, {"id": "insurance-row", "component": {"Row": {"children": {"explicitList": ["insurance-label", "insurance-amount", "insurance-percent"]}, "distribution": "spaceAround"}}}, {"id": "insurance-label", "component": {"Text": {"text": {"literalString": "Insurance (Health/Auto)"}, "usageHint": "body"}}}, {"id": "insurance-amount", "component": {"Text": {"text": {"literalString": "$500"}, "usageHint": "body"}}}, {"id": "insurance-percent", "component": {"Text": {"text": {"literalString": "6.7%"}, "usageHint": "body"}}}, {"id": "transportation-row", "component": {"Row": {"children": {"explicitList": ["transportation-label", "transportation-amount", "transportation-percent"]}, "distribution": "spaceAround"}}}, {"id": "transportation-label", "component": {"Text": {"text": {"literalString": "Transportation (CTA/Gas)"}, "usageHint": "body"}}}, {"id": "transportation-amount", "component": {"Text": {"text": {"literalString": "$400"}, "usageHint": "body"}}}, {"id": "transportation-percent", "component": {"Text": {"text": {"literalString": "5.3%"}, "usageHint": "body"}}}, {"id": "utilities-row", "component": {"Row": {"children": {"explicitList": ["utilities-label", "utilities-amount", "utilities-percent"]}, "distribution": "spaceAround"}}}, {"id": "utilities-label", "component": {"Text": {"text": {"literalString": "Utilities (Heat/Water/Elec)"}, "usageHint": "body"}}}, {"id": "utilities-amount", "component": {"Text": {"text": {"literalString": "$300"}, "usageHint": "body"}}}, {"id": "utilities-percent", "component": {"Text": {"text": {"literalString": "4.0%"}, "usageHint": "body"}}}, {"id": "subtotal-fixed-row", "component": {"Row": {"children": {"explicitList": ["subtotal-fixed-label", "subtotal-fixed-amount", "subtotal-fixed-percent"]}, "distribution": "spaceAround"}}}, {"id": "subtotal-fixed-label", "component": {"Text": {"text": {"literalString": "Subtotal Fixed"}, "usageHint": "h4"}}}, {"id": "subtotal-fixed-amount", "component": {"Text": {"text": {"literalString": "$5,500"}, "usageHint": "h4"}}}, {"id": "subtotal-fixed-percent", "component": {"Text": {"text": {"literalString": "73.3%"}, "usageHint": "h4"}}}, {"id": "discretionary-income-analysis", "component": {"Column": {"children": {"explicitList": ["discretionary-title", "total-net-income-row", "total-fixed-expenses-row", "remaining-discretionary-row"]}, "alignment": "stretch"}}}, {"id": "discretionary-title", "component": {"Text": {"text": {"literalString": "DISCRETIONARY INCOME ANALYSIS"}, "usageHint": "h2"}}}, {"id": "total-net-income-row", "component": {"Row": {"children": {"explicitList": ["total-net-income-label", "total-net-income-value"]}, "distribution": "spaceBetween"}}}, {"id": "total-net-income-label", "component": {"Text": {"text": {"literalString": "Total Net Income:"}, "usageHint": "body"}}}, {"id": "total-net-income-value", "component": {"Text": {"text": {"literalString": "$7,500"}, "usageHint": "body"}}}, {"id": "total-fixed-expenses-row", "component": {"Row": {"children": {"explicitList": ["total-fixed-expenses-label", "total-fixed-expenses-value"]}, "distribution": "spaceBetween"}}}, {"id": "total-fixed-expenses-label", "component": {"Text": {"text": {"literalString": "Total Fixed Expenses:"}, "usageHint": "body"}}}, {"id": "total-fixed-expenses-value", "component": {"Text": {"text": {"literalString": "$5,500"}, "usageHint": "body"}}}, {"id": "remaining-discretionary-row", "component": {"Row": {"children": {"explicitList": ["remaining-discretionary-label", "remaining-discretionary-value"]}, "distribution": "spaceBetween"}}}, {"id": "remaining-discretionary-label", "component": {"Text": {"text": {"literalString": "Remaining Discretionary:"}, "usageHint": "body"}}}, {"id": "remaining-discretionary-value", "component": {"Text": {"text": {"literalString": "$2,000"}, "usageHint": "body"}}}, {"id": "suggested-discretionary-spending", "component": {"Column": {"children": {"explicitList": ["suggested-discretionary-title", "dining-out-row", "clothing-row", "kids-activities-row", "emergency-buffer-row"]}, "alignment": "stretch"}}}, {"id": "suggested-discretionary-title", "component": {"Text": {"text": {"literalString": "SUGGESTED DISCRETIONARY SPENDING"}, "usageHint": "h2"}}}, {"id": "dining-out-row", "component": {"Row": {"children": {"explicitList": ["dining-out-label", "dining-out-amount"]}, "distribution": "spaceBetween"}}}, {"id": "dining-out-label", "component": {"Text": {"text": {"literalString": "Dining Out / Entertainment"}, "usageHint": "body"}}}, {"id": "dining-out-amount", "component": {"Text": {"text": {"literalString": "$600"}, "usageHint": "body"}}}, {"id": "clothing-row", "component": {"Row": {"children": {"explicitList": ["clothing-label", "clothing-amount"]}, "distribution": "spaceBetween"}}}, {"id": "clothing-label", "component": {"Text": {"text": {"literalString": "Clothing / Household Goods"}, "usageHint": "body"}}}, {"id": "clothing-amount", "component": {"Text": {"text": {"literalString": "$400"}, "usageHint": "body"}}}, {"id": "kids-activities-row", "component": {"Row": {"children": {"explicitList": ["kids-activities-label", "kids-activities-amount"]}, "distribution": "spaceBetween"}}}, {"id": "kids-activities-label", "component": {"Text": {"text": {"literalString": "Kids' Activities / School"}, "usageHint": "body"}}}, {"id": "kids-activities-amount", "component": {"Text": {"text": {"literalString": "$500"}, "usageHint": "body"}}}, {"id": "emergency-buffer-row", "component": {"Row": {"children": {"explicitList": ["emergency-buffer-label", "emergency-buffer-amount"]}, "distribution": "spaceBetween"}}}, {"id": "emergency-buffer-label", "component": {"Text": {"text": {"literalString": "Emergency Buffer / Misc"}, "usageHint": "body"}}}, {"id": "emergency-buffer-amount", "component": {"Text": {"text": {"literalString": "$500"}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Column": {"children": {"explicitList": ["quick-actions-title", "chicago-rental-market-button", "cta-fare-info-button"]}, "alignment": "stretch"}}}, {"id": "quick-actions-title", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h2"}}}, {"id": "chicago-rental-market-button", "component": {"Text": {"text": {"literalString": "[Chicago Rental Market Data](https://www.zumper.com/rent-research/chicago-il)"}, "usageHint": "body"}}}, {"id": "cta-fare-info-button", "component": {"Text": {"text": {"literalString": "[CTA Fare Info](https://www.transitchicago.com/fares/)"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,99 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }
@@ -190,10 +290,88 @@
               callback(theme);
             }
           });
-
           const processor = v0_8.Data.createSignalA2uiMessageProcessor
             ? v0_8.Data.createSignalA2uiMessageProcessor()
             : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
 
           function renderSurfaces() {
             container.innerHTML = "";
@@ -206,7 +384,193 @@
             }
           }
 
-          function renderMessages(payload, reset) {
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          async function renderMessages(payload, reset) {
             const messages = parseMessages(payload);
             if (!Array.isArray(messages)) {
               console.warn("GenUICraft payload was not an array", messages);
@@ -217,6 +581,13 @@
             }
             processor.processMessages(messages);
             renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            await markMissingImages();
             window.__GenUICraft_RENDER_DONE = true;
           }
 
@@ -225,10 +596,12 @@
 
           const queued = window.__GenUICraft_QUEUE || [];
           window.__GenUICraft_QUEUE = [];
-          queued.forEach((item) => renderMessages(item.payload, item.reset));
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
 
           if (window.__GenUICraft_MESSAGES__) {
-            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);
@@ -240,4 +613,5 @@
     </script>
   </body>
 </html>
+
 

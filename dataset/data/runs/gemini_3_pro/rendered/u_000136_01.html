@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "infant-formula-comparison"}}, {"surfaceUpdate": {"surfaceId": "infant-formula-comparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions", "comparison-table-container", "key-differences-container", "note", "quick-actions"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Infant Formula Comparison"}, "usageHint": "h1"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: Comparison is based on standard US infant formulations. Ingredients are subject to change by the manufacturer."}, "usageHint": "caption"}}}, {"id": "comparison-table-container", "component": {"Column": {"children": {"explicitList": ["summary", "ingredient-comparison-header", "ingredient-comparison-rows"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "Summary: While all three formulas provide standard nutrition, they differ significantly in their use of sweeteners and oils."}, "usageHint": "body"}}}, {"id": "ingredient-comparison-header", "component": {"Row": {"children": {"explicitList": ["brand-header", "palm-oil-header", "corn-syrup-header", "soy-header"]}, "distribution": "start", "alignment": "center"}}}, {"id": "brand-header", "component": {"Text": {"text": {"literalString": "Brand"}, "usageHint": "h3"}}}, {"id": "palm-oil-header", "component": {"Text": {"text": {"literalString": "Palm Oil"}, "usageHint": "h3"}}}, {"id": "corn-syrup-header", "component": {"Text": {"text": {"literalString": "Corn Syrup"}, "usageHint": "h3"}}}, {"id": "soy-header", "component": {"Text": {"text": {"literalString": "Soy"}, "usageHint": "h3"}}}, {"id": "ingredient-comparison-rows", "component": {"Column": {"children": {"explicitList": ["enfamil-row", "similac-row", "bobbie-row"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "enfamil-row", "component": {"Row": {"children": {"explicitList": ["enfamil-brand", "enfamil-palm-oil", "enfamil-corn-syrup", "enfamil-soy"]}, "distribution": "start", "alignment": "center"}}}, {"id": "enfamil-brand", "component": {"Text": {"text": {"literalString": "Enfamil NeuroPro"}, "usageHint": "body"}}}, {"id": "enfamil-palm-oil", "component": {"Text": {"text": {"literalString": "Yes (Palm Olein)"}, "usageHint": "body"}}}, {"id": "enfamil-corn-syrup", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "enfamil-soy", "component": {"Text": {"text": {"literalString": "Yes (Soy Lecithin)"}, "usageHint": "body"}}}, {"id": "similac-row", "component": {"Row": {"children": {"explicitList": ["similac-brand", "similac-palm-oil", "similac-corn-syrup", "similac-soy"]}, "distribution": "start", "alignment": "center"}}}, {"id": "similac-brand", "component": {"Text": {"text": {"literalString": "Similac 360 Total Care"}, "usageHint": "body"}}}, {"id": "similac-palm-oil", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "similac-corn-syrup", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "similac-soy", "component": {"Text": {"text": {"literalString": "Yes (Soy Lecithin)"}, "usageHint": "body"}}}, {"id": "bobbie-row", "component": {"Row": {"children": {"explicitList": ["bobbie-brand", "bobbie-palm-oil", "bobbie-corn-syrup", "bobbie-soy"]}, "distribution": "start", "alignment": "center"}}}, {"id": "bobbie-brand", "component": {"Text": {"text": {"literalString": "Bobbie Organic"}, "usageHint": "body"}}}, {"id": "bobbie-palm-oil", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "bobbie-corn-syrup", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "bobbie-soy", "component": {"Text": {"text": {"literalString": "Yes (Soy Lecithin)"}, "usageHint": "body"}}}, {"id": "key-differences-container", "component": {"Column": {"children": {"explicitList": ["key-differences-title", "key-difference-1", "key-difference-2", "key-difference-3"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "key-differences-title", "component": {"Text": {"text": {"literalString": "Key Differences:"}, "usageHint": "h2"}}}, {"id": "key-difference-1", "component": {"Text": {"text": {"literalString": "- Enfamil NeuroPro: Uses a blend of vegetable oils including palm olein."}, "usageHint": "body"}}}, {"id": "key-difference-2", "component": {"Text": {"text": {"literalString": "- Similac 360 Total Care: Specifically marketed as palm oil-free for better calcium absorption."}, "usageHint": "body"}}}, {"id": "key-difference-3", "component": {"Text": {"text": {"literalString": "- Bobbie Organic: European-style recipe that excludes both palm oil and corn syrup."}, "usageHint": "body"}}}, {"id": "note", "component": {"Text": {"text": {"literalString": "Note: Always consult with a pediatrician before switching baby formulas to ensure it meets your child's specific health needs."}, "usageHint": "caption"}}}, {"id": "quick-actions", "component": {"Column": {"children": {"explicitList": ["fda-button"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "fda-button", "component": {"Button": {"child": "fda-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.fda.gov/food/infant-formula-guidance-documents-regulatory-information/questions-answers-consumers-concerning-infant-formula"}}]}}}}, {"id": "fda-button-text", "component": {"Text": {"text": {"literalString": "FDA Formula Safety Guide"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "infant-formula-comparison"}}, {"surfaceUpdate": {"surfaceId": "infant-formula-comparison", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions", "comparison-table-container", "key-differences-container", "note", "quick-actions"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Infant Formula Comparison"}, "usageHint": "h1"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: Comparison is based on standard US infant formulations. Ingredients are subject to change by the manufacturer."}, "usageHint": "caption"}}}, {"id": "comparison-table-container", "component": {"Column": {"children": {"explicitList": ["summary", "ingredient-comparison-header", "ingredient-comparison-rows"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "summary", "component": {"Text": {"text": {"literalString": "Summary: While all three formulas provide standard nutrition, they differ significantly in their use of sweeteners and oils."}, "usageHint": "body"}}}, {"id": "ingredient-comparison-header", "component": {"Row": {"children": {"explicitList": ["brand-header", "palm-oil-header", "corn-syrup-header", "soy-header"]}, "distribution": "start", "alignment": "center"}}}, {"id": "brand-header", "component": {"Text": {"text": {"literalString": "Brand"}, "usageHint": "h3"}}}, {"id": "palm-oil-header", "component": {"Text": {"text": {"literalString": "Palm Oil"}, "usageHint": "h3"}}}, {"id": "corn-syrup-header", "component": {"Text": {"text": {"literalString": "Corn Syrup"}, "usageHint": "h3"}}}, {"id": "soy-header", "component": {"Text": {"text": {"literalString": "Soy"}, "usageHint": "h3"}}}, {"id": "ingredient-comparison-rows", "component": {"Column": {"children": {"explicitList": ["enfamil-row", "similac-row", "bobbie-row"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "enfamil-row", "component": {"Row": {"children": {"explicitList": ["enfamil-brand", "enfamil-palm-oil", "enfamil-corn-syrup", "enfamil-soy"]}, "distribution": "start", "alignment": "center"}}}, {"id": "enfamil-brand", "component": {"Text": {"text": {"literalString": "Enfamil NeuroPro"}, "usageHint": "body"}}}, {"id": "enfamil-palm-oil", "component": {"Text": {"text": {"literalString": "Yes (Palm Olein)"}, "usageHint": "body"}}}, {"id": "enfamil-corn-syrup", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "enfamil-soy", "component": {"Text": {"text": {"literalString": "Yes (Soy Lecithin)"}, "usageHint": "body"}}}, {"id": "similac-row", "component": {"Row": {"children": {"explicitList": ["similac-brand", "similac-palm-oil", "similac-corn-syrup", "similac-soy"]}, "distribution": "start", "alignment": "center"}}}, {"id": "similac-brand", "component": {"Text": {"text": {"literalString": "Similac 360 Total Care"}, "usageHint": "body"}}}, {"id": "similac-palm-oil", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "similac-corn-syrup", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "similac-soy", "component": {"Text": {"text": {"literalString": "Yes (Soy Lecithin)"}, "usageHint": "body"}}}, {"id": "bobbie-row", "component": {"Row": {"children": {"explicitList": ["bobbie-brand", "bobbie-palm-oil", "bobbie-corn-syrup", "bobbie-soy"]}, "distribution": "start", "alignment": "center"}}}, {"id": "bobbie-brand", "component": {"Text": {"text": {"literalString": "Bobbie Organic"}, "usageHint": "body"}}}, {"id": "bobbie-palm-oil", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "bobbie-corn-syrup", "component": {"Text": {"text": {"literalString": "No"}, "usageHint": "body"}}}, {"id": "bobbie-soy", "component": {"Text": {"text": {"literalString": "Yes (Soy Lecithin)"}, "usageHint": "body"}}}, {"id": "key-differences-container", "component": {"Column": {"children": {"explicitList": ["key-differences-title", "key-difference-1", "key-difference-2", "key-difference-3"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "key-differences-title", "component": {"Text": {"text": {"literalString": "Key Differences:"}, "usageHint": "h2"}}}, {"id": "key-difference-1", "component": {"Text": {"text": {"literalString": "- Enfamil NeuroPro: Uses a blend of vegetable oils including palm olein."}, "usageHint": "body"}}}, {"id": "key-difference-2", "component": {"Text": {"text": {"literalString": "- Similac 360 Total Care: Specifically marketed as palm oil-free for better calcium absorption."}, "usageHint": "body"}}}, {"id": "key-difference-3", "component": {"Text": {"text": {"literalString": "- Bobbie Organic: European-style recipe that excludes both palm oil and corn syrup."}, "usageHint": "body"}}}, {"id": "note", "component": {"Text": {"text": {"literalString": "Note: Always consult with a pediatrician before switching baby formulas to ensure it meets your child's specific health needs."}, "usageHint": "caption"}}}, {"id": "quick-actions", "component": {"Column": {"children": {"explicitList": ["fda-button"]}, "distribution": "start", "alignment": "stretch"}}}, {"id": "fda-button", "component": {"Text": {"text": {"literalString": "[FDA Formula Safety Guide](https://www.fda.gov/food/infant-formula-guidance-documents-regulatory-information/questions-answers-consumers-concerning-infant-formula)"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,99 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }
@@ -190,10 +290,88 @@
               callback(theme);
             }
           });
-
           const processor = v0_8.Data.createSignalA2uiMessageProcessor
             ? v0_8.Data.createSignalA2uiMessageProcessor()
             : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
 
           function renderSurfaces() {
             container.innerHTML = "";
@@ -206,7 +384,193 @@
             }
           }
 
-          function renderMessages(payload, reset) {
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          async function renderMessages(payload, reset) {
             const messages = parseMessages(payload);
             if (!Array.isArray(messages)) {
               console.warn("GenUICraft payload was not an array", messages);
@@ -217,6 +581,13 @@
             }
             processor.processMessages(messages);
             renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            await markMissingImages();
             window.__GenUICraft_RENDER_DONE = true;
           }
 
@@ -225,10 +596,12 @@
 
           const queued = window.__GenUICraft_QUEUE || [];
           window.__GenUICraft_QUEUE = [];
-          queued.forEach((item) => renderMessages(item.payload, item.reset));
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
 
           if (window.__GenUICraft_MESSAGES__) {
-            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);
@@ -240,4 +613,5 @@
     </script>
   </body>
 </html>
+
 

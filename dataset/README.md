@@ -1,6 +1,6 @@
-# Dataset Generation + LLM Benchmark Harness
+# Dataset Generation + LLM Benchmark
 
-This folder contains a resumable, multi?stage pipeline to generate user queries, responses, GenUICraft JSON, and TOON outputs, plus metrics and benchmarking.
+This folder contains pipeline to generate user queries, responses, GenUICraft JSON, metrics and benchmarking.
 
 ## Structure
 
@@ -66,6 +66,29 @@ $env:GAUSS_USER_EMAIL="you@example.com"
 $env:GAUSS_MODEL_ID="your-model-id"
 ```
 
+## Versioning
+
+The repo tracks release and component versions.
+
+- `VERSION`: current release version.
+- `versions/components.yaml`: per-component versions and compatibility flags.
+- `data/runs/<run_id>/run_manifest.json`: auto-written manifest for each run.
+
+Print current version info:
+
+```
+python src/main.py --version
+```
+
+Bump release/component versions:
+
+```
+python scripts/bump_version.py --bump patch
+python scripts/bump_version.py --release 0.2.0 --component pipeline=0.2.0 --component renderer=0.2.0
+python scripts/bump_version.py --set-compat genui_schema=v0.9
+```
+
+Use `--dry-run` to preview changes.
 ## Run stages
 
 From the `dataset/` folder:
@@ -79,21 +102,9 @@ python src/main.py --stage 4 --model openai_gpt4o
 
 Outputs are written to `data/runs/<run_id>/`.
 
-## Local Qwen3 / DeepSeek (direct Transformers, no vLLM)
+## Local Qwen3 / DeepSeek
 
-Qwen and DeepSeek local models now run directly via `transformers` in `LocalAdapter`.
-You do not need to run a vLLM server for these model entries.
-
-Offline behavior:
-- Qwen/DeepSeek local models now default to **strict offline mode**.
-- The adapter will fail fast if local model folders are missing.
-- It will not fall back to Hugging Face network downloads.
-- It will ignore HTTP endpoints unless you explicitly allow them.
-- Stage 2 asset URL downloading is disabled when offline mode is enabled.
-- `src/main.py` auto-sets offline defaults for local Qwen/DeepSeek runs:
-  `LOCAL_STRICT_OFFLINE=1`, `HF_HUB_OFFLINE=1`, `TRANSFORMERS_OFFLINE=1`,
-  `HF_DATASETS_OFFLINE=1`, `DATASET_OFFLINE_MODE=1`.
-
+Qwen and DeepSeek local models run directly via `transformers` in `LocalAdapter`.
 Set model paths and visible GPUs:
 
 ```
@@ -169,6 +180,7 @@ This runs a fixed subset of queries against each model and stores per?model aggr
 - GenUICraft schema is in `schema/genui.schema.json`.
 - `jsonschema` is optional; if missing, strict validation is marked false with a warning.
 - TOON is encoded in `src/pipeline/toon_convert.py` and can be swapped for a custom spec.
+
 
 
 

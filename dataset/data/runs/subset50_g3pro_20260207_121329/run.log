@@ -90,3 +90,45 @@
     at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
     at http://127.0.0.1:50100/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
 2026-02-09 15:43:34 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-10 00:01:47 INFO dataset: Stage4 HTTP server started on port 50749
+2026-02-10 00:01:48 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-10 00:02:25 ERROR dataset: Stage4 render error ui_id=u_000281_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:50749/renderer/lit/vendor/markdown-it/index.mjs net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:50749/renderer/lit/vendor/a2ui/index.js
+2026-02-10 00:02:25 ERROR dataset: Stage4 render error ui_id=u_000442_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "avatar".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:50749/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+2026-02-10 00:02:26 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-10 00:02:34 INFO dataset: Stage4 HTTP server started on port 56013
+2026-02-10 00:02:52 ERROR dataset: Stage4 render error ui_id=u_000442_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "avatar".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:56013/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+2026-02-10 00:02:53 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-10 00:05:50 INFO dataset: Stage4 HTTP server started on port 59914
+2026-02-10 00:05:50 INFO dataset: Stage4 rendering 1 images with 10 workers
+2026-02-10 00:05:54 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-10 00:24:24 INFO dataset: Stage4 HTTP server started on port 57332
+2026-02-10 00:24:24 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-10 00:24:50 ERROR dataset: Stage4 render error ui_id=u_000001_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:57332/renderer/lit/vendor/entities/lib/esm/generated/decode-data-xml.js net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:57332/renderer/lit/vendor/a2ui/index.js
+2026-02-10 00:24:50 ERROR dataset: Stage4 render error ui_id=u_000051_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: http://127.0.0.1:57332/renderer/lit/vendor/markdown-it/lib/index.mjs net::ERR_CONNECTION_REFUSED; error: Failed to load resource: net::ERR_CONNECTION_REFUSED; error: Failed to load GenUICraft Lit renderer TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:57332/renderer/lit/vendor/a2ui/index.js
+2026-02-10 00:24:51 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-10 00:24:59 INFO dataset: Stage4 HTTP server started on port 56267
+2026-02-10 00:25:03 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-10 00:41:42 INFO dataset: Stage4 HTTP server started on port 61531
+2026-02-10 00:42:44 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered
+2026-02-10 00:55:39 INFO dataset: Stage4 HTTP server started on port 63369
+2026-02-10 00:55:40 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_20260207_121329\rendered

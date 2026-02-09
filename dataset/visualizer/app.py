@@ -1,7 +1,6 @@
-﻿import argparse
+import argparse
 import json
 import mimetypes
-import os
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -15,7 +14,7 @@ DEFAULT_RENDERER_DIR = ROOT / "renderer"
 
 
 def _safe_path(base: Path, rel: str) -> Path:
-    rel_path = Path(rel.lstrip("/")).resolve()
+    rel_path = Path(rel.lstrip("/"))
     base_resolved = base.resolve()
     try:
         candidate = (base_resolved / rel_path).resolve()
@@ -52,9 +51,12 @@ def _count_lines(path: Path) -> int:
 
 
 def _resolve_genui_jsonl(run_dir: Path) -> Path:
-    """Return the GenUICraft JSONL path for a run."""
+    """Return GenUICraft JSONL path with backward compatibility for legacy run files."""
     genui = run_dir / "genui.jsonl"
-    return genui
+    if genui.exists():
+        return genui
+    legacy = run_dir / "a2ui.jsonl"
+    return legacy
 
 
 def _slice_jsonl(path: Path, offset: int, limit: int, search: str | None, field: str | None):
@@ -146,8 +148,10 @@ class DatasetHandler(BaseHTTPRequestHandler):
         self._send_json(payload)
 
     def _handle_api_jsonl(self, run_dir: Path, name: str, query: dict) -> None:
-        name = "genui"
-        path = run_dir / f"{name}.jsonl"
+        if name in ("genui", "a2ui"):
+            path = _resolve_genui_jsonl(run_dir)
+        else:
+            path = run_dir / f"{name}.jsonl"
         offset = int(query.get("offset", ["0"])[0])
         limit = int(query.get("limit", ["50"])[0])
         search = query.get("search", [""])[0].strip() or None
@@ -169,15 +173,30 @@ class DatasetHandler(BaseHTTPRequestHandler):
             return
         if path.startswith("/static/"):
             rel = path[len("/static/") :]
-            self._serve_file(_safe_path(STATIC_DIR, rel))
+            try:
+                safe = _safe_path(STATIC_DIR, rel)
+            except ValueError:
+                self._send_json({"error": "invalid path"}, status=400)
+                return
+            self._serve_file(safe)
             return
         if path.startswith("/renderer/"):
             rel = path[len("/renderer/") :]
-            self._serve_file(_safe_path(renderer_dir, rel))
+            try:
+                safe = _safe_path(renderer_dir, rel)
+            except ValueError:
+                self._send_json({"error": "invalid path"}, status=400)
+                return
+            self._serve_file(safe)
             return
         if path.startswith("/runs/"):
             rel = path[len("/runs/") :]
-            self._serve_file(_safe_path(runs_dir, rel))
+            try:
+                safe = _safe_path(runs_dir, rel)
+            except ValueError:
+                self._send_json({"error": "invalid path"}, status=400)
+                return
+            self._serve_file(safe)
             return
         if path == "/api/runs":
             self._handle_api_runs(runs_dir)
@@ -198,7 +217,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
             if parts[4] == "summary":
                 self._handle_api_summary(run_dir)
                 return
-            if parts[4] in ("queries", "responses", "genui"):
+            if parts[4] in ("queries", "responses", "genui", "a2ui"):
                 self._handle_api_jsonl(run_dir, parts[4], query)
                 return
         self._send_json({"error": "not found"}, status=404)
@@ -233,3 +252,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

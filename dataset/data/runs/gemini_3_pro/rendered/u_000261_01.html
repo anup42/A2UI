@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -27,6 +27,8 @@
         gap: 16px;
       }
     </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
   </head>
   <body>
     <div id="surfaces"></div>
@@ -68,7 +70,7 @@
       }
     </script>
     <script>
-      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "paris-nice-road-trip"}}, {"surfaceUpdate": {"surfaceId": "paris-nice-road-trip", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions", "itinerary-header", "itinerary-list", "budget-header", "budget-table", "vineyard-header", "vineyard-options", "quick-actions"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Paris to Nice Road Trip Itinerary"}, "usageHint": "h1"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: 10 days in June 2025; standard sedan; includes fuel and Peage (tolls)."}, "usageHint": "caption"}}}, {"id": "itinerary-header", "component": {"Text": {"text": {"literalString": "10-DAY ITINERARY"}, "usageHint": "h2"}}}, {"id": "itinerary-list", "component": {"List": {"children": {"explicitList": ["day1-2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10"]}, "direction": "vertical"}}}, {"id": "day1-2", "component": {"Text": {"text": {"literalString": "Day 1-2: Paris. Pick up car on Day 2."}, "usageHint": "body"}}}, {"id": "day3", "component": {"Text": {"text": {"literalString": "Day 3: Drive Paris to Lyon (4.5 hours). Evening in Vieux Lyon."}, "usageHint": "body"}}}, {"id": "day4", "component": {"Text": {"text": {"literalString": "Day 4: Lyon. Gastronomy tour and Basilica of Notre-Dame de Fourviere."}, "usageHint": "body"}}}, {"id": "day5", "component": {"Text": {"text": {"literalString": "Day 5: Drive Lyon to Avignon (2.5 hours). Stop at Palais des Papes."}, "usageHint": "body"}}}, {"id": "day6", "component": {"Text": {"text": {"literalString": "Day 6: Vineyard Tour 1: Chateauneuf-du-Pape (near Avignon)."}, "usageHint": "body"}}}, {"id": "day7", "component": {"Text": {"text": {"literalString": "Day 7: Drive Avignon to Aix-en-Provence (1 hour). Explore Cours Mirabeau."}, "usageHint": "body"}}}, {"id": "day8", "component": {"Text": {"text": {"literalString": "Day 8: Vineyard Tour 2: Provence Rose tasting in Cotes de Provence."}, "usageHint": "body"}}}, {"id": "day9", "component": {"Text": {"text": {"literalString": "Day 9: Drive Aix to Nice (2 hours). Walk the Promenade des Anglais."}, "usageHint": "body"}}}, {"id": "day10", "component": {"Text": {"text": {"literalString": "Day 10: Nice. Beach day and Old Town exploration. Return car."}, "usageHint": "body"}}}, {"id": "budget-header", "component": {"Text": {"text": {"literalString": "BUDGET ESTIMATE: TRANSPORTATION (€300 EUR)"}, "usageHint": "h2"}}}, {"id": "budget-table", "component": {"Column": {"children": {"explicitList": ["budget-header-row", "budget-fuel-row", "budget-tolls-row", "budget-parking-row", "budget-total-row"]}}}}, {"id": "budget-header-row", "component": {"Row": {"children": {"explicitList": ["budget-category-header", "budget-cost-header", "budget-notes-header"]}, "distribution": "spaceBetween"}}}, {"id": "budget-category-header", "component": {"Text": {"text": {"literalString": "CATEGORY"}, "usageHint": "body"}}}, {"id": "budget-cost-header", "component": {"Text": {"text": {"literalString": "COST"}, "usageHint": "body"}}}, {"id": "budget-notes-header", "component": {"Text": {"text": {"literalString": "NOTES"}, "usageHint": "body"}}}, {"id": "budget-fuel-row", "component": {"Row": {"children": {"explicitList": ["budget-fuel-label", "budget-fuel-cost", "budget-fuel-notes"]}, "distribution": "spaceBetween"}}}, {"id": "budget-fuel-label", "component": {"Text": {"text": {"literalString": "Fuel (Diesel/Petrol)"}, "usageHint": "body"}}}, {"id": "budget-fuel-cost", "component": {"Text": {"text": {"literalString": "€160"}, "usageHint": "body"}}}, {"id": "budget-fuel-notes", "component": {"Text": {"text": {"literalString": "Approx 950km total distance"}, "usageHint": "body"}}}, {"id": "budget-tolls-row", "component": {"Row": {"children": {"explicitList": ["budget-tolls-label", "budget-tolls-cost", "budget-tolls-notes"]}, "distribution": "spaceBetween"}}}, {"id": "budget-tolls-label", "component": {"Text": {"text": {"literalString": "Tolls (Peage)"}, "usageHint": "body"}}}, {"id": "budget-tolls-cost", "component": {"Text": {"text": {"literalString": "€90"}, "usageHint": "body"}}}, {"id": "budget-tolls-notes", "component": {"Text": {"text": {"literalString": "A6 and A7 motorways"}, "usageHint": "body"}}}, {"id": "budget-parking-row", "component": {"Row": {"children": {"explicitList": ["budget-parking-label", "budget-parking-cost", "budget-parking-notes"]}, "distribution": "spaceBetween"}}}, {"id": "budget-parking-label", "component": {"Text": {"text": {"literalString": "Parking Fees"}, "usageHint": "body"}}}, {"id": "budget-parking-cost", "component": {"Text": {"text": {"literalString": "€50"}, "usageHint": "body"}}}, {"id": "budget-parking-notes", "component": {"Text": {"text": {"literalString": "City center garage estimates"}, "usageHint": "body"}}}, {"id": "budget-total-row", "component": {"Row": {"children": {"explicitList": ["budget-total-label", "budget-total-cost", "budget-total-notes"]}, "distribution": "spaceBetween"}}}, {"id": "budget-total-label", "component": {"Text": {"text": {"literalString": "TOTAL"}, "usageHint": "body"}}}, {"id": "budget-total-cost", "component": {"Text": {"text": {"literalString": "€300"}, "usageHint": "body"}}}, {"id": "budget-total-notes", "component": {"Text": {"text": {"literalString": ""}, "usageHint": "body"}}}, {"id": "vineyard-header", "component": {"Text": {"text": {"literalString": "VINEYARD OPTIONS"}, "usageHint": "h2"}}}, {"id": "vineyard-options", "component": {"Column": {"children": {"explicitList": ["vineyard-option1", "vineyard-option2"]}}}}, {"id": "vineyard-option1", "component": {"Card": {"child": "vineyard-option1-content"}}}, {"id": "vineyard-option1-content", "component": {"Column": {"children": {"explicitList": ["vineyard-option1-title", "vineyard-option1-description", "vineyard-option1-link"]}}}}, {"id": "vineyard-option1-title", "component": {"Text": {"text": {"literalString": "Option 1: Chateau La Nerthe"}, "usageHint": "h4"}}}, {"id": "vineyard-option1-description", "component": {"Text": {"text": {"literalString": "Chateauneuf-du-Pape | Historic cellars"}, "usageHint": "body"}}}, {"id": "vineyard-option1-link", "component": {"Button": {"child": "vineyard-option1-link-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.lanerthe.fr"}}]}}}}, {"id": "vineyard-option1-link-text", "component": {"Text": {"text": {"literalString": "Visit Website"}, "usageHint": "body"}}}, {"id": "vineyard-option2", "component": {"Card": {"child": "vineyard-option2-content"}}}, {"id": "vineyard-option2-content", "component": {"Column": {"children": {"explicitList": ["vineyard-option2-title", "vineyard-option2-description", "vineyard-option2-link"]}}}}, {"id": "vineyard-option2-title", "component": {"Text": {"text": {"literalString": "Option 2: Chateau d'Esclans"}, "usageHint": "h4"}}}, {"id": "vineyard-option2-description", "component": {"Text": {"text": {"literalString": "Provence | Famous for Whispering Angel"}, "usageHint": "body"}}}, {"id": "vineyard-option2-link", "component": {"Button": {"child": "vineyard-option2-link-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.esclans.com"}}]}}}}, {"id": "vineyard-option2-link-text", "component": {"Text": {"text": {"literalString": "Visit Website"}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Row": {"children": {"explicitList": ["calculate-tolls-button", "rent-car-button"]}, "distribution": "center"}}}, {"id": "calculate-tolls-button", "component": {"Button": {"child": "calculate-tolls-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.autoroutes.fr/en/routes.htm"}}]}}}}, {"id": "calculate-tolls-button-text", "component": {"Text": {"text": {"literalString": "Calculate Tolls"}, "usageHint": "body"}}}, {"id": "rent-car-button", "component": {"Button": {"child": "rent-car-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.europcar.com"}}]}}}}, {"id": "rent-car-button-text", "component": {"Text": {"text": {"literalString": "Rent a Car Paris"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "paris-nice-road-trip"}}, {"surfaceUpdate": {"surfaceId": "paris-nice-road-trip", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions", "itinerary-header", "itinerary-list", "budget-header", "budget-table", "vineyard-header", "vineyard-options", "quick-actions"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Paris to Nice Road Trip Itinerary"}, "usageHint": "h1"}}}, {"id": "assumptions", "component": {"Text": {"text": {"literalString": "Assumptions: 10 days in June 2025; standard sedan; includes fuel and Peage (tolls)."}, "usageHint": "caption"}}}, {"id": "itinerary-header", "component": {"Text": {"text": {"literalString": "10-DAY ITINERARY"}, "usageHint": "h2"}}}, {"id": "itinerary-list", "component": {"List": {"children": {"explicitList": ["day1-2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10"]}, "direction": "vertical"}}}, {"id": "day1-2", "component": {"Text": {"text": {"literalString": "Day 1-2: Paris. Pick up car on Day 2."}, "usageHint": "body"}}}, {"id": "day3", "component": {"Text": {"text": {"literalString": "Day 3: Drive Paris to Lyon (4.5 hours). Evening in Vieux Lyon."}, "usageHint": "body"}}}, {"id": "day4", "component": {"Text": {"text": {"literalString": "Day 4: Lyon. Gastronomy tour and Basilica of Notre-Dame de Fourviere."}, "usageHint": "body"}}}, {"id": "day5", "component": {"Text": {"text": {"literalString": "Day 5: Drive Lyon to Avignon (2.5 hours). Stop at Palais des Papes."}, "usageHint": "body"}}}, {"id": "day6", "component": {"Text": {"text": {"literalString": "Day 6: Vineyard Tour 1: Chateauneuf-du-Pape (near Avignon)."}, "usageHint": "body"}}}, {"id": "day7", "component": {"Text": {"text": {"literalString": "Day 7: Drive Avignon to Aix-en-Provence (1 hour). Explore Cours Mirabeau."}, "usageHint": "body"}}}, {"id": "day8", "component": {"Text": {"text": {"literalString": "Day 8: Vineyard Tour 2: Provence Rose tasting in Cotes de Provence."}, "usageHint": "body"}}}, {"id": "day9", "component": {"Text": {"text": {"literalString": "Day 9: Drive Aix to Nice (2 hours). Walk the Promenade des Anglais."}, "usageHint": "body"}}}, {"id": "day10", "component": {"Text": {"text": {"literalString": "Day 10: Nice. Beach day and Old Town exploration. Return car."}, "usageHint": "body"}}}, {"id": "budget-header", "component": {"Text": {"text": {"literalString": "BUDGET ESTIMATE: TRANSPORTATION (€300 EUR)"}, "usageHint": "h2"}}}, {"id": "budget-table", "component": {"Column": {"children": {"explicitList": ["budget-header-row", "budget-fuel-row", "budget-tolls-row", "budget-parking-row", "budget-total-row"]}}}}, {"id": "budget-header-row", "component": {"Row": {"children": {"explicitList": ["budget-category-header", "budget-cost-header", "budget-notes-header"]}, "distribution": "spaceBetween"}}}, {"id": "budget-category-header", "component": {"Text": {"text": {"literalString": "CATEGORY"}, "usageHint": "body"}}}, {"id": "budget-cost-header", "component": {"Text": {"text": {"literalString": "COST"}, "usageHint": "body"}}}, {"id": "budget-notes-header", "component": {"Text": {"text": {"literalString": "NOTES"}, "usageHint": "body"}}}, {"id": "budget-fuel-row", "component": {"Row": {"children": {"explicitList": ["budget-fuel-label", "budget-fuel-cost", "budget-fuel-notes"]}, "distribution": "spaceBetween"}}}, {"id": "budget-fuel-label", "component": {"Text": {"text": {"literalString": "Fuel (Diesel/Petrol)"}, "usageHint": "body"}}}, {"id": "budget-fuel-cost", "component": {"Text": {"text": {"literalString": "€160"}, "usageHint": "body"}}}, {"id": "budget-fuel-notes", "component": {"Text": {"text": {"literalString": "Approx 950km total distance"}, "usageHint": "body"}}}, {"id": "budget-tolls-row", "component": {"Row": {"children": {"explicitList": ["budget-tolls-label", "budget-tolls-cost", "budget-tolls-notes"]}, "distribution": "spaceBetween"}}}, {"id": "budget-tolls-label", "component": {"Text": {"text": {"literalString": "Tolls (Peage)"}, "usageHint": "body"}}}, {"id": "budget-tolls-cost", "component": {"Text": {"text": {"literalString": "€90"}, "usageHint": "body"}}}, {"id": "budget-tolls-notes", "component": {"Text": {"text": {"literalString": "A6 and A7 motorways"}, "usageHint": "body"}}}, {"id": "budget-parking-row", "component": {"Row": {"children": {"explicitList": ["budget-parking-label", "budget-parking-cost", "budget-parking-notes"]}, "distribution": "spaceBetween"}}}, {"id": "budget-parking-label", "component": {"Text": {"text": {"literalString": "Parking Fees"}, "usageHint": "body"}}}, {"id": "budget-parking-cost", "component": {"Text": {"text": {"literalString": "€50"}, "usageHint": "body"}}}, {"id": "budget-parking-notes", "component": {"Text": {"text": {"literalString": "City center garage estimates"}, "usageHint": "body"}}}, {"id": "budget-total-row", "component": {"Row": {"children": {"explicitList": ["budget-total-label", "budget-total-cost", "budget-total-notes"]}, "distribution": "spaceBetween"}}}, {"id": "budget-total-label", "component": {"Text": {"text": {"literalString": "TOTAL"}, "usageHint": "body"}}}, {"id": "budget-total-cost", "component": {"Text": {"text": {"literalString": "€300"}, "usageHint": "body"}}}, {"id": "budget-total-notes", "component": {"Text": {"text": {"literalString": ""}, "usageHint": "body"}}}, {"id": "vineyard-header", "component": {"Text": {"text": {"literalString": "VINEYARD OPTIONS"}, "usageHint": "h2"}}}, {"id": "vineyard-options", "component": {"Column": {"children": {"explicitList": ["vineyard-option1", "vineyard-option2"]}}}}, {"id": "vineyard-option1", "component": {"Card": {"child": "vineyard-option1-content"}}}, {"id": "vineyard-option1-content", "component": {"Column": {"children": {"explicitList": ["vineyard-option1-title", "vineyard-option1-description", "vineyard-option1-link"]}}}}, {"id": "vineyard-option1-title", "component": {"Text": {"text": {"literalString": "Option 1: Chateau La Nerthe"}, "usageHint": "h4"}}}, {"id": "vineyard-option1-description", "component": {"Text": {"text": {"literalString": "Chateauneuf-du-Pape | Historic cellars"}, "usageHint": "body"}}}, {"id": "vineyard-option1-link", "component": {"Text": {"text": {"literalString": "[Visit Website](https://www.lanerthe.fr)"}, "usageHint": "body"}}}, {"id": "vineyard-option2", "component": {"Card": {"child": "vineyard-option2-content"}}}, {"id": "vineyard-option2-content", "component": {"Column": {"children": {"explicitList": ["vineyard-option2-title", "vineyard-option2-description", "vineyard-option2-link"]}}}}, {"id": "vineyard-option2-title", "component": {"Text": {"text": {"literalString": "Option 2: Chateau d'Esclans"}, "usageHint": "h4"}}}, {"id": "vineyard-option2-description", "component": {"Text": {"text": {"literalString": "Provence | Famous for Whispering Angel"}, "usageHint": "body"}}}, {"id": "vineyard-option2-link", "component": {"Text": {"text": {"literalString": "[Visit Website](https://www.esclans.com)"}, "usageHint": "body"}}}, {"id": "quick-actions", "component": {"Row": {"children": {"explicitList": ["calculate-tolls-button", "rent-car-button"]}, "distribution": "center"}}}, {"id": "calculate-tolls-button", "component": {"Button": {"child": "calculate-tolls-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.autoroutes.fr/en/routes.htm"}}]}}}}, {"id": "calculate-tolls-button-text", "component": {"Text": {"text": {"literalString": "Calculate Tolls"}, "usageHint": "body"}}}, {"id": "rent-car-button", "component": {"Button": {"child": "rent-car-button-text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.europcar.com"}}]}}}}, {"id": "rent-car-button-text", "component": {"Text": {"text": {"literalString": "Rent a Car Paris"}, "usageHint": "body"}}}]}}];
       window.__GenUICraft_RESET__ = true;
       window.__GenUICraft_QUEUE = [];
       window.__GenUICraft_RENDER_DONE = false;
@@ -97,6 +99,11 @@
       function createDefaultTheme() {
         const empty = {};
         const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
         return {
           components: {
             AudioPlayer: empty,
@@ -165,6 +172,99 @@
             a: emptyList,
             strong: emptyList,
             em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
           }
         };
       }
@@ -190,10 +290,88 @@
               callback(theme);
             }
           });
-
           const processor = v0_8.Data.createSignalA2uiMessageProcessor
             ? v0_8.Data.createSignalA2uiMessageProcessor()
             : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
 
           function renderSurfaces() {
             container.innerHTML = "";
@@ -206,7 +384,193 @@
             }
           }
 
-          function renderMessages(payload, reset) {
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          async function renderMessages(payload, reset) {
             const messages = parseMessages(payload);
             if (!Array.isArray(messages)) {
               console.warn("GenUICraft payload was not an array", messages);
@@ -217,6 +581,13 @@
             }
             processor.processMessages(messages);
             renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            await markMissingImages();
             window.__GenUICraft_RENDER_DONE = true;
           }
 
@@ -225,10 +596,12 @@
 
           const queued = window.__GenUICraft_QUEUE || [];
           window.__GenUICraft_QUEUE = [];
-          queued.forEach((item) => renderMessages(item.payload, item.reset));
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
 
           if (window.__GenUICraft_MESSAGES__) {
-            renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);
@@ -240,4 +613,5 @@
     </script>
   </body>
 </html>
+
 

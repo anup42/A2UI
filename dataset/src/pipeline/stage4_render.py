@@ -1,5 +1,6 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
+from copy import deepcopy
 import hashlib
 import json
 import os
@@ -7,6 +8,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from datetime import datetime
+from itertools import count
 from pathlib import Path
 from typing import Any, Optional
 import re
@@ -226,6 +228,305 @@ def _expand_text_components_v09(components: list[dict[str, Any]]) -> list[dict[s
     return new_components
 
 
+
+_MISSING = object()
+
+
+def _decode_pointer_token(token: str) -> str:
+    return token.replace("~1", "/").replace("~0", "~")
+
+
+def _json_pointer_get(root: Any, path: str) -> Any:
+    if path in ("", "/"):
+        return root
+    if not isinstance(path, str) or not path.startswith("/"):
+        return _MISSING
+    tokens = [_decode_pointer_token(part) for part in path.lstrip("/").split("/")]
+    cur = root
+    for token in tokens:
+        if isinstance(cur, dict):
+            if token not in cur:
+                return _MISSING
+            cur = cur[token]
+            continue
+        if isinstance(cur, list):
+            if not token.isdigit():
+                return _MISSING
+            idx = int(token)
+            if idx < 0 or idx >= len(cur):
+                return _MISSING
+            cur = cur[idx]
+            continue
+        return _MISSING
+    return cur
+
+
+def _json_pointer_set(root: Any, path: str, value: Any) -> Any:
+    if path in ("", "/"):
+        return deepcopy(value)
+
+    if not isinstance(path, str):
+        return deepcopy(root)
+
+    if not isinstance(root, (dict, list)):
+        root = {}
+    target = deepcopy(root)
+
+    normalized = path if path.startswith("/") else "/" + path.lstrip("/")
+    tokens = [_decode_pointer_token(part) for part in normalized.lstrip("/").split("/")]
+    if not tokens:
+        return deepcopy(value)
+
+    cur = target
+    for token in tokens[:-1]:
+        if isinstance(cur, dict):
+            nxt = cur.get(token)
+            if not isinstance(nxt, (dict, list)):
+                nxt = {}
+                cur[token] = nxt
+            cur = nxt
+            continue
+        if isinstance(cur, list):
+            if not token.isdigit():
+                return target
+            idx = int(token)
+            while len(cur) <= idx:
+                cur.append({})
+            nxt = cur[idx]
+            if not isinstance(nxt, (dict, list)):
+                nxt = {}
+                cur[idx] = nxt
+            cur = nxt
+            continue
+        return target
+
+    last = tokens[-1]
+    if isinstance(cur, dict):
+        cur[last] = deepcopy(value)
+    elif isinstance(cur, list):
+        if not last.isdigit():
+            return target
+        idx = int(last)
+        while len(cur) <= idx:
+            cur.append(None)
+        cur[idx] = deepcopy(value)
+    return target
+
+
+def _resolve_relative_path(root: Any, path: str) -> Any:
+    if path == "":
+        return root
+    parts = path.split(".") if "/" not in path else [p for p in path.split("/") if p]
+    cur = root
+    for token in parts:
+        if isinstance(cur, dict):
+            if token not in cur:
+                return _MISSING
+            cur = cur[token]
+            continue
+        if isinstance(cur, list):
+            if not token.isdigit():
+                return _MISSING
+            idx = int(token)
+            if idx < 0 or idx >= len(cur):
+                return _MISSING
+            cur = cur[idx]
+            continue
+        return _MISSING
+    return cur
+
+
+def _resolve_binding_path(path: Any, row_item: Any, model: Any) -> Any:
+    if not isinstance(path, str):
+        return _MISSING
+    candidate = path.strip()
+    if not candidate:
+        return _MISSING
+    if candidate.startswith("/"):
+        return _json_pointer_get(model, candidate)
+    if candidate.startswith("$."):
+        candidate = candidate[2:]
+    val = _resolve_relative_path(row_item, candidate)
+    if val is not _MISSING:
+        return val
+    return _resolve_relative_path(model, candidate)
+
+
+def _apply_component_bindings_v09(component: dict[str, Any], row_item: Any, model: Any) -> None:
+    comp_type = component.get("component")
+
+    def resolve_dynamic(value: Any) -> Any:
+        if isinstance(value, dict) and set(value.keys()) == {"path"}:
+            resolved = _resolve_binding_path(value.get("path"), row_item, model)
+            return "" if resolved is _MISSING else resolved
+        return value
+
+    if comp_type == "Text":
+        component["text"] = resolve_dynamic(component.get("text"))
+        return
+
+    if comp_type == "Image":
+        component["url"] = resolve_dynamic(component.get("url"))
+        return
+
+    if comp_type == "Icon":
+        component["name"] = resolve_dynamic(component.get("name"))
+        return
+
+    if comp_type == "Button":
+        action = component.get("action")
+        if not isinstance(action, dict):
+            return
+        fn = action.get("functionCall")
+        if not isinstance(fn, dict):
+            return
+        args = fn.get("args")
+        if not isinstance(args, dict):
+            return
+        for key, value in list(args.items()):
+            args[key] = resolve_dynamic(value)
+        return
+
+    if comp_type == "Tabs":
+        tabs = component.get("tabs")
+        if not isinstance(tabs, list):
+            return
+        for tab in tabs:
+            if not isinstance(tab, dict):
+                continue
+            tab["title"] = resolve_dynamic(tab.get("title"))
+
+
+def _clone_repeated_subtree_v09(
+    root_component_id: str,
+    source_components: dict[str, dict[str, Any]],
+    row_item: Any,
+    model: Any,
+    suffix: str,
+    id_counter: Any,
+) -> tuple[str | None, list[dict[str, Any]]]:
+    created: list[dict[str, Any]] = []
+    local_cache: dict[str, str] = {}
+
+    def clone_component(component_id: str) -> str | None:
+        if component_id in local_cache:
+            return local_cache[component_id]
+        source = source_components.get(component_id)
+        if not isinstance(source, dict):
+            return None
+
+        clone = deepcopy(source)
+        new_id = f"{component_id}__{suffix}_{next(id_counter)}"
+        local_cache[component_id] = new_id
+        clone["id"] = new_id
+
+        child = clone.get("child")
+        if isinstance(child, str):
+            child_clone = clone_component(child)
+            if child_clone:
+                clone["child"] = child_clone
+
+        children = clone.get("children")
+        if isinstance(children, list):
+            rewritten_children: list[Any] = []
+            for child_id in children:
+                if isinstance(child_id, str):
+                    child_clone = clone_component(child_id)
+                    if child_clone:
+                        rewritten_children.append(child_clone)
+                else:
+                    rewritten_children.append(child_id)
+            clone["children"] = rewritten_children
+        elif isinstance(children, dict):
+            explicit = children.get("explicitList")
+            if isinstance(explicit, list):
+                rewritten_explicit: list[Any] = []
+                for child_id in explicit:
+                    if isinstance(child_id, str):
+                        child_clone = clone_component(child_id)
+                        if child_clone:
+                            rewritten_explicit.append(child_clone)
+                    else:
+                        rewritten_explicit.append(child_id)
+                rewritten_children_dict = dict(children)
+                rewritten_children_dict["explicitList"] = rewritten_explicit
+                clone["children"] = rewritten_children_dict
+
+        tabs = clone.get("tabs")
+        if isinstance(tabs, list):
+            rewritten_tabs: list[dict[str, Any]] = []
+            for tab in tabs:
+                if not isinstance(tab, dict):
+                    continue
+                tab_copy = deepcopy(tab)
+                tab_child = tab_copy.get("child")
+                if isinstance(tab_child, str):
+                    tab_child_clone = clone_component(tab_child)
+                    if tab_child_clone:
+                        tab_copy["child"] = tab_child_clone
+                rewritten_tabs.append(tab_copy)
+            clone["tabs"] = rewritten_tabs
+
+        _apply_component_bindings_v09(clone, row_item, model)
+        created.append(clone)
+        return new_id
+
+    root_id = clone_component(root_component_id)
+    return root_id, created
+
+
+def _expand_repeated_children_v09(components: list[dict[str, Any]], model: Any) -> list[dict[str, Any]]:
+    if not components:
+        return components
+
+    expanded: list[dict[str, Any]] = []
+    for comp in components:
+        if isinstance(comp, dict):
+            expanded.append(deepcopy(comp))
+
+    source_components: dict[str, dict[str, Any]] = {
+        comp["id"]: comp for comp in expanded if isinstance(comp.get("id"), str)
+    }
+    id_counter = count(1)
+    appended: list[dict[str, Any]] = []
+
+    for comp in expanded:
+        children = comp.get("children")
+        if not isinstance(children, dict):
+            continue
+
+        template_id = children.get("componentId")
+        path = children.get("path")
+        if not isinstance(template_id, str) or not isinstance(path, str):
+            continue
+
+        data_items = _resolve_binding_path(path, None, model)
+        if not isinstance(data_items, list):
+            comp["children"] = []
+            continue
+
+        repeated_child_ids: list[str] = []
+        for index, row_item in enumerate(data_items):
+            suffix = f"rep{index}"
+            row_root_id, row_components = _clone_repeated_subtree_v09(
+                root_component_id=template_id,
+                source_components=source_components,
+                row_item=row_item,
+                model=model,
+                suffix=suffix,
+                id_counter=id_counter,
+            )
+            if isinstance(row_root_id, str):
+                repeated_child_ids.append(row_root_id)
+            if row_components:
+                appended.extend(row_components)
+
+        comp["children"] = repeated_child_ids
+
+    if appended:
+        expanded.extend(appended)
+    return expanded
+
 def _convert_component_v09_to_v08(component: dict[str, Any]) -> dict[str, Any]:
     comp_id = component.get("id") or "component"
     comp_type = component.get("component")
@@ -242,7 +543,7 @@ def _convert_component_v09_to_v08(component: dict[str, Any]) -> dict[str, Any]:
     if comp_type == "Image":
         payload: dict[str, Any] = {"url": _dynamic_string(component.get("url"))}
         usage = component.get("variant")
-        if usage:
+        if usage == "icon":
             payload["usageHint"] = usage
         fit = component.get("fit")
         if fit:
@@ -477,14 +778,29 @@ def _convert_genui_messages_to_genui(messages: list[Any]) -> list[Any]:
     for item in messages:
         if not isinstance(item, dict):
             continue
+
         if "createSurface" in item:
             surface_id = item.get("createSurface", {}).get("surfaceId")
             if surface_id and surface_id not in surfaces:
                 surfaces[surface_id] = {}
                 order.append(surface_id)
+
+        if "updateDataModel" in item:
+            payload = item.get("updateDataModel") or {}
+            surface_id = payload.get("surfaceId")
+            if surface_id:
+                if surface_id not in surfaces:
+                    surfaces[surface_id] = {}
+                    order.append(surface_id)
+                model_path = payload.get("path") or "/"
+                model_value = payload.get("value")
+                existing_model = surfaces[surface_id].get("model", {})
+                surfaces[surface_id]["model"] = _json_pointer_set(existing_model, model_path, model_value)
+
         if "updateComponents" in item:
-            surface_id = item.get("updateComponents", {}).get("surfaceId")
-            comps = item.get("updateComponents", {}).get("components") or []
+            surface_payload = item.get("updateComponents") or {}
+            surface_id = surface_payload.get("surfaceId")
+            comps = surface_payload.get("components") or []
             if surface_id:
                 if surface_id not in surfaces:
                     surfaces[surface_id] = {}
@@ -496,8 +812,11 @@ def _convert_genui_messages_to_genui(messages: list[Any]) -> list[Any]:
 
     output: list[dict[str, Any]] = []
     for surface_id in order:
-        components = surfaces.get(surface_id, {}).get("components") or []
+        surface_state = surfaces.get(surface_id, {})
+        components = surface_state.get("components") or []
+        model = surface_state.get("model", {})
         components = _expand_text_components_v09(components)
+        components = _expand_repeated_children_v09(components, model)
         output.extend(_wrap_components_as_messages(components, surface_id=surface_id))
     return output
 
@@ -840,3 +1159,7 @@ def run_stage4(
         renderer.stop()
     if server:
         server.stop()
+
+
+
+

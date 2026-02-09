@@ -1,4 +1,4 @@
-html,
+﻿html,
 body {
   background: radial-gradient(
       980px 520px at 100% -12%,
@@ -57,8 +57,17 @@ a2ui-text[usage-hint="h3"] {
 a2ui-button {
   display: inline-flex;
   margin-top: 4px;
+  cursor: pointer;
   --oneui-color-on-surface: var(--oneui-color-on-primary);
   --oneui-color-on-surface-variant: var(--oneui-color-on-primary);
+}
+
+a2ui-button.genui-button-borderless {
+  margin-top: 0;
+}
+
+a2ui-list.genui-table-list {
+  margin-top: 4px;
 }
 
 a2ui-image.genui-image-missing {
@@ -87,3 +96,4 @@ a2ui-image.genui-image-missing-icon {
 a2ui-image.genui-image-unavailable {
   display: none !important;
 }
+
