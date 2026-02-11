@@ -338,7 +338,7 @@ class LocalAdapter(BaseLLMAdapter):
                 except Exception:
                     max_input_tokens = 0
             elif self._model_is_qwen_or_deepseek():
-                max_input_tokens = 8192
+                max_input_tokens = 81920
 
             tokenizer_kwargs: dict[str, Any] = {"return_tensors": "pt"}
             if max_input_tokens > 0:
