@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import os
@@ -16,6 +16,7 @@ from pipeline.metrics import (
     dup_rate,
     lint_score,
     count_tokens,
+    count_characters,
     aggregate_metrics,
     compute_overall_score,
     compute_ui_metrics,
@@ -461,12 +462,16 @@ def run_stage3(
         toon = encode_toon(genui_json)
         toon_ok = roundtrip_ok(genui_json, toon)
 
+        json_text = json.dumps(genui_json, ensure_ascii=False)
         metrics = {
             "content_coverage": content_coverage(response_text, genui_json),
             "dup_rate": dup_rate(genui_json),
             "lint_score": lint_score(genui_json),
-            "output_tokens_toon": count_tokens(toon),
-            "output_tokens_json": count_tokens(json.dumps(genui_json, ensure_ascii=False)),
+            # Size proxy: character-count based for stable JSON vs TOON comparison.
+            "output_tokens_toon": count_characters(toon),
+            "output_tokens_json": count_characters(json_text),
+            "output_chars_toon": count_characters(toon),
+            "output_chars_json": count_characters(json_text),
         }
         metrics.update(compute_ui_metrics(response_text, genui_json))
         intent_metrics = compute_intent_metrics(intent_value, tags_value, response_text, metrics)
@@ -782,3 +787,6 @@ def run_stage3(
             logger.info("Stage3 completed created=%s", total_created)
     finally:
         _write_aggregates()
+
+
+

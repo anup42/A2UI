@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pipeline.metrics import count_tokens
+from pipeline.metrics import count_characters
 from pipeline.toon_convert import encode_toon, roundtrip_ok
 
 
@@ -52,7 +52,8 @@ def upgrade_genui_jsonl(genui_jsonl_path: Path) -> dict[str, Any]:
 
         metrics = row.get("metrics")
         if isinstance(metrics, dict):
-            metrics["output_tokens_toon"] = count_tokens(toon)
+            metrics["output_tokens_toon"] = count_characters(toon)
+            metrics["output_chars_toon"] = count_characters(toon)
 
         updated += 1
 
@@ -83,3 +84,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+

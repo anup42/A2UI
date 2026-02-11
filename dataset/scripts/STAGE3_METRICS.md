@@ -35,15 +35,26 @@ These are written in `stage3_genui.py` and computed in `metrics.py`.
   - Range: `0..1` (higher is better).
 
 - `output_tokens_toon`
-  - Token count of encoded `toon` string (`count_tokens`).
+  - Whitespace-insensitive character count of encoded `toon` string (size proxy).
 
 - `output_tokens_json`
-  - Token count of serialized `genui_json` (`count_tokens`).
+  - Whitespace-insensitive character count of serialized `genui_json` (size proxy).
+
+- `output_chars_toon` / `output_chars_json`
+  - Explicit whitespace-insensitive character-count aliases for TOON and JSON payloads.
 
 ### UI Structure / Richness
 
 - `component_count`
   - Number of components in `updateComponents`.
+
+- `component_count_norm` 
+  - Normalized component count: `min(1, component_count / 60)`.
+  - Range: `0..1` (diagnostic normalization).
+
+- `component_count_capped`
+  - Capped raw component count used for scoring: `min(component_count, 60)`.
+  - Range: `0..60` (higher means richer UI up to cap).
 
 - `unique_component_types`
   - Number of distinct component types used.
@@ -211,7 +222,12 @@ From `gen`:
 - `content_coverage_avg`
 - `lint_score_avg`
 - `dup_rate_avg`
-- `component_count_avg`
+- `output_tokens_toon_avg`
+- `output_tokens_json_avg`
+- `output_chars_toon_avg`
+- `output_chars_json_avg`
+- `component_count_avg` 
+- `component_count_capped_avg` 
 - `unique_component_types_avg`
 - `max_tree_depth_avg`
 - `avg_tree_depth_avg`
@@ -259,3 +275,106 @@ Recompute/rank all runs:
 ```powershell
 python scripts/report_model_rankings.py --recompute --format table
 ```
+
+
+
+
+## Metric Interpretation Bands
+
+These bands are practical defaults for leaderboard interpretation, not hard pass/fail rules. For intent-specific checks, use the intent-aware metrics (`intent_*`).
+
+### Friendly Metric Names (Suggested)
+
+| Current field | Suggested display name |
+|---|---|
+| `content_coverage` | `semantic_coverage` |
+| `dup_rate` | `duplication_rate` |
+| `lint_score` | `schema_hygiene_score` |
+| `output_tokens_toon` | `toon_chars_nowhitespace` |
+| `output_tokens_json` | `json_chars_nowhitespace` |
+| `component_count` | `ui_component_count_raw` |
+| `component_count_norm` | `ui_component_count_norm` |
+| `component_count_capped` | `ui_component_count_capped` |
+| `unique_component_types` | `component_type_variety` |
+| `max_tree_depth` | `layout_depth_max` |
+| `avg_tree_depth` | `layout_depth_avg` |
+| `container_to_text_ratio` | `container_text_balance` |
+| `information_chunking_score` | `content_chunking_score` |
+| `ui_modularity_score` | `layout_modularity_score` |
+| `ui_decomposition_score` | `ui_decomposition_score` |
+| `actionable_elements` | `openurl_button_count` |
+| `action_coverage` | `action_extraction_coverage` |
+| `url_as_text_rate` | `url_leakage_rate` |
+| `table_pattern_detected` | `table_structure_detected` |
+| `table_cell_coverage` | `table_content_coverage` |
+| `section_heading_coverage` | `heading_structure_coverage` |
+| `markdown_leakage_rate` | `markdown_leakage_rate` |
+| `missing_ids_rate` | `missing_reference_rate` |
+| `dangling_components_rate` | `unreachable_component_rate` |
+| `intent_expectation_pass` | `intent_contract_pass` |
+| `intent_score` | `intent_contract_score` |
+
+### Per-Metric Ranges and Bands
+
+| Metric | Theoretical range | Direction | Bad | OK | Good | Excellent |
+|---|---|---|---|---|---|---|
+| `content_coverage` | `0..1` | Higher | `<0.60` | `0.60-0.75` | `0.75-0.90` | `>=0.90` |
+| `dup_rate` | `0..1` | Lower | `>0.35` | `0.20-0.35` | `0.10-0.20` | `<=0.10` |
+| `lint_score` | `0..1` | Higher | `<0.70` | `0.70-0.85` | `0.85-0.95` | `>=0.95` |
+| `output_tokens_toon` / `output_chars_toon` | `>=0` | Lower (efficiency) | `>8000` | `4000-8000` | `1500-4000` | `<1500` |
+| `output_tokens_json` / `output_chars_json` | `>=0` | Lower (efficiency) | `>10000` | `5000-10000` | `2000-5000` | `<2000` |
+| `component_count` | `>=0` | Diagnostic only | `<8` | `8-15` | `16-35` | `>35` |
+| `component_count_norm` | `0..1` | Diagnostic only | `<0.30` | `0.30-0.50` | `0.50-0.75` | `>=0.75` |
+| `component_count_capped` | `0..60` | Higher | `<12` | `12-24` | `24-35` | `>35` |
+| `unique_component_types` | `>=0` | Higher | `<3` | `3-4` | `5-7` | `>=8` |
+| `max_tree_depth` | `>=0` | Mid-range best | `<=1 or >=10` | `2-3 or 8-9` | `4 or 7` | `5-6` |
+| `avg_tree_depth` | `>=0` | Mid-range best | `<1.0 or >4.5` | `1.0-1.4 or 3.6-4.5` | `1.5-1.9 or 3.1-3.5` | `2.0-3.0` |
+| `container_to_text_ratio` | `>=0` | Mid/high best | `<0.20` | `0.20-0.50` | `0.50-1.20` | `1.20-2.00` |
+| `information_chunking_score` | `0..1` | Higher | `<0.30` | `0.30-0.50` | `0.50-0.70` | `>=0.70` |
+| `ui_modularity_score` | `0..1` | Higher | `<0.08` | `0.08-0.15` | `0.15-0.28` | `>=0.28` |
+| `ui_decomposition_score` | `0..1` | Higher | `<0.35` | `0.35-0.50` | `0.50-0.65` | `>=0.65` |
+| `actionable_elements` | `>=0` | Higher when actions expected | `0` | `1` | `2-3` | `>=4` |
+| `action_coverage` | `0..1` | Higher | `<0.50` | `0.50-0.70` | `0.70-0.90` | `>=0.90` |
+| `url_as_text_rate` | `0..1` | Lower | `>0.40` | `0.20-0.40` | `0.05-0.20` | `<=0.05` |
+| `table_pattern_detected` | `0 or 1` | Higher (if table expected) | `0` | `-` | `-` | `1` |
+| `table_cell_coverage` | `0..1` | Higher | `<0.30` | `0.30-0.50` | `0.50-0.75` | `>=0.75` |
+| `section_heading_coverage` | `0..1` | Higher | `<0.30` | `0.30-0.60` | `0.60-0.85` | `>=0.85` |
+| `markdown_leakage_rate` | `0..1` | Lower | `>0.35` | `0.20-0.35` | `0.08-0.20` | `<=0.08` |
+| `missing_ids` | `>=0` | Lower | `>0` | `0` | `0` | `0` |
+| `missing_ids_rate` | `0..1` | Lower | `>0` | `0` | `0` | `0` |
+| `dangling_components` | `>=0` | Lower | `>0` | `0` | `0` | `0` |
+| `dangling_components_rate` | `0..1` | Lower | `>0` | `0` | `0` | `0` |
+| `intent_require_table/actions/sections` | `0 or 1` | Requirement flags | informational | informational | informational | informational |
+| `intent_table_ok/actions_ok/sections_ok` | `0 or 1` | Higher (if required) | `0` | `-` | `-` | `1` |
+| `intent_expectation_pass` | `0 or 1` | Higher | `0` | `-` | `-` | `1` |
+| `intent_score` | `0..1` | Higher | `<0.40` | `0.40-0.65` | `0.65-0.85` | `>=0.85` |
+
+Notes:
+- Size metrics are whitespace-insensitive character counts, not tokenizer-based token counts.
+- Count/depth bands are corpus-dependent; tune them after collecting a few runs.
+- For table/action/section quality, rely on intent-aware checks for fair comparison.
+
+## Overall Score Bounds
+
+`overall_score` is a weighted linear sum from `configs/run.yaml -> evaluation.weights`.
+
+Current default weights:
+- Positive: `schema_valid_strict(5.0)`, `content_coverage(3.0)`, `lint_score(2.0)`, `component_count_capped(0.4)`, `ui_decomposition_score(1.0)`, `action_coverage(1.5)`, `table_pattern_detected(0.8)`, `table_cell_coverage(1.0)`, `section_heading_coverage(0.8)`, `intent_expectation_pass(1.2)`, `intent_score(0.8)`
+- Negative penalties: `dup_rate(-1.0)`, `markdown_leakage_rate(-1.0)`
+
+Because weighted metrics are bounded (`component_count_capped` is capped at `60`), score bounds are strict:
+- `overall_score_min = -2.0` (max penalties, no rewards)
+- `overall_score_max = 41.1` (all rewards maxed, no penalties)
+
+### Overall Score Bands (raw scale)
+
+| Overall score | Interpretation |
+|---|---|
+| `< 12.0` | Bad |
+| `12.0 - 24.0` | OK |
+| `24.0 - 35.0` | Good |
+| `> 35.0` | Excellent |
+
+Optional normalized score for dashboards:
+- `overall_score_norm = (overall_score - (-2.0)) / (41.1 - (-2.0))`
+- Range: `0..1` (clamp outside values).

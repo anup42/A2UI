@@ -179,3 +179,54 @@ pre {
   color: #9a3412;
   font-size: 14px;
 }
+
+.metric-band-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.band-legend {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.band-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.band-range {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.band-bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.band-ok {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.band-good {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.band-excellent {
+  background: #dcfce7;
+  color: #166534;
+}

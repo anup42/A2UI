@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import json
 import sys
 from pathlib import Path
@@ -14,7 +14,7 @@ from pipeline.metrics import (  # noqa: E402
     content_coverage,
     dup_rate,
     lint_score,
-    count_tokens,
+    count_characters,
 )
 from pipeline.storage import iter_jsonl  # noqa: E402
 
@@ -80,12 +80,12 @@ def main() -> None:
         metrics["content_coverage"] = content_coverage(response_text, genui_json)
         metrics["dup_rate"] = dup_rate(genui_json)
         metrics["lint_score"] = lint_score(genui_json)
-        metrics["output_tokens_toon"] = metrics.get(
-            "output_tokens_toon", count_tokens(str(row.get("toon", "")))
-        )
-        metrics["output_tokens_json"] = count_tokens(
-            json.dumps(genui_json, ensure_ascii=False)
-        )
+        toon_text = str(row.get("toon", ""))
+        json_text = json.dumps(genui_json, ensure_ascii=False)
+        metrics["output_tokens_toon"] = count_characters(toon_text)
+        metrics["output_tokens_json"] = count_characters(json_text)
+        metrics["output_chars_toon"] = count_characters(toon_text)
+        metrics["output_chars_json"] = count_characters(json_text)
         metrics.update(compute_ui_metrics(response_text, genui_json))
 
         intent_value = row.get("intent") or query_info.get("intent")
@@ -110,3 +110,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+

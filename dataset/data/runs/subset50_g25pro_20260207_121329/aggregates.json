@@ -4,7 +4,12 @@
   "content_coverage_avg": 0.9130535143679339,
   "lint_score_avg": 1.0,
   "dup_rate_avg": 0.2024316041971749,
+  "output_tokens_toon_avg": 601.88,
+  "output_tokens_json_avg": 595.54,
+  "output_chars_toon_avg": 4308.36,
+  "output_chars_json_avg": 5076.86,
   "component_count_avg": 32.1,
+  "component_count_capped_avg": 29.94,
   "unique_component_types_avg": 5.32,
   "max_tree_depth_avg": 4.16,
   "avg_tree_depth_avg": 1.5566923942495747,
@@ -285,5 +290,5 @@
   "render_ok_rate": null,
   "latency_ms_avg": 53214.335956573486,
   "latency_ms_p95": 166380.69701194763,
-  "overall_score": 29.403502666975385
+  "overall_score": 28.53950266697538
 }

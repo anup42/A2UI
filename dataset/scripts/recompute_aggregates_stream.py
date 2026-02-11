@@ -15,7 +15,7 @@ from pipeline.metrics import (  # noqa: E402
     content_coverage,
     dup_rate,
     lint_score,
-    count_tokens,
+    count_characters,
     compute_overall_score,
 )
 from pipeline.storage import iter_jsonl  # noqa: E402
@@ -128,9 +128,11 @@ def main() -> None:
             if metrics["lint_score"] is None:
                 metrics["lint_score"] = lint_score(genui_json)
             if metrics["output_tokens_toon"] is None:
-                metrics["output_tokens_toon"] = count_tokens(str(row.get("toon", "")))
+                metrics["output_tokens_toon"] = count_characters(str(row.get("toon", "")))
             if metrics["output_tokens_json"] is None:
-                metrics["output_tokens_json"] = count_tokens(json.dumps(genui_json, ensure_ascii=False))
+                metrics["output_tokens_json"] = count_characters(json.dumps(genui_json, ensure_ascii=False))
+            metrics["output_chars_toon"] = count_characters(str(row.get("toon", "")))
+            metrics["output_chars_json"] = count_characters(json.dumps(genui_json, ensure_ascii=False))
             metrics.update(compute_ui_metrics(response_text, genui_json))
             intent_metrics = compute_intent_metrics(intent_value, tags_value, response_text, metrics)
             intent_bucket = intent_metrics.pop("intent_bucket", "unknown") or "unknown"
@@ -216,7 +218,12 @@ def main() -> None:
         "content_coverage_avg": mean("content_coverage"),
         "lint_score_avg": mean("lint_score"),
         "dup_rate_avg": mean("dup_rate"),
+        "output_tokens_toon_avg": mean("output_tokens_toon"),
+        "output_tokens_json_avg": mean("output_tokens_json"),
+        "output_chars_toon_avg": mean("output_chars_toon"),
+        "output_chars_json_avg": mean("output_chars_json"),
         "component_count_avg": mean("component_count"),
+        "component_count_capped_avg": mean("component_count_capped"),
         "unique_component_types_avg": mean("unique_component_types"),
         "max_tree_depth_avg": mean("max_tree_depth"),
         "avg_tree_depth_avg": mean("avg_tree_depth"),
@@ -254,3 +261,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+

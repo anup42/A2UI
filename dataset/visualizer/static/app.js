@@ -1,4 +1,4 @@
-const state = {
+﻿const state = {
   runId: null,
   tab: "queries",
   offset: 0,
@@ -78,6 +78,204 @@ function formatValue(value, digits = 3) {
   return String(value);
 }
 
+
+const METRIC_BANDS = {
+  overall_score: [
+    { label: "Bad", min: null, max: 12.0, range: "< 12.0" },
+    { label: "OK", min: 12.0, max: 24.0, range: "12.0 - 24.0" },
+    { label: "Good", min: 24.0, max: 35.0, range: "24.0 - 35.0" },
+    { label: "Excellent", min: 35.0, max: null, range: "> 35.0" }
+  ],
+  schema_valid_strict_rate: [
+    { label: "Bad", min: null, max: 0.7, range: "< 0.70" },
+    { label: "OK", min: 0.7, max: 0.85, range: "0.70 - 0.85" },
+    { label: "Good", min: 0.85, max: 0.95, range: "0.85 - 0.95" },
+    { label: "Excellent", min: 0.95, max: null, range: ">= 0.95" }
+  ],
+  content_coverage_avg: [
+    { label: "Bad", min: null, max: 0.6, range: "< 0.60" },
+    { label: "OK", min: 0.6, max: 0.75, range: "0.60 - 0.75" },
+    { label: "Good", min: 0.75, max: 0.9, range: "0.75 - 0.90" },
+    { label: "Excellent", min: 0.9, max: null, range: ">= 0.90" }
+  ],
+  lint_score_avg: [
+    { label: "Bad", min: null, max: 0.7, range: "< 0.70" },
+    { label: "OK", min: 0.7, max: 0.85, range: "0.70 - 0.85" },
+    { label: "Good", min: 0.85, max: 0.95, range: "0.85 - 0.95" },
+    { label: "Excellent", min: 0.95, max: null, range: ">= 0.95" }
+  ],
+  dup_rate_avg: [
+    { label: "Bad", min: 0.35, max: null, range: "> 0.35" },
+    { label: "OK", min: 0.2, max: 0.35, range: "0.20 - 0.35" },
+    { label: "Good", min: 0.1, max: 0.2, range: "0.10 - 0.20" },
+    { label: "Excellent", min: null, max: 0.1, range: "<= 0.10" }
+  ],
+  render_ok_rate: [
+    { label: "Bad", min: null, max: 0.5, range: "< 0.50" },
+    { label: "OK", min: 0.5, max: 0.75, range: "0.50 - 0.75" },
+    { label: "Good", min: 0.75, max: 0.95, range: "0.75 - 0.95" },
+    { label: "Excellent", min: 0.95, max: null, range: ">= 0.95" }
+  ],
+  component_count_avg: [
+    { label: "Bad", min: null, max: 8.0, range: "< 8" },
+    { label: "OK", min: 8.0, max: 16.0, range: "8 - 15" },
+    { label: "Good", min: 16.0, max: 36.0, range: "16 - 35" },
+    { label: "Excellent", min: 36.0, max: null, range: "> 35" }
+  ],
+  component_count_capped_avg: [
+    { label: "Bad", min: null, max: 12.0, range: "< 12" },
+    { label: "OK", min: 12.0, max: 24.0, range: "12 - 24" },
+    { label: "Good", min: 24.0, max: 36.0, range: "24 - 35" },
+    { label: "Excellent", min: 36.0, max: null, range: "> 35" }
+  ],
+  unique_component_types_avg: [
+    { label: "Bad", min: null, max: 3.0, range: "< 3" },
+    { label: "OK", min: 3.0, max: 5.0, range: "3 - 4" },
+    { label: "Good", min: 5.0, max: 8.0, range: "5 - 7" },
+    { label: "Excellent", min: 8.0, max: null, range: ">= 8" }
+  ],
+  max_tree_depth_avg: [
+    { label: "Bad", min: null, max: 2.0, range: "< 2" },
+    { label: "OK", min: 2.0, max: 4.0, range: "2 - 3" },
+    { label: "Excellent", min: 5.0, max: 7.0, range: "5 - 6" },
+    { label: "Good", min: 4.0, max: 8.0, range: "4 or 7" },
+    { label: "OK", min: 8.0, max: 10.0, range: "8 - 9" },
+    { label: "Bad", min: 10.0, max: null, range: ">= 10" }
+  ],
+  avg_tree_depth_avg: [
+    { label: "Bad", min: null, max: 1.0, range: "< 1.0" },
+    { label: "OK", min: 1.0, max: 1.5, range: "1.0 - 1.4" },
+    { label: "Good", min: 1.5, max: 2.0, range: "1.5 - 1.9" },
+    { label: "Excellent", min: 2.0, max: 3.1, range: "2.0 - 3.0" },
+    { label: "Good", min: 3.1, max: 3.6, range: "3.1 - 3.5" },
+    { label: "OK", min: 3.6, max: 4.6, range: "3.6 - 4.5" },
+    { label: "Bad", min: 4.6, max: null, range: "> 4.5" }
+  ],
+  container_to_text_ratio_avg: [
+    { label: "Bad", min: null, max: 0.2, range: "< 0.20" },
+    { label: "OK", min: 0.2, max: 0.5, range: "0.20 - 0.50" },
+    { label: "Good", min: 0.5, max: 1.2, range: "0.50 - 1.20" },
+    { label: "Excellent", min: 1.2, max: 2.01, range: "1.20 - 2.00" },
+    { label: "Good", min: 2.01, max: null, range: "> 2.00" }
+  ],
+  information_chunking_score_avg: [
+    { label: "Bad", min: null, max: 0.3, range: "< 0.30" },
+    { label: "OK", min: 0.3, max: 0.5, range: "0.30 - 0.50" },
+    { label: "Good", min: 0.5, max: 0.7, range: "0.50 - 0.70" },
+    { label: "Excellent", min: 0.7, max: null, range: ">= 0.70" }
+  ],
+  ui_decomposition_score_avg: [
+    { label: "Bad", min: null, max: 0.35, range: "< 0.35" },
+    { label: "OK", min: 0.35, max: 0.5, range: "0.35 - 0.50" },
+    { label: "Good", min: 0.5, max: 0.65, range: "0.50 - 0.65" },
+    { label: "Excellent", min: 0.65, max: null, range: ">= 0.65" }
+  ],
+  ui_modularity_score_avg: [
+    { label: "Bad", min: null, max: 0.08, range: "< 0.08" },
+    { label: "OK", min: 0.08, max: 0.15, range: "0.08 - 0.15" },
+    { label: "Good", min: 0.15, max: 0.28, range: "0.15 - 0.28" },
+    { label: "Excellent", min: 0.28, max: null, range: ">= 0.28" }
+  ],
+  actionable_elements_avg: [
+    { label: "Bad", min: null, max: 1.0, range: "0" },
+    { label: "OK", min: 1.0, max: 2.0, range: "1" },
+    { label: "Good", min: 2.0, max: 4.0, range: "2 - 3" },
+    { label: "Excellent", min: 4.0, max: null, range: ">= 4" }
+  ],
+  action_coverage_avg: [
+    { label: "Bad", min: null, max: 0.5, range: "< 0.50" },
+    { label: "OK", min: 0.5, max: 0.7, range: "0.50 - 0.70" },
+    { label: "Good", min: 0.7, max: 0.9, range: "0.70 - 0.90" },
+    { label: "Excellent", min: 0.9, max: null, range: ">= 0.90" }
+  ],
+  url_as_text_rate_avg: [
+    { label: "Bad", min: 0.4, max: null, range: "> 0.40" },
+    { label: "OK", min: 0.2, max: 0.4, range: "0.20 - 0.40" },
+    { label: "Good", min: 0.05, max: 0.2, range: "0.05 - 0.20" },
+    { label: "Excellent", min: null, max: 0.05, range: "<= 0.05" }
+  ],
+  table_pattern_detected_rate: [
+    { label: "Bad", min: null, max: 0.5, range: "< 0.50" },
+    { label: "OK", min: 0.5, max: 0.7, range: "0.50 - 0.70" },
+    { label: "Good", min: 0.7, max: 0.9, range: "0.70 - 0.90" },
+    { label: "Excellent", min: 0.9, max: null, range: ">= 0.90" }
+  ],
+  table_cell_coverage_avg: [
+    { label: "Bad", min: null, max: 0.3, range: "< 0.30" },
+    { label: "OK", min: 0.3, max: 0.5, range: "0.30 - 0.50" },
+    { label: "Good", min: 0.5, max: 0.75, range: "0.50 - 0.75" },
+    { label: "Excellent", min: 0.75, max: null, range: ">= 0.75" }
+  ],
+  section_heading_coverage_avg: [
+    { label: "Bad", min: null, max: 0.3, range: "< 0.30" },
+    { label: "OK", min: 0.3, max: 0.6, range: "0.30 - 0.60" },
+    { label: "Good", min: 0.6, max: 0.85, range: "0.60 - 0.85" },
+    { label: "Excellent", min: 0.85, max: null, range: ">= 0.85" }
+  ],
+  markdown_leakage_rate_avg: [
+    { label: "Bad", min: 0.35, max: null, range: "> 0.35" },
+    { label: "OK", min: 0.2, max: 0.35, range: "0.20 - 0.35" },
+    { label: "Good", min: 0.08, max: 0.2, range: "0.08 - 0.20" },
+    { label: "Excellent", min: null, max: 0.08, range: "<= 0.08" }
+  ],
+  intent_expectation_pass_rate: [
+    { label: "Bad", min: null, max: 0.4, range: "< 0.40" },
+    { label: "OK", min: 0.4, max: 0.65, range: "0.40 - 0.65" },
+    { label: "Good", min: 0.65, max: 0.85, range: "0.65 - 0.85" },
+    { label: "Excellent", min: 0.85, max: null, range: ">= 0.85" }
+  ],
+  intent_score_avg: [
+    { label: "Bad", min: null, max: 0.4, range: "< 0.40" },
+    { label: "OK", min: 0.4, max: 0.65, range: "0.40 - 0.65" },
+    { label: "Good", min: 0.65, max: 0.85, range: "0.65 - 0.85" },
+    { label: "Excellent", min: 0.85, max: null, range: ">= 0.85" }
+  ]
+};
+
+function inBand(value, band) {
+  const minOk = band.min === null || value >= band.min;
+  const maxOk = band.max === null || value < band.max;
+  return minOk && maxOk;
+}
+
+function getMetricBand(metricKey, rawValue) {
+  if (rawValue === null || rawValue === undefined || Number.isNaN(Number(rawValue))) {
+    return null;
+  }
+  const rules = METRIC_BANDS[metricKey];
+  if (!rules || !Array.isArray(rules) || rules.length === 0) {
+    return null;
+  }
+  const value = Number(rawValue);
+  for (const rule of rules) {
+    if (inBand(value, rule)) {
+      return {
+        label: rule.label,
+        range: rule.range,
+        className: `band-${String(rule.label).toLowerCase()}`
+      };
+    }
+  }
+  return null;
+}
+
+function createBandLegend() {
+  const legend = document.createElement("div");
+  legend.className = "band-legend";
+  const items = [
+    ["Bad", "band-bad"],
+    ["OK", "band-ok"],
+    ["Good", "band-good"],
+    ["Excellent", "band-excellent"]
+  ];
+  for (const [text, klass] of items) {
+    const chip = document.createElement("span");
+    chip.className = `band-chip ${klass}`;
+    chip.textContent = text;
+    legend.appendChild(chip);
+  }
+  return legend;
+}
 function renderMetricGrid(title, entries) {
   const section = document.createElement("div");
   const header = document.createElement("div");
@@ -88,12 +286,19 @@ function renderMetricGrid(title, entries) {
   const grid = document.createElement("div");
   grid.className = "metric-grid";
   entries.forEach(([label, value]) => {
+    const band = getMetricBand(label, value);
     const card = document.createElement("div");
     card.className = "metric-card";
-    card.innerHTML = `
-      <div class="metric-label">${label}</div>
-      <div class="metric-value">${formatValue(value)}</div>
-    `;
+    const valueHtml = `<div class="metric-value">${formatValue(value)}</div>`;
+    const bandHtml = band
+      ? `
+      <div class="metric-band-row">
+        <span class="band-chip ${band.className}">${band.label}</span>
+        <span class="band-range">${band.range}</span>
+      </div>
+    `
+      : "";
+    card.innerHTML = `<div class="metric-label">${label}</div>${valueHtml}${bandHtml}`;
     grid.appendChild(card);
   });
   section.appendChild(grid);
@@ -121,12 +326,14 @@ function setMetrics(payload) {
 
   const uiMetrics = [
     ["component_count_avg", agg.component_count_avg],
+    ["component_count_capped_avg", agg.component_count_capped_avg],
     ["unique_component_types_avg", agg.unique_component_types_avg],
     ["max_tree_depth_avg", agg.max_tree_depth_avg],
     ["avg_tree_depth_avg", agg.avg_tree_depth_avg],
     ["container_to_text_ratio_avg", agg.container_to_text_ratio_avg],
     ["information_chunking_score_avg", agg.information_chunking_score_avg],
-    ["ui_modularity_score_avg", agg.ui_modularity_score_avg]
+    ["ui_modularity_score_avg", agg.ui_modularity_score_avg],
+    ["ui_decomposition_score_avg", agg.ui_decomposition_score_avg]
   ];
 
   const actionMetrics = [
@@ -150,6 +357,7 @@ function setMetrics(payload) {
     ["cost_usd_avg", agg.cost_usd_avg]
   ];
 
+  metricsWrap.appendChild(createBandLegend());
   metricsWrap.appendChild(renderMetricGrid("Core Metrics", coreMetrics));
   metricsWrap.appendChild(renderMetricGrid("UI Structure Metrics", uiMetrics));
   metricsWrap.appendChild(renderMetricGrid("Action & Table Metrics", actionMetrics));
@@ -398,4 +606,7 @@ nextBtn.addEventListener("click", async () => {
     showMessage(`Failed to load data: ${err}`);
   }
 })();
+
+
+
 

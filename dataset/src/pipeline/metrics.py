@@ -526,6 +526,8 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
     container_to_text_ratio = container_count / max(1, text_count)
 
     max_depth, avg_depth = _compute_tree_depths(components)
+    component_count_norm = min(1.0, component_count / 60.0) if component_count >= 0 else 0.0
+    component_count_capped = min(60.0, float(component_count)) if component_count >= 0 else 0.0
     ui_modularity_score = 0.0
     if component_count > 0:
         modular = sum(
@@ -605,6 +607,8 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
 
     return {
         "component_count": float(component_count),
+        "component_count_norm": float(component_count_norm),
+        "component_count_capped": float(component_count_capped),
         "unique_component_types": float(unique_component_types),
         "max_tree_depth": float(max_depth),
         "avg_tree_depth": float(avg_depth),
@@ -628,6 +632,11 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
 
 def count_tokens(text: str) -> int:
     return len(text.split())
+
+
+def count_characters(text: str) -> int:
+    # Whitespace-insensitive payload size proxy.
+    return len(re.sub(r"\s+", "", text or ""))
 
 
 def content_coverage(response_text: str, genui_json: Any) -> float:
@@ -738,7 +747,13 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "content_coverage": [item["metrics"].get("content_coverage", 0.0) for item in computed_rows],
         "lint_score": [item["metrics"].get("lint_score", 0.0) for item in computed_rows],
         "dup_rate": [item["metrics"].get("dup_rate", 0.0) for item in computed_rows],
+        "output_tokens_toon": [item["metrics"].get("output_tokens_toon", 0.0) for item in computed_rows],
+        "output_tokens_json": [item["metrics"].get("output_tokens_json", 0.0) for item in computed_rows],
+        "output_chars_toon": [item["metrics"].get("output_chars_toon", 0.0) for item in computed_rows],
+        "output_chars_json": [item["metrics"].get("output_chars_json", 0.0) for item in computed_rows],
         "component_count": [item["metrics"].get("component_count", 0.0) for item in computed_rows],
+        "component_count_norm": [item["metrics"].get("component_count_norm", 0.0) for item in computed_rows],
+        "component_count_capped": [item["metrics"].get("component_count_capped", 0.0) for item in computed_rows],
         "unique_component_types": [item["metrics"].get("unique_component_types", 0.0) for item in computed_rows],
         "max_tree_depth": [item["metrics"].get("max_tree_depth", 0.0) for item in computed_rows],
         "avg_tree_depth": [item["metrics"].get("avg_tree_depth", 0.0) for item in computed_rows],
@@ -829,7 +844,12 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "content_coverage_avg": mean(metrics["content_coverage"]),
         "lint_score_avg": mean(metrics["lint_score"]),
         "dup_rate_avg": mean(metrics["dup_rate"]),
+        "output_tokens_toon_avg": mean(metrics["output_tokens_toon"]),
+        "output_tokens_json_avg": mean(metrics["output_tokens_json"]),
+        "output_chars_toon_avg": mean(metrics["output_chars_toon"]),
+        "output_chars_json_avg": mean(metrics["output_chars_json"]),
         "component_count_avg": mean(metrics["component_count"]),
+        "component_count_capped_avg": mean(metrics["component_count_capped"]),
         "unique_component_types_avg": mean(metrics["unique_component_types"]),
         "max_tree_depth_avg": mean(metrics["max_tree_depth"]),
         "avg_tree_depth_avg": mean(metrics["avg_tree_depth"]),
@@ -857,3 +877,6 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "latency_ms_avg": mean(metrics["latency_ms"]),
         "latency_ms_p95": pct(metrics["latency_ms"], 95),
     }
+
+
+

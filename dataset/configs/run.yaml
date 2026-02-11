@@ -53,7 +53,7 @@ evaluation:
     content_coverage: 3.0
     lint_score: 2.0
     dup_rate: -1.0
-    component_count: 0.4
+    component_count_capped: 0.4
     unique_component_types: 0.6
     container_to_text_ratio: 0.8
     information_chunking_score: 1.0
