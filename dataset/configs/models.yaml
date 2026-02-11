@@ -1,4 +1,4 @@
-models:
+﻿models:
   - name: openai_gpt4o
     provider: openai
     model: gpt-4o
@@ -26,6 +26,15 @@ models:
       tpm: null
       rpd: null
       note: "set per your OpenAI account tier"
+  - name: perplexity_gpt5
+    provider: perplexity
+    model: gpt-5
+    supports_json_mode: true
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "set per your Perplexity account tier"
   - name: gemini_2_5_flash_lite
     provider: gemini
     model: gemini-2.5-flash-lite

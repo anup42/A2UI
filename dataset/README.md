@@ -1,4 +1,4 @@
-# Dataset Generation + LLM Benchmark
+﻿# Dataset Generation + LLM Benchmark
 
 This folder contains pipeline to generate user queries, responses, GenUICraft JSON, metrics and benchmarking.
 
@@ -29,6 +29,9 @@ dataset/
       base.py
       openai_adapter.py
       gemini_adapter.py
+      gauss_adapter.py
+      openrouter_adapter.py
+      perplexity_adapter.py
       local_adapter.py
     utils/
       hashing.py
@@ -54,6 +57,8 @@ PowerShell:
 
 ```
 $env:OPENAI_API_KEY="..."
+$env:PERPLEXITY_API_KEY="..."
+$env:PERPLEXITY_API_BASE="https://api.perplexity.ai"
 $env:GEMINI_API_KEY="..."
 $env:OPENROUTER_API_KEY="..."
 $env:OPENROUTER_API_BASE="https://openrouter.ai/api/v1"
@@ -98,6 +103,11 @@ python src/main.py --stage 1 --model openai_gpt4o
 python src/main.py --stage 2 --model openai_gpt4o
 python src/main.py --stage 3 --model openai_gpt4o
 python src/main.py --stage 4 --model openai_gpt4o
+
+# Perplexity (GPT-5 via Perplexity API)
+python src/main.py --stage 1 --model perplexity_gpt5 --run_id perplexity_gpt5
+python src/main.py --stage 2 --model perplexity_gpt5 --run_id perplexity_gpt5
+python src/main.py --stage 3 --model perplexity_gpt5 --run_id perplexity_gpt5
 ```
 
 Outputs are written to `data/runs/<run_id>/`.
@@ -180,6 +190,8 @@ This runs a fixed subset of queries against each model and stores per?model aggr
 - GenUICraft schema is in `schema/genui.schema.json`.
 - `jsonschema` is optional; if missing, strict validation is marked false with a warning.
 - TOON is encoded in `src/pipeline/toon_convert.py` and can be swapped for a custom spec.
+
+
 
 
 

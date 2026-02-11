@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from typing import Dict
 
@@ -8,6 +8,7 @@ from .openai_adapter import OpenAIAdapter
 from .local_adapter import LocalAdapter
 from .gauss_adapter import GaussAdapter
 from .openrouter_adapter import OpenRouterAdapter
+from .perplexity_adapter import PerplexityAdapter
 
 
 def build_adapter(spec: ModelSpec) -> BaseLLMAdapter:
@@ -20,6 +21,8 @@ def build_adapter(spec: ModelSpec) -> BaseLLMAdapter:
         return GaussAdapter(spec)
     if provider == "openrouter":
         return OpenRouterAdapter(spec)
+    if provider == "perplexity":
+        return PerplexityAdapter(spec)
     if provider == "local":
         return LocalAdapter(spec)
     raise ValueError(f"Unsupported provider: {spec.provider}")
