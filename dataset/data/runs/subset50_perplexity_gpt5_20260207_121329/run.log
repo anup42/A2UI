@@ -1,0 +1,126 @@
+2026-02-11 21:22:20 ERROR dataset: Stage3 generation error response_id=r_000001_01: HTTP Error 400: Bad Request
+2026-02-11 21:22:40 ERROR dataset: Stage3 generation error response_id=r_000002_01: HTTP Error 400: Bad Request
+2026-02-11 21:23:00 ERROR dataset: Stage3 generation error response_id=r_000021_01: HTTP Error 400: Bad Request
+2026-02-11 21:23:20 ERROR dataset: Stage3 generation error response_id=r_000022_01: HTTP Error 400: Bad Request
+2026-02-11 21:23:40 ERROR dataset: Stage3 generation error response_id=r_000031_01: HTTP Error 400: Bad Request
+2026-02-11 21:24:00 ERROR dataset: Stage3 generation error response_id=r_000032_01: HTTP Error 400: Bad Request
+2026-02-11 21:24:20 ERROR dataset: Stage3 generation error response_id=r_000041_01: HTTP Error 400: Bad Request
+2026-02-11 21:24:40 ERROR dataset: Stage3 generation error response_id=r_000042_01: HTTP Error 400: Bad Request
+2026-02-11 21:25:00 ERROR dataset: Stage3 generation error response_id=r_000051_01: HTTP Error 400: Bad Request
+2026-02-11 21:25:20 ERROR dataset: Stage3 generation error response_id=r_000052_01: HTTP Error 400: Bad Request
+2026-02-11 21:25:40 ERROR dataset: Stage3 generation error response_id=r_000201_01: HTTP Error 400: Bad Request
+2026-02-11 21:26:00 ERROR dataset: Stage3 generation error response_id=r_000202_01: HTTP Error 400: Bad Request
+2026-02-11 21:26:20 ERROR dataset: Stage3 generation error response_id=r_000241_01: HTTP Error 400: Bad Request
+2026-02-11 21:26:40 ERROR dataset: Stage3 generation error response_id=r_000242_01: HTTP Error 400: Bad Request
+2026-02-11 21:27:00 ERROR dataset: Stage3 generation error response_id=r_000281_01: HTTP Error 400: Bad Request
+2026-02-11 21:27:20 ERROR dataset: Stage3 generation error response_id=r_000282_01: HTTP Error 400: Bad Request
+2026-02-11 21:27:40 ERROR dataset: Stage3 generation error response_id=r_000321_01: HTTP Error 400: Bad Request
+2026-02-11 21:28:00 ERROR dataset: Stage3 generation error response_id=r_000322_01: HTTP Error 400: Bad Request
+2026-02-11 21:28:20 ERROR dataset: Stage3 generation error response_id=r_000361_01: HTTP Error 400: Bad Request
+2026-02-11 21:28:40 ERROR dataset: Stage3 generation error response_id=r_000362_01: HTTP Error 400: Bad Request
+2026-02-11 21:29:00 ERROR dataset: Stage3 generation error response_id=r_000401_01: HTTP Error 400: Bad Request
+2026-02-11 21:29:15 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-02-11 21:29:20 ERROR dataset: Stage3 generation error response_id=r_000402_01: HTTP Error 400: Bad Request
+2026-02-11 21:29:40 ERROR dataset: Stage3 generation error response_id=r_000441_01: HTTP Error 400: Bad Request
+2026-02-11 21:30:00 ERROR dataset: Stage3 generation error response_id=r_000442_01: HTTP Error 400: Bad Request
+2026-02-11 21:30:16 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-02-11 21:30:20 ERROR dataset: Stage3 generation error response_id=r_000462_01: HTTP Error 400: Bad Request
+2026-02-11 21:30:40 ERROR dataset: Stage3 generation error response_id=r_000481_01: HTTP Error 400: Bad Request
+2026-02-11 21:30:45 INFO dataset: Stage3 created ui_id=u_000021_01 schema_ok=True
+2026-02-11 21:31:00 ERROR dataset: Stage3 generation error response_id=r_000482_01: HTTP Error 400: Bad Request
+2026-02-11 21:31:20 ERROR dataset: Stage3 generation error response_id=r_000512_01: HTTP Error 400: Bad Request
+2026-02-11 21:31:22 INFO dataset: Stage3 created ui_id=u_000022_01 schema_ok=True
+2026-02-11 21:31:40 ERROR dataset: Stage3 generation error response_id=r_000521_01: HTTP Error 400: Bad Request
+2026-02-11 21:32:00 ERROR dataset: Stage3 generation error response_id=r_000522_01: HTTP Error 400: Bad Request
+2026-02-11 21:32:04 INFO dataset: Stage3 created ui_id=u_000031_01 schema_ok=True
+2026-02-11 21:32:20 ERROR dataset: Stage3 generation error response_id=r_000561_01: HTTP Error 400: Bad Request
+2026-02-11 21:32:40 ERROR dataset: Stage3 generation error response_id=r_000562_01: HTTP Error 400: Bad Request
+2026-02-11 21:32:42 INFO dataset: Stage3 created ui_id=u_000032_01 schema_ok=True
+2026-02-11 21:33:00 ERROR dataset: Stage3 generation error response_id=r_000601_01: HTTP Error 400: Bad Request
+2026-02-11 21:33:20 ERROR dataset: Stage3 generation error response_id=r_000602_01: HTTP Error 400: Bad Request
+2026-02-11 21:33:22 INFO dataset: Stage3 created ui_id=u_000041_01 schema_ok=True
+2026-02-11 21:33:40 ERROR dataset: Stage3 generation error response_id=r_000605_01: HTTP Error 400: Bad Request
+2026-02-11 21:34:00 ERROR dataset: Stage3 generation error response_id=r_000641_01: HTTP Error 400: Bad Request
+2026-02-11 21:34:01 INFO dataset: Stage3 created ui_id=u_000042_01 schema_ok=True
+2026-02-11 21:34:20 ERROR dataset: Stage3 generation error response_id=r_000642_01: HTTP Error 400: Bad Request
+2026-02-11 21:34:25 INFO dataset: Stage3 created ui_id=u_000051_01 schema_ok=True
+2026-02-11 21:34:40 ERROR dataset: Stage3 generation error response_id=r_000681_01: HTTP Error 400: Bad Request
+2026-02-11 21:35:00 ERROR dataset: Stage3 generation error response_id=r_000682_01: HTTP Error 400: Bad Request
+2026-02-11 21:35:04 INFO dataset: Stage3 created ui_id=u_000052_01 schema_ok=True
+2026-02-11 21:35:20 ERROR dataset: Stage3 generation error response_id=r_000721_01: HTTP Error 400: Bad Request
+2026-02-11 21:35:40 ERROR dataset: Stage3 generation error response_id=r_000722_01: HTTP Error 400: Bad Request
+2026-02-11 21:36:00 ERROR dataset: Stage3 generation error response_id=r_000761_01: HTTP Error 400: Bad Request
+2026-02-11 21:36:20 ERROR dataset: Stage3 generation error response_id=r_000762_01: HTTP Error 400: Bad Request
+2026-02-11 21:36:23 INFO dataset: Stage3 created ui_id=u_000201_01 schema_ok=True
+2026-02-11 21:36:38 INFO dataset: Stage3 created ui_id=u_000202_01 schema_ok=True
+2026-02-11 21:36:40 ERROR dataset: Stage3 generation error response_id=r_000801_01: HTTP Error 400: Bad Request
+2026-02-11 21:37:00 ERROR dataset: Stage3 generation error response_id=r_000802_01: HTTP Error 400: Bad Request
+2026-02-11 21:37:16 INFO dataset: Stage3 created ui_id=u_000241_01 schema_ok=True
+2026-02-11 21:37:20 ERROR dataset: Stage3 generation error response_id=r_000841_01: HTTP Error 400: Bad Request
+2026-02-11 21:37:40 ERROR dataset: Stage3 generation error response_id=r_000842_01: HTTP Error 400: Bad Request
+2026-02-11 21:37:45 INFO dataset: Stage3 created ui_id=u_000242_01 schema_ok=True
+2026-02-11 21:37:59 INFO dataset: Stage3 created ui_id=u_000281_01 schema_ok=True
+2026-02-11 21:38:00 ERROR dataset: Stage3 generation error response_id=r_000881_01: HTTP Error 400: Bad Request
+2026-02-11 21:38:20 ERROR dataset: Stage3 generation error response_id=r_000882_01: HTTP Error 400: Bad Request
+2026-02-11 21:38:40 ERROR dataset: Stage3 generation error response_id=r_000884_01: HTTP Error 400: Bad Request
+2026-02-11 21:38:40 WARNING dataset: Stage3 completed with generation failures=50 created=0
+2026-02-11 21:38:40 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_gpt5_20260207_121329\aggregates.json
+2026-02-11 21:38:40 INFO dataset: Stage3 complete.
+2026-02-11 21:39:06 INFO dataset: Stage3 created ui_id=u_000282_01 schema_ok=True
+2026-02-11 21:39:34 INFO dataset: Stage3 created ui_id=u_000321_01 schema_ok=True
+2026-02-11 21:40:11 INFO dataset: Stage3 created ui_id=u_000322_01 schema_ok=True
+2026-02-11 21:40:39 INFO dataset: Stage3 created ui_id=u_000361_01 schema_ok=True
+2026-02-11 21:41:12 INFO dataset: Stage3 created ui_id=u_000362_01 schema_ok=True
+2026-02-11 21:41:38 INFO dataset: Stage3 created ui_id=u_000401_01 schema_ok=True
+2026-02-11 21:41:53 INFO dataset: Stage3 created ui_id=u_000402_01 schema_ok=True
+2026-02-11 21:42:07 INFO dataset: Stage3 created ui_id=u_000441_01 schema_ok=True
+2026-02-11 21:42:34 INFO dataset: Stage3 created ui_id=u_000442_01 schema_ok=True
+2026-02-11 21:42:51 INFO dataset: Stage3 created ui_id=u_000462_01 schema_ok=True
+2026-02-11 21:43:24 INFO dataset: Stage3 created ui_id=u_000481_01 schema_ok=True
+2026-02-11 21:44:08 INFO dataset: Stage3 created ui_id=u_000482_01 schema_ok=True
+2026-02-11 21:44:35 INFO dataset: Stage3 created ui_id=u_000512_01 schema_ok=True
+2026-02-11 21:44:56 INFO dataset: Stage3 created ui_id=u_000521_01 schema_ok=True
+2026-02-11 21:45:34 INFO dataset: Stage3 created ui_id=u_000522_01 schema_ok=True
+2026-02-11 21:46:10 INFO dataset: Stage3 created ui_id=u_000561_01 schema_ok=True
+2026-02-11 21:46:41 INFO dataset: Stage3 created ui_id=u_000562_01 schema_ok=True
+2026-02-11 21:47:08 INFO dataset: Stage3 created ui_id=u_000601_01 schema_ok=True
+2026-02-11 21:47:25 INFO dataset: Stage3 created ui_id=u_000602_01 schema_ok=True
+2026-02-11 21:47:36 INFO dataset: Stage3 created ui_id=u_000605_01 schema_ok=True
+2026-02-11 21:48:38 INFO dataset: Stage3 created ui_id=u_000641_01 schema_ok=True
+2026-02-11 21:49:15 INFO dataset: Stage3 created ui_id=u_000642_01 schema_ok=True
+2026-02-11 21:49:32 INFO dataset: Stage3 created ui_id=u_000681_01 schema_ok=True
+2026-02-11 21:49:53 INFO dataset: Stage3 created ui_id=u_000682_01 schema_ok=True
+2026-02-11 21:50:19 INFO dataset: Stage3 created ui_id=u_000721_01 schema_ok=True
+2026-02-11 21:50:51 INFO dataset: Stage3 created ui_id=u_000722_01 schema_ok=True
+2026-02-11 21:51:05 INFO dataset: Stage3 created ui_id=u_000761_01 schema_ok=True
+2026-02-11 21:51:44 INFO dataset: Stage3 created ui_id=u_000762_01 schema_ok=True
+2026-02-11 21:52:20 INFO dataset: Stage3 created ui_id=u_000801_01 schema_ok=True
+2026-02-11 21:52:47 INFO dataset: Stage3 created ui_id=u_000802_01 schema_ok=True
+2026-02-11 21:53:26 INFO dataset: Stage3 created ui_id=u_000841_01 schema_ok=True
+2026-02-11 21:53:42 INFO dataset: Stage3 created ui_id=u_000842_01 schema_ok=True
+2026-02-11 21:54:19 INFO dataset: Stage3 created ui_id=u_000881_01 schema_ok=True
+2026-02-11 21:55:03 INFO dataset: Stage3 created ui_id=u_000882_01 schema_ok=True
+2026-02-11 21:55:39 INFO dataset: Stage3 created ui_id=u_000884_01 schema_ok=True
+2026-02-11 21:55:39 INFO dataset: Stage3 completed created=50
+2026-02-11 21:55:39 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_gpt5_20260207_121329\aggregates.json
+2026-02-11 21:55:39 INFO dataset: Stage3 complete.
+2026-02-11 23:14:49 INFO dataset: Stage4 HTTP server started on port 55472
+2026-02-11 23:16:05 ERROR dataset: Stage4 render error ui_id=u_000562_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+2026-02-11 23:16:40 ERROR dataset: Stage4 render error ui_id=u_000882_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:55472/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:55472/data/runs/subset50_perplexity_gpt5_20260207_121329/rendered/u_000882_01.html:901:23)
+    at init (http://127.0.0.1:55472/data/runs/subset50_perplexity_gpt5_20260207_121329/rendered/u_000882_01.html:927:19)
+2026-02-11 23:16:42 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_gpt5_20260207_121329\rendered

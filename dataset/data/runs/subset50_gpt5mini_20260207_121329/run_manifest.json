@@ -1,0 +1,60 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-02-11T15:29:29Z",
+  "run_id": "subset50_gpt5mini_20260207_121329",
+  "stage": 3,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "cccacc8c5be137d8159d73749d3f95d461d3f040",
+    "git_branch": "main",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "openai_gpt4o_mini",
+    "provider": "openai",
+    "model": "gpt-4o-mini"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "f20bbf07317ff567306077d85815e839ebfb27fe54ebba37a262cb609c35a30d",
+      "configs\\models.yaml": "c4bf8a2f0b914e35443c6e888f19d8b95c46b17f7ae18f248544b948f1211501"
+    },
+    "combined_sha256": "8e70c74cf15e315a6bf8d2bdc0c032a0bc5676664c9097f3eda8a56748a93802"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\subset50_gpt5mini_20260207_121329",
+    "queries_path": "data\\runs\\subset50_gpt5mini_20260207_121329\\queries.jsonl",
+    "responses_path": "data\\runs\\subset50_gpt5mini_20260207_121329\\responses.jsonl",
+    "genui_path": "data\\runs\\subset50_gpt5mini_20260207_121329\\genui.jsonl",
+    "metrics_path": "data\\runs\\subset50_gpt5mini_20260207_121329\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\subset50_gpt5mini_20260207_121329\\aggregates.json",
+    "artifacts_dir": "data\\runs\\subset50_gpt5mini_20260207_121329\\artifacts",
+    "manifest_path": "data\\runs\\subset50_gpt5mini_20260207_121329\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "3",
+      "--model",
+      "openai_gpt4o_mini",
+      "--run_id",
+      "subset50_gpt5mini_20260207_121329",
+      "--genui_batch_size",
+      "1"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+  }
+}

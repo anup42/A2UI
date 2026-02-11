@@ -28,8 +28,17 @@
       note: "set per your OpenAI account tier"
   - name: perplexity_gpt5
     provider: perplexity
-    model: gpt-5
-    supports_json_mode: true
+    model: sonar-pro
+    supports_json_mode: false
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Perplexity API does not expose OpenAI GPT-5 model id; using sonar-pro for this alias"
+  - name: perplexity_sonar_pro
+    provider: perplexity
+    model: sonar-pro
+    supports_json_mode: false
     limits:
       rpm: null
       tpm: null

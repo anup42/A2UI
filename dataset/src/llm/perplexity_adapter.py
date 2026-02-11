@@ -79,8 +79,8 @@ class PerplexityAdapter(BaseLLMAdapter):
         }
         if seed is not None:
             body["seed"] = seed
-        if json_mode and self.spec.supports_json_mode:
-            body["response_format"] = {"type": "json_object"}
+        # Perplexity does not accept OpenAI's response_format {type: json_object}.
+        # Keep json_mode prompt-driven here.
 
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -94,6 +94,14 @@ class PerplexityAdapter(BaseLLMAdapter):
             with urllib.request.urlopen(req, timeout=90) as resp:
                 raw = resp.read().decode("utf-8")
         except Exception as exc:
+            error_text = str(exc)
+            if hasattr(exc, "read"):
+                try:
+                    body_text = exc.read().decode("utf-8")
+                    if body_text:
+                        error_text = f"{error_text}; body={body_text}"
+                except Exception:
+                    pass
             if hasattr(exc, "code") and getattr(exc, "code") == 429:
                 err_headers = getattr(exc, "headers", None)
                 raise LLMRateLimitError(
@@ -101,6 +109,7 @@ class PerplexityAdapter(BaseLLMAdapter):
                     model=self.spec.model,
                     limits=self.spec.limits,
                     headers=_extract_rate_headers(err_headers),
+                    message=error_text,
                 )
             return LLMResult(
                 text="",
@@ -111,7 +120,7 @@ class PerplexityAdapter(BaseLLMAdapter):
                 cost_usd=None,
                 model=self.spec.model,
                 provider=self.spec.provider,
-                error=str(exc),
+                error=error_text,
             )
 
         elapsed = (time.time() - start) * 1000

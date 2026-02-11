@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-02-11T17:44:48Z",
+  "run_id": "subset50_perplexity_gpt5_20260207_121329",
+  "stage": 4,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "f120529efe77b190fd47fc1d94aa09d14edbee31",
+    "git_branch": "main",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "perplexity_gpt5",
+    "provider": "perplexity",
+    "model": "sonar-pro"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "f20bbf07317ff567306077d85815e839ebfb27fe54ebba37a262cb609c35a30d",
+      "configs\\models.yaml": "02e525d3cfb14876cc28eb76f75f23d96a6048e51cb317698643c037c543b033"
+    },
+    "combined_sha256": "4e5a1e188997a69291e855c71ca6d8d9097d05d9998927eb1e669dda95ce93b8"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\subset50_perplexity_gpt5_20260207_121329",
+    "queries_path": "data\\runs\\subset50_perplexity_gpt5_20260207_121329\\queries.jsonl",
+    "responses_path": "data\\runs\\subset50_perplexity_gpt5_20260207_121329\\responses.jsonl",
+    "genui_path": "data\\runs\\subset50_perplexity_gpt5_20260207_121329\\genui.jsonl",
+    "metrics_path": "data\\runs\\subset50_perplexity_gpt5_20260207_121329\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\subset50_perplexity_gpt5_20260207_121329\\aggregates.json",
+    "artifacts_dir": "data\\runs\\subset50_perplexity_gpt5_20260207_121329\\artifacts",
+    "manifest_path": "data\\runs\\subset50_perplexity_gpt5_20260207_121329\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "4",
+      "--model",
+      "perplexity_gpt5",
+      "--run_id",
+      "subset50_perplexity_gpt5_20260207_121329"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+  }
+}
