@@ -183,6 +183,42 @@ def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logge
     return compact
 
 
+def _prepare_prompt_context(
+    template: str,
+    adapter: BaseLLMAdapter,
+    logger,
+) -> tuple[str | None, str]:
+    """Split Gemini Stage3 prompt into static system + small per-item user prompt."""
+    provider = (adapter.spec.provider or "").lower()
+    mode = os.getenv("GEMINI_STAGE3_PROMPT_MODE", "system_prefix").strip().lower()
+    if provider != "gemini" or mode in {"inline", "legacy", "off", "0", "false"}:
+        return None, template
+
+    placeholder = "{response_text}"
+    if placeholder not in template:
+        logger.warning(
+            "Stage3 Gemini system-prefix mode requested but prompt has no %s; using inline mode.",
+            placeholder,
+        )
+        return None, template
+
+    before, after = template.split(placeholder, 1)
+    system_prompt = (
+        f"{before}[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]{after}".strip()
+    )
+    user_template = (
+        "Convert the response text into valid GenUICraft JSON.\n"
+        "Return ONLY the JSON message array.\n\n"
+        "Response:\n{response_text}"
+    )
+    logger.info(
+        "Stage3 Gemini prompt mode=system_prefix system_tokens=%s user_template_tokens=%s",
+        count_tokens(system_prompt),
+        count_tokens(user_template),
+    )
+    return system_prompt, user_template
+
+
 def run_stage3(
     queries_path: Path | None,
     responses_path: Path,
@@ -206,6 +242,7 @@ def run_stage3(
     aggregate_weights: dict[str, float] | None = None,
 ) -> None:
     prompt_template = _maybe_compact_prompt_template(load_prompt(prompt_path), adapter, logger)
+    system_prompt, user_prompt_template = _prepare_prompt_context(prompt_template, adapter, logger)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     artifacts_dir.mkdir(parents=True, exist_ok=True)
 
@@ -278,16 +315,17 @@ def run_stage3(
         if asset_context:
             prompt_response_text = f"{response_text}\n\n{asset_context}"
 
-        prompt = render_prompt(prompt_template, response_text=prompt_response_text)
+        prompt = render_prompt(user_prompt_template, response_text=prompt_response_text)
         if prompt_max_tokens:
-            prompt_tokens = count_tokens(prompt)
+            system_tokens = count_tokens(system_prompt) if system_prompt else 0
+            prompt_tokens = count_tokens(prompt) + system_tokens
             if prompt_tokens > prompt_max_tokens:
                 # First attempt: drop asset context to save tokens.
-                prompt = render_prompt(prompt_template, response_text=response_text)
-                prompt_tokens = count_tokens(prompt)
+                prompt = render_prompt(user_prompt_template, response_text=response_text)
+                prompt_tokens = count_tokens(prompt) + system_tokens
             if prompt_tokens > prompt_max_tokens:
-                base_prompt = render_prompt(prompt_template, response_text="")
-                base_tokens = count_tokens(base_prompt)
+                base_prompt = render_prompt(user_prompt_template, response_text="")
+                base_tokens = count_tokens(base_prompt) + system_tokens
                 budget = max(200, prompt_max_tokens - base_tokens)
                 trimmed_text, truncated = _truncate_tokens(response_text, budget)
                 if truncated:
@@ -297,7 +335,7 @@ def run_stage3(
                         count_tokens(response_text),
                         budget,
                     )
-                prompt = render_prompt(prompt_template, response_text=trimmed_text)
+                prompt = render_prompt(user_prompt_template, response_text=trimmed_text)
         return prompt
 
     def _process_generated(
@@ -361,7 +399,7 @@ def run_stage3(
                 rate_limiter.acquire()
                 return adapter.generate(
                     prompt=repaired_text,
-                    system=None,
+                    system=system_prompt,
                     temperature=0.2,
                     max_tokens=max_tokens,
                     seed=seed + 100 + repair_attempts,
@@ -551,7 +589,7 @@ def run_stage3(
             rate_limiter.acquire()
             return adapter.generate(
                 prompt=task["prompt"],
-                system=None,
+                system=system_prompt,
                 temperature=0.2,
                 max_tokens=max_tokens,
                 seed=task["seed"],
@@ -608,7 +646,7 @@ def run_stage3(
                 rate_limiter.acquire()
                 return adapter.generate_batch(
                     prompts=prompts,
-                    system=None,
+                    system=system_prompt,
                     temperature=0.2,
                     max_tokens=max_tokens,
                     seeds=seeds,
@@ -737,7 +775,9 @@ def run_stage3(
                     continue
 
                 prompt = _build_prompt_for(response_id, response_text, assets_list)
-                prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}")
+                prompt_hash = hash_text(
+                    f"{adapter.spec.name}:{system_prompt or ''}\n---\n{prompt}"
+                )
                 intent_info = intent_lookup.get(query_id, {})
                 task = {
                     "ui_id": ui_id,

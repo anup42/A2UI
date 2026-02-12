@@ -1,13 +1,13 @@
-run:
+﻿run:
   run_id: test_sample_1000
   intents_file: intents.info
   output_dir: data/runs
   k_queries_per_intent: 87
   n_responses_per_query: 1
   genui_candidates_per_response: 1
-  max_repair_attempts: 1
+  max_repair_attempts: 0
   parallelism: 2
-  rate_limit_qps: 0.05
+  rate_limit_qps: 1.0
   seed: 42
   batch_size_queries: 500
   stage1_intent_batch_size: 1
@@ -20,7 +20,7 @@ run:
   response_group_by_intent: true
   response_batch_fallback_per_query: true
   query_max_tokens: 20240
-  genui_max_tokens: 51200
+  genui_max_tokens: 8192
   genui_prompt_max_tokens: 60000
   cache_dir: data/cache
   artifact_dir: artifacts

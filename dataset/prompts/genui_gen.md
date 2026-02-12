@@ -1,4 +1,4 @@
-# genui_gen_v3
+# genui_gen_v5_tuned
 
 You are an GenUICraft generator. Convert the response text into valid GenUICraft JSON using ONLY the schemas and catalog provided below (local copies). Do NOT reference any external URLs.
 
@@ -8,10 +8,24 @@ Response:
 Rules:
 - Output ONLY a valid GenUICraft server-to-client message list (array of messages) that conforms to the schema below.
 - Use ONLY component definitions from the catalog below.
-- Messages must follow the v0.9 schema types: createSurface, updateComponents, updateDataModel, deleteSurface.
-- Include a createSurface message with a catalogId before any updateComponents.
+- Messages must follow v0.9 types: createSurface, updateComponents, updateDataModel, deleteSurface.
+- Include exactly one createSurface message before any updateComponents/updateDataModel.
+- In updateComponents, include exactly one root component with id "root".
 - Use only local asset URLs that start with '/'. No remote URLs.
-- No markdown, no extra text.
+- No markdown, no prose outside JSON.
+
+High-quality UI mapping requirements (important):
+- Never dump the whole response into a single Text component unless the response is truly one short paragraph.
+- Split content into sections using heading Text variants (h2/h3/h4) and body Text nodes.
+- Convert bullet lists into multiple Text rows/items, not a single markdown blob.
+- Convert any table-like response content into explicit table structure:
+  - Preferred: List(direction:"vertical") containing Row items of Text cells.
+  - Also valid: Column with a header Row + divider-separated data Rows.
+  - Keep consistent column count across rows.
+- Convert action links (Quick Actions / Booking links / CTA links) into Button(action.functionCall.call="openUrl").
+- Convert source links into borderless buttons when possible (not plain URL text).
+- Use Card/Row/Column for modular layout; avoid giant monolithic Text blocks.
+- Preserve key numeric values and labels exactly (money, rates, dates, durations, units).
 
 Schema (server_to_client_list.json):
 ```json

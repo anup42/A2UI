@@ -69,3 +69,44 @@
 2026-02-12 00:58:10 ERROR dataset: Stage3 generation error response_id=r_000522_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
 2026-02-12 01:06:06 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
 2026-02-12 01:06:06 ERROR dataset: Stage3 generation error response_id=r_000561_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:14:03 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:14:03 ERROR dataset: Stage3 generation error response_id=r_000562_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:22:00 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:22:00 ERROR dataset: Stage3 generation error response_id=r_000601_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:29:57 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:29:57 ERROR dataset: Stage3 generation error response_id=r_000602_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:37:54 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:37:54 ERROR dataset: Stage3 generation error response_id=r_000605_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:45:51 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:45:51 ERROR dataset: Stage3 generation error response_id=r_000641_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:53:48 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 01:53:48 ERROR dataset: Stage3 generation error response_id=r_000642_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:01:45 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:01:45 ERROR dataset: Stage3 generation error response_id=r_000681_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:09:42 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:09:42 ERROR dataset: Stage3 generation error response_id=r_000682_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:17:39 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:17:39 ERROR dataset: Stage3 generation error response_id=r_000721_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:25:36 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:25:36 ERROR dataset: Stage3 generation error response_id=r_000722_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:33:33 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:33:33 ERROR dataset: Stage3 generation error response_id=r_000761_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:41:30 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:41:30 ERROR dataset: Stage3 generation error response_id=r_000762_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:49:28 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:49:28 ERROR dataset: Stage3 generation error response_id=r_000801_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:57:24 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 02:57:24 ERROR dataset: Stage3 generation error response_id=r_000802_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:05:21 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:05:21 ERROR dataset: Stage3 generation error response_id=r_000841_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:13:18 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:13:18 ERROR dataset: Stage3 generation error response_id=r_000842_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:21:15 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:21:15 ERROR dataset: Stage3 generation error response_id=r_000881_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:29:12 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:29:12 ERROR dataset: Stage3 generation error response_id=r_000882_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:37:09 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:37:09 ERROR dataset: Stage3 generation error response_id=r_000884_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-02-12 03:37:09 WARNING dataset: Stage3 completed with generation failures=50 created=0
+2026-02-12 03:37:09 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_gpt5mini_20260207_121329\aggregates.json
+2026-02-12 03:37:09 INFO dataset: Stage3 complete.
