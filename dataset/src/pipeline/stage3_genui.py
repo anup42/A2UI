@@ -3,6 +3,7 @@
 import json
 import os
 import time
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from itertools import zip_longest
 from datetime import datetime
@@ -150,6 +151,8 @@ def _truncate_tokens(text: str, max_tokens: int) -> tuple[str, bool]:
     return trimmed, True
 
 
+
+
 def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logger) -> str:
     provider = (adapter.spec.provider or "").lower()
     model = (adapter.spec.model or "").lower()
@@ -181,6 +184,16 @@ def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logge
         after,
     )
     return compact
+def _extract_prompt_version(template: str, prompt_path: Path) -> str:
+    """Extract prompt version from first Markdown heading; fallback to filename stem."""
+    try:
+        first_line = template.splitlines()[0].lstrip("\ufeff").strip() if template else ""
+    except Exception:
+        first_line = ""
+    match = re.match(r"^#\s*([A-Za-z0-9_.-]+)", first_line)
+    if match:
+        return match.group(1)
+    return prompt_path.stem
 
 
 def _prepare_prompt_context(
@@ -242,6 +255,7 @@ def run_stage3(
     aggregate_weights: dict[str, float] | None = None,
 ) -> None:
     prompt_template = _maybe_compact_prompt_template(load_prompt(prompt_path), adapter, logger)
+    prompt_version = _extract_prompt_version(prompt_template, prompt_path)
     system_prompt, user_prompt_template = _prepare_prompt_context(prompt_template, adapter, logger)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     artifacts_dir.mkdir(parents=True, exist_ok=True)
@@ -540,7 +554,7 @@ def run_stage3(
             "gen": {
                 "provider": provider,
                 "model": model,
-                "prompt_version": "genui_gen_v1",
+                "prompt_version": prompt_version,
                 "latency_ms": latency_ms,
                 "input_tokens": input_tokens,
                 "output_tokens": output_tokens,
@@ -827,6 +841,10 @@ def run_stage3(
             logger.info("Stage3 completed created=%s", total_created)
     finally:
         _write_aggregates()
+
+
+
+
 
 
 

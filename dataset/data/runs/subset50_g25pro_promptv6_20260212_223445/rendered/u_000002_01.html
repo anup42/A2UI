@@ -1,0 +1,947 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000002"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000002", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "text_2", "text_3", "text_4", "text_5", "text_6", "text_7", "text_8", "text_9", "icon_row_10", "icon_row_11", "icon_row_12", "icon_row_13", "icon_row_14", "icon_row_15", "icon_row_16", "icon_row_17", "text_18", "text_19", "text_20", "text_21", "text_22", "text_23", "text_24", "text_25", "text_26", "text_27", "text_28", "text_29", "text_30", "text_31", "text_32", "text_33", "text_34", "text_35", "text_36", "text_37", "text_38", "text_39", "text_40", "text_41", "text_42", "text_43", "text_44"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "TITLE: Rome 2-Day Walking Itinerary: Pantheon Base"}, "usageHint": "body"}}}, {"id": "text_2", "component": {"Text": {"text": {"literalString": "Assumptions:\n- You have a moderate fitness level and are comfortable with significant walking (15,000-25,000 steps per day).\n- All major attraction tickets will be pre-booked online to guarantee entry and skip long ticket lines. This is essential.\n- The budget of 100 Euros per person per day is for food and scheduled entry fees only, not including souvenirs, extra transport, or shopping.\n- Prices for tickets and food are estimates for 2024 and should be verified."}, "usageHint": "body"}}}, {"id": "text_3", "component": {"Text": {"text": {"literalString": "---\nSECTION: PRE-TRIP CHECKLIST"}, "usageHint": "body"}}}, {"id": "text_4", "component": {"Text": {"text": {"literalString": "- Book Colosseum & Roman Forum ticket online for Day 1 (9:00 AM slot).\n- Book Vatican Museums & Sistine Chapel ticket online for Day 2 (8:30 AM slot).\n- Purchase the new Pantheon entry ticket online or plan to queue.\n- Download an offline map of Rome (e.g., Google Maps offline feature).\n- Pack comfortable walking shoes. This is the most important item."}, "usageHint": "body"}}}, {"id": "text_5", "component": {"Text": {"text": {"literalString": "---\nSECTION: BUDGET & TICKET FRAMEWORK"}, "usageHint": "body"}}}, {"id": "text_6", "component": {"Text": {"text": {"literalString": "This is an example breakdown of your daily 100 Euro budget."}, "usageHint": "body"}}}, {"id": "text_7", "component": {"Text": {"text": {"literalString": "TABLE: DAILY BUDGET ESTIMATE\nCategory | Estimated Cost | Notes\n--- | --- | ---\nEntry Fees (Avg.) | â‚¬25 | Colosseum (~â‚¬20), Vatican (~â‚¬25), Pantheon (â‚¬5). Averaged over 2 days.\nBreakfast | â‚¬5 | Cappuccino and a cornetto at a local bar (standing at the counter is cheaper).\nLunch | â‚¬15 | Pizza al taglio (by the slice) or a fresh panino.\nDinner | â‚¬40 | A sit-down meal at a trattoria (pasta/pizza, glass of house wine, water).\nSnacks/Gelato | â‚¬15 | Includes water, coffee breaks, and essential daily gelato.\n**Total** | **â‚¬100** |"}, "usageHint": "body"}}}, {"id": "text_8", "component": {"Text": {"text": {"literalString": "HOW TO VERIFY TICKET PRICES & BOOK:\n1. Visit the official websites provided in the 'Sources' section below.\n2. Select your desired date (2024-09-15 for Colosseum, 2024-09-16 for Vatican).\n3. Choose your time slot. Morning slots are highly recommended.\n4. Complete the purchase and save the digital ticket to your phone."}, "usageHint": "body"}}}, {"id": "text_9", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "icon_img_10", "component": {"Image": {"url": {"literalString": "https://icon.url/sightseeing"}, "usageHint": "icon"}}}, {"id": "icon_label_10", "component": {"Text": {"text": {"literalString": "SIGHTSEEING"}, "usageHint": "body"}}}, {"id": "icon_row_10", "component": {"Row": {"children": {"explicitList": ["icon_img_10", "icon_label_10"]}, "alignment": "center"}}}, {"id": "icon_img_11", "component": {"Image": {"url": {"literalString": "https://icon.url/food"}, "usageHint": "icon"}}}, {"id": "icon_label_11", "component": {"Text": {"text": {"literalString": "FOOD"}, "usageHint": "body"}}}, {"id": "icon_row_11", "component": {"Row": {"children": {"explicitList": ["icon_img_11", "icon_label_11"]}, "alignment": "center"}}}, {"id": "icon_img_12", "component": {"Image": {"url": {"literalString": "https://icon.url/walking"}, "usageHint": "icon"}}}, {"id": "icon_label_12", "component": {"Text": {"text": {"literalString": "WALKING"}, "usageHint": "body"}}}, {"id": "icon_row_12", "component": {"Row": {"children": {"explicitList": ["icon_img_12", "icon_label_12"]}, "alignment": "center"}}}, {"id": "icon_img_13", "component": {"Image": {"url": {"literalString": "https://icon.url/tip"}, "usageHint": "icon"}}}, {"id": "icon_label_13", "component": {"Text": {"text": {"literalString": "TIP"}, "usageHint": "body"}}}, {"id": "icon_row_13", "component": {"Row": {"children": {"explicitList": ["icon_img_13", "icon_label_13"]}, "alignment": "center"}}}, {"id": "icon_img_14", "component": {"Image": {"url": {"literalString": "https://example.image.url/colosseum"}, "usageHint": "icon"}}}, {"id": "icon_label_14", "component": {"Text": {"text": {"literalString": "The Colosseum"}, "usageHint": "body"}}}, {"id": "icon_row_14", "component": {"Row": {"children": {"explicitList": ["icon_img_14", "icon_label_14"]}, "alignment": "center"}}}, {"id": "icon_img_15", "component": {"Image": {"url": {"literalString": "https://example.image.url/stpeters"}, "usageHint": "icon"}}}, {"id": "icon_label_15", "component": {"Text": {"text": {"literalString": "St. Peter's Basilica"}, "usageHint": "body"}}}, {"id": "icon_row_15", "component": {"Row": {"children": {"explicitList": ["icon_img_15", "icon_label_15"]}, "alignment": "center"}}}, {"id": "icon_img_16", "component": {"Image": {"url": {"literalString": "https://example.image.url/trevi"}, "usageHint": "icon"}}}, {"id": "icon_label_16", "component": {"Text": {"text": {"literalString": "The Trevi Fountain"}, "usageHint": "body"}}}, {"id": "icon_row_16", "component": {"Row": {"children": {"explicitList": ["icon_img_16", "icon_label_16"]}, "alignment": "center"}}}, {"id": "icon_img_17", "component": {"Image": {"url": {"literalString": "https://example.image.url/pantheon"}, "usageHint": "icon"}}}, {"id": "icon_label_17", "component": {"Text": {"text": {"literalString": "The Pantheon"}, "usageHint": "body"}}}, {"id": "icon_row_17", "component": {"Row": {"children": {"explicitList": ["icon_img_17", "icon_label_17"]}, "alignment": "center"}}}, {"id": "text_18", "component": {"Text": {"text": {"literalString": "[Button: Book Colosseum Tickets] coopculture.it\n[Button: Book Vatican Museums Tickets] museivaticani.va"}, "usageHint": "body"}}}, {"id": "text_19", "component": {"Text": {"text": {"literalString": "---\nSECTION: ITINERARY DAY 1 (2024-09-15): ANCIENT ROME"}, "usageHint": "body"}}}, {"id": "text_20", "component": {"Text": {"text": {"literalString": "Focus: Immerse yourself in the heart of the Roman Empire."}, "usageHint": "body"}}}, {"id": "text_21", "component": {"Text": {"text": {"literalString": "MORNING (8:00 AM - 1:00 PM)"}, "usageHint": "body"}}}, {"id": "text_22", "component": {"Text": {"text": {"literalString": "- (SIGHTSEEING) 8:00 AM: Start from your lodging near the Pantheon. Walk towards Piazza Venezia to see the Altare della Patria (Vittoriano). You can view it from the outside to save time and money.\n  - (WALKING) Pantheon to Piazza Venezia: Approx. 10 minutes.\n- (SIGHTSEEING) 8:30 AM: Walk along Via dei Fori Imperiali towards the Colosseum. This road is flanked by the ruins of ancient forums.\n- (SIGHTSEEING) 9:00 AM - 12:00 PM: **Colosseum, Roman Forum & Palatine Hill**.\n  - (TIP) Use your pre-booked 9:00 AM ticket for the Colosseum. The visit takes about 1.5 hours.\n  - After the Colosseum, your ticket gives you access to the adjacent Roman Forum and Palatine Hill. Allow at least 1.5 hours to explore these vast ruins. Start with Palatine Hill for great views over the Forum.\n  - (WALKING) Piazza Venezia to Colosseum: Approx. 15 minutes."}, "usageHint": "body"}}}, {"id": "text_23", "component": {"Text": {"text": {"literalString": "LUNCH (1:00 PM - 2:00 PM)"}, "usageHint": "body"}}}, {"id": "text_24", "component": {"Text": {"text": {"literalString": "- (FOOD) Avoid the restaurants directly facing the Colosseum. Walk a few blocks away towards the Monti or Celio neighborhoods for better value and quality."}, "usageHint": "body"}}}, {"id": "text_25", "component": {"Text": {"text": {"literalString": "EXAMPLE LUNCH OPTIONS (CARDS):\nOption 1: Pizza al Taglio | Forno da Milvio | Grab delicious, affordable pizza by the slice. | â‚¬10-â‚¬15\nOption 2: Quick Panini | La Prezzemolina | Fresh, made-to-order sandwiches perfect for a fast and tasty lunch. | â‚¬8-â‚¬12\nOption 3: Local Trattoria | Hostaria I Clementini | A short walk away for authentic Roman pasta if you want a sit-down meal. | â‚¬20-â‚¬25"}, "usageHint": "body"}}}, {"id": "text_26", "component": {"Text": {"text": {"literalString": "AFTERNOON (2:00 PM - 6:00 PM)"}, "usageHint": "body"}}}, {"id": "text_27", "component": {"Text": {"text": {"literalString": "- (WALKING) 2:00 PM: A gentle stroll past historical sites.\n  - Walk past the Circus Maximus, the ancient chariot racing stadium.\n  - Optional: See the Mouth of Truth (Bocca della VeritÃ ) at the nearby church. Expect a queue for photos.\n- (SIGHTSEEING) 4:00 PM: Climb Capitoline Hill.\n  - (TIP) Don't miss the free, spectacular panoramic view over the Roman Forum from the back of the main square (Piazza del Campidoglio), designed by Michelangelo. It's especially beautiful in the late afternoon light.\n  - (WALKING) Colosseum area to Capitoline Hill: Approx. 20 minutes."}, "usageHint": "body"}}}, {"id": "text_28", "component": {"Text": {"text": {"literalString": "EVENING (6:00 PM onwards)"}, "usageHint": "body"}}}, {"id": "text_29", "component": {"Text": {"text": {"literalString": "- (FOOD) 7:30 PM: Dinner in the Jewish Ghetto or near Campo de' Fiori, both known for fantastic Roman cuisine.\n- (SIGHTSEEING) 9:30 PM: **Trevi Fountain**.\n  - Walk from your dinner spot to the Trevi Fountain. It is famously crowded but magical when illuminated at night. Toss a coin to ensure your return to Rome.\n  - (WALKING) Capitoline Hill to Trevi Fountain: Approx. 15 minutes."}, "usageHint": "body"}}}, {"id": "text_30", "component": {"Text": {"text": {"literalString": "EXAMPLE DINNER OPTIONS (CARDS):\nOption 1: Roman-Jewish | Nonna Betta | Famous for artichokes \"alla giudia\" in the heart of the Jewish Ghetto. | â‚¬35-â‚¬45\nOption 2: Classic Pasta | Osteria da Fortunata | Near Campo de' Fiori, watch pasta being handmade in the window. | â‚¬30-â‚¬40\nOption 3: Budget Pizza | Emma Pizzeria | Excellent thin-crust Roman pizza in a stylish setting. | â‚¬25-â‚¬35"}, "usageHint": "body"}}}, {"id": "text_31", "component": {"Text": {"text": {"literalString": "---\nSECTION: ITINERARY DAY 2 (2024-09-16): VATICAN & RENAISSANCE WONDERS"}, "usageHint": "body"}}}, {"id": "text_32", "component": {"Text": {"text": {"literalString": "Focus: Art, architecture, and the splendor of Vatican City and Rome's famous piazzas."}, "usageHint": "body"}}}, {"id": "text_33", "component": {"Text": {"text": {"literalString": "MORNING (8:00 AM - 1:00 PM)"}, "usageHint": "body"}}}, {"id": "text_34", "component": {"Text": {"text": {"literalString": "- (WALKING) 8:00 AM: Walk from the Pantheon area across the Tiber River towards Vatican City.\n  - (WALKING) Pantheon to St. Peter's Square: Approx. 25-30 minutes.\n- (SIGHTSEEING) 8:30 AM - 12:30 PM: **Vatican Museums & Sistine Chapel**.\n  - Use your pre-booked 8:30 AM ticket to enter the museums.\n  - Follow the signs on the one-way route. Highlights include the Raphael Rooms, the Gallery of Maps, and the tour's finale, the Sistine Chapel.\n  - (TIP) The visit takes a minimum of 3-4 hours. Do not rush. Photography is forbidden inside the Sistine Chapel.\n- (SIGHTSEEING) 12:30 PM: **St. Peter's Basilica**.\n  - There is a special passage that sometimes connects the Sistine Chapel directly to St. Peter's Basilica, allowing you to bypass the main security line outside. Look for it. If it's closed, you'll have to exit the museums and queue for the Basilica (entry is free, but the security line can be long).\n  - (TIP) Dress code is strictly enforced: knees and shoulders must be covered for both men and women."}, "usageHint": "body"}}}, {"id": "text_35", "component": {"Text": {"text": {"literalString": "LUNCH (1:30 PM - 2:30 PM)"}, "usageHint": "body"}}}, {"id": "text_36", "component": {"Text": {"text": {"literalString": "- (FOOD) The area around the Vatican (Prati) has many great, non-touristy food options if you walk 5-10 minutes away from St. Peter's Square."}, "usageHint": "body"}}}, {"id": "text_37", "component": {"Text": {"text": {"literalString": "EXAMPLE LUNCH OPTIONS (CARDS):\nOption 1: Gourmet Street Food | Trapizzino | A unique pizza-pocket filled with classic Roman stews. | â‚¬10-â‚¬15\nOption 2: Roman Deli | Panificio Bonci | Legendary bakery offering incredible pizza by the slice and baked goods. | â‚¬15-â‚¬20\nOption 3: Local Favorite | Hostaria Dino e Toni | A no-frills, authentic Roman trattoria loved by locals. | â‚¬20-â‚¬25"}, "usageHint": "body"}}}, {"id": "text_38", "component": {"Text": {"text": {"literalString": "AFTERNOON (2:30 PM - 6:00 PM)"}, "usageHint": "body"}}}, {"id": "text_39", "component": {"Text": {"text": {"literalString": "- (WALKING) 2:30 PM: Walk from the Vatican back towards the city center via Ponte Sant'Angelo, the beautiful bridge lined with angel statues, with Castel Sant'Angelo guarding the entrance.\n- (SIGHTSEEING) 3:30 PM: **Piazza Navona**.\n  - Admire Bernini's Fountain of the Four Rivers in this stunning baroque square.\n- (SIGHTSEEING) 4:30 PM: **Pantheon**.\n  - Head to your \"home base.\" Now is the time to go inside. The visit itself is quick (20-30 minutes) but awe-inspiring. Remember the ~â‚¬5 entry fee.\n- (SIGHTSEEING) 5:30 PM: **Spanish Steps**.\n  - A short walk from the Pantheon. Climb the steps for a nice view and enjoy the bustling atmosphere of the luxury shopping streets below.\n  - (WALKING) Piazza Navona -> Pantheon -> Spanish Steps is a 15-20 minute walk in total."}, "usageHint": "body"}}}, {"id": "text_40", "component": {"Text": {"text": {"literalString": "EVENING (6:00 PM onwards)"}, "usageHint": "body"}}}, {"id": "text_41", "component": {"Text": {"text": {"literalString": "- (FOOD) 7:30 PM: For your final dinner, find a cozy spot near the Spanish Steps or head to the Trastevere neighborhood (a 25-min walk or short bus ride) for a charming, lively atmosphere.\n- (TIP) Enjoy a final evening passeggiata (stroll) through the illuminated streets before concluding your trip."}, "usageHint": "body"}}}, {"id": "text_42", "component": {"Text": {"text": {"literalString": "EXAMPLE DINNER OPTIONS (CARDS):\nOption 1: Trastevere Classic | Tonnarello | Extremely popular spot in Trastevere known for huge portions of classic pasta. | â‚¬30-â‚¬40\nOption 2: Near Spanish Steps | Ginger. Sapori e Salute | A healthier, modern option with fresh juices, salads, and gourmet dishes. | â‚¬40-â‚¬50\nOption 3: Hidden Gem | Armando al Pantheon | (Book far in advance) A Roman institution right by the Pantheon for an unforgettable final meal. | â‚¬50-â‚¬60"}, "usageHint": "body"}}}, {"id": "text_43", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "text_44", "component": {"Text": {"text": {"literalString": "- Official Colosseum Ticket Vendor: https://www.coopculture.it/en/products/ticket-colosseum-roman-forum-palatine_24h/\n- Official Vatican Museums Tickets: https://tickets.museivaticani.va/home\n- Official Pantheon Information: https://www.pantheonroma.com/home/"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)",
+              cursor: "pointer",
+              transition:
+                "transform 120ms ease, box-shadow 180ms ease, filter 120ms ease, background-color 120ms ease",
+              transform: "translateZ(0)",
+              "user-select": "none"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          function collectHostsDeep(rootNode, tagNameLower) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === tagNameLower) {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          function getDirectElementChildren(host) {
+            if (!host || !host.children) {
+              return [];
+            }
+            return Array.from(host.children).filter(
+              (child) => child && child.nodeType === Node.ELEMENT_NODE
+            );
+          }
+
+          function parseHostWeight(host) {
+            const styleWeight = Number(
+              String(host?.style?.getPropertyValue('--weight') || '').trim()
+            );
+            if (Number.isFinite(styleWeight) && styleWeight > 0) {
+              return styleWeight;
+            }
+
+            const weightRaw =
+              host?.component?.properties?.weight ??
+              host?.component?.weight ??
+              host?.getAttribute('weight');
+            const parsed = Number(weightRaw);
+            if (Number.isFinite(parsed) && parsed > 0) {
+              return parsed;
+            }
+            return 1;
+          }
+
+          function getGridTemplateFromWeights(rowHost) {
+            const cells = getDirectElementChildren(rowHost);
+            const weights = cells.map((cell) => parseHostWeight(cell));
+            return weights.map((weight) => `${weight}fr`).join(' ');
+          }
+
+          function isBorderlessButtonHost(host) {
+            const variant = String(
+              host?.component?.properties?.variant ??
+                host?.component?.variant ??
+                host?.getAttribute('variant') ??
+                ''
+            ).toLowerCase();
+            return variant === 'borderless';
+          }
+
+          function attachPressAnimation(buttonEl) {
+            if (!buttonEl || buttonEl.dataset.genuiEnhancedPress === '1') {
+              return;
+            }
+
+            const restore = () => {
+              buttonEl.style.transform = 'translateZ(0)';
+              buttonEl.style.filter = '';
+            };
+
+            buttonEl.addEventListener('pointerdown', () => {
+              buttonEl.style.transform = 'translateZ(0) scale(0.98)';
+              buttonEl.style.filter = 'brightness(0.95)';
+            });
+            buttonEl.addEventListener('pointerup', restore);
+            buttonEl.addEventListener('pointerleave', restore);
+            buttonEl.addEventListener('pointercancel', restore);
+            buttonEl.dataset.genuiEnhancedPress = '1';
+          }
+
+          function enhanceButtons() {
+            const buttonHosts = collectHostsDeep(container, 'a2ui-button');
+            for (const host of buttonHosts) {
+              const button = host.shadowRoot?.querySelector('button');
+              if (!button) {
+                continue;
+              }
+
+              button.style.cursor = 'pointer';
+              button.style.transition =
+                'transform 120ms ease, box-shadow 180ms ease, filter 120ms ease, background-color 120ms ease';
+              button.style.transform = 'translateZ(0)';
+              button.style.userSelect = 'none';
+              button.style.touchAction = 'manipulation';
+              attachPressAnimation(button);
+
+              if (isBorderlessButtonHost(host)) {
+                host.classList.add('genui-button-borderless');
+                button.style.background = 'transparent';
+                button.style.border = 'none';
+                button.style.boxShadow = 'none';
+                button.style.padding = '0';
+                button.style.minHeight = 'auto';
+                button.style.borderRadius = '0';
+                button.style.justifyContent = 'flex-start';
+                button.style.color = 'var(--oneui-color-primary)';
+                button.style.setProperty(
+                  '--oneui-color-on-surface',
+                  'var(--oneui-color-primary)'
+                );
+                button.style.setProperty(
+                  '--oneui-color-on-surface-variant',
+                  'var(--oneui-color-primary)'
+                );
+              } else {
+                host.classList.remove('genui-button-borderless');
+                button.style.setProperty(
+                  '--oneui-color-on-surface',
+                  'var(--oneui-color-on-primary)'
+                );
+                button.style.setProperty(
+                  '--oneui-color-on-surface-variant',
+                  'var(--oneui-color-on-primary)'
+                );
+              }
+            }
+          }
+
+          function styleTableCell(cellHost, isHeader, isLastCell) {
+            if (!cellHost) {
+              return;
+            }
+            cellHost.style.display = 'block';
+            cellHost.style.padding = '10px 12px';
+            cellHost.style.margin = '0';
+            cellHost.style.minWidth = '0';
+            cellHost.style.borderRight = isLastCell
+              ? 'none'
+              : '1px solid var(--oneui-color-outline-variant)';
+
+            const textNode = cellHost.shadowRoot?.querySelector(
+              'p, h1, h2, h3, h4, h5, h6'
+            );
+            if (textNode) {
+              textNode.style.margin = '0';
+              textNode.style.textAlign = 'left';
+              textNode.style.wordBreak = 'break-word';
+              if (isHeader) {
+                textNode.style.fontWeight = '700';
+              }
+            }
+          }
+
+          function styleTableRows(rows, dividerHosts) {
+            if (!rows.length) {
+              return;
+            }
+            const template = getGridTemplateFromWeights(rows[0]) || '1fr 1fr';
+            rows.forEach((row, rowIndex) => {
+              row.style.display = 'block';
+              row.style.margin = '0';
+
+              const section = row.shadowRoot?.querySelector('section');
+              if (!section) {
+                return;
+              }
+
+              section.style.display = 'grid';
+              section.style.gridTemplateColumns = template;
+              section.style.columnGap = '0';
+              section.style.rowGap = '0';
+              section.style.alignItems = 'stretch';
+              section.style.padding = '0';
+              section.style.margin = '0';
+              section.style.borderBottom =
+                rowIndex < rows.length - 1
+                  ? '1px solid var(--oneui-color-outline-variant)'
+                  : 'none';
+              section.style.background =
+                rowIndex === 0 ? '#f1f5f9' : '#ffffff';
+
+              const cells = getDirectElementChildren(row);
+              cells.forEach((cell, cellIndex) => {
+                styleTableCell(cell, rowIndex === 0, cellIndex === cells.length - 1);
+              });
+            });
+
+            for (const dividerHost of dividerHosts) {
+              dividerHost.style.display = 'none';
+            }
+          }
+
+          function enhanceTableLikeLists() {
+            const listHosts = collectHostsDeep(container, 'a2ui-list');
+            for (const listHost of listHosts) {
+              const direction = String(
+                listHost.direction || listHost.getAttribute('direction') || 'vertical'
+              ).toLowerCase();
+              if (direction !== 'vertical') {
+                continue;
+              }
+
+              const rows = getDirectElementChildren(listHost).filter(
+                (child) => child.tagName && child.tagName.toLowerCase() === 'a2ui-row'
+              );
+              if (rows.length < 2) {
+                continue;
+              }
+              const cellCounts = rows.map(
+                (row) => getDirectElementChildren(row).length
+              );
+              if (cellCounts.some((count) => count < 2)) {
+                continue;
+              }
+              if (new Set(cellCounts).size !== 1) {
+                continue;
+              }
+
+              listHost.classList.add('genui-table-list');
+              listHost.style.border = '1px solid #e2e8f0';
+              listHost.style.borderRadius = '12px';
+              listHost.style.overflow = 'hidden';
+              listHost.style.background = 'var(--oneui-color-surface)';
+              listHost.style.boxShadow = '0 2px 8px rgba(15, 23, 42, 0.08)';
+
+              styleTableRows(rows, []);
+            }
+          }
+
+                    function enhanceTableLikeColumns() {
+            const columnHosts = collectHostsDeep(container, 'a2ui-column');
+            for (const columnHost of columnHosts) {
+              const directChildren = getDirectElementChildren(columnHost);
+              const groups = [];
+              let currentRows = [];
+              let currentDividers = [];
+
+              const flushGroup = () => {
+                if (currentRows.length > 0) {
+                  groups.push({ rows: currentRows, dividers: currentDividers });
+                }
+                currentRows = [];
+                currentDividers = [];
+              };
+
+              for (const child of directChildren) {
+                const tag = child.tagName ? child.tagName.toLowerCase() : '';
+                if (tag === 'a2ui-row') {
+                  currentRows.push(child);
+                  continue;
+                }
+                if (tag === 'a2ui-divider' && currentRows.length > 0) {
+                  currentDividers.push(child);
+                  continue;
+                }
+                flushGroup();
+              }
+              flushGroup();
+
+              let styledAnyGroup = false;
+              for (const group of groups) {
+                const rows = group.rows;
+                const dividers = group.dividers;
+                if (rows.length < 2 || dividers.length < 1) {
+                  continue;
+                }
+
+                const cellCounts = rows.map(
+                  (row) => getDirectElementChildren(row).length
+                );
+                if (cellCounts.some((count) => count < 2)) {
+                  continue;
+                }
+                if (new Set(cellCounts).size !== 1) {
+                  continue;
+                }
+
+                styleTableRows(rows, dividers);
+                styledAnyGroup = true;
+              }
+
+              if (!styledAnyGroup) {
+                continue;
+              }
+
+              columnHost.classList.add('genui-table-list');
+              columnHost.style.border = '1px solid #e2e8f0';
+              columnHost.style.borderRadius = '12px';
+              columnHost.style.overflow = 'hidden';
+              columnHost.style.background = 'var(--oneui-color-surface)';
+              columnHost.style.boxShadow = '0 2px 8px rgba(15, 23, 42, 0.08)';
+            }
+          }
+
+          function enhanceTableLayouts() {
+            enhanceTableLikeLists();
+            enhanceTableLikeColumns();
+          }
+          async function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            enhanceButtons();
+            enhanceTableLayouts();
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            enhanceButtons();
+            enhanceTableLayouts();
+            await markMissingImages();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
+
+          if (window.__GenUICraft_MESSAGES__) {
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+

@@ -52,3 +52,8 @@
 2026-02-12 02:58:33 INFO dataset: Stage3 completed created=50
 2026-02-12 02:58:33 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_prompttuned_20260212_022406\aggregates.json
 2026-02-12 02:58:33 INFO dataset: Stage3 complete.
+2026-02-12 18:26:59 INFO dataset: Stage4 HTTP server started on port 57578
+2026-02-12 18:26:59 INFO dataset: Stage4 rendering 50 images with 10 workers
+2026-02-12 18:27:28 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_prompttuned_20260212_022406\rendered
+2026-02-12 23:22:19 INFO dataset: Stage4 HTTP server started on port 51311
+2026-02-12 23:22:20 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_prompttuned_20260212_022406\rendered

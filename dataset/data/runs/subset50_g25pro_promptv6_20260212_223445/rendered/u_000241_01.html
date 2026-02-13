@@ -1,0 +1,947 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "surface_q_000241"}}, {"surfaceUpdate": {"surfaceId": "surface_q_000241", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["text_1", "icon_row_2", "icon_row_3", "icon_row_4", "icon_row_5", "icon_row_6", "icon_row_7", "icon_row_8", "icon_row_9", "icon_row_10", "text_11", "text_12", "text_13", "text_14", "text_15", "text_16", "text_17", "text_18", "text_19", "text_20", "text_21", "text_22", "text_23", "text_24", "text_25", "text_26", "text_27", "text_28", "text_29", "text_30", "text_31", "text_32", "text_33", "text_34", "text_35", "text_36", "text_37", "text_38", "text_39", "text_40", "btn_41", "btn_42"]}}}}, {"id": "text_1", "component": {"Text": {"text": {"literalString": "Assumptions:\nThis itinerary assumes you are staying in a central Tokyo location (like Shinjuku or Shibuya) and are comfortable with a moderate amount of walking. The budget is per person and covers food, local transport, and activities, but excludes shopping and accommodation. All prices are estimates and should be verified."}, "usageHint": "body"}}}, {"id": "icon_img_2", "component": {"Image": {"url": {"literalString": "https://icon.url/travel"}, "usageHint": "icon"}}}, {"id": "icon_label_2", "component": {"Text": {"text": {"literalString": "Travel"}, "usageHint": "body"}}}, {"id": "icon_row_2", "component": {"Row": {"children": {"explicitList": ["icon_img_2", "icon_label_2"]}, "alignment": "center"}}}, {"id": "icon_img_3", "component": {"Image": {"url": {"literalString": "https://icon.url/food"}, "usageHint": "icon"}}}, {"id": "icon_label_3", "component": {"Text": {"text": {"literalString": "Food"}, "usageHint": "body"}}}, {"id": "icon_row_3", "component": {"Row": {"children": {"explicitList": ["icon_img_3", "icon_label_3"]}, "alignment": "center"}}}, {"id": "icon_img_4", "component": {"Image": {"url": {"literalString": "https://icon.url/activity"}, "usageHint": "icon"}}}, {"id": "icon_label_4", "component": {"Text": {"text": {"literalString": "Activity"}, "usageHint": "body"}}}, {"id": "icon_row_4", "component": {"Row": {"children": {"explicitList": ["icon_img_4", "icon_label_4"]}, "alignment": "center"}}}, {"id": "icon_img_5", "component": {"Image": {"url": {"literalString": "https://icon.url/budget"}, "usageHint": "icon"}}}, {"id": "icon_label_5", "component": {"Text": {"text": {"literalString": "Budget"}, "usageHint": "body"}}}, {"id": "icon_row_5", "component": {"Row": {"children": {"explicitList": ["icon_img_5", "icon_label_5"]}, "alignment": "center"}}}, {"id": "icon_img_6", "component": {"Image": {"url": {"literalString": "https://icon.url/tip"}, "usageHint": "icon"}}}, {"id": "icon_label_6", "component": {"Text": {"text": {"literalString": "Tip"}, "usageHint": "body"}}}, {"id": "icon_row_6", "component": {"Row": {"children": {"explicitList": ["icon_img_6", "icon_label_6"]}, "alignment": "center"}}}, {"id": "icon_img_7", "component": {"Image": {"url": {"literalString": "https://image.url/sensoji"}, "usageHint": "icon"}}}, {"id": "icon_label_7", "component": {"Text": {"text": {"literalString": "Asakusa's Senso-ji Temple"}, "usageHint": "body"}}}, {"id": "icon_row_7", "component": {"Row": {"children": {"explicitList": ["icon_img_7", "icon_label_7"]}, "alignment": "center"}}}, {"id": "icon_img_8", "component": {"Image": {"url": {"literalString": "https://image.url/akihabara"}, "usageHint": "icon"}}}, {"id": "icon_label_8", "component": {"Text": {"text": {"literalString": "Akihabara Electric Town"}, "usageHint": "body"}}}, {"id": "icon_row_8", "component": {"Row": {"children": {"explicitList": ["icon_img_8", "icon_label_8"]}, "alignment": "center"}}}, {"id": "icon_img_9", "component": {"Image": {"url": {"literalString": "https://image.url/shibuya"}, "usageHint": "icon"}}}, {"id": "icon_label_9", "component": {"Text": {"text": {"literalString": "Shibuya Crossing"}, "usageHint": "body"}}}, {"id": "icon_row_9", "component": {"Row": {"children": {"explicitList": ["icon_img_9", "icon_label_9"]}, "alignment": "center"}}}, {"id": "icon_img_10", "component": {"Image": {"url": {"literalString": "https://image.url/ramen"}, "usageHint": "icon"}}}, {"id": "icon_label_10", "component": {"Text": {"text": {"literalString": "A Bowl of Premium Ramen"}, "usageHint": "body"}}}, {"id": "icon_row_10", "component": {"Row": {"children": {"explicitList": ["icon_img_10", "icon_label_10"]}, "alignment": "center"}}}, {"id": "text_11", "component": {"Text": {"text": {"literalString": "### Tokyo Itinerary Summary: Anime, Temples & Ramen"}, "usageHint": "body"}}}, {"id": "text_12", "component": {"Text": {"text": {"literalString": "This 3-day plan balances Tokyo's vibrant pop culture with its serene traditions. You'll explore the electric streets of Akihabara, the historic grounds of Asakusa, and the bustling hub of Shinjuku, all while enjoying some of the city's best ramen."}, "usageHint": "body"}}}, {"id": "text_13", "component": {"Text": {"text": {"literalString": "**Total Estimated Budget:** 30,000 - 35,000 JPY (well under the 45,000 JPY limit for 3 days)"}, "usageHint": "body"}}}, {"id": "text_14", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "text_15", "component": {"Text": {"text": {"literalString": "### Pre-Travel Checklist"}, "usageHint": "body"}}}, {"id": "text_16", "component": {"Text": {"text": {"literalString": "- [ ] **Transport Card:** Purchase a Suica or Pasmo card at the airport or a major train station. This is a rechargeable IC card for seamless travel on subways, trains, and buses.\n- [ ] **Connectivity:** Rent a pocket Wi-Fi device or get a travel SIM card for navigation and on-the-go research.\n- [ ] **Cash:** While cards are widely accepted, many smaller ramen shops, street food stalls, and temple vendors are cash-only. It's wise to carry at least 10,000 JPY in cash.\n- [ ] **Check Opening Times:** Use the provided links or Google Maps to verify the opening hours of attractions and restaurants before you go, especially since it's a weekend."}, "usageHint": "body"}}}, {"id": "text_17", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "text_18", "component": {"Text": {"text": {"literalString": "### Day 1: Modern Tokyo & Anime Mecca (2025-05-10, Saturday)"}, "usageHint": "body"}}}, {"id": "text_19", "component": {"Text": {"text": {"literalString": "Focus: Youth culture, iconic cityscapes, and the heart of anime/gaming."}, "usageHint": "body"}}}, {"id": "text_20", "component": {"Text": {"text": {"literalString": "**Morning (9:00 AM - 1:00 PM): Harajuku & Meiji Shrine**\n- **Activity:** Start at Meiji Jingu Shrine, a peaceful oasis dedicated to Emperor Meiji. The walk through the forested grounds is a calming contrast to the city's hustle.\n- **Activity:** Walk to Harajuku's Takeshita Street. Experience the epicenter of Japanese youth fashion, browse unique shops, and try a famous Harajuku crepe.\n- **Travel:** Take the JR Yamanote Line to Harajuku Station."}, "usageHint": "body"}}}, {"id": "text_21", "component": {"Text": {"text": {"literalString": "**Afternoon (1:00 PM - 5:00 PM): Shibuya's Scramble**\n- **Food:** Grab lunch in the Harajuku/Omotesando area.\n- **Travel:** Walk (approx. 15-20 mins) or take the JR Yamanote Line one stop from Harajuku to Shibuya.\n- **Activity:** Witness the famous Shibuya Crossing from a high vantage point like the Starbucks in the Tsutaya building. Don't forget to visit the Hachiko Statue outside the station."}, "usageHint": "body"}}}, {"id": "text_22", "component": {"Text": {"text": {"literalString": "**Evening (5:00 PM onwards): Akihabara Electric Town**\n- **Travel:** Take the JR Yamanote Line from Shibuya to Akihabara Station.\n- **Activity:** Dive into the world of anime, manga, and gaming. Explore multi-story arcades like Taito Station or SEGA, browse figure shops like AmiAmi, and experience the unique atmosphere of \"Electric Town.\"\n- **Food:** Dinner is your first high-end ramen experience in the heart of Akihabara."}, "usageHint": "body"}}}, {"id": "text_23", "component": {"Text": {"text": {"literalString": "**Daily Budget Breakdown (Estimated):**\n- **Travel:** 1,000 JPY (Suica/Pasmo top-up)\n- **Food:** 6,000 JPY (crepe, lunch, dinner, drinks)\n- **Activities:** 2,000 JPY (shrine donation, arcade games)\n- **Total:** ~9,000 JPY"}, "usageHint": "body"}}}, {"id": "text_24", "component": {"Text": {"text": {"literalString": "**Ramen Spotlight: Day 1**\nOption 1: Motenashi Kuroki | Shio (salt-based) ramen with delicate, complex flavors. | Approx. 2,000 JPY | [Link to map/info]\nOption 2: Kikanbo, Akihabara | Spicy Miso ramen with customizable spice levels. A fiery and unforgettable bowl. | Approx. 1,800 JPY | [Link to map/info]"}, "usageHint": "body"}}}, {"id": "text_25", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "text_26", "component": {"Text": {"text": {"literalString": "### Day 2: Tradition & Culture (2025-05-11, Sunday)"}, "usageHint": "body"}}}, {"id": "text_27", "component": {"Text": {"text": {"literalString": "Focus: Historic temples, traditional markets, and sweeping city views."}, "usageHint": "body"}}}, {"id": "text_28", "component": {"Text": {"text": {"literalString": "**Morning (9:00 AM - 1:00 PM): Asakusa's Senso-ji Temple**\n- **Travel:** Take the Tokyo Metro Ginza Line to Asakusa Station.\n- **Activity:** Walk through the Kaminarimon (Thunder Gate) and down Nakamise-dori, a bustling street filled with traditional snacks and souvenirs leading to Senso-ji, Tokyo's oldest temple.\n- **Tip:** Try some local snacks like Ningyo-yaki (small cakes with red bean filling) or Agemanju (deep-fried manju buns)."}, "usageHint": "body"}}}, {"id": "text_29", "component": {"Text": {"text": {"literalString": "**Afternoon (1:00 PM - 5:00 PM): Ueno Park & Museums**\n- **Food:** Enjoy lunch in Asakusa. There are many great tempura and unagi restaurants in the area.\n- **Travel:** Take the Tokyo Metro Ginza Line from Asakusa to Ueno Station (5 mins).\n- **Activity:** Stroll through Ueno Park. You have several options here:\n    - Visit the Tokyo National Museum for Japanese art and archaeology (entry fee ~1,000 JPY).\n    - Explore the lively Ameya Yokocho Market for street food and bargain shopping.\n    - Visit the Ueno Zoo (entry fee ~600 JPY)."}, "usageHint": "body"}}}, {"id": "text_30", "component": {"Text": {"text": {"literalString": "**Evening (5:00 PM onwards): Tokyo Skytree Views**\n- **Activity:** For a modern view, head towards the Tokyo Skytree (a short walk or one subway stop from Asakusa). You can ascend for panoramic views (ticket prices vary) or explore the Solamachi shopping center at its base.\n- **Food:** Dinner is your second high-end ramen experience, with many excellent choices in the Ueno and Skytree areas."}, "usageHint": "body"}}}, {"id": "text_31", "component": {"Text": {"text": {"literalString": "**Daily Budget Breakdown (Estimated):**\n- **Travel:** 800 JPY\n- **Food:** 7,000 JPY (snacks, lunch, ramen dinner)\n- **Activities:** 1,500 JPY (e.g., museum entrance)\n- **Total:** ~9,300 JPY"}, "usageHint": "body"}}}, {"id": "text_32", "component": {"Text": {"text": {"literalString": "**Ramen Spotlight: Day 2**\nOption 1: Ichiran, Ueno | Classic Tonkotsu (pork bone) ramen with customizable solo \"flavor concentration\" booths. | Approx. 1,500 JPY | [Link to map/info]\nOption 2: Mensho | A creative ramen shop known for its unique lamb-based or chocolate-infused bowls. | Approx. 1,800 JPY | [Link to map/info]"}, "usageHint": "body"}}}, {"id": "text_33", "component": {"Text": {"text": {"literalString": "---"}, "usageHint": "body"}}}, {"id": "text_34", "component": {"Text": {"text": {"literalString": "### Day 3: Gardens, City Views & Shinjuku Nights (2025-05-12, Monday)"}, "usageHint": "body"}}}, {"id": "text_35", "component": {"Text": {"text": {"literalString": "Focus: A perfect blend of nature, panoramic cityscapes, and vibrant nightlife."}, "usageHint": "body"}}}, {"id": "text_36", "component": {"Text": {"text": {"literalString": "**Morning (9:30 AM - 12:30 PM): Shinjuku Gyoen National Garden**\n- **Travel:** Take the Tokyo Metro Marunouchi Line to Shinjuku-gyoenmae Station.\n- **Activity:** Escape the city bustle in one of Tokyo's most beautiful gardens. Shinjuku Gyoen features three distinct styles: French Formal, English Landscape, and Japanese Traditional.\n- **Budget:** Entrance fee is 500 JPY."}, "usageHint": "body"}}}, {"id": "text_37", "component": {"Text": {"text": {"literalString": "**Afternoon (12:30 PM - 5:00 PM): Free Views & Department Stores**\n- **Food:** For lunch, experience a \"depachika\" (department store food hall) at Isetan or Takashimaya. You can find an incredible variety of high-quality bento boxes, sushi, and pastries.\n- **Activity:** Walk to the Tokyo Metropolitan Government Building. Take the free elevator to the observation decks on the 45th floor for stunning panoramic views of Tokyo. On a clear day, you might see Mt. Fuji."}, "usageHint": "body"}}}, {"id": "text_38", "component": {"Text": {"text": {"literalString": "**Evening (5:00 PM onwards): Shinjuku's Alleys & Final Ramen**\n- **Activity:** As dusk falls, explore the atmospheric side of Shinjuku.\n    - **Omoide Yokocho (Memory Lane):** A network of narrow alleys packed with tiny yakitori stalls and bars.\n    - **Golden Gai:** Another area with several blocks of tiny, unique bars, each with its own character.\n- **Food:** Conclude your trip with a final, exceptional bowl of ramen in Shinjuku, a highly competitive ramen district."}, "usageHint": "body"}}}, {"id": "text_39", "component": {"Text": {"text": {"literalString": "**Daily Budget Breakdown (Estimated):**\n- **Travel:** 800 JPY\n- **Food:** 7,500 JPY (depachika lunch, ramen dinner, a drink)\n- **Activities:** 500 JPY (garden entrance)\n- **Total:** ~8,800 JPY"}, "usageHint": "body"}}}, {"id": "text_40", "component": {"Text": {"text": {"literalString": "**Ramen Spotlight: Day 3**\nOption 1: Ichiran, Shinjuku Central East Exit | The quintessential Tonkotsu experience, perfect for a final classic bowl. | Approx. 1,500 JPY | [Link to map/info]\nOption 2: Fu-unji | Famous for its rich, thick tsukemen (dipping noodles) with a flavorful fish and pork broth. | Approx. 1,600 JPY | [Link to map/info]\nOption 3: Ramen Nagi (Golden Gai) | A tiny shop serving an intense Niboshi (dried sardine) broth ramen, open 24/7. | Approx. 1,500 JPY | [Link to map/info]"}, "usageHint": "body"}}}, {"id": "btn_label_41", "component": {"Text": {"text": {"literalString": "Get a Suica Card"}, "usageHint": "body"}}}, {"id": "btn_41", "component": {"Button": {"child": "btn_label_41", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.jreast.co.jp/multi/en/pass/suica.html"}}]}, "primary": true}}}, {"id": "btn_label_42", "component": {"Text": {"text": {"literalString": "Explore Tokyo on TripAdvisor"}, "usageHint": "body"}}}, {"id": "btn_42", "component": {"Button": {"child": "btn_label_42", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.tripadvisor.com/Tourism"}}]}, "primary": true}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)",
+              cursor: "pointer",
+              transition:
+                "transform 120ms ease, box-shadow 180ms ease, filter 120ms ease, background-color 120ms ease",
+              transform: "translateZ(0)",
+              "user-select": "none"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          function collectHostsDeep(rootNode, tagNameLower) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === tagNameLower) {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          function getDirectElementChildren(host) {
+            if (!host || !host.children) {
+              return [];
+            }
+            return Array.from(host.children).filter(
+              (child) => child && child.nodeType === Node.ELEMENT_NODE
+            );
+          }
+
+          function parseHostWeight(host) {
+            const styleWeight = Number(
+              String(host?.style?.getPropertyValue('--weight') || '').trim()
+            );
+            if (Number.isFinite(styleWeight) && styleWeight > 0) {
+              return styleWeight;
+            }
+
+            const weightRaw =
+              host?.component?.properties?.weight ??
+              host?.component?.weight ??
+              host?.getAttribute('weight');
+            const parsed = Number(weightRaw);
+            if (Number.isFinite(parsed) && parsed > 0) {
+              return parsed;
+            }
+            return 1;
+          }
+
+          function getGridTemplateFromWeights(rowHost) {
+            const cells = getDirectElementChildren(rowHost);
+            const weights = cells.map((cell) => parseHostWeight(cell));
+            return weights.map((weight) => `${weight}fr`).join(' ');
+          }
+
+          function isBorderlessButtonHost(host) {
+            const variant = String(
+              host?.component?.properties?.variant ??
+                host?.component?.variant ??
+                host?.getAttribute('variant') ??
+                ''
+            ).toLowerCase();
+            return variant === 'borderless';
+          }
+
+          function attachPressAnimation(buttonEl) {
+            if (!buttonEl || buttonEl.dataset.genuiEnhancedPress === '1') {
+              return;
+            }
+
+            const restore = () => {
+              buttonEl.style.transform = 'translateZ(0)';
+              buttonEl.style.filter = '';
+            };
+
+            buttonEl.addEventListener('pointerdown', () => {
+              buttonEl.style.transform = 'translateZ(0) scale(0.98)';
+              buttonEl.style.filter = 'brightness(0.95)';
+            });
+            buttonEl.addEventListener('pointerup', restore);
+            buttonEl.addEventListener('pointerleave', restore);
+            buttonEl.addEventListener('pointercancel', restore);
+            buttonEl.dataset.genuiEnhancedPress = '1';
+          }
+
+          function enhanceButtons() {
+            const buttonHosts = collectHostsDeep(container, 'a2ui-button');
+            for (const host of buttonHosts) {
+              const button = host.shadowRoot?.querySelector('button');
+              if (!button) {
+                continue;
+              }
+
+              button.style.cursor = 'pointer';
+              button.style.transition =
+                'transform 120ms ease, box-shadow 180ms ease, filter 120ms ease, background-color 120ms ease';
+              button.style.transform = 'translateZ(0)';
+              button.style.userSelect = 'none';
+              button.style.touchAction = 'manipulation';
+              attachPressAnimation(button);
+
+              if (isBorderlessButtonHost(host)) {
+                host.classList.add('genui-button-borderless');
+                button.style.background = 'transparent';
+                button.style.border = 'none';
+                button.style.boxShadow = 'none';
+                button.style.padding = '0';
+                button.style.minHeight = 'auto';
+                button.style.borderRadius = '0';
+                button.style.justifyContent = 'flex-start';
+                button.style.color = 'var(--oneui-color-primary)';
+                button.style.setProperty(
+                  '--oneui-color-on-surface',
+                  'var(--oneui-color-primary)'
+                );
+                button.style.setProperty(
+                  '--oneui-color-on-surface-variant',
+                  'var(--oneui-color-primary)'
+                );
+              } else {
+                host.classList.remove('genui-button-borderless');
+                button.style.setProperty(
+                  '--oneui-color-on-surface',
+                  'var(--oneui-color-on-primary)'
+                );
+                button.style.setProperty(
+                  '--oneui-color-on-surface-variant',
+                  'var(--oneui-color-on-primary)'
+                );
+              }
+            }
+          }
+
+          function styleTableCell(cellHost, isHeader, isLastCell) {
+            if (!cellHost) {
+              return;
+            }
+            cellHost.style.display = 'block';
+            cellHost.style.padding = '10px 12px';
+            cellHost.style.margin = '0';
+            cellHost.style.minWidth = '0';
+            cellHost.style.borderRight = isLastCell
+              ? 'none'
+              : '1px solid var(--oneui-color-outline-variant)';
+
+            const textNode = cellHost.shadowRoot?.querySelector(
+              'p, h1, h2, h3, h4, h5, h6'
+            );
+            if (textNode) {
+              textNode.style.margin = '0';
+              textNode.style.textAlign = 'left';
+              textNode.style.wordBreak = 'break-word';
+              if (isHeader) {
+                textNode.style.fontWeight = '700';
+              }
+            }
+          }
+
+          function styleTableRows(rows, dividerHosts) {
+            if (!rows.length) {
+              return;
+            }
+            const template = getGridTemplateFromWeights(rows[0]) || '1fr 1fr';
+            rows.forEach((row, rowIndex) => {
+              row.style.display = 'block';
+              row.style.margin = '0';
+
+              const section = row.shadowRoot?.querySelector('section');
+              if (!section) {
+                return;
+              }
+
+              section.style.display = 'grid';
+              section.style.gridTemplateColumns = template;
+              section.style.columnGap = '0';
+              section.style.rowGap = '0';
+              section.style.alignItems = 'stretch';
+              section.style.padding = '0';
+              section.style.margin = '0';
+              section.style.borderBottom =
+                rowIndex < rows.length - 1
+                  ? '1px solid var(--oneui-color-outline-variant)'
+                  : 'none';
+              section.style.background =
+                rowIndex === 0 ? '#f1f5f9' : '#ffffff';
+
+              const cells = getDirectElementChildren(row);
+              cells.forEach((cell, cellIndex) => {
+                styleTableCell(cell, rowIndex === 0, cellIndex === cells.length - 1);
+              });
+            });
+
+            for (const dividerHost of dividerHosts) {
+              dividerHost.style.display = 'none';
+            }
+          }
+
+          function enhanceTableLikeLists() {
+            const listHosts = collectHostsDeep(container, 'a2ui-list');
+            for (const listHost of listHosts) {
+              const direction = String(
+                listHost.direction || listHost.getAttribute('direction') || 'vertical'
+              ).toLowerCase();
+              if (direction !== 'vertical') {
+                continue;
+              }
+
+              const rows = getDirectElementChildren(listHost).filter(
+                (child) => child.tagName && child.tagName.toLowerCase() === 'a2ui-row'
+              );
+              if (rows.length < 2) {
+                continue;
+              }
+              const cellCounts = rows.map(
+                (row) => getDirectElementChildren(row).length
+              );
+              if (cellCounts.some((count) => count < 2)) {
+                continue;
+              }
+              if (new Set(cellCounts).size !== 1) {
+                continue;
+              }
+
+              listHost.classList.add('genui-table-list');
+              listHost.style.border = '1px solid #e2e8f0';
+              listHost.style.borderRadius = '12px';
+              listHost.style.overflow = 'hidden';
+              listHost.style.background = 'var(--oneui-color-surface)';
+              listHost.style.boxShadow = '0 2px 8px rgba(15, 23, 42, 0.08)';
+
+              styleTableRows(rows, []);
+            }
+          }
+
+                    function enhanceTableLikeColumns() {
+            const columnHosts = collectHostsDeep(container, 'a2ui-column');
+            for (const columnHost of columnHosts) {
+              const directChildren = getDirectElementChildren(columnHost);
+              const groups = [];
+              let currentRows = [];
+              let currentDividers = [];
+
+              const flushGroup = () => {
+                if (currentRows.length > 0) {
+                  groups.push({ rows: currentRows, dividers: currentDividers });
+                }
+                currentRows = [];
+                currentDividers = [];
+              };
+
+              for (const child of directChildren) {
+                const tag = child.tagName ? child.tagName.toLowerCase() : '';
+                if (tag === 'a2ui-row') {
+                  currentRows.push(child);
+                  continue;
+                }
+                if (tag === 'a2ui-divider' && currentRows.length > 0) {
+                  currentDividers.push(child);
+                  continue;
+                }
+                flushGroup();
+              }
+              flushGroup();
+
+              let styledAnyGroup = false;
+              for (const group of groups) {
+                const rows = group.rows;
+                const dividers = group.dividers;
+                if (rows.length < 2 || dividers.length < 1) {
+                  continue;
+                }
+
+                const cellCounts = rows.map(
+                  (row) => getDirectElementChildren(row).length
+                );
+                if (cellCounts.some((count) => count < 2)) {
+                  continue;
+                }
+                if (new Set(cellCounts).size !== 1) {
+                  continue;
+                }
+
+                styleTableRows(rows, dividers);
+                styledAnyGroup = true;
+              }
+
+              if (!styledAnyGroup) {
+                continue;
+              }
+
+              columnHost.classList.add('genui-table-list');
+              columnHost.style.border = '1px solid #e2e8f0';
+              columnHost.style.borderRadius = '12px';
+              columnHost.style.overflow = 'hidden';
+              columnHost.style.background = 'var(--oneui-color-surface)';
+              columnHost.style.boxShadow = '0 2px 8px rgba(15, 23, 42, 0.08)';
+            }
+          }
+
+          function enhanceTableLayouts() {
+            enhanceTableLikeLists();
+            enhanceTableLikeColumns();
+          }
+          async function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            enhanceButtons();
+            enhanceTableLayouts();
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            enhanceButtons();
+            enhanceTableLayouts();
+            await markMissingImages();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
+
+          if (window.__GenUICraft_MESSAGES__) {
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+

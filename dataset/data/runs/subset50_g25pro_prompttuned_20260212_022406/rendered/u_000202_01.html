@@ -1,0 +1,947 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "quarterly_revenue_analysis"}}, {"surfaceUpdate": {"surfaceId": "quarterly_revenue_analysis", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "assumptions_heading", "assumptions_list", "summary_heading", "summary_text", "breakdown_heading", "breakdown_table", "chart_data_heading", "chart_data_list", "growth_heading", "growth_table", "conclusion_heading", "conclusion_text", "actions_heading", "actions_row"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "FY2023 Quarterly Revenue Analysis"}, "usageHint": "h1"}}}, {"id": "assumptions_heading", "component": {"Text": {"text": {"literalString": "Assumptions"}, "usageHint": "h3"}}}, {"id": "assumptions_list", "component": {"Column": {"children": {"explicitList": ["assumption_1", "assumption_2"]}}}}, {"id": "assumption_1", "component": {"Text": {"text": {"literalString": "- All monetary values are in thousands of US Dollars (e.g., 45k = $45,000)."}, "usageHint": "body"}}}, {"id": "assumption_2", "component": {"Text": {"text": {"literalString": "- The quarters are sequential for the purpose of calculating growth (Q1 -> Q2 -> Q3 -> Q4)."}, "usageHint": "body"}}}, {"id": "summary_heading", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h3"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "The fourth quarter (Q4) of FY2023 had the highest total revenue growth, with an increase of $18,000 over the third quarter (Q3). Software consistently remained the highest-earning product line throughout the year, showing strong and steady growth each quarter."}, "usageHint": "body"}}}, {"id": "breakdown_heading", "component": {"Text": {"text": {"literalString": "Revenue Breakdown by Quarter (in thousands USD)"}, "usageHint": "h3"}}}, {"id": "breakdown_table", "component": {"Column": {"children": {"explicitList": ["breakdown_header_row", "breakdown_divider", "breakdown_row_q1", "breakdown_row_q2", "breakdown_row_q3", "breakdown_row_q4"]}}}}, {"id": "breakdown_header_row", "component": {"Row": {"children": {"explicitList": ["breakdown_header_1", "breakdown_header_2", "breakdown_header_3", "breakdown_header_4", "breakdown_header_5"]}}}}, {"id": "breakdown_header_1", "component": {"Text": {"text": {"literalString": "Quarter"}, "usageHint": "body"}}}, {"id": "breakdown_header_2", "component": {"Text": {"text": {"literalString": "Software"}, "usageHint": "body"}}}, {"id": "breakdown_header_3", "component": {"Text": {"text": {"literalString": "Hardware"}, "usageHint": "body"}}}, {"id": "breakdown_header_4", "component": {"Text": {"text": {"literalString": "Services"}, "usageHint": "body"}}}, {"id": "breakdown_header_5", "component": {"Text": {"text": {"literalString": "Total Revenue"}, "usageHint": "body"}}}, {"id": "breakdown_divider", "component": {"Divider": {}}}, {"id": "breakdown_row_q1", "component": {"Row": {"children": {"explicitList": ["breakdown_q1_1", "breakdown_q1_2", "breakdown_q1_3", "breakdown_q1_4", "breakdown_q1_5"]}}}}, {"id": "breakdown_q1_1", "component": {"Text": {"text": {"literalString": "Q1 2023"}, "usageHint": "body"}}}, {"id": "breakdown_q1_2", "component": {"Text": {"text": {"literalString": "$45"}, "usageHint": "body"}}}, {"id": "breakdown_q1_3", "component": {"Text": {"text": {"literalString": "$30"}, "usageHint": "body"}}}, {"id": "breakdown_q1_4", "component": {"Text": {"text": {"literalString": "$20"}, "usageHint": "body"}}}, {"id": "breakdown_q1_5", "component": {"Text": {"text": {"literalString": "$95"}, "usageHint": "body"}}}, {"id": "breakdown_row_q2", "component": {"Row": {"children": {"explicitList": ["breakdown_q2_1", "breakdown_q2_2", "breakdown_q2_3", "breakdown_q2_4", "breakdown_q2_5"]}}}}, {"id": "breakdown_q2_1", "component": {"Text": {"text": {"literalString": "Q2 2023"}, "usageHint": "body"}}}, {"id": "breakdown_q2_2", "component": {"Text": {"text": {"literalString": "$48"}, "usageHint": "body"}}}, {"id": "breakdown_q2_3", "component": {"Text": {"text": {"literalString": "$28"}, "usageHint": "body"}}}, {"id": "breakdown_q2_4", "component": {"Text": {"text": {"literalString": "$22"}, "usageHint": "body"}}}, {"id": "breakdown_q2_5", "component": {"Text": {"text": {"literalString": "$98"}, "usageHint": "body"}}}, {"id": "breakdown_row_q3", "component": {"Row": {"children": {"explicitList": ["breakdown_q3_1", "breakdown_q3_2", "breakdown_q3_3", "breakdown_q3_4", "breakdown_q3_5"]}}}}, {"id": "breakdown_q3_1", "component": {"Text": {"text": {"literalString": "Q3 2023"}, "usageHint": "body"}}}, {"id": "breakdown_q3_2", "component": {"Text": {"text": {"literalString": "$52"}, "usageHint": "body"}}}, {"id": "breakdown_q3_3", "component": {"Text": {"text": {"literalString": "$35"}, "usageHint": "body"}}}, {"id": "breakdown_q3_4", "component": {"Text": {"text": {"literalString": "$25"}, "usageHint": "body"}}}, {"id": "breakdown_q3_5", "component": {"Text": {"text": {"literalString": "$112"}, "usageHint": "body"}}}, {"id": "breakdown_row_q4", "component": {"Row": {"children": {"explicitList": ["breakdown_q4_1", "breakdown_q4_2", "breakdown_q4_3", "breakdown_q4_4", "breakdown_q4_5"]}}}}, {"id": "breakdown_q4_1", "component": {"Text": {"text": {"literalString": "Q4 2023"}, "usageHint": "body"}}}, {"id": "breakdown_q4_2", "component": {"Text": {"text": {"literalString": "$60"}, "usageHint": "body"}}}, {"id": "breakdown_q4_3", "component": {"Text": {"text": {"literalString": "$40"}, "usageHint": "body"}}}, {"id": "breakdown_q4_4", "component": {"Text": {"text": {"literalString": "$30"}, "usageHint": "body"}}}, {"id": "breakdown_q4_5", "component": {"Text": {"text": {"literalString": "$130"}, "usageHint": "body"}}}, {"id": "chart_data_heading", "component": {"Text": {"text": {"literalString": "Grouped Bar Chart Data"}, "usageHint": "h3"}}}, {"id": "chart_data_list", "component": {"Column": {"children": {"explicitList": ["chart_data_1", "chart_data_2", "chart_data_3", "chart_data_4", "chart_data_5", "chart_data_6", "chart_data_7", "chart_data_8"]}}}}, {"id": "chart_data_1", "component": {"Text": {"text": {"literalString": "- Chart Title: FY2023 Quarterly Revenue by Product Line"}, "usageHint": "body"}}}, {"id": "chart_data_2", "component": {"Text": {"text": {"literalString": "- Chart Type: Grouped Bar Chart"}, "usageHint": "body"}}}, {"id": "chart_data_3", "component": {"Text": {"text": {"literalString": "- X-Axis Label: Fiscal Quarter"}, "usageHint": "body"}}}, {"id": "chart_data_4", "component": {"Text": {"text": {"literalString": "- Y-Axis Label: Revenue (in thousands USD)"}, "usageHint": "body"}}}, {"id": "chart_data_5", "component": {"Text": {"text": {"literalString": "- Categories (X-Axis): [Q1 2023, Q2 2023, Q3 2023, Q4 2023]"}, "usageHint": "body"}}}, {"id": "chart_data_6", "component": {"Text": {"text": {"literalString": "- Series 1 (Software): Color: #4A90E2, Data: [45, 48, 52, 60]"}, "usageHint": "body"}}}, {"id": "chart_data_7", "component": {"Text": {"text": {"literalString": "- Series 2 (Hardware): Color: #F5A623, Data: [30, 28, 35, 40]"}, "usageHint": "body"}}}, {"id": "chart_data_8", "component": {"Text": {"text": {"literalString": "- Series 3 (Services): Color: #7ED321, Data: [20, 22, 25, 30]"}, "usageHint": "body"}}}, {"id": "growth_heading", "component": {"Text": {"text": {"literalString": "Quarter-over-Quarter Growth Analysis"}, "usageHint": "h3"}}}, {"id": "growth_table", "component": {"Column": {"children": {"explicitList": ["growth_header_row", "growth_divider", "growth_row_q1", "growth_row_q2", "growth_row_q3", "growth_row_q4"]}}}}, {"id": "growth_header_row", "component": {"Row": {"children": {"explicitList": ["growth_header_1", "growth_header_2", "growth_header_3"]}}}}, {"id": "growth_header_1", "component": {"Text": {"text": {"literalString": "Period"}, "usageHint": "body"}}}, {"id": "growth_header_2", "component": {"Text": {"text": {"literalString": "Total Revenue"}, "usageHint": "body"}}}, {"id": "growth_header_3", "component": {"Text": {"text": {"literalString": "Quarter-over-Quarter Growth"}, "usageHint": "body"}}}, {"id": "growth_divider", "component": {"Divider": {}}}, {"id": "growth_row_q1", "component": {"Row": {"children": {"explicitList": ["growth_q1_1", "growth_q1_2", "growth_q1_3"]}}}}, {"id": "growth_q1_1", "component": {"Text": {"text": {"literalString": "Q1 2023"}, "usageHint": "body"}}}, {"id": "growth_q1_2", "component": {"Text": {"text": {"literalString": "$95k"}, "usageHint": "body"}}}, {"id": "growth_q1_3", "component": {"Text": {"text": {"literalString": "-"}, "usageHint": "body"}}}, {"id": "growth_row_q2", "component": {"Row": {"children": {"explicitList": ["growth_q2_1", "growth_q2_2", "growth_q2_3"]}}}}, {"id": "growth_q2_1", "component": {"Text": {"text": {"literalString": "Q2 2023"}, "usageHint": "body"}}}, {"id": "growth_q2_2", "component": {"Text": {"text": {"literalString": "$98k"}, "usageHint": "body"}}}, {"id": "growth_q2_3", "component": {"Text": {"text": {"literalString": "+$3k"}, "usageHint": "body"}}}, {"id": "growth_row_q3", "component": {"Row": {"children": {"explicitList": ["growth_q3_1", "growth_q3_2", "growth_q3_3"]}}}}, {"id": "growth_q3_1", "component": {"Text": {"text": {"literalString": "Q3 2023"}, "usageHint": "body"}}}, {"id": "growth_q3_2", "component": {"Text": {"text": {"literalString": "$112k"}, "usageHint": "body"}}}, {"id": "growth_q3_3", "component": {"Text": {"text": {"literalString": "+$14k"}, "usageHint": "body"}}}, {"id": "growth_row_q4", "component": {"Row": {"children": {"explicitList": ["growth_q4_1", "growth_q4_2", "growth_q4_3"]}}}}, {"id": "growth_q4_1", "component": {"Text": {"text": {"literalString": "Q4 2023"}, "usageHint": "body"}}}, {"id": "growth_q4_2", "component": {"Text": {"text": {"literalString": "$130k"}, "usageHint": "body"}}}, {"id": "growth_q4_3", "component": {"Text": {"text": {"literalString": "+$18k"}, "usageHint": "body"}}}, {"id": "conclusion_heading", "component": {"Text": {"text": {"literalString": "Conclusion"}, "usageHint": "h3"}}}, {"id": "conclusion_text", "component": {"Text": {"text": {"literalString": "The analysis confirms that the growth from **Q3 to Q4 was the highest** for the fiscal year, both in absolute terms (+$18k) and percentage terms (+16.1%)."}, "usageHint": "body"}}}, {"id": "actions_heading", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h3"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["export_button", "forecast_button", "profitability_button"]}, "distribution": "start"}}}, {"id": "export_button", "component": {"Button": {"child": "export_button_label", "action": {"name": "export_csv"}}}}, {"id": "export_button_label", "component": {"Text": {"text": {"literalString": "Export Full Data as CSV"}, "usageHint": "body"}}}, {"id": "forecast_button", "component": {"Button": {"child": "forecast_button_label", "action": {"name": "create_forecast"}}}}, {"id": "forecast_button_label", "component": {"Text": {"text": {"literalString": "Create Q1 2024 Forecast"}, "usageHint": "body"}}}, {"id": "profitability_button", "component": {"Button": {"child": "profitability_button_label", "action": {"name": "view_profitability_report"}}}}, {"id": "profitability_button_label", "component": {"Text": {"text": {"literalString": "View Product Line Profitability Report"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)",
+              cursor: "pointer",
+              transition:
+                "transform 120ms ease, box-shadow 180ms ease, filter 120ms ease, background-color 120ms ease",
+              transform: "translateZ(0)",
+              "user-select": "none"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          function collectHostsDeep(rootNode, tagNameLower) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === tagNameLower) {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          function getDirectElementChildren(host) {
+            if (!host || !host.children) {
+              return [];
+            }
+            return Array.from(host.children).filter(
+              (child) => child && child.nodeType === Node.ELEMENT_NODE
+            );
+          }
+
+          function parseHostWeight(host) {
+            const styleWeight = Number(
+              String(host?.style?.getPropertyValue('--weight') || '').trim()
+            );
+            if (Number.isFinite(styleWeight) && styleWeight > 0) {
+              return styleWeight;
+            }
+
+            const weightRaw =
+              host?.component?.properties?.weight ??
+              host?.component?.weight ??
+              host?.getAttribute('weight');
+            const parsed = Number(weightRaw);
+            if (Number.isFinite(parsed) && parsed > 0) {
+              return parsed;
+            }
+            return 1;
+          }
+
+          function getGridTemplateFromWeights(rowHost) {
+            const cells = getDirectElementChildren(rowHost);
+            const weights = cells.map((cell) => parseHostWeight(cell));
+            return weights.map((weight) => `${weight}fr`).join(' ');
+          }
+
+          function isBorderlessButtonHost(host) {
+            const variant = String(
+              host?.component?.properties?.variant ??
+                host?.component?.variant ??
+                host?.getAttribute('variant') ??
+                ''
+            ).toLowerCase();
+            return variant === 'borderless';
+          }
+
+          function attachPressAnimation(buttonEl) {
+            if (!buttonEl || buttonEl.dataset.genuiEnhancedPress === '1') {
+              return;
+            }
+
+            const restore = () => {
+              buttonEl.style.transform = 'translateZ(0)';
+              buttonEl.style.filter = '';
+            };
+
+            buttonEl.addEventListener('pointerdown', () => {
+              buttonEl.style.transform = 'translateZ(0) scale(0.98)';
+              buttonEl.style.filter = 'brightness(0.95)';
+            });
+            buttonEl.addEventListener('pointerup', restore);
+            buttonEl.addEventListener('pointerleave', restore);
+            buttonEl.addEventListener('pointercancel', restore);
+            buttonEl.dataset.genuiEnhancedPress = '1';
+          }
+
+          function enhanceButtons() {
+            const buttonHosts = collectHostsDeep(container, 'a2ui-button');
+            for (const host of buttonHosts) {
+              const button = host.shadowRoot?.querySelector('button');
+              if (!button) {
+                continue;
+              }
+
+              button.style.cursor = 'pointer';
+              button.style.transition =
+                'transform 120ms ease, box-shadow 180ms ease, filter 120ms ease, background-color 120ms ease';
+              button.style.transform = 'translateZ(0)';
+              button.style.userSelect = 'none';
+              button.style.touchAction = 'manipulation';
+              attachPressAnimation(button);
+
+              if (isBorderlessButtonHost(host)) {
+                host.classList.add('genui-button-borderless');
+                button.style.background = 'transparent';
+                button.style.border = 'none';
+                button.style.boxShadow = 'none';
+                button.style.padding = '0';
+                button.style.minHeight = 'auto';
+                button.style.borderRadius = '0';
+                button.style.justifyContent = 'flex-start';
+                button.style.color = 'var(--oneui-color-primary)';
+                button.style.setProperty(
+                  '--oneui-color-on-surface',
+                  'var(--oneui-color-primary)'
+                );
+                button.style.setProperty(
+                  '--oneui-color-on-surface-variant',
+                  'var(--oneui-color-primary)'
+                );
+              } else {
+                host.classList.remove('genui-button-borderless');
+                button.style.setProperty(
+                  '--oneui-color-on-surface',
+                  'var(--oneui-color-on-primary)'
+                );
+                button.style.setProperty(
+                  '--oneui-color-on-surface-variant',
+                  'var(--oneui-color-on-primary)'
+                );
+              }
+            }
+          }
+
+          function styleTableCell(cellHost, isHeader, isLastCell) {
+            if (!cellHost) {
+              return;
+            }
+            cellHost.style.display = 'block';
+            cellHost.style.padding = '10px 12px';
+            cellHost.style.margin = '0';
+            cellHost.style.minWidth = '0';
+            cellHost.style.borderRight = isLastCell
+              ? 'none'
+              : '1px solid var(--oneui-color-outline-variant)';
+
+            const textNode = cellHost.shadowRoot?.querySelector(
+              'p, h1, h2, h3, h4, h5, h6'
+            );
+            if (textNode) {
+              textNode.style.margin = '0';
+              textNode.style.textAlign = 'left';
+              textNode.style.wordBreak = 'break-word';
+              if (isHeader) {
+                textNode.style.fontWeight = '700';
+              }
+            }
+          }
+
+          function styleTableRows(rows, dividerHosts) {
+            if (!rows.length) {
+              return;
+            }
+            const template = getGridTemplateFromWeights(rows[0]) || '1fr 1fr';
+            rows.forEach((row, rowIndex) => {
+              row.style.display = 'block';
+              row.style.margin = '0';
+
+              const section = row.shadowRoot?.querySelector('section');
+              if (!section) {
+                return;
+              }
+
+              section.style.display = 'grid';
+              section.style.gridTemplateColumns = template;
+              section.style.columnGap = '0';
+              section.style.rowGap = '0';
+              section.style.alignItems = 'stretch';
+              section.style.padding = '0';
+              section.style.margin = '0';
+              section.style.borderBottom =
+                rowIndex < rows.length - 1
+                  ? '1px solid var(--oneui-color-outline-variant)'
+                  : 'none';
+              section.style.background =
+                rowIndex === 0 ? '#f1f5f9' : '#ffffff';
+
+              const cells = getDirectElementChildren(row);
+              cells.forEach((cell, cellIndex) => {
+                styleTableCell(cell, rowIndex === 0, cellIndex === cells.length - 1);
+              });
+            });
+
+            for (const dividerHost of dividerHosts) {
+              dividerHost.style.display = 'none';
+            }
+          }
+
+          function enhanceTableLikeLists() {
+            const listHosts = collectHostsDeep(container, 'a2ui-list');
+            for (const listHost of listHosts) {
+              const direction = String(
+                listHost.direction || listHost.getAttribute('direction') || 'vertical'
+              ).toLowerCase();
+              if (direction !== 'vertical') {
+                continue;
+              }
+
+              const rows = getDirectElementChildren(listHost).filter(
+                (child) => child.tagName && child.tagName.toLowerCase() === 'a2ui-row'
+              );
+              if (rows.length < 2) {
+                continue;
+              }
+              const cellCounts = rows.map(
+                (row) => getDirectElementChildren(row).length
+              );
+              if (cellCounts.some((count) => count < 2)) {
+                continue;
+              }
+              if (new Set(cellCounts).size !== 1) {
+                continue;
+              }
+
+              listHost.classList.add('genui-table-list');
+              listHost.style.border = '1px solid #e2e8f0';
+              listHost.style.borderRadius = '12px';
+              listHost.style.overflow = 'hidden';
+              listHost.style.background = 'var(--oneui-color-surface)';
+              listHost.style.boxShadow = '0 2px 8px rgba(15, 23, 42, 0.08)';
+
+              styleTableRows(rows, []);
+            }
+          }
+
+                    function enhanceTableLikeColumns() {
+            const columnHosts = collectHostsDeep(container, 'a2ui-column');
+            for (const columnHost of columnHosts) {
+              const directChildren = getDirectElementChildren(columnHost);
+              const groups = [];
+              let currentRows = [];
+              let currentDividers = [];
+
+              const flushGroup = () => {
+                if (currentRows.length > 0) {
+                  groups.push({ rows: currentRows, dividers: currentDividers });
+                }
+                currentRows = [];
+                currentDividers = [];
+              };
+
+              for (const child of directChildren) {
+                const tag = child.tagName ? child.tagName.toLowerCase() : '';
+                if (tag === 'a2ui-row') {
+                  currentRows.push(child);
+                  continue;
+                }
+                if (tag === 'a2ui-divider' && currentRows.length > 0) {
+                  currentDividers.push(child);
+                  continue;
+                }
+                flushGroup();
+              }
+              flushGroup();
+
+              let styledAnyGroup = false;
+              for (const group of groups) {
+                const rows = group.rows;
+                const dividers = group.dividers;
+                if (rows.length < 2 || dividers.length < 1) {
+                  continue;
+                }
+
+                const cellCounts = rows.map(
+                  (row) => getDirectElementChildren(row).length
+                );
+                if (cellCounts.some((count) => count < 2)) {
+                  continue;
+                }
+                if (new Set(cellCounts).size !== 1) {
+                  continue;
+                }
+
+                styleTableRows(rows, dividers);
+                styledAnyGroup = true;
+              }
+
+              if (!styledAnyGroup) {
+                continue;
+              }
+
+              columnHost.classList.add('genui-table-list');
+              columnHost.style.border = '1px solid #e2e8f0';
+              columnHost.style.borderRadius = '12px';
+              columnHost.style.overflow = 'hidden';
+              columnHost.style.background = 'var(--oneui-color-surface)';
+              columnHost.style.boxShadow = '0 2px 8px rgba(15, 23, 42, 0.08)';
+            }
+          }
+
+          function enhanceTableLayouts() {
+            enhanceTableLikeLists();
+            enhanceTableLikeColumns();
+          }
+          async function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            enhanceButtons();
+            enhanceTableLayouts();
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            enhanceButtons();
+            enhanceTableLayouts();
+            await markMissingImages();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
+
+          if (window.__GenUICraft_MESSAGES__) {
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
