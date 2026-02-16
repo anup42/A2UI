@@ -1338,6 +1338,16 @@ class HtmlRenderer:
 
 
 class _QuietHandler(SimpleHTTPRequestHandler):
+    extensions_map = {
+        **SimpleHTTPRequestHandler.extensions_map,
+        ".js": "application/javascript",
+        ".mjs": "application/javascript",
+        ".json": "application/json",
+        ".css": "text/css",
+        ".svg": "image/svg+xml",
+        ".wasm": "application/wasm",
+    }
+
     def log_message(self, format, *args):
         return
 
