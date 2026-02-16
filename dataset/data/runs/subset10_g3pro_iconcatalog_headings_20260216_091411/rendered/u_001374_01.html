@@ -82,14 +82,65 @@
       const container = document.getElementById("surfaces");
       const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
 
-      function setStatus(message) {
+      function setStatus(message, details = null) {
         container.innerHTML = "";
         const note = document.createElement("div");
         note.textContent = message;
         note.style.padding = "16px";
         note.style.color = "#b00020";
         note.style.fontSize = "14px";
+        note.style.fontWeight = "700";
         container.appendChild(note);
+
+        if (!details) {
+          return;
+        }
+
+        const detailBox = document.createElement("pre");
+        detailBox.textContent = details;
+        detailBox.style.margin = "0 16px 16px";
+        detailBox.style.padding = "12px";
+        detailBox.style.border = "1px solid #f1c6cc";
+        detailBox.style.borderRadius = "8px";
+        detailBox.style.background = "#fff7f8";
+        detailBox.style.color = "#5c1f28";
+        detailBox.style.fontSize = "12px";
+        detailBox.style.lineHeight = "1.45";
+        detailBox.style.whiteSpace = "pre-wrap";
+        detailBox.style.wordBreak = "break-word";
+        container.appendChild(detailBox);
+      }
+
+      function formatErrorDetails(err) {
+        const lines = [];
+        if (typeof err === "string") {
+          lines.push(err);
+        } else if (err && typeof err === "object") {
+          const name = typeof err.name === "string" ? err.name : "Error";
+          const message =
+            typeof err.message === "string"
+              ? err.message
+              : "No error message provided.";
+          lines.push(`${name}: ${message}`);
+          if (typeof err.stack === "string" && err.stack.trim()) {
+            lines.push("");
+            lines.push(err.stack);
+          } else {
+            try {
+              lines.push("");
+              lines.push(JSON.stringify(err, null, 2));
+            } catch (_jsonErr) {
+              // no-op
+            }
+          }
+        } else {
+          lines.push("Unknown renderer error.");
+        }
+
+        lines.push("");
+        lines.push(`Page URL: ${window.location.href}`);
+        lines.push(`Asset Base: ${assetBase}`);
+        return lines.join("\n");
       }
 
       function parseMessages(payload) {
@@ -1345,7 +1396,8 @@
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);
-          setStatus("Lit renderer failed to load.");
+          const details = formatErrorDetails(err);
+          setStatus("Lit renderer failed to load.", details);
         }
       }
 
