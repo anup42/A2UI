@@ -154,8 +154,18 @@
         const lines = ["Asset fetch diagnostics:"];
         for (const url of urls) {
           try {
-            const response = await fetch(url, { method: "HEAD", cache: "no-store" });
-            lines.push(`- ${response.status} ${response.ok ? "OK" : "FAIL"} :: ${url}`);
+            let method = "HEAD";
+            let response = await fetch(url, { method, cache: "no-store" });
+
+            if (response.status === 405 || response.status === 501) {
+              method = "GET";
+              response = await fetch(url, { method, cache: "no-store" });
+            }
+
+            const contentType = response.headers.get("content-type") || "unknown";
+            lines.push(
+              `- ${response.status} ${response.ok ? "OK" : "FAIL"} [${method}] :: ${url} :: content-type=${contentType}`
+            );
           } catch (fetchErr) {
             const fetchMsg =
               fetchErr && typeof fetchErr === "object" && "message" in fetchErr
@@ -165,6 +175,9 @@
           }
         }
 
+        lines.push("");
+        lines.push("Note:");
+        lines.push("- 501/405 on HEAD can be server-specific and not fatal; GET status is the real check.");
         lines.push("");
         lines.push("Server root hint:");
         lines.push("- Serve from the `dataset` folder so `/renderer/lit/...` is reachable.");
