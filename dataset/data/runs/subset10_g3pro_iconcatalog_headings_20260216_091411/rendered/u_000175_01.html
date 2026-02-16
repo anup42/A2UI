@@ -143,6 +143,35 @@
         return lines.join("\n");
       }
 
+      async function collectAssetDiagnostics() {
+        const urls = [
+          new URL("vendor/a2ui/index.js", assetBase).href,
+          new URL("vendor/lit/index.js", assetBase).href,
+          new URL("themes/oneui.tokens.css", assetBase).href,
+          new URL("themes/oneui.overrides.css", assetBase).href
+        ];
+
+        const lines = ["Asset fetch diagnostics:"];
+        for (const url of urls) {
+          try {
+            const response = await fetch(url, { method: "HEAD", cache: "no-store" });
+            lines.push(`- ${response.status} ${response.ok ? "OK" : "FAIL"} :: ${url}`);
+          } catch (fetchErr) {
+            const fetchMsg =
+              fetchErr && typeof fetchErr === "object" && "message" in fetchErr
+                ? String(fetchErr.message)
+                : String(fetchErr);
+            lines.push(`- FETCH_ERROR :: ${url} :: ${fetchMsg}`);
+          }
+        }
+
+        lines.push("");
+        lines.push("Server root hint:");
+        lines.push("- Serve from the `dataset` folder so `/renderer/lit/...` is reachable.");
+        lines.push("- Or use: `python src/main.py --stage 4 ...` and open files from that run.");
+        return lines.join("\n");
+      }
+
       function parseMessages(payload) {
         return typeof payload === "string" ? JSON.parse(payload) : payload;
       }
@@ -1396,7 +1425,8 @@
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);
-          const details = formatErrorDetails(err);
+          const assetDiagnostics = await collectAssetDiagnostics();
+          const details = `${formatErrorDetails(err)}\n\n${assetDiagnostics}`;
           setStatus("Lit renderer failed to load.", details);
         }
       }

@@ -1,6 +1,6 @@
 {
   "manifest_version": 1,
-  "generated_at": "2026-02-16T21:29:27Z",
+  "generated_at": "2026-02-16T21:49:42Z",
   "run_id": "subset10_g3pro_iconcatalog_headings_20260216_091411",
   "stage": 4,
   "repo": {
@@ -17,7 +17,7 @@
       "genui_schema": "v0.9",
       "min_manifest_version": 1
     },
-    "git_commit": "3661bbb103c8a171358a2d0ded2b48651004ba25",
+    "git_commit": "b7af3133e90e343b8c84358b00599645827b2a1d",
     "git_branch": "main",
     "git_dirty": true
   },
