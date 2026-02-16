@@ -20,6 +20,7 @@ from pipeline.metrics import (
     count_characters,
     aggregate_metrics,
     compute_overall_score,
+    compute_media_score,
     compute_ui_metrics,
     compute_intent_metrics,
 )
@@ -84,6 +85,19 @@ def _make_ui_id(query_id: str, n_idx: int, candidate_idx: int) -> str:
     return f"u_{suffix}_{n_idx:02d}_{candidate_idx:02d}"
 
 
+def _to_render_asset_path(path: str) -> str:
+    normalized = path.replace("\\", "/").strip()
+    if not normalized:
+        return normalized
+    if normalized.startswith("../assets/"):
+        return normalized
+    normalized = normalized.lstrip("/")
+    normalized = normalized.lstrip("./")
+    if normalized.startswith("assets/"):
+        return "../" + normalized
+    return normalized
+
+
 def _build_asset_context(assets: list[dict]) -> str:
     if not assets:
         return ""
@@ -95,9 +109,9 @@ def _build_asset_context(assets: list[dict]) -> str:
         path = str(item.get("path") or "").strip()
         if not path:
             continue
-        local_path = path.replace("\\", "/")
-        if not local_path.startswith("/"):
-            local_path = "/" + local_path.lstrip("/")
+        local_path = _to_render_asset_path(path)
+        if not local_path:
+            continue
         if url:
             lines.append(f"- {url} -> {local_path}")
         else:
@@ -130,13 +144,58 @@ def _apply_asset_replacements(text: str, assets: list[dict]) -> str:
         path = str(item.get("path") or "").strip()
         if not url or not path:
             continue
-        local_path = path.replace("\\", "/")
+        local_path = _to_render_asset_path(path)
         if not local_path.lower().endswith(valid_exts):
             continue
-        if not local_path.startswith("/"):
-            local_path = "/" + local_path.lstrip("/")
         updated = updated.replace(url, local_path)
     return updated
+
+
+def _build_asset_rewrite_map(assets: list[dict]) -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    if not assets:
+        return mapping
+    valid_exts = (
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".webp",
+        ".svg",
+        ".bmp",
+        ".tiff",
+        ".pdf",
+        ".zip",
+    )
+    for item in assets:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "").strip()
+        path = str(item.get("path") or "").strip()
+        if not url or not path:
+            continue
+        local_path = _to_render_asset_path(path)
+        if not local_path.lower().endswith(valid_exts):
+            continue
+        mapping[url] = local_path
+    return mapping
+
+
+def _rewrite_asset_urls_in_value(value: Any, mapping: dict[str, str]) -> Any:
+    if isinstance(value, str):
+        return mapping.get(value, value)
+    if isinstance(value, list):
+        return [_rewrite_asset_urls_in_value(item, mapping) for item in value]
+    if isinstance(value, dict):
+        return {key: _rewrite_asset_urls_in_value(item, mapping) for key, item in value.items()}
+    return value
+
+
+def _rewrite_genui_asset_urls(genui_json: Any, assets: list[dict]) -> Any:
+    mapping = _build_asset_rewrite_map(assets)
+    if not mapping:
+        return genui_json
+    return _rewrite_asset_urls_in_value(genui_json, mapping)
 
 
 def _truncate_tokens(text: str, max_tokens: int) -> tuple[str, bool]:
@@ -300,11 +359,19 @@ def run_stage3(
                         backfill = response_text_by_id.get(response_id)
                         if isinstance(backfill, str):
                             row["response_text"] = backfill
-            aggregates = aggregate_metrics(rows)
+            render_rows_by_ui_id: dict[str, dict[str, Any]] = {}
+            render_log_path = genui_path.parent / "render.jsonl"
+            if render_log_path.exists():
+                for render_row in iter_jsonl(render_log_path):
+                    ui_id = render_row.get("ui_id")
+                    if isinstance(ui_id, str) and ui_id:
+                        render_rows_by_ui_id[ui_id] = render_row
+            aggregates = aggregate_metrics(rows, render_rows_by_ui_id=render_rows_by_ui_id)
             aggregates["overall_score"] = compute_overall_score(
                 aggregates,
                 aggregate_weights or {},
             )
+            aggregates["media_score"] = compute_media_score(aggregates)
             aggregates_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
             logger.info("Stage3 aggregates stored at %s", aggregates_path)
         except Exception as exc:  # best-effort
@@ -510,6 +577,8 @@ def run_stage3(
                 errors.extend(schema_errors)
                 if not validator_ok:
                     schema_valid_lenient = True
+
+        genui_json = _rewrite_genui_asset_urls(genui_json, assets_list)
 
         toon = encode_toon(genui_json)
         toon_ok = roundtrip_ok(genui_json, toon)

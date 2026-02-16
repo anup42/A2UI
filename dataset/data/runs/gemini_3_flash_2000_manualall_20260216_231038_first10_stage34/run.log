@@ -1,0 +1,16 @@
+2026-02-17 00:05:38 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=4967 user_template_tokens=16
+2026-02-17 00:06:32 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-02-17 00:07:19 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-02-17 00:07:50 INFO dataset: Stage3 created ui_id=u_000003_01 schema_ok=True
+2026-02-17 00:08:26 INFO dataset: Stage3 created ui_id=u_000004_01 schema_ok=True
+2026-02-17 00:08:48 INFO dataset: Stage3 created ui_id=u_000005_01 schema_ok=True
+2026-02-17 00:09:28 INFO dataset: Stage3 created ui_id=u_000006_01 schema_ok=True
+2026-02-17 00:10:15 INFO dataset: Stage3 created ui_id=u_000007_01 schema_ok=True
+2026-02-17 00:11:02 INFO dataset: Stage3 created ui_id=u_000008_01 schema_ok=True
+2026-02-17 00:11:48 INFO dataset: Stage3 created ui_id=u_000009_01 schema_ok=True
+2026-02-17 00:12:26 INFO dataset: Stage3 created ui_id=u_000010_01 schema_ok=True
+2026-02-17 00:12:26 INFO dataset: Stage3 completed created=10
+2026-02-17 00:12:26 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_flash_2000_manualall_20260216_231038_first10_stage34\aggregates.json
+2026-02-17 00:12:26 INFO dataset: Stage3 complete.
+2026-02-17 00:12:47 INFO dataset: Stage4 HTTP server started on port 64674
+2026-02-17 00:13:38 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_flash_2000_manualall_20260216_231038_first10_stage34\rendered

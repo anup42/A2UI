@@ -1,0 +1,28 @@
+{
+  "source_run": "gemini_3_flash_2000",
+  "created_at": "2026-02-13T17:37:28.196334Z",
+  "selection_rule": ">=2 per intent, then +1 distributed by largest intent pools until 50",
+  "intent_counts": {
+    "Booking": 3,
+    "Comparison": 3,
+    "Creating Writing": 3,
+    "Entertainment": 2,
+    "Event Schedule": 3,
+    "Information Retrieval": 2,
+    "Localization": 3,
+    "Navigation": 2,
+    "Planning": 2,
+    "Recipe": 2,
+    "Research Analysis": 3,
+    "Technical support": 2,
+    "Travel": 3,
+    "calculation": 3,
+    "data visualisation": 2,
+    "product_lookup": 2,
+    "productivity": 2,
+    "qr scanner": 3,
+    "status check": 3,
+    "weather": 2
+  },
+  "query_count": 50
+}

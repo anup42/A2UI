@@ -482,13 +482,18 @@ function renderResponses(items) {
 }
 
 function renderA2ui(items) {
-  const headers = ["ui_id", "response_id", "validation", "errors", "render"];
+  const headers = ["ui_id", "response_id", "intent", "validation", "errors", "IR", "render"];
   const rows = items.map((item) => {
     const validation = item.validation || {};
     const valText = `parse:${validation.json_parse_ok} strict:${validation.schema_valid_strict}`;
     const errors = Array.isArray(validation.errors) && validation.errors.length
       ? validation.errors[0]
       : "";
+    const intent = item.intent || item.intent_bucket || "";
+    const irPayload = item.genui_json || item.a2ui_json || item.toon || "";
+    const irText = typeof irPayload === "string"
+      ? irPayload
+      : JSON.stringify(irPayload, null, 2);
     const renderLink = document.createElement("a");
     renderLink.href = `/runs/${state.runId}/rendered/${item.ui_id}.html`;
     renderLink.textContent = "html";
@@ -502,7 +507,8 @@ function renderA2ui(items) {
     container.appendChild(document.createTextNode(" | "));
     container.appendChild(pngLink);
     const errorCell = errors ? createDetails("view", errors) : "";
-    return [item.ui_id, item.response_id, valText, errorCell, container];
+    const irCell = irText ? createDetails("view", irText) : "";
+    return [item.ui_id, item.response_id, intent, valText, errorCell, irCell, container];
   });
   tableWrap.innerHTML = "";
   tableWrap.appendChild(createTable(headers, rows));
@@ -606,6 +612,7 @@ nextBtn.addEventListener("click", async () => {
     showMessage(`Failed to load data: ${err}`);
   }
 })();
+
 
 
 

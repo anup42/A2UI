@@ -1,0 +1,114 @@
+2026-02-14 00:54:19 INFO dataset: Stage2 created response_id=r_000024_01
+2026-02-14 00:54:47 INFO dataset: Stage2 created response_id=r_000053_01
+2026-02-14 00:55:29 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/5/54/2006_WSOP_Main_Event_Table.jpg err=HTTP Error 403: Forbidden
+2026-02-14 00:55:29 INFO dataset: Stage2 created response_id=r_000096_01
+2026-02-14 00:56:10 INFO dataset: Stage2 created response_id=r_000156_01
+2026-02-14 00:56:42 INFO dataset: Stage2 created response_id=r_000200_01
+2026-02-14 00:57:07 INFO dataset: Stage2 created response_id=r_000248_01
+2026-02-14 00:57:32 INFO dataset: Stage2 created response_id=r_000336_01
+2026-02-14 00:57:51 INFO dataset: Stage2 created response_id=r_000341_01
+2026-02-14 00:58:12 INFO dataset: Stage2 created response_id=r_000344_01
+2026-02-14 00:58:42 INFO dataset: Stage2 created response_id=r_000389_01
+2026-02-14 00:59:04 INFO dataset: Stage2 created response_id=r_000410_01
+2026-02-14 00:59:22 INFO dataset: Stage2 created response_id=r_000452_01
+2026-02-14 00:59:49 INFO dataset: Stage2 created response_id=r_000466_01
+2026-02-14 01:00:30 INFO dataset: Stage2 created response_id=r_000542_01
+2026-02-14 01:01:10 INFO dataset: Stage2 created response_id=r_000560_01
+2026-02-14 01:01:37 INFO dataset: Stage2 created response_id=r_000627_01
+2026-02-14 01:02:20 INFO dataset: Stage2 created response_id=r_000642_01
+2026-02-14 01:02:56 INFO dataset: Stage2 created response_id=r_000701_01
+2026-02-14 01:03:38 INFO dataset: Stage2 created response_id=r_000767_01
+2026-02-14 01:04:10 INFO dataset: Stage2 created response_id=r_000793_01
+2026-02-14 01:04:37 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Wat_Arun_from_Wat_Pho.jpg/800px-Wat_Arun_from_Wat_Pho.jpg err=HTTP Error 403: Forbidden
+2026-02-14 01:04:37 INFO dataset: Stage2 created response_id=r_000795_01
+2026-02-14 01:05:08 INFO dataset: Stage2 created response_id=r_000807_01
+2026-02-14 01:05:49 INFO dataset: Stage2 created response_id=r_000905_01
+2026-02-14 01:06:16 INFO dataset: Stage2 created response_id=r_000926_01
+2026-02-14 01:06:39 INFO dataset: Stage2 created response_id=r_000971_01
+2026-02-14 01:07:10 INFO dataset: Stage2 created response_id=r_000979_01
+2026-02-14 01:07:51 INFO dataset: Stage2 created response_id=r_000981_01
+2026-02-14 01:08:18 INFO dataset: Stage2 created response_id=r_001085_01
+2026-02-14 01:08:53 INFO dataset: Stage2 created response_id=r_001098_01
+2026-02-14 01:09:33 INFO dataset: Stage2 created response_id=r_001116_01
+2026-02-14 01:09:50 INFO dataset: Stage2 created response_id=r_001166_01
+2026-02-14 01:10:13 INFO dataset: Stage2 created response_id=r_001172_01
+2026-02-14 01:10:39 INFO dataset: Stage2 created response_id=r_001196_01
+2026-02-14 01:10:59 INFO dataset: Stage2 created response_id=r_001247_01
+2026-02-14 01:11:21 INFO dataset: Stage2 created response_id=r_001261_01
+2026-02-14 01:12:03 INFO dataset: Stage2 created response_id=r_001286_01
+2026-02-14 01:12:21 WARNING dataset: Stage2 asset download failed url=https://www.bls.gov/opub/mlr/2003/07/art2full.pdf err=HTTP Error 403: Forbidden
+2026-02-14 01:12:21 INFO dataset: Stage2 created response_id=r_001367_01
+2026-02-14 01:12:38 INFO dataset: Stage2 created response_id=r_001383_01
+2026-02-14 01:13:06 INFO dataset: Stage2 created response_id=r_001391_01
+2026-02-14 01:13:40 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Mount_Sunday_New_Zealand.jpg/640px-Mount_Sunday_New_Zealand.jpg err=HTTP Error 403: Forbidden
+2026-02-14 01:13:40 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Mackenzie_Basin.jpg/640px-Mackenzie_Basin.jpg err=HTTP Error 403: Forbidden
+2026-02-14 01:13:40 INFO dataset: Stage2 created response_id=r_001424_01
+2026-02-14 01:14:19 INFO dataset: Stage2 created response_id=r_001460_01
+2026-02-14 01:14:51 INFO dataset: Stage2 created response_id=r_001465_01
+2026-02-14 01:15:12 INFO dataset: Stage2 created response_id=r_001510_01
+2026-02-14 01:15:34 INFO dataset: Stage2 created response_id=r_001535_01
+2026-02-14 01:15:54 INFO dataset: Stage2 created response_id=r_001544_01
+2026-02-14 01:16:34 INFO dataset: Stage2 created response_id=r_001547_01
+2026-02-14 01:16:54 INFO dataset: Stage2 created response_id=r_001553_01
+2026-02-14 01:17:19 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Infobox_info_icon.svg/480px-Infobox_info_icon.svg.png err=HTTP Error 403: Forbidden
+2026-02-14 01:17:19 INFO dataset: Stage2 created response_id=r_001582_01
+2026-02-14 01:17:42 INFO dataset: Stage2 created response_id=r_001590_01
+2026-02-14 01:18:07 INFO dataset: Stage2 created response_id=r_001702_01
+2026-02-14 01:33:06 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=4967 user_template_tokens=16
+2026-02-14 01:33:42 INFO dataset: Stage3 created ui_id=u_000024_01 schema_ok=True
+2026-02-14 01:34:24 INFO dataset: Stage3 created ui_id=u_000053_01 schema_ok=True
+2026-02-14 01:34:59 INFO dataset: Stage3 created ui_id=u_000096_01 schema_ok=True
+2026-02-14 01:35:40 INFO dataset: Stage3 created ui_id=u_000156_01 schema_ok=True
+2026-02-14 01:36:29 INFO dataset: Stage3 created ui_id=u_000200_01 schema_ok=True
+2026-02-14 01:36:57 INFO dataset: Stage3 created ui_id=u_000248_01 schema_ok=True
+2026-02-14 01:37:40 INFO dataset: Stage3 created ui_id=u_000336_01 schema_ok=True
+2026-02-14 01:38:27 INFO dataset: Stage3 created ui_id=u_000341_01 schema_ok=True
+2026-02-14 01:39:03 INFO dataset: Stage3 created ui_id=u_000344_01 schema_ok=True
+2026-02-14 01:39:37 INFO dataset: Stage3 created ui_id=u_000389_01 schema_ok=True
+2026-02-14 01:40:30 INFO dataset: Stage3 created ui_id=u_000410_01 schema_ok=True
+2026-02-14 01:41:10 INFO dataset: Stage3 created ui_id=u_000452_01 schema_ok=True
+2026-02-14 01:41:42 INFO dataset: Stage3 created ui_id=u_000466_01 schema_ok=True
+2026-02-14 01:42:56 INFO dataset: Stage3 created ui_id=u_000542_01 schema_ok=True
+2026-02-14 01:43:55 INFO dataset: Stage3 created ui_id=u_000560_01 schema_ok=True
+2026-02-14 01:44:33 INFO dataset: Stage3 created ui_id=u_000627_01 schema_ok=True
+2026-02-14 01:45:11 INFO dataset: Stage3 created ui_id=u_000642_01 schema_ok=True
+2026-02-14 01:45:54 INFO dataset: Stage3 created ui_id=u_000701_01 schema_ok=True
+2026-02-14 01:46:22 INFO dataset: Stage3 created ui_id=u_000767_01 schema_ok=True
+2026-02-14 01:47:13 INFO dataset: Stage3 created ui_id=u_000793_01 schema_ok=True
+2026-02-14 01:47:59 INFO dataset: Stage3 created ui_id=u_000795_01 schema_ok=True
+2026-02-14 01:48:43 INFO dataset: Stage3 created ui_id=u_000807_01 schema_ok=True
+2026-02-14 01:49:21 INFO dataset: Stage3 created ui_id=u_000905_01 schema_ok=True
+2026-02-14 01:51:08 INFO dataset: Stage3 created ui_id=u_000926_01 schema_ok=True
+2026-02-14 01:53:29 INFO dataset: Stage3 created ui_id=u_000971_01 schema_ok=True
+2026-02-14 01:55:32 INFO dataset: Stage3 created ui_id=u_000979_01 schema_ok=True
+2026-02-14 01:56:24 INFO dataset: Stage3 created ui_id=u_000981_01 schema_ok=True
+2026-02-14 01:57:30 INFO dataset: Stage3 created ui_id=u_001085_01 schema_ok=True
+2026-02-14 01:58:26 INFO dataset: Stage3 created ui_id=u_001098_01 schema_ok=True
+2026-02-14 01:58:49 INFO dataset: Stage3 created ui_id=u_001116_01 schema_ok=True
+2026-02-14 01:59:37 INFO dataset: Stage3 created ui_id=u_001166_01 schema_ok=True
+2026-02-14 02:00:24 INFO dataset: Stage3 created ui_id=u_001172_01 schema_ok=True
+2026-02-14 02:01:06 INFO dataset: Stage3 created ui_id=u_001196_01 schema_ok=True
+2026-02-14 02:01:45 INFO dataset: Stage3 created ui_id=u_001247_01 schema_ok=True
+2026-02-14 02:02:36 INFO dataset: Stage3 created ui_id=u_001261_01 schema_ok=True
+2026-02-14 02:03:37 INFO dataset: Stage3 created ui_id=u_001286_01 schema_ok=True
+2026-02-14 02:04:33 INFO dataset: Stage3 created ui_id=u_001367_01 schema_ok=True
+2026-02-14 02:05:21 INFO dataset: Stage3 created ui_id=u_001383_01 schema_ok=True
+2026-02-14 02:05:46 INFO dataset: Stage3 created ui_id=u_001391_01 schema_ok=True
+2026-02-14 02:06:37 INFO dataset: Stage3 created ui_id=u_001424_01 schema_ok=True
+2026-02-14 02:07:28 INFO dataset: Stage3 created ui_id=u_001460_01 schema_ok=True
+2026-02-14 02:07:54 INFO dataset: Stage3 created ui_id=u_001465_01 schema_ok=True
+2026-02-14 02:08:30 INFO dataset: Stage3 created ui_id=u_001510_01 schema_ok=True
+2026-02-14 02:09:04 INFO dataset: Stage3 created ui_id=u_001535_01 schema_ok=True
+2026-02-14 02:09:39 INFO dataset: Stage3 created ui_id=u_001544_01 schema_ok=True
+2026-02-14 02:10:40 INFO dataset: Stage3 created ui_id=u_001547_01 schema_ok=True
+2026-02-14 02:11:52 INFO dataset: Stage3 created ui_id=u_001553_01 schema_ok=True
+2026-02-14 02:12:38 INFO dataset: Stage3 created ui_id=u_001582_01 schema_ok=True
+2026-02-14 02:13:20 INFO dataset: Stage3 created ui_id=u_001590_01 schema_ok=True
+2026-02-14 02:13:49 INFO dataset: Stage3 created ui_id=u_001702_01 schema_ok=True
+2026-02-14 02:13:49 INFO dataset: Stage3 completed created=50
+2026-02-14 02:13:49 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_urlreal_20260214_005342\aggregates.json
+2026-02-14 02:13:49 INFO dataset: Stage3 complete.
+2026-02-14 02:13:58 INFO dataset: Stage4 HTTP server started on port 52616
+2026-02-14 02:15:25 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_urlreal_20260214_005342\rendered
+2026-02-14 17:45:52 INFO dataset: Stage4 HTTP server started on port 60600
+2026-02-14 17:47:06 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_urlreal_20260214_005342\rendered

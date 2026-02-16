@@ -1,0 +1,7 @@
+{
+    "run_id":  "subset10_manual_rich_20260216_230217",
+    "source_run":  "gemini_3_flash_2000",
+    "created_at":  "2026-02-16T23:02:22",
+    "note":  "Manual responses authored outside stage2 for rich stage4 rendering",
+    "query_count":  20
+}

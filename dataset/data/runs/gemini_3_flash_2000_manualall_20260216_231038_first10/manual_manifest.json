@@ -1,0 +1,9 @@
+{
+    "run_id":  "gemini_3_flash_2000_manualall_20260216_231038_first10",
+    "source_run":  "gemini_3_flash_2000_manualall_20260216_231038",
+    "created_at":  "2026-02-17T00:02:30",
+    "note":  "First 10 lines subset for stage3+stage4 execution",
+    "model_for_stage3":  "gemini_3_pro",
+    "query_lines":  10,
+    "response_lines":  10
+}

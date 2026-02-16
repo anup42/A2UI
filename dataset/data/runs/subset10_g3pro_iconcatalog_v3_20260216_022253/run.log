@@ -1,0 +1,28 @@
+2026-02-16 02:22:58 INFO dataset: Stage2 icon catalog enabled icons=72 icons_only_mode=True
+2026-02-16 02:22:58 INFO dataset: Stage2 created response_id=r_001374_01
+2026-02-16 02:22:58 INFO dataset: Stage2 created response_id=r_000264_01
+2026-02-16 02:22:58 INFO dataset: Stage2 created response_id=r_000701_01
+2026-02-16 02:22:58 INFO dataset: Stage2 created response_id=r_000175_01
+2026-02-16 02:22:58 INFO dataset: Stage2 created response_id=r_000090_01
+2026-02-16 02:22:58 INFO dataset: Stage2 created response_id=r_001047_01
+2026-02-16 02:22:59 INFO dataset: Stage2 created response_id=r_000784_01
+2026-02-16 02:22:59 INFO dataset: Stage2 created response_id=r_000351_01
+2026-02-16 02:22:59 INFO dataset: Stage2 created response_id=r_001502_01
+2026-02-16 02:22:59 INFO dataset: Stage2 created response_id=r_001590_01
+2026-02-16 02:23:03 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=4967 user_template_tokens=16
+2026-02-16 02:23:04 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-02-16 02:23:04 INFO dataset: Stage3 created ui_id=u_000264_01 schema_ok=True
+2026-02-16 02:23:04 INFO dataset: Stage3 created ui_id=u_000701_01 schema_ok=True
+2026-02-16 02:23:04 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-02-16 02:23:04 INFO dataset: Stage3 created ui_id=u_000090_01 schema_ok=True
+2026-02-16 02:23:05 INFO dataset: Stage3 created ui_id=u_001047_01 schema_ok=True
+2026-02-16 02:23:05 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-02-16 02:23:05 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-02-16 02:23:05 INFO dataset: Stage3 created ui_id=u_001502_01 schema_ok=True
+2026-02-16 02:23:05 INFO dataset: Stage3 created ui_id=u_001590_01 schema_ok=True
+2026-02-16 02:23:05 INFO dataset: Stage3 completed created=10
+2026-02-16 02:23:05 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_v3_20260216_022253\aggregates.json
+2026-02-16 02:23:05 INFO dataset: Stage3 complete.
+2026-02-16 02:23:11 INFO dataset: Stage4 HTTP server started on port 62107
+2026-02-16 02:23:11 INFO dataset: Stage4 rendering 10 images with 10 workers
+2026-02-16 02:23:17 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_v3_20260216_022253\rendered

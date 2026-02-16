@@ -1,0 +1,1032 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "tomHanksDramaFilms"}}, {"surfaceUpdate": {"surfaceId": "tomHanksDramaFilms", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["title", "summary_header", "summary_text", "assumptions_header", "assumptions_text", "details_header", "film_list", "actions_header", "actions_row", "sources_header", "sources_list"]}}}}, {"id": "title", "component": {"Text": {"text": {"literalString": "Tom Hanks: Drama Films (1990-2000)"}, "usageHint": "h2"}}}, {"id": "summary_header", "component": {"Text": {"text": {"literalString": "Summary"}, "usageHint": "h3"}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "Tom Hanks starred in numerous critically acclaimed films categorized as Drama between 1990 and 2000, a period that includes his back-to-back Academy Award wins. The list below is sorted chronologically and includes films where Drama is a primary or significant genre, covering pure dramas, dramedies, and historical events."}, "usageHint": "body"}}}, {"id": "assumptions_header", "component": {"Text": {"text": {"literalString": "Assumptions"}, "usageHint": "h3"}}}, {"id": "assumptions_text", "component": {"Text": {"text": {"literalString": "Films primarily categorized strictly as Comedy (e.g., Joe Versus the Volcano) or Animation (e.g., Toy Story) are excluded unless Drama is a distinct genre tag."}, "usageHint": "body"}}}, {"id": "details_header", "component": {"Text": {"text": {"literalString": "Structured Details"}, "usageHint": "h3"}}}, {"id": "film_list", "component": {"List": {"children": {"explicitList": ["header_row", "film_row_1", "film_row_2", "film_row_3", "film_row_4", "film_row_5", "film_row_6", "film_row_7", "film_row_8", "film_row_9", "film_row_10", "film_row_11"]}, "direction": "vertical"}}}, {"id": "header_row", "component": {"Row": {"children": {"explicitList": ["header_year", "header_title", "header_role", "header_genres"]}}}}, {"id": "header_year", "component": {"Text": {"text": {"literalString": "Year"}, "usageHint": "h5"}}}, {"id": "header_title", "component": {"Text": {"text": {"literalString": "Title"}, "usageHint": "h5"}}}, {"id": "header_role", "component": {"Text": {"text": {"literalString": "Role"}, "usageHint": "h5"}}}, {"id": "header_genres", "component": {"Text": {"text": {"literalString": "Primary Genres"}, "usageHint": "h5"}}}, {"id": "film_row_1", "component": {"Row": {"children": {"explicitList": ["year_1", "title_1", "role_1", "genres_1"]}}}}, {"id": "year_1", "component": {"Text": {"text": {"literalString": "1990"}, "usageHint": "body"}}}, {"id": "title_1", "component": {"Text": {"text": {"literalString": "The Bonfire of the Vanities"}, "usageHint": "body"}}}, {"id": "role_1", "component": {"Text": {"text": {"literalString": "Sherman McCoy"}, "usageHint": "body"}}}, {"id": "genres_1", "component": {"Text": {"text": {"literalString": "Comedy, Drama"}, "usageHint": "body"}}}, {"id": "film_row_2", "component": {"Row": {"children": {"explicitList": ["year_2", "title_2", "role_2", "genres_2"]}}}}, {"id": "year_2", "component": {"Text": {"text": {"literalString": "1992"}, "usageHint": "body"}}}, {"id": "title_2", "component": {"Text": {"text": {"literalString": "A League of Their Own"}, "usageHint": "body"}}}, {"id": "role_2", "component": {"Text": {"text": {"literalString": "Jimmy Dugan"}, "usageHint": "body"}}}, {"id": "genres_2", "component": {"Text": {"text": {"literalString": "Comedy, Drama, Sport"}, "usageHint": "body"}}}, {"id": "film_row_3", "component": {"Row": {"children": {"explicitList": ["year_3", "title_3", "role_3", "genres_3"]}}}}, {"id": "year_3", "component": {"Text": {"text": {"literalString": "1993"}, "usageHint": "body"}}}, {"id": "title_3", "component": {"Text": {"text": {"literalString": "Sleepless in Seattle"}, "usageHint": "body"}}}, {"id": "role_3", "component": {"Text": {"text": {"literalString": "Sam Baldwin"}, "usageHint": "body"}}}, {"id": "genres_3", "component": {"Text": {"text": {"literalString": "Comedy, Drama, Romance"}, "usageHint": "body"}}}, {"id": "film_row_4", "component": {"Row": {"children": {"explicitList": ["year_4", "title_4", "role_4", "genres_4"]}}}}, {"id": "year_4", "component": {"Text": {"text": {"literalString": "1993"}, "usageHint": "body"}}}, {"id": "title_4", "component": {"Text": {"text": {"literalString": "Philadelphia"}, "usageHint": "body"}}}, {"id": "role_4", "component": {"Text": {"text": {"literalString": "Andrew Beckett"}, "usageHint": "body"}}}, {"id": "genres_4", "component": {"Text": {"text": {"literalString": "Drama"}, "usageHint": "body"}}}, {"id": "film_row_5", "component": {"Row": {"children": {"explicitList": ["year_5", "title_5", "role_5", "genres_5"]}}}}, {"id": "year_5", "component": {"Text": {"text": {"literalString": "1994"}, "usageHint": "body"}}}, {"id": "title_5", "component": {"Text": {"text": {"literalString": "Forrest Gump"}, "usageHint": "body"}}}, {"id": "role_5", "component": {"Text": {"text": {"literalString": "Forrest Gump"}, "usageHint": "body"}}}, {"id": "genres_5", "component": {"Text": {"text": {"literalString": "Drama, Romance"}, "usageHint": "body"}}}, {"id": "film_row_6", "component": {"Row": {"children": {"explicitList": ["year_6", "title_6", "role_6", "genres_6"]}}}}, {"id": "year_6", "component": {"Text": {"text": {"literalString": "1995"}, "usageHint": "body"}}}, {"id": "title_6", "component": {"Text": {"text": {"literalString": "Apollo 13"}, "usageHint": "body"}}}, {"id": "role_6", "component": {"Text": {"text": {"literalString": "Jim Lovell"}, "usageHint": "body"}}}, {"id": "genres_6", "component": {"Text": {"text": {"literalString": "Adventure, Drama, History"}, "usageHint": "body"}}}, {"id": "film_row_7", "component": {"Row": {"children": {"explicitList": ["year_7", "title_7", "role_7", "genres_7"]}}}}, {"id": "year_7", "component": {"Text": {"text": {"literalString": "1996"}, "usageHint": "body"}}}, {"id": "title_7", "component": {"Text": {"text": {"literalString": "That Thing You Do!"}, "usageHint": "body"}}}, {"id": "role_7", "component": {"Text": {"text": {"literalString": "Mr. White"}, "usageHint": "body"}}}, {"id": "genres_7", "component": {"Text": {"text": {"literalString": "Comedy, Drama, Music"}, "usageHint": "body"}}}, {"id": "film_row_8", "component": {"Row": {"children": {"explicitList": ["year_8", "title_8", "role_8", "genres_8"]}}}}, {"id": "year_8", "component": {"Text": {"text": {"literalString": "1998"}, "usageHint": "body"}}}, {"id": "title_8", "component": {"Text": {"text": {"literalString": "Saving Private Ryan"}, "usageHint": "body"}}}, {"id": "role_8", "component": {"Text": {"text": {"literalString": "Captain Miller"}, "usageHint": "body"}}}, {"id": "genres_8", "component": {"Text": {"text": {"literalString": "Drama, War"}, "usageHint": "body"}}}, {"id": "film_row_9", "component": {"Row": {"children": {"explicitList": ["year_9", "title_9", "role_9", "genres_9"]}}}}, {"id": "year_9", "component": {"Text": {"text": {"literalString": "1998"}, "usageHint": "body"}}}, {"id": "title_9", "component": {"Text": {"text": {"literalString": "You've Got Mail"}, "usageHint": "body"}}}, {"id": "role_9", "component": {"Text": {"text": {"literalString": "Joe Fox"}, "usageHint": "body"}}}, {"id": "genres_9", "component": {"Text": {"text": {"literalString": "Comedy, Drama, Romance"}, "usageHint": "body"}}}, {"id": "film_row_10", "component": {"Row": {"children": {"explicitList": ["year_10", "title_10", "role_10", "genres_10"]}}}}, {"id": "year_10", "component": {"Text": {"text": {"literalString": "1999"}, "usageHint": "body"}}}, {"id": "title_10", "component": {"Text": {"text": {"literalString": "The Green Mile"}, "usageHint": "body"}}}, {"id": "role_10", "component": {"Text": {"text": {"literalString": "Paul Edgecomb"}, "usageHint": "body"}}}, {"id": "genres_10", "component": {"Text": {"text": {"literalString": "Crime, Drama, Fantasy"}, "usageHint": "body"}}}, {"id": "film_row_11", "component": {"Row": {"children": {"explicitList": ["year_11", "title_11", "role_11", "genres_11"]}}}}, {"id": "year_11", "component": {"Text": {"text": {"literalString": "2000"}, "usageHint": "body"}}}, {"id": "title_11", "component": {"Text": {"text": {"literalString": "Cast Away"}, "usageHint": "body"}}}, {"id": "role_11", "component": {"Text": {"text": {"literalString": "Chuck Noland"}, "usageHint": "body"}}}, {"id": "genres_11", "component": {"Text": {"text": {"literalString": "Adventure, Drama"}, "usageHint": "body"}}}, {"id": "actions_header", "component": {"Text": {"text": {"literalString": "Quick Actions"}, "usageHint": "h3"}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": ["imdb_button", "rt_button"]}}}}, {"id": "imdb_button", "component": {"Button": {"child": "imdb_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.imdb.com/name/nm0000158/"}}]}}}}, {"id": "imdb_button_text", "component": {"Text": {"text": {"literalString": "View Full Filmography on IMDb"}, "usageHint": "body"}}}, {"id": "rt_button", "component": {"Button": {"child": "rt_button_text", "action": {"name": "openUrl", "context": [{"key": "url", "value": {"literalString": "https://www.rottentomatoes.com/celebrity/tom_hanks"}}]}}}}, {"id": "rt_button_text", "component": {"Text": {"text": {"literalString": "Tom Hanks on Rotten Tomatoes"}, "usageHint": "body"}}}, {"id": "sources_header", "component": {"Text": {"text": {"literalString": "Sources"}, "usageHint": "h3"}}}, {"id": "sources_list", "component": {"Column": {"children": {"explicitList": ["imdb_source_button", "rt_source_button"]}, "alignment": "start"}}}, {"id": "imdb_source_button", "component": {"Text": {"text": {"literalString": "[IMDb: https://www.imdb.com/name/nm0000158/](https://www.imdb.com/name/nm0000158/)"}, "usageHint": "body"}}}, {"id": "rt_source_button", "component": {"Text": {"text": {"literalString": "[Rotten Tomatoes: https://www.rottentomatoes.com/celebrity/tom_hanks](https://www.rottentomatoes.com/celebrity/tom_hanks)"}, "usageHint": "body"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+
+      function setStatus(message) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        container.appendChild(note);
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "linear-gradient(180deg, var(--oneui-color-surface), var(--oneui-color-surface-alt))",
+              border: "1px solid var(--oneui-color-outline)",
+              "border-radius": "24px",
+              padding: "20px",
+              "box-shadow": "0 10px 26px rgba(20, 24, 35, 0.09)"
+            },
+            Button: {
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "none",
+              "border-radius": "22px",
+              "min-height": "44px",
+              padding: "11px 20px",
+              "font-weight": "700",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 16px rgba(0, 114, 222, 0.28)",
+              cursor: "pointer",
+              transition:
+                "transform 120ms ease, box-shadow 180ms ease, filter 120ms ease, background-color 120ms ease",
+              transform: "translateZ(0)",
+              "user-select": "none"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "16px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.95rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "0.97rem",
+                "line-height": "1.45rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
+          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
+          const { v0_8 } = await import(libUrl.href);
+          await import(uiUrl.href);
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.add("genui-image-missing-icon");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          function collectHostsDeep(rootNode, tagNameLower) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === tagNameLower) {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          function getDirectElementChildren(host) {
+            if (!host || !host.children) {
+              return [];
+            }
+            return Array.from(host.children).filter(
+              (child) => child && child.nodeType === Node.ELEMENT_NODE
+            );
+          }
+
+          function parseHostWeight(host) {
+            const styleWeight = Number(
+              String(host?.style?.getPropertyValue('--weight') || '').trim()
+            );
+            if (Number.isFinite(styleWeight) && styleWeight > 0) {
+              return styleWeight;
+            }
+
+            const weightRaw =
+              host?.component?.properties?.weight ??
+              host?.component?.weight ??
+              host?.getAttribute('weight');
+            const parsed = Number(weightRaw);
+            if (Number.isFinite(parsed) && parsed > 0) {
+              return parsed;
+            }
+            return 1;
+          }
+
+          function getGridTemplateFromWeights(rowHost) {
+            const cells = getDirectElementChildren(rowHost);
+            const weights = cells.map((cell) => parseHostWeight(cell));
+            return weights.map((weight) => `${weight}fr`).join(' ');
+          }
+
+          function isBorderlessButtonHost(host) {
+            const variant = String(
+              host?.component?.properties?.variant ??
+                host?.component?.variant ??
+                host?.getAttribute('variant') ??
+                ''
+            ).toLowerCase();
+            return variant === 'borderless';
+          }
+
+          function updateButtonVisualState(buttonEl) {
+            const kind = buttonEl.dataset.genuiBtnKind || 'primary';
+            const hovered = buttonEl.dataset.genuiHovered === '1';
+            const pressed = buttonEl.dataset.genuiPressed === '1';
+            const focusVisible = buttonEl.dataset.genuiFocusVisible === '1';
+
+            if (kind === 'borderless') {
+              buttonEl.style.transform = 'translateZ(0)';
+              buttonEl.style.filter = 'none';
+              buttonEl.style.boxShadow = 'none';
+              buttonEl.style.background = 'transparent';
+              buttonEl.style.border = 'none';
+              buttonEl.style.textDecoration = hovered ? 'underline' : 'none';
+              buttonEl.style.textUnderlineOffset = '0.2em';
+              buttonEl.style.outline = focusVisible
+                ? '2px solid rgba(0, 114, 222, 0.35)'
+                : 'none';
+              buttonEl.style.outlineOffset = '3px';
+              return;
+            }
+
+            if (pressed) {
+              buttonEl.style.background = 'var(--oneui-color-primary-pressed)';
+              buttonEl.style.boxShadow = '0 3px 10px rgba(0, 114, 222, 0.22)';
+              buttonEl.style.transform = 'translateZ(0) scale(0.98)';
+              buttonEl.style.filter = 'brightness(0.96)';
+            } else if (hovered) {
+              buttonEl.style.background =
+                'linear-gradient(180deg, #1a87eb 0%, var(--oneui-color-primary) 100%)';
+              buttonEl.style.boxShadow = '0 10px 22px rgba(0, 114, 222, 0.34)';
+              buttonEl.style.transform = 'translateZ(0) translateY(-1px)';
+              buttonEl.style.filter = 'none';
+            } else {
+              buttonEl.style.background =
+                'linear-gradient(180deg, #0d7fe6 0%, var(--oneui-color-primary) 100%)';
+              buttonEl.style.boxShadow = '0 7px 18px rgba(0, 114, 222, 0.28)';
+              buttonEl.style.transform = 'translateZ(0)';
+              buttonEl.style.filter = 'none';
+            }
+
+            buttonEl.style.outline = focusVisible
+              ? '3px solid rgba(0, 114, 222, 0.36)'
+              : 'none';
+            buttonEl.style.outlineOffset = focusVisible ? '2px' : '0';
+          }
+
+          function attachButtonInteraction(buttonEl) {
+            if (!buttonEl || buttonEl.dataset.genuiEnhancedPress === '1') {
+              return;
+            }
+
+            const apply = () => updateButtonVisualState(buttonEl);
+
+            buttonEl.addEventListener('pointerenter', () => {
+              buttonEl.dataset.genuiHovered = '1';
+              apply();
+            });
+            buttonEl.addEventListener('pointerleave', () => {
+              buttonEl.dataset.genuiHovered = '0';
+              buttonEl.dataset.genuiPressed = '0';
+              apply();
+            });
+            buttonEl.addEventListener('pointerdown', () => {
+              buttonEl.dataset.genuiPressed = '1';
+              apply();
+            });
+            buttonEl.addEventListener('pointerup', () => {
+              buttonEl.dataset.genuiPressed = '0';
+              apply();
+            });
+            buttonEl.addEventListener('pointercancel', () => {
+              buttonEl.dataset.genuiPressed = '0';
+              apply();
+            });
+            buttonEl.addEventListener('focus', () => {
+              buttonEl.dataset.genuiFocusVisible = buttonEl.matches(':focus-visible')
+                ? '1'
+                : '0';
+              apply();
+            });
+            buttonEl.addEventListener('blur', () => {
+              buttonEl.dataset.genuiFocusVisible = '0';
+              buttonEl.dataset.genuiPressed = '0';
+              apply();
+            });
+            buttonEl.addEventListener('keydown', (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                buttonEl.dataset.genuiPressed = '1';
+                apply();
+              }
+            });
+            buttonEl.addEventListener('keyup', (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                buttonEl.dataset.genuiPressed = '0';
+                apply();
+              }
+            });
+
+            buttonEl.dataset.genuiEnhancedPress = '1';
+          }
+
+          function enhanceButtons() {
+            const buttonHosts = collectHostsDeep(container, 'a2ui-button');
+            for (const host of buttonHosts) {
+              const button = host.shadowRoot?.querySelector('button');
+              if (!button) {
+                continue;
+              }
+
+              button.style.cursor = 'pointer';
+              button.style.transition =
+                'transform 130ms ease, box-shadow 180ms ease, filter 130ms ease, background-color 130ms ease, outline-color 120ms ease';
+              button.style.userSelect = 'none';
+              button.style.touchAction = 'manipulation';
+              button.style.willChange = 'transform, box-shadow, filter';
+              button.style.backfaceVisibility = 'hidden';
+              button.style.setProperty('--oneui-color-on-surface', 'var(--oneui-color-on-primary)');
+              button.style.setProperty('--oneui-color-on-surface-variant', 'var(--oneui-color-on-primary)');
+
+              const borderless = isBorderlessButtonHost(host);
+              button.dataset.genuiBtnKind = borderless ? 'borderless' : 'primary';
+
+              if (borderless) {
+                host.classList.add('genui-button-borderless');
+                button.style.padding = '0';
+                button.style.minHeight = 'auto';
+                button.style.borderRadius = '0';
+                button.style.justifyContent = 'flex-start';
+                button.style.color = 'var(--oneui-color-primary)';
+                button.style.setProperty(
+                  '--oneui-color-on-surface',
+                  'var(--oneui-color-primary)'
+                );
+                button.style.setProperty(
+                  '--oneui-color-on-surface-variant',
+                  'var(--oneui-color-primary)'
+                );
+              } else {
+                host.classList.remove('genui-button-borderless');
+                button.style.borderRadius = '22px';
+                button.style.minHeight = '44px';
+                button.style.padding = '11px 20px';
+                button.style.fontWeight = '700';
+                button.style.letterSpacing = '0.01em';
+                button.style.border = '1px solid rgba(255, 255, 255, 0.22)';
+                button.style.color = 'var(--oneui-color-on-primary)';
+              }
+
+              attachButtonInteraction(button);
+              updateButtonVisualState(button);
+            }
+          }
+
+          function styleTableCell(cellHost, isHeader, isLastCell) {
+            if (!cellHost) {
+              return;
+            }
+            cellHost.style.display = 'block';
+            cellHost.style.padding = '10px 12px';
+            cellHost.style.margin = '0';
+            cellHost.style.minWidth = '0';
+            cellHost.style.borderRight = isLastCell
+              ? 'none'
+              : '1px solid var(--oneui-color-outline-variant)';
+
+            const textNode = cellHost.shadowRoot?.querySelector(
+              'p, h1, h2, h3, h4, h5, h6'
+            );
+            if (textNode) {
+              textNode.style.margin = '0';
+              textNode.style.textAlign = 'left';
+              textNode.style.wordBreak = 'break-word';
+              if (isHeader) {
+                textNode.style.fontWeight = '700';
+              }
+            }
+          }
+
+          function styleTableRows(rows, dividerHosts) {
+            if (!rows.length) {
+              return;
+            }
+            const template = getGridTemplateFromWeights(rows[0]) || '1fr 1fr';
+            rows.forEach((row, rowIndex) => {
+              row.style.display = 'block';
+              row.style.margin = '0';
+
+              const section = row.shadowRoot?.querySelector('section');
+              if (!section) {
+                return;
+              }
+
+              section.style.display = 'grid';
+              section.style.gridTemplateColumns = template;
+              section.style.columnGap = '0';
+              section.style.rowGap = '0';
+              section.style.alignItems = 'stretch';
+              section.style.padding = '0';
+              section.style.margin = '0';
+              section.style.borderBottom =
+                rowIndex < rows.length - 1
+                  ? '1px solid var(--oneui-color-outline-variant)'
+                  : 'none';
+              section.style.background =
+                rowIndex === 0 ? '#f1f5f9' : '#ffffff';
+
+              const cells = getDirectElementChildren(row);
+              cells.forEach((cell, cellIndex) => {
+                styleTableCell(cell, rowIndex === 0, cellIndex === cells.length - 1);
+              });
+            });
+
+            for (const dividerHost of dividerHosts) {
+              dividerHost.style.display = 'none';
+            }
+          }
+
+          function enhanceTableLikeLists() {
+            const listHosts = collectHostsDeep(container, 'a2ui-list');
+            for (const listHost of listHosts) {
+              const direction = String(
+                listHost.direction || listHost.getAttribute('direction') || 'vertical'
+              ).toLowerCase();
+              if (direction !== 'vertical') {
+                continue;
+              }
+
+              const rows = getDirectElementChildren(listHost).filter(
+                (child) => child.tagName && child.tagName.toLowerCase() === 'a2ui-row'
+              );
+              if (rows.length < 2) {
+                continue;
+              }
+              const cellCounts = rows.map(
+                (row) => getDirectElementChildren(row).length
+              );
+              if (cellCounts.some((count) => count < 2)) {
+                continue;
+              }
+              if (new Set(cellCounts).size !== 1) {
+                continue;
+              }
+
+              listHost.classList.add('genui-table-list');
+              listHost.style.border = '1px solid #e2e8f0';
+              listHost.style.borderRadius = '12px';
+              listHost.style.overflow = 'hidden';
+              listHost.style.background = 'var(--oneui-color-surface)';
+              listHost.style.boxShadow = '0 2px 8px rgba(15, 23, 42, 0.08)';
+
+              styleTableRows(rows, []);
+            }
+          }
+
+                    function enhanceTableLikeColumns() {
+            const columnHosts = collectHostsDeep(container, 'a2ui-column');
+            for (const columnHost of columnHosts) {
+              const directChildren = getDirectElementChildren(columnHost);
+              const groups = [];
+              let currentRows = [];
+              let currentDividers = [];
+
+              const flushGroup = () => {
+                if (currentRows.length > 0) {
+                  groups.push({ rows: currentRows, dividers: currentDividers });
+                }
+                currentRows = [];
+                currentDividers = [];
+              };
+
+              for (const child of directChildren) {
+                const tag = child.tagName ? child.tagName.toLowerCase() : '';
+                if (tag === 'a2ui-row') {
+                  currentRows.push(child);
+                  continue;
+                }
+                if (tag === 'a2ui-divider' && currentRows.length > 0) {
+                  currentDividers.push(child);
+                  continue;
+                }
+                flushGroup();
+              }
+              flushGroup();
+
+              let styledAnyGroup = false;
+              for (const group of groups) {
+                const rows = group.rows;
+                const dividers = group.dividers;
+                if (rows.length < 2 || dividers.length < 1) {
+                  continue;
+                }
+
+                const cellCounts = rows.map(
+                  (row) => getDirectElementChildren(row).length
+                );
+                if (cellCounts.some((count) => count < 2)) {
+                  continue;
+                }
+                if (new Set(cellCounts).size !== 1) {
+                  continue;
+                }
+
+                styleTableRows(rows, dividers);
+                styledAnyGroup = true;
+              }
+
+              if (!styledAnyGroup) {
+                continue;
+              }
+
+              columnHost.classList.add('genui-table-list');
+              columnHost.style.border = '1px solid #e2e8f0';
+              columnHost.style.borderRadius = '12px';
+              columnHost.style.overflow = 'hidden';
+              columnHost.style.background = 'var(--oneui-color-surface)';
+              columnHost.style.boxShadow = '0 2px 8px rgba(15, 23, 42, 0.08)';
+            }
+          }
+
+          function enhanceTableLayouts() {
+            enhanceTableLikeLists();
+            enhanceTableLikeColumns();
+          }
+          async function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            enhanceButtons();
+            enhanceTableLayouts();
+            await markMissingImages();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            enhanceButtons();
+            enhanceTableLayouts();
+            await markMissingImages();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
+
+          if (window.__GenUICraft_MESSAGES__) {
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          setStatus("Lit renderer failed to load.");
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+

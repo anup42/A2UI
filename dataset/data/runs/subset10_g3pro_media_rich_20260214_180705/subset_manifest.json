@@ -1,0 +1,17 @@
+{
+  "run_id": "subset10_g3pro_media_rich_20260214_180112",
+  "source_queries": "data/runs/gemini_3_flash_2000/queries.jsonl",
+  "subset_size": 10,
+  "selected_query_ids": [
+    "q_001374",
+    "q_000264",
+    "q_000701",
+    "q_000175",
+    "q_000090",
+    "q_001047",
+    "q_000784",
+    "q_000351",
+    "q_001502",
+    "q_001590"
+  ]
+}

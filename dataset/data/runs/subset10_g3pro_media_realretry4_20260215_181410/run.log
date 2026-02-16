@@ -1,0 +1,20 @@
+2026-02-15 23:44:25 INFO dataset: Stage2 real-asset retry enabled attempts=5 min_valid_rate=1.00
+2026-02-15 23:44:40 INFO dataset: Stage2 created response_id=r_001374_01
+2026-02-15 23:46:15 WARNING dataset: Stage2 asset retry exhausted response_id=r_000264_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:46:15 INFO dataset: Stage2 created response_id=r_000264_01
+2026-02-15 23:48:16 WARNING dataset: Stage2 asset retry exhausted response_id=r_000701_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:48:16 INFO dataset: Stage2 created response_id=r_000701_01
+2026-02-15 23:49:54 WARNING dataset: Stage2 asset retry exhausted response_id=r_000175_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:49:54 INFO dataset: Stage2 created response_id=r_000175_01
+2026-02-15 23:51:24 WARNING dataset: Stage2 asset retry exhausted response_id=r_000090_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:51:24 INFO dataset: Stage2 created response_id=r_000090_01
+2026-02-15 23:53:09 WARNING dataset: Stage2 asset retry exhausted response_id=r_001047_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:53:09 INFO dataset: Stage2 created response_id=r_001047_01
+2026-02-15 23:55:12 WARNING dataset: Stage2 asset retry exhausted response_id=r_000784_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:55:12 INFO dataset: Stage2 created response_id=r_000784_01
+2026-02-15 23:56:35 WARNING dataset: Stage2 asset retry exhausted response_id=r_000351_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:56:35 INFO dataset: Stage2 created response_id=r_000351_01
+2026-02-15 23:58:16 WARNING dataset: Stage2 asset retry exhausted response_id=r_001502_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:58:16 INFO dataset: Stage2 created response_id=r_001502_01
+2026-02-15 23:59:23 WARNING dataset: Stage2 asset retry exhausted response_id=r_001590_01 reason=visual intent response is missing image URLs in Images section
+2026-02-15 23:59:23 INFO dataset: Stage2 created response_id=r_001590_01

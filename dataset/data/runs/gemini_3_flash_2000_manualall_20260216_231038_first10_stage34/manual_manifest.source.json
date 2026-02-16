@@ -1,0 +1,13 @@
+{
+    "run_id":  "gemini_3_flash_2000_manualall_20260216_231038",
+    "source_run":  "gemini_3_flash_2000",
+    "created_at":  "2026-02-16T23:10:47",
+    "updated_at":  "2026-02-16T23:14:19",
+    "mode":  "manual_no_stage2",
+    "note":  "All queries covered: reused existing source responses + manually synthesized rich responses for missing query_ids",
+    "queries_total":  3707,
+    "unique_query_ids":  1719,
+    "responses_total":  3707,
+    "reused_existing_responses":  854,
+    "generated_manual_fallback":  2853
+}

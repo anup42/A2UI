@@ -12,6 +12,7 @@ _stopwords = {
 
 _URL_RE = re.compile(r"https?://[^\s\]\)\}<>\"']+")
 _MARKDOWN_LINE_RE = re.compile(r"^\s*(?:[-*]\s+|#+\s+|\|).*")
+_ASSET_SECTION_HEADERS = {"images", "icons", "assets", "files"}
 
 _CONTAINER_COMPONENTS = {
     "Column",
@@ -89,6 +90,41 @@ def _extract_urls(text: str) -> list[str]:
         cleaned_url = url.rstrip(".,);:")
         cleaned.append(cleaned_url)
     return cleaned
+
+
+def _normalize_url_for_compare(url: str) -> str:
+    if not isinstance(url, str):
+        return ""
+    cleaned = url.strip().rstrip(".,);:!?")
+    return cleaned.lower()
+
+
+def _extract_declared_asset_urls(response_text: str) -> list[str]:
+    if not response_text:
+        return []
+    urls: list[str] = []
+    active_section: str | None = None
+    for raw_line in response_text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            active_section = None
+            continue
+        header = line.rstrip(":").strip().lower()
+        if header in _ASSET_SECTION_HEADERS:
+            active_section = header
+            continue
+        if active_section is None and "http" not in line:
+            continue
+        line_urls = _extract_urls(line)
+        if not line_urls:
+            continue
+        if active_section in _ASSET_SECTION_HEADERS:
+            urls.extend(line_urls)
+            continue
+        if re.search(r"\b(image|icon)\b", line, flags=re.IGNORECASE):
+            urls.extend(line_urls)
+    normalized = [_normalize_url_for_compare(u) for u in urls if _normalize_url_for_compare(u)]
+    return list(dict.fromkeys(normalized))
 
 
 def _iter_components(genui_json: Any) -> list[dict[str, Any]]:
@@ -592,6 +628,19 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
 
     markdown_leakage_rate = _markdown_leakage_rate(text_nodes)
 
+    image_presence = 0.0
+    icon_presence = 0.0
+    for comp in components:
+        comp_type = comp.get("component")
+        if comp_type == "Image":
+            variant = str(comp.get("variant") or "").strip().lower()
+            if variant == "icon":
+                icon_presence = 1.0
+            else:
+                image_presence = 1.0
+        elif comp_type == "Icon":
+            icon_presence = 1.0
+
     # Reference integrity (dangling nodes / missing ids)
     ref_integrity = _compute_reference_integrity(components)
 
@@ -623,6 +672,8 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
         "table_cell_coverage": float(table_cell_coverage),
         "section_heading_coverage": float(section_heading_coverage),
         "markdown_leakage_rate": float(markdown_leakage_rate),
+        "image_presence": float(image_presence),
+        "icon_presence": float(icon_presence),
         "missing_ids": ref_integrity["missing_ids"],
         "missing_ids_rate": ref_integrity["missing_ids_rate"],
         "dangling_components": ref_integrity["dangling_components"],
@@ -703,7 +754,30 @@ def compute_overall_score(aggregate: dict[str, Any], weights: dict[str, float]) 
     return score
 
 
-def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
+def compute_media_score(aggregate: dict[str, Any]) -> float | None:
+    values: list[float] = []
+    for key in (
+        "image_presence_rate",
+        "icon_presence_rate",
+        "asset_url_valid_rate",
+        "rendered_image_ok_rate",
+    ):
+        value = aggregate.get(key)
+        if value is None:
+            continue
+        try:
+            values.append(float(value))
+        except Exception:
+            continue
+    if not values:
+        return None
+    return (sum(values) / len(values)) * 100.0
+
+
+def aggregate_metrics(
+    rows: list[dict[str, Any]],
+    render_rows_by_ui_id: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     if not rows:
         return {}
 
@@ -727,6 +801,15 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         if genui_json is None:
             genui_json = row.get("a2ui_json")
         response_text = row.get("response_text", "") or ""
+        row_render = row.get("render") if isinstance(row.get("render"), dict) else None
+        if row_render is None and render_rows_by_ui_id:
+            ui_id = row.get("ui_id")
+            if isinstance(ui_id, str):
+                render_row = render_rows_by_ui_id.get(ui_id)
+                if isinstance(render_row, dict):
+                    candidate = render_row.get("render")
+                    if isinstance(candidate, dict):
+                        row_render = candidate
         if genui_json is not None:
             row_metrics.update(compute_ui_metrics(response_text, genui_json))
             row_metrics["content_coverage"] = content_coverage(response_text, genui_json)
@@ -740,6 +823,27 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
                     row_metrics,
                 )
             )
+        declared_asset_urls = set(_extract_declared_asset_urls(response_text))
+        downloaded_asset_urls: set[str] = set()
+        assets = row.get("assets")
+        if isinstance(assets, list):
+            for item in assets:
+                if not isinstance(item, dict):
+                    continue
+                url = item.get("url")
+                if isinstance(url, str):
+                    norm = _normalize_url_for_compare(url)
+                    if norm:
+                        downloaded_asset_urls.add(norm)
+        declared_count = len(declared_asset_urls)
+        valid_assets = len(downloaded_asset_urls & declared_asset_urls)
+        row_metrics["asset_url_declared"] = float(declared_count)
+        row_metrics["asset_url_valid"] = (
+            float(valid_assets / declared_count) if declared_count > 0 else 1.0
+        )
+        row_metrics["render_image_ok"] = (
+            1.0 if isinstance(row_render, dict) and row_render.get("image_ok") else 0.0
+        ) if row_render is not None else None
         computed_rows.append({"row": row, "metrics": row_metrics})
 
     metrics = {
@@ -768,6 +872,9 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "table_cell_coverage": [item["metrics"].get("table_cell_coverage", 0.0) for item in computed_rows],
         "section_heading_coverage": [item["metrics"].get("section_heading_coverage", 0.0) for item in computed_rows],
         "markdown_leakage_rate": [item["metrics"].get("markdown_leakage_rate", 0.0) for item in computed_rows],
+        "image_presence": [item["metrics"].get("image_presence", 0.0) for item in computed_rows],
+        "icon_presence": [item["metrics"].get("icon_presence", 0.0) for item in computed_rows],
+        "asset_url_valid": [item["metrics"].get("asset_url_valid", 1.0) for item in computed_rows],
         "missing_ids": [item["metrics"].get("missing_ids", 0.0) for item in computed_rows],
         "missing_ids_rate": [item["metrics"].get("missing_ids_rate", 0.0) for item in computed_rows],
         "dangling_components": [item["metrics"].get("dangling_components", 0.0) for item in computed_rows],
@@ -780,6 +887,11 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
             1.0 if item["row"].get("render", {}).get("image_ok") else 0.0
             for item in computed_rows
             if isinstance(item["row"].get("render"), dict)
+        ],
+        "render_image_ok": [
+            float(item["metrics"].get("render_image_ok"))
+            for item in computed_rows
+            if item["metrics"].get("render_image_ok") is not None
         ],
         "latency_ms": [item["row"].get("gen", {}).get("latency_ms", 0.0) for item in computed_rows if item["row"].get("gen")],
     }
@@ -837,8 +949,18 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         for idx in range(len(computed_rows))
         if metrics["intent_require_table"][idx] >= 1.0
     ]
+    rendered_image_ok_values = [
+        float(item["metrics"]["render_image_ok"])
+        for item in computed_rows
+        if item["metrics"].get("render_image_ok") is not None
+        and (
+            item["metrics"].get("image_presence", 0.0) >= 1.0
+            or item["metrics"].get("icon_presence", 0.0) >= 1.0
+            or item["metrics"].get("asset_url_declared", 0.0) > 0.0
+        )
+    ]
 
-    return {
+    aggregate = {
         "counts": len(rows),
         "schema_valid_strict_rate": mean(metrics["schema_valid_strict"]),
         "content_coverage_avg": mean(metrics["content_coverage"]),
@@ -864,6 +986,12 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "table_cell_coverage_avg": mean(metrics["table_cell_coverage"]),
         "section_heading_coverage_avg": mean(metrics["section_heading_coverage"]),
         "markdown_leakage_rate_avg": mean(metrics["markdown_leakage_rate"]),
+        "image_presence_rate": mean(metrics["image_presence"]),
+        "icon_presence_rate": mean(metrics["icon_presence"]),
+        "asset_url_valid_rate": mean(metrics["asset_url_valid"]),
+        "rendered_image_ok_rate": (
+            mean(rendered_image_ok_values) if rendered_image_ok_values else None
+        ),
         "missing_ids_avg": mean(metrics["missing_ids"]),
         "missing_ids_rate_avg": mean(metrics["missing_ids_rate"]),
         "dangling_components_avg": mean(metrics["dangling_components"]),
@@ -873,10 +1001,14 @@ def aggregate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "table_required_rate": mean(metrics["intent_require_table"]),
         "table_ok_rate": mean(table_ok_values) if table_ok_values else 0.0,
         "intent_stats": intent_stats_out or None,
-        "render_ok_rate": mean(metrics["render_ok"]) if metrics["render_ok"] else None,
+        "render_ok_rate": mean(metrics["render_ok"]) if metrics["render_ok"] else (
+            mean(metrics["render_image_ok"]) if metrics["render_image_ok"] else None
+        ),
         "latency_ms_avg": mean(metrics["latency_ms"]),
         "latency_ms_p95": pct(metrics["latency_ms"], 95),
     }
+    aggregate["media_score"] = compute_media_score(aggregate)
+    return aggregate
 
 
 

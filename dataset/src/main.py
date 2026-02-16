@@ -16,7 +16,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from pipeline.cache import PromptCache
-from pipeline.metrics import aggregate_metrics, compute_overall_score
+from pipeline.metrics import aggregate_metrics, compute_overall_score, compute_media_score
 from pipeline.stage1_queries import run_stage1
 from pipeline.stage2_responses import run_stage2
 from pipeline.stage3_genui import run_stage3
@@ -60,8 +60,10 @@ def _load_subset(queries_path: Path, size: int) -> list[dict]:
 
 def _compute_aggregates(genui_path: Path, weights: dict) -> dict:
     rows = list(iter_jsonl(genui_path))
-    aggregate = aggregate_metrics(rows)
+    render_rows_by_ui_id = _load_render_rows_by_ui_id(genui_path.parent)
+    aggregate = aggregate_metrics(rows, render_rows_by_ui_id=render_rows_by_ui_id)
     aggregate["overall_score"] = compute_overall_score(aggregate, weights)
+    aggregate["media_score"] = compute_media_score(aggregate)
     return aggregate
 
 
@@ -75,6 +77,18 @@ def _load_response_text_map(responses_path: Path) -> dict[str, str]:
         if isinstance(response_id, str) and isinstance(response_text, str):
             mapping[response_id] = response_text
     return mapping
+
+
+def _load_render_rows_by_ui_id(run_dir: Path) -> dict[str, dict]:
+    render_path = run_dir / "render.jsonl"
+    rows: dict[str, dict] = {}
+    if not render_path.exists():
+        return rows
+    for row in iter_jsonl(render_path):
+        ui_id = row.get("ui_id")
+        if isinstance(ui_id, str) and ui_id:
+            rows[ui_id] = row
+    return rows
 
 
 def _compute_aggregates_with_backfill(
@@ -94,8 +108,10 @@ def _compute_aggregates_with_backfill(
                     backfill = response_map.get(response_id)
                     if isinstance(backfill, str):
                         row["response_text"] = backfill
-    aggregate = aggregate_metrics(rows)
+    render_rows_by_ui_id = _load_render_rows_by_ui_id(genui_path.parent)
+    aggregate = aggregate_metrics(rows, render_rows_by_ui_id=render_rows_by_ui_id)
     aggregate["overall_score"] = compute_overall_score(aggregate, weights)
+    aggregate["media_score"] = compute_media_score(aggregate)
     return aggregate
 
 

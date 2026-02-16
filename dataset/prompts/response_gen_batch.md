@@ -1,61 +1,83 @@
-# response_gen_batch_v4b_ui_enriched_optional
+# response_gen_batch_v9_heading_specific
 
-You are generating high-quality, COMPLETE, single-turn responses for multiple user queries.
-The responses will be converted into a UI, so prefer structured, render-friendly content.
+You are generating high-quality, complete, single-turn responses for multiple user queries.
+The responses will be transformed into UI, so produce structured, render-friendly text.
 
-Non-negotiable rules:
-1) Produce a complete answer in ONE TURN. Do NOT ask follow-up questions.
-2) Never refuse due to lack of browsing/tools. Never say "I can't access real-time data".
-3) If something is missing/ambiguous, make reasonable default assumptions and state them briefly:
-   Assumptions: ...
-4) If the query would normally need live/local data (weather, flights, nearby places, "current price", "trending"):
-   Provide (A) an offline framework + steps to verify live info AND (B) a clearly labeled EXAMPLE set of plausible options
-   (synthetic) that can be rendered as cards/tables.
-5) Output must be plain text only (no markdown). Use simple labeled sections and bullet points.
+Core rules:
+1) Provide a complete answer in one turn. Do not ask follow-up questions.
+2) Do not refuse due to browsing/tool limits.
+3) If details are missing, make brief reasonable assumptions in a clearly titled assumptions/context section.
+   Do NOT use the literal heading "Assumptions".
+4) For live/local data requests (weather, flights, nearby places, current prices, trends):
+   include both (A) an offline decision framework + verification steps and (B) clearly labeled EXAMPLE options.
+5) Output plain text only in each response_text. No markdown emphasis.
 
-UI-enrichment (OPTIONAL, but recommended when relevant):
-- Include ONLY the elements that naturally fit the query type. Do not add random assets.
-- Prefer fewer, higher-quality artifacts over many low-quality ones.
+Required response shape (headings are mandatory, but must be meaningful and topic-specific):
+- Section 1: topic-specific overview heading (for example: "January Climate Snapshot", "Best Options for SFO Rental")
+- Section 2: assumptions/context heading if needed (for example: "Context and Assumptions", "What This Comparison Assumes")
+- Section 3: topic-specific main content heading (for example: "Bangkok vs Hanoi: January Comparison", "Ranked Options")
+- Section 4: Quick Actions (only if useful)
+- Section 5: Sources (only if useful)
 
-When to add each enrichment:
-A) Quick Actions (buttons/links): include if the user intent implies doing something next
-   (booking, shopping, learning, troubleshooting, planning, documentation).
-   Format if used (exact):
-   Quick Actions:
-   [Button: <label>] <url>
+Heading quality rules (strict):
+- Never use generic section titles: "Summary", "Assumptions", "Structured Details".
+- Headings must reflect the query domain and content.
+- For weather/climate comparisons, use headings like:
+  - "January Climate Snapshot"
+  - "City-by-City Climate Comparison"
+  - "Travel Comfort Assessment"
+- For table-heavy responses, name the table section specifically (for example: "Feature Comparison Table", "Timeline Overview", "Cost Breakdown").
 
-B) Images: include if the topic benefits from visuals
-   (travel destinations, products, recipes, animals/places, workouts, UI/dashboard examples).
-   Format if used:
-   Images:
-   - <title>: <image_url>
+Structured Details rules (critical):
+- If the query compares options, schedules, metrics, statuses, or calculations with 3+ items:
+  include exactly one compact pipe table with a header and 3-8 data rows.
+- If table is not natural, provide 3-6 option cards in this strict pattern:
+  Option 1: <title> | <one-line summary> | <key attribute>
+  Action: [Button: <label>] <url>
+- Keep URLs adjacent to the related option/row they belong to.
 
-C) Icons: include if you introduce categories/sections that map to icons
-   (weather, finance, travel, health, education, settings).
-   Format if used:
-   Icons:
-   - <name>: <icon_url>
-
-D) Tables / Cards: strongly preferred for comparisons, options, schedules, checklists, or datasets.
-   - If recommending: provide 3-6 options as "cards":
-     Option 1: Title | 1-line summary | Key attribute (price/rating/time) | Link (if any)
-   - If analytical: include at least one small table.
-
-Sources:
-- If you cite facts that a user may want to verify (policies, official docs, how-to steps),
-  include 1-3 stable URLs under:
-  Sources:
-  - <url>
-- If the answer is purely general advice and no external verification is needed, Sources can be omitted.
+Link locality rule (strict for downstream UI binding):
+- Do not dump unrelated links at the end.
+- For each option/row, place the action URL immediately under it.
+- Use final Quick Actions only for global actions (compare all, official docs, support home, etc.).
 
 Quality constraints:
-- Keep it structured and UI-friendly: headings like Summary / Steps / Options / Checklist / Next.
-- Avoid filler disclaimers. Only add medical/finance caution when truly relevant.
-- Do not claim you checked live availability/prices. If you provide examples, label them clearly as EXAMPLE.
+- Keep 4-7 headings maximum.
+- Prefer concise, information-dense sections over long narrative paragraphs.
+- Avoid large key:value dumps; if many fields exist, summarize them in a table.
+- If a URL is provided, it must be a real-world, publicly reachable URL on a real domain.
+- Never invent fake domains or placeholder hosts (for example: static.icons, example.com, icon.url, localhost).
 
-Output protocol (must follow exactly):
-- Return ONLY valid JSON (no markdown).
-- Output a JSON array of objects with fields: query_id (string), response_text (string).
+Media enrichment policy:
+- If intent/tags imply visual content (travel, booking, product_lookup, recipe, entertainment, event_schedule, weather, localization, qr_scanner, status_check), include both:
+  1) Images section with 2-5 relevant representative image URLs.
+  2) Icons section with 1-3 relevant icon URLs.
+- For non-visual intents, Images/Icons are optional.
+
+Media output format:
+Images:
+- <title>: <image_url>
+Icons:
+- <name>: <icon_url>
+
+Asset URL rules (strict):
+- Include Images/Icons only when you can provide real sample URLs that are publicly accessible now.
+- Use direct asset URLs whenever possible (image file URLs for image/icon entries).
+- If you are not confident a real asset URL exists, omit that specific image/icon entry instead of guessing.
+- Do not output broken, fake, or placeholder asset URLs.
+- Avoid hosts that are frequently blocked in automated download (for example: upload.wikimedia.org, images.unsplash.com, cdn.pixabay.com, deep images.pexels.com links).
+- Prefer direct image URLs sized for UI cards (roughly landscape, around 1200x800 or similar).
+- When uncertain, use keyword-based real photos via: https://loremflickr.com/1200/800/<keyword>
+- Prefer direct icon SVG URLs sized for UI use (roughly 64-256 px square), for example:
+  https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg
+
+Source rules:
+- If verifiable factual claims are included, add 1-3 stable links under Sources.
+- Omit Sources for pure general guidance.
+
+Output protocol (must follow):
+- Return only valid JSON (no markdown).
+- Return a JSON array of objects with fields: query_id (string), response_text (string).
 
 Queries (JSON array):
 {queries_json}

@@ -1,0 +1,39 @@
+2026-02-15 23:09:57 INFO dataset: Stage2 real-asset retry enabled attempts=4 min_valid_rate=1.00
+2026-02-15 23:10:11 INFO dataset: Stage2 created response_id=r_001374_01
+2026-02-15 23:11:09 INFO dataset: Stage2 created response_id=r_000264_01
+2026-02-15 23:11:45 INFO dataset: Stage2 created response_id=r_000701_01
+2026-02-15 23:13:03 INFO dataset: Stage2 created response_id=r_000175_01
+2026-02-15 23:15:00 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2016/04/27/12/32/board-game-1356496_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:15:00 WARNING dataset: Stage2 asset unresolved response_id=r_000090_01 kind=image url=https://cdn.pixabay.com/photo/2016/04/27/12/32/board-game-1356496_1280.jpg
+2026-02-15 23:15:02 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2016/07/22/16/36/board-game-1535560_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:15:02 WARNING dataset: Stage2 asset unresolved response_id=r_000090_01 kind=image url=https://cdn.pixabay.com/photo/2016/07/22/16/36/board-game-1535560_1280.jpg
+2026-02-15 23:15:39 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2016/04/27/10/16/monopoly-1356343_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:15:39 WARNING dataset: Stage2 asset unresolved response_id=r_000090_01 kind=image url=https://cdn.pixabay.com/photo/2016/04/27/10/16/monopoly-1356343_1280.jpg
+2026-02-15 23:15:41 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2016/07/28/15/48/dice-1547844_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:15:41 WARNING dataset: Stage2 asset unresolved response_id=r_000090_01 kind=image url=https://cdn.pixabay.com/photo/2016/07/28/15/48/dice-1547844_1280.jpg
+2026-02-15 23:15:41 WARNING dataset: Stage2 asset retry exhausted response_id=r_000090_01 reason=asset URL download rate too low (4/6, 0.67)
+2026-02-15 23:15:41 INFO dataset: Stage2 created response_id=r_000090_01
+2026-02-15 23:16:35 INFO dataset: Stage2 created response_id=r_001047_01
+2026-02-15 23:17:56 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2019/04/20/11/38/arashiyama-4141579_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:17:56 WARNING dataset: Stage2 asset unresolved response_id=r_000784_01 kind=image url=https://cdn.pixabay.com/photo/2019/04/20/11/38/arashiyama-4141579_1280.jpg
+2026-02-15 23:17:57 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2014/11/03/10/38/japan-515266_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:17:57 WARNING dataset: Stage2 asset unresolved response_id=r_000784_01 kind=image url=https://cdn.pixabay.com/photo/2014/11/03/10/38/japan-515266_1280.jpg
+2026-02-15 23:17:59 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2016/09/21/11/27/deer-1684614_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:17:59 WARNING dataset: Stage2 asset unresolved response_id=r_000784_01 kind=image url=https://cdn.pixabay.com/photo/2016/09/21/11/27/deer-1684614_1280.jpg
+2026-02-15 23:18:32 INFO dataset: Stage2 created response_id=r_000784_01
+2026-02-15 23:19:33 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2016/11/14/04/14/wat-arun-1822563_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:19:33 WARNING dataset: Stage2 asset unresolved response_id=r_000351_01 kind=image url=https://cdn.pixabay.com/photo/2016/11/14/04/14/wat-arun-1822563_1280.jpg
+2026-02-15 23:19:34 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2018/11/21/07/21/hanoi-3829033_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:19:34 WARNING dataset: Stage2 asset unresolved response_id=r_000351_01 kind=image url=https://cdn.pixabay.com/photo/2018/11/21/07/21/hanoi-3829033_1280.jpg
+2026-02-15 23:20:03 WARNING dataset: Stage2 asset download failed url=https://images.pexels.com/photos/1845905/pexels-photo-1845905.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1 err=HTTP Error 404: Not Found
+2026-02-15 23:20:03 WARNING dataset: Stage2 asset unresolved response_id=r_000351_01 kind=image url=https://images.pexels.com/photos/1845905/pexels-photo-1845905.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
+2026-02-15 23:20:42 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2016/01/13/01/36/bangkok-1136932_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:20:42 WARNING dataset: Stage2 asset unresolved response_id=r_000351_01 kind=image url=https://cdn.pixabay.com/photo/2016/01/13/01/36/bangkok-1136932_1280.jpg
+2026-02-15 23:20:44 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2018/06/17/16/36/hanoi-3481039_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:20:44 WARNING dataset: Stage2 asset unresolved response_id=r_000351_01 kind=image url=https://cdn.pixabay.com/photo/2018/06/17/16/36/hanoi-3481039_1280.jpg
+2026-02-15 23:20:45 WARNING dataset: Stage2 asset retry exhausted response_id=r_000351_01 reason=asset URL download rate too low (3/5, 0.60)
+2026-02-15 23:20:45 INFO dataset: Stage2 created response_id=r_000351_01
+2026-02-15 23:21:49 WARNING dataset: Stage2 asset download failed url=https://cdn.pixabay.com/photo/2019/04/26/07/14/store-4156934_1280.jpg err=HTTP Error 403: Forbidden
+2026-02-15 23:21:49 WARNING dataset: Stage2 asset unresolved response_id=r_001502_01 kind=image url=https://cdn.pixabay.com/photo/2019/04/26/07/14/store-4156934_1280.jpg
+2026-02-15 23:22:24 INFO dataset: Stage2 created response_id=r_001502_01
+2026-02-15 23:23:24 INFO dataset: Stage2 created response_id=r_001590_01

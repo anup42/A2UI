@@ -1,17 +1,17 @@
-:root {
-  --oneui-color-bg: #f2f4f8;
+﻿:root {
+  --oneui-color-bg: #eef3fb;
   --oneui-color-surface: #ffffff;
-  --oneui-color-surface-alt: #f8f9fc;
-  --oneui-color-primary: #0072de;
-  --oneui-color-primary-pressed: #005bb0;
-  --oneui-color-on-primary: #f2f6ff;
-  --oneui-color-on-surface: #151515;
-  --oneui-color-on-surface-variant: #5f6368;
-  --oneui-color-outline: #d6dae1;
-  --oneui-color-outline-variant: #e3e7ee;
-  --oneui-radius-xl: 24px;
-  --oneui-radius-lg: 18px;
+  --oneui-color-surface-alt: #f7faff;
+  --oneui-color-primary: #0a84ff;
+  --oneui-color-primary-pressed: #0069d6;
+  --oneui-color-on-primary: #fdfdff;
+  --oneui-color-on-surface: #0f172a;
+  --oneui-color-on-surface-variant: #475569;
+  --oneui-color-outline: #d5dfed;
+  --oneui-color-outline-variant: #e6edf7;
+  --oneui-radius-xl: 26px;
+  --oneui-radius-lg: 20px;
   --oneui-radius-md: 14px;
-  --oneui-shadow-card: 0 8px 24px rgba(20, 24, 35, 0.08);
-  --oneui-shadow-surface: 0 2px 8px rgba(20, 24, 35, 0.05);
+  --oneui-shadow-card: 0 14px 34px rgba(15, 23, 42, 0.1);
+  --oneui-shadow-surface: 0 6px 18px rgba(15, 23, 42, 0.07);
 }

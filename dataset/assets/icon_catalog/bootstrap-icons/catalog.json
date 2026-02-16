@@ -1,0 +1,1294 @@
+{
+  "catalog_version": "v1",
+  "generated_at": "2026-02-15T20:41:54.817386+00:00",
+  "provider": "Bootstrap Icons",
+  "provider_version": "1.11.3",
+  "provider_homepage": "https://icons.getbootstrap.com/",
+  "license": {
+    "name": "MIT",
+    "url": "https://github.com/twbs/icons/blob/main/LICENSE.md"
+  },
+  "icons": [
+    {
+      "id": "airplane",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/airplane.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/airplane.svg",
+      "sha256": "d91e9c5e0e48790d5bb4df0fcd9a9fea5019500c0b650c59513d24dd0fa8f0e3",
+      "bytes": 840,
+      "keywords": [
+        "flight",
+        "airport",
+        "plane",
+        "air"
+      ],
+      "intents": [
+        "travel",
+        "booking"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "alarm",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/alarm.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/alarm.svg",
+      "sha256": "b85cb9d6f9f19201d3fb97e8c7d23b986fb2b0cf0b2d19ac51215801de566798",
+      "bytes": 689,
+      "keywords": [
+        "alarm",
+        "timer",
+        "wake",
+        "schedule"
+      ],
+      "intents": [
+        "event_schedule"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "bag-check",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bag-check.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/bag-check.svg",
+      "sha256": "8bd5fbc650ecf87dc701f9f028d26452cf543c21eb742a199ad02cbb08b130b4",
+      "bytes": 471,
+      "keywords": [
+        "bag",
+        "shopping",
+        "purchase"
+      ],
+      "intents": [
+        "product_lookup"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "bank",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bank.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/bank.svg",
+      "sha256": "af4b5081585f815b6e1cfd4bc389bbd06cab0af5c6732631ea9e51eb57a198f2",
+      "bytes": 456,
+      "keywords": [
+        "bank",
+        "finance",
+        "account"
+      ],
+      "intents": [
+        "information_retrieval"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "bar-chart-line",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bar-chart-line.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/bar-chart-line.svg",
+      "sha256": "31c6fbadf72a55ec30e9aff705769135e92662db798b555ccebab494d8ae4b3a",
+      "bytes": 342,
+      "keywords": [
+        "chart",
+        "trend",
+        "analytics"
+      ],
+      "intents": [
+        "data_visualization",
+        "comparison"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "bell",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bell.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/bell.svg",
+      "sha256": "01df35d7b68e2b2a35aeec694142f4d67fb3e6c3e238de1e5a5f2bcf3cf25a67",
+      "bytes": 517,
+      "keywords": [
+        "alert",
+        "notification",
+        "status"
+      ],
+      "intents": [
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "book",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/book.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/book.svg",
+      "sha256": "ae330ec1609b0a49ba94635e80eeffaf380e1a619affcc3881066407fadcdafb",
+      "bytes": 770,
+      "keywords": [
+        "book",
+        "read",
+        "study"
+      ],
+      "intents": [
+        "education",
+        "documentation"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "bookmark-star",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bookmark-star.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/bookmark-star.svg",
+      "sha256": "681ec3bdb1c47d8fbab494d66deb6550df2e8ab720a2ddd21705e2dac289e995",
+      "bytes": 683,
+      "keywords": [
+        "favorite",
+        "save",
+        "bookmark"
+      ],
+      "intents": [
+        "productivity"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "briefcase",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/briefcase.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/briefcase.svg",
+      "sha256": "93e07a9f5a9a620721729a1d72805f4adaf1334b6ab5019b0d3446ecb83646d1",
+      "bytes": 539,
+      "keywords": [
+        "work",
+        "business",
+        "office"
+      ],
+      "intents": [
+        "productivity",
+        "planning"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "calculator",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calculator.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/calculator.svg",
+      "sha256": "0f4f3a1f74ea2c7a29b1bd47ba25892a546b743ce860a7ee0deedf84fd3e9821",
+      "bytes": 1006,
+      "keywords": [
+        "calculator",
+        "calc",
+        "math",
+        "compute"
+      ],
+      "intents": [
+        "calculation"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "calendar-event",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calendar-event.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/calendar-event.svg",
+      "sha256": "41cca9656ab6d5c3b200cf0b62c787050b112cb901834a1e664797c8ba407776",
+      "bytes": 424,
+      "keywords": [
+        "calendar",
+        "date",
+        "event",
+        "schedule",
+        "time"
+      ],
+      "intents": [
+        "event_schedule",
+        "planning"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "camera",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/camera.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/camera.svg",
+      "sha256": "8f1e53e900772c611f87dcf21c417d94a627640c92958137542e3daf5e1e9f20",
+      "bytes": 633,
+      "keywords": [
+        "camera",
+        "photo",
+        "image"
+      ],
+      "intents": [
+        "media_playback",
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "camera-video",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/camera-video.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/camera-video.svg",
+      "sha256": "87b594091a0028679f4dade469bc8caac2d7631f71d584fd3b2e696d7df05083",
+      "bytes": 427,
+      "keywords": [
+        "video",
+        "meeting",
+        "call"
+      ],
+      "intents": [
+        "technical_support"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "car-front",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/car-front.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/car-front.svg",
+      "sha256": "fa199499adc63653afa31ba4a9d61ddfffcaa5ac4f4ac9f9b7bfa3eec8a06d77",
+      "bytes": 1220,
+      "keywords": [
+        "car",
+        "vehicle",
+        "rental",
+        "drive"
+      ],
+      "intents": [
+        "travel",
+        "booking",
+        "product_lookup"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "cart",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cart.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/cart.svg",
+      "sha256": "bf9b470dc31fe6e8b42015c6d8c1a52084c4a15d887705436dd82bfdb82a8bd5",
+      "bytes": 465,
+      "keywords": [
+        "cart",
+        "order",
+        "shop"
+      ],
+      "intents": [
+        "product_lookup",
+        "booking"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "cash-coin",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cash-coin.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/cash-coin.svg",
+      "sha256": "7ae10dea9e0f55d2f6dc87d5591675ba28a697e2f232f527648e7ecb52e0e94c",
+      "bytes": 948,
+      "keywords": [
+        "cash",
+        "money",
+        "price",
+        "cost",
+        "budget"
+      ],
+      "intents": [
+        "calculation",
+        "comparison"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "check-circle",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/check-circle.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/check-circle.svg",
+      "sha256": "ddad2cb113b8e3c21deea3ae876e7790982b246df345f8f03451218e1ea3a711",
+      "bytes": 369,
+      "keywords": [
+        "ok",
+        "done",
+        "success"
+      ],
+      "intents": [
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "clipboard-check",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/clipboard-check.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/clipboard-check.svg",
+      "sha256": "a9875a9254fb2f3ddec2d33a8c91699660174e7328ad00c4b067e822a1b87431",
+      "bytes": 653,
+      "keywords": [
+        "task",
+        "checklist",
+        "plan"
+      ],
+      "intents": [
+        "planning",
+        "productivity"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "cloud-sun",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cloud-sun.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/cloud-sun.svg",
+      "sha256": "834bb56d1dc14fc653177db42460ee211caceb855e0929de528038fef41fea50",
+      "bytes": 778,
+      "keywords": [
+        "weather",
+        "forecast",
+        "temperature"
+      ],
+      "intents": [
+        "weather",
+        "localization"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "code-slash",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/code-slash.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/code-slash.svg",
+      "sha256": "c0779b1e75819eeed906ba9413ed30b7861e544d16b0d9035c3b19b78c2f4cb3",
+      "bytes": 455,
+      "keywords": [
+        "code",
+        "developer",
+        "api"
+      ],
+      "intents": [
+        "technical_support",
+        "documentation"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "compass",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/compass.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/compass.svg",
+      "sha256": "db60e818bbef896202c48403b40e84de59a5d07b2e68a83f3a238819767a6063",
+      "bytes": 356,
+      "keywords": [
+        "navigate",
+        "direction",
+        "route"
+      ],
+      "intents": [
+        "navigation",
+        "travel"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "controller",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/controller.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/controller.svg",
+      "sha256": "1f61a8977e3aa8f620345cced0bbeb621ac54369d876ace68be2d041c45a3b6a",
+      "bytes": 1667,
+      "keywords": [
+        "game",
+        "gaming",
+        "play"
+      ],
+      "intents": [
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "cup-hot",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cup-hot.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/cup-hot.svg",
+      "sha256": "d76dd163c4f9de59bc94d48aa760b181e3589b0c66a60099541f3056df6b040d",
+      "bytes": 2203,
+      "keywords": [
+        "coffee",
+        "drink",
+        "cafe"
+      ],
+      "intents": [
+        "localization",
+        "travel"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "emoji-smile",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/emoji-smile.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/emoji-smile.svg",
+      "sha256": "b43fbfddfeff887265815418095dd0d9e6a0e54914e1f7c5dd8dcf7d1b4757d1",
+      "bytes": 525,
+      "keywords": [
+        "fun",
+        "mood",
+        "happy"
+      ],
+      "intents": [
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "exclamation-triangle",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/exclamation-triangle.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/exclamation-triangle.svg",
+      "sha256": "acf2f83808131b92632e6d57aad39c02cd6e3ade54fcfdead346dc7af22a6a47",
+      "bytes": 638,
+      "keywords": [
+        "warning",
+        "error",
+        "risk"
+      ],
+      "intents": [
+        "technical_support",
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "file-earmark-text",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/file-earmark-text.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/file-earmark-text.svg",
+      "sha256": "1c6745b3c4782b0af852b48c8ad180c9f9c635926d5c458dc333689b8c3c4831",
+      "bytes": 468,
+      "keywords": [
+        "file",
+        "document",
+        "report"
+      ],
+      "intents": [
+        "documentation"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "film",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/film.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/film.svg",
+      "sha256": "9349e5604593e95dc143092cd791de62a828a65694581a68af60ace9a14b7962",
+      "bytes": 354,
+      "keywords": [
+        "movie",
+        "stream",
+        "cinema"
+      ],
+      "intents": [
+        "media_playback",
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "geo-alt",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/geo-alt.svg",
+      "sha256": "04ea4a9f3df177701826a941c77119eedce03e102f0f7697d77ae10ff453cb08",
+      "bytes": 463,
+      "keywords": [
+        "location",
+        "place",
+        "city"
+      ],
+      "intents": [
+        "travel",
+        "localization",
+        "navigation"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "globe",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/globe.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/globe.svg",
+      "sha256": "ec69cc7c1a11c12c2a5165508eb0ed54d8089d8b6b3921fab35153d2a4df4e8f",
+      "bytes": 1196,
+      "keywords": [
+        "global",
+        "world",
+        "international"
+      ],
+      "intents": [
+        "localization",
+        "travel"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "graph-up",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/graph-up.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/graph-up.svg",
+      "sha256": "b8cf388f09ba325151bc1f27714682b38842b47f61be80a11b362b1b61d12549",
+      "bytes": 358,
+      "keywords": [
+        "growth",
+        "stats",
+        "metric"
+      ],
+      "intents": [
+        "comparison",
+        "research_analysis"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "headphones",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/headphones.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/headphones.svg",
+      "sha256": "315ad592b90899fbaea5c8d55c1021bc1bb687f0d4bbb4caa5113c15132890ea",
+      "bytes": 303,
+      "keywords": [
+        "audio",
+        "listen",
+        "sound"
+      ],
+      "intents": [
+        "media_playback"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "heart-pulse",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/heart-pulse.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/heart-pulse.svg",
+      "sha256": "3cae4c0bdc6d9220e110a9995fc1657f91fb7fb95fdb8d25ca8c92872a7bae5f",
+      "bytes": 806,
+      "keywords": [
+        "health",
+        "medical",
+        "fitness"
+      ],
+      "intents": [
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "house",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/house.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/house.svg",
+      "sha256": "81a689b3f1b0722f5168e97041dbe9b7da8cb61024c7b850dfc9f0683820fc19",
+      "bytes": 415,
+      "keywords": [
+        "home",
+        "housing",
+        "stay"
+      ],
+      "intents": [
+        "booking",
+        "travel"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "image",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/image.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/image.svg",
+      "sha256": "640710a3092ef6abda1f86061283b5b2f290fe7ff4f1ed2b005316fe134571c7",
+      "bytes": 402,
+      "keywords": [
+        "image",
+        "picture",
+        "gallery"
+      ],
+      "intents": [
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "info-circle",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/info-circle.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/info-circle.svg",
+      "sha256": "94836458bf63431ff37c41dedc6818270fd7ec72a9fb2da917ef2d00968f97ca",
+      "bytes": 460,
+      "keywords": [
+        "info",
+        "help",
+        "details"
+      ],
+      "intents": [
+        "information_retrieval"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "joystick",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/joystick.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/joystick.svg",
+      "sha256": "74fc551b7bf291282e4986481f4e9fd3fb199082e505adbea7bed69982e6bac4",
+      "bytes": 591,
+      "keywords": [
+        "arcade",
+        "console",
+        "gaming"
+      ],
+      "intents": [
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "key",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/key.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/key.svg",
+      "sha256": "e5868b2fe51cd7f673effd5248e36f89b07b6b6d2d116f6c97b7a36e75dfebde",
+      "bytes": 628,
+      "keywords": [
+        "access",
+        "secure",
+        "login"
+      ],
+      "intents": [
+        "technical_support",
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "laptop",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/laptop.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/laptop.svg",
+      "sha256": "2a8c04a7534cc7203934b186fb957f45d4f47031cd1db817e9887dfb10762939",
+      "bytes": 311,
+      "keywords": [
+        "device",
+        "computer",
+        "pc"
+      ],
+      "intents": [
+        "technical_support",
+        "productivity"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "lightning-charge",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/lightning-charge.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/lightning-charge.svg",
+      "sha256": "c76f82f20b31ad3ed18121217502f3618c5b17e708cdafe7b97b5cac7a74dc31",
+      "bytes": 394,
+      "keywords": [
+        "power",
+        "energy",
+        "fast"
+      ],
+      "intents": [
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "link-45deg",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/link-45deg.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/link-45deg.svg",
+      "sha256": "3a58b899539e6e96a8a279c4dcc603a562627e733484aa72f721cda06b60c1f8",
+      "bytes": 518,
+      "keywords": [
+        "link",
+        "source",
+        "reference"
+      ],
+      "intents": [
+        "information_retrieval",
+        "research_analysis"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "list-check",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/list-check.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/list-check.svg",
+      "sha256": "cb5883331845d5fc9a75a93dd489b519e2ec2d9077a04e2150d73d79d2d6ed22",
+      "bytes": 701,
+      "keywords": [
+        "list",
+        "items",
+        "todo"
+      ],
+      "intents": [
+        "planning",
+        "productivity"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "map",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/map.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/map.svg",
+      "sha256": "67a6e177d2788ebf6f5d59f6cd484c70c6e3a537dc5eddee8fa308728543e056",
+      "bytes": 433,
+      "keywords": [
+        "map",
+        "route",
+        "area"
+      ],
+      "intents": [
+        "navigation",
+        "travel"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "megaphone",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/megaphone.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/megaphone.svg",
+      "sha256": "500c24f1c25e1d393f77c8dbc07638438965bd82d5076a8d1d0c75b485cbaaf0",
+      "bytes": 750,
+      "keywords": [
+        "announcement",
+        "marketing",
+        "campaign"
+      ],
+      "intents": [
+        "event_schedule",
+        "product_lookup"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "mic",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/mic.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/mic.svg",
+      "sha256": "9ca0fd30a5589303ea490875c619fbee781c92bcbc84f8e447ca5ddb64137914",
+      "bytes": 402,
+      "keywords": [
+        "voice",
+        "speak",
+        "audio"
+      ],
+      "intents": [
+        "media_playback"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "moon-stars",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/moon-stars.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/moon-stars.svg",
+      "sha256": "a0f0b6e4ff0a84c4375716afc0975bf8a518956676eeabc485b5092f93e2b858",
+      "bytes": 1154,
+      "keywords": [
+        "night",
+        "evening",
+        "dark"
+      ],
+      "intents": [
+        "weather",
+        "travel"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "music-note-beamed",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/music-note-beamed.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/music-note-beamed.svg",
+      "sha256": "fa6dc9c0edb64ede8b2513dca758811f8e01b52a5de08cb8bd4eb0ea7e025f54",
+      "bytes": 423,
+      "keywords": [
+        "music",
+        "song",
+        "playlist"
+      ],
+      "intents": [
+        "media_playback",
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "newspaper",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/newspaper.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/newspaper.svg",
+      "sha256": "334148bd30f2bfd7d0ad77982504c36c1c941c738399201a2bc52745a895b5cf",
+      "bytes": 600,
+      "keywords": [
+        "news",
+        "headline",
+        "article"
+      ],
+      "intents": [
+        "information_retrieval"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "palette",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/palette.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/palette.svg",
+      "sha256": "8a9fa8b6118741a3322c71bfac9ff9d1bbde838dc1ebe4d029bd7345e686d59c",
+      "bytes": 789,
+      "keywords": [
+        "design",
+        "style",
+        "color"
+      ],
+      "intents": [
+        "creative_writing",
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "patch-question",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/patch-question.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/patch-question.svg",
+      "sha256": "021bf8224c7f1767f8ab44c54647c0699dfe200efc6aaaf1b829c438a49e8408",
+      "bytes": 1304,
+      "keywords": [
+        "unknown",
+        "faq",
+        "question"
+      ],
+      "intents": [
+        "technical_support",
+        "education"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "people",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/people.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/people.svg",
+      "sha256": "f2207fe57c114d0d80b4eb5b4986ddce211fbe806b26b89a95a59723ac9d9b9d",
+      "bytes": 698,
+      "keywords": [
+        "group",
+        "team",
+        "community"
+      ],
+      "intents": [
+        "planning",
+        "productivity"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "person-check",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/person-check.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/person-check.svg",
+      "sha256": "318170dde6f1dc58497e24abe87dc2f97596d091096b20171abee98f876fa2fa",
+      "bytes": 565,
+      "keywords": [
+        "profile",
+        "verified",
+        "account"
+      ],
+      "intents": [
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "phone",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/phone.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/phone.svg",
+      "sha256": "6b94f81c9744000fa13946583bb0c31aa8fc0525ab04651cbce8e039a7951e0b",
+      "bytes": 330,
+      "keywords": [
+        "call",
+        "contact",
+        "support"
+      ],
+      "intents": [
+        "technical_support",
+        "booking"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "play-circle",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/play-circle.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/play-circle.svg",
+      "sha256": "6c16b498852eb031a793221a5c8e2fadc4b96eedcf6907ba11e28cb285744a93",
+      "bytes": 341,
+      "keywords": [
+        "play",
+        "start",
+        "watch"
+      ],
+      "intents": [
+        "media_playback",
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "qr-code-scan",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/qr-code-scan.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/qr-code-scan.svg",
+      "sha256": "581facb3c31bf670b79bbe9a320a00fc581e6aedbcc04d3e3d0d661c51fc6290",
+      "bytes": 713,
+      "keywords": [
+        "qr",
+        "scan",
+        "barcode"
+      ],
+      "intents": [
+        "qr_scanner"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "question-circle",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/question-circle.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/question-circle.svg",
+      "sha256": "6ec0095139e8e6f35e47d4de1968846d57f3006a0d3074651637e0bcc80c8c9c",
+      "bytes": 715,
+      "keywords": [
+        "question",
+        "help",
+        "support"
+      ],
+      "intents": [
+        "education",
+        "technical_support"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "receipt",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/receipt.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/receipt.svg",
+      "sha256": "253d302a682932c7a1cb2ef32d29d335fc9df8b95c8154f2ba8afc45b910f790",
+      "bytes": 1719,
+      "keywords": [
+        "bill",
+        "invoice",
+        "payment"
+      ],
+      "intents": [
+        "calculation",
+        "comparison"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "search",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/search.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/search.svg",
+      "sha256": "dd6f471f48724227dfde72d6253a98023d4b734d06b90a3d932cf698e3aaa1c9",
+      "bytes": 315,
+      "keywords": [
+        "search",
+        "find",
+        "lookup"
+      ],
+      "intents": [
+        "information_retrieval",
+        "product_lookup"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "shield-check",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shield-check.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/shield-check.svg",
+      "sha256": "42ff8c3f4a4df2a6593c53ddbc0cb0137c865ae62389f55b219da881e6d95c0e",
+      "bytes": 1064,
+      "keywords": [
+        "secure",
+        "privacy",
+        "safe"
+      ],
+      "intents": [
+        "technical_support",
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "stopwatch",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/stopwatch.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/stopwatch.svg",
+      "sha256": "a5abc4d823fa90303f03c83d097cc96904b819f68d81d32195a65575237503ff",
+      "bytes": 487,
+      "keywords": [
+        "time",
+        "duration",
+        "timer"
+      ],
+      "intents": [
+        "planning",
+        "calculation"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "suitcase",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/suitcase.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/suitcase.svg",
+      "sha256": "14257d22349a1e59c3963883b9422f0d5ddedd9a4d7ad0fc5efd4b49920e5ff6",
+      "bytes": 586,
+      "keywords": [
+        "trip",
+        "luggage",
+        "journey"
+      ],
+      "intents": [
+        "travel",
+        "booking"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "table",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/table.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/table.svg",
+      "sha256": "16f4839707f49e01d2079460b6519185037db6283b4bcd41b4b270b56944d299",
+      "bytes": 350,
+      "keywords": [
+        "table",
+        "rows",
+        "columns"
+      ],
+      "intents": [
+        "comparison",
+        "data_visualization"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "ticket-perforated",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/ticket-perforated.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/ticket-perforated.svg",
+      "sha256": "87f6143e2dac28981f89a74cec0191a7c0b5c50b04fe6838845d23515f40ce2b",
+      "bytes": 640,
+      "keywords": [
+        "ticket",
+        "booking",
+        "event"
+      ],
+      "intents": [
+        "booking",
+        "event_schedule"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "tools",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/tools.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/tools.svg",
+      "sha256": "693be415f4294c697b0af2cdcd644422181f9bdda6929e7429f0c0ee24e8002e",
+      "bytes": 922,
+      "keywords": [
+        "tool",
+        "fix",
+        "repair"
+      ],
+      "intents": [
+        "technical_support"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "translate",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/translate.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/translate.svg",
+      "sha256": "9a86eae6065e3db9e0bfea91803d4258e0ddc50fcb69797f13fb3cf856967097",
+      "bytes": 762,
+      "keywords": [
+        "language",
+        "translation",
+        "locale"
+      ],
+      "intents": [
+        "localization"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "tree",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/tree.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/tree.svg",
+      "sha256": "ba94bb7fb15787ee58b51d520fd77deef8419b5b751f1a24b4a722fb5443f4db",
+      "bytes": 579,
+      "keywords": [
+        "outdoor",
+        "nature",
+        "park"
+      ],
+      "intents": [
+        "travel",
+        "weather"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "trophy",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/trophy.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/trophy.svg",
+      "sha256": "5ac1ffdd959aaa256a33dff87629efd435137aab95c13fd137b35fa279a7bb75",
+      "bytes": 919,
+      "keywords": [
+        "winner",
+        "rank",
+        "award"
+      ],
+      "intents": [
+        "comparison",
+        "entertainment"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "truck",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/truck.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/truck.svg",
+      "sha256": "c9150097ea5d4da3117b955742a5ba8678723c05dd73a9da719c259a406aec76",
+      "bytes": 636,
+      "keywords": [
+        "delivery",
+        "shipping",
+        "logistics"
+      ],
+      "intents": [
+        "status_check",
+        "product_lookup"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "ui-checks-grid",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/ui-checks-grid.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/ui-checks-grid.svg",
+      "sha256": "50f354f73df2735d3e76c191a208a4ad906f56dcd7ef721d17ef6562983604e8",
+      "bytes": 725,
+      "keywords": [
+        "ui",
+        "form",
+        "options"
+      ],
+      "intents": [
+        "productivity",
+        "documentation"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "upc-scan",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/upc-scan.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/upc-scan.svg",
+      "sha256": "79ce2b7b5ce84ec5f293024fb52a4c7f9bdca1b998a9608be586e4852ed51d82",
+      "bytes": 762,
+      "keywords": [
+        "barcode",
+        "scan",
+        "code"
+      ],
+      "intents": [
+        "qr_scanner"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "wallet2",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/wallet2.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/wallet2.svg",
+      "sha256": "35f140c63b05cd54be29e70df00836002eae1aeaeee5a6475e2bce4a1298e8ed",
+      "bytes": 404,
+      "keywords": [
+        "wallet",
+        "budget",
+        "expense"
+      ],
+      "intents": [
+        "calculation",
+        "comparison"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "wifi",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/wifi.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/wifi.svg",
+      "sha256": "d697e91670a01573d5b01600ba76ca8f17221fb01264c796ad61b109e8076c0f",
+      "bytes": 911,
+      "keywords": [
+        "internet",
+        "network",
+        "signal"
+      ],
+      "intents": [
+        "technical_support",
+        "status_check"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    },
+    {
+      "id": "wrench-adjustable",
+      "source_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/wrench-adjustable.svg",
+      "local_path": "assets/icon_catalog/bootstrap-icons/icons/wrench-adjustable.svg",
+      "sha256": "8deec073cf7b18be097124d7a7c49ae145d7936bf737c72b22c397a3d65e0c49",
+      "bytes": 630,
+      "keywords": [
+        "settings",
+        "configure",
+        "adjust"
+      ],
+      "intents": [
+        "technical_support"
+      ],
+      "license": "MIT",
+      "provider": "Bootstrap Icons"
+    }
+  ]
+}

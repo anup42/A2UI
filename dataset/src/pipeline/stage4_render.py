@@ -120,6 +120,401 @@ def _split_text_blocks(text: str) -> list[dict[str, str]]:
     return blocks
 
 
+
+def _try_build_flight_layout_v09(text: str) -> list[dict[str, Any]] | None:
+    lines = [line.rstrip() for line in text.splitlines()]
+    known_headers = {
+        "snapshot context",
+        "travel requirements",
+        "flight comparison",
+        "flight comparison (live sources)",
+        "booking cards",
+        "booking options",
+        "airline logos",
+        "quick actions",
+        "sources",
+        "icons",
+    }
+
+    def first_non_empty() -> str:
+        for line in lines:
+            if line.strip():
+                return line.strip()
+        return ""
+
+    def normalize_header(value: str) -> str:
+        return re.sub(r"[:\s]+$", "", value.strip().lower())
+
+    def section_lines(header: str) -> list[str]:
+        header_l = normalize_header(header)
+        start = -1
+        for i, line in enumerate(lines):
+            if normalize_header(line) == header_l:
+                start = i + 1
+                break
+        if start < 0:
+            return []
+        out: list[str] = []
+        for i in range(start, len(lines)):
+            cur = lines[i].strip()
+            if not cur:
+                continue
+            cur_header = normalize_header(cur)
+            if cur_header in known_headers:
+                break
+            out.append(lines[i])
+        return out
+
+    if "flight booking recommendation" not in text.lower():
+        return None
+
+    title = first_non_empty()
+    if not title:
+        return None
+
+    title = re.sub(r"\s*\([^)]*live[^)]*\)", "", title, flags=re.IGNORECASE).strip()
+
+    snapshot = " ".join(s.strip() for s in section_lines("Snapshot Context") if s.strip())
+
+    req_raw = [s.strip() for s in section_lines("Travel Requirements") if s.strip()]
+    requirements: list[str] = []
+    for item in req_raw:
+        if item.startswith("-"):
+            requirements.append(item.lstrip("- ").strip())
+        else:
+            requirements.append(item)
+
+    flight_rows: list[list[str]] = []
+    comparison_lines = section_lines("Flight Comparison (Live Sources)")
+    if not comparison_lines:
+        comparison_lines = section_lines("Flight Comparison")
+    for line in comparison_lines:
+        s = line.strip()
+        if not s or s.lower().startswith("airline |"):
+            continue
+        if "|" not in s:
+            continue
+        parts = [p.strip() for p in s.split("|")]
+        if len(parts) >= 7:
+            flight_rows.append(parts[:7])
+
+    fx_to_gbp = {
+        "GBP": 1.0,
+        "EUR": 0.86,
+        "USD": 0.79,
+    }
+
+    def normalize_fare_to_gbp(value: str) -> str:
+        s = str(value or "").strip()
+        if not s:
+            return s
+        currency = ""
+        amount_part = s
+        upper = s.upper()
+        if upper.startswith("GBP"):
+            currency = "GBP"
+            amount_part = s[3:].strip()
+        elif upper.startswith("EUR"):
+            currency = "EUR"
+            amount_part = s[3:].strip()
+        elif upper.startswith("USD"):
+            currency = "USD"
+            amount_part = s[3:].strip()
+        elif s.startswith("\u00a3"):
+            currency = "GBP"
+            amount_part = s[1:].strip()
+        elif s.startswith("\u20ac"):
+            currency = "EUR"
+            amount_part = s[1:].strip()
+        elif s.startswith("$"):
+            currency = "USD"
+            amount_part = s[1:].strip()
+
+        if not currency:
+            return s
+
+        amount_match = re.search(r"([0-9][0-9,]*(?:\.[0-9]+)?)", amount_part)
+        if not amount_match:
+            return s
+
+        try:
+            amount = float(amount_match.group(1).replace(",", ""))
+        except ValueError:
+            return s
+
+        gbp_value = amount * fx_to_gbp.get(currency, 1.0)
+        shown = f"{int(round(gbp_value)):,}"
+        return f"GBP {shown}"
+
+    for row in flight_rows:
+        if len(row) >= 2:
+            row[1] = normalize_fare_to_gbp(row[1])
+
+    def normalize_airline_name(value: str) -> str:
+        base = re.sub(r"\(.*?\)", "", value).strip().lower()
+        if "british airways" in base or base == "ba":
+            return "british airways"
+        if "emirates" in base:
+            return "emirates"
+        if "ana" in base or "all nippon" in base:
+            return "ana"
+        return re.sub(r"[^a-z0-9]+", " ", base).strip()
+
+    flight_row_by_airline: dict[str, dict[str, str]] = {}
+    for row in flight_rows:
+        flight_row_by_airline[normalize_airline_name(row[0])] = {
+            "airline": row[0],
+            "fare": row[1],
+            "departure": row[2],
+            "arrival": row[3],
+            "travel_time": row[4],
+            "stops": row[5],
+            "decision": row[6],
+        }
+
+    option_re = re.compile(r"^Option\s*(\d+):\s*(.*?)\s*\|\s*(.*)$", re.IGNORECASE)
+    action_re = re.compile(r"^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(https?://\S+)", re.IGNORECASE)
+    options: list[dict[str, str]] = []
+    current: dict[str, str] | None = None
+    for raw in section_lines("Booking Cards"):
+        line = raw.strip()
+        if not line:
+            continue
+        m_opt = option_re.match(line)
+        if m_opt:
+            current = {
+                "title": m_opt.group(2).strip(),
+                "desc": m_opt.group(3).strip(),
+            }
+            options.append(current)
+            continue
+        m_act = action_re.match(line)
+        if m_act and current is not None:
+            current["button_label"] = m_act.group(1).strip()
+            current["button_url"] = m_act.group(2).strip()
+
+    logo_map: dict[str, str] = {}
+    logo_line_re = re.compile(r"^-\s*([^:]+):\s*(\S+)")
+    for raw in section_lines("Airline Logos"):
+        m = logo_line_re.match(raw.strip())
+        if not m:
+            continue
+        k = m.group(1).strip().lower()
+        v = m.group(2).strip()
+        logo_map[k] = v
+
+    def pick_logo(name: str) -> str | None:
+        n = name.lower()
+        if "ana" in n:
+            return logo_map.get("ana")
+        if "british" in n or n == "ba":
+            return logo_map.get("british airways") or logo_map.get("ba")
+        if "emirates" in n:
+            return logo_map.get("emirates")
+        return None
+
+    quick_actions: list[dict[str, str]] = []
+    qa_re = re.compile(r"^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(https?://\S+)", re.IGNORECASE)
+    for raw in section_lines("Quick Actions"):
+        m = qa_re.match(raw.strip())
+        if m:
+            quick_actions.append({"label": m.group(1).strip(), "url": m.group(2).strip()})
+
+    source_links: list[dict[str, str]] = []
+    src_re = re.compile(r"^([^:]+):\s*(https?://\S+)")
+    for raw in section_lines("Sources"):
+        stripped = raw.strip()
+        m = src_re.match(stripped)
+        if m:
+            source_links.append({"label": m.group(1).strip(), "url": m.group(2).strip()})
+            continue
+        if stripped.startswith("http://") or stripped.startswith("https://"):
+            source_links.append({"label": stripped, "url": stripped})
+
+    if not requirements and not flight_rows and not options:
+        return None
+
+    components: list[dict[str, Any]] = []
+    root_children: list[str] = []
+
+    def add_text(cid: str, value: str, variant: str = "body", weight: float | None = None) -> None:
+        comp: dict[str, Any] = {"id": cid, "component": "Text", "text": value, "variant": variant}
+        if weight is not None:
+            comp["weight"] = weight
+        components.append(comp)
+
+    def add_button(cid: str, label: str, url: str, variant: str = "primary") -> None:
+        label_id = f"{cid}_label"
+        add_text(label_id, label)
+        components.append(
+            {
+                "id": cid,
+                "component": "Button",
+                "child": label_id,
+                "variant": variant,
+                "action": {
+                    "functionCall": {
+                        "call": "openUrl",
+                        "args": {"url": {"literalString": url}},
+                        "returnType": "void",
+                    }
+                },
+            }
+        )
+
+    add_text("flight_title", title, "h2")
+    root_children.append("flight_title")
+
+    if snapshot:
+        add_text("flight_snapshot", snapshot)
+        root_children.append("flight_snapshot")
+
+    if requirements:
+        add_text("req_header", "Travel Requirements", "h3")
+        root_children.append("req_header")
+        req_col_children: list[str] = []
+        for i, item in enumerate(requirements, start=1):
+            tid = f"req_{i}"
+            add_text(tid, item)
+            req_col_children.append(tid)
+        components.append({"id": "req_col", "component": "Column", "children": req_col_children})
+        components.append({"id": "req_card", "component": "Card", "child": "req_col"})
+        root_children.append("req_card")
+
+    if flight_rows:
+        add_text("cmp_header", "Flight Comparison", "h3")
+        root_children.append("cmp_header")
+        table_children: list[str] = []
+
+        headers = ["Airline", "Fare", "Departure", "Arrival", "Travel Time", "Stops", "Decision"]
+        header_ids: list[str] = []
+        for idx, h in enumerate(headers, start=1):
+            hid = f"cmp_h_{idx}"
+            add_text(hid, h, "h4", 1.0)
+            header_ids.append(hid)
+        components.append({"id": "cmp_header_row", "component": "Row", "children": header_ids})
+        table_children.append("cmp_header_row")
+
+        for r_idx, row in enumerate(flight_rows, start=1):
+            divider_id = f"cmp_div_{r_idx}"
+            components.append({"id": divider_id, "component": "Divider"})
+            table_children.append(divider_id)
+
+            row_ids: list[str] = []
+            for c_idx, val in enumerate(row[:7], start=1):
+                tid = f"cmp_r{r_idx}_c{c_idx}"
+                add_text(tid, val, "body", 1.0)
+                row_ids.append(tid)
+            rid = f"cmp_row_{r_idx}"
+            components.append({"id": rid, "component": "Row", "children": row_ids})
+            table_children.append(rid)
+
+        components.append({"id": "cmp_table_col", "component": "Column", "children": table_children})
+        components.append({"id": "cmp_table_card", "component": "Card", "child": "cmp_table_col"})
+        root_children.append("cmp_table_card")
+
+    if options:
+        add_text("opt_header", "Booking Options", "h3")
+        root_children.append("opt_header")
+
+        row_children: list[str] = []
+        for i, opt in enumerate(options, start=1):
+            card_id = f"opt_card_{i}"
+            col_id = f"opt_col_{i}"
+            row_children.append(card_id)
+
+            content_children: list[str] = []
+            logo_url = pick_logo(opt.get("title", ""))
+            title_text = opt.get("title", f"Option {i}")
+
+            if logo_url:
+                logo_id = f"opt_logo_{i}"
+                title_id = f"opt_title_{i}"
+                add_text(title_id, title_text, "h4")
+                components.append({"id": logo_id, "component": "Image", "url": logo_url, "variant": "icon"})
+                row_id = f"opt_head_{i}"
+                components.append({"id": row_id, "component": "Row", "children": [logo_id, title_id], "align": "center"})
+                content_children.append(row_id)
+            else:
+                title_id = f"opt_title_{i}"
+                add_text(title_id, title_text, "h4")
+                content_children.append(title_id)
+
+            desc_id = f"opt_desc_{i}"
+            add_text(desc_id, opt.get("desc", ""))
+            content_children.append(desc_id)
+
+            detail = flight_row_by_airline.get(normalize_airline_name(title_text))
+            if detail is not None:
+                kv_rows = [
+                    ("Snapshot fare", detail["fare"]),
+                    ("Departure", detail["departure"]),
+                    ("Arrival", detail["arrival"]),
+                    ("Duration", detail["travel_time"]),
+                    ("Stops", detail["stops"]),
+                ]
+                for j, (label, value) in enumerate(kv_rows, start=1):
+                    label_id = f"opt_{i}_kv_{j}_label"
+                    value_id = f"opt_{i}_kv_{j}_value"
+                    row_id = f"opt_{i}_kv_{j}_row"
+                    add_text(label_id, label, "body", 1.0)
+                    add_text(value_id, value, "body", 1.0)
+                    components.append(
+                        {
+                            "id": row_id,
+                            "component": "Row",
+                            "children": [label_id, value_id],
+                            "justify": "spaceBetween",
+                        }
+                    )
+                    content_children.append(row_id)
+
+            btn_url = opt.get("button_url")
+            btn_label = opt.get("button_label")
+            if btn_url and btn_label:
+                btn_id = f"opt_btn_{i}"
+                add_button(btn_id, btn_label, btn_url)
+                content_children.append(btn_id)
+
+            components.append({"id": col_id, "component": "Column", "children": content_children})
+            components.append({"id": card_id, "component": "Card", "child": col_id, "weight": 1})
+
+        components.append(
+            {
+                "id": "opt_row",
+                "component": "Row",
+                "children": row_children,
+                "align": "start",
+                "justify": "spaceBetween",
+            }
+        )
+        root_children.append("opt_row")
+
+    if quick_actions:
+        add_text("qa_header", "Quick Actions", "h3")
+        root_children.append("qa_header")
+        qa_row_children: list[str] = []
+        for i, qa in enumerate(quick_actions, start=1):
+            bid = f"qa_btn_{i}"
+            add_button(bid, qa["label"], qa["url"])
+            qa_row_children.append(bid)
+        components.append({"id": "qa_row", "component": "Row", "children": qa_row_children, "justify": "start"})
+        root_children.append("qa_row")
+
+    if source_links:
+        add_text("src_header", "Sources", "h4")
+        root_children.append("src_header")
+        src_children: list[str] = []
+        for i, src in enumerate(source_links, start=1):
+            sid = f"src_btn_{i}"
+            add_button(sid, src["label"], src["url"], "borderless")
+            src_children.append(sid)
+        components.append({"id": "src_col", "component": "Column", "children": src_children})
+        root_children.append("src_col")
+
+    components.insert(0, {"id": "root", "component": "Column", "children": root_children})
+    return components
+
 def _expand_text_components_v09(components: list[dict[str, Any]]) -> list[dict[str, Any]]:
     if not components:
         return components
@@ -139,6 +534,10 @@ def _expand_text_components_v09(components: list[dict[str, Any]]) -> list[dict[s
     text_value = text_comp.get("text")
     if not isinstance(text_value, str):
         return components
+
+    flight_layout = _try_build_flight_layout_v09(text_value)
+    if flight_layout is not None:
+        return flight_layout
 
     blocks = _split_text_blocks(text_value)
     if not any(block["type"] in ("button", "icon") for block in blocks):
@@ -531,13 +930,17 @@ def _convert_component_v09_to_v08(component: dict[str, Any]) -> dict[str, Any]:
     comp_id = component.get("id") or "component"
     comp_type = component.get("component")
     if comp_type == "Text":
+        payload: dict[str, Any] = {
+            "text": _dynamic_string(component.get("text")),
+            "usageHint": component.get("variant", "body"),
+        }
+        weight = component.get("weight")
+        if isinstance(weight, (int, float)) and weight > 0:
+            payload["weight"] = float(weight)
         return {
             "id": comp_id,
             "component": {
-                "Text": {
-                    "text": _dynamic_string(component.get("text")),
-                    "usageHint": component.get("variant", "body"),
-                }
+                "Text": payload
             },
         }
     if comp_type == "Image":
@@ -836,6 +1239,25 @@ def _normalize_messages(value: Any) -> list[Any]:
     return [value]
 
 
+def _rewrite_local_asset_urls(value: Any) -> Any:
+    def _rewrite(s: str) -> str:
+        if s.startswith("../assets/"):
+            return s
+        if s.startswith("/assets/"):
+            return "../" + s.lstrip("/")
+        if s.startswith("./assets/"):
+            return "../" + s.lstrip("./")
+        return s
+
+    if isinstance(value, str):
+        return _rewrite(value)
+    if isinstance(value, list):
+        return [_rewrite_local_asset_urls(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _rewrite_local_asset_urls(item) for key, item in value.items()}
+    return value
+
+
 def _safe_json_dumps(value: Any) -> str:
     text = json.dumps(value, ensure_ascii=False)
     return text.replace("</", "<\\/")
@@ -1063,6 +1485,7 @@ def run_stage4(
         if genui_json is None:
             genui_json = row.get("a2ui_json")
         messages = _normalize_messages(genui_json)
+        messages = _rewrite_local_asset_urls(messages)
         if not messages or not _has_message_content(messages):
             err_text = "No renderable GenUICraft messages."
             validation = row.get("validation") if isinstance(row, dict) else None
