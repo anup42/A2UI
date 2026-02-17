@@ -1,6 +1,10 @@
 param(
   [int]$Port = 8008,
-  [string]$Root = $PSScriptRoot
+  [string]$Root = $PSScriptRoot,
+  [ValidateSet("lit", "visualizer")]
+  [string]$Mode = "lit",
+  [string]$OpenPath = "",
+  [switch]$NoOpenBrowser
 )
 
 $ErrorActionPreference = "Stop"
@@ -10,6 +14,44 @@ if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
 }
 
 $resolvedRoot = (Resolve-Path $Root).Path
+
+function Get-ServeUrl {
+  param(
+    [int]$PortValue,
+    [string]$PathValue,
+    [string]$ModeValue
+  )
+  if ([string]::IsNullOrWhiteSpace($PathValue)) {
+    if ($ModeValue -eq "visualizer") {
+      return "http://127.0.0.1:$PortValue/"
+    }
+    return "http://127.0.0.1:$PortValue/data/runs/"
+  }
+  $trimmed = $PathValue.TrimStart("/")
+  return "http://127.0.0.1:$PortValue/$trimmed"
+}
+
+$openUrl = Get-ServeUrl -PortValue $Port -PathValue $OpenPath -ModeValue $Mode
+
+if ($Mode -eq "visualizer") {
+  $visualizerApp = Join-Path $resolvedRoot "visualizer/app.py"
+  if (-not (Test-Path $visualizerApp)) {
+    throw "Visualizer app not found: $visualizerApp"
+  }
+  $runsDir = Join-Path $resolvedRoot "data/runs"
+  $rendererDir = Join-Path $resolvedRoot "renderer"
+  Write-Host "[serve_lit] Starting visualizer at $openUrl"
+  if (-not $NoOpenBrowser) {
+    Start-Process $openUrl
+  }
+  & python $visualizerApp --host 127.0.0.1 --port $Port --runs-dir $runsDir --renderer-dir $rendererDir
+  exit $LASTEXITCODE
+}
+
+Write-Host "[serve_lit] Starting lit static server at $openUrl"
+if (-not $NoOpenBrowser) {
+  Start-Process $openUrl
+}
 
 @'
 import argparse
