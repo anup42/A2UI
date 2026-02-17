@@ -11,6 +11,18 @@ ROOT = Path(__file__).resolve().parents[1]
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 DEFAULT_RUNS_DIR = ROOT / "data" / "runs"
 DEFAULT_RENDERER_DIR = ROOT / "renderer"
+MIME_OVERRIDES = {
+    ".js": "application/javascript",
+    ".mjs": "application/javascript",
+    ".json": "application/json",
+    ".css": "text/css",
+    ".svg": "image/svg+xml",
+    ".wasm": "application/wasm",
+}
+
+for ext, mime in MIME_OVERRIDES.items():
+    mimetypes.add_type(mime, ext, strict=True)
+    mimetypes.add_type(mime, ext, strict=False)
 
 
 def _safe_path(base: Path, rel: str) -> Path:
@@ -103,8 +115,12 @@ class DatasetHandler(BaseHTTPRequestHandler):
         if not path.exists() or not path.is_file():
             self._send_json({"error": "not found"}, status=404)
             return
-        mime, _ = mimetypes.guess_type(str(path))
-        content_type = mime or "application/octet-stream"
+        suffix = path.suffix.lower()
+        if suffix in MIME_OVERRIDES:
+            content_type = MIME_OVERRIDES[suffix]
+        else:
+            mime, _ = mimetypes.guess_type(str(path))
+            content_type = mime or "application/octet-stream"
         body = path.read_bytes()
         self._send(200, body, content_type)
 
