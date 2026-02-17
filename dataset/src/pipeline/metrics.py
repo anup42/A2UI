@@ -740,8 +740,12 @@ def compression_ratio(tokens_json: int, tokens_toon: int) -> float:
     return tokens_toon / tokens_json
 
 
+OVERALL_SCORE_RAW_MIN = -2.0
+OVERALL_SCORE_RAW_MAX = 41.1
+
+
 def compute_overall_score(aggregate: dict[str, Any], weights: dict[str, float]) -> float:
-    score = 0.0
+    raw_score = 0.0
     for key, weight in weights.items():
         value = aggregate.get(f"{key}_rate")
         if value is None:
@@ -750,8 +754,11 @@ def compute_overall_score(aggregate: dict[str, Any], weights: dict[str, float]) 
             value = aggregate.get(key)
         if value is None:
             continue
-        score += float(value) * float(weight)
-    return score
+        raw_score += float(value) * float(weight)
+    if OVERALL_SCORE_RAW_MAX <= OVERALL_SCORE_RAW_MIN:
+        return 0.0
+    normalized = ((raw_score - OVERALL_SCORE_RAW_MIN) / (OVERALL_SCORE_RAW_MAX - OVERALL_SCORE_RAW_MIN)) * 100.0
+    return max(0.0, min(100.0, normalized))
 
 
 def compute_media_score(aggregate: dict[str, Any]) -> float | None:

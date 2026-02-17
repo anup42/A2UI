@@ -290,5 +290,5 @@
   "render_ok_rate": null,
   "latency_ms_avg": 13228.839511871338,
   "latency_ms_p95": 25515.260457992554,
-  "overall_score": 22.706814552663793
+  "overall_score": 57.324395713837106
 }

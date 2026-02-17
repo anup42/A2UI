@@ -356,25 +356,20 @@ Notes:
 
 ## Overall Score Bounds
 
-`overall_score` is a weighted linear sum from `configs/run.yaml -> evaluation.weights`.
+`overall_score` is now normalized to `0..100`.
 
-Current default weights:
-- Positive: `schema_valid_strict(5.0)`, `content_coverage(3.0)`, `lint_score(2.0)`, `component_count_capped(0.4)`, `ui_decomposition_score(1.0)`, `action_coverage(1.5)`, `table_pattern_detected(0.8)`, `table_cell_coverage(1.0)`, `section_heading_coverage(0.8)`, `intent_expectation_pass(1.2)`, `intent_score(0.8)`
-- Negative penalties: `dup_rate(-1.0)`, `markdown_leakage_rate(-1.0)`
+Computation:
+- First compute raw weighted sum from `configs/run.yaml -> evaluation.weights`
+- Then normalize using fixed bounds:
+  - `overall_score_raw_min = -2.0`
+  - `overall_score_raw_max = 41.1`
+  - `overall_score = clamp(0, 100, ((raw - (-2.0)) / (41.1 - (-2.0))) * 100)`
 
-Because weighted metrics are bounded (`component_count_capped` is capped at `60`), score bounds are strict:
-- `overall_score_min = -2.0` (max penalties, no rewards)
-- `overall_score_max = 41.1` (all rewards maxed, no penalties)
-
-### Overall Score Bands (raw scale)
+### Overall Score Bands (normalized 0..100 scale)
 
 | Overall score | Interpretation |
 |---|---|
-| `< 12.0` | Bad |
-| `12.0 - 24.0` | OK |
-| `24.0 - 35.0` | Good |
-| `> 35.0` | Excellent |
-
-Optional normalized score for dashboards:
-- `overall_score_norm = (overall_score - (-2.0)) / (41.1 - (-2.0))`
-- Range: `0..1` (clamp outside values).
+| `< 32.5` | Bad |
+| `32.5 - 60.3` | OK |
+| `60.3 - 85.8` | Good |
+| `> 85.8` | Excellent |

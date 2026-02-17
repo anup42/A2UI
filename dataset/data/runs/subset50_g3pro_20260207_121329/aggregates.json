@@ -9,6 +9,7 @@
   "output_chars_toon_avg": 3586.06,
   "output_chars_json_avg": 4284.84,
   "component_count_avg": 31.34,
+  "component_count_capped_avg": 30.72,
   "unique_component_types_avg": 5.24,
   "max_tree_depth_avg": 4.12,
   "avg_tree_depth_avg": 1.5713772932415904,
@@ -289,5 +290,5 @@
   "render_ok_rate": null,
   "latency_ms_avg": 54827.80896663666,
   "latency_ms_p95": 70876.53064727783,
-  "overall_score": 28.352721988782868
+  "overall_score": 69.84854289740805
 }

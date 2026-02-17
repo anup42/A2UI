@@ -81,10 +81,10 @@ function formatValue(value, digits = 3) {
 
 const METRIC_BANDS = {
   overall_score: [
-    { label: "Bad", min: null, max: 12.0, range: "< 12.0" },
-    { label: "OK", min: 12.0, max: 24.0, range: "12.0 - 24.0" },
-    { label: "Good", min: 24.0, max: 35.0, range: "24.0 - 35.0" },
-    { label: "Excellent", min: 35.0, max: null, range: "> 35.0" }
+    { label: "Bad", min: null, max: 32.5, range: "< 32.5" },
+    { label: "OK", min: 32.5, max: 60.3, range: "32.5 - 60.3" },
+    { label: "Good", min: 60.3, max: 85.8, range: "60.3 - 85.8" },
+    { label: "Excellent", min: 85.8, max: null, range: "> 85.8" }
   ],
   schema_valid_strict_rate: [
     { label: "Bad", min: null, max: 0.7, range: "< 0.70" },
