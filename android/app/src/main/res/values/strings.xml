@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">A2UI Renderer</string>
+    <string name="path_hint">Path to genui.json or genui.jsonl on device</string>
+    <string name="render_path">Render Path</string>
+    <string name="pick_file">Pick File</string>
+    <string name="load_sample">Sample</string>
+    <string name="status_ready">Ready.</string>
+    <string name="error_missing_path">Enter a file path first.</string>
+    <string name="error_path_not_found">File not found: %1$s</string>
+    <string name="error_uri_open">Could not open selected file.</string>
+    <string name="error_render_failed">Render failed: %1$s</string>
+    <string name="render_success">Rendered: %1$s</string>
+</resources>
+
