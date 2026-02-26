@@ -1,4 +1,4 @@
-package com.a2ui.renderer
+﻿package com.samsung.genuicraft
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -18,6 +18,38 @@ object GenUiHtmlRenderer {
         val components: List<JsonObject>,
         val rootHint: String?
     )
+
+    private data class ParsedButton(
+        val label: String,
+        val url: String
+    )
+
+    private data class ParsedLogo(
+        val label: String,
+        val url: String
+    )
+
+    private data class ParsedMediaEntry(
+        val label: String,
+        val url: String,
+        val iconLike: Boolean
+    )
+
+    private data class BookingOption(
+        val title: String,
+        val details: String,
+        val button: ParsedButton?,
+        val logo: ParsedLogo? = null
+    )
+
+    private val OPTION_LINE_REGEX =
+        Regex("""^Option\s+\d+\s*:\s*(.+?)\s*\|\s*(.+)$""", RegexOption.IGNORE_CASE)
+
+    private val BUTTON_LINE_REGEX =
+        Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(\S+)\s*$""", RegexOption.IGNORE_CASE)
+
+    private val URL_REGEX = Regex("""https?://[^\s<>()]+""", RegexOption.IGNORE_CASE)
+    private val BOLD_REGEX = Regex("""\*\*(.+?)\*\*""")
 
     fun render(rawInput: String, sourceDir: File? = null): RenderResult {
         val warnings = mutableListOf<String>()
@@ -308,7 +340,7 @@ object GenUiHtmlRenderer {
             }
 
             "Card" -> renderCard(component, index, sourceDir, activePath, warnings)
-            "Text" -> renderText(component)
+            "Text" -> renderText(component, sourceDir)
             "Image" -> renderImage(component, sourceDir, className = "image")
             "Icon" -> renderImage(component, sourceDir, className = "icon")
             "Divider" -> "<hr class=\"divider\" />"
@@ -333,6 +365,9 @@ object GenUiHtmlRenderer {
         layoutClass: String
     ): String {
         val children = readChildren(component)
+        maybeRenderRowsAsTable(children, index, sourceDir)?.let { return it }
+        maybeRenderTextList(component, children, index, sourceDir)?.let { return it }
+
         val inner = children.joinToString(separator = "\n") { childId ->
             val weight = index[childId]?.getAsNumberOrNull("weight")
             val childHtml = renderComponent(childId, index, sourceDir, activePath, warnings)
@@ -342,8 +377,161 @@ object GenUiHtmlRenderer {
                 childHtml
             }
         }
+        val style = buildFlexStyle(component, layoutClass)
+        return """<div class="$layoutClass"$style>$inner</div>"""
+    }
 
-        return """<div class="$layoutClass">$inner</div>"""
+    private fun maybeRenderRowsAsTable(
+        children: List<String>,
+        index: Map<String, JsonObject>,
+        sourceDir: File?
+    ): String? {
+        if (children.size < 2) {
+            return null
+        }
+
+        val rowComponents = mutableListOf<JsonObject>()
+        for (childId in children) {
+            val child = index[childId] ?: return null
+            if (child.getString("component") != "Row") {
+                return null
+            }
+            rowComponents += child
+        }
+
+        val rowCells = rowComponents.map { readChildren(it) }
+        if (rowCells.any { it.isEmpty() }) {
+            return null
+        }
+
+        val columnCount = rowCells.first().size
+        if (columnCount < 2 || rowCells.any { it.size != columnCount }) {
+            return null
+        }
+
+        val textRows = mutableListOf<List<JsonObject>>()
+        var hasWeight = false
+        for (cellIds in rowCells) {
+            val cells = mutableListOf<JsonObject>()
+            for (cellId in cellIds) {
+                val cell = index[cellId] ?: return null
+                if (cell.getString("component") != "Text") {
+                    return null
+                }
+                if ((cell.getAsNumberOrNull("weight") ?: 0.0) > 0.0) {
+                    hasWeight = true
+                }
+                cells += cell
+            }
+            textRows += cells
+        }
+
+        val headerLike = textRows.first().all {
+            val variant = (it.getString("variant") ?: "").lowercase(Locale.US)
+            variant in setOf("h1", "h2", "h3", "h4")
+        }
+        if (!hasWeight && !headerLike) {
+            return null
+        }
+
+        val headerCells = if (headerLike) textRows.first() else emptyList()
+        val bodyRows = if (headerLike) textRows.drop(1) else textRows
+
+        val thead = if (headerCells.isNotEmpty()) {
+            val headers = headerCells.joinToString(separator = "") { cell ->
+                val label = formatInlineText(readDynamicString(cell.get("text")), sourceDir)
+                "<th>$label</th>"
+            }
+            "<thead><tr>$headers</tr></thead>"
+        } else {
+            ""
+        }
+
+        val tbody = bodyRows.joinToString(separator = "") { row ->
+            val cells = row.joinToString(separator = "") { cell ->
+                val value = formatInlineText(readDynamicString(cell.get("text")), sourceDir)
+                "<td>$value</td>"
+            }
+            "<tr>$cells</tr>"
+        }
+
+        return """
+            <div class="table-wrap">
+              <table class="data-table component-table">
+                $thead
+                <tbody>$tbody</tbody>
+              </table>
+            </div>
+        """.trimIndent()
+    }
+
+    private fun maybeRenderTextList(
+        component: JsonObject,
+        children: List<String>,
+        index: Map<String, JsonObject>,
+        sourceDir: File?
+    ): String? {
+        if (component.getString("component") != "List") {
+            return null
+        }
+        val direction = component.getString("direction")?.lowercase(Locale.US)
+        if (direction == "horizontal" || children.isEmpty()) {
+            return null
+        }
+
+        val textItems = mutableListOf<JsonObject>()
+        for (childId in children) {
+            val child = index[childId] ?: return null
+            if (child.getString("component") != "Text") {
+                return null
+            }
+            textItems += child
+        }
+        if (textItems.size < 2) {
+            return null
+        }
+
+        val itemsHtml = textItems.joinToString(separator = "") { item ->
+            var value = readDynamicString(item.get("text")).trim()
+            if (value.startsWith("- ")) {
+                value = value.removePrefix("- ").trim()
+            }
+            "<li>${formatInlineText(value, sourceDir)}</li>"
+        }
+        return """<ul class="component-list">$itemsHtml</ul>"""
+    }
+
+    private fun buildFlexStyle(component: JsonObject, layoutClass: String): String {
+        val styles = mutableListOf<String>()
+        component.getString("align")?.lowercase(Locale.US)?.let { align ->
+            mapAlignItems(align)?.let { styles += "align-items:$it" }
+        }
+        component.getString("justify")?.lowercase(Locale.US)?.let { justify ->
+            mapJustifyContent(justify)?.let { styles += "justify-content:$it" }
+        }
+        if (layoutClass == "row" && styles.isEmpty()) {
+            return ""
+        }
+        return if (styles.isEmpty()) "" else """ style="${styles.joinToString(";")}" """
+    }
+
+    private fun mapAlignItems(value: String): String? = when (value) {
+        "start", "flex-start", "top" -> "flex-start"
+        "center", "middle" -> "center"
+        "end", "flex-end", "bottom" -> "flex-end"
+        "stretch" -> "stretch"
+        "baseline" -> "baseline"
+        else -> null
+    }
+
+    private fun mapJustifyContent(value: String): String? = when (value) {
+        "start", "flex-start", "left" -> "flex-start"
+        "center" -> "center"
+        "end", "flex-end", "right" -> "flex-end"
+        "between", "space-between" -> "space-between"
+        "around", "space-around" -> "space-around"
+        "evenly", "space-evenly" -> "space-evenly"
+        else -> null
     }
 
     private fun renderCard(
@@ -365,7 +553,7 @@ object GenUiHtmlRenderer {
         return """<div class="card">$content</div>"""
     }
 
-    private fun renderText(component: JsonObject): String {
+    private fun renderText(component: JsonObject, sourceDir: File?): String {
         val variant = (component.getString("variant") ?: "body").lowercase(Locale.US)
         val cls = when (variant) {
             "h1" -> "text h1"
@@ -375,8 +563,635 @@ object GenUiHtmlRenderer {
             "caption" -> "text caption"
             else -> "text body"
         }
-        val text = escapeHtml(readDynamicString(component.get("text"))).replace("\n", "<br/>")
+        val rawText = readDynamicString(component.get("text"))
+        if (rawText.isBlank()) {
+            return "<p class=\"$cls\"></p>"
+        }
+
+        if (shouldRenderStructuredText(rawText, variant)) {
+            val structured = renderStructuredText(rawText, sourceDir)
+            return """<div class="$cls rich-text">$structured</div>"""
+        }
+
+        val text = formatInlineText(rawText, sourceDir).replace("\n", "<br/>")
         return "<p class=\"$cls\">$text</p>"
+    }
+
+    private fun shouldRenderStructuredText(rawText: String, variant: String): Boolean {
+        if (variant in setOf("h1", "h2", "h3", "h4")) {
+            return false
+        }
+        val normalized = rawText.replace("\r\n", "\n")
+        val lines = normalized.lines().map { it.trim() }.filter { it.isNotEmpty() }
+        if (lines.isEmpty()) {
+            return false
+        }
+        val buttonSyntax = normalized.contains("[Button:", ignoreCase = true)
+        val tableSyntax = lines.count { isTableLikeLine(it) } >= 2
+        val listSyntax = lines.count { it.startsWith("- ") } >= 2
+        val sectionBreaks = normalized.contains("\n\n")
+        return buttonSyntax || tableSyntax || listSyntax || sectionBreaks
+    }
+
+    private fun renderStructuredText(rawText: String, sourceDir: File?): String {
+        val lines = rawText.replace("\r\n", "\n").split('\n')
+        val out = StringBuilder()
+        var index = 0
+        var renderedAny = false
+
+        while (index < lines.size) {
+            val line = lines[index].trim()
+            if (line.isEmpty()) {
+                index++
+                continue
+            }
+
+            val bookingOptions = collectBookingOptions(lines, index)
+            if (bookingOptions != null) {
+                val (options, nextIndex) = bookingOptions
+                if (options.isNotEmpty()) {
+                    out.append(renderBookingOptions(options, sourceDir))
+                    index = nextIndex
+                    renderedAny = true
+                    continue
+                }
+            }
+
+            val tableRows = collectTableRows(lines, index)
+            if (tableRows != null) {
+                val (rows, nextIndex) = tableRows
+                out.append(renderTable(rows, sourceDir))
+                index = nextIndex
+                renderedAny = true
+                continue
+            }
+
+            val mediaEntries = collectMediaEntries(lines, index)
+            if (mediaEntries != null) {
+                val (entries, nextIndex) = mediaEntries
+                if (entries.isNotEmpty()) {
+                    out.append(renderMediaCards(entries, sourceDir))
+                    renderedAny = true
+                }
+                index = nextIndex
+                continue
+            }
+
+            if (line.startsWith("- ")) {
+                val items = mutableListOf<String>()
+                var cursor = index
+                while (cursor < lines.size) {
+                    val listLine = lines[cursor].trim()
+                    if (!listLine.startsWith("- ")) {
+                        break
+                    }
+                    items += listLine.removePrefix("- ").trim()
+                    cursor++
+                }
+                out.append("<ul class=\"text-list\">")
+                items.forEach { item ->
+                    out.append("<li>${renderListItem(item, sourceDir)}</li>")
+                }
+                out.append("</ul>")
+                index = cursor
+                renderedAny = true
+                continue
+            }
+
+            val button = parseButtonLine(line)
+            if (button != null) {
+                out.append("<div class=\"action-row\">${renderButtonAnchor(button, sourceDir, "primary")}</div>")
+                index += 1
+                renderedAny = true
+                continue
+            }
+
+            if (!renderedAny) {
+                out.append("<h3 class=\"rich-title\">${escapeHtml(line)}</h3>")
+                index += 1
+                renderedAny = true
+                continue
+            }
+
+            if (looksLikeSectionHeading(line)) {
+                out.append("<h4 class=\"rich-heading\">${escapeHtml(line)}</h4>")
+                index += 1
+                continue
+            }
+
+            val paragraphLines = mutableListOf<String>()
+            var cursor = index
+            while (cursor < lines.size) {
+                val candidate = lines[cursor].trim()
+                if (candidate.isEmpty() || isStructuredBoundary(candidate)) {
+                    break
+                }
+                paragraphLines += candidate
+                cursor++
+            }
+
+            if (paragraphLines.isNotEmpty()) {
+                out.append(
+                    "<p class=\"rich-paragraph\">" +
+                        formatInlineText(paragraphLines.joinToString(" "), sourceDir) +
+                        "</p>"
+                )
+                index = cursor
+                continue
+            }
+
+            index += 1
+        }
+
+        return out.toString()
+    }
+
+    private fun collectBookingOptions(
+        lines: List<String>,
+        startIndex: Int
+    ): Pair<List<BookingOption>, Int>? {
+        val firstLine = lines[startIndex].trim()
+        if (parseOptionLine(firstLine) == null) {
+            return null
+        }
+
+        val options = mutableListOf<BookingOption>()
+        var cursor = startIndex
+
+        while (cursor < lines.size) {
+            val current = lines[cursor].trim()
+            if (current.isEmpty()) {
+                cursor++
+                continue
+            }
+
+            val parsed = parseOptionLine(current) ?: break
+            var next = cursor + 1
+            while (next < lines.size && lines[next].trim().isEmpty()) {
+                next++
+            }
+
+            val button = if (next < lines.size) parseButtonLine(lines[next].trim()) else null
+            options += BookingOption(
+                title = parsed.first,
+                details = parsed.second,
+                button = button
+            )
+
+            cursor = if (button != null) next + 1 else cursor + 1
+            while (cursor < lines.size && lines[cursor].trim().isEmpty()) {
+                cursor++
+            }
+
+            if (cursor >= lines.size || parseOptionLine(lines[cursor].trim()) == null) {
+                break
+            }
+        }
+
+        val logoBlock = collectTrailingLogoBlock(lines, cursor)
+        if (logoBlock != null) {
+            val (logos, nextCursor) = logoBlock
+            if (logos.isNotEmpty()) {
+                return attachLogosToOptions(options, logos) to nextCursor
+            }
+        }
+
+        return options to cursor
+    }
+
+    private fun collectTrailingLogoBlock(
+        lines: List<String>,
+        startIndex: Int
+    ): Pair<List<ParsedLogo>, Int>? {
+        var cursor = startIndex
+        while (cursor < lines.size && lines[cursor].trim().isEmpty()) {
+            cursor++
+        }
+        if (cursor >= lines.size) {
+            return null
+        }
+
+        val heading = lines[cursor].trim()
+        if (!heading.startsWith("Airline Logos", ignoreCase = true)) {
+            return null
+        }
+        cursor += 1
+
+        val logos = mutableListOf<ParsedLogo>()
+        while (cursor < lines.size) {
+            val line = lines[cursor].trim()
+            if (line.isEmpty()) {
+                cursor++
+                continue
+            }
+            if (!line.startsWith("- ")) {
+                break
+            }
+
+            val item = line.removePrefix("- ").trim()
+            val parts = item.split(":", limit = 2)
+            if (parts.size == 2) {
+                val label = parts[0].trim()
+                val value = parts[1].trim()
+                if (label.isNotEmpty() && looksLikeImagePath(value)) {
+                    logos += ParsedLogo(label = label, url = value)
+                }
+            }
+            cursor++
+        }
+
+        if (logos.isEmpty()) {
+            return null
+        }
+        return logos to cursor
+    }
+
+    private fun attachLogosToOptions(
+        options: List<BookingOption>,
+        logos: List<ParsedLogo>
+    ): List<BookingOption> {
+        if (options.isEmpty() || logos.isEmpty()) {
+            return options
+        }
+
+        val remaining = logos.toMutableList()
+        return options.map { option ->
+            val matched = matchLogoForOption(option, remaining)
+            if (matched != null) {
+                remaining.remove(matched)
+                option.copy(logo = matched)
+            } else {
+                option
+            }
+        }
+    }
+
+    private fun matchLogoForOption(
+        option: BookingOption,
+        logos: List<ParsedLogo>
+    ): ParsedLogo? {
+        if (logos.isEmpty()) {
+            return null
+        }
+
+        val haystack = normalizeMatchText(
+            option.title + " " + (option.button?.label ?: "")
+        )
+        if (haystack.isBlank()) {
+            return null
+        }
+
+        return logos.firstOrNull { logo ->
+            val needle = normalizeMatchText(logo.label)
+            needle.isNotBlank() && (haystack.contains(needle) || needle.contains(haystack))
+        }
+    }
+
+    private fun normalizeMatchText(value: String): String {
+        return value
+            .lowercase(Locale.US)
+            .replace(Regex("[^a-z0-9]+"), " ")
+            .trim()
+    }
+
+    private fun renderBookingOptions(options: List<BookingOption>, sourceDir: File?): String {
+        val cards = options.joinToString(separator = "") { option ->
+            val logo = option.logo?.let {
+                val logoUrl = resolveAssetUrl(it.url, sourceDir)
+                """
+                    <div class="booking-logo-wrap">
+                      <img class="booking-logo" src="${escapeAttr(logoUrl)}" alt="${escapeAttr(it.label)} logo" />
+                    </div>
+                """.trimIndent()
+            } ?: ""
+            val action = option.button?.let {
+                "<div class=\"booking-action\">${renderButtonAnchor(it, sourceDir, "primary")}</div>"
+            } ?: ""
+            """
+                <article class="booking-card">
+                  $logo
+                  <h5 class="booking-title">${escapeHtml(option.title)}</h5>
+                  <p class="booking-body">${formatInlineText(option.details, sourceDir)}</p>
+                  $action
+                </article>
+            """.trimIndent()
+        }
+        return """<div class="booking-grid">$cards</div>"""
+    }
+
+    private fun collectMediaEntries(
+        lines: List<String>,
+        startIndex: Int
+    ): Pair<List<ParsedMediaEntry>, Int>? {
+        var cursor = startIndex
+        val entries = mutableListOf<ParsedMediaEntry>()
+        var markerHeading: String? = null
+
+        while (cursor < lines.size) {
+            val line = lines[cursor].trim()
+            if (line.isEmpty()) {
+                cursor++
+                continue
+            }
+
+            if (isMediaMarkerHeading(line)) {
+                markerHeading = line.lowercase(Locale.US)
+                cursor++
+                continue
+            }
+
+            val mediaEntry = parseMediaEntryLine(line)
+            if (mediaEntry != null) {
+                entries += mediaEntry
+                cursor++
+                continue
+            }
+            break
+        }
+
+        if (entries.isEmpty()) {
+            return null
+        }
+
+        if (markerHeading?.startsWith("icons") == true &&
+            entries.all { it.iconLike && isGenericUtilityIconLabel(it.label) }
+        ) {
+            // Skip generic booking utility icon lists like Airline/Time/Calendar.
+            return emptyList<ParsedMediaEntry>() to cursor
+        }
+
+        return entries to cursor
+    }
+
+    private fun isGenericUtilityIconLabel(label: String): Boolean {
+        val normalized = normalizeMatchText(label)
+        return normalized in setOf("airline", "time", "calendar")
+    }
+
+    private fun isMediaMarkerHeading(line: String): Boolean {
+        val normalized = line.trim().lowercase(Locale.US)
+        return normalized in setOf(
+            "icons:",
+            "icon:",
+            "assets:",
+            "asset:",
+            "logos:",
+            "logo:",
+            "images:",
+            "image:",
+            "airline logos:"
+        )
+    }
+
+    private fun parseMediaEntryLine(line: String): ParsedMediaEntry? {
+        val normalized = line.removePrefix("- ").trim()
+        val parts = normalized.split(":", limit = 2)
+        if (parts.size != 2) {
+            return null
+        }
+        val label = parts[0].trim()
+        val value = parts[1].trim()
+        if (label.isEmpty() || !looksLikeImagePath(value)) {
+            return null
+        }
+
+        val lowerLabel = label.lowercase(Locale.US)
+        val lowerValue = value.lowercase(Locale.US)
+        val iconLike = lowerLabel.contains("icon") ||
+            lowerValue.endsWith(".svg") && !lowerLabel.contains("logo") && !lowerValue.contains("logo")
+
+        return ParsedMediaEntry(
+            label = label,
+            url = value,
+            iconLike = iconLike
+        )
+    }
+
+    private fun renderMediaCards(entries: List<ParsedMediaEntry>, sourceDir: File?): String {
+        val primary = entries.filterNot { it.iconLike }
+        val icons = entries.filter { it.iconLike }
+
+        val cards = if (primary.isNotEmpty()) {
+            val iconBuckets = MutableList(primary.size) { mutableListOf<ParsedMediaEntry>() }
+            icons.forEachIndexed { index, icon ->
+                iconBuckets[index % primary.size] += icon
+            }
+
+            primary.mapIndexed { index, entry ->
+                val resolved = resolveAssetUrl(entry.url, sourceDir)
+                val inlineIcons = iconBuckets[index]
+                val iconStrip = if (inlineIcons.isEmpty()) {
+                    ""
+                } else {
+                    val iconHtml = inlineIcons.joinToString(separator = "") { icon ->
+                        val iconUrl = resolveAssetUrl(icon.url, sourceDir)
+                        """
+                            <span class="media-inline-icon-wrap">
+                              <img class="media-inline-icon" src="${escapeAttr(iconUrl)}" alt="${escapeAttr(icon.label)}" title="${escapeAttr(icon.label)}" />
+                            </span>
+                        """.trimIndent()
+                    }
+                    """<div class="media-icon-row">$iconHtml</div>"""
+                }
+
+                """
+                    <article class="media-card">
+                      <div class="media-preview-wrap">
+                        <img class="media-preview" src="${escapeAttr(resolved)}" alt="${escapeAttr(entry.label)}" />
+                      </div>
+                      <p class="media-label">${escapeHtml(entry.label)}</p>
+                      $iconStrip
+                    </article>
+                """.trimIndent()
+            }.joinToString(separator = "")
+        } else {
+            entries.joinToString(separator = "") { entry ->
+                val resolved = resolveAssetUrl(entry.url, sourceDir)
+                """
+                    <article class="media-card">
+                      <div class="media-preview-wrap">
+                        <img class="media-preview media-preview-icon" src="${escapeAttr(resolved)}" alt="${escapeAttr(entry.label)}" />
+                      </div>
+                      <p class="media-label">${escapeHtml(entry.label)}</p>
+                    </article>
+                """.trimIndent()
+            }
+        }
+
+        return """<div class="media-grid">$cards</div>"""
+    }
+
+    private fun collectTableRows(
+        lines: List<String>,
+        startIndex: Int
+    ): Pair<List<List<String>>, Int>? {
+        if (!isTableLikeLine(lines[startIndex].trim())) {
+            return null
+        }
+
+        val rows = mutableListOf<List<String>>()
+        var cursor = startIndex
+        while (cursor < lines.size) {
+            val candidate = lines[cursor].trim()
+            if (!isTableLikeLine(candidate)) {
+                break
+            }
+            rows += splitTableCells(candidate)
+            cursor++
+        }
+
+        if (rows.size < 2) {
+            return null
+        }
+        return rows to cursor
+    }
+
+    private fun renderTable(rows: List<List<String>>, sourceDir: File?): String {
+        val header = rows.first()
+        val body = rows.drop(1)
+        val headHtml = header.joinToString(separator = "") { cell ->
+            "<th>${formatInlineText(cell, sourceDir)}</th>"
+        }
+        val bodyHtml = body.joinToString(separator = "") { row ->
+            val cells = row.joinToString(separator = "") { cell ->
+                "<td>${formatInlineText(cell, sourceDir)}</td>"
+            }
+            "<tr>$cells</tr>"
+        }
+        return """
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr>$headHtml</tr></thead>
+                <tbody>$bodyHtml</tbody>
+              </table>
+            </div>
+        """.trimIndent()
+    }
+
+    private fun renderListItem(item: String, sourceDir: File?): String {
+        val parts = item.split(":", limit = 2)
+        if (parts.size == 2) {
+            val label = parts[0].trim()
+            val value = parts[1].trim()
+            if (looksLikeImagePath(value)) {
+                val imageUrl = resolveAssetUrl(value, sourceDir)
+                return """
+                    <span class="list-label">${escapeHtml(label)}:</span>
+                    <img class="inline-logo" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(label)}" />
+                """.trimIndent()
+            }
+            return "<span class=\"list-label\">${escapeHtml(label)}:</span> ${formatInlineText(value, sourceDir)}"
+        }
+        return formatInlineText(item, sourceDir)
+    }
+
+    private fun parseOptionLine(line: String): Pair<String, String>? {
+        val match = OPTION_LINE_REGEX.find(line) ?: return null
+        val title = match.groupValues[1].trim()
+        val details = match.groupValues[2].trim()
+        if (title.isEmpty() || details.isEmpty()) {
+            return null
+        }
+        return title to details
+    }
+
+    private fun parseButtonLine(line: String): ParsedButton? {
+        val match = BUTTON_LINE_REGEX.find(line) ?: return null
+        val label = match.groupValues[1].trim()
+        val url = sanitizeUrlToken(match.groupValues[2])
+        if (label.isEmpty() || url.isEmpty()) {
+            return null
+        }
+        return ParsedButton(label = label, url = url)
+    }
+
+    private fun renderButtonAnchor(button: ParsedButton, sourceDir: File?, style: String): String {
+        val resolved = resolveAssetUrl(button.url, sourceDir)
+        return """
+            <a class="button $style" href="${escapeAttr(resolved)}">${escapeHtml(button.label)}</a>
+        """.trimIndent()
+    }
+
+    private fun sanitizeUrlToken(value: String): String =
+        value.trim().trimEnd('.', ',', ';')
+
+    private fun isTableLikeLine(line: String): Boolean {
+        if (line.contains("http://", ignoreCase = true) || line.contains("https://", ignoreCase = true)) {
+            return false
+        }
+        return splitTableCells(line).size >= 3
+    }
+
+    private fun splitTableCells(line: String): List<String> =
+        line
+            .split('|')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+
+    private fun looksLikeSectionHeading(line: String): Boolean {
+        if (line.length > 80) {
+            return false
+        }
+        if (line.startsWith("- ") || line.endsWith(".") || line.endsWith("?") || line.endsWith("!")) {
+            return false
+        }
+        if (line.contains('|') || line.contains("http://", ignoreCase = true) || line.contains("https://", ignoreCase = true)) {
+            return false
+        }
+        if (line.contains("[Button:", ignoreCase = true)) {
+            return false
+        }
+        return line.any { it.isLetter() }
+    }
+
+    private fun isStructuredBoundary(line: String): Boolean {
+        if (line.startsWith("- ")) {
+            return true
+        }
+        if (parseButtonLine(line) != null || parseOptionLine(line) != null) {
+            return true
+        }
+        if (isTableLikeLine(line) || looksLikeSectionHeading(line)) {
+            return true
+        }
+        return false
+    }
+
+    private fun looksLikeImagePath(value: String): Boolean {
+        val normalized = value.trim().lowercase(Locale.US)
+        return normalized.endsWith(".png") ||
+            normalized.endsWith(".jpg") ||
+            normalized.endsWith(".jpeg") ||
+            normalized.endsWith(".svg") ||
+            normalized.endsWith(".webp")
+    }
+
+    private fun formatInlineText(rawText: String, sourceDir: File?): String {
+        val escaped = escapeHtml(rawText)
+        val withBold = BOLD_REGEX.replace(escaped) { match ->
+            "<strong>${match.groupValues[1]}</strong>"
+        }
+        return linkifyUrls(withBold, sourceDir)
+    }
+
+    private fun linkifyUrls(escapedText: String, sourceDir: File?): String {
+        val matches = URL_REGEX.findAll(escapedText).toList()
+        if (matches.isEmpty()) {
+            return escapedText
+        }
+
+        val out = StringBuilder()
+        var cursor = 0
+        for (match in matches) {
+            out.append(escapedText.substring(cursor, match.range.first))
+            val escapedUrl = match.value
+            val rawUrl = escapedUrl.replace("&amp;", "&")
+            val resolved = resolveAssetUrl(rawUrl, sourceDir)
+            out.append("""<a class="inline-link" href="${escapeAttr(resolved)}">$escapedUrl</a>""")
+            cursor = match.range.last + 1
+        }
+        out.append(escapedText.substring(cursor))
+        return out.toString()
     }
 
     private fun renderImage(component: JsonObject, sourceDir: File?, className: String): String {
@@ -503,7 +1318,12 @@ object GenUiHtmlRenderer {
     private fun resolveAssetUrl(raw: String, sourceDir: File?): String {
         val normalized = raw.replace("\\", "/")
         if (sourceDir == null) {
-            return normalized
+            return when {
+                normalized.startsWith("../assets/") -> "/" + normalized.removePrefix("../")
+                normalized.startsWith("./assets/") -> "/" + normalized.removePrefix("./")
+                normalized.startsWith("assets/") -> "/$normalized"
+                else -> normalized
+            }
         }
 
         val relative = when {
@@ -528,7 +1348,7 @@ object GenUiHtmlRenderer {
             <head>
               <meta charset="utf-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-              <title>A2UI Android Renderer</title>
+              <title>GenUI Craft Renderer</title>
               <style>
                 :root {
                   --bg: #f7f8fa;
@@ -572,6 +1392,178 @@ object GenUiHtmlRenderer {
                 .text.h4 { font-size: 16px; font-weight: 700; }
                 .text.body { font-size: 15px; font-weight: 400; }
                 .text.caption { font-size: 13px; color: var(--muted); }
+                .rich-text { display: flex; flex-direction: column; gap: 10px; }
+                .rich-title {
+                  margin: 0;
+                  font-size: 22px;
+                  line-height: 1.3;
+                  color: #0f2547;
+                }
+                .rich-heading {
+                  margin: 8px 0 0;
+                  font-size: 16px;
+                  color: #183a6a;
+                }
+                .rich-paragraph { margin: 0; line-height: 1.5; }
+                .inline-link {
+                  color: #0f63d6;
+                  text-decoration: none;
+                  border-bottom: 1px dotted rgba(15, 99, 214, 0.5);
+                }
+                .inline-link:hover { border-bottom-style: solid; }
+                .text-list {
+                  margin: 0;
+                  padding-left: 20px;
+                  display: grid;
+                  gap: 8px;
+                }
+                .list-label { font-weight: 600; color: #1e3860; }
+                .inline-logo {
+                  margin-left: 8px;
+                  max-height: 24px;
+                  max-width: 120px;
+                  vertical-align: middle;
+                }
+                .table-wrap {
+                  border: 1px solid #d8e1ee;
+                  border-radius: 12px;
+                  overflow-x: auto;
+                }
+                .data-table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  min-width: 640px;
+                }
+                .data-table thead th {
+                  background: #f2f6fd;
+                  font-size: 12px;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  color: #26416a;
+                }
+                .data-table th,
+                .data-table td {
+                  padding: 10px 12px;
+                  border-bottom: 1px solid #e2e8f2;
+                  text-align: left;
+                  vertical-align: top;
+                }
+                .data-table tbody tr:nth-child(even) { background: #fbfcff; }
+                .component-table td,
+                .component-table th {
+                  min-width: 110px;
+                }
+                .action-row {
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 8px;
+                }
+                .booking-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                  gap: 10px;
+                }
+                .booking-card {
+                  border: 1px solid #d8e1ee;
+                  border-radius: 12px;
+                  padding: 12px;
+                  background: #f9fbff;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 8px;
+                }
+                .media-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                  gap: 10px;
+                }
+                .media-card {
+                  border: 1px solid #d8e1ee;
+                  border-radius: 12px;
+                  padding: 10px;
+                  background: #f9fbff;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 8px;
+                }
+                .media-preview-wrap {
+                  border-radius: 10px;
+                  border: 1px solid #e2e9f4;
+                  background: #ffffff;
+                  min-height: 72px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 8px;
+                }
+                .media-preview {
+                  max-width: 100%;
+                  max-height: 120px;
+                  object-fit: contain;
+                }
+                .media-preview-icon {
+                  max-height: 42px;
+                  max-width: 42px;
+                }
+                .media-label {
+                  margin: 0;
+                  font-size: 12px;
+                  color: #213d68;
+                  font-weight: 600;
+                  line-height: 1.35;
+                }
+                .media-icon-row {
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 6px;
+                }
+                .media-inline-icon-wrap {
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 999px;
+                  background: #eef4fd;
+                  border: 1px solid #d6e3f7;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                }
+                .media-inline-icon {
+                  width: 16px;
+                  height: 16px;
+                  object-fit: contain;
+                }
+                .component-list {
+                  margin: 0;
+                  padding-left: 20px;
+                  display: grid;
+                  gap: 8px;
+                }
+                .component-list li {
+                  line-height: 1.45;
+                }
+                .booking-logo-wrap {
+                  height: 26px;
+                  display: flex;
+                  align-items: center;
+                }
+                .booking-logo {
+                  max-height: 24px;
+                  max-width: 140px;
+                  object-fit: contain;
+                }
+                .booking-title {
+                  margin: 0;
+                  font-size: 15px;
+                  color: #102949;
+                }
+                .booking-body {
+                  margin: 0;
+                  color: #324e79;
+                  line-height: 1.45;
+                }
+                .booking-action {
+                  margin-top: 2px;
+                }
                 .divider { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
                 .card {
                   border: 1px solid var(--line);
@@ -693,3 +1685,4 @@ object GenUiHtmlRenderer {
 
     private fun JsonObject.hasString(key: String): Boolean = getString(key) != null
 }
+

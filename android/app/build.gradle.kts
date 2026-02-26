@@ -1,14 +1,14 @@
-plugins {
+﻿plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
 
 android {
-    namespace = "com.a2ui.renderer"
+    namespace = "com.samsung.genuicraft"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.a2ui.renderer"
+        applicationId = "com.samsung.genuicraft"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -39,9 +39,11 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.webkit:webkit:1.12.1")
     implementation("com.google.android.material:material:1.12.0")
     implementation("com.google.code.gson:gson:2.11.0")
 
     testImplementation("junit:junit:4.13.2")
 }
+

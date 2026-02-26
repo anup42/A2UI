@@ -1,14 +1,28 @@
 <resources>
-    <string name="app_name">A2UI Renderer</string>
-    <string name="path_hint">Path to genui.json or genui.jsonl on device</string>
-    <string name="render_path">Render Path</string>
-    <string name="pick_file">Pick File</string>
-    <string name="load_sample">Sample</string>
-    <string name="status_ready">Ready.</string>
-    <string name="error_missing_path">Enter a file path first.</string>
-    <string name="error_path_not_found">File not found: %1$s</string>
+    <string name="app_name">GenUI Craft Renderer</string>
+    <string name="home_title">GenUI Craft Renderer</string>
+    <string name="home_subtitle">Load a GenUI JSON or JSONL file and render each entry in a dedicated viewer.</string>
+    <string name="home_source_title">Choose Source</string>
+    <string name="home_source_subtitle">Select a file from your device or open the bundled sample dataset.</string>
+    <string name="select_genui_file">Select GenUI File</string>
+    <string name="open_sample_dataset">Open Sample Dataset</string>
+    <string name="back">Back</string>
+
+    <string name="list_title">Choose an Item</string>
+    <string name="list_source_label">Loaded Source</string>
+    <string name="list_count">%1$d item(s)</string>
+    <string name="list_empty_source">No source selected</string>
+    <string name="list_empty_count">0 item(s)</string>
+    <string name="list_empty_message">No GenUI records are loaded.</string>
+
+    <string name="status_ready_select_source">Select a source to begin.</string>
+    <string name="status_file_picker_cancelled">File selection cancelled.</string>
+    <string name="status_loaded_records">Loaded %1$d item(s) from %2$s</string>
+
     <string name="error_uri_open">Could not open selected file.</string>
     <string name="error_render_failed">Render failed: %1$s</string>
-    <string name="render_success">Rendered: %1$s</string>
+    <string name="error_no_valid_json">No valid JSON records found in %1$s.</string>
+    <string name="error_session_missing">No loaded item found. Return and load a GenUI source.</string>
+    <string name="render_error_title">Render Error</string>
+    <string name="rendering_position">Item %1$d of %2$d from %3$s</string>
 </resources>
-

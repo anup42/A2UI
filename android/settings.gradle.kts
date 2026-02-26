@@ -14,6 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "A2UiRenderer"
+rootProject.name = "GenUiCraftRenderer"
 include(":app")
-

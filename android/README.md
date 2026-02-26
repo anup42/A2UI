@@ -1,13 +1,14 @@
-# A2UI Android Renderer
+# GenUI Craft Renderer
 
 This Android app renders GenUI payloads (`genui.json` and `genui.jsonl`) into HTML and visualizes them in a `WebView`.
 
 ## Features
 
-- Loads JSON/JSONL from a typed local device path.
-- Loads JSON/JSONL from Android file picker.
+- First screen contains only source selection actions: `Select GenUI File` and `Open Sample Dataset`.
+- Loads JSON/JSONL from Android file picker (no path input field required).
 - Loads bundled JSONL sample: `app/src/main/assets/sample_genui.jsonl`.
-- Shows all JSONL rows in a selectable list (click to render any row).
+- Second screen shows all parsed JSON/JSONL rows in an improved selectable list.
+- Third screen renders the selected item in a dedicated `WebView` view.
 - Bundles sample run assets/icons in `app/src/main/assets/r_*` so `/assets/...` paths render inside WebView.
 - Converts GenUI component trees (`v0.9` and basic `v0.8`) to HTML/CSS
 - Renders common components: `Column`, `Row`, `List`, `Text`, `Image`, `Icon`, `Button`, `Divider`, `Card`, `Tabs`
