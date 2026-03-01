@@ -1,23 +1,24 @@
 from __future__ import annotations
 
-import json
 import os
 import time
-import urllib.request
 from typing import Optional
 
 from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
-from .http_transport import urlopen
 
 
 def _extract_rate_headers(headers) -> dict:
     extracted = {}
     if headers is None:
         return extracted
-    for key, value in headers.items():
-        lk = key.lower()
-        if lk.startswith("x-ratelimit-"):
-            extracted[lk] = value
+    try:
+        items = headers.items()
+    except Exception:
+        items = []
+    for key, value in items:
+        lk = str(key).lower()
+        if lk.startswith("x-ratelimit-") or lk.startswith("ratelimit-"):
+            extracted[lk] = str(value)
     return extracted
 
 
@@ -45,45 +46,83 @@ class OpenAIAdapter(BaseLLMAdapter):
                 error="OPENAI_API_KEY not set",
             )
 
+        try:
+            import httpx  # type: ignore
+            from openai import OpenAI  # type: ignore
+            from openai import APIStatusError, APITimeoutError, APIConnectionError  # type: ignore
+        except Exception as exc:
+            return LLMResult(
+                text="",
+                raw=None,
+                latency_ms=0.0,
+                input_tokens=0,
+                output_tokens=0,
+                cost_usd=None,
+                model=self.spec.model,
+                provider=self.spec.provider,
+                error=f"openai/httpx package missing: {exc}",
+            )
+
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
-        body: dict[str, object] = {
-            "model": self.spec.model,
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-        }
-        if seed is not None:
-            body["seed"] = seed
-        if json_mode:
-            body["response_format"] = {"type": "json_object"}
+        # Optional explicit proxy/cert path for enterprise setups.
+        # Falls back to standard env vars (HTTPS_PROXY/SSL_CERT_FILE) if unset.
+        proxy_url = (os.getenv("OPENAI_PROXY") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or "").strip()
+        cert_path = (os.getenv("OPENAI_CA_CERT") or os.getenv("SSL_CERT_FILE") or "").strip()
 
-        data = json.dumps(body).encode("utf-8")
-        req = urllib.request.Request(
-            "https://api.openai.com/v1/chat/completions",
-            data=data,
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-        )
+        transport_kwargs: dict[str, object] = {}
+        if proxy_url:
+            transport_kwargs["proxy"] = proxy_url
+        if cert_path:
+            transport_kwargs["verify"] = cert_path
+
+        if transport_kwargs:
+            transport = httpx.HTTPTransport(**transport_kwargs)
+            http_client = httpx.Client(transport=transport, timeout=60.0)
+        else:
+            http_client = httpx.Client(timeout=60.0)
+
+        base_url = (os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1").strip()
+        client = OpenAI(api_key=api_key, base_url=base_url, http_client=http_client)
 
         start = time.time()
         try:
-            with urlopen(req, timeout=60) as resp:
-                raw = resp.read().decode("utf-8")
-        except Exception as exc:
-            if hasattr(exc, "code") and getattr(exc, "code") == 429:
-                headers = getattr(exc, "headers", None)
+            req_kwargs: dict[str, object] = {
+                "model": self.spec.model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            }
+            if seed is not None:
+                req_kwargs["seed"] = seed
+            if json_mode:
+                req_kwargs["response_format"] = {"type": "json_object"}
+            completion = client.chat.completions.create(**req_kwargs)
+        except APIStatusError as exc:
+            status = getattr(exc, "status_code", None)
+            if status == 429:
+                response = getattr(exc, "response", None)
                 raise LLMRateLimitError(
                     provider=self.spec.provider,
                     model=self.spec.model,
                     limits=self.spec.limits,
-                    headers=_extract_rate_headers(headers),
+                    headers=_extract_rate_headers(getattr(response, "headers", None)),
                 )
+            return LLMResult(
+                text="",
+                raw=None,
+                latency_ms=(time.time() - start) * 1000,
+                input_tokens=0,
+                output_tokens=0,
+                cost_usd=None,
+                model=self.spec.model,
+                provider=self.spec.provider,
+                error=f"HTTP {status}: {exc}",
+            )
+        except (APITimeoutError, APIConnectionError) as exc:
             return LLMResult(
                 text="",
                 raw=None,
@@ -95,17 +134,41 @@ class OpenAIAdapter(BaseLLMAdapter):
                 provider=self.spec.provider,
                 error=str(exc),
             )
+        except Exception as exc:
+            return LLMResult(
+                text="",
+                raw=None,
+                latency_ms=(time.time() - start) * 1000,
+                input_tokens=0,
+                output_tokens=0,
+                cost_usd=None,
+                model=self.spec.model,
+                provider=self.spec.provider,
+                error=str(exc),
+            )
+        finally:
+            try:
+                http_client.close()
+            except Exception:
+                pass
 
         elapsed = (time.time() - start) * 1000
-        payload = json.loads(raw)
-        text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
-        usage = payload.get("usage", {})
+        payload = completion.model_dump() if hasattr(completion, "model_dump") else {}
+        text = ""
+        try:
+            if completion.choices and completion.choices[0].message:
+                text = completion.choices[0].message.content or ""
+        except Exception:
+            text = ""
+        usage = getattr(completion, "usage", None)
+        prompt_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
+        completion_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
         return LLMResult(
             text=text or "",
             raw=payload,
             latency_ms=elapsed,
-            input_tokens=usage.get("prompt_tokens", 0),
-            output_tokens=usage.get("completion_tokens", 0),
+            input_tokens=prompt_tokens,
+            output_tokens=completion_tokens,
             cost_usd=None,
             model=self.spec.model,
             provider=self.spec.provider,
