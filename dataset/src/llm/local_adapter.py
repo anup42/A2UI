@@ -9,6 +9,7 @@ from typing import Any
 from typing import Optional
 
 from .base import BaseLLMAdapter, LLMResult
+from .http_transport import urlopen
 
 
 class LocalAdapter(BaseLLMAdapter):
@@ -253,7 +254,7 @@ class LocalAdapter(BaseLLMAdapter):
 
         start = time.time()
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urlopen(req, timeout=60) as resp:
                 raw = resp.read().decode("utf-8")
         except Exception as exc:
             message = str(exc)

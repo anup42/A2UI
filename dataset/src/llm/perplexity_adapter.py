@@ -7,6 +7,7 @@ import urllib.request
 from typing import Any, Optional
 
 from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
+from .http_transport import urlopen
 
 
 def _extract_rate_headers(headers) -> dict:
@@ -91,7 +92,7 @@ class PerplexityAdapter(BaseLLMAdapter):
 
         start = time.time()
         try:
-            with urllib.request.urlopen(req, timeout=90) as resp:
+            with urlopen(req, timeout=90) as resp:
                 raw = resp.read().decode("utf-8")
         except Exception as exc:
             error_text = str(exc)

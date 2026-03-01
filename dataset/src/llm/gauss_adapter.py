@@ -8,6 +8,7 @@ import urllib.error
 from typing import Optional
 
 from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
+from .http_transport import urlopen
 
 
 class GaussAdapter(BaseLLMAdapter):
@@ -118,7 +119,7 @@ class GaussAdapter(BaseLLMAdapter):
 
         req = urllib.request.Request(url, headers=headers)
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urlopen(req, timeout=60) as resp:
                 raw = resp.read().decode("utf-8")
         except urllib.error.HTTPError as exc:
             body = ""
@@ -259,7 +260,7 @@ class GaussAdapter(BaseLLMAdapter):
             attempted.append(candidate)
             req = urllib.request.Request(candidate, data=data, headers=headers)
             try:
-                with urllib.request.urlopen(req, timeout=60) as resp:
+                with urlopen(req, timeout=60) as resp:
                     raw = resp.read().decode("utf-8")
                 break
             except urllib.error.HTTPError as exc:

@@ -11,6 +11,7 @@ import urllib.error
 from typing import Optional
 
 from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
+from .http_transport import urlopen
 
 
 class GeminiAdapter(BaseLLMAdapter):
@@ -197,7 +198,7 @@ class GeminiAdapter(BaseLLMAdapter):
                     )
                     try:
                         self._wait_for_slot(api_key, min_interval)
-                        with urllib.request.urlopen(req, timeout=timeout_seconds) as resp:
+                        with urlopen(req, timeout=timeout_seconds) as resp:
                             raw = resp.read().decode("utf-8")
                         break
                     except urllib.error.HTTPError as exc:
@@ -442,7 +443,7 @@ class GeminiAdapter(BaseLLMAdapter):
                 )
                 try:
                     self._wait_for_slot(api_key, min_interval)
-                    with urllib.request.urlopen(req, timeout=timeout_seconds) as resp:
+                    with urlopen(req, timeout=timeout_seconds) as resp:
                         raw = resp.read().decode("utf-8")
                 except urllib.error.HTTPError as exc:
                     last_error = exc
@@ -481,7 +482,7 @@ class GeminiAdapter(BaseLLMAdapter):
                             return _error_results("batch_timeout", (time.time() - start) * 1000)
                         time.sleep(poll_interval)
                         try:
-                            with urllib.request.urlopen(poll_url, timeout=timeout_seconds) as resp:
+                            with urlopen(poll_url, timeout=timeout_seconds) as resp:
                                 op_raw = resp.read().decode("utf-8")
                             op = json.loads(op_raw)
                         except urllib.error.HTTPError as exc:
