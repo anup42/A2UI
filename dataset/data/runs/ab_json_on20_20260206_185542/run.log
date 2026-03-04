@@ -20,3 +20,7 @@
 2026-02-07 00:29:38 INFO dataset: Stage3 created ui_id=u_000037_01 schema_ok=True
 2026-02-07 00:29:40 INFO dataset: Stage3 created ui_id=u_000038_01 schema_ok=True
 2026-02-07 00:29:40 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_json_on20_20260206_185542\aggregates.json
+2026-02-18 00:23:36 INFO dataset: Stage4 HTTP server started on port 55022
+2026-02-18 00:23:58 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_json_on20_20260206_185542\rendered
+2026-02-18 01:34:46 INFO dataset: Stage4 HTTP server started on port 55479
+2026-02-18 01:34:47 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\ab_json_on20_20260206_185542\rendered

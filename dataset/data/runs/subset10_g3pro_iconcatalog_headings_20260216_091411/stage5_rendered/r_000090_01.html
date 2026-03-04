@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Beginner-Friendly 6-Player Game Recommendations</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>Beginner-Friendly 6-Player Game Recommendations</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><p class="s5-paragraph">Group Dynamics and Selection Criteria<br />These recommendations assume the group has little to no prior experience with modern hobby board games. The selections focus on high interaction, minimal downtime between turns, and rules that can be taught in under 5 minutes. The games selected bridge the gap between casual conversation and structured play, ensuring the 60-minute time limit is respected even with teaching time included.</p><p class="s5-paragraph">Top Party and Deduction Picks</p><p class="s5-paragraph">Option 1: Codenames | Team-based word association game | Party / 15 Minutes<br />The group splits into two teams, Red and Blue. Each team has a Spymaster who provides one-word clues linked to multiple cards on the table. The goal is for teammates to guess the correct words based on the clue without picking the opposing team&#x27;s words or the instant-loss Assassin card. It encourages clever thinking and group discussion.</p><p class="s5-paragraph">Option 2: Just One | Cooperative guessing game | Party / 20 Minutes<br />This is a fully cooperative game where everyone wins or loses together. One player is the guesser, and the other five write one-word clues to help them guess a specific word. The catch is that if any two players write the exact same clue, those clues are erased and the guesser never sees them. It forces players to be creative rather than obvious.</p><p class="s5-paragraph">Option 3: Deception: Murder in Hong Kong | Crime-solving deduction game | Social Deduction / 20 Minutes<br />One player is secretly the Murderer, and another is the Forensic Scientist who knows the solution but can only communicate by placing markers on scene tiles (like Cause of Death: Suffocation). The remaining players are investigators trying to interpret these vague clues to identify the murderer and the weapon used. It is less aggressive than other lying games because the focus is on the evidence.</p><p class="s5-paragraph">Option 4: The Resistance | Dystopian secret identity game | Social Deduction / 30 Minutes<br />Players are members of a resistance group trying to overthrow a government, but spies have infiltrated the ranks. In each round, a leader proposes a team to go on a mission. Everyone votes to approve the team. If the mission goes ahead, players on the team secretly choose to Support or Sabotage the mission. The goal is to deduce who the saboteurs are based on voting patterns and mission results.</p><div class="s5-button-row"><a class="s5-btn" href="https://boardgamegeek.com/boardgame/178900/codenames" target="_blank" rel="noopener noreferrer">View on BoardGameGeek</a><a class="s5-btn" href="https://boardgamegeek.com/boardgame/254640/just-one" target="_blank" rel="noopener noreferrer">View on BoardGameGeek</a><a class="s5-btn" href="https://boardgamegeek.com/boardgame/156129/deception-murder-in-hong-kong" target="_blank" rel="noopener noreferrer">View on BoardGameGeek</a><a class="s5-btn" href="https://boardgamegeek.com/boardgame/41114/the-resistance" target="_blank" rel="noopener noreferrer">View on BoardGameGeek</a></div></section><section class="s5-card s5-section"><h2>Icons</h2><div class="s5-icon-row"><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_000090_01_1_calendar-event.svg" alt="Dice" loading="lazy" /><span>Dice</span></span><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_000090_01_2_controller.svg" alt="Time" loading="lazy" /><span>Time</span></span><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_000090_01_3_upc-scan.svg" alt="Players" loading="lazy" /><span>Players</span></span></div></section><section class="s5-card s5-section"><h2>Quick Actions</h2><div class="s5-button-row"><a class="s5-btn" href="https://boardgamegeek.com/boardgamecategory/1030/party-game" target="_blank" rel="noopener noreferrer">Browse Top Party Games</a><a class="s5-btn" href="https://boardgamegeek.com/boardgamemechanic/2019/team-based-game" target="_blank" rel="noopener noreferrer">Browse Social Deduction</a></div></section><section class="s5-card s5-section"><h2>Sources</h2><ul class="s5-link-list"><li><a class="s5-link" href="https://boardgamegeek.com/boardgame/178900/codenames" target="_blank" rel="noopener noreferrer">BoardGameGeek Codenames Listing</a></li><li><a class="s5-link" href="https://boardgamegeek.com/boardgame/254640/just-one" target="_blank" rel="noopener noreferrer">BoardGameGeek Just One Listing</a></li></ul></section>
+      </div>
+    </main>
+  </body>
+</html>

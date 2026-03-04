@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SKU #99001 Availability Snapshot</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px 15px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+        box-shadow: 0 4px 10px rgba(20, 99, 207, 0.25);
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      .s5-option-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .s5-option-card {
+        border: 1px solid #d9e5f5;
+        border-radius: 14px;
+        padding: 10px;
+        background: linear-gradient(180deg, #ffffff 0%, #f9fcff 100%);
+      }
+      .s5-option-title {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+      .s5-option-index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: #e8f1ff;
+        color: #1a4da7;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 0 6px;
+      }
+      .s5-option-desc {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+      .s5-option-kv {
+        margin: 8px 0 0;
+      }
+      .s5-option-kv-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 12px;
+        border-top: 1px dashed #e5edf9;
+        padding-top: 6px;
+        margin-top: 6px;
+      }
+      .s5-option-kv-row dt {
+        margin: 0;
+        color: #51627c;
+      }
+      .s5-option-kv-row dd {
+        margin: 0;
+        font-weight: 700;
+        color: #0f2648;
+        text-align: right;
+      }
+      .s5-option-actions {
+        margin-top: 9px;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+        .s5-option-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>SKU #99001 Availability Snapshot</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><p class="s5-paragraph">Based on the current inventory data, the Blue Widget (SKU #99001) has 0 units available for sale. Although there is a total physical count of 7 units across your warehouses and store front, the 7 reserved units fully offset this stock. Consequently, the item is effectively out of stock for new orders until replenishment occurs or reservations are released.</p><p class="s5-paragraph">Inventory Calculation Context</p><p class="s5-paragraph">The Available for Sale status is derived by summing the physical inventory from all listed locations (Warehouse A, Warehouse B, and Store Front) and subtracting the Reserved quantity. Reserved items are considered committed to existing orders or transfers and are therefore excluded from sellable inventory.</p><p class="s5-paragraph">Detailed Stock Breakdown</p><div class="s5-table-wrap"><table class="s5-table"><thead><tr><th>Location / Category</th><th>Quantity</th><th>Notes</th></tr></thead><tbody><tr><td>Warehouse A</td><td>0</td><td>Currently empty</td></tr><tr><td>Warehouse B</td><td>5</td><td>Main stock location</td></tr><tr><td>Store Front</td><td>2</td><td>Floor units</td></tr><tr><td>Reserved Units</td><td>-7</td><td>Committed stock</td></tr><tr><td>Net Available</td><td>0</td><td>Out of Stock</td></tr></tbody></table></div><div class="s5-media-grid"><figure class="s5-media-card"><img class="s5-image" src="../assets/r_001590_01_1_warehouse_shelves.jpg" alt="Warehouse Inventory" loading="lazy" /><figcaption>Warehouse Inventory</figcaption></figure><figure class="s5-media-card"><img class="s5-image" src="../assets/r_001590_01_2_blue_product.jpg" alt="Blue Widget Concept" loading="lazy" /><figcaption>Blue Widget Concept</figcaption></figure></div><div class="s5-icon-row"><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_001590_01_3_box-seam.svg" alt="Inventory Box" loading="lazy" /><span>Inventory Box</span></span><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_001590_01_4_exclamation-circle.svg" alt="Status Alert" loading="lazy" /><span>Status Alert</span></span></div></section><section class="s5-card s5-section"><h2>Icons</h2><div class="s5-icon-row"><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_001374_01_1_calculator.svg" alt="Bell" loading="lazy" /><span>Bell</span></span><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_001590_01_6_bell.svg" alt="Calculator" loading="lazy" /><span>Calculator</span></span></div></section><section class="s5-card s5-section"><h2>Quick Actions</h2><div class="s5-button-row"><a class="s5-btn" href="https://www.google.com/search?q=blue+widget+wholesale+suppliers" target="_blank" rel="noopener noreferrer">Search Suppliers</a><a class="s5-btn" href="https://www.investopedia.com/terms/i/inventory-management.asp" target="_blank" rel="noopener noreferrer">Inventory Management Tips</a></div></section>
+      </div>
+    </main>
+  </body>
+</html>

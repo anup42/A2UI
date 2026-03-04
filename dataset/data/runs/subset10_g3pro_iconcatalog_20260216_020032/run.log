@@ -35,3 +35,6 @@
 2026-02-16 09:03:16 INFO dataset: Stage4 HTTP server started on port 51678
 2026-02-16 09:03:16 INFO dataset: Stage4 rendering 10 images with 10 workers
 2026-02-16 09:03:23 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_20260216_020032\rendered
+2026-02-18 01:11:13 INFO dataset: Stage4 HTTP server started on port 63977
+2026-02-18 02:24:04 INFO dataset: Stage4 HTTP server started on port 50348
+2026-02-18 02:24:16 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_20260216_020032\rendered

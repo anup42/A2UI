@@ -4,11 +4,14 @@ import json
 import os
 import time
 import re
+import hashlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from itertools import zip_longest
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 from pipeline.cache import PromptCache
 from pipeline.common import extract_json, load_prompt, render_prompt
@@ -96,6 +99,142 @@ def _to_render_asset_path(path: str) -> str:
     if normalized.startswith("assets/"):
         return "../" + normalized
     return normalized
+
+
+def _extract_declared_asset_entries(response_text: str) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    if not response_text:
+        return entries
+
+    section = ""
+    for raw_line in response_text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        if line.endswith(":"):
+            header = line[:-1].strip().lower()
+            if header in {"images", "icons", "assets", "files"}:
+                section = header
+            else:
+                section = ""
+            continue
+
+        if section not in {"images", "icons", "assets", "files"}:
+            continue
+        # Asset sections are expected as bullet lists. If structure changes,
+        # stop consuming so we do not accidentally capture unrelated URLs.
+        if not re.match(r"^[-*•]\s+", line):
+            section = ""
+            continue
+
+        kind = "asset"
+        if section == "images":
+            kind = "image"
+        elif section == "icons":
+            kind = "icon"
+
+        url_match = re.search(r"https?://[^\s)]+", line)
+        if not url_match:
+            continue
+
+        url = url_match.group(0).strip()
+        label = line[: url_match.start()].strip(" -:\t")
+        entries.append({"kind": kind, "label": label, "url": url})
+
+    return entries
+
+
+def _guess_ext(url: str, content_type: str) -> str:
+    parsed = urlparse(url)
+    suffix = Path(parsed.path).suffix.strip().lower()
+    if suffix in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".tiff", ".avif"}:
+        return suffix
+    ctype = (content_type or "").split(";", 1)[0].strip().lower()
+    mapping = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/gif": ".gif",
+        "image/webp": ".webp",
+        "image/svg+xml": ".svg",
+        "image/bmp": ".bmp",
+        "image/tiff": ".tiff",
+        "image/avif": ".avif",
+    }
+    return mapping.get(ctype, ".bin")
+
+
+def _safe_asset_stem(value: str) -> str:
+    safe = re.sub(r"[^a-zA-Z0-9._-]+", "_", value).strip("._")
+    return safe or "asset"
+
+
+def _download_response_asset(
+    response_id: str,
+    asset_index: int,
+    url: str,
+    kind: str,
+    assets_dir: Path,
+) -> dict[str, Any] | None:
+    req = Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; GenUICraft-Stage3/1.0)",
+            "Accept": "*/*",
+        },
+    )
+    with urlopen(req, timeout=20) as resp:  # nosec B310 - controlled pipeline input
+        body = resp.read(8 * 1024 * 1024 + 1)
+        if len(body) == 0 or len(body) > 8 * 1024 * 1024:
+            return None
+        content_type = resp.headers.get("Content-Type", "")
+
+    ext = _guess_ext(url, content_type)
+    stem = _safe_asset_stem(Path(urlparse(url).path).stem or f"{kind}_{asset_index}")
+    filename = f"{response_id}_{asset_index}_{stem}{ext}"
+    dest = assets_dir / filename
+    dest.write_bytes(body)
+    return {
+        "url": url,
+        "path": str(dest.relative_to(assets_dir.parent)),
+        "sha256": hashlib.sha256(body).hexdigest(),
+        "bytes": len(body),
+    }
+
+
+def _auto_download_response_assets(
+    response_id: str,
+    response_text: str,
+    assets_dir: Path,
+    logger,
+) -> list[dict[str, Any]]:
+    entries = _extract_declared_asset_entries(response_text)
+    if not entries:
+        return []
+
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    downloaded: list[dict[str, Any]] = []
+    seen: dict[str, dict[str, Any]] = {}
+
+    for idx, item in enumerate(entries, start=1):
+        url = str(item.get("url") or "").strip()
+        kind = str(item.get("kind") or "asset")
+        if not url:
+            continue
+        if url in seen:
+            downloaded.append(seen[url])
+            continue
+        try:
+            asset = _download_response_asset(response_id, idx, url, kind, assets_dir)
+        except Exception as exc:
+            logger.warning("Stage3 asset auto-download failed response_id=%s url=%s err=%s", response_id, url, exc)
+            continue
+        if not asset:
+            continue
+        seen[url] = asset
+        downloaded.append(asset)
+
+    return downloaded
 
 
 def _build_asset_context(assets: list[dict]) -> str:
@@ -333,6 +472,7 @@ def run_stage3(
     existing_ids = {row.get("ui_id") for row in iter_jsonl(genui_path)}
     writer = JsonlWriter(genui_path)
     response_text_by_id: dict[str, str] = {}
+    auto_assets_dir = responses_path.parent / "assets"
     if responses_path.exists():
         for row in iter_jsonl(responses_path):
             response_id = row.get("response_id")
@@ -392,9 +532,25 @@ def run_stage3(
 
     def _build_prompt_for(response_id: str, response_text: str, assets_list: list[dict]) -> str:
         asset_context = _build_asset_context(assets_list)
-        prompt_response_text = response_text
+        if assets_list:
+            asset_policy = (
+                "Asset URL policy for this request:\n"
+                "- Use only local media paths from the provided Assets mapping.\n"
+                "- Do not emit remote media URLs for images/icons.\n"
+                "- Do not invent local placeholder paths not present in the mapping."
+            )
+        else:
+            asset_policy = (
+                "Asset URL policy for this request:\n"
+                "- No local asset mapping is provided.\n"
+                "- Preserve media URLs from the response exactly as written.\n"
+                "- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png."
+            )
+
+        response_with_policy = f"{response_text}\n\n{asset_policy}"
+        prompt_response_text = response_with_policy
         if asset_context:
-            prompt_response_text = f"{response_text}\n\n{asset_context}"
+            prompt_response_text = f"{response_with_policy}\n\n{asset_context}"
 
         prompt = render_prompt(user_prompt_template, response_text=prompt_response_text)
         if prompt_max_tokens:
@@ -402,7 +558,7 @@ def run_stage3(
             prompt_tokens = count_tokens(prompt) + system_tokens
             if prompt_tokens > prompt_max_tokens:
                 # First attempt: drop asset context to save tokens.
-                prompt = render_prompt(user_prompt_template, response_text=response_text)
+                prompt = render_prompt(user_prompt_template, response_text=response_with_policy)
                 prompt_tokens = count_tokens(prompt) + system_tokens
             if prompt_tokens > prompt_max_tokens:
                 base_prompt = render_prompt(user_prompt_template, response_text="")
@@ -416,7 +572,10 @@ def run_stage3(
                         count_tokens(response_text),
                         budget,
                     )
-                prompt = render_prompt(user_prompt_template, response_text=trimmed_text)
+                prompt = render_prompt(
+                    user_prompt_template,
+                    response_text=f"{trimmed_text}\n\n{asset_policy}",
+                )
         return prompt
 
     def _process_generated(
@@ -840,6 +999,21 @@ def run_stage3(
             n_idx = int(response.get("n_idx", 1))
             if not response_id or not query_id or not response_text:
                 continue
+
+            if not assets_list:
+                auto_assets = _auto_download_response_assets(
+                    response_id=response_id,
+                    response_text=response_text,
+                    assets_dir=auto_assets_dir,
+                    logger=logger,
+                )
+                if auto_assets:
+                    assets_list = auto_assets
+                    logger.info(
+                        "Stage3 auto-downloaded assets response_id=%s count=%s",
+                        response_id,
+                        len(auto_assets),
+                    )
 
             for c_idx in range(1, candidates_per_response + 1):
                 if stop:

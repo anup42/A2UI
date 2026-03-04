@@ -495,14 +495,20 @@ def _clean_url(value: str) -> str:
         return ""
     cleaned = cleaned.split()[0]
     cleaned = "".join(ch for ch in cleaned if ch.isprintable())
-    parsed = urllib.parse.urlparse(cleaned)
+    try:
+        parsed = urllib.parse.urlparse(cleaned)
+    except ValueError:
+        return ""
     if parsed.scheme not in ("http", "https") or not parsed.netloc:
         return ""
     return cleaned
 
 
 def _is_asset_url(url: str) -> bool:
-    parsed = urllib.parse.urlparse(url)
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except ValueError:
+        return False
     path = parsed.path.lower()
     if any(path.endswith(ext) for ext in _ASSET_EXTENSIONS):
         return True

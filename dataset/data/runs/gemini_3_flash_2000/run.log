@@ -7307,3 +7307,37 @@
 2026-02-06 10:50:01 INFO dataset: Stage3 created ui_id=u_000854_01 schema_ok=True
 2026-02-06 10:50:02 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_flash_2000\aggregates.json
 2026-02-06 10:50:02 INFO dataset: Stage3 complete.
+2026-02-18 01:05:53 INFO dataset: Stage4 HTTP server started on port 61735
+2026-02-18 01:10:49 ERROR dataset: Stage4 render error ui_id=u_000176_01: render_error: [Errno 28] No space left on device; console: requestfailed: https://img.icons8.com/material-outlined/24/000000/battery--v1.png net::ERR_BLOCKED_BY_ORB; error: Failed to load resource: the server responded with a status of 404 ()
+2026-02-18 01:10:51 ERROR dataset: Stage4 render error ui_id=u_000177_01: render_error: [Errno 28] No space left on device
+2026-02-18 01:10:53 ERROR dataset: Stage4 render error ui_id=u_000178_01: render_error: [Errno 28] No space left on device
+2026-02-18 01:40:44 INFO dataset: Stage4 HTTP server started on port 57346
+2026-02-18 01:46:52 ERROR dataset: Stage4 render error ui_id=u_000384_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:57346/data/runs/gemini_3_flash_2000/rendered/u_000384_01.html:1462:23)
+    at init (http://127.0.0.1:57346/data/runs/gemini_3_flash_2000/rendered/u_000384_01.html:1496:19); requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:48:43 ERROR dataset: Stage4 render error ui_id=u_000439_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:57346/data/runs/gemini_3_flash_2000/rendered/u_000439_01.html:1462:23)
+    at init (http://127.0.0.1:57346/data/runs/gemini_3_flash_2000/rendered/u_000439_01.html:1496:19); requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:51:43 ERROR dataset: Stage4 render error ui_id=u_000548_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:57346/data/runs/gemini_3_flash_2000/rendered/u_000548_01.html:1462:23)
+    at init (http://127.0.0.1:57346/data/runs/gemini_3_flash_2000/rendered/u_000548_01.html:1496:19); requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:55:05 ERROR dataset: Stage4 render error ui_id=u_000669_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:57346/data/runs/gemini_3_flash_2000/rendered/u_000669_01.html:1462:23)
+    at init (http://127.0.0.1:57346/data/runs/gemini_3_flash_2000/rendered/u_000669_01.html:1496:19); requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:57346/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:59:54 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gemini_3_flash_2000\rendered

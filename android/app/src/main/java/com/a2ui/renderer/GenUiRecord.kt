@@ -8,6 +8,7 @@ data class GenUiRecord(
     val sourceDir: File?,
     val sourceLabel: String,
     val uiId: String?,
+    val summary: String?,
     val queryId: String?,
     val responseId: String?
 )

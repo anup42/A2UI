@@ -98,6 +98,15 @@
       tpm: null
       rpd: null
       note: "set per your Google project tier"
+  - name: gemini_3_1_pro
+    provider: gemini
+    model: gemini-3.1-pro-preview
+    supports_json_mode: true
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "set per your Google project tier"
   - name: gauss_default
     provider: gauss
     model: GAUSS_MODEL_ID

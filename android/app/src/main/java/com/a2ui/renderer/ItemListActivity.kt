@@ -2,58 +2,250 @@
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.TextView
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 
 class ItemListActivity : AppCompatActivity() {
-    private lateinit var sourceText: TextView
-    private lateinit var countText: TextView
-    private lateinit var emptyText: TextView
-    private lateinit var recyclerView: RecyclerView
-
-    private val itemAdapter = GenUiItemAdapter { position ->
-        startActivity(
-            Intent(this, RenderActivity::class.java)
-                .putExtra(RenderActivity.EXTRA_RECORD_INDEX, position)
-        )
-    }
+    private var session by mutableStateOf<RenderSessionStore.Session?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_item_list)
+        session = RenderSessionStore.current()
 
-        sourceText = findViewById(R.id.sourceText)
-        countText = findViewById(R.id.countText)
-        emptyText = findViewById(R.id.emptyText)
-        recyclerView = findViewById(R.id.itemRecyclerView)
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = itemAdapter
+        setContent {
+            GenUiCraftTheme {
+                ItemListScreen(
+                    session = session,
+                    onItemClick = { position ->
+                        startActivity(
+                            Intent(this, RenderActivity::class.java)
+                                .putExtra(RenderActivity.EXTRA_RECORD_INDEX, position)
+                        )
+                    }
+                )
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        bindSession()
-    }
-
-    private fun bindSession() {
-        val session = RenderSessionStore.current()
-        if (session == null || session.records.isEmpty()) {
-            sourceText.text = getString(R.string.list_empty_source)
-            countText.text = getString(R.string.list_empty_count)
-            emptyText.visibility = View.VISIBLE
-            recyclerView.visibility = View.GONE
-            return
-        }
-
-        sourceText.text = session.sourceLabel
-        countText.text = getString(R.string.list_count, session.records.size)
-        emptyText.visibility = View.GONE
-        recyclerView.visibility = View.VISIBLE
-        itemAdapter.submitRecords(session.records)
+        session = RenderSessionStore.current()
     }
 }
 
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ItemListScreen(
+    session: RenderSessionStore.Session?,
+    onItemClick: (Int) -> Unit
+) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets.safeDrawing,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.list_title),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(genUiBackgroundBrush())
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            val sourceText = session?.sourceLabel ?: stringResource(id = R.string.list_empty_source)
+            val countText = stringResource(id = R.string.list_count, session?.records?.size ?: 0)
+            val modeText = stringResource(
+                id = R.string.list_mode,
+                when (session?.renderMode) {
+                    RenderMode.NATIVE -> stringResource(id = R.string.render_mode_native)
+                    else -> stringResource(id = R.string.render_mode_web)
+                }
+            )
+
+            Text(
+                text = sourceText,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "$countText • $modeText",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (session == null || session.records.isEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.list_empty_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+                return@Column
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                itemsIndexed(
+                    items = session.records,
+                    key = { index, item -> "${item.uiId ?: item.title}_$index" }
+                ) { index, item ->
+                    RecordItemCard(
+                        index = index,
+                        item = item,
+                        onClick = { onItemClick(index) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecordItemCard(
+    index: Int,
+    item: GenUiRecord,
+    onClick: () -> Unit
+) {
+    val configuration = LocalConfiguration.current
+    val allowExpanded =
+        (configuration.screenWidthDp <= 320 && configuration.fontScale >= 1.15f) ||
+            (configuration.screenWidthDp < 411 && configuration.fontScale >= 1.3f)
+
+    var resolvedMaxLines by remember(item.title, allowExpanded) { mutableIntStateOf(if (allowExpanded) 2 else 1) }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = (index + 1).toString().padStart(2, '0'),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = resolvedMaxLines,
+                    overflow = TextOverflow.Ellipsis,
+                    onTextLayout = { layoutResult ->
+                        if (allowExpanded) {
+                            resolvedMaxLines = if (layoutResult.lineCount > 1) 2 else 1
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Text(
+                text = buildMetaText(item),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = if (resolvedMaxLines == 2) 4 else 3,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = item.sourceLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    }
+}
+
+private fun buildMetaText(item: GenUiRecord): String {
+    if (!item.summary.isNullOrBlank()) {
+        return if (!item.uiId.isNullOrBlank()) {
+            "id: ${item.uiId}  |  ${item.summary}"
+        } else {
+            item.summary
+        }
+    }
+
+    val parts = mutableListOf<String>()
+    if (!item.uiId.isNullOrBlank()) {
+        parts += "id: ${item.uiId}"
+    }
+    if (!item.queryId.isNullOrBlank()) {
+        parts += "query: ${item.queryId}"
+    }
+    if (!item.responseId.isNullOrBlank()) {
+        parts += "response: ${item.responseId}"
+    }
+    return if (parts.isEmpty()) "Tap to render this UI" else parts.joinToString("  |  ")
+}

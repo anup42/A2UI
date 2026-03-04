@@ -10,72 +10,70 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="20dp"
+        android:paddingStart="24dp"
         android:paddingTop="40dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="24dp">
+        android:paddingEnd="24dp"
+        android:paddingBottom="28dp">
 
         <TextView
+            style="@style/Text.GenUi.HeadlineLG"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/home_title"
-            android:textColor="#0E2348"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            android:text="@string/home_title" />
 
         <TextView
+            style="@style/Text.GenUi.BodyMDRegular"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="@string/home_subtitle"
-            android:textColor="#324B72"
-            android:textSize="15sp" />
+            android:text="@string/home_subtitle" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            app:cardBackgroundColor="#F9FCFF"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            app:strokeColor="#C8D8EE"
-            app:strokeWidth="1dp">
+            app:cardBackgroundColor="@color/sys_color_surface"
+            app:cardCornerRadius="@dimen/sys_radius_xl"
+            app:cardElevation="@dimen/elevation_md"
+            app:strokeColor="@color/sys_color_outline"
+            app:strokeWidth="@dimen/sys_border_md">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="22dp">
 
                 <TextView
+                    style="@style/Text.GenUi.TitleLG"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/home_source_title"
-                    android:textColor="#1F355A"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:text="@string/home_source_title" />
 
                 <TextView
+                    style="@style/Text.GenUi.BodyXSRegular"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="@string/home_source_subtitle"
-                    android:textColor="#516A90"
-                    android:textSize="13sp" />
+                    android:text="@string/home_source_subtitle" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/selectFileButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
-                    android:minHeight="54dp"
+                    android:fontFamily="sec"
+                    android:minHeight="56dp"
                     android:text="@string/select_genui_file"
                     android:textAllCaps="false"
-                    android:textSize="16sp"
-                    app:cornerRadius="14dp"
+                    android:textAppearance="@style/Text.GenUi.ButtonPrimary"
+                    android:textFontWeight="600"
+                    app:backgroundTint="@color/sys_color_primary"
+                    app:cornerRadius="@dimen/sys_radius_full"
                     app:icon="@android:drawable/ic_menu_upload"
                     app:iconGravity="textStart"
-                    app:iconPadding="10dp" />
+                    app:iconPadding="10dp"
+                    app:iconTint="@color/palette_white" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/loadSampleButton"
@@ -83,27 +81,30 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:minHeight="54dp"
+                    android:fontFamily="sec"
+                    android:minHeight="56dp"
                     android:text="@string/open_sample_dataset"
                     android:textAllCaps="false"
-                    android:textSize="16sp"
-                    app:cornerRadius="14dp"
+                    android:textAppearance="@style/Text.GenUi.ButtonTonal"
+                    android:textFontWeight="600"
+                    app:backgroundTint="@color/sys_color_tone_on_tone_high"
+                    app:cornerRadius="@dimen/sys_radius_full"
                     app:icon="@android:drawable/ic_menu_gallery"
                     app:iconGravity="textStart"
-                    app:iconPadding="10dp" />
+                    app:iconPadding="10dp"
+                    app:iconTint="@color/sys_color_primary_high" />
 
                 <TextView
                     android:id="@+id/statusText"
+                    style="@style/Text.GenUi.Body2XSRegular"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@string/status_ready_select_source"
-                    android:textColor="#0D5A4D"
-                    android:textSize="12sp" />
+                    android:textColor="@color/sys_color_functional_green" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 
 </ScrollView>
-

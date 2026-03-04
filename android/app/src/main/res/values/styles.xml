@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Text.GenUi.Base" parent="">
+        <item name="android:fontFamily">sec</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="Text.GenUi.HeadlineLG" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_headline_lg</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_highest</item>
+    </style>
+
+    <style name="Text.GenUi.HeadlineSMBold" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_headline_sm</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_highest</item>
+    </style>
+
+    <style name="Text.GenUi.TitleLG" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_title_lg</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_highest</item>
+    </style>
+
+    <style name="Text.GenUi.BodyLGRegular" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_lg</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container</item>
+    </style>
+
+    <style name="Text.GenUi.BodyMDRegular" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_md</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container</item>
+    </style>
+
+    <style name="Text.GenUi.BodySMRegular" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_sm</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_low</item>
+    </style>
+
+    <style name="Text.GenUi.BodyXSRegular" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_xs</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_low</item>
+    </style>
+
+    <style name="Text.GenUi.BodyXSSemiBold" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_xs</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_high</item>
+    </style>
+
+    <style name="Text.GenUi.Body2XSRegular" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_2xs</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_low</item>
+    </style>
+
+    <style name="Text.GenUi.Body2XSSemiBold" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_2xs</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_high</item>
+    </style>
+
+    <style name="Text.GenUi.Body3XSRegular" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_3xs</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textColor">@color/sys_color_on_surface_container_lowest</item>
+    </style>
+
+    <style name="Text.GenUi.ButtonPrimary" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_lg</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/palette_white</item>
+    </style>
+
+    <style name="Text.GenUi.ButtonTonal" parent="Text.GenUi.Base">
+        <item name="android:textSize">@dimen/type_body_lg</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/sys_color_primary_high</item>
+    </style>
+</resources>

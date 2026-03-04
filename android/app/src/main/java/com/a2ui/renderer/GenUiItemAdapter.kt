@@ -51,6 +51,7 @@ class GenUiItemAdapter(
             titleText.text = item.uiId ?: item.title
             metaText.text = buildMeta(item)
             sourceText.text = item.sourceLabel
+            applyAccessibleListLayout()
         }
 
         private fun buildMeta(item: GenUiRecord): String {
@@ -65,6 +66,31 @@ class GenUiItemAdapter(
                 return "Tap to render this UI"
             }
             return parts.joinToString("  |  ")
+        }
+
+        private fun applyAccessibleListLayout() {
+            val configuration = itemView.resources.configuration
+            val widthDp = configuration.screenWidthDp
+            val fontScale = configuration.fontScale
+            val allowExpanded =
+                (widthDp <= 320 && fontScale >= 1.15f) ||
+                    (widthDp < 411 && fontScale >= 1.3f)
+
+            if (!allowExpanded) {
+                titleText.maxLines = 1
+                metaText.maxLines = 3
+                return
+            }
+
+            titleText.maxLines = 2
+            metaText.maxLines = 4
+
+            // Apply expanded layout only when text actually wraps.
+            titleText.post {
+                val wraps = (titleText.layout?.lineCount ?: 0) > 1
+                titleText.maxLines = if (wraps) 2 else 1
+                metaText.maxLines = if (wraps) 4 else 3
+            }
         }
     }
 }

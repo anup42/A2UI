@@ -52,3 +52,7 @@
 2026-02-14 23:53:47 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_media_rich_20260214_180751\rendered
 2026-02-14 23:53:53 INFO dataset: Stage3 already complete for run_id=subset10_g3pro_media_rich_20260214_180751. Recomputed aggregates only (10 rows).
 2026-02-14 23:54:29 INFO dataset: Stage3 already complete for run_id=subset10_g3pro_media_rich_20260214_180751. Recomputed aggregates only (10 rows).
+2026-02-18 01:12:29 INFO dataset: Stage4 HTTP server started on port 56610
+2026-02-18 01:12:48 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_media_rich_20260214_180751\rendered
+2026-02-18 02:24:26 INFO dataset: Stage4 HTTP server started on port 51976
+2026-02-18 02:24:27 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_media_rich_20260214_180751\rendered

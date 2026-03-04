@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kyoto 3-Day Localized Plan (Starting 2024-11-15)</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>Kyoto 3-Day Localized Plan (Starting 2024-11-15)</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><h2>Budget and Structure Assumptions</h2><ul class="s5-list"><li>Moderate spend target: about 15,000 JPY/day excluding hotel.</li><li>Focus: temples and tea ceremonies with morning/afternoon/evening blocks.</li><li>November demand is high; reserve tea slots and key tickets in advance.</li></ul></section><section class="s5-card s5-section"><h2>Morning-Afternoon-Evening Schedule</h2><div class="s5-table-wrap"><table class="s5-table"><thead><tr><th>Date</th><th>Morning</th><th>Afternoon</th><th>Evening</th><th>Estimated Spend (JPY)</th></tr></thead><tbody><tr><td>2024-11-15</td><td>Kinkaku-ji early visit</td><td>Ryoan-ji + local soba</td><td>Tea ceremony in Nishiki area</td><td>14,500</td></tr><tr><td>2024-11-16</td><td>Fushimi Inari gate trail</td><td>Tofuku-ji foliage walk</td><td>Gion district dinner + stroll</td><td>15,000</td></tr><tr><td>2024-11-17</td><td>Arashiyama bamboo + Tenryu-ji</td><td>Otagi Nenbutsu-ji by taxi</td><td>Pontocho riverside evening</td><td>14,800</td></tr></tbody></table></div></section><section class="s5-card s5-section"><h2>Tea Ceremony Booking Paths</h2><p class="s5-paragraph">Option 1: Camellia Garden Session | Easy access from Higashiyama sites | Typical range: 3,000-4,500 JPY</p><p class="s5-paragraph">Option 2: Maikoya Kyoto Experience | Multiple language support and kimono options | Typical range: 5,000-8,000 JPY</p><div class="s5-button-row"><a class="s5-btn" href="https://tea-kyoto.com/" target="_blank" rel="noopener noreferrer">Reserve Camellia Kyoto</a><a class="s5-btn" href="https://mai-ko.com/tour/tea-ceremony-kyoto/" target="_blank" rel="noopener noreferrer">Reserve Maikoya Session</a></div></section><section class="s5-card s5-section"><h2>Transit Plan by Day</h2><ul class="s5-list"><li>Day 1: Bus + taxi mix around north-west Kyoto to reduce transfers.</li><li>Day 2: JR Nara line + Keihan for efficient shrine-temple sequence.</li><li>Day 3: JR to Arashiyama, then short taxi legs for hill-area temples.</li></ul></section><section class="s5-card s5-section"><h2>Images</h2><div class="s5-media-grid"><figure class="s5-media-card"><img class="s5-image" src="https://loremflickr.com/1200/800/kyoto,torii" alt="Fushimi Inari Torii" loading="lazy" /><figcaption>Fushimi Inari Torii</figcaption></figure><figure class="s5-media-card"><img class="s5-image" src="https://loremflickr.com/1200/800/kyoto,kinkakuji" alt="Golden Pavilion Area" loading="lazy" /><figcaption>Golden Pavilion Area</figcaption></figure><figure class="s5-media-card"><img class="s5-image" src="https://loremflickr.com/1200/800/japan,tea" alt="Tea Ceremony Scene" loading="lazy" /><figcaption>Tea Ceremony Scene</figcaption></figure></div></section><section class="s5-card s5-section"><h2>Icons</h2><div class="s5-icon-row"><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg" alt="Temple" loading="lazy" /><span>Temple</span></span><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cup-hot.svg" alt="Tea Cup" loading="lazy" /><span>Tea Cup</span></span><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/clock.svg" alt="Clock" loading="lazy" /><span>Clock</span></span></div></section><section class="s5-card s5-section"><h2>Quick Actions</h2><div class="s5-button-row"><a class="s5-btn" href="https://kyoto.travel/en/" target="_blank" rel="noopener noreferrer">Kyoto Official Guide</a><a class="s5-btn" href="https://www2.city.kyoto.lg.jp/kotsu/webguide/en/" target="_blank" rel="noopener noreferrer">Kyoto Transit Webguide</a></div></section><section class="s5-card s5-section"><h2>Sources</h2><ul class="s5-link-list"><li><a class="s5-link" href="https://kyoto.travel/en/" target="_blank" rel="noopener noreferrer">Kyoto Travel Official</a></li><li><a class="s5-link" href="https://www.japan-guide.com/e/e2158.html" target="_blank" rel="noopener noreferrer">Japan Guide Kyoto</a></li></ul></section>
+      </div>
+    </main>
+  </body>
+</html>

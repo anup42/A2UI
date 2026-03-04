@@ -1,0 +1,16 @@
+2026-03-03 12:53:14 INFO dataset: Stage5 HTTP server started on port 60693
+2026-03-03 12:53:39 ERROR dataset: Stage5 render error response_id=r_001374_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:53:54 ERROR dataset: Stage5 render error response_id=r_000264_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:54:09 ERROR dataset: Stage5 render error response_id=r_000701_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:54:24 ERROR dataset: Stage5 render error response_id=r_000175_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:54:39 ERROR dataset: Stage5 render error response_id=r_000090_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:54:54 ERROR dataset: Stage5 render error response_id=r_001047_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:55:09 ERROR dataset: Stage5 render error response_id=r_000784_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:55:24 ERROR dataset: Stage5 render error response_id=r_000351_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:55:40 ERROR dataset: Stage5 render error response_id=r_001502_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:55:55 ERROR dataset: Stage5 render error response_id=r_001590_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.
+2026-03-03 12:55:55 INFO dataset: Stage5 completed created=10 output_dir=C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_stage5_20260303_072300\stage5_rendered
+2026-03-03 12:55:55 INFO dataset: Stage5 complete. Direct HTML outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_stage5_20260303_072300\stage5_rendered
+2026-03-03 12:56:55 INFO dataset: Stage5 HTTP server started on port 59953
+2026-03-03 12:57:06 INFO dataset: Stage5 completed created=10 output_dir=C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_stage5_20260303_072300\stage5_rendered
+2026-03-03 12:57:06 INFO dataset: Stage5 complete. Direct HTML outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_stage5_20260303_072300\stage5_rendered

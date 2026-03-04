@@ -124,3 +124,43 @@
     at renderMessages (http://127.0.0.1:55472/data/runs/subset50_perplexity_gpt5_20260207_121329/rendered/u_000882_01.html:901:23)
     at init (http://127.0.0.1:55472/data/runs/subset50_perplexity_gpt5_20260207_121329/rendered/u_000882_01.html:927:19)
 2026-02-11 23:16:42 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_gpt5_20260207_121329\rendered
+2026-02-18 01:30:09 INFO dataset: Stage4 HTTP server started on port 64788
+2026-02-18 01:31:13 ERROR dataset: Stage4 render error ui_id=u_000562_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43); requestfailed: http://127.0.0.1:64788/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:31:51 ERROR dataset: Stage4 render error ui_id=u_000882_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:64788/data/runs/subset50_perplexity_gpt5_20260207_121329/rendered/u_000882_01.html:1462:23)
+    at init (http://127.0.0.1:64788/data/runs/subset50_perplexity_gpt5_20260207_121329/rendered/u_000882_01.html:1496:19); requestfailed: http://127.0.0.1:64788/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:64788/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:31:53 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_gpt5_20260207_121329\rendered
+2026-02-18 02:26:37 INFO dataset: Stage4 HTTP server started on port 50126
+2026-02-18 02:26:53 ERROR dataset: Stage4 render error ui_id=u_000562_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43); requestfailed: http://127.0.0.1:50126/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 02:27:08 ERROR dataset: Stage4 render error ui_id=u_000882_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:50126/data/runs/subset50_perplexity_gpt5_20260207_121329/rendered/u_000882_01.html:1462:23)
+    at init (http://127.0.0.1:50126/data/runs/subset50_perplexity_gpt5_20260207_121329/rendered/u_000882_01.html:1496:19); requestfailed: http://127.0.0.1:50126/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:50126/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 02:27:08 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_gpt5_20260207_121329\rendered

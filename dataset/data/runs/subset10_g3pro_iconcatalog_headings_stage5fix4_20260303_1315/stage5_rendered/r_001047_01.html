@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wedding Day Overview</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>Wedding Day Overview</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><p class="s5-paragraph">This timeline outlines a smooth flow for a 4:00 PM ceremony on Saturday, June 15, 2025. The schedule prioritizes a relaxed pace by incorporating buffer periods for guest movement and photography, ensuring key moments like the First Look and Grand Entrance occur without rushing.</p><p class="s5-paragraph">Timeline Logistics &amp; Venue Context<br />This schedule assumes that the ceremony and reception take place at the same venue or within a 5-10 minute drive of each other. A 30-minute duration is allocated for the ceremony, which is standard for non-religious or semi-religious civil unions. Sunset on June 15 is typically late (around 8:30 PM), allowing for potential &quot;golden hour&quot; photos during dinner service if desired.</p></section><section class="s5-card s5-section"><h2>Detailed Day-of Schedule</h2><div class="s5-table-wrap"><table class="s5-table"><thead><tr><th>Time</th><th>Event</th><th>Details &amp; Buffer Notes</th></tr></thead><tbody><tr><td>2:00 PM</td><td>First Look</td><td>Private moment for the couple; allows for early photos</td></tr><tr><td>2:30 PM</td><td>Formal Photos</td><td>Wedding party and immediate family portraits; wrap by 3:30 PM</td></tr><tr><td>3:30 PM</td><td>Guest Arrival Buffer</td><td>Couple in hiding; guests arrive and take seats</td></tr><tr><td>4:00 PM</td><td>Wedding Ceremony</td><td>Processional begins; exchange of vows and rings</td></tr><tr><td>4:30 PM</td><td>Recessional &amp; Transition</td><td>15-minute buffer for family exit and guest movement</td></tr><tr><td>4:45 PM</td><td>Cocktail Hour</td><td>Guests mingle; extended family photos if needed</td></tr><tr><td>5:45 PM</td><td>Reception Transition</td><td>Guests move to dining area; 15-minute seating buffer</td></tr><tr><td>6:00 PM</td><td>Grand Entrance</td><td>Introduction of wedding party and newlyweds</td></tr><tr><td>6:15 PM</td><td>Dinner Service</td><td>Plated or buffet service begins immediately after entrance</td></tr><tr><td>7:15 PM</td><td>Toasts &amp; Speeches</td><td>Scheduled toward the end of the meal as plates are cleared</td></tr><tr><td>7:45 PM</td><td>First Dance</td><td>Couple opens the dance floor; transition to party music</td></tr></tbody></table></div></section><section class="s5-card s5-section"><h2>Icons</h2><div class="s5-icon-row"><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_000264_01_2_alarm.svg" alt="Schedule" loading="lazy" /><span>Schedule</span></span><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_000175_01_1_camera.svg" alt="Photography" loading="lazy" /><span>Photography</span></span><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_000090_01_1_calendar-event.svg" alt="Celebration" loading="lazy" /><span>Celebration</span></span></div></section>
+      </div>
+    </main>
+  </body>
+</html>

@@ -21,6 +21,7 @@ from pipeline.stage1_queries import run_stage1
 from pipeline.stage2_responses import run_stage2
 from pipeline.stage3_genui import run_stage3
 from pipeline.stage4_render import run_stage4
+from pipeline.stage5_direct_html import run_stage5
 from pipeline.storage import JsonlWriter, get_run_paths, iter_jsonl
 from llm.base import ModelSpec
 from llm.factory import build_adapter, load_model_specs
@@ -379,7 +380,7 @@ def _write_run_manifest_safe(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stage", type=int, choices=[1, 2, 3, 4], help="Run a single stage")
+    parser.add_argument("--stage", type=int, choices=[1, 2, 3, 4, 5], help="Run a single stage")
     parser.add_argument("--model", type=str, default=None, help="Model name from models.yaml")
     parser.add_argument("--benchmark_models", nargs="*", default=None, help="Benchmark models by name")
     parser.add_argument("--run_id", type=str, default=None, help="Override run id")
@@ -658,17 +659,20 @@ def main() -> None:
             )
             return
 
-    _configure_local_model_path(spec, args, logger)
-    adapter = build_adapter(spec)
-    rate_limiter = RateLimiter(
-        effective_rate_limit_qps,
-        float(run_cfg.get("call_sleep_seconds", 0)),
-    )
+    adapter = None
+    rate_limiter = None
+    if args.stage in (1, 2, 3):
+        _configure_local_model_path(spec, args, logger)
+        adapter = build_adapter(spec)
+        rate_limiter = RateLimiter(
+            effective_rate_limit_qps,
+            float(run_cfg.get("call_sleep_seconds", 0)),
+        )
 
     prompt_max_tokens = run_cfg.get("genui_prompt_max_tokens")
-    if prompt_max_tokens is None and adapter.spec.provider == "gauss":
+    if prompt_max_tokens is None and adapter is not None and adapter.spec.provider == "gauss":
         prompt_max_tokens = 6000
-    if args.stage == 3 and adapter.spec.provider == "local":
+    if args.stage == 3 and adapter is not None and adapter.spec.provider == "local":
         local_prompt_cap_raw = (os.environ.get("LOCAL_STAGE3_PROMPT_MAX_TOKENS") or "8192").strip()
         try:
             local_prompt_cap = max(500, int(local_prompt_cap_raw))
@@ -681,7 +685,7 @@ def main() -> None:
                 prompt_max_tokens,
             )
 
-    server_proc = _maybe_start_vllm(spec, args, logger)
+    server_proc = _maybe_start_vllm(spec, args, logger) if args.stage in (1, 2, 3) else None
     try:
         if args.stage == 1:
             run_stage1(
@@ -776,6 +780,27 @@ def main() -> None:
                 parallel_workers=int(args.render_workers) if args.render_workers is not None else int(render_cfg.get("parallel_workers", 1)),
             )
             logger.info("Stage4 complete. Rendered outputs stored at %s", output_dir)
+            return
+
+        if args.stage == 5:
+            render_cfg = run_cfg.get("render", {})
+            stage5_cfg = run_cfg.get("stage5", {}) if isinstance(run_cfg.get("stage5"), dict) else {}
+            output_dir = run_paths.run_dir / stage5_cfg.get("output_dir", "stage5_rendered")
+            viewport = stage5_cfg.get("viewport", render_cfg.get("viewport", {"width": 1280, "height": 720}))
+            run_stage5(
+                responses_path=run_paths.responses_path,
+                output_dir=output_dir,
+                run_dir=run_paths.run_dir,
+                server_root=root,
+                logger=logger,
+                render_images=bool(stage5_cfg.get("render_images", render_cfg.get("render_images", True))),
+                image_format=str(stage5_cfg.get("image_format", render_cfg.get("image_format", "png"))),
+                viewport=viewport if isinstance(viewport, dict) else {"width": 1280, "height": 720},
+                timeout_ms=int(stage5_cfg.get("timeout_ms", render_cfg.get("timeout_ms", 15000))),
+                wait_ms=int(stage5_cfg.get("wait_ms", render_cfg.get("wait_ms", 200))),
+                use_http_server=bool(stage5_cfg.get("use_http_server", render_cfg.get("use_http_server", True))),
+            )
+            logger.info("Stage5 complete. Direct HTML outputs stored at %s", output_dir)
             return
     finally:
         _stop_vllm(server_proc, logger)

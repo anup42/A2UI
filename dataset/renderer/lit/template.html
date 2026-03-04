@@ -14,7 +14,7 @@
         padding: 0;
         height: 100%;
         width: 100%;
-        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family: var(--oneui-font-family, system-ui, -apple-system, "Segoe UI", sans-serif);
         background: #f5f5f7;
         color: #101114;
       }
@@ -256,8 +256,9 @@
         const emptyList = [];
         const textBase = {
           "font-family":
-            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
-          color: "var(--oneui-color-on-surface)"
+            'var(--oneui-font-family, "One UI Sans GUI", "SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif)',
+          color: "var(--oneui-color-on-surface)",
+          "letter-spacing": "var(--oneui-letter-spacing)"
         };
         return {
           components: {
@@ -341,27 +342,27 @@
               gap: "12px"
             },
             Card: {
-              background: "#ffffff",
-              border: "1px solid #d7e2f0",
-              "border-radius": "24px",
+              background: "var(--oneui-color-surface)",
+              border: "var(--oneui-border-md) solid var(--oneui-color-outline)",
+              "border-radius": "var(--oneui-radius-lg)",
               "overflow": "hidden",
               padding: "16px",
-              "box-shadow": "0 6px 16px rgba(15, 23, 42, 0.08)"
+              "box-shadow": "var(--oneui-shadow-card)"
             },
             Button: {
-              background: "#0072de",
-              color: "#fafafa",
-              "--oneui-color-on-surface": "#fafafa",
-              "--oneui-color-on-surface-variant": "#fafafa",
-              border: "1px solid #0065c4",
-              "border-radius": "999px",
-              "min-height": "30px",
-              padding: "4px 11px",
-              "font-weight": "700",
-              "font-size": "0.82rem",
-              "line-height": "1",
-              "letter-spacing": "0.01em",
-              "box-shadow": "0 6px 14px rgba(0, 114, 222, 0.28)",
+              background: "var(--oneui-color-primary)",
+              color: "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface": "var(--oneui-color-on-primary)",
+              "--oneui-color-on-surface-variant": "var(--oneui-color-on-primary)",
+              border: "var(--oneui-border-md) solid var(--oneui-color-primary-high)",
+              "border-radius": "var(--oneui-radius-full)",
+              "min-height": "32px",
+              padding: "0 14px",
+              "font-weight": "var(--oneui-font-weight-semibold)",
+              "font-size": "var(--oneui-type-body-2xs)",
+              "line-height": "1.2",
+              "letter-spacing": "var(--oneui-letter-spacing)",
+              "box-shadow": "var(--oneui-shadow-sm)",
               cursor: "pointer",
               transition:
                 "transform 120ms ease, box-shadow 150ms ease, filter 120ms ease, background-color 120ms ease",
@@ -373,7 +374,7 @@
               margin: "8px 0"
             },
             Image: {
-              "border-radius": "24px",
+              "border-radius": "var(--oneui-radius-md)",
               "object-fit": "cover"
             },
             Icon: {
@@ -382,50 +383,51 @@
             Text: {
               h1: {
                 ...textBase,
-                "font-size": "2rem",
-                "line-height": "2.4rem",
-                "font-weight": "800"
+                "font-size": "var(--oneui-type-headline-xl)",
+                "line-height": "var(--oneui-line-headline-xl)",
+                "font-weight": "var(--oneui-font-weight-bold)"
               },
               h2: {
                 ...textBase,
-                "font-size": "1.5rem",
-                "line-height": "2rem",
-                "font-weight": "700"
+                "font-size": "var(--oneui-type-headline-lg)",
+                "line-height": "1.25",
+                "font-weight": "var(--oneui-font-weight-semibold)"
               },
               h3: {
                 ...textBase,
-                "font-size": "1.25rem",
-                "line-height": "1.8rem",
-                "font-weight": "700"
+                "font-size": "var(--oneui-type-headline-md)",
+                "line-height": "1.25",
+                "font-weight": "var(--oneui-font-weight-semibold)"
               },
               h4: {
                 ...textBase,
-                "font-size": "1.05rem",
-                "line-height": "1.5rem",
-                "font-weight": "700"
+                "font-size": "var(--oneui-type-headline-sm)",
+                "line-height": "1.25",
+                "font-weight": "var(--oneui-font-weight-semibold)"
               },
               h5: {
                 ...textBase,
-                "font-size": "0.94rem",
-                "line-height": "1.35rem",
-                "font-weight": "700"
+                "font-size": "var(--oneui-type-title-lg)",
+                "line-height": "var(--oneui-line-auto)",
+                "font-weight": "var(--oneui-font-weight-semibold)"
               },
               h6: {
                 ...textBase,
-                "font-size": "0.875rem",
-                "line-height": "1.25rem",
-                "font-weight": "700"
+                "font-size": "var(--oneui-type-title-md)",
+                "line-height": "var(--oneui-line-auto)",
+                "font-weight": "var(--oneui-font-weight-semibold)"
               },
               caption: {
                 ...textBase,
-                "font-size": "0.8rem",
-                "line-height": "1.2rem",
+                "font-size": "var(--oneui-type-body-xs)",
+                "line-height": "1.4",
                 color: "var(--oneui-color-on-surface-variant)"
               },
               body: {
                 ...textBase,
-                "font-size": "1rem",
-                "line-height": "1.5rem"
+                "font-size": "var(--oneui-type-body-md)",
+                "line-height": "var(--oneui-line-body-relaxed)",
+                "font-weight": "var(--oneui-font-weight-regular)"
               }
             }
           }
@@ -587,21 +589,26 @@
           }
 
           function waitForImageSettle(img, timeoutMs) {
-            if (!img || img.complete) {
-              return Promise.resolve();
+            if (!img) {
+              return Promise.resolve("missing");
+            }
+            if (img.complete) {
+              return Promise.resolve(
+                img.naturalWidth && img.naturalHeight ? "load" : "error"
+              );
             }
             return new Promise((resolve) => {
               let done = false;
-              const finish = () => {
+              const finish = (reason) => {
                 if (done) {
                   return;
                 }
                 done = true;
-                resolve();
+                resolve(reason);
               };
-              img.addEventListener("load", finish, { once: true });
-              img.addEventListener("error", finish, { once: true });
-              setTimeout(finish, timeoutMs);
+              img.addEventListener("load", () => finish("load"), { once: true });
+              img.addEventListener("error", () => finish("error"), { once: true });
+              setTimeout(() => finish("timeout"), timeoutMs);
             });
           }
 
@@ -665,8 +672,13 @@
                 if (imgs.length) {
                   await Promise.all(
                     imgs.map(async (img) => {
-                      await waitForImageSettle(img, 1200);
-                      if (!img.naturalWidth || !img.naturalHeight) {
+                      const settleReason = await waitForImageSettle(img, 5000);
+                      const definitelyBroken =
+                        settleReason === "error" ||
+                        (settleReason !== "timeout" &&
+                          img.complete &&
+                          (!img.naturalWidth || !img.naturalHeight));
+                      if (definitelyBroken) {
                         img.style.display = "none";
                         host.dataset.genuiImageBroken = "1";
                         return;
@@ -840,31 +852,31 @@
               buttonEl.style.textDecoration = hovered ? 'underline' : 'none';
               buttonEl.style.textUnderlineOffset = '0.2em';
               buttonEl.style.outline = focusVisible
-                ? '2px solid rgba(0, 114, 222, 0.35)'
+                ? '2px solid rgba(56, 122, 255, 0.45)'
                 : 'none';
               buttonEl.style.outlineOffset = '3px';
               return;
             }
 
             if (pressed) {
-              buttonEl.style.background = '#005fbd';
-              buttonEl.style.boxShadow = '0 2px 8px rgba(0, 114, 222, 0.2)';
+              buttonEl.style.background = 'var(--oneui-color-primary-pressed)';
+              buttonEl.style.boxShadow = 'var(--oneui-shadow-sm)';
               buttonEl.style.transform = 'translateZ(0) scale(0.98)';
               buttonEl.style.filter = 'none';
             } else if (hovered) {
-              buttonEl.style.background = '#0a7de8';
-              buttonEl.style.boxShadow = '0 8px 18px rgba(0, 114, 222, 0.32)';
+              buttonEl.style.background = 'var(--oneui-color-primary-hover)';
+              buttonEl.style.boxShadow = 'var(--oneui-shadow-md)';
               buttonEl.style.transform = 'translateZ(0) translateY(-1px)';
               buttonEl.style.filter = 'none';
             } else {
-              buttonEl.style.background = '#0072de';
-              buttonEl.style.boxShadow = '0 6px 14px rgba(0, 114, 222, 0.28)';
+              buttonEl.style.background = 'var(--oneui-color-primary)';
+              buttonEl.style.boxShadow = 'var(--oneui-shadow-sm)';
               buttonEl.style.transform = 'translateZ(0)';
               buttonEl.style.filter = 'none';
             }
 
             buttonEl.style.outline = focusVisible
-              ? '3px solid rgba(0, 114, 222, 0.36)'
+              ? '2px solid rgba(56, 122, 255, 0.48)'
               : 'none';
             buttonEl.style.outlineOffset = focusVisible ? '2px' : '0';
           }
@@ -962,15 +974,15 @@
                 );
               } else {
                 host.classList.remove('genui-button-borderless');
-                button.style.borderRadius = '999px';
-                button.style.minHeight = '30px';
-                button.style.padding = '4px 11px';
-                button.style.fontWeight = '700';
-                button.style.fontSize = '0.82rem';
-                button.style.lineHeight = '1';
-                button.style.letterSpacing = '0.01em';
-                button.style.border = '1px solid #0065c4';
-                button.style.color = '#fafafa';
+                button.style.borderRadius = 'var(--oneui-radius-full)';
+                button.style.minHeight = '32px';
+                button.style.padding = '0 14px';
+                button.style.fontWeight = 'var(--oneui-font-weight-semibold)';
+                button.style.fontSize = 'var(--oneui-type-body-2xs)';
+                button.style.lineHeight = '1.2';
+                button.style.letterSpacing = 'var(--oneui-letter-spacing)';
+                button.style.border = 'var(--oneui-border-md) solid var(--oneui-color-primary-high)';
+                button.style.color = 'var(--oneui-color-on-primary)';
               }
 
               if (!borderless) {
@@ -983,9 +995,9 @@
                     continue;
                   }
                   textNode.style.margin = '0';
-                  textNode.style.lineHeight = '1rem';
-                  textNode.style.fontSize = '0.82rem';
-                  textNode.style.fontWeight = '700';
+                  textNode.style.lineHeight = '1.2';
+                  textNode.style.fontSize = 'var(--oneui-type-body-2xs)';
+                  textNode.style.fontWeight = 'var(--oneui-font-weight-semibold)';
                 }
               }
               attachButtonInteraction(button);
@@ -1098,7 +1110,7 @@
             cellHost.style.minWidth = '0';
             cellHost.style.borderRight = isLastCell
               ? 'none'
-              : '1px solid var(--oneui-color-outline-variant)';
+              : 'var(--oneui-border-sm) solid var(--oneui-color-outline-variant)';
 
             const textNode = cellHost.shadowRoot?.querySelector(
               'p, h1, h2, h3, h4, h5, h6'
@@ -1109,9 +1121,9 @@
               textNode.style.wordBreak = 'break-word';
               if (isHeader) {
                 textNode.style.fontWeight = '700';
-                textNode.style.color = '#0f172a';
+                textNode.style.color = 'var(--oneui-color-on-surface)';
               } else {
-                textNode.style.color = '#334155';
+                textNode.style.color = 'var(--oneui-color-on-surface-soft)';
               }
             }
           }
@@ -1139,10 +1151,10 @@
               section.style.margin = '0';
               section.style.borderBottom =
                 rowIndex < rows.length - 1
-                  ? '1px solid var(--oneui-color-outline-variant)'
+                  ? 'var(--oneui-border-md) solid var(--oneui-color-outline-variant)'
                   : 'none';
               section.style.background =
-                rowIndex === 0 ? '#eaf1fb' : '#ffffff';
+                rowIndex === 0 ? 'var(--oneui-color-surface-alt)' : 'var(--oneui-color-surface)';
 
               const cells = getDirectElementChildren(row);
               cells.forEach((cell, cellIndex) => {
@@ -1182,11 +1194,11 @@
               }
 
               listHost.classList.add('genui-table-list');
-              listHost.style.border = '1px solid #d7e2f0';
-              listHost.style.borderRadius = '14px';
+              listHost.style.border = 'var(--oneui-border-md) solid var(--oneui-color-outline)';
+              listHost.style.borderRadius = 'var(--oneui-radius-lg)';
               listHost.style.overflow = 'hidden';
               listHost.style.background = 'var(--oneui-color-surface)';
-              listHost.style.boxShadow = '0 4px 12px rgba(15, 23, 42, 0.08)';
+              listHost.style.boxShadow = 'var(--oneui-shadow-sm)';
 
               styleTableRows(rows, []);
             }
@@ -1257,11 +1269,11 @@
               }
 
               columnHost.classList.add('genui-table-list');
-              columnHost.style.border = '1px solid #d7e2f0';
-              columnHost.style.borderRadius = '14px';
+              columnHost.style.border = 'var(--oneui-border-md) solid var(--oneui-color-outline)';
+              columnHost.style.borderRadius = 'var(--oneui-radius-lg)';
               columnHost.style.overflow = 'hidden';
               columnHost.style.background = 'var(--oneui-color-surface)';
-              columnHost.style.boxShadow = '0 4px 12px rgba(15, 23, 42, 0.08)';
+              columnHost.style.boxShadow = 'var(--oneui-shadow-sm)';
             }
           }
 
@@ -1434,7 +1446,7 @@
           function smoothCardCorners() {
             const cardHosts = collectHostsDeep(container, 'a2ui-card');
             for (const cardHost of cardHosts) {
-              cardHost.style.borderRadius = '20px';
+              cardHost.style.borderRadius = 'var(--oneui-radius-lg)';
               cardHost.style.overflow = 'hidden';
               cardHost.style.backgroundClip = 'padding-box';
               cardHost.style.setProperty('-webkit-mask-image', '-webkit-radial-gradient(white, black)');
@@ -1444,7 +1456,7 @@
                 continue;
               }
 
-              cardSection.style.borderRadius = '20px';
+              cardSection.style.borderRadius = 'var(--oneui-radius-lg)';
               cardSection.style.overflow = 'hidden';
               cardSection.style.backgroundClip = 'padding-box';
               cardSection.style.setProperty('-webkit-mask-image', '-webkit-radial-gradient(white, black)');

@@ -31,3 +31,7 @@
 2026-02-16 00:14:41 INFO dataset: Stage4 rendering 1 images with 10 workers
 2026-02-16 00:14:44 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_media_realretry5_20260215_182947\rendered
 2026-02-16 00:14:51 INFO dataset: Stage3 already complete for run_id=subset10_g3pro_media_realretry5_20260215_182947. Recomputed aggregates only (10 rows).
+2026-02-18 01:11:53 INFO dataset: Stage4 HTTP server started on port 63566
+2026-02-18 01:12:28 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_media_realretry5_20260215_182947\rendered
+2026-02-18 02:24:24 INFO dataset: Stage4 HTTP server started on port 51972
+2026-02-18 02:24:25 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_media_realretry5_20260215_182947\rendered

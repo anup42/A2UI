@@ -1,8 +1,8 @@
 {
   "manifest_version": 1,
-  "generated_at": "2026-02-11T20:16:03Z",
+  "generated_at": "2026-02-17T20:56:20Z",
   "run_id": "subset50_g25pro_systemprefix_20260212_014558",
-  "stage": 3,
+  "stage": 4,
   "repo": {
     "release_version": "0.1.0",
     "components": {
@@ -17,14 +17,14 @@
       "genui_schema": "v0.9",
       "min_manifest_version": 1
     },
-    "git_commit": "7ae0f814c949e9d9ebf23b4d643b58cb6962c763",
+    "git_commit": "bec44be37482e35228a93151ea6a40f05750f2bd",
     "git_branch": "main",
     "git_dirty": true
   },
   "model": {
-    "name": "gemini_2_5_pro",
-    "provider": "gemini",
-    "model": "gemini-2.5-pro"
+    "name": "local_mock",
+    "provider": "local",
+    "model": "mock"
   },
   "config": {
     "files": {
@@ -47,14 +47,12 @@
     "argv": [
       "src/main.py",
       "--stage",
-      "3",
+      "4",
       "--model",
-      "gemini_2_5_pro",
+      "local_mock",
       "--run_id",
-      "subset50_g25pro_systemprefix_20260212_014558",
-      "--rate_limit_qps",
-      "1"
+      "subset50_g25pro_systemprefix_20260212_014558"
     ],
-    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+    "cwd": "C:\\Users\\anupk\\Documents\\workspace\\A2UI\\dataset"
   }
 }

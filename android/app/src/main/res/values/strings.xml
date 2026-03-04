@@ -1,16 +1,21 @@
 <resources>
     <string name="app_name">GenUI Craft Renderer</string>
     <string name="home_title">GenUI Craft Renderer</string>
-    <string name="home_subtitle">Load a GenUI JSON or JSONL file and render each entry in a dedicated viewer.</string>
+    <string name="home_subtitle">Load a GenUI JSON or JSONL file and render each entry in native Compose or WebView mode.</string>
     <string name="home_source_title">Choose Source</string>
     <string name="home_source_subtitle">Select a file from your device or open the bundled sample dataset.</string>
     <string name="select_genui_file">Select GenUI File</string>
     <string name="open_sample_dataset">Open Sample Dataset</string>
+    <string name="native_rendering_title">Native Rendering</string>
+    <string name="native_rendering_subtitle">Enable Compose-native IR rendering. Disable to use WebView HTML rendering.</string>
+    <string name="render_mode_native">Native Compose</string>
+    <string name="render_mode_web">WebView HTML</string>
     <string name="back">Back</string>
 
     <string name="list_title">Choose an Item</string>
     <string name="list_source_label">Loaded Source</string>
     <string name="list_count">%1$d item(s)</string>
+    <string name="list_mode">%1$s mode</string>
     <string name="list_empty_source">No source selected</string>
     <string name="list_empty_count">0 item(s)</string>
     <string name="list_empty_message">No GenUI records are loaded.</string>

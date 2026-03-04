@@ -46,14 +46,14 @@
           "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
           "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
           "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
-          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/dist/index.ts.js",
-          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/dist/array.ts.js",
-          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/dist/map.ts.js",
-          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/dist/object.ts.js",
-          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/dist/set.ts.js",
-          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/dist/subtle/microtask-effect.ts.js",
-          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/dist/index.js",
-          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/dist/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/runtime/index.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/runtime/array.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/runtime/map.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/runtime/object.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/runtime/set.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/runtime/subtle/microtask-effect.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/runtime/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/runtime/",
           "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
           "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
           "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
@@ -81,15 +81,170 @@
     <script type="module">
       const container = document.getElementById("surfaces");
       const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+      const assetVersion = "20260217.2";
 
-      function setStatus(message) {
+      function withCacheBust(url) {
+        const parsed = new URL(url, window.location.href);
+        parsed.searchParams.set("_v", assetVersion);
+        return parsed.href;
+      }
+
+      function setStatus(message, details = null) {
         container.innerHTML = "";
         const note = document.createElement("div");
         note.textContent = message;
         note.style.padding = "16px";
         note.style.color = "#b00020";
         note.style.fontSize = "14px";
+        note.style.fontWeight = "700";
         container.appendChild(note);
+
+        if (!details) {
+          return;
+        }
+
+        const detailBox = document.createElement("pre");
+        detailBox.textContent = details;
+        detailBox.style.margin = "0 16px 16px";
+        detailBox.style.padding = "12px";
+        detailBox.style.border = "1px solid #f1c6cc";
+        detailBox.style.borderRadius = "8px";
+        detailBox.style.background = "#fff7f8";
+        detailBox.style.color = "#5c1f28";
+        detailBox.style.fontSize = "12px";
+        detailBox.style.lineHeight = "1.45";
+        detailBox.style.whiteSpace = "pre-wrap";
+        detailBox.style.wordBreak = "break-word";
+        container.appendChild(detailBox);
+      }
+
+      function formatErrorDetails(err) {
+        const lines = [];
+        if (typeof err === "string") {
+          lines.push(err);
+        } else if (err && typeof err === "object") {
+          const name = typeof err.name === "string" ? err.name : "Error";
+          const message =
+            typeof err.message === "string"
+              ? err.message
+              : "No error message provided.";
+          lines.push(`${name}: ${message}`);
+          if (typeof err.stack === "string" && err.stack.trim()) {
+            lines.push("");
+            lines.push(err.stack);
+          } else {
+            try {
+              lines.push("");
+              lines.push(JSON.stringify(err, null, 2));
+            } catch (_jsonErr) {
+              // no-op
+            }
+          }
+        } else {
+          lines.push("Unknown renderer error.");
+        }
+
+        lines.push("");
+        lines.push(`Page URL: ${window.location.href}`);
+        lines.push(`Asset Base: ${assetBase}`);
+        return lines.join("\n");
+      }
+
+      async function collectAssetDiagnostics() {
+        const urls = [
+          new URL("vendor/a2ui/index.js", assetBase).href,
+          new URL("vendor/a2ui/0.8/index.js", assetBase).href,
+          new URL("vendor/a2ui/0.8/core.js", assetBase).href,
+          new URL("vendor/a2ui/0.8/ui/ui.js", assetBase).href,
+          new URL("vendor/lit/index.js", assetBase).href,
+          new URL("themes/oneui.tokens.css", assetBase).href,
+          new URL("themes/oneui.overrides.css", assetBase).href
+        ].map((url) => withCacheBust(url));
+
+        const lines = ["Asset fetch diagnostics:"];
+        for (const url of urls) {
+          try {
+            let method = "HEAD";
+            let response = await fetch(url, { method, cache: "no-store" });
+
+            if (response.status === 405 || response.status === 501) {
+              method = "GET";
+              response = await fetch(url, { method, cache: "no-store" });
+            }
+
+            const contentType = response.headers.get("content-type") || "unknown";
+            lines.push(
+              `- ${response.status} ${response.ok ? "OK" : "FAIL"} [${method}] :: ${url} :: content-type=${contentType}`
+            );
+          } catch (fetchErr) {
+            const fetchMsg =
+              fetchErr && typeof fetchErr === "object" && "message" in fetchErr
+                ? String(fetchErr.message)
+                : String(fetchErr);
+            lines.push(`- FETCH_ERROR :: ${url} :: ${fetchMsg}`);
+          }
+        }
+
+        lines.push("");
+        lines.push("Note:");
+        lines.push("- 501/405 on HEAD can be server-specific and not fatal; GET status is the real check.");
+        lines.push("");
+        lines.push("Server root hint:");
+        lines.push("- Serve from the `dataset` folder so `/renderer/lit/...` is reachable.");
+        lines.push("- Or use: `python src/main.py --stage 4 ...` and open files from that run.");
+        return lines.join("\n");
+      }
+
+      function describeImportError(err) {
+        if (!err) {
+          return "Unknown error";
+        }
+        if (typeof err === "string") {
+          return err;
+        }
+        if (typeof err === "object") {
+          const name = typeof err.name === "string" ? err.name : "Error";
+          const message = typeof err.message === "string" ? err.message : "No message";
+          return `${name}: ${message}`;
+        }
+        return String(err);
+      }
+
+      async function loadA2uiRuntime() {
+        const uiUrl = withCacheBust(new URL("vendor/a2ui/0.8/ui/ui.js", assetBase).href);
+        const candidates = [
+          {
+            label: "vendor/a2ui/index.js",
+            url: withCacheBust(new URL("vendor/a2ui/index.js", assetBase).href),
+            pick: (module) => module?.v0_8
+          },
+          {
+            label: "vendor/a2ui/0.8/index.js",
+            url: withCacheBust(new URL("vendor/a2ui/0.8/index.js", assetBase).href),
+            pick: (module) => module
+          }
+        ];
+        const loaderErrors = [];
+
+        for (const candidate of candidates) {
+          try {
+            const module = await import(candidate.url);
+            const resolved = candidate.pick(module);
+            if (!resolved || !resolved.UI || !resolved.Data) {
+              throw new Error("Resolved module missing expected UI/Data exports.");
+            }
+            await import(uiUrl);
+            return resolved;
+          } catch (candidateErr) {
+            loaderErrors.push(`- ${candidate.label}: ${describeImportError(candidateErr)}`);
+          }
+        }
+
+        const error = new Error(
+          `Unable to import A2UI runtime.\n${loaderErrors.join("\n")}`
+        );
+        error.name = "A2UIImportError";
+        throw error;
       }
 
       function parseMessages(payload) {
@@ -279,10 +434,7 @@
 
       async function init() {
         try {
-          const libUrl = new URL("vendor/a2ui/index.js", assetBase);
-          const uiUrl = new URL("vendor/a2ui/0.8/ui/ui.js", assetBase);
-          const { v0_8 } = await import(libUrl.href);
-          await import(uiUrl.href);
+          const v0_8 = await loadA2uiRuntime();
           const theme = createDefaultTheme();
           window.addEventListener("context-request", (event) => {
             const contextKey = event.context ?? event.detail?.context;
@@ -1074,7 +1226,7 @@
               for (const group of groups) {
                 const rows = group.rows;
                 const dividers = group.dividers;
-                if (rows.length < 2 || dividers.length < 1) {
+                if (rows.length < 2) {
                   continue;
                 }
 
@@ -1088,7 +1240,15 @@
                   continue;
                 }
 
-                styleTableRows(rows, dividers);
+                const hasDividers = dividers.length > 0;
+                const columnCount = cellCounts[0] || 0;
+                if (!hasDividers) {
+                  if (rows.length < 3 || columnCount < 3) {
+                    continue;
+                  }
+                }
+
+                styleTableRows(rows, hasDividers ? dividers : []);
                 styledAnyGroup = true;
               }
 
@@ -1270,6 +1430,26 @@
               }
             }
           }
+
+          function smoothCardCorners() {
+            const cardHosts = collectHostsDeep(container, 'a2ui-card');
+            for (const cardHost of cardHosts) {
+              cardHost.style.borderRadius = '20px';
+              cardHost.style.overflow = 'hidden';
+              cardHost.style.backgroundClip = 'padding-box';
+              cardHost.style.setProperty('-webkit-mask-image', '-webkit-radial-gradient(white, black)');
+
+              const cardSection = cardHost.shadowRoot?.querySelector('section');
+              if (!cardSection) {
+                continue;
+              }
+
+              cardSection.style.borderRadius = '20px';
+              cardSection.style.overflow = 'hidden';
+              cardSection.style.backgroundClip = 'padding-box';
+              cardSection.style.setProperty('-webkit-mask-image', '-webkit-radial-gradient(white, black)');
+            }
+          }
           async function renderMessages(payload, reset) {
             const messages = parseMessages(payload);
             if (!Array.isArray(messages)) {
@@ -1288,6 +1468,7 @@
             enhanceButtons();
             enhanceTableLayouts();
             enhanceCardDeckRows();
+            smoothCardCorners();
             await markMissingImages();
             normalizeIconImageSizing();
             enhanceMediaRails();
@@ -1295,6 +1476,7 @@
             enhanceButtons();
             enhanceTableLayouts();
             enhanceCardDeckRows();
+            smoothCardCorners();
             await markMissingImages();
             normalizeIconImageSizing();
             enhanceMediaRails();
@@ -1315,7 +1497,9 @@
           }
         } catch (err) {
           console.error("Failed to load GenUICraft Lit renderer", err);
-          setStatus("Lit renderer failed to load.");
+          const assetDiagnostics = await collectAssetDiagnostics();
+          const details = `${formatErrorDetails(err)}\n\n${assetDiagnostics}`;
+          setStatus("Lit renderer failed to load.", details);
         }
       }
 

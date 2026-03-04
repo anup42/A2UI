@@ -112,3 +112,7 @@
 2026-02-14 02:15:25 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_urlreal_20260214_005342\rendered
 2026-02-14 17:45:52 INFO dataset: Stage4 HTTP server started on port 60600
 2026-02-14 17:47:06 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_urlreal_20260214_005342\rendered
+2026-02-18 01:26:13 INFO dataset: Stage4 HTTP server started on port 51095
+2026-02-18 01:27:26 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_urlreal_20260214_005342\rendered
+2026-02-18 02:26:30 INFO dataset: Stage4 HTTP server started on port 56242
+2026-02-18 02:26:31 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g3pro_urlreal_20260214_005342\rendered

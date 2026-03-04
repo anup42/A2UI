@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-03-02T16:39:53Z",
+  "run_id": "stage1mix_g31pro_retry_20260302_220952",
+  "stage": 1,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "6ffea269470ff264b323d79a6bc4d350356e3b7c",
+    "git_branch": "main",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "gemini_3_1_pro",
+    "provider": "gemini",
+    "model": "gemini-3.1-pro-preview"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "0f32b1e962f0320ae807ed93d69e9fdf5432b175069c105309040a24796728e9",
+      "configs\\models.yaml": "55f33e13327bfdc8281b4638c0e8cb97e83f5ced68a73f1cae3365560e62a51d"
+    },
+    "combined_sha256": "bf8db744a616412fcf452967293cd17ae725d915276697bb5c766d62f7af24fe"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\stage1mix_g31pro_retry_20260302_220952",
+    "queries_path": "data\\runs\\stage1mix_g31pro_retry_20260302_220952\\queries.jsonl",
+    "responses_path": "data\\runs\\stage1mix_g31pro_retry_20260302_220952\\responses.jsonl",
+    "genui_path": "data\\runs\\stage1mix_g31pro_retry_20260302_220952\\genui.jsonl",
+    "metrics_path": "data\\runs\\stage1mix_g31pro_retry_20260302_220952\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\stage1mix_g31pro_retry_20260302_220952\\aggregates.json",
+    "artifacts_dir": "data\\runs\\stage1mix_g31pro_retry_20260302_220952\\artifacts",
+    "manifest_path": "data\\runs\\stage1mix_g31pro_retry_20260302_220952\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "1",
+      "--model",
+      "gemini_3_1_pro",
+      "--run_id",
+      "stage1mix_g31pro_retry_20260302_220952"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\workspace\\A2UI\\dataset"
+  }
+}

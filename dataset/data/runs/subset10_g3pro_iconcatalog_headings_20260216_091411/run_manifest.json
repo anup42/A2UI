@@ -1,8 +1,8 @@
 {
   "manifest_version": 1,
-  "generated_at": "2026-02-16T22:04:35Z",
+  "generated_at": "2026-03-03T07:46:17Z",
   "run_id": "subset10_g3pro_iconcatalog_headings_20260216_091411",
-  "stage": 4,
+  "stage": 5,
   "repo": {
     "release_version": "0.1.0",
     "components": {
@@ -17,21 +17,21 @@
       "genui_schema": "v0.9",
       "min_manifest_version": 1
     },
-    "git_commit": "5a446cc107d6e1c58cf783271a3938e433cc8420",
+    "git_commit": "6ffea269470ff264b323d79a6bc4d350356e3b7c",
     "git_branch": "main",
     "git_dirty": true
   },
   "model": {
-    "name": "gemini_3_pro",
-    "provider": "gemini",
-    "model": "gemini-3-pro-preview"
+    "name": "openai_gpt4o",
+    "provider": "openai",
+    "model": "gpt-4o"
   },
   "config": {
     "files": {
-      "configs\\run.yaml": "a1bd78fbc5fa4ba9f7748e6be080fe6f64d742462a74337403f49de8a0227df0",
-      "configs\\models.yaml": "02e525d3cfb14876cc28eb76f75f23d96a6048e51cb317698643c037c543b033"
+      "configs\\run.yaml": "f2be9fc97390fd6959d64d70af41f4ba6582f5a2ca6b2a4c62de47dd80de838c",
+      "configs\\models.yaml": "55f33e13327bfdc8281b4638c0e8cb97e83f5ced68a73f1cae3365560e62a51d"
     },
-    "combined_sha256": "1b9b264a0da8eac9e01c7a4c66727b576e0bfc2a31b34f956faea2a2c9368f23"
+    "combined_sha256": "31e69f7bfd0a63047b879b4d6b1e31525b0989142231f47016a62f47125c0f46"
   },
   "paths": {
     "run_dir": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411",
@@ -47,9 +47,7 @@
     "argv": [
       "src/main.py",
       "--stage",
-      "4",
-      "--model",
-      "gemini_3_pro",
+      "5",
       "--run_id",
       "subset10_g3pro_iconcatalog_headings_20260216_091411"
     ],

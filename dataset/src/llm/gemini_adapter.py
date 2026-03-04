@@ -97,6 +97,30 @@ class GeminiAdapter(BaseLLMAdapter):
             value = 0.0
         return max(0.0, value)
 
+    def _thinking_level(self) -> Optional[str]:
+        # Override via env for any model.
+        explicit = (os.getenv("GEMINI_THINKING_LEVEL") or "").strip()
+        if explicit:
+            return explicit
+        # Gemini 3.1 Pro can be very slow with default dynamic/high thinking.
+        model = (self.spec.model or "").lower()
+        if "gemini-3.1-pro" in model:
+            return "low"
+        return None
+
+    def _apply_thinking_config(self, generation_config: dict[str, object]) -> None:
+        level = self._thinking_level()
+        if not level:
+            return
+        thinking_cfg: dict[str, object] = {"thinkingLevel": level}
+        budget_raw = (os.getenv("GEMINI_THINKING_BUDGET") or "").strip()
+        if budget_raw:
+            try:
+                thinking_cfg["thinkingBudget"] = int(budget_raw)
+            except Exception:
+                pass
+        generation_config["thinkingConfig"] = thinking_cfg
+
     def _wait_for_slot(self, api_key: str, min_interval: float) -> None:
         if min_interval <= 0:
             return
@@ -146,6 +170,11 @@ class GeminiAdapter(BaseLLMAdapter):
             max_tokens = min(max_tokens, 8192)
 
         def _build_body(use_seed: bool, token_limit: int) -> dict[str, object]:
+            generation_config: dict[str, object] = {
+                "temperature": temperature,
+                "maxOutputTokens": token_limit,
+            }
+            self._apply_thinking_config(generation_config)
             body: dict[str, object] = {
                 "contents": [
                     {
@@ -153,10 +182,7 @@ class GeminiAdapter(BaseLLMAdapter):
                         "parts": [{"text": prompt}],
                     }
                 ],
-                "generationConfig": {
-                    "temperature": temperature,
-                    "maxOutputTokens": token_limit,
-                },
+                "generationConfig": generation_config,
             }
             if system:
                 body["systemInstruction"] = {"parts": [{"text": system}]}
@@ -171,13 +197,14 @@ class GeminiAdapter(BaseLLMAdapter):
         min_interval = self._min_interval()
         retry_backoff = max(1.0, float(os.getenv("GEMINI_RETRY_BACKOFF_SECONDS", "4")))
         max_rate_limit_retries = max(3, int(os.getenv("GEMINI_RATE_LIMIT_MAX_RETRIES", "20")))
+        max_timeout_retries = max(1, int(os.getenv("GEMINI_TIMEOUT_MAX_RETRIES", "2")))
         raw = None
         last_error: Exception | None = None
         last_rate_detail = ""
         last_rate_headers: dict[str, str] = {}
         last_rate_retry_after: float | None = None
         attempts = 0
-        cycles = 3
+        cycles = max(1, int(os.getenv("GEMINI_REQUEST_CYCLES", "3")))
         for _ in range(cycles):
             for api_key in keys:
                 attempts += 1
@@ -186,6 +213,7 @@ class GeminiAdapter(BaseLLMAdapter):
                 retry_without_seed = False
                 retry_with_clamp = False
                 rate_limit_retries = 0
+                timeout_retries = 0
                 while True:
                     body = _build_body(use_seed, token_limit)
                     if json_mode:
@@ -268,9 +296,15 @@ class GeminiAdapter(BaseLLMAdapter):
                         last_error = exc
                         # Timeout or transient error -> try next key
                         if isinstance(exc, TimeoutError):
+                            timeout_retries += 1
+                            if timeout_retries > max_timeout_retries:
+                                break
                             time.sleep(max(min_interval, retry_backoff))
                             continue
                         if "timed out" in str(exc).lower():
+                            timeout_retries += 1
+                            if timeout_retries > max_timeout_retries:
+                                break
                             time.sleep(max(min_interval, retry_backoff))
                             continue
                         return LLMResult(
@@ -378,6 +412,7 @@ class GeminiAdapter(BaseLLMAdapter):
                 "temperature": temperature,
                 "maxOutputTokens": max_tokens,
             }
+            self._apply_thinking_config(generation_config)
             if json_mode:
                 generation_config["responseMimeType"] = "application/json"
             if seed_value is not None:
@@ -416,12 +451,14 @@ class GeminiAdapter(BaseLLMAdapter):
         timeout_seconds = self._request_timeout()
         min_interval = self._min_interval()
         retry_backoff = max(1.0, float(os.getenv("GEMINI_RETRY_BACKOFF_SECONDS", "4")))
+        max_timeout_retries = max(1, int(os.getenv("GEMINI_TIMEOUT_MAX_RETRIES", "2")))
         start = time.time()
         last_error: Exception | None = None
 
-        cycles = 3
+        cycles = max(1, int(os.getenv("GEMINI_REQUEST_CYCLES", "3")))
         for _ in range(cycles):
             for api_key in keys:
+                timeout_retries = 0
                 params = urllib.parse.urlencode({"key": api_key})
                 url = f"{endpoint}?{params}"
                 seed_list = seeds if seeds and len(seeds) == len(prompts) else [None] * len(prompts)
@@ -458,6 +495,9 @@ class GeminiAdapter(BaseLLMAdapter):
                 except Exception as exc:
                     last_error = exc
                     if isinstance(exc, TimeoutError) or "timed out" in str(exc).lower():
+                        timeout_retries += 1
+                        if timeout_retries > max_timeout_retries:
+                            break
                         time.sleep(max(min_interval, retry_backoff))
                         continue
                     return _error_results(str(exc), (time.time() - start) * 1000)

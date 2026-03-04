@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kyoto Family Trip Overview (April 5-7)</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>Kyoto Family Trip Overview (April 5-7)</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><p class="s5-paragraph">Visiting Kyoto in early April places you in the peak of spring season. While cherry blossoms (sakura) may be starting to flutter down by April 5-7, the city will be vibrant and busy. This itinerary balances the crowds by mixing popular historical sites with ample outdoor space for children. The schedule prioritizes locations with direct transit access or short taxi rides to strictly limit transit-to-destination walking to under 30 minutes.</p><p class="s5-paragraph">Pacing and Transit Context</p><p class="s5-paragraph">To accommodate children ages 8 and 10 and the walking constraints, this plan utilizes a &quot;hub&quot; approach where you visit one major area in the morning and one in the afternoon.<br />- Transit Strategy: Use JR lines and the subway where possible to avoid traffic. For Kiyomizu-dera, a taxi is recommended from the nearest station (Kyoto Station or Kiyomizu-Gojo) to the top of the hill to save energy for the actual temple grounds.<br />- Hiking Note: The hikes selected (Monkey Park and Fushimi Inari) are the activities themselves, not transit walks. Both have rest stops and safe paths.<br />- Weather Framework: Early April averages 10-20 degrees Celsius (50-68 F). Rain is possible, so indoor backups like the Railway Museum are included.</p><p class="s5-paragraph">3-Day Itinerary: Temples &amp; Trails</p><p class="s5-paragraph">Day 1: Arashiyama Nature &amp; Wildlife | Iwatayama Monkey Park (easy hike) and Bamboo Grove | West Kyoto<br />Start at JR Saga-Arashiyama Station. Walk 15 minutes to the Monkey Park entrance; the climb is an easy 20-minute trail with monkeys at the summit. Afterward, cross the Togetsukyo Bridge to the Bamboo Grove.</p><p class="s5-paragraph">Day 2: Iconic Gates &amp; Views | Fushimi Inari Shrine and Kiyomizu-dera | Southern &amp; Eastern Kyoto<br />Morning at Fushimi Inari (JR Inari Station is immediately adjacent). The lower loop hike is gentle and features thousands of gates. Afternoon: Take a taxi to Kiyomizu-dera to avoid the steep approach walk.</p><p class="s5-paragraph">Day 3: Gold Pavilion &amp; Trains | Kinkaku-ji Temple and Kyoto Railway Museum | North &amp; Central<br />Morning: Kinkaku-ji (Golden Pavilion). Access via taxi or direct bus to minimize walking. Afternoon: Kyoto Railway Museum (adjacent to Umekoji-Kyotonishi Station). Interactive and ideal for ages 8-10.</p><p class="s5-paragraph">Kid-Friendly Dining Recommendations</p><p class="s5-paragraph">Families in Kyoto often prefer casual dining where noise levels are acceptable and menus are visual.<br />- Conveyor Belt Sushi (Kaitenzushi): &quot;Kura Sushi&quot; or &quot;Sushiro&quot; chains offer tablets for ordering and separate booths.<br />- Udon and Soba Noodles: &quot;Omen&quot; near Ginkaku-ji or Arashiyama offers dipping noodles that are fun for kids.<br />- Okonomiyaki: Savory pancakes where you can watch the food being cooked on a hotplate. &quot;Donguri&quot; is a family-friendly chain.<br />- Department Store Basements (Depachika): Located under Isetan (Kyoto Station) or Takashimaya. Great for picking up high-quality bento boxes for a picnic if restaurants are too crowded.</p><div class="s5-button-row"><a class="s5-btn" href="https://kyoto.travel/en/areas/arashiyama.html" target="_blank" rel="noopener noreferrer">Arashiyama Area Guide</a><a class="s5-btn" href="https://inari.jp/en/map/" target="_blank" rel="noopener noreferrer">Fushimi Inari Maps</a><a class="s5-btn" href="https://www.kyotorailwaymuseum.jp/en/" target="_blank" rel="noopener noreferrer">Railway Museum Info</a></div></section><section class="s5-card s5-section"><h2>Sources</h2><p class="s5-paragraph">Kyoto Official Travel Guide: https://kyoto.travel/en<br />Japan Guide (Kyoto Section): https://www.japan-guide.com/e/e2158.html<br />Kyoto Railway Museum Official: https://www.kyotorailwaymuseum.jp/en/</p><p class="s5-paragraph">Arashiyama Bamboo Path: https://loremflickr.com/1200/800/kyoto,bamboo<br />Fushimi Inari Torii Gates: https://loremflickr.com/1200/800/fushimi,inari,torii<br />Golden Pavilion Kinkakuji: https://loremflickr.com/1200/800/kinkakuji,temple<br />Kyoto Street Food: https://loremflickr.com/1200/800/kyoto,food</p><p class="s5-paragraph">Map: https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/map.svg<br />Camera: https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/camera.svg<br />Dining: https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cup-straw.svg</p></section>
+      </div>
+    </main>
+  </body>
+</html>

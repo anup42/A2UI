@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cyberpunk Night Watchlist (1980-2010)</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>Cyberpunk Night Watchlist (1980-2010)</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><h2>Selection Rules Applied</h2><ul class="s5-list"><li>Tone target: Blade Runner-adjacent cyberpunk themes.</li><li>Release window: 1980 to 2010 inclusive.</li><li>Exactly 5 films with director and one-line premise.</li></ul></section><section class="s5-card s5-section"><h2>Recommended Films</h2><div class="s5-table-wrap"><table class="s5-table"><thead><tr><th>Title</th><th>Year</th><th>Director</th><th>One-Line Plot Summary</th></tr></thead><tbody><tr><td>Ghost in the Shell</td><td>1995</td><td>Mamoru Oshii</td><td>A cyborg security agent hunts a hacker while questioning identity in a networked society.</td></tr><tr><td>Akira</td><td>1988</td><td>Katsuhiro Otomo</td><td>A biker gang member gains destructive psychic power in a collapsing neo-city.</td></tr><tr><td>Dark City</td><td>1998</td><td>Alex Proyas</td><td>A man awakens in a city manipulated nightly by mysterious beings rewriting reality.</td></tr><tr><td>Strange Days</td><td>1995</td><td>Kathryn Bigelow</td><td>A black-market memory dealer uncovers a conspiracy through recorded first-person experiences.</td></tr><tr><td>Minority Report</td><td>2002</td><td>Steven Spielberg</td><td>A future cop on the run fights a predictive justice system that says he will murder.</td></tr></tbody></table></div></section><section class="s5-card s5-section"><h2>Screening Order Suggestion</h2><p class="s5-paragraph">Option 1: Mood Escalation Order | Dark City -&gt; Ghost in the Shell -&gt; Strange Days -&gt; Minority Report -&gt; Akira | Builds intensity through the night</p><p class="s5-paragraph">Option 2: Classic-First Order | Akira -&gt; Ghost in the Shell -&gt; Dark City -&gt; Strange Days -&gt; Minority Report | Starts with foundational anime cyberpunk</p><div class="s5-button-row"><a class="s5-btn" href="https://www.imdb.com/list/" target="_blank" rel="noopener noreferrer">Build Viewing Queue</a><a class="s5-btn" href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">Compare Runtime and Ratings</a></div></section><section class="s5-card s5-section"><h2>Images</h2><div class="s5-media-grid"><figure class="s5-media-card"><img class="s5-image" src="https://loremflickr.com/1200/800/cyberpunk,city" alt="Neon Cityscape Mood" loading="lazy" /><figcaption>Neon Cityscape Mood</figcaption></figure><figure class="s5-media-card"><img class="s5-image" src="https://loremflickr.com/1200/800/neon,night" alt="Retro Future Skyline" loading="lazy" /><figcaption>Retro Future Skyline</figcaption></figure></div></section><section class="s5-card s5-section"><h2>Icons</h2><div class="s5-icon-row"><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/film.svg" alt="Film" loading="lazy" /><span>Film</span></span><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/controller.svg" alt="Controller" loading="lazy" /><span>Controller</span></span><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/clock-history.svg" alt="Clock" loading="lazy" /><span>Clock</span></span></div></section><section class="s5-card s5-section"><h2>Quick Actions</h2><div class="s5-button-row"><a class="s5-btn" href="https://www.imdb.com/search/keyword/?keywords=cyberpunk" target="_blank" rel="noopener noreferrer">Open IMDb Cyberpunk Lists</a><a class="s5-btn" href="https://www.themoviedb.org/discover/movie?with_genres=878" target="_blank" rel="noopener noreferrer">Open TMDB Sci-Fi Discovery</a></div></section><section class="s5-card s5-section"><h2>Sources</h2><ul class="s5-link-list"><li><a class="s5-link" href="https://www.imdb.com/" target="_blank" rel="noopener noreferrer">IMDb title and credits reference</a></li><li><a class="s5-link" href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB catalog reference</a></li></ul></section>
+      </div>
+    </main>
+  </body>
+</html>

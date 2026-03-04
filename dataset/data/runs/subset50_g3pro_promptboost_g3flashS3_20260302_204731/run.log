@@ -1,0 +1,3 @@
+2026-03-02 20:47:43 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=5083 user_template_tokens=16
+2026-03-02 20:49:01 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-03-02 20:50:53 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True

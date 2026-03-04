@@ -44,6 +44,16 @@ render:
   timeout_ms: 15000
   wait_ms: 200
   parallel_workers: 1
+stage5:
+  output_dir: stage5_rendered
+  render_images: true
+  image_format: png
+  use_http_server: true
+  viewport:
+    width: 1280
+    height: 720
+  timeout_ms: 15000
+  wait_ms: 200
 benchmark:
   fixed_subset_size: 10
   fixed_seed: 123

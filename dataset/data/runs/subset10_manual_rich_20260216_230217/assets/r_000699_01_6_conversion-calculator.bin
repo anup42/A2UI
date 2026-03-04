@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Conversion Calculator</title>
+	<meta name="description" content="This free conversion calculator converts between common units of length, temperature, area, volume, weight, and time." />
+	<link rel="stylesheet" href="//d26tpo4cm8sb6k.cloudfront.net/style.css" /><script src="//d26tpo4cm8sb6k.cloudfront.net/js/common.js"></script><meta name="viewport" content="width=device-width, initial-scale=1.0">	<link rel="apple-touch-icon" sizes="180x180" href="//d26tpo4cm8sb6k.cloudfront.net/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="//d26tpo4cm8sb6k.cloudfront.net/icon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="//d26tpo4cm8sb6k.cloudfront.net/icon-16x16.png">
+	<link rel="manifest" href="/manifest.json">	<script src="//d26tpo4cm8sb6k.cloudfront.net/js/conversion.js"></script>
+</head>
+<body>
+<div id="headerout">
+	<div id="header">
+		<div id="logo"><a href="/"><img src="//d26tpo4cm8sb6k.cloudfront.net/img/svg/calculator-white.svg" width="208" height="22" alt="Calculator.net"></a></div>
+		<div id="login"><a href="/my-account/sign-in.php">sign in</a></div>	</div>
+</div>
+<div id="clear"></div><div id="contentout"><div id="content"><div id="breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList"><span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a href="/" itemprop="item"><span itemprop="name">home</span></a><meta itemprop="position" content="1" /></span> / <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a href="/other-calculator.html" itemprop="item"><span itemprop="name">other</span></a><meta itemprop="position" content="2" /></span> / <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a href="/conversion-calculator.html" itemprop="item"><span itemprop="name">conversion calculator</span></a><meta itemprop="position" content="3" /></span></div>		<h1>Conversion Calculator</h1>
+<p>Use this Conversion Calculator to convert between commonly used units. Select the current unit in the left column, the desired unit in the right column, and enter a value in the left column to generate the resulting conversion. A full list of unit conversions is available at <a href="https://www.unitconverters.net">unitconverters.net</a>.</p><br>
+<div id="topmenu">conversion calculator</div>
+<script>
+popMenu("Length");
+currentAName = lA;
+</script>
+
+<div class="panel2" style="padding:12px;">
+<form name="calForm">
+<table width="600" border="0" cellspacing="0" cellpadding="0">
+	<tr><td width="300"><b>From:</b></td><td width="300"><b>To:</b></td></tr>
+	<tr><td><input type="text" name="fromVal" onKeyUp="calcul();" style="width:275px;"></td><td><input type="text" name="toVal" style="width:275px;background-color:#eee;" readonly></td></tr>
+	<tr><td style="padding-top:5px;"><select name="calFrom" id="calFrom" onChange="calcul();" size="11" style="width:280px;"></select></td><td style="padding-top:5px;"><select name="calTo" id="calTo" size="11" onChange="calcul();" style="width:280px;"></select></td></tr>
+</table>
+</form>
+<div id="fcresult" style="text-align:center;padding-top:10px;"></div>
+</div>
+<script>
+showSel(lA);
+</script>
+
+<br><br>
+<h3>Different Systems of Units</h3>
+<p>Historically, many different systems of units have been used, where a system of units is defined as a collection of units of measurement with rules that relate them to each other. A unit of measurement is a defined magnitude of a quantity that it used as a standard for measurement for the same kind of quantity, such as measurements of length, weight, and volume.</p>
+<p>In the past, many systems of measurement were defined on a local level, and could be based on factors as arbitrary as the length of a king's thumb. While this may work on a local level, when considering trade, as well as science, having systems of units based on units that others may not be able to relate to or understand makes interaction difficult. As such, the development of more universal and consistent systems developed over time. Today, some of the systems of units in use include the metric system, the imperial system, and the United States customary units.</p>
+<p>The International System of Units (SI) is the standard metric system that is currently used, and consists of seven SI base units of length, mass, time, temperature, electric current, luminous intensity, and amount of substance. Although SI is used almost universally in science (including in the US), some countries such as the United States still use their own system of units. This is partly due to the substantial financial and cultural costs involved in changing a measurement system compared to the potential benefit of using a standardized system. Since US customary units (USC) are so entrenched in the United States, and SI is already used in most applications where standardization is important, everyday use of USC is still prevalent in the United States, and is unlikely to change. As such, many unit converters including this Conversion Calculator exist, and will continue to do so to ensure that people globally are able to communicate different measurements effectively.</p>
+
+<h3>History of the Pound</h3>
+<p>In the eighth and ninth centuries of the Common Era (CE), Arab civilization flourished in the Middle East and Spain. The Arabs used coins as a measurement of units of weight since a minted coin could not easily be cut or shaved to reduce its weight, and thus provided a measurable standard. They used a coin called a silver dirhem as a basic measure of weight, which had a weight roughly equivalent to 45 fully grown grains of barley. Ten dirhems comprised a Wukryeh, which was translated into Latin as an "uncia" &ndash; the origin of the word "ounce."</p>
+<p>Over time, trade spread from the Mediterranean area to Europe, including the northern German City States. As a result, a pound, 16 ounces of silver, or 7200 grains, became a commonly used measure in many regions.</p>
+<p>While England also adopted this measure, a shortage of silver caused King Offa to reduce the measurement of the pound to 5400 grains in order to use smaller coins. Eventually, when William the Conqueror became King of England, he retained the 5400-grain pound for minting coins, but reverted to the 7200-grain pound for other purposes.</p>
+<p>Though many countries used the pound from that point onward, including England (the British pound sterling, or GBP was equal to one pound-weight of silver in King Offa's time), the avoirdupois weight system was adopted during the reign of Queen Elizabeth in the 16th century. It was a system based on the weight of coal, and its name was derived from the French phrase "avoir de pois" (goods of weight or property). The avoirdupois was equivalent to 7,000 grains, 256 drams of 27.344 grains each, or 16 ounces of 437 &#189; grains each. Since 1959, the avoirdupois pound has been officially defined in most English-speaking countries as 0.45359237 kilograms.</p>
+<p>Different systems of measurement also developed over time in Asian countries. For example, in ancient India, a measure of weight called the "Satamana" was used, and was equal to the weight of 100 gunja berries. In China, the first emperor Shi Huang Di created a system of weights and measures in the third century BCE (Before the Common Era). The measurement of weight was based on the shi, which was equivalent to approximately 132 pounds. The Chi and Zhang were units of length equivalent to approximately 25 centimeters (9.8 inches) and 3 meters (9.8 feet) respectively. The Chinese also developed a means to ensure accuracy through the use of a special size of bowl used for measurements that also made a specific sound when struck &ndash; if the sound was off pitch, the measurement was not accurate.</p>
+
+<h3>Brief History of the Metric System</h3>
+<p>In 1668, John Wilkins proposed a decimal system in which length, area, volume, and mass were linked to each other based on a pendulum that had a beat of one second as a base unit of length. In 1670, Gabriel Mouton proposed a decimal system that was instead based on the circumference of the earth, an idea supported by other prominent scientists of the time such as Jean Picard and Christiaan Huygens, but that did not take hold for approximately another 100 years.</p>
+<p>By the mid-eighteenth century, it was clear to nations who traded and exchanged scientific ideas that standardization of weights and measures was necessary. In 1790, Charles Maurice de Talleyrand-Perigord, the Prince of Talleyrand, approached the British (represented by John Riggs-Miller) and the Americans (represented by Thomas Jefferson) with proposals to define a common standard of length based on the length of a pendulum. In that same year, Thomas Jefferson, presented the "Plan for Establishing Uniformity in the Coinage, Weights, and Measures of the United States," which advocated for a decimal system in which units were related to each other by powers of ten. A committee that was formed in France comprised of some of the most prominent scientists of the day came to a similar conclusion, and also proposed a decimal system for all weights and measures. Although Congress considered Jefferson's report, it was not adopted. In Great Britain, John Riggs-Miller lost his British Parliamentary seat in the 1790 election. As such, the measurement system was only implemented in France, and in 1795, the metric system was formally defined in French law. It was not until 1799, however, that the metric system was officially adopted in France, though it was still not universally observed across the country.</p>
+<p>The spread of the metric system did not occur quickly, and areas that were annexed by France during Napoleon's reign were the first to adopt the metric system. By 1875, two thirds of the European population, and nearly half the world's population had adopted the metric system. By 1920, the percentage of the world's population using the imperial system or the US customary system was ~22%, with 25% using mainly the metric system, and 53% using neither.</p>
+<p>The International System of Units, currently the most widely used system of measurement, was published in 1960. It has been adopted by all developed countries except for the United States, though as previously mentioned, it is used in science, as well as heavily in the military, even in the US.</p>
+
+
+</div>
+	<div id="right">
+		<div style="padding-top:10px;  min-height:280px; text-align:center;">
+<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+<script>
+  window.googletag = window.googletag || {cmd: []};
+  googletag.cmd.push(function() {
+	googletag.defineSlot('/1057446/Calculator-Top-Right-Desktop', [[300, 250], [336, 280]], 'div-gpt-ad-1589567013929-0').addService(googletag.pubads());
+	googletag.pubads().enableSingleRequest();
+	googletag.enableServices();
+  });
+</script>
+<!-- /1057446/Calculator-Top-Right-Desktop -->
+<div id='div-gpt-ad-1589567013929-0'>
+  <script>
+    googletag.cmd.push(function() { googletag.display('div-gpt-ad-1589567013929-0'); });
+  </script>
+</div>
+</div>
+<form name="calcSearchForm" onsubmit="calcSearch(); return false;" autocomplete="off"><table align="center" id="searchbox"><tr><td><input type="text" name="calcSearchTerm" id="calcSearchTerm" class="inlongest" onkeyup="return calcSearch();"></td><td><span id="bluebtn" onClick="return calcSearch();">Search</span></td></tr><tr><td colspan="2"><div id="calcSearchOut"></div></td></tr></table></form><div id="othercalc"><div id="octitle"><a href="/other-calculator.html">Other Calculators</a></div><div id="occontent"><a href="/age-calculator.html">Age</a><a href="/date-calculator.html">Date</a><a href="/time-calculator.html">Time</a><a href="/hours-calculator.html">Hours</a><a href="/gpa-calculator.html">GPA</a><a href="/grade-calculator.html">Grade</a><a href="/height-calculator.html">Height</a><a href="/concrete-calculator.html">Concrete</a><a href="/ip-subnet-calculator.html">IP Subnet</a><a href="/bra-size-calculator.html">Bra Size</a><a href="/password-generator.html">Password Generator</a><a href="/dice-roller.html">Dice Roller</a><a href="/conversion-calculator.html">Conversion</a><a href="/other-calculator.html">More Other Calculators</a></div><div id="ocother"><a href="/financial-calculator.html">Financial</a> | <a href="/fitness-and-health-calculator.html">Fitness and Health</a> | <a href="/math-calculator.html">Math</a> | <a href="/other-calculator.html">Other</a></div></div>	</div>
+</div>
+<div id="clear"></div>
+<div id="footer"><div id="footerin"><div id="footernav"><a href="/about-us.html">about us</a> | <a href="/sitemap.html">sitemap</a> | <a href="/about-us.html#terms">terms of use</a> | <a href="/about-us.html#privacy">privacy policy</a> &nbsp;  &copy; 2008 - 2026 <a href="//www.calculator.net">calculator.net</a></div></div></div>
+<div class="topNavAbs">
+<a href="/financial-calculator.html">Financial</a>
+<a href="/fitness-and-health-calculator.html">Fitness &amp; Health</a>
+<a href="/math-calculator.html">Math</a>
+<a href="/other-calculator.html" class="topNavOn">Other</a>
+</div>
+</body>
+</html>

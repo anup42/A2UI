@@ -1,0 +1,124 @@
+2026-02-17 21:11:01 INFO dataset: Stage2 created response_id=r_000001_01
+2026-02-17 21:11:31 INFO dataset: Stage2 created response_id=r_000002_01
+2026-02-17 21:11:41 INFO dataset: Stage2 created response_id=r_000021_01
+2026-02-17 21:12:12 INFO dataset: Stage2 created response_id=r_000022_01
+2026-02-17 21:12:26 INFO dataset: Stage2 created response_id=r_000031_01
+2026-02-17 21:12:43 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons-heart-fill.svg err=HTTP Error 404: Not Found
+2026-02-17 21:12:43 WARNING dataset: Stage2 asset unresolved response_id=r_000032_01 kind=asset url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons-heart-fill.svg
+2026-02-17 21:12:43 INFO dataset: Stage2 created response_id=r_000032_01
+2026-02-17 21:13:03 INFO dataset: Stage2 created response_id=r_000041_01
+2026-02-17 21:14:11 INFO dataset: Stage2 created response_id=r_000042_01
+2026-02-17 21:14:36 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/rain-heavy.svg err=HTTP Error 404: Not Found
+2026-02-17 21:14:36 WARNING dataset: Stage2 asset unresolved response_id=r_000051_01 kind=icon url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/rain-heavy.svg
+2026-02-17 21:14:36 INFO dataset: Stage2 created response_id=r_000051_01
+2026-02-17 21:14:55 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/droplets.svg err=HTTP Error 404: Not Found
+2026-02-17 21:14:55 WARNING dataset: Stage2 asset unresolved response_id=r_000052_01 kind=icon url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/droplets.svg
+2026-02-17 21:14:55 INFO dataset: Stage2 created response_id=r_000052_01
+2026-02-17 21:15:11 INFO dataset: Stage2 created response_id=r_000201_01
+2026-02-17 21:15:29 INFO dataset: Stage2 created response_id=r_000202_01
+2026-02-17 21:15:48 INFO dataset: Stage2 created response_id=r_000241_01
+2026-02-17 21:16:10 INFO dataset: Stage2 created response_id=r_000242_01
+2026-02-17 21:16:28 INFO dataset: Stage2 created response_id=r_000281_01
+2026-02-17 21:16:38 INFO dataset: Stage2 created response_id=r_000282_01
+2026-02-17 21:16:59 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/pasta.svg err=HTTP Error 404: Not Found
+2026-02-17 21:16:59 WARNING dataset: Stage2 asset unresolved response_id=r_000321_01 kind=icon url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/pasta.svg
+2026-02-17 21:17:05 INFO dataset: Stage2 created response_id=r_000321_01
+2026-02-17 21:17:28 INFO dataset: Stage2 created response_id=r_000322_01
+2026-02-17 21:17:42 INFO dataset: Stage2 created response_id=r_000361_01
+2026-02-17 21:18:15 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/utensils.svg err=HTTP Error 404: Not Found
+2026-02-17 21:18:15 WARNING dataset: Stage2 asset unresolved response_id=r_000362_01 kind=icon url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/utensils.svg
+2026-02-17 21:18:15 INFO dataset: Stage2 created response_id=r_000362_01
+2026-02-17 21:18:23 INFO dataset: Stage2 created response_id=r_000401_01
+2026-02-17 21:18:37 INFO dataset: Stage2 created response_id=r_000402_01
+2026-02-17 21:18:48 INFO dataset: Stage2 created response_id=r_000441_01
+2026-02-17 21:19:14 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/brain.svg err=HTTP Error 404: Not Found
+2026-02-17 21:19:14 WARNING dataset: Stage2 asset unresolved response_id=r_000442_01 kind=icon url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/brain.svg
+2026-02-17 21:19:14 INFO dataset: Stage2 created response_id=r_000442_01
+2026-02-17 21:19:23 INFO dataset: Stage2 created response_id=r_000462_01
+2026-02-17 21:19:50 INFO dataset: Stage2 created response_id=r_000481_01
+2026-02-17 21:20:18 INFO dataset: Stage2 created response_id=r_000482_01
+2026-02-17 21:20:42 INFO dataset: Stage2 created response_id=r_000512_01
+2026-02-17 21:20:50 INFO dataset: Stage2 created response_id=r_000521_01
+2026-02-17 21:20:56 INFO dataset: Stage2 created response_id=r_000522_01
+2026-02-17 21:21:01 INFO dataset: Stage2 created response_id=r_000561_01
+2026-02-17 21:21:06 INFO dataset: Stage2 created response_id=r_000562_01
+2026-02-17 21:21:13 INFO dataset: Stage2 created response_id=r_000601_01
+2026-02-17 21:21:18 INFO dataset: Stage2 created response_id=r_000602_01
+2026-02-17 21:21:23 INFO dataset: Stage2 created response_id=r_000605_01
+2026-02-17 21:21:51 INFO dataset: Stage2 created response_id=r_000641_01
+2026-02-17 21:22:12 INFO dataset: Stage2 created response_id=r_000642_01
+2026-02-17 21:22:47 INFO dataset: Stage2 created response_id=r_000681_01
+2026-02-17 21:23:07 INFO dataset: Stage2 created response_id=r_000682_01
+2026-02-17 21:23:16 INFO dataset: Stage2 created response_id=r_000721_01
+2026-02-17 21:23:24 INFO dataset: Stage2 created response_id=r_000722_01
+2026-02-17 21:23:29 INFO dataset: Stage2 created response_id=r_000761_01
+2026-02-17 21:23:33 INFO dataset: Stage2 created response_id=r_000762_01
+2026-02-17 21:23:49 INFO dataset: Stage2 created response_id=r_000801_01
+2026-02-17 21:24:17 INFO dataset: Stage2 created response_id=r_000802_01
+2026-02-17 21:24:32 INFO dataset: Stage2 created response_id=r_000841_01
+2026-02-17 21:24:49 INFO dataset: Stage2 created response_id=r_000842_01
+2026-02-17 21:25:00 INFO dataset: Stage2 created response_id=r_000881_01
+2026-02-17 21:25:19 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/package.svg err=HTTP Error 404: Not Found
+2026-02-17 21:25:19 WARNING dataset: Stage2 asset unresolved response_id=r_000882_01 kind=icon url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/package.svg
+2026-02-17 21:25:20 INFO dataset: Stage2 created response_id=r_000882_01
+2026-02-17 21:25:34 INFO dataset: Stage2 created response_id=r_000884_01
+2026-02-17 21:25:46 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=4967 user_template_tokens=16
+2026-02-17 21:48:55 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-02-17 21:51:34 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-02-17 21:55:37 INFO dataset: Stage3 created ui_id=u_000021_01 schema_ok=True
+2026-02-17 21:56:45 INFO dataset: Stage3 created ui_id=u_000022_01 schema_ok=True
+2026-02-17 21:57:58 INFO dataset: Stage3 created ui_id=u_000031_01 schema_ok=True
+2026-02-17 21:59:34 INFO dataset: Stage3 created ui_id=u_000032_01 schema_ok=True
+2026-02-17 22:17:18 INFO dataset: Stage3 created ui_id=u_000041_01 schema_ok=True
+2026-02-17 22:22:52 INFO dataset: Stage3 created ui_id=u_000042_01 schema_ok=True
+2026-02-17 22:33:11 INFO dataset: Stage3 created ui_id=u_000051_01 schema_ok=True
+2026-02-17 22:34:32 INFO dataset: Stage3 created ui_id=u_000052_01 schema_ok=True
+2026-02-17 22:35:39 INFO dataset: Stage3 created ui_id=u_000201_01 schema_ok=True
+2026-02-17 22:37:12 INFO dataset: Stage3 created ui_id=u_000202_01 schema_ok=True
+2026-02-17 22:38:22 INFO dataset: Stage3 created ui_id=u_000241_01 schema_ok=True
+2026-02-17 22:39:42 INFO dataset: Stage3 created ui_id=u_000242_01 schema_ok=True
+2026-02-17 22:42:25 INFO dataset: Stage3 created ui_id=u_000281_01 schema_ok=True
+2026-02-17 22:43:01 INFO dataset: Stage3 created ui_id=u_000282_01 schema_ok=True
+2026-02-17 22:44:18 INFO dataset: Stage3 created ui_id=u_000321_01 schema_ok=True
+2026-02-17 22:45:34 INFO dataset: Stage3 created ui_id=u_000322_01 schema_ok=True
+2026-02-17 22:46:41 INFO dataset: Stage3 created ui_id=u_000361_01 schema_ok=True
+2026-02-17 22:48:01 INFO dataset: Stage3 created ui_id=u_000362_01 schema_ok=True
+2026-02-17 22:49:02 INFO dataset: Stage3 created ui_id=u_000401_01 schema_ok=True
+2026-02-17 22:50:21 INFO dataset: Stage3 created ui_id=u_000402_01 schema_ok=True
+2026-02-17 22:51:28 INFO dataset: Stage3 created ui_id=u_000441_01 schema_ok=True
+2026-02-17 22:52:25 INFO dataset: Stage3 created ui_id=u_000442_01 schema_ok=True
+2026-02-17 22:53:44 INFO dataset: Stage3 created ui_id=u_000462_01 schema_ok=True
+2026-02-17 22:55:02 INFO dataset: Stage3 created ui_id=u_000481_01 schema_ok=True
+2026-02-17 22:57:18 INFO dataset: Stage3 created ui_id=u_000482_01 schema_ok=True
+2026-02-17 22:58:39 INFO dataset: Stage3 created ui_id=u_000512_01 schema_ok=True
+2026-02-17 23:00:00 INFO dataset: Stage3 created ui_id=u_000521_01 schema_ok=True
+2026-02-17 23:01:07 INFO dataset: Stage3 created ui_id=u_000522_01 schema_ok=True
+2026-02-17 23:01:55 INFO dataset: Stage3 created ui_id=u_000561_01 schema_ok=True
+2026-02-17 23:02:49 INFO dataset: Stage3 created ui_id=u_000562_01 schema_ok=True
+2026-02-17 23:03:53 INFO dataset: Stage3 created ui_id=u_000601_01 schema_ok=True
+2026-02-17 23:04:53 INFO dataset: Stage3 created ui_id=u_000602_01 schema_ok=True
+2026-02-17 23:06:07 INFO dataset: Stage3 created ui_id=u_000605_01 schema_ok=True
+2026-02-17 23:07:24 INFO dataset: Stage3 created ui_id=u_000641_01 schema_ok=True
+2026-02-17 23:08:47 INFO dataset: Stage3 created ui_id=u_000642_01 schema_ok=True
+2026-02-17 23:10:07 INFO dataset: Stage3 created ui_id=u_000681_01 schema_ok=True
+2026-02-17 23:11:26 INFO dataset: Stage3 created ui_id=u_000682_01 schema_ok=True
+2026-02-17 23:12:09 INFO dataset: Stage3 created ui_id=u_000721_01 schema_ok=True
+2026-02-17 23:12:56 INFO dataset: Stage3 created ui_id=u_000722_01 schema_ok=True
+2026-02-17 23:13:44 INFO dataset: Stage3 created ui_id=u_000761_01 schema_ok=True
+2026-02-17 23:14:32 INFO dataset: Stage3 created ui_id=u_000762_01 schema_ok=True
+2026-02-17 23:15:50 INFO dataset: Stage3 created ui_id=u_000801_01 schema_ok=True
+2026-02-17 23:17:06 INFO dataset: Stage3 created ui_id=u_000802_01 schema_ok=True
+2026-02-17 23:18:18 INFO dataset: Stage3 created ui_id=u_000841_01 schema_ok=True
+2026-02-17 23:19:17 INFO dataset: Stage3 created ui_id=u_000842_01 schema_ok=True
+2026-02-17 23:19:56 INFO dataset: Stage3 created ui_id=u_000881_01 schema_ok=True
+2026-02-17 23:21:14 INFO dataset: Stage3 created ui_id=u_000882_01 schema_ok=True
+2026-02-17 23:22:19 INFO dataset: Stage3 created ui_id=u_000884_01 schema_ok=True
+2026-02-17 23:22:19 INFO dataset: Stage3 completed created=50
+2026-02-17 23:22:20 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_s2_g3pro_s3_20260217_211032\aggregates.json
+2026-02-17 23:22:20 INFO dataset: Stage3 complete.
+2026-02-17 23:22:36 INFO dataset: Stage4 HTTP server started on port 60540
+2026-02-17 23:24:16 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_s2_g3pro_s3_20260217_211032\rendered
+2026-02-18 01:31:54 INFO dataset: Stage4 HTTP server started on port 64102
+2026-02-18 01:31:55 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_s2_g3pro_s3_20260217_211032\rendered
+2026-02-18 02:27:10 INFO dataset: Stage4 HTTP server started on port 63790
+2026-02-18 02:27:11 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_perplexity_s2_g3pro_s3_20260217_211032\rendered

@@ -1,0 +1,591 @@
+
+
+<!DOCTYPE html>
+<html>
+    
+<head>
+    <meta charset="utf-8"/>
+    <title>Datawrapper Academy</title>
+    <meta name="viewport" content="width=device-width, maximum-scale=1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="Learn how to create charts &amp; maps with Datawrapper."/>
+    <meta name="author" content="Datawrapper"/>
+    <link rel="canonical" href="https://academy.datawrapper.de"/>
+    
+
+    
+        <link rel="stylesheet" href="//d3eto7onm69fcz.cloudfront.net/assets/stylesheets/launch-1772463355197.css">
+    
+    <style>
+        body { background: #ffffff; }
+        .navbar .navbar-inner { background: #1d81a2; }
+        .navbar .nav li a, 
+        .navbar .icon-private-w  { color: #ffffff; }
+        .navbar .brand, 
+        .navbar .nav li a:hover, 
+        .navbar .nav li a:focus, 
+        .navbar .nav .active a, 
+        .navbar .nav .active a:hover, 
+        .navbar .nav .active a:focus  { color: #ffffff; }
+        .navbar a:hover .icon-private-w, 
+        .navbar a:focus .icon-private-w, 
+        .navbar .active a .icon-private-w, 
+        .navbar .active a:hover .icon-private-w, 
+        .navbar .active a:focus .icon-private-w { color: #ffffff; }
+        #serp-dd .result a:hover,
+        #serp-dd .result > li.active,
+        #fullArticle strong a,
+        #fullArticle a strong,
+        .collection a,
+        .contentWrapper a,
+        .most-pop-articles .popArticles a,
+        .most-pop-articles .popArticles a:hover span,
+        .category-list .category .article-count,
+        .category-list .category:hover .article-count { color: #2a7dae; }
+        #fullArticle, 
+        #fullArticle p, 
+        #fullArticle ul, 
+        #fullArticle ol, 
+        #fullArticle li, 
+        #fullArticle div, 
+        #fullArticle blockquote, 
+        #fullArticle dd, 
+        #fullArticle table { color:#585858; }
+    </style>
+    
+        <link rel="stylesheet" href="//s3.amazonaws.com/helpscout.net/docs/assets/588089eddd8c8e484b24e90a/attachments/68ee2f05f8464909b5eec96d/14102025_CSS-Academy.css">
+    
+    <link rel="apple-touch-icon-precomposed" href="//d3eto7onm69fcz.cloudfront.net/assets/ico/touch-152.png">
+    <link rel="shortcut icon" type="image/png" href="//d33v4339jhl8k0.cloudfront.net/docs/assets/588089eddd8c8e484b24e90a/images/5c33602504286304a71df235/favicon.ico">
+    <!--[if lt IE 9]>
+    
+        <script src="//d3eto7onm69fcz.cloudfront.net/assets/javascripts/html5shiv.min.js"></script>
+    
+    <![endif]-->
+    
+        <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"WebSite","url":"https://academy.datawrapper.de","potentialAction":{"@type":"SearchAction","target":"https://academy.datawrapper.de/search?query={query}","query-input":"required name=query"}}
+        </script>
+    
+    
+        <!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="https://pwk.datawrapper.de/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '3']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Piwik Code -->
+
+<!-- share image -->
+<meta property="og:image" content="https://cdn.datawrapper.de/img/academy-share.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- end share image-->
+
+<!-- chart template button -->
+<script type="text/javascript">
+var private_charts = ['i4aaQ'];
+window.addEventListener('load', function() {
+  jQuery('iframe[src*="//datawrapper.dwcdn.net"]')
+    .each(function(d) {
+      var el = jQuery(this);
+      var chart_id = el.attr('src').split('/')[3];
+      if (private_charts.indexOf(chart_id) > -1) return;
+      var wrap = el
+        .wrap('<div class="dw-chart-embed"></div>')
+        .parent();
+      wrap.append('<form target="_blank" class="dw-chart-template" action="https://app.datawrapper.de/create/" method="post"><input type="hidden" name="template" value="'+chart_id+'"><input type="submit" value="✎ Edit this chart"></form>');
+    });
+});
+</script>
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+<script type="text/javascript">
+    (function() {
+        var desktopNav = true;
+        var mobileNav = true;
+        var mobileBreakpoint = 769
+        findNav();
+        function findNav() {
+            if (mobileNav && desktopNav) return;
+            if (!mobileNav && window.outerWidth < mobileBreakpoint) {
+                mobileNav = document.querySelector('.btn-navbar');
+                if (!mobileNav) {
+                    return setTimeout(findNav, 10);
+                }
+                var outer = document.createElement('div');
+                outer.classList.add('hiring-mobile');
+                outer.appendChild(createHiringLink());
+                mobileNav.parentElement.insertBefore(outer, mobileNav);
+            }
+
+            document.querySelector('.academy-link') && document.querySelector('.academy-link').remove();
+            if (window.outerWidth > mobileBreakpoint) {    
+                var link = document.createElement('a'); 
+                link.href = "https://academy.datawrapper.de"; 
+                link.textContent = "Academy"; 
+                link.className = "academy-link";
+                document.querySelector('.brand') && document.querySelector('.brand').appendChild(link);
+            }
+
+            if (!desktopNav && window.outerWidth >= mobileBreakpoint) {
+                desktopNav = document.querySelector('.nav');
+                if (!desktopNav) {
+                    return setTimeout(findNav, 10);
+                }
+
+                a = createBlogLink();
+                var li = document.createElement('li');
+                li.classList.add('hiring-desktop');
+                li.id = 'hiring';
+                li.appendChild(a);
+                desktopNav.prepend(li);
+
+                a = createHiringLink('desktop');
+                var li = document.createElement('li');
+                li.classList.add('hiring-desktop');
+                li.id = 'hiring';
+                li.appendChild(a);
+                desktopNav.prepend(li);
+            }
+        }
+
+        window.addEventListener('resize', findNav);
+
+        function createHiringLink() {
+            var a = document.createElement('a');
+            a.href = 'https://www.datawrapper.de/careers';
+            a.innerText = "We're Hiring!";
+            a.target = '_blank';
+            return a;
+        }
+
+        function createBlogLink() {
+            var a = document.createElement('a');
+            a.href = 'https://blog.datawrapper.de';
+            a.innerText = "Blog";
+            a.target = '_blank';
+            return a;
+        }
+    })();
+</script>
+
+<style>
+.hiring-mobile {
+    display: flex;
+    justify-content: flex-end;
+    flex-grow: 1;
+    white-space: nowrap;
+    margin-top: 37px;
+    margin-right: 61px;
+}
+.hiring-mobile a {
+   color: #1d81a2;
+}
+@media (max-width: 325px) {
+  .hiring-mobile {
+     display:none!important;
+  }
+}
+@media (max-width: 768px) {
+    .hiring-desktop {
+         display:none!important;
+    }
+}
+@media (min-width: 768px) {
+  .hiring-mobile {
+       display:none!important;
+  }
+}
+</style>
+
+<script type="text/javascript">
+// JavaScript snippet to insert a custom contact us link
+window.addEventListener('load', function() {
+  var footer = document.querySelector('section.articleFoot');
+  if (!footer) return;
+  var div = document.createElement('span');
+	div.innerHTML = '<i class="icon-contact"></i><p class="help">Still need help? <a id="sbContact" class="contactUs" href="mailto:support@datawrapper.de?subject=Re:%20'+encodeURI(document.title)+'&body='+encodeURI('\n\n\n--\nSent via  '+window.location.href)+'">Contact Us</a></p>';
+  footer.insertBefore(div, 	footer.querySelector('time'));
+});
+</script>
+
+<script type="text/javascript">
+//Javascript snippet for height resizing
+!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();</script>
+    
+</head>
+    <body>
+        <script>
+            window.onload = function() {
+                $("#searchBar input.search-query" ).focus();
+            };
+        </script>
+        
+<header id="mainNav" class="navbar">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="brand" href="https://www.datawrapper.de">
+            
+                
+                    <img src="//d33v4339jhl8k0.cloudfront.net/docs/assets/588089eddd8c8e484b24e90a/images/5ff49daffd168b7773531c6a/datawrapper-logo-academy.png" alt="Datawrapper Academy" width="220" height="75">
+                
+
+            
+            </a>
+            
+                <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="sr-only">Toggle Navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            
+            <div class="nav-collapse collapse">
+                <nav role="navigation"><!-- added for accessibility -->
+                <ul class="nav">
+                    
+                        <li id="home" class="active"><a href="/">Academy <b class="caret"></b></a></li>
+                    
+                    
+                    
+                </ul>
+                </nav>
+            </div><!--/.nav-collapse -->
+        </div><!--/container-->
+    </div><!--/navbar-inner-->
+</header>
+        <section id="docsSearch">
+            
+                <h1>Welcome to the Datawrapper Academy!</h1>
+            
+             
+
+<form action="/search" method="GET" id="searchBar" autocomplete="off">
+    
+                <input type="text" name="query" title="search-query" class="search-query" placeholder="Search the knowledge base" aria-label="Search the knowledge base" value="">
+                <button type="submit" aria-label="Search"><i class="icon-search lp"></i><span>Search</span></button>
+                <div id="serp-dd" style="display:none;">
+                    <ul class="result"></ul>
+                </div>
+            
+</form>
+
+        </section><!--/docsSearch-->
+        <section id="contentArea" class="container-fluid">
+            
+
+    <div id="noResults" style="display:none;">No results found</div>
+    
+        <!-- Site has only one collection -->
+        
+            
+                
+                    <section class="category-list">
+                        
+                            
+                                <a class="category" id="category-141" href="/category/141-general">
+                                    <h3>Welcome!</h3>
+                                    <p>Your first chart, what&#x27;s Datawrapper &amp; a tour through it.</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">11</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-74" href="/category/74-bar-charts">
+                                    <h3>Bar charts</h3>
+                                    <p>Bar charts, stacked, bullet, split &amp; grouped bar charts.</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">17</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-75" href="/category/75-column-charts">
+                                    <h3>Column charts</h3>
+                                    <p>Column charts, grouped &amp; stacked column charts</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">16</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-76" href="/category/76-line-area-charts">
+                                    <h3>Line &amp; Area charts</h3>
+                                    <p>Line charts, area charts and slope charts</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">21</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-78" href="/category/78-pie-donut-charts">
+                                    <h3>Pie &amp; Donut charts</h3>
+                                    <p>Pie charts, donut charts, multiple pie charts &amp; multiple donut charts</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">12</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-79" href="/category/79-scatterplots">
+                                    <h3>Scatter plots</h3>
+                                    <p>Create and customize scatterplots, set annotations &amp; add custom lines</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">13</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-112" href="/category/112-dot-charts">
+                                    <h3>Dot charts</h3>
+                                    <p>Dot plots, range plots &amp; arrow plots. (Not sure what they are? Find out here!)</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">9</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-77" href="/category/77-tables">
+                                    <h3>Tables</h3>
+                                    <p>Create and customize tables and add bar charts, images &amp; links to them</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">13</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-93" href="/category/93-maps">
+                                    <h3>Choropleth  maps</h3>
+                                    <p>How to use choropleth maps: pro tips, examples and how to&#x27;s</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">22</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-278" href="/category/278-symbol-maps">
+                                    <h3>Symbol maps</h3>
+                                    <p>How to use symbol maps: pro tips, examples and how to&#x27;s</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">18</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-160" href="/category/160-locator-maps">
+                                    <h3>Locator maps</h3>
+                                    <p>Create and customize locator maps, import areas &amp; create tooltips</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">28</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-178" href="/category/178-example-charts-maps">
+                                    <h3>Example visualizations</h3>
+                                    <p>Examples of Datawrapper line, area, pie charts, scatterplots &amp; maps</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">20</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-210" href="/category/210-teams">
+                                    <h3>Workspaces &amp; Teams</h3>
+                                    <p>What are workspaces and teams, how to create, configure, and collaborate with them.</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">28</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-277" href="/category/277-custom-enterprise-features">
+                                    <h3>Custom &amp; Enterprise features</h3>
+                                    <p>Custom design themes, self-hosting, automatic image publishing, and more</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">14</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-171" href="/category/171-exporting-charts">
+                                    <h3>Exporting charts</h3>
+                                    <p>How to embed charts in Medium or Wordpress and how to export them</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">15</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-83" href="/category/83-troubleshooting">
+                                    <h3>Troubleshooting</h3>
+                                    <p>Something doesn&#x27;t work? Look for the answers here.</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">27</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-318" href="/category/318-live-updating-visualizations">
+                                    <h3>Live-updating visualizations</h3>
+                                    <p>How to create charts and maps that automatically update live.</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">11</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-251" href="/category/251-datawrapper-pro-tips">
+                                    <h3>Datawrapper Pro Tips</h3>
+                                    <p>Organization, links, HTML, tooltips, images – get to the next level.</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">29</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-100" href="/category/100-sources">
+                                    <h3>Using data sources</h3>
+                                    <p>How to use the River/Google Trends &amp; how to extract data out of a PDF</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">4</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-87" href="/category/87-upload-data">
+                                    <h3>Uploading &amp; changing data</h3>
+                                    <p>Which kind of data Datawrapper accepts &amp; how to change it</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">16</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                            
+                                <a class="category" id="category-224" href="/category/224-displaying-data">
+                                    <h3>Displaying data</h3>
+                                    <p>How to change the way Datawrapper shows your dates and numbers</p>
+                                    <p class="article-count">                                        
+                                        
+                                            <span class="notranslate">6</span> articles
+                                                                                
+                                    </p>
+                                </a><!-- /category -->
+                            
+                        
+                    </section><!-- /category-list -->
+                
+            
+        
+    
+
+            <footer class="center">
+                
+
+<p>&copy;
+    
+        <a href="https://www.datawrapper.de">Datawrapper</a>
+    
+    2026. <span>Powered by <a rel="nofollow noopener noreferrer" href="https://www.helpscout.com/docs-refer/?co=Datawrapper&utm_source=docs&utm_medium=footerlink&utm_campaign=Docs+Branding" target="_blank">Help Scout</a></span>
+    
+        
+    
+</p>
+
+            </footer>
+        </section><!--/.fluid-container-->
+        
+        
+    <script src="//d3eto7onm69fcz.cloudfront.net/assets/javascripts/app4.min.js"></script>
+
+<script>
+// keep iOS links from opening safari
+if(("standalone" in window.navigator) && window.navigator.standalone){
+// If you want to prevent remote links in standalone web apps opening Mobile Safari, change 'remotes' to true
+var noddy, remotes = false;
+document.addEventListener('click', function(event) {
+noddy = event.target;
+while(noddy.nodeName !== "A" && noddy.nodeName !== "HTML") {
+noddy = noddy.parentNode;
+}
+
+if('href' in noddy && noddy.href.indexOf('http') !== -1 && (noddy.href.indexOf(document.location.host) !== -1 || remotes)){
+event.preventDefault();
+document.location.href = noddy.href;
+}
+
+},false);
+}
+</script>
+    </body>
+</html>

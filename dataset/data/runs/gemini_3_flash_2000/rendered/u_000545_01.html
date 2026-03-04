@@ -1,0 +1,1525 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>GenUICraft Lit Render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f5f5f7;
+        color: #101114;
+      }
+
+      #surfaces {
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.tokens.css" />
+    <link rel="stylesheet" href="../../../../renderer/lit/themes/oneui.overrides.css" />
+  </head>
+  <body>
+    <div id="surfaces"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "../../../../renderer/lit/vendor/lit/index.js",
+          "lit/": "../../../../renderer/lit/vendor/lit/",
+          "lit-html": "../../../../renderer/lit/vendor/lit-html/lit-html.js",
+          "lit-html/": "../../../../renderer/lit/vendor/lit-html/",
+          "lit-element/": "../../../../renderer/lit/vendor/lit-element/",
+          "@lit/context": "../../../../renderer/lit/vendor/@lit/context/index.js",
+          "@lit/context/": "../../../../renderer/lit/vendor/@lit/context/",
+          "@lit/reactive-element": "../../../../renderer/lit/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "../../../../renderer/lit/vendor/@lit/reactive-element/",
+          "@lit-labs/signals": "../../../../renderer/lit/vendor/@lit-labs/signals/index.js",
+          "@lit-labs/signals/": "../../../../renderer/lit/vendor/@lit-labs/signals/",
+          "signal-utils": "../../../../renderer/lit/vendor/signal-utils/runtime/index.js",
+          "signal-utils/array": "../../../../renderer/lit/vendor/signal-utils/runtime/array.js",
+          "signal-utils/map": "../../../../renderer/lit/vendor/signal-utils/runtime/map.js",
+          "signal-utils/object": "../../../../renderer/lit/vendor/signal-utils/runtime/object.js",
+          "signal-utils/set": "../../../../renderer/lit/vendor/signal-utils/runtime/set.js",
+          "signal-utils/subtle/microtask-effect": "../../../../renderer/lit/vendor/signal-utils/runtime/subtle/microtask-effect.js",
+          "signal-polyfill": "../../../../renderer/lit/vendor/signal-polyfill/runtime/index.js",
+          "signal-polyfill/": "../../../../renderer/lit/vendor/signal-polyfill/runtime/",
+          "markdown-it": "../../../../renderer/lit/vendor/markdown-it/index.mjs",
+          "markdown-it/": "../../../../renderer/lit/vendor/markdown-it/",
+          "linkify-it": "../../../../renderer/lit/vendor/linkify-it/index.mjs",
+          "linkify-it/": "../../../../renderer/lit/vendor/linkify-it/",
+          "mdurl": "../../../../renderer/lit/vendor/mdurl/index.mjs",
+          "mdurl/": "../../../../renderer/lit/vendor/mdurl/",
+          "uc.micro": "../../../../renderer/lit/vendor/uc.micro/index.mjs",
+          "uc.micro/": "../../../../renderer/lit/vendor/uc.micro/",
+          "punycode.js": "../../../../renderer/lit/vendor/punycode.js/punycode.es6.js",
+          "punycode.js/": "../../../../renderer/lit/vendor/punycode.js/",
+          "entities": "../../../../renderer/lit/vendor/entities/lib/esm/index.js",
+          "entities/": "../../../../renderer/lit/vendor/entities/lib/esm/"
+        }
+      }
+    </script>
+    <script>
+      window.__GenUICraft_MESSAGES__ = [{"beginRendering": {"root": "root", "surfaceId": "debt-snowball-plan"}}, {"surfaceUpdate": {"surfaceId": "debt-snowball-plan", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["header", "summary_card", "inventory_title", "inventory_col", "schedule_title", "schedule_col", "timeline_text", "checklist_title", "checklist_col", "actions_row", "sources_text"]}}}}, {"id": "header", "component": {"Text": {"text": {"literalString": "Debt Snowball Strategy"}, "usageHint": "h2"}}}, {"id": "summary_card", "component": {"Card": {"child": "summary_col"}}}, {"id": "summary_col", "component": {"Column": {"children": {"explicitList": ["summary_text"]}}}}, {"id": "summary_text", "component": {"Text": {"text": {"literalString": "Total Debt: $25,000 | Estimated Payoff: 18 months"}, "usageHint": "body"}}}, {"id": "inventory_title", "component": {"Text": {"text": {"literalString": "Debt Inventory"}, "usageHint": "h3"}}}, {"id": "inventory_col", "component": {"Column": {"children": {"explicitList": []}}}}, {"id": "schedule_title", "component": {"Text": {"text": {"literalString": "Payment Schedule"}, "usageHint": "h3"}}}, {"id": "schedule_col", "component": {"Column": {"children": {"explicitList": []}}}}, {"id": "timeline_text", "component": {"Text": {"text": {"literalString": "Projected debt-free date: December 2025"}, "usageHint": "body"}}}, {"id": "checklist_title", "component": {"Text": {"text": {"literalString": "Next Steps"}, "usageHint": "h3"}}}, {"id": "checklist_col", "component": {"Column": {"children": {"explicitList": []}}}}, {"id": "actions_row", "component": {"Row": {"children": {"explicitList": []}}}}, {"id": "sources_text", "component": {"Text": {"text": {"literalString": "Calculations based on the Debt Snowball method."}, "usageHint": "caption"}}}]}}];
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_QUEUE = [];
+      window.__GenUICraft_RENDER_DONE = false;
+      window.renderA2uiMessages = (payload, reset) => {
+        window.__GenUICraft_QUEUE.push({ payload, reset });
+      };
+    </script>
+    <script type="module">
+      const container = document.getElementById("surfaces");
+      const assetBase = new URL("../../../../renderer/lit/", window.location.href).href;
+      const assetVersion = "20260217.2";
+
+      function withCacheBust(url) {
+        const parsed = new URL(url, window.location.href);
+        parsed.searchParams.set("_v", assetVersion);
+        return parsed.href;
+      }
+
+      function setStatus(message, details = null) {
+        container.innerHTML = "";
+        const note = document.createElement("div");
+        note.textContent = message;
+        note.style.padding = "16px";
+        note.style.color = "#b00020";
+        note.style.fontSize = "14px";
+        note.style.fontWeight = "700";
+        container.appendChild(note);
+
+        if (!details) {
+          return;
+        }
+
+        const detailBox = document.createElement("pre");
+        detailBox.textContent = details;
+        detailBox.style.margin = "0 16px 16px";
+        detailBox.style.padding = "12px";
+        detailBox.style.border = "1px solid #f1c6cc";
+        detailBox.style.borderRadius = "8px";
+        detailBox.style.background = "#fff7f8";
+        detailBox.style.color = "#5c1f28";
+        detailBox.style.fontSize = "12px";
+        detailBox.style.lineHeight = "1.45";
+        detailBox.style.whiteSpace = "pre-wrap";
+        detailBox.style.wordBreak = "break-word";
+        container.appendChild(detailBox);
+      }
+
+      function formatErrorDetails(err) {
+        const lines = [];
+        if (typeof err === "string") {
+          lines.push(err);
+        } else if (err && typeof err === "object") {
+          const name = typeof err.name === "string" ? err.name : "Error";
+          const message =
+            typeof err.message === "string"
+              ? err.message
+              : "No error message provided.";
+          lines.push(`${name}: ${message}`);
+          if (typeof err.stack === "string" && err.stack.trim()) {
+            lines.push("");
+            lines.push(err.stack);
+          } else {
+            try {
+              lines.push("");
+              lines.push(JSON.stringify(err, null, 2));
+            } catch (_jsonErr) {
+              // no-op
+            }
+          }
+        } else {
+          lines.push("Unknown renderer error.");
+        }
+
+        lines.push("");
+        lines.push(`Page URL: ${window.location.href}`);
+        lines.push(`Asset Base: ${assetBase}`);
+        return lines.join("\n");
+      }
+
+      async function collectAssetDiagnostics() {
+        const urls = [
+          new URL("vendor/a2ui/index.js", assetBase).href,
+          new URL("vendor/a2ui/0.8/index.js", assetBase).href,
+          new URL("vendor/a2ui/0.8/core.js", assetBase).href,
+          new URL("vendor/a2ui/0.8/ui/ui.js", assetBase).href,
+          new URL("vendor/lit/index.js", assetBase).href,
+          new URL("themes/oneui.tokens.css", assetBase).href,
+          new URL("themes/oneui.overrides.css", assetBase).href
+        ].map((url) => withCacheBust(url));
+
+        const lines = ["Asset fetch diagnostics:"];
+        for (const url of urls) {
+          try {
+            let method = "HEAD";
+            let response = await fetch(url, { method, cache: "no-store" });
+
+            if (response.status === 405 || response.status === 501) {
+              method = "GET";
+              response = await fetch(url, { method, cache: "no-store" });
+            }
+
+            const contentType = response.headers.get("content-type") || "unknown";
+            lines.push(
+              `- ${response.status} ${response.ok ? "OK" : "FAIL"} [${method}] :: ${url} :: content-type=${contentType}`
+            );
+          } catch (fetchErr) {
+            const fetchMsg =
+              fetchErr && typeof fetchErr === "object" && "message" in fetchErr
+                ? String(fetchErr.message)
+                : String(fetchErr);
+            lines.push(`- FETCH_ERROR :: ${url} :: ${fetchMsg}`);
+          }
+        }
+
+        lines.push("");
+        lines.push("Note:");
+        lines.push("- 501/405 on HEAD can be server-specific and not fatal; GET status is the real check.");
+        lines.push("");
+        lines.push("Server root hint:");
+        lines.push("- Serve from the `dataset` folder so `/renderer/lit/...` is reachable.");
+        lines.push("- Or use: `python src/main.py --stage 4 ...` and open files from that run.");
+        return lines.join("\n");
+      }
+
+      function describeImportError(err) {
+        if (!err) {
+          return "Unknown error";
+        }
+        if (typeof err === "string") {
+          return err;
+        }
+        if (typeof err === "object") {
+          const name = typeof err.name === "string" ? err.name : "Error";
+          const message = typeof err.message === "string" ? err.message : "No message";
+          return `${name}: ${message}`;
+        }
+        return String(err);
+      }
+
+      async function loadA2uiRuntime() {
+        const uiUrl = withCacheBust(new URL("vendor/a2ui/0.8/ui/ui.js", assetBase).href);
+        const candidates = [
+          {
+            label: "vendor/a2ui/index.js",
+            url: withCacheBust(new URL("vendor/a2ui/index.js", assetBase).href),
+            pick: (module) => module?.v0_8
+          },
+          {
+            label: "vendor/a2ui/0.8/index.js",
+            url: withCacheBust(new URL("vendor/a2ui/0.8/index.js", assetBase).href),
+            pick: (module) => module
+          }
+        ];
+        const loaderErrors = [];
+
+        for (const candidate of candidates) {
+          try {
+            const module = await import(candidate.url);
+            const resolved = candidate.pick(module);
+            if (!resolved || !resolved.UI || !resolved.Data) {
+              throw new Error("Resolved module missing expected UI/Data exports.");
+            }
+            await import(uiUrl);
+            return resolved;
+          } catch (candidateErr) {
+            loaderErrors.push(`- ${candidate.label}: ${describeImportError(candidateErr)}`);
+          }
+        }
+
+        const error = new Error(
+          `Unable to import A2UI runtime.\n${loaderErrors.join("\n")}`
+        );
+        error.name = "A2UIImportError";
+        throw error;
+      }
+
+      function parseMessages(payload) {
+        return typeof payload === "string" ? JSON.parse(payload) : payload;
+      }
+
+      function createDefaultTheme() {
+        const empty = {};
+        const emptyList = [];
+        const textBase = {
+          "font-family":
+            '"SamsungOne", "SamsungOneKorean", "Segoe UI", Roboto, system-ui, sans-serif',
+          color: "var(--oneui-color-on-surface)"
+        };
+        return {
+          components: {
+            AudioPlayer: empty,
+            Button: empty,
+            Card: empty,
+            Column: empty,
+            CheckBox: { container: empty, element: empty, label: empty },
+            DateTimeInput: { container: empty, element: empty, label: empty },
+            Divider: empty,
+            Image: {
+              all: empty,
+              icon: empty,
+              avatar: empty,
+              smallFeature: empty,
+              mediumFeature: empty,
+              largeFeature: empty,
+              header: empty
+            },
+            Icon: empty,
+            List: empty,
+            Modal: { backdrop: empty, element: empty },
+            MultipleChoice: { container: empty, element: empty, label: empty },
+            Row: empty,
+            Slider: { container: empty, element: empty, label: empty },
+            Tabs: { container: empty, element: empty, controls: { all: empty, selected: empty } },
+            Text: {
+              all: empty,
+              h1: empty,
+              h2: empty,
+              h3: empty,
+              h4: empty,
+              h5: empty,
+              caption: empty,
+              body: empty
+            },
+            TextField: { container: empty, element: empty, label: empty },
+            Video: empty
+          },
+          elements: {
+            a: empty,
+            audio: empty,
+            body: empty,
+            button: empty,
+            h1: empty,
+            h2: empty,
+            h3: empty,
+            h4: empty,
+            h5: empty,
+            iframe: empty,
+            input: empty,
+            p: empty,
+            pre: empty,
+            textarea: empty,
+            video: empty
+          },
+          markdown: {
+            p: emptyList,
+            h1: emptyList,
+            h2: emptyList,
+            h3: emptyList,
+            h4: emptyList,
+            h5: emptyList,
+            ul: emptyList,
+            ol: emptyList,
+            li: emptyList,
+            a: emptyList,
+            strong: emptyList,
+            em: emptyList
+          },
+          additionalStyles: {
+            Column: {
+              gap: "14px"
+            },
+            Row: {
+              gap: "12px",
+              "align-items": "center",
+              "flex-wrap": "wrap"
+            },
+            List: {
+              gap: "12px"
+            },
+            Card: {
+              background: "#ffffff",
+              border: "1px solid #d7e2f0",
+              "border-radius": "24px",
+              "overflow": "hidden",
+              padding: "16px",
+              "box-shadow": "0 6px 16px rgba(15, 23, 42, 0.08)"
+            },
+            Button: {
+              background: "#0072de",
+              color: "#fafafa",
+              "--oneui-color-on-surface": "#fafafa",
+              "--oneui-color-on-surface-variant": "#fafafa",
+              border: "1px solid #0065c4",
+              "border-radius": "999px",
+              "min-height": "30px",
+              padding: "4px 11px",
+              "font-weight": "700",
+              "font-size": "0.82rem",
+              "line-height": "1",
+              "letter-spacing": "0.01em",
+              "box-shadow": "0 6px 14px rgba(0, 114, 222, 0.28)",
+              cursor: "pointer",
+              transition:
+                "transform 120ms ease, box-shadow 150ms ease, filter 120ms ease, background-color 120ms ease",
+              transform: "translateZ(0)",
+              "user-select": "none"
+            },
+            Divider: {
+              "border-color": "var(--oneui-color-outline-variant)",
+              margin: "8px 0"
+            },
+            Image: {
+              "border-radius": "24px",
+              "object-fit": "cover"
+            },
+            Icon: {
+              color: "var(--oneui-color-primary)"
+            },
+            Text: {
+              h1: {
+                ...textBase,
+                "font-size": "2rem",
+                "line-height": "2.4rem",
+                "font-weight": "800"
+              },
+              h2: {
+                ...textBase,
+                "font-size": "1.5rem",
+                "line-height": "2rem",
+                "font-weight": "700"
+              },
+              h3: {
+                ...textBase,
+                "font-size": "1.25rem",
+                "line-height": "1.8rem",
+                "font-weight": "700"
+              },
+              h4: {
+                ...textBase,
+                "font-size": "1.05rem",
+                "line-height": "1.5rem",
+                "font-weight": "700"
+              },
+              h5: {
+                ...textBase,
+                "font-size": "0.94rem",
+                "line-height": "1.35rem",
+                "font-weight": "700"
+              },
+              h6: {
+                ...textBase,
+                "font-size": "0.875rem",
+                "line-height": "1.25rem",
+                "font-weight": "700"
+              },
+              caption: {
+                ...textBase,
+                "font-size": "0.8rem",
+                "line-height": "1.2rem",
+                color: "var(--oneui-color-on-surface-variant)"
+              },
+              body: {
+                ...textBase,
+                "font-size": "1rem",
+                "line-height": "1.5rem"
+              }
+            }
+          }
+        };
+      }
+
+      async function init() {
+        try {
+          const v0_8 = await loadA2uiRuntime();
+          const theme = createDefaultTheme();
+          window.addEventListener("context-request", (event) => {
+            const contextKey = event.context ?? event.detail?.context;
+            if (
+              contextKey !== v0_8.UI.Context.themeContext &&
+              contextKey !== "GenUICraftTheme"
+            ) {
+              return;
+            }
+            event.stopPropagation();
+            const callback = event.callback ?? event.detail?.callback;
+            if (typeof callback === "function") {
+              callback(theme);
+            }
+          });
+          const processor = v0_8.Data.createSignalA2uiMessageProcessor
+            ? v0_8.Data.createSignalA2uiMessageProcessor()
+            : new v0_8.Data.A2uiMessageProcessor();
+
+          function resolveDynamicValue(value) {
+            if (value === null || value === undefined) {
+              return null;
+            }
+            if (
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              return String(value);
+            }
+            if (typeof value === "object") {
+              if (typeof value.literalString === "string") {
+                return value.literalString;
+              }
+              if (typeof value.literalNumber === "number") {
+                return String(value.literalNumber);
+              }
+              if (typeof value.literalBoolean === "boolean") {
+                return String(value.literalBoolean);
+              }
+              if (typeof value.value === "string") {
+                return value.value;
+              }
+            }
+            return null;
+          }
+
+          function extractOpenUrl(action) {
+            if (!action || typeof action !== "object") {
+              return null;
+            }
+            const actionName = String(action.name || action.call || "");
+            if (actionName !== "openUrl") {
+              return null;
+            }
+
+            const context = action.context;
+            if (Array.isArray(context)) {
+              for (const entry of context) {
+                if (!entry || typeof entry !== "object") {
+                  continue;
+                }
+                if (entry.key === "url" || entry.name === "url") {
+                  const resolved = resolveDynamicValue(
+                    entry.value ?? entry.url ?? entry.literalString
+                  );
+                  if (resolved) {
+                    return resolved.trim();
+                  }
+                }
+              }
+            } else if (context && typeof context === "object") {
+              const resolved = resolveDynamicValue(context.url);
+              if (resolved) {
+                return resolved.trim();
+              }
+            }
+
+            const direct = resolveDynamicValue(action.url);
+            return direct ? direct.trim() : null;
+          }
+
+          window.addEventListener("a2uiaction", (event) => {
+            const payload = event?.detail ?? event?.payload;
+            const action = payload?.action;
+            const url = extractOpenUrl(action);
+            if (!url || !/^https?:\/\//i.test(url)) {
+              return;
+            }
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            try {
+              window.open(url, "_blank", "noopener,noreferrer");
+            } catch (_err) {
+              window.location.href = url;
+            }
+          });
+
+          function renderSurfaces() {
+            container.innerHTML = "";
+            for (const [surfaceId, surface] of processor.getSurfaces()) {
+              const el = document.createElement("a2ui-surface");
+              el.surfaceId = surfaceId;
+              el.surface = surface;
+              el.processor = processor;
+              container.appendChild(el);
+            }
+          }
+
+          const unavailableImageHashSet = new Set([
+            // Placeholder PNG that renders: "The image you are requesting does not exist..."
+            "9b5936f4006146e4e1e9025b474c02863c0b5614132ad40db4b925a10e8bfbb9"
+          ]);
+          const unavailableImageCache = new Map();
+
+          async function sha256Hex(arrayBuffer) {
+            const digest = await crypto.subtle.digest("SHA-256", arrayBuffer);
+            const bytes = new Uint8Array(digest);
+            return Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          }
+
+          async function isUnavailablePlaceholderFromUrl(src) {
+            if (!src || typeof src !== "string" || src.startsWith("data:")) {
+              return false;
+            }
+            if (unavailableImageCache.has(src)) {
+              return unavailableImageCache.get(src);
+            }
+            const checkPromise = (async () => {
+              try {
+                const response = await fetch(src, { cache: "force-cache" });
+                if (!response.ok) {
+                  return false;
+                }
+                const body = await response.arrayBuffer();
+                // Fast guard for tiny placeholder images.
+                if (body.byteLength > 8192) {
+                  return false;
+                }
+                const hash = await sha256Hex(body);
+                return unavailableImageHashSet.has(hash);
+              } catch (_err) {
+                return false;
+              }
+            })();
+            unavailableImageCache.set(src, checkPromise);
+            return checkPromise;
+          }
+
+          function waitForImageSettle(img, timeoutMs) {
+            if (!img || img.complete) {
+              return Promise.resolve();
+            }
+            return new Promise((resolve) => {
+              let done = false;
+              const finish = () => {
+                if (done) {
+                  return;
+                }
+                done = true;
+                resolve();
+              };
+              img.addEventListener("load", finish, { once: true });
+              img.addEventListener("error", finish, { once: true });
+              setTimeout(finish, timeoutMs);
+            });
+          }
+
+          function collectImageHostsDeep(rootNode) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === "a2ui-image") {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          async function markMissingImages() {
+            const hosts = collectImageHostsDeep(container);
+            await Promise.all(
+              hosts.map(async (host) => {
+                const sr = host.shadowRoot;
+                if (!sr) {
+                  return;
+                }
+                let missing = false;
+                const srText = (sr.textContent || "").trim();
+                if (
+                  srText === "(empty)" ||
+                  srText === "(no model)" ||
+                  srText === "Invalid image URL"
+                ) {
+                  missing = true;
+                }
+                if (
+                  /image you are requesting/i.test(srText) &&
+                  /does not exist|no longer available/i.test(srText)
+                ) {
+                  host.dataset.genuiImageUnavailable = "1";
+                }
+
+                const imgs = Array.from(sr.querySelectorAll("img"));
+                if (imgs.length) {
+                  await Promise.all(
+                    imgs.map(async (img) => {
+                      await waitForImageSettle(img, 1200);
+                      if (!img.naturalWidth || !img.naturalHeight) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageBroken = "1";
+                        return;
+                      }
+                      const src = img.currentSrc || img.src || "";
+                      if (await isUnavailablePlaceholderFromUrl(src)) {
+                        img.style.display = "none";
+                        host.dataset.genuiImageUnavailable = "1";
+                      }
+                    })
+                  );
+                }
+
+                const unavailablePlaceholder = host.dataset.genuiImageUnavailable === "1";
+                const broken = host.dataset.genuiImageBroken === "1";
+                const usageHint = String(
+                  host.usageHint || host.getAttribute("usage-hint") || ""
+                ).toLowerCase();
+                const isIconHint = usageHint === "icon";
+
+                if (isIconHint) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-unavailable");
+                  if (unavailablePlaceholder || missing || broken) {
+                    host.classList.add("genui-image-missing-icon");
+                    host.style.display = "none";
+                  } else {
+                    host.classList.remove("genui-image-missing-icon");
+                    host.style.display = "";
+                  }
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                  return;
+                }
+
+                if (unavailablePlaceholder) {
+                  host.classList.add("genui-image-unavailable");
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.style.display = "none";
+                  delete host.dataset.genuiImageBroken;
+                  return;
+                }
+
+                if (missing || broken) {
+                  host.classList.add("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                } else if (!sr.querySelector("img")) {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                } else {
+                  host.classList.remove("genui-image-missing");
+                  host.classList.remove("genui-image-missing-icon");
+                  host.classList.remove("genui-image-unavailable");
+                  host.style.display = "";
+                  delete host.dataset.genuiImageBroken;
+                  delete host.dataset.genuiImageUnavailable;
+                }
+              })
+            );
+          }
+
+          function collectHostsDeep(rootNode, tagNameLower) {
+            const results = [];
+            const stack = [rootNode];
+            while (stack.length) {
+              const node = stack.pop();
+              if (!node) {
+                continue;
+              }
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node;
+                if (el.tagName && el.tagName.toLowerCase() === tagNameLower) {
+                  results.push(el);
+                }
+                if (el.shadowRoot) {
+                  stack.push(el.shadowRoot);
+                }
+                if (el.children && el.children.length) {
+                  for (let i = 0; i < el.children.length; i += 1) {
+                    stack.push(el.children[i]);
+                  }
+                }
+              } else if (node instanceof ShadowRoot || node instanceof DocumentFragment) {
+                if (node.children && node.children.length) {
+                  for (let i = 0; i < node.children.length; i += 1) {
+                    stack.push(node.children[i]);
+                  }
+                }
+              }
+            }
+            return results;
+          }
+
+          function getDirectElementChildren(host) {
+            if (!host || !host.children) {
+              return [];
+            }
+            return Array.from(host.children).filter(
+              (child) => child && child.nodeType === Node.ELEMENT_NODE
+            );
+          }
+
+          function parseHostWeight(host) {
+            const styleWeight = Number(
+              String(host?.style?.getPropertyValue('--weight') || '').trim()
+            );
+            if (Number.isFinite(styleWeight) && styleWeight > 0) {
+              return styleWeight;
+            }
+
+            const weightRaw =
+              host?.component?.properties?.weight ??
+              host?.component?.weight ??
+              host?.getAttribute('weight');
+            const parsed = Number(weightRaw);
+            if (Number.isFinite(parsed) && parsed > 0) {
+              return parsed;
+            }
+            return 1;
+          }
+
+          function getGridTemplateFromWeights(rowHost) {
+            const cells = getDirectElementChildren(rowHost);
+            const weights = cells.map((cell) => parseHostWeight(cell));
+            return weights.map((weight) => `${weight}fr`).join(' ');
+          }
+
+          function isBorderlessButtonHost(host) {
+            const variant = String(
+              host?.component?.properties?.variant ??
+                host?.component?.variant ??
+                host?.getAttribute('variant') ??
+                ''
+            ).toLowerCase();
+            return variant === 'borderless';
+          }
+
+          function isIconImageHost(host) {
+            const usageHint = String(
+              host?.usageHint ??
+                host?.component?.properties?.usageHint ??
+                host?.component?.usageHint ??
+                host?.component?.properties?.variant ??
+                host?.component?.variant ??
+                host?.getAttribute('usage-hint') ??
+                host?.getAttribute('variant') ??
+                ''
+            ).toLowerCase();
+            return usageHint === 'icon' || usageHint === 'avatar';
+          }
+
+          function updateButtonVisualState(buttonEl) {
+            const kind = buttonEl.dataset.genuiBtnKind || 'primary';
+            const hovered = buttonEl.dataset.genuiHovered === '1';
+            const pressed = buttonEl.dataset.genuiPressed === '1';
+            const focusVisible = buttonEl.dataset.genuiFocusVisible === '1';
+
+            if (kind === 'borderless') {
+              buttonEl.style.transform = 'translateZ(0)';
+              buttonEl.style.filter = 'none';
+              buttonEl.style.boxShadow = 'none';
+              buttonEl.style.background = 'transparent';
+              buttonEl.style.border = 'none';
+              buttonEl.style.textDecoration = hovered ? 'underline' : 'none';
+              buttonEl.style.textUnderlineOffset = '0.2em';
+              buttonEl.style.outline = focusVisible
+                ? '2px solid rgba(0, 114, 222, 0.35)'
+                : 'none';
+              buttonEl.style.outlineOffset = '3px';
+              return;
+            }
+
+            if (pressed) {
+              buttonEl.style.background = '#005fbd';
+              buttonEl.style.boxShadow = '0 2px 8px rgba(0, 114, 222, 0.2)';
+              buttonEl.style.transform = 'translateZ(0) scale(0.98)';
+              buttonEl.style.filter = 'none';
+            } else if (hovered) {
+              buttonEl.style.background = '#0a7de8';
+              buttonEl.style.boxShadow = '0 8px 18px rgba(0, 114, 222, 0.32)';
+              buttonEl.style.transform = 'translateZ(0) translateY(-1px)';
+              buttonEl.style.filter = 'none';
+            } else {
+              buttonEl.style.background = '#0072de';
+              buttonEl.style.boxShadow = '0 6px 14px rgba(0, 114, 222, 0.28)';
+              buttonEl.style.transform = 'translateZ(0)';
+              buttonEl.style.filter = 'none';
+            }
+
+            buttonEl.style.outline = focusVisible
+              ? '3px solid rgba(0, 114, 222, 0.36)'
+              : 'none';
+            buttonEl.style.outlineOffset = focusVisible ? '2px' : '0';
+          }
+
+          function attachButtonInteraction(buttonEl) {
+            if (!buttonEl || buttonEl.dataset.genuiEnhancedPress === '1') {
+              return;
+            }
+
+            const apply = () => updateButtonVisualState(buttonEl);
+
+            buttonEl.addEventListener('pointerenter', () => {
+              buttonEl.dataset.genuiHovered = '1';
+              apply();
+            });
+            buttonEl.addEventListener('pointerleave', () => {
+              buttonEl.dataset.genuiHovered = '0';
+              buttonEl.dataset.genuiPressed = '0';
+              apply();
+            });
+            buttonEl.addEventListener('pointerdown', () => {
+              buttonEl.dataset.genuiPressed = '1';
+              apply();
+            });
+            buttonEl.addEventListener('pointerup', () => {
+              buttonEl.dataset.genuiPressed = '0';
+              apply();
+            });
+            buttonEl.addEventListener('pointercancel', () => {
+              buttonEl.dataset.genuiPressed = '0';
+              apply();
+            });
+            buttonEl.addEventListener('focus', () => {
+              buttonEl.dataset.genuiFocusVisible = buttonEl.matches(':focus-visible')
+                ? '1'
+                : '0';
+              apply();
+            });
+            buttonEl.addEventListener('blur', () => {
+              buttonEl.dataset.genuiFocusVisible = '0';
+              buttonEl.dataset.genuiPressed = '0';
+              apply();
+            });
+            buttonEl.addEventListener('keydown', (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                buttonEl.dataset.genuiPressed = '1';
+                apply();
+              }
+            });
+            buttonEl.addEventListener('keyup', (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                buttonEl.dataset.genuiPressed = '0';
+                apply();
+              }
+            });
+
+            buttonEl.dataset.genuiEnhancedPress = '1';
+          }
+
+          function enhanceButtons() {
+            const buttonHosts = collectHostsDeep(container, 'a2ui-button');
+            for (const host of buttonHosts) {
+              const button = host.shadowRoot?.querySelector('button');
+              if (!button) {
+                continue;
+              }
+
+              button.style.cursor = 'pointer';
+              button.style.transition =
+                'transform 130ms ease, box-shadow 180ms ease, filter 130ms ease, background-color 130ms ease, outline-color 120ms ease';
+              button.style.userSelect = 'none';
+              button.style.touchAction = 'manipulation';
+              button.style.willChange = 'transform, box-shadow, filter';
+              button.style.backfaceVisibility = 'hidden';
+              button.style.setProperty('--oneui-color-on-surface', 'var(--oneui-color-on-primary)');
+              button.style.setProperty('--oneui-color-on-surface-variant', 'var(--oneui-color-on-primary)');
+
+              const borderless = isBorderlessButtonHost(host);
+              button.dataset.genuiBtnKind = borderless ? 'borderless' : 'primary';
+
+              if (borderless) {
+                host.classList.add('genui-button-borderless');
+                button.style.padding = '0';
+                button.style.minHeight = 'auto';
+                button.style.borderRadius = '0';
+                button.style.justifyContent = 'flex-start';
+                button.style.color = 'var(--oneui-color-primary)';
+                button.style.setProperty(
+                  '--oneui-color-on-surface',
+                  'var(--oneui-color-primary)'
+                );
+                button.style.setProperty(
+                  '--oneui-color-on-surface-variant',
+                  'var(--oneui-color-primary)'
+                );
+              } else {
+                host.classList.remove('genui-button-borderless');
+                button.style.borderRadius = '999px';
+                button.style.minHeight = '30px';
+                button.style.padding = '4px 11px';
+                button.style.fontWeight = '700';
+                button.style.fontSize = '0.82rem';
+                button.style.lineHeight = '1';
+                button.style.letterSpacing = '0.01em';
+                button.style.border = '1px solid #0065c4';
+                button.style.color = '#fafafa';
+              }
+
+              if (!borderless) {
+                const textHosts = collectHostsDeep(host, 'a2ui-text');
+                for (const textHost of textHosts) {
+                  const textNode = textHost.shadowRoot?.querySelector(
+                    'p, h1, h2, h3, h4, h5, h6'
+                  );
+                  if (!textNode) {
+                    continue;
+                  }
+                  textNode.style.margin = '0';
+                  textNode.style.lineHeight = '1rem';
+                  textNode.style.fontSize = '0.82rem';
+                  textNode.style.fontWeight = '700';
+                }
+              }
+              attachButtonInteraction(button);
+              updateButtonVisualState(button);
+            }
+          }
+
+          function normalizeIconImageSizing() {
+            const imageHosts = collectHostsDeep(container, 'a2ui-image');
+            for (const host of imageHosts) {
+              if (!isIconImageHost(host)) {
+                continue;
+              }
+
+              const urlValue = String(
+                host?.component?.properties?.url?.literalString ??
+                  host?.component?.url?.literalString ??
+                  host?.getAttribute('url') ??
+                  ''
+              ).toLowerCase();
+
+              const airlineLogo =
+                urlValue.includes('logo_ana') ||
+                urlValue.includes('logo_ba') ||
+                urlValue.includes('logo_emirates') ||
+                urlValue.includes('british_airways') ||
+                urlValue.includes('emirates');
+              const squareAirlineLogo =
+                urlValue.includes('logo_emirates') ||
+                urlValue.includes('emirates_official');
+
+              const width = airlineLogo ? (squareAirlineLogo ? 32 : 96) : 20;
+              const height = airlineLogo ? 22 : 20;
+
+              host.style.width = `${width}px`;
+              host.style.height = `${height}px`;
+              host.style.minWidth = `${width}px`;
+              host.style.minHeight = `${height}px`;
+              host.style.maxWidth = `${width}px`;
+              host.style.maxHeight = `${height}px`;
+              host.style.flex = '0 0 auto';
+              host.style.overflow = 'visible';
+              host.style.display = 'inline-flex';
+              host.style.lineHeight = '0';
+              host.style.alignItems = 'center';
+              host.style.justifyContent = squareAirlineLogo ? 'center' : 'flex-start';
+
+              const img = host.shadowRoot?.querySelector('img');
+              if (img) {
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '100%';
+                img.style.setProperty('object-fit', 'contain', 'important');
+                img.style.setProperty(
+                  'object-position',
+                  squareAirlineLogo ? 'center center' : 'left center',
+                  'important'
+                );
+                img.style.display = 'block';
+              }
+            }
+          }
+
+          function enhanceCardDeckRows() {
+            const rowHosts = collectHostsDeep(container, 'a2ui-row');
+            const narrowViewport = window.innerWidth <= 980;
+            for (const rowHost of rowHosts) {
+              const children = getDirectElementChildren(rowHost);
+              if (!children.length) {
+                continue;
+              }
+              const allCards = children.every(
+                (child) => child.tagName && child.tagName.toLowerCase() === 'a2ui-card'
+              );
+              if (!allCards || children.length < 2) {
+                continue;
+              }
+
+              const section = rowHost.shadowRoot?.querySelector('section');
+              if (!section) {
+                continue;
+              }
+
+              section.style.display = 'grid';
+              section.style.gridTemplateColumns = narrowViewport
+                ? '1fr'
+                : `repeat(${Math.min(3, children.length)}, minmax(0, 1fr))`;
+              section.style.columnGap = '14px';
+              section.style.rowGap = '14px';
+              section.style.alignItems = 'stretch';
+              section.style.padding = '0';
+              section.style.margin = '0';
+
+              for (const card of children) {
+                card.style.width = '100%';
+                card.style.minWidth = '0';
+                card.style.maxWidth = 'none';
+              }
+            }
+          }
+
+          function styleTableCell(cellHost, isHeader, isLastCell) {
+            if (!cellHost) {
+              return;
+            }
+            cellHost.style.display = 'block';
+            cellHost.style.padding = '11px 14px';
+            cellHost.style.margin = '0';
+            cellHost.style.minWidth = '0';
+            cellHost.style.borderRight = isLastCell
+              ? 'none'
+              : '1px solid var(--oneui-color-outline-variant)';
+
+            const textNode = cellHost.shadowRoot?.querySelector(
+              'p, h1, h2, h3, h4, h5, h6'
+            );
+            if (textNode) {
+              textNode.style.margin = '0';
+              textNode.style.textAlign = 'left';
+              textNode.style.wordBreak = 'break-word';
+              if (isHeader) {
+                textNode.style.fontWeight = '700';
+                textNode.style.color = '#0f172a';
+              } else {
+                textNode.style.color = '#334155';
+              }
+            }
+          }
+
+          function styleTableRows(rows, dividerHosts) {
+            if (!rows.length) {
+              return;
+            }
+            const template = getGridTemplateFromWeights(rows[0]) || '1fr 1fr';
+            rows.forEach((row, rowIndex) => {
+              row.style.display = 'block';
+              row.style.margin = '0';
+
+              const section = row.shadowRoot?.querySelector('section');
+              if (!section) {
+                return;
+              }
+
+              section.style.display = 'grid';
+              section.style.gridTemplateColumns = template;
+              section.style.columnGap = '0';
+              section.style.rowGap = '0';
+              section.style.alignItems = 'stretch';
+              section.style.padding = '0';
+              section.style.margin = '0';
+              section.style.borderBottom =
+                rowIndex < rows.length - 1
+                  ? '1px solid var(--oneui-color-outline-variant)'
+                  : 'none';
+              section.style.background =
+                rowIndex === 0 ? '#eaf1fb' : '#ffffff';
+
+              const cells = getDirectElementChildren(row);
+              cells.forEach((cell, cellIndex) => {
+                styleTableCell(cell, rowIndex === 0, cellIndex === cells.length - 1);
+              });
+            });
+
+            for (const dividerHost of dividerHosts) {
+              dividerHost.style.display = 'none';
+            }
+          }
+
+          function enhanceTableLikeLists() {
+            const listHosts = collectHostsDeep(container, 'a2ui-list');
+            for (const listHost of listHosts) {
+              const direction = String(
+                listHost.direction || listHost.getAttribute('direction') || 'vertical'
+              ).toLowerCase();
+              if (direction !== 'vertical') {
+                continue;
+              }
+
+              const rows = getDirectElementChildren(listHost).filter(
+                (child) => child.tagName && child.tagName.toLowerCase() === 'a2ui-row'
+              );
+              if (rows.length < 2) {
+                continue;
+              }
+              const cellCounts = rows.map(
+                (row) => getDirectElementChildren(row).length
+              );
+              if (cellCounts.some((count) => count < 2)) {
+                continue;
+              }
+              if (new Set(cellCounts).size !== 1) {
+                continue;
+              }
+
+              listHost.classList.add('genui-table-list');
+              listHost.style.border = '1px solid #d7e2f0';
+              listHost.style.borderRadius = '14px';
+              listHost.style.overflow = 'hidden';
+              listHost.style.background = 'var(--oneui-color-surface)';
+              listHost.style.boxShadow = '0 4px 12px rgba(15, 23, 42, 0.08)';
+
+              styleTableRows(rows, []);
+            }
+          }
+
+                    function enhanceTableLikeColumns() {
+            const columnHosts = collectHostsDeep(container, 'a2ui-column');
+            for (const columnHost of columnHosts) {
+              const directChildren = getDirectElementChildren(columnHost);
+              const groups = [];
+              let currentRows = [];
+              let currentDividers = [];
+
+              const flushGroup = () => {
+                if (currentRows.length > 0) {
+                  groups.push({ rows: currentRows, dividers: currentDividers });
+                }
+                currentRows = [];
+                currentDividers = [];
+              };
+
+              for (const child of directChildren) {
+                const tag = child.tagName ? child.tagName.toLowerCase() : '';
+                if (tag === 'a2ui-row') {
+                  currentRows.push(child);
+                  continue;
+                }
+                if (tag === 'a2ui-divider' && currentRows.length > 0) {
+                  currentDividers.push(child);
+                  continue;
+                }
+                flushGroup();
+              }
+              flushGroup();
+
+              let styledAnyGroup = false;
+              for (const group of groups) {
+                const rows = group.rows;
+                const dividers = group.dividers;
+                if (rows.length < 2) {
+                  continue;
+                }
+
+                const cellCounts = rows.map(
+                  (row) => getDirectElementChildren(row).length
+                );
+                if (cellCounts.some((count) => count < 2)) {
+                  continue;
+                }
+                if (new Set(cellCounts).size !== 1) {
+                  continue;
+                }
+
+                const hasDividers = dividers.length > 0;
+                const columnCount = cellCounts[0] || 0;
+                if (!hasDividers) {
+                  if (rows.length < 3 || columnCount < 3) {
+                    continue;
+                  }
+                }
+
+                styleTableRows(rows, hasDividers ? dividers : []);
+                styledAnyGroup = true;
+              }
+
+              if (!styledAnyGroup) {
+                continue;
+              }
+
+              columnHost.classList.add('genui-table-list');
+              columnHost.style.border = '1px solid #d7e2f0';
+              columnHost.style.borderRadius = '14px';
+              columnHost.style.overflow = 'hidden';
+              columnHost.style.background = 'var(--oneui-color-surface)';
+              columnHost.style.boxShadow = '0 4px 12px rgba(15, 23, 42, 0.08)';
+            }
+          }
+
+          function enhanceTableLayouts() {
+            enhanceTableLikeLists();
+            enhanceTableLikeColumns();
+          }
+
+          function pickMediaRailImageHost(children) {
+            const listIndexes = [];
+            const imageIndexes = [];
+            for (let index = 0; index < children.length; index += 1) {
+              const child = children[index];
+              const tag = child.tagName ? child.tagName.toLowerCase() : '';
+              if (
+                tag === 'a2ui-list' &&
+                child.style.display !== 'none' &&
+                !child.classList.contains('genui-table-list')
+              ) {
+                listIndexes.push(index);
+                continue;
+              }
+              if (
+                tag === 'a2ui-image' &&
+                child.style.display !== 'none' &&
+                !isIconImageHost(child) &&
+                !child.classList.contains('genui-image-missing-icon') &&
+                !child.classList.contains('genui-image-unavailable')
+              ) {
+                imageIndexes.push(index);
+              }
+            }
+            if (!listIndexes.length || !imageIndexes.length) {
+              return null;
+            }
+            const anchor = listIndexes[0];
+            let bestIndex = imageIndexes[0];
+            let bestDistance = Math.abs(bestIndex - anchor);
+            for (let i = 1; i < imageIndexes.length; i += 1) {
+              const candidate = imageIndexes[i];
+              const distance = Math.abs(candidate - anchor);
+              if (distance < bestDistance) {
+                bestIndex = candidate;
+                bestDistance = distance;
+              }
+            }
+            return children[bestIndex] || null;
+          }
+
+          function resetMediaRailStyles(columnHost, children) {
+            const section = columnHost?.shadowRoot?.querySelector('section');
+            if (section) {
+              section.style.removeProperty('display');
+              section.style.removeProperty('grid-template-columns');
+              section.style.removeProperty('column-gap');
+              section.style.removeProperty('row-gap');
+              section.style.removeProperty('align-items');
+            }
+            for (const child of children) {
+              child.style.removeProperty('grid-column');
+              child.style.removeProperty('grid-row');
+              child.style.removeProperty('align-self');
+              child.style.removeProperty('justify-self');
+              child.style.removeProperty('width');
+              child.style.removeProperty('max-width');
+            }
+          }
+
+          function enhanceMediaRails() {
+            const columnHosts = collectHostsDeep(container, 'a2ui-column');
+            const narrowViewport = window.innerWidth <= 920;
+            for (const columnHost of columnHosts) {
+              const directChildren = getDirectElementChildren(columnHost);
+              columnHost.classList.remove('genui-media-rail');
+              for (const child of directChildren) {
+                child.classList.remove('genui-media-rail-main');
+                child.classList.remove('genui-media-rail-media');
+              }
+
+              resetMediaRailStyles(columnHost, directChildren);
+
+              if (
+                narrowViewport ||
+                !directChildren.length ||
+                columnHost.classList.contains('genui-table-list')
+              ) {
+                continue;
+              }
+
+              let listHost = null;
+              let listIndex = -1;
+              for (let index = 0; index < directChildren.length; index += 1) {
+                const child = directChildren[index];
+                const tag = child.tagName ? child.tagName.toLowerCase() : '';
+                if (
+                  tag === 'a2ui-list' &&
+                  child.style.display !== 'none' &&
+                  !child.classList.contains('genui-table-list')
+                ) {
+                  listHost = child;
+                  listIndex = index;
+                  break;
+                }
+              }
+              if (!listHost) {
+                continue;
+              }
+
+              const mediaHost = pickMediaRailImageHost(directChildren);
+              if (!mediaHost) {
+                continue;
+              }
+
+              const section = columnHost.shadowRoot?.querySelector('section');
+              if (!section) {
+                continue;
+              }
+
+              section.style.display = 'grid';
+              section.style.gridTemplateColumns = 'minmax(0, 1fr) minmax(220px, 320px)';
+              section.style.columnGap = '16px';
+              section.style.rowGap = '12px';
+              section.style.alignItems = 'start';
+
+              columnHost.classList.add('genui-media-rail');
+
+              let row = 1;
+
+              for (let index = 0; index < listIndex; index += 1) {
+                const child = directChildren[index];
+                if (child === mediaHost) {
+                  continue;
+                }
+                child.classList.add('genui-media-rail-main');
+                child.style.gridColumn = '1 / -1';
+                child.style.gridRow = String(row);
+                row += 1;
+              }
+
+              const railRow = row;
+              row += 1;
+
+              listHost.classList.add('genui-media-rail-main');
+              listHost.style.gridColumn = '1';
+              listHost.style.gridRow = String(railRow);
+              listHost.style.minWidth = '0';
+              listHost.style.alignSelf = 'start';
+
+              mediaHost.classList.add('genui-media-rail-media');
+              mediaHost.style.gridColumn = '2';
+              mediaHost.style.gridRow = String(railRow);
+              mediaHost.style.alignSelf = 'start';
+              mediaHost.style.justifySelf = 'stretch';
+              mediaHost.style.width = 'min(100%, 320px)';
+              mediaHost.style.maxWidth = '320px';
+
+              for (let index = listIndex + 1; index < directChildren.length; index += 1) {
+                const child = directChildren[index];
+                if (child === mediaHost) {
+                  continue;
+                }
+                child.classList.add('genui-media-rail-main');
+                child.style.gridColumn = '1 / -1';
+                child.style.gridRow = String(row);
+                row += 1;
+              }
+            }
+          }
+
+          function smoothCardCorners() {
+            const cardHosts = collectHostsDeep(container, 'a2ui-card');
+            for (const cardHost of cardHosts) {
+              cardHost.style.borderRadius = '20px';
+              cardHost.style.overflow = 'hidden';
+              cardHost.style.backgroundClip = 'padding-box';
+              cardHost.style.setProperty('-webkit-mask-image', '-webkit-radial-gradient(white, black)');
+
+              const cardSection = cardHost.shadowRoot?.querySelector('section');
+              if (!cardSection) {
+                continue;
+              }
+
+              cardSection.style.borderRadius = '20px';
+              cardSection.style.overflow = 'hidden';
+              cardSection.style.backgroundClip = 'padding-box';
+              cardSection.style.setProperty('-webkit-mask-image', '-webkit-radial-gradient(white, black)');
+            }
+          }
+          async function renderMessages(payload, reset) {
+            const messages = parseMessages(payload);
+            if (!Array.isArray(messages)) {
+              console.warn("GenUICraft payload was not an array", messages);
+              return;
+            }
+            if (reset) {
+              processor.clearSurfaces();
+            }
+            processor.processMessages(messages);
+            renderSurfaces();
+            // Let custom elements and nested shadow DOM settle before image checks.
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve))
+            );
+            enhanceButtons();
+            enhanceTableLayouts();
+            enhanceCardDeckRows();
+            smoothCardCorners();
+            await markMissingImages();
+            normalizeIconImageSizing();
+            enhanceMediaRails();
+            await new Promise((resolve) => setTimeout(resolve, 180));
+            enhanceButtons();
+            enhanceTableLayouts();
+            enhanceCardDeckRows();
+            smoothCardCorners();
+            await markMissingImages();
+            normalizeIconImageSizing();
+            enhanceMediaRails();
+            window.__GenUICraft_RENDER_DONE = true;
+          }
+
+          window.renderA2uiMessages = renderMessages;
+          window.GenUICraft_READY = true;
+
+          const queued = window.__GenUICraft_QUEUE || [];
+          window.__GenUICraft_QUEUE = [];
+          for (const item of queued) {
+            await renderMessages(item.payload, item.reset);
+          }
+
+          if (window.__GenUICraft_MESSAGES__) {
+            await renderMessages(window.__GenUICraft_MESSAGES__, window.__GenUICraft_RESET__);
+          }
+        } catch (err) {
+          console.error("Failed to load GenUICraft Lit renderer", err);
+          const assetDiagnostics = await collectAssetDiagnostics();
+          const details = `${formatErrorDetails(err)}\n\n${assetDiagnostics}`;
+          setStatus("Lit renderer failed to load.", details);
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -5005,3 +5005,145 @@ Icon err=URL can't contain control characters. '/upload\n\nIcon' (found at least
     at http://127.0.0.1:56944/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
     at Array.map (<anonymous>)
 2026-02-06 23:54:37 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gaussO_2\rendered
+2026-02-18 00:26:08 INFO dataset: Stage4 HTTP server started on port 59858
+2026-02-18 00:27:43 ERROR dataset: Stage4 render error ui_id=u_000061_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:59858/data/runs/gaussO_2/rendered/u_000061_01.html:1462:23)
+    at init (http://127.0.0.1:59858/data/runs/gaussO_2/rendered/u_000061_01.html:1496:19); requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 00:28:12 ERROR dataset: Stage4 render error ui_id=u_000090_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "icon".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43); requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 00:30:43 ERROR dataset: Stage4 render error ui_id=u_000283_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:619:36)
+    at http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:599:45
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:599:26)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43); requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 00:31:01 ERROR dataset: Stage4 render error ui_id=u_000286_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:59858/data/runs/gaussO_2/rendered/u_000286_01.html:1462:23)
+    at init (http://127.0.0.1:59858/data/runs/gaussO_2/rendered/u_000286_01.html:1496:19); requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 00:34:09 ERROR dataset: Stage4 render error ui_id=u_000642_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "body".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38); requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 00:35:26 ERROR dataset: Stage4 render error ui_id=u_000802_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "settings".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:619:36)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48); requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 00:35:45 ERROR dataset: Stage4 render error ui_id=u_000807_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "groupAllZones".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:619:36)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>); requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:59858/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 00:38:37 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gaussO_2\rendered
+2026-02-18 01:35:14 INFO dataset: Stage4 HTTP server started on port 55693
+2026-02-18 01:35:30 ERROR dataset: Stage4 render error ui_id=u_000061_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:55693/data/runs/gaussO_2/rendered/u_000061_01.html:1462:23)
+    at init (http://127.0.0.1:55693/data/runs/gaussO_2/rendered/u_000061_01.html:1496:19); requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:35:45 ERROR dataset: Stage4 render error ui_id=u_000090_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "icon".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43); requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:36:01 ERROR dataset: Stage4 render error ui_id=u_000283_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:619:36)
+    at http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:599:45
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:599:26)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43); requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:36:16 ERROR dataset: Stage4 render error ui_id=u_000286_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Invalid data; expected Column
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:431:27)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38)
+    at A2uiMessageProcessor.handleSurfaceUpdate (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:307:14)
+    at A2uiMessageProcessor.processMessages (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:47:22)
+    at renderMessages (http://127.0.0.1:55693/data/runs/gaussO_2/rendered/u_000286_01.html:1462:23)
+    at init (http://127.0.0.1:55693/data/runs/gaussO_2/rendered/u_000286_01.html:1496:19); requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:36:32 ERROR dataset: Stage4 render error ui_id=u_000642_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "body".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.rebuildComponentTree (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:333:38); requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:36:47 ERROR dataset: Stage4 render error ui_id=u_000802_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "settings".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:619:36)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48); requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:37:02 ERROR dataset: Stage4 render error ui_id=u_000807_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: error: Failed to load GenUICraft Lit renderer Error: Circular dependency for component "groupAllZones".
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:350:19)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:554:25)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:619:36)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>)
+    at A2uiMessageProcessor.resolvePropertyValue (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:43)
+    at A2uiMessageProcessor.buildNodeRecursive (http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:362:48)
+    at http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/data/model-processor.js:560:60
+    at Array.map (<anonymous>); requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/index.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/core.js?_v=20260217.2 net::ERR_ABORTED; requestfailed: http://127.0.0.1:55693/renderer/lit/vendor/a2ui/0.8/ui/ui.js?_v=20260217.2 net::ERR_ABORTED
+2026-02-18 01:37:03 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\gaussO_2\rendered

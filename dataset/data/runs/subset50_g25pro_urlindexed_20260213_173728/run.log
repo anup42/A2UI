@@ -241,3 +241,7 @@
 2026-02-14 01:14:09 INFO dataset: Stage3 completed created=50
 2026-02-14 01:14:09 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_urlindexed_20260213_173728\aggregates.json
 2026-02-14 01:14:09 INFO dataset: Stage3 complete.
+2026-02-18 01:22:30 INFO dataset: Stage4 HTTP server started on port 64679
+2026-02-18 01:23:42 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_urlindexed_20260213_173728\rendered
+2026-02-18 02:26:22 INFO dataset: Stage4 HTTP server started on port 56229
+2026-02-18 02:26:23 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset50_g25pro_urlindexed_20260213_173728\rendered

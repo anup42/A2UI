@@ -23,23 +23,21 @@
 
             <TextView
                 android:id="@+id/renderTitle"
+                style="@style/Text.GenUi.TitleLG"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="#0F274A"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textFontWeight="700" />
 
             <TextView
                 android:id="@+id/renderSubtitle"
+                style="@style/Text.GenUi.BodyXSRegular"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:ellipsize="middle"
-                android:maxLines="1"
-                android:textColor="#49658D"
-                android:textSize="12sp" />
+                android:maxLines="1" />
         </LinearLayout>
     </LinearLayout>
 
@@ -49,18 +47,18 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:visibility="gone"
-        app:cardBackgroundColor="#FFF7ED"
-        app:cardCornerRadius="12dp"
-        app:strokeColor="#F7C98A"
-        app:strokeWidth="1dp">
+        app:cardBackgroundColor="@color/palette_orange_5"
+        app:cardCornerRadius="@dimen/sys_radius_lg"
+        app:strokeColor="@color/sys_color_functional_orange"
+        app:strokeWidth="@dimen/sys_border_md">
 
         <TextView
             android:id="@+id/warningText"
+            style="@style/Text.GenUi.Body2XSRegular"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:textColor="#944A05"
-            android:textSize="12sp" />
+            android:textColor="@color/sys_color_functional_orange" />
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
@@ -68,11 +66,11 @@
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
         android:layout_weight="1"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="14dp"
-        app:cardElevation="3dp"
-        app:strokeColor="#D6E1F0"
-        app:strokeWidth="1dp">
+        app:cardBackgroundColor="@color/sys_color_surface"
+        app:cardCornerRadius="@dimen/sys_radius_lg"
+        app:cardElevation="@dimen/elevation_md"
+        app:strokeColor="@color/sys_color_outline"
+        app:strokeWidth="@dimen/sys_border_md">
 
         <WebView
             android:id="@+id/webView"
@@ -81,4 +79,3 @@
     </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
-

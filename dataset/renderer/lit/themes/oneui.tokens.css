@@ -1,17 +1,129 @@
 ﻿:root {
-  --oneui-color-bg: #eef3fb;
-  --oneui-color-surface: #ffffff;
-  --oneui-color-surface-alt: #f7faff;
-  --oneui-color-primary: #0a84ff;
-  --oneui-color-primary-pressed: #0069d6;
-  --oneui-color-on-primary: #fdfdff;
-  --oneui-color-on-surface: #0f172a;
-  --oneui-color-on-surface-variant: #475569;
-  --oneui-color-outline: #d5dfed;
-  --oneui-color-outline-variant: #e6edf7;
+  /* Typography */
+  --oneui-font-family:
+    "One UI Sans GUI",
+    "SamsungOne",
+    "SamsungOneKorean",
+    "Segoe UI",
+    Roboto,
+    system-ui,
+    sans-serif;
+  --oneui-font-weight-light: 300;
+  --oneui-font-weight-regular: 400;
+  --oneui-font-weight-semibold: 600;
+  --oneui-font-weight-bold: 700;
+
+  --oneui-type-headline-xl: 34px;
+  --oneui-type-headline-lg: 30px;
+  --oneui-type-headline-md: 26px;
+  --oneui-type-headline-sm: 21px;
+  --oneui-type-title-lg: 19px;
+  --oneui-type-title-md: 17px;
+  --oneui-type-title-sm: 15px;
+  --oneui-type-title-xs: 13px;
+  --oneui-type-body-xl: 18px;
+  --oneui-type-body-lg: 17px;
+  --oneui-type-body-md: 15px;
+  --oneui-type-body-sm: 14px;
+  --oneui-type-body-xs: 13px;
+  --oneui-type-body-2xs: 12px;
+  --oneui-type-body-3xs: 11px;
+
+  --oneui-line-auto: normal;
+  --oneui-line-body-relaxed: 1.5;
+  --oneui-line-headline-xl: 43px;
+  --oneui-letter-spacing: 0;
+
+  /* Shape */
+  --oneui-radius-sm: 8px;
+  --oneui-radius-md: 12px;
+  --oneui-radius-lg: 22px;
   --oneui-radius-xl: 26px;
-  --oneui-radius-lg: 20px;
-  --oneui-radius-md: 14px;
-  --oneui-shadow-card: 0 14px 34px rgba(15, 23, 42, 0.1);
-  --oneui-shadow-surface: 0 6px 18px rgba(15, 23, 42, 0.07);
+  --oneui-radius-full: 9999px;
+
+  /* Border */
+  --oneui-border-sm: 0.5px;
+  --oneui-border-md: 1px;
+  --oneui-border-lg: 2px;
+
+  /* Light theme mapping (One UI reference) */
+  --oneui-color-bg: #f1f1f3;
+  --oneui-color-bg-variant: #fcfcff;
+
+  --oneui-color-surface: #fcfcff;
+  --oneui-color-surface-alt: #e9e9ec;
+  --oneui-color-surface-low: #f1f1f3;
+  --oneui-color-surface-high: #cccccc;
+
+  --oneui-color-on-surface: #010102;
+  --oneui-color-on-surface-high: #252528;
+  --oneui-color-on-surface-variant: #4d4d52;
+  --oneui-color-on-surface-soft: #636368;
+
+  --oneui-color-outline: #cccccc;
+  --oneui-color-outline-variant: #b7b7bb;
+  --oneui-color-outline-strong: #848487;
+
+  --oneui-color-primary: #387aff;
+  --oneui-color-primary-hover: #578fff;
+  --oneui-color-primary-pressed: #2e65d4;
+  --oneui-color-primary-high: #244ea3;
+  --oneui-color-on-primary: #fcfcff;
+
+  --oneui-color-positive: #11a85f;
+  --oneui-color-warning: #e65b17;
+  --oneui-color-danger: #d93e36;
+
+  --oneui-color-scrim: rgba(0, 0, 0, 0.6);
+  --oneui-color-state-hover: rgba(0, 0, 0, 0.08);
+  --oneui-color-state-pressed: rgba(0, 0, 0, 0.12);
+
+  /* Elevation */
+  --oneui-shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.12);
+  --oneui-shadow-md: 0 12px 24px rgba(0, 0, 0, 0.15);
+  --oneui-shadow-lg: 0 20px 36px rgba(0, 0, 0, 0.18);
+  --oneui-shadow-xl: 0 32px 52px rgba(0, 0, 0, 0.2);
+
+  --oneui-shadow-card: var(--oneui-shadow-sm);
+  --oneui-shadow-surface: var(--oneui-shadow-md);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --oneui-color-bg: #010102;
+    --oneui-color-bg-variant: #010102;
+
+    --oneui-color-surface: #17171a;
+    --oneui-color-surface-alt: #17171a;
+    --oneui-color-surface-low: #252528;
+    --oneui-color-surface-high: #3a3a3d;
+
+    --oneui-color-on-surface: #fcfcff;
+    --oneui-color-on-surface-high: #e9e9ec;
+    --oneui-color-on-surface-variant: #cccccc;
+    --oneui-color-on-surface-soft: #b7b7bb;
+
+    --oneui-color-outline: #636368;
+    --oneui-color-outline-variant: #4d4d52;
+    --oneui-color-outline-strong: #e4e4e7;
+
+    --oneui-color-primary: #387aff;
+    --oneui-color-primary-hover: #578fff;
+    --oneui-color-primary-pressed: #2e65d4;
+    --oneui-color-primary-high: #578fff;
+    --oneui-color-on-primary: #fcfcff;
+
+    --oneui-color-positive: #11a85f;
+    --oneui-color-warning: #e65b17;
+    --oneui-color-danger: #d93e36;
+
+    --oneui-color-scrim: rgba(0, 0, 0, 0.7);
+    --oneui-color-state-hover: rgba(255, 255, 255, 0.1);
+    --oneui-color-state-pressed: rgba(255, 255, 255, 0.14);
+
+    --oneui-shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.28);
+    --oneui-shadow-md: 0 12px 24px rgba(0, 0, 0, 0.35);
+    --oneui-shadow-lg: 0 20px 36px rgba(0, 0, 0, 0.4);
+    --oneui-shadow-xl: 0 32px 52px rgba(0, 0, 0, 0.45);
+  }
 }

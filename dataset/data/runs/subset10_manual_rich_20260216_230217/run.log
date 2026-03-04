@@ -1,0 +1,98 @@
+2026-03-02 23:40:09 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=5083 user_template_tokens=16
+2026-03-02 23:41:01 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-03-02 23:41:58 INFO dataset: Stage3 created ui_id=u_000262_01 schema_ok=True
+2026-03-02 23:42:42 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-03-02 23:43:23 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-03-02 23:44:25 INFO dataset: Stage3 created ui_id=u_000437_01 schema_ok=True
+2026-03-02 23:45:15 INFO dataset: Stage3 created ui_id=u_001045_01 schema_ok=True
+2026-03-02 23:46:12 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-03-02 23:47:01 INFO dataset: Stage3 created ui_id=u_000699_01 schema_ok=True
+2026-03-02 23:47:56 INFO dataset: Stage3 created ui_id=u_000088_01 schema_ok=True
+2026-03-02 23:49:01 INFO dataset: Stage3 created ui_id=u_001481_01 schema_ok=True
+2026-03-02 23:49:01 INFO dataset: Stage3 completed created=10
+2026-03-02 23:49:01 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\aggregates.json
+2026-03-02 23:49:01 INFO dataset: Stage3 complete.
+2026-03-02 23:49:15 INFO dataset: Stage4 HTTP server started on port 64974
+2026-03-02 23:49:50 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\rendered
+2026-03-02 23:58:04 INFO dataset: Stage4 HTTP server started on port 62871
+2026-03-02 23:58:32 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\rendered
+2026-03-03 00:56:29 INFO dataset: Stage4 HTTP server started on port 61607
+2026-03-03 00:57:02 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\rendered
+2026-03-03 01:03:38 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=5148 user_template_tokens=16
+2026-03-03 01:04:46 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-03-03 01:05:34 INFO dataset: Stage3 created ui_id=u_000262_01 schema_ok=True
+2026-03-03 01:06:15 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-03-03 01:06:56 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-03-03 01:07:40 INFO dataset: Stage3 created ui_id=u_000437_01 schema_ok=True
+2026-03-03 01:08:36 INFO dataset: Stage3 created ui_id=u_001045_01 schema_ok=True
+2026-03-03 01:09:19 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-03-03 01:10:13 INFO dataset: Stage3 created ui_id=u_000699_01 schema_ok=True
+2026-03-03 01:12:14 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=5148 user_template_tokens=16
+2026-03-03 01:12:31 WARNING dataset: Stage3 asset auto-download failed response_id=r_001374_01 url=https://www2.city.kyoto.lg.jp/kotsu/webguide/en/ err=<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)>
+2026-03-03 01:12:31 WARNING dataset: Stage3 asset auto-download failed response_id=r_001374_01 url=https://kyoto.travel/en/ err=<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)>
+2026-03-03 01:12:31 WARNING dataset: Stage3 asset auto-download failed response_id=r_001374_01 url=https://kyoto.travel/en/ err=<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)>
+2026-03-03 01:12:34 INFO dataset: Stage3 auto-downloaded assets response_id=r_001374_01 count=7
+2026-03-03 01:13:23 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-03-03 01:14:00 WARNING dataset: Stage3 asset auto-download failed response_id=r_000262_01 url=https://www.britishairways.com/ err=The read operation timed out
+2026-03-03 01:14:00 INFO dataset: Stage3 auto-downloaded assets response_id=r_000262_01 count=9
+2026-03-03 01:14:56 INFO dataset: Stage3 created ui_id=u_000262_01 schema_ok=True
+2026-03-03 01:15:14 WARNING dataset: Stage3 asset auto-download failed response_id=r_000784_01 url=https://kyoto.travel/en/ err=<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)>
+2026-03-03 01:15:14 WARNING dataset: Stage3 asset auto-download failed response_id=r_000784_01 url=https://www2.city.kyoto.lg.jp/kotsu/webguide/en/ err=<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)>
+2026-03-03 01:15:14 WARNING dataset: Stage3 asset auto-download failed response_id=r_000784_01 url=https://kyoto.travel/en/ err=<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)>
+2026-03-03 01:15:16 INFO dataset: Stage3 auto-downloaded assets response_id=r_000784_01 count=7
+2026-03-03 01:16:03 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-03-03 01:16:20 INFO dataset: Stage3 auto-downloaded assets response_id=r_000351_01 count=8
+2026-03-03 01:17:16 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-03-03 01:17:24 WARNING dataset: Stage3 asset auto-download failed response_id=r_000437_01 url=https://www.convertcsv.com/csv-generator.htm err=HTTP Error 404: Not Found
+2026-03-03 01:17:31 INFO dataset: Stage3 auto-downloaded assets response_id=r_000437_01 count=7
+2026-03-03 01:18:23 INFO dataset: Stage3 created ui_id=u_000437_01 schema_ok=True
+2026-03-03 01:18:43 WARNING dataset: Stage3 asset auto-download failed response_id=r_001045_01 url=https://www.convertcsv.com/csv-generator.htm err=HTTP Error 404: Not Found
+2026-03-03 01:18:47 INFO dataset: Stage3 auto-downloaded assets response_id=r_001045_01 count=9
+2026-03-03 01:19:45 INFO dataset: Stage3 created ui_id=u_001045_01 schema_ok=True
+2026-03-03 01:19:56 WARNING dataset: Stage3 asset auto-download failed response_id=r_000175_01 url=https://www.dpreview.com/products/compare/cameras err=HTTP Error 403: Forbidden
+2026-03-03 01:19:56 WARNING dataset: Stage3 asset auto-download failed response_id=r_000175_01 url=https://www.bhphotovideo.com/ err=HTTP Error 403: Forbidden
+2026-03-03 01:20:01 INFO dataset: Stage3 auto-downloaded assets response_id=r_000175_01 count=8
+2026-03-03 01:20:47 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-03-03 01:21:01 WARNING dataset: Stage3 asset auto-download failed response_id=r_000699_01 url=https://www.eatright.org/ err=<urlopen error [WinError 10054] An existing connection was forcibly closed by the remote host>
+2026-03-03 01:21:01 INFO dataset: Stage3 auto-downloaded assets response_id=r_000699_01 count=8
+2026-03-03 01:21:59 INFO dataset: Stage3 created ui_id=u_000699_01 schema_ok=True
+2026-03-03 01:22:21 INFO dataset: Stage3 auto-downloaded assets response_id=r_000088_01 count=9
+2026-03-03 01:23:21 INFO dataset: Stage3 created ui_id=u_000088_01 schema_ok=True
+2026-03-03 01:23:30 INFO dataset: Stage3 auto-downloaded assets response_id=r_001481_01 count=9
+2026-03-03 01:24:26 INFO dataset: Stage3 created ui_id=u_001481_01 schema_ok=True
+2026-03-03 01:24:26 INFO dataset: Stage3 completed created=10
+2026-03-03 01:24:26 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\aggregates.json
+2026-03-03 01:24:26 INFO dataset: Stage3 complete.
+2026-03-03 01:24:40 INFO dataset: Stage4 HTTP server started on port 65459
+2026-03-03 01:24:42 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\rendered
+2026-03-03 01:25:48 INFO dataset: Stage4 HTTP server started on port 50626
+2026-03-03 01:26:11 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\rendered
+2026-03-03 01:28:39 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=5148 user_template_tokens=16
+2026-03-03 01:28:49 INFO dataset: Stage3 auto-downloaded assets response_id=r_001374_01 count=6
+2026-03-03 01:29:50 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-03-03 01:30:00 INFO dataset: Stage3 auto-downloaded assets response_id=r_000262_01 count=6
+2026-03-03 01:30:53 INFO dataset: Stage3 created ui_id=u_000262_01 schema_ok=True
+2026-03-03 01:31:04 INFO dataset: Stage3 auto-downloaded assets response_id=r_000784_01 count=6
+2026-03-03 01:31:50 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-03-03 01:32:01 INFO dataset: Stage3 auto-downloaded assets response_id=r_000351_01 count=6
+2026-03-03 01:32:43 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-03-03 01:32:49 INFO dataset: Stage3 auto-downloaded assets response_id=r_000437_01 count=4
+2026-03-03 01:33:40 INFO dataset: Stage3 created ui_id=u_000437_01 schema_ok=True
+2026-03-03 01:33:49 INFO dataset: Stage3 auto-downloaded assets response_id=r_001045_01 count=6
+2026-03-03 01:34:46 INFO dataset: Stage3 created ui_id=u_001045_01 schema_ok=True
+2026-03-03 01:34:54 INFO dataset: Stage3 auto-downloaded assets response_id=r_000175_01 count=5
+2026-03-03 01:35:43 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-03-03 01:35:49 INFO dataset: Stage3 auto-downloaded assets response_id=r_000699_01 count=5
+2026-03-03 01:36:44 INFO dataset: Stage3 created ui_id=u_000699_01 schema_ok=True
+2026-03-03 01:36:50 INFO dataset: Stage3 auto-downloaded assets response_id=r_000088_01 count=5
+2026-03-03 01:37:50 INFO dataset: Stage3 created ui_id=u_000088_01 schema_ok=True
+2026-03-03 01:37:57 INFO dataset: Stage3 auto-downloaded assets response_id=r_001481_01 count=5
+2026-03-03 01:38:45 INFO dataset: Stage3 created ui_id=u_001481_01 schema_ok=True
+2026-03-03 01:38:45 INFO dataset: Stage3 completed created=10
+2026-03-03 01:38:45 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\aggregates.json
+2026-03-03 01:38:45 INFO dataset: Stage3 complete.
+2026-03-03 01:38:58 INFO dataset: Stage4 HTTP server started on port 51390
+2026-03-03 01:39:28 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\rendered
+2026-03-03 13:31:10 INFO dataset: Stage5 HTTP server started on port 61454
+2026-03-03 13:32:03 INFO dataset: Stage5 completed created=10 output_dir=C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\stage5_rendered
+2026-03-03 13:32:03 INFO dataset: Stage5 complete. Direct HTML outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_manual_rich_20260216_230217\stage5_rendered

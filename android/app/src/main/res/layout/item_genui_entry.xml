@@ -7,11 +7,11 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="#FFFFFF"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:strokeColor="#D9E4F2"
-    app:strokeWidth="1dp">
+    app:cardBackgroundColor="@color/sys_color_surface"
+    app:cardCornerRadius="@dimen/sys_radius_xl"
+    app:cardElevation="@dimen/elevation_sm"
+    app:strokeColor="@color/sys_color_outline_low"
+    app:strokeWidth="@dimen/sys_border_sm">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,50 +27,46 @@
 
             <TextView
                 android:id="@+id/indexBadge"
+                style="@style/Text.GenUi.Body3XSRegular"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_badge"
                 android:paddingStart="8dp"
                 android:paddingTop="4dp"
                 android:paddingEnd="8dp"
-                android:paddingBottom="4dp"
-                android:textColor="#1F355A"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:paddingBottom="4dp" />
 
             <TextView
                 android:id="@+id/itemTitle"
+                style="@style/Text.GenUi.BodyXSSemiBold"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:maxLines="2"
-                android:textColor="#112A4B"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:maxLines="1"
+                android:textColor="@color/sys_color_on_surface_container_highest"
+                android:textSize="@dimen/type_body_lg"
+                android:textFontWeight="600" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/itemMeta"
+            style="@style/Text.GenUi.Body2XSRegular"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:ellipsize="end"
-            android:maxLines="3"
-            android:textColor="#425F88"
-            android:textSize="12sp" />
+            android:maxLines="3" />
 
         <TextView
             android:id="@+id/itemSource"
+            style="@style/Text.GenUi.Body3XSRegular"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:ellipsize="middle"
-            android:maxLines="1"
-            android:textColor="#7B89A0"
-            android:textSize="11sp" />
+            android:maxLines="1" />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
-

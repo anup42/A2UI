@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flight Booking Recommendation: London to Tokyo (Live May 2026 Snapshot)</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>Flight Booking Recommendation: London to Tokyo (Live May 2026 Snapshot)</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><p class="s5-paragraph">Snapshot Context<br />This is a live market snapshot collected on 2026-02-16 for travel on 31 May 2026. Fares are volatile and may change at booking time.</p></section><section class="s5-card s5-section"><h2>Travel Requirements</h2><ul class="s5-list"><li>Travel Date: 31 May 2026</li><li>Route: London (LHR) -&gt; Tokyo (HND)</li><li>Passengers: 2 Adults</li><li>Cabin Preference: Premium Economy (where available)</li></ul></section><section class="s5-card s5-section"><h2>Flight Comparison (Live Sources)</h2><div class="s5-table-wrap"><table class="s5-table"><thead><tr><th>Airline</th><th>Fare</th><th>Departure (LHR)</th><th>Arrival (HND)</th><th>Travel Time</th><th>Stops</th><th>Decision</th></tr></thead><tbody><tr><td>ANA (Direct)</td><td>GBP 1,035</td><td>19:00</td><td>17:55+1</td><td>13h 55m</td><td>Direct</td><td>Strong direct option</td></tr><tr><td>British Airways (Direct)</td><td>EUR 1,059</td><td>11:50</td><td>10:25+1</td><td>13h 35m</td><td>Direct</td><td>Fastest direct in snapshot</td></tr><tr><td>Emirates (via DXB)</td><td>EUR 673</td><td>20:20</td><td>22:30+1</td><td>17h 10m</td><td>1 stop (DXB)</td><td>Cheapest snapshot fare</td></tr></tbody></table></div><p class="s5-paragraph">Booking Cards<br />(Desktop layout preference: show the 3 booking cards in one row; mobile can stack.)</p><p class="s5-paragraph">Option 1: ANA (Direct) | Direct service with strong fare in May window</p><p class="s5-paragraph">Option 2: British Airways (Direct) | Direct routing with shortest direct block time in this snapshot</p><p class="s5-paragraph">Option 3: Emirates (via DXB) | Lowest fare snapshot, but one-stop routing</p><div class="s5-button-row"><a class="s5-btn" href="https://flights.ana.co.jp/en-gb/flights-from-london-to-tokyo" target="_blank" rel="noopener noreferrer">Book ANA</a><a class="s5-btn" href="https://www.skyscanner.net/flights/airline-flights-to-city/tyoa/british-airways-ba/cheap-flights-with-british-airways-ba-flights-to-tokyo" target="_blank" rel="noopener noreferrer">Book BA</a><a class="s5-btn" href="https://www.skyscanner.net/flights/airline-flights-to-city/hnd/emirates-ek/cheap-flights-with-emirates-ek-flights-to-tokyo-haneda" target="_blank" rel="noopener noreferrer">Book Emirates</a></div></section><section class="s5-card s5-section"><h2>Quick Actions</h2><div class="s5-button-row"><a class="s5-btn" href="https://www.google.com/travel/flights" target="_blank" rel="noopener noreferrer">Compare on Google Flights</a><a class="s5-btn" href="https://www.skyscanner.gg/routes/lhr/hnd/london-heathrow-to-tokyo-haneda.html" target="_blank" rel="noopener noreferrer">Check Heathrow -&gt; Haneda market fares</a></div></section><section class="s5-card s5-section"><h2>Sources</h2><p class="s5-paragraph">ANA fares (London -&gt; Tokyo): https://flights.ana.co.jp/en-gb/flights-from-london-to-tokyo<br />British Airways fares to Tokyo: https://www.skyscanner.net/flights/airline-flights-to-city/tyoa/british-airways-ba/cheap-flights-with-british-airways-ba-flights-to-tokyo<br />Emirates fares to Tokyo Haneda: https://www.skyscanner.net/flights/airline-flights-to-city/hnd/emirates-ek/cheap-flights-with-emirates-ek-flights-to-tokyo-haneda<br />ANA schedule data: https://info.flightmapper.net/route/ANA_NH_LHR_HND<br />BA5 schedule data: https://info.flightmapper.net/flight/British_Airways_BA_5<br />Emirates schedule data: https://www.emirates.com/english/destinations/hnd/lhr/flights-from-tokyo-haneda-to-london-heathrow/</p></section>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+2026-03-02 22:10:39 ERROR dataset: Stage1 error intent=Booking: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:11:24 ERROR dataset: Stage1 error intent=Booking: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:12:26 ERROR dataset: Stage1 error intent=Booking: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:12:26 ERROR dataset: Stage1 stopping intent=Booking after 3 failures
+2026-03-02 22:13:29 ERROR dataset: Stage1 error intent=product_lookup: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:14:14 ERROR dataset: Stage1 error intent=product_lookup: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:15:00 ERROR dataset: Stage1 error intent=product_lookup: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:15:00 ERROR dataset: Stage1 stopping intent=product_lookup after 3 failures
+2026-03-02 22:15:45 ERROR dataset: Stage1 error intent=weather: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:16:30 ERROR dataset: Stage1 error intent=weather: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:17:16 ERROR dataset: Stage1 error intent=weather: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:17:16 ERROR dataset: Stage1 stopping intent=weather after 3 failures
+2026-03-02 22:18:01 ERROR dataset: Stage1 error intent=Planning: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:18:46 ERROR dataset: Stage1 error intent=Planning: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:19:32 ERROR dataset: Stage1 error intent=Planning: Gemini keys exhausted after 1 attempts: The read operation timed out
+2026-03-02 22:19:32 ERROR dataset: Stage1 stopping intent=Planning after 3 failures

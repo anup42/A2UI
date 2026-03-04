@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>January Climate Snapshot</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>January Climate Snapshot</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><p class="s5-paragraph">January is widely considered the peak travel season for both cities, but for very different reasons. Bangkok experiences its &quot;cool&quot; season, which is dry and sunny but still hot by global standards. Hanoi experiences a true winter, which is significantly cooler and often overcast with mist. For a walking tour, Hanoi offers much more comfortable temperatures, while Bangkok guarantees brighter photography conditions at the cost of heat exhaustion risks.</p><p class="s5-paragraph">Historical Data Context<br />The following comparison relies on historical climate averages collected over the last 30 years. January weather patterns in Southeast Asia are generally stable, but short-term fluctuations (such as cold snaps in Hanoi or heatwaves in Bangkok) can occur. &quot;Rainfall probability&quot; here refers to the likelihood of measurable precipitation days, though intensity varies (Bangkok rain is rare/short; Hanoi rain is often a persistent light drizzle).</p></section><section class="s5-card s5-section"><h2>Bangkok vs Hanoi Weather Metrics</h2><div class="s5-table-wrap"><table class="s5-table"><thead><tr><th>Feature</th><th>Bangkok (Thailand)</th><th>Hanoi (Vietnam)</th></tr></thead><tbody><tr><td>**Daily Temp Range**</td><td>22°C - 32°C (72°F - 90°F)</td><td>14°C - 20°C (57°F - 68°F)</td></tr><tr><td>**Humidity**</td><td>65-70% (Comfortable for tropics)</td><td>75-82% (Damp/Misty)</td></tr><tr><td>**Rain Probability**</td><td>Very Low (&lt;2 days/month)</td><td>Moderate (5-7 days, mostly drizzle)</td></tr><tr><td>**Sky Conditions**</td><td>Mostly Clear / Sunny</td><td>Often Overcast / Gray</td></tr><tr><td>**Walking Comfort**</td><td>Low (Heat fatigue likely)</td><td>High (Cool, sweat-free)</td></tr></tbody></table></div><p class="s5-paragraph">Walking Tour Verdict<br />**Choose Hanoi if:** You prioritize physical comfort and want to explore the Old Quarter for hours without sweating. The cooler temperatures (similar to a mild European autumn) make it ideal for long treks, though photographs may look gloomy due to the common &quot;milk fog.&quot;</p><p class="s5-paragraph">**Choose Bangkok if:** You want vibrant blue skies for photography and don&#x27;t mind the heat. Walking tours here are best done early morning (6:00 AM - 10:00 AM) or late evening. Mid-day walking is strenuous due to the blazing sun.</p></section><section class="s5-card s5-section"><h2>Icons</h2><div class="s5-icon-row"><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_000175_01_1_camera.svg" alt="Thermometer" loading="lazy" /><span>Thermometer</span></span><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_001374_01_2_cash-coin.svg" alt="Rain Cloud" loading="lazy" /><span>Rain Cloud</span></span><span class="s5-icon-chip"><img class="s5-icon" src="../assets/r_000351_01_3_check-circle.svg" alt="Sun" loading="lazy" /><span>Sun</span></span></div></section><section class="s5-card s5-section"><h2>Sources</h2><ul class="s5-link-list"><li><a class="s5-link" href="https://worldweather.wmo.int/" target="_blank" rel="noopener noreferrer">World Weather Information Service</a></li><li><a class="s5-link" href="https://www.tourismthailand.org/" target="_blank" rel="noopener noreferrer">Tourism Authority of Thailand</a></li><li><a class="s5-link" href="https://vietnamtourism.gov.vn/" target="_blank" rel="noopener noreferrer">Vietnam National Authority of Tourism</a></li></ul></section>
+      </div>
+    </main>
+  </body>
+</html>

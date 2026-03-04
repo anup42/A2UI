@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>15-Minute Chicken Broccoli Pepper Stir-Fry (Serves 2)</title>
+    <style>
+      :root {
+        --bg: #eef4fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dbe7f5;
+        --accent: #1f78f0;
+        --accent-2: #1463cf;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at -10% -20%, #d9e8fb 0%, transparent 55%),
+          radial-gradient(1000px 500px at 120% 10%, #e4f0ff 0%, transparent 50%),
+          var(--bg);
+      }
+      .s5-page {
+        max-width: 920px;
+        margin: 20px auto 28px;
+        padding: 0 14px;
+      }
+      .s5-hero {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 14px;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .s5-hero h1 {
+        margin: 0;
+        font-size: clamp(22px, 2.6vw, 32px);
+        line-height: 1.2;
+      }
+      .s5-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .s5-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      }
+      .s5-section {
+        padding: 14px;
+      }
+      .s5-section h2 {
+        margin: 0 0 10px;
+        font-size: clamp(16px, 2vw, 21px);
+      }
+      .s5-paragraph {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .s5-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .s5-list li { margin: 6px 0; }
+      .s5-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5edf8;
+        border-radius: 12px;
+      }
+      .s5-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 520px;
+        font-size: 13px;
+      }
+      .s5-table th, .s5-table td {
+        border-bottom: 1px solid #edf3fb;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .s5-table th {
+        background: #f3f8ff;
+        font-weight: 700;
+      }
+      .s5-table tr:nth-child(even) td {
+        background: #fcfeff;
+      }
+      .s5-button-row {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-btn {
+        text-decoration: none;
+        color: #fff;
+        background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+        border: 1px solid rgba(12, 80, 170, 0.3);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .s5-btn:hover {
+        filter: brightness(1.05);
+      }
+      .s5-link-list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .s5-link-list li { margin: 6px 0; }
+      .s5-link {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .s5-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+      }
+      .s5-media-card {
+        margin: 0;
+        border: 1px solid #dce8f8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fbff;
+      }
+      .s5-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: #e7eef8;
+      }
+      .s5-media-card figcaption {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 10px;
+      }
+      .s5-icon-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .s5-icon-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d6e4f6;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: #f7fbff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .s5-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+      }
+      @media (max-width: 640px) {
+        .s5-page {
+          margin: 12px auto 20px;
+          padding: 0 10px;
+        }
+        .s5-hero {
+          border-radius: 14px;
+          padding: 14px 14px 11px;
+        }
+        .s5-section {
+          padding: 12px;
+        }
+        .s5-btn {
+          padding: 7px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="s5-page">
+      <header class="s5-hero">
+        <h1>15-Minute Chicken Broccoli Pepper Stir-Fry (Serves 2)</h1>
+      </header>
+      <div class="s5-stack">
+        <section class="s5-card s5-section"><h2>Cooking Plan and Timing</h2><ul class="s5-list"><li>Total active + cook time target: 15 minutes.</li><li>Protein: chicken breast, thin sliced for fast sear.</li><li>Sauce profile: savory soy, ginger, garlic with light gloss.</li></ul></section><section class="s5-card s5-section"><h2>Ingredients Table</h2><div class="s5-table-wrap"><table class="s5-table"><thead><tr><th>Ingredient</th><th>Amount</th><th>Notes</th></tr></thead><tbody><tr><td>Chicken breast</td><td>300g</td><td>Slice thin against grain</td></tr><tr><td>Broccoli florets</td><td>180g</td><td>Small florets for fast cook</td></tr><tr><td>Bell peppers</td><td>1.5 medium</td><td>Mixed colors, thin strips</td></tr><tr><td>Garlic</td><td>3 cloves</td><td>Minced</td></tr><tr><td>Fresh ginger</td><td>2 tsp</td><td>Finely grated</td></tr><tr><td>Soy sauce</td><td>3 tbsp</td><td>Base savory</td></tr><tr><td>Water</td><td>3 tbsp</td><td>Sauce balance</td></tr><tr><td>Cornstarch</td><td>1.5 tsp</td><td>Thickening</td></tr><tr><td>Sesame oil</td><td>1 tsp</td><td>Finish aroma</td></tr><tr><td>Neutral oil</td><td>1.5 tbsp</td><td>High-heat stir-fry</td></tr></tbody></table></div></section><section class="s5-card s5-section"><h2>Sauce Mix (Prepare First)</h2><ul class="s5-list"><li>Whisk soy sauce + water + cornstarch + ginger + garlic until smooth.</li></ul><p class="s5-paragraph">15-Minute Step Sequence</p><div class="s5-table-wrap"><table class="s5-table"><thead><tr><th>Minute</th><th>Action</th></tr></thead><tbody><tr><td>0-2</td><td>Heat wok/pan to high, add neutral oil.</td></tr><tr><td>2-5</td><td>Sear chicken until mostly opaque and lightly browned; remove.</td></tr><tr><td>5-8</td><td>Stir-fry broccoli + peppers with 2 tbsp water, cover 60 sec.</td></tr><tr><td>8-11</td><td>Return chicken, pour sauce, toss continuously until glossy.</td></tr><tr><td>11-13</td><td>Reduce heat, finish with sesame oil, taste and adjust salt.</td></tr><tr><td>13-15</td><td>Plate immediately over steamed rice or noodles.</td></tr></tbody></table></div></section><section class="s5-card s5-section"><h2>Optional Flavor Tweaks</h2><p class="s5-paragraph">Option 1: Spicy Finish | Add 1 tsp chili crisp at minute 12 | Best for heat lovers</p><p class="s5-paragraph">Option 2: Lower Sodium Variant | Use low-sodium soy and add 1 tsp rice vinegar | Cleaner profile</p><div class="s5-button-row"><a class="s5-btn" href="https://www.seriouseats.com/" target="_blank" rel="noopener noreferrer">Chili Crisp Pairing Ideas</a><a class="s5-btn" href="https://www.eatright.org/" target="_blank" rel="noopener noreferrer">Sodium Reduction Tips</a></div></section><section class="s5-card s5-section"><h2>Images</h2><div class="s5-media-grid"><figure class="s5-media-card"><img class="s5-image" src="https://loremflickr.com/1200/800/chicken,stirfry" alt="Chicken Stir Fry Bowl" loading="lazy" /><figcaption>Chicken Stir Fry Bowl</figcaption></figure><figure class="s5-media-card"><img class="s5-image" src="https://loremflickr.com/1200/800/cooking,ingredients" alt="Prep Ingredients on Board" loading="lazy" /><figcaption>Prep Ingredients on Board</figcaption></figure></div></section><section class="s5-card s5-section"><h2>Icons</h2><div class="s5-icon-row"><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/clock.svg" alt="Timer" loading="lazy" /><span>Timer</span></span><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/fire.svg" alt="Fire" loading="lazy" /><span>Fire</span></span><span class="s5-icon-chip"><img class="s5-icon" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/egg-fried.svg" alt="Bowl" loading="lazy" /><span>Bowl</span></span></div></section><section class="s5-card s5-section"><h2>Quick Actions</h2><div class="s5-button-row"><a class="s5-btn" href="https://www.calculator.net/conversion-calculator.html" target="_blank" rel="noopener noreferrer">Convert Ingredient Units</a><a class="s5-btn" href="https://www.bbcgoodfood.com/howto/guide/how-cook-rice" target="_blank" rel="noopener noreferrer">Quick Rice Cooking Guide</a></div></section><section class="s5-card s5-section"><h2>Sources</h2><ul class="s5-link-list"><li><a class="s5-link" href="https://www.seriouseats.com/" target="_blank" rel="noopener noreferrer">Serious Eats stir-fry techniques</a></li><li><a class="s5-link" href="https://www.eatright.org/" target="_blank" rel="noopener noreferrer">Academy of Nutrition and Dietetics</a></li></ul></section>
+      </div>
+    </main>
+  </body>
+</html>

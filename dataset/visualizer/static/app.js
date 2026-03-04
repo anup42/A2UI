@@ -61,6 +61,10 @@ function setSummary(payload) {
       <div class="value">${payload.genui ?? 0}</div>
     </div>
     <div class="card">
+      <div class="label">Stage5</div>
+      <div class="value">${payload.stage5 ?? 0}</div>
+    </div>
+    <div class="card">
       <div class="label">Overall Score</div>
       <div class="value">${overall ?? "-"}</div>
     </div>
@@ -406,7 +410,7 @@ function setRuns(runs) {
   runs.forEach((run) => {
     const opt = document.createElement("option");
     opt.value = run.run_id;
-    opt.textContent = `${run.run_id} (Q:${run.queries} R:${run.responses} G:${run.genui})`;
+    opt.textContent = `${run.run_id} (Q:${run.queries} R:${run.responses} G:${run.genui} S5:${run.stage5 ?? 0})`;
     runSelect.appendChild(opt);
   });
   if (!state.runId && runs.length > 0) {
@@ -514,6 +518,36 @@ function renderA2ui(items) {
   tableWrap.appendChild(createTable(headers, rows));
 }
 
+function renderStage5(items) {
+  const headers = ["response_id", "query_id", "created_at", "render_error", "output"];
+  const rows = items.map((item) => {
+    const renderInfo = item.render || {};
+    const renderError = renderInfo.error || "";
+    const createdAt = item.created_at || "";
+
+    const htmlLink = document.createElement("a");
+    htmlLink.href = `/runs/${state.runId}/${item.html_path}`;
+    htmlLink.textContent = "html";
+    htmlLink.target = "_blank";
+
+    const container = document.createElement("span");
+    container.appendChild(htmlLink);
+
+    if (item.image_path) {
+      const pngLink = document.createElement("a");
+      pngLink.href = `/runs/${state.runId}/${item.image_path}`;
+      pngLink.textContent = "png";
+      pngLink.target = "_blank";
+      container.appendChild(document.createTextNode(" | "));
+      container.appendChild(pngLink);
+    }
+
+    return [item.response_id, item.query_id, createdAt, renderError, container];
+  });
+  tableWrap.innerHTML = "";
+  tableWrap.appendChild(createTable(headers, rows));
+}
+
 async function loadRuns() {
   const payload = await fetchJson("/api/runs");
   setRuns(payload.runs || []);
@@ -543,6 +577,8 @@ async function loadTab() {
     renderQueries(items);
   } else if (state.tab === "responses") {
     renderResponses(items);
+  } else if (state.tab === "stage5") {
+    renderStage5(items);
   } else {
     renderA2ui(items);
   }

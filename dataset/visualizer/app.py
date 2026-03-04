@@ -138,6 +138,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
                 genui = _resolve_genui_jsonl(run_dir)
                 aggregates = run_dir / "aggregates.json"
                 render = run_dir / "render.jsonl"
+                stage5 = run_dir / "stage5_render.jsonl"
                 runs.append(
                     {
                         "run_id": run_dir.name,
@@ -146,6 +147,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
                         "genui": _count_lines(genui),
                         "has_aggregates": aggregates.exists(),
                         "has_render": render.exists(),
+                        "stage5": _count_lines(stage5),
                         "updated_at": datetime.utcfromtimestamp(run_dir.stat().st_mtime).isoformat() + "Z",
                     }
                 )
@@ -157,6 +159,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
             "queries": _count_lines(run_dir / "queries.jsonl"),
             "responses": _count_lines(run_dir / "responses.jsonl"),
             "genui": _count_lines(_resolve_genui_jsonl(run_dir)),
+            "stage5": _count_lines(run_dir / "stage5_render.jsonl"),
         }
         aggregates = run_dir / "aggregates.json"
         if aggregates.exists():
@@ -169,6 +172,8 @@ class DatasetHandler(BaseHTTPRequestHandler):
     def _handle_api_jsonl(self, run_dir: Path, name: str, query: dict) -> None:
         if name in ("genui", "a2ui"):
             path = _resolve_genui_jsonl(run_dir)
+        elif name == "stage5":
+            path = run_dir / "stage5_render.jsonl"
         else:
             path = run_dir / f"{name}.jsonl"
         offset = int(query.get("offset", ["0"])[0])
@@ -236,7 +241,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
             if parts[4] == "summary":
                 self._handle_api_summary(run_dir)
                 return
-            if parts[4] in ("queries", "responses", "genui", "a2ui"):
+            if parts[4] in ("queries", "responses", "genui", "a2ui", "stage5"):
                 self._handle_api_jsonl(run_dir, parts[4], query)
                 return
         self._send_json({"error": "not found"}, status=404)

@@ -1,6 +1,6 @@
 {
   "manifest_version": 1,
-  "generated_at": "2026-02-12T17:52:18Z",
+  "generated_at": "2026-02-17T20:56:16Z",
   "run_id": "subset50_g25pro_prompttuned_20260212_022406",
   "stage": 4,
   "repo": {
@@ -17,14 +17,14 @@
       "genui_schema": "v0.9",
       "min_manifest_version": 1
     },
-    "git_commit": "d54958b5566ffc064694ba757f6d7b0c64761151",
+    "git_commit": "bec44be37482e35228a93151ea6a40f05750f2bd",
     "git_branch": "main",
     "git_dirty": true
   },
   "model": {
-    "name": "openai_gpt4o",
-    "provider": "openai",
-    "model": "gpt-4o"
+    "name": "local_mock",
+    "provider": "local",
+    "model": "mock"
   },
   "config": {
     "files": {
@@ -48,9 +48,11 @@
       "src/main.py",
       "--stage",
       "4",
+      "--model",
+      "local_mock",
       "--run_id",
       "subset50_g25pro_prompttuned_20260212_022406"
     ],
-    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+    "cwd": "C:\\Users\\anupk\\Documents\\workspace\\A2UI\\dataset"
   }
 }

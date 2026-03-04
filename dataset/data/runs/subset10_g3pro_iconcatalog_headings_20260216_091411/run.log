@@ -99,3 +99,12 @@
 2026-02-17 03:27:57 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411\rendered
 2026-02-17 03:34:35 INFO dataset: Stage4 HTTP server started on port 49893
 2026-02-17 03:34:36 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411\rendered
+2026-02-17 11:02:50 INFO dataset: Stage4 HTTP server started on port 64658
+2026-02-17 11:03:06 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411\rendered
+2026-02-18 01:11:17 INFO dataset: Stage4 HTTP server started on port 64460
+2026-02-18 01:11:18 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411\rendered
+2026-02-18 02:24:18 INFO dataset: Stage4 HTTP server started on port 51956
+2026-02-18 02:24:19 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411\rendered
+2026-03-03 13:16:17 INFO dataset: Stage5 HTTP server started on port 52027
+2026-03-03 13:16:28 INFO dataset: Stage5 completed created=10 output_dir=C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411\stage5_rendered
+2026-03-03 13:16:28 INFO dataset: Stage5 complete. Direct HTML outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411\stage5_rendered

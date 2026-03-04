@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sys_color_background">@color/palette_gray_100</color>
+    <color name="sys_color_background_variant">@color/palette_gray_100</color>
+    <color name="sys_color_surface">@color/palette_gray_95</color>
+    <color name="sys_color_surface_bright">@color/palette_gray_90</color>
+    <color name="sys_color_surface_brightest">@color/palette_gray_80</color>
+    <color name="sys_color_surface_variant">@color/palette_gray_95</color>
+    <color name="sys_color_surface_fixed">@color/palette_gray_70</color>
+    <color name="sys_color_surface_fixed_variant">@color/palette_gray_100</color>
+
+    <color name="sys_color_surface_container_lowest">@color/palette_gray_100</color>
+    <color name="sys_color_surface_container_low">@color/palette_gray_90</color>
+    <color name="sys_color_surface_container">@color/palette_gray_80</color>
+    <color name="sys_color_surface_container_high">@color/palette_gray_70</color>
+    <color name="sys_color_surface_container_higher">@color/palette_gray_60</color>
+    <color name="sys_color_surface_container_highest">@color/palette_gray_50</color>
+    <color name="sys_color_surface_container_fixed">@color/palette_gray_1</color>
+    <color name="sys_color_surface_container_fixed_variant">@color/palette_gray_100</color>
+
+    <color name="sys_color_tone_on_tone">#1AFCFCFF</color>
+    <color name="sys_color_tone_on_tone_high">#26FCFCFF</color>
+
+    <color name="sys_color_on_surface_container_highest">@color/palette_gray_1</color>
+    <color name="sys_color_on_surface_container_high">@color/palette_gray_10</color>
+    <color name="sys_color_on_surface_container">@color/palette_gray_20</color>
+    <color name="sys_color_on_surface_container_low">@color/palette_gray_30</color>
+    <color name="sys_color_on_surface_container_lowest">@color/palette_gray_40</color>
+    <color name="sys_color_on_surface_container_fixed">@color/palette_gray_1</color>
+    <color name="sys_color_on_surface_container_fixed_variant">@color/palette_gray_100</color>
+
+    <color name="sys_color_outline_highest">@color/palette_gray_10</color>
+    <color name="sys_color_outline_high">@color/palette_gray_40</color>
+    <color name="sys_color_outline">@color/palette_gray_60</color>
+    <color name="sys_color_outline_low">@color/palette_gray_80</color>
+
+    <color name="sys_color_primary">@color/palette_primary_50</color>
+    <color name="sys_color_primary_bright">@color/palette_primary_40</color>
+    <color name="sys_color_primary_high">@color/palette_primary_40</color>
+
+    <color name="sys_color_functional_red">@color/palette_red_50</color>
+    <color name="sys_color_functional_red_bright">@color/palette_red_30</color>
+    <color name="sys_color_functional_green">@color/palette_green_50</color>
+    <color name="sys_color_functional_green_bright">@color/palette_green_20</color>
+    <color name="sys_color_functional_orange">@color/palette_orange_50</color>
+    <color name="sys_color_functional_orange_bright">@color/palette_orange_30</color>
+
+    <color name="sys_color_scrim">#99000000</color>
+    <color name="sys_color_state_overlay">#1F000000</color>
+    <color name="sys_color_shadow">#59000000</color>
+</resources>

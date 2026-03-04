@@ -11,24 +11,35 @@ Output contract:
 - Use v0.9 message types only: createSurface, updateComponents, updateDataModel, deleteSurface.
 - Emit exactly one createSurface before any update message.
 - updateComponents must include exactly one root component with id "root".
-- Use only local asset URLs starting with '/'. Never use remote URLs.
+- Asset URL policy:
+  - If an "Assets (local copies ...)" mapping is provided in the input, use only those mapped local paths.
+  - If no asset mapping is provided, preserve media URLs from the response exactly as given (including remote http/https URLs).
+  - Never invent placeholder local media paths (for example `/image.jpg` or `/asset/foo.png`) unless explicitly provided.
 
 Structural quality requirements (strict):
 - Do NOT dump the entire response into one Text component except for very short single-paragraph responses.
 - Build clear sections with heading Text variants (h2/h3/h4) and separate body Text nodes.
+- For medium/long responses, create at least 3 semantic sections (e.g., Summary, Comparison, Actions/Sources) with explicit heading components.
 - Convert bullet-style content into multiple child nodes (List/Column + Text rows), not markdown bullets in one Text blob.
 - Convert table/comparison content into explicit row/column structure:
   - Prefer List(direction:"vertical") with a header Row + data Rows.
   - Keep the same number/order of columns across rows.
   - Cells should be separate Text components.
+  - If content compares 2+ options/items (e.g., "Option", "vs", "comparison"), always include a structured table-like block plus optional detail cards.
 - Convert action links/CTAs into Button with action.functionCall.call="openUrl".
 - Convert source links into borderless Buttons under a "Sources" section when possible.
+- Never place raw URLs (http/https/www) inside Text components; URLs must only appear inside Button action.functionCall.args.url (or Image.url for assets).
+- If the response includes `Images:` or `Icons:` sections with URLs, create corresponding media components and keep those URLs exact.
+- Remove markdown markers from rendered text content ("###", "|", "*", "[ ]", "[Button: ...]").
+- Avoid duplicate lines across table rows/cards; keep each row/card concise and non-redundant.
+- Prefer robust decomposition for rich responses (target roughly 30-60 components when content is long enough), while keeping hierarchy valid and non-dangling.
 - Preserve key facts exactly (numbers, units, dates, currency, rates).
 
 Validation checklist before finalizing:
 - Schema-valid JSON array only.
 - No markdown table pipes '|' in Text when a structured table is possible.
 - No pseudo button text like "[Button: ...]".
+- No raw URL strings inside Text components.
 - No dangling component references.
 
 Schema (server_to_client_list.json):
