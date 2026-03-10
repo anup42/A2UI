@@ -265,13 +265,20 @@ fun genUiCardBorderColor(): Color {
 fun GenUiCraftTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val darkTheme = isSystemInDarkTheme()
-    val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    val baseScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else if (darkTheme) {
         DarkScheme
     } else {
         LightScheme
     }
+    val colorScheme = baseScheme.copy(
+        // Keep text/readability stable on translucent windows in Samsung One UI by
+        // avoiding semi-transparent text colors that can produce pale text bounding boxes.
+        onSurfaceVariant = baseScheme.onSurfaceVariant.copy(alpha = 1f),
+        outline = baseScheme.outline.copy(alpha = 1f),
+        outlineVariant = baseScheme.outlineVariant.copy(alpha = 1f)
+    )
 
     MaterialTheme(
         colorScheme = colorScheme,
