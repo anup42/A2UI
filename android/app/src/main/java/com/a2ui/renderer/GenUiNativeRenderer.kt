@@ -768,7 +768,11 @@ object GenUiNativeRenderer {
                                 MaterialTheme.colorScheme.outlineVariant,
                                 RoundedCornerShape(GenUiTokens.RadiusMd)
                             ),
-                        contentScale = ContentScale.Fit,
+                        contentScale = defaultImageScale(
+                            rawUrl = value,
+                            fitValue = null,
+                            defaultCoverForRaster = true
+                        ),
                         asIcon = false
                     )
                 }
@@ -1147,7 +1151,11 @@ object GenUiNativeRenderer {
                                     MaterialTheme.colorScheme.outlineVariant,
                                     RoundedCornerShape(GenUiTokens.RadiusMd)
                                 ),
-                            contentScale = ContentScale.Fit,
+                            contentScale = defaultImageScale(
+                                rawUrl = entry.url,
+                                fitValue = null,
+                                defaultCoverForRaster = true
+                            ),
                             asIcon = false
                         )
                         Text(
@@ -1258,7 +1266,7 @@ object GenUiNativeRenderer {
         }
 
         val variant = (component.getString("variant") ?: "").lowercase(Locale.US)
-        val fit = (component.getString("fit") ?: "contain").normalizeLayoutToken()
+        val fit = component.getString("fit")
         val urlLower = rawUrl.lowercase(Locale.US)
         val likelyLogo = variant.contains("logo") || urlLower.contains("logo")
         val rasterImage =
@@ -1320,7 +1328,11 @@ object GenUiNativeRenderer {
                         RoundedCornerShape(GenUiTokens.RadiusMd)
                     )
             },
-            contentScale = if (fit == "cover") ContentScale.Crop else ContentScale.Fit,
+            contentScale = defaultImageScale(
+                rawUrl = rawUrl,
+                fitValue = fit,
+                defaultCoverForRaster = rasterImage && !likelyLogo && !inlineIconLike
+            ),
             asIcon = inlineIconLike
         )
     }
@@ -2367,6 +2379,36 @@ object GenUiNativeRenderer {
             normalized.endsWith(".jpeg") ||
             normalized.endsWith(".svg") ||
             normalized.endsWith(".webp")
+    }
+
+    private fun isVectorImagePath(value: String): Boolean =
+        value.trim().lowercase(Locale.US).endsWith(".svg")
+
+    private fun isRasterImagePath(value: String): Boolean {
+        val normalized = value.trim().lowercase(Locale.US)
+        return normalized.endsWith(".png") ||
+            normalized.endsWith(".jpg") ||
+            normalized.endsWith(".jpeg") ||
+            normalized.endsWith(".webp")
+    }
+
+    private fun defaultImageScale(
+        rawUrl: String,
+        fitValue: String?,
+        defaultCoverForRaster: Boolean
+    ): ContentScale {
+        val normalizedFit = fitValue?.normalizeLayoutToken()
+        return when (normalizedFit) {
+            "contain", "fit", "inside" -> ContentScale.Fit
+            "cover", "crop", "fill", "fillbounds", "fillwidth", "fillheight" -> ContentScale.Crop
+            else -> {
+                if (defaultCoverForRaster && isRasterImagePath(rawUrl) && !isVectorImagePath(rawUrl)) {
+                    ContentScale.Crop
+                } else {
+                    ContentScale.Fit
+                }
+            }
+        }
     }
 
     private fun resolveExternalUrl(raw: String, sourceDir: File?): String? =

@@ -1299,7 +1299,29 @@ object GenUiHtmlRenderer {
             return "<div class=\"warning\">Missing $className source</div>"
         }
         val resolved = resolveAssetUrl(raw, sourceDir)
-        return """<img class="$className" src="${escapeAttr(resolved)}" alt="$className" />"""
+        if (className == "icon") {
+            return """<img class="$className" src="${escapeAttr(resolved)}" alt="$className" />"""
+        }
+
+        val variant = (component.getString("variant") ?: "").lowercase(Locale.US)
+        val fit = component.getString("fit")
+            ?.lowercase(Locale.US)
+            ?.replace("_", "")
+            ?.replace("-", "")
+            ?.replace(" ", "")
+        val rawLower = raw.lowercase(Locale.US)
+        val likelyLogo = variant.contains("logo") || rawLower.contains("logo")
+        val raster = rawLower.endsWith(".png") ||
+            rawLower.endsWith(".jpg") ||
+            rawLower.endsWith(".jpeg") ||
+            rawLower.endsWith(".webp")
+        val useCover = when (fit) {
+            "contain", "fit", "inside" -> false
+            "cover", "crop", "fill", "fillbounds", "fillwidth", "fillheight" -> true
+            else -> raster && !likelyLogo
+        }
+        val imageClass = if (useCover) "$className image-cover" else "$className image-contain"
+        return """<img class="$imageClass" src="${escapeAttr(resolved)}" alt="$className" />"""
     }
 
     private fun renderButton(
@@ -1941,16 +1963,19 @@ object GenUiHtmlRenderer {
                   display: flex;
                   align-items: center;
                   justify-content: center;
-                  padding: 8px;
+                  padding: 0;
+                  overflow: hidden;
                 }
                 .media-preview {
-                  max-width: 100%;
-                  max-height: 120px;
-                  object-fit: contain;
+                  width: 100%;
+                  height: 120px;
+                  object-fit: cover;
+                  display: block;
                 }
                 .media-preview-icon {
-                  max-height: 42px;
-                  max-width: 42px;
+                  width: 42px;
+                  height: 42px;
+                  object-fit: contain;
                 }
 
                 .media-label {
@@ -2043,10 +2068,19 @@ object GenUiHtmlRenderer {
                 }
 
                 .image {
-                  max-width: 100%;
-                  height: auto;
+                  width: 100%;
+                  height: 170px;
+                  object-fit: cover;
                   border-radius: var(--sys-radius-md);
                   border: var(--sys-border-md) solid var(--sys-color-outline-low);
+                  display: block;
+                  background: transparent;
+                }
+
+                .image.image-contain {
+                  height: auto;
+                  max-height: 170px;
+                  object-fit: contain;
                 }
 
                 .icon {
