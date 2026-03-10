@@ -1,4 +1,4 @@
-﻿package com.samsung.genuicraft
+package com.samsung.genuicraft
 
 import android.content.Intent
 import android.net.Uri
@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,6 +59,7 @@ class RenderActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyOneUiWindowBlur()
 
         val index = intent.getIntExtra(EXTRA_RECORD_INDEX, -1)
         val session = RenderSessionStore.current()
@@ -118,124 +118,126 @@ private fun RenderScreen(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.56f),
+                    containerColor = genUiTopBarContainerColor(),
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         }
     ) { innerPadding ->
-        Column(
+        GenUiScreenBackground(
             modifier = Modifier
                 .fillMaxSize()
-                .background(genUiBackgroundBrush())
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
-                .padding(horizontal = horizontalPadding, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            if (session == null || record == null || index < 0) {
-                Text(
-                    text = stringResource(id = R.string.render_error_title),
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.error
-                )
-                Text(
-                    text = stringResource(id = R.string.error_session_missing),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                return@Column
-            }
-
-            val modeLabel = when (session.renderMode) {
-                RenderMode.NATIVE -> stringResource(id = R.string.render_mode_native)
-                RenderMode.WEB -> stringResource(id = R.string.render_mode_web)
-            }
-
-            Text(
-                text = stringResource(
-                    id = R.string.rendering_position,
-                    index + 1,
-                    session.records.size,
-                    record.sourceLabel
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = modeLabel,
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            when (session.renderMode) {
-                RenderMode.WEB -> {
-                    val webResult = remember(record.rawJson, record.sourceDir) {
-                        GenUiHtmlRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
-                    }
-                    val colorScheme = MaterialTheme.colorScheme
-                    val themedHtml = remember(
-                        webResult.html,
-                        colorScheme.background,
-                        colorScheme.surface,
-                        colorScheme.surfaceContainerLowest,
-                        colorScheme.surfaceContainerLow,
-                        colorScheme.surfaceContainer,
-                        colorScheme.surfaceContainerHigh,
-                        colorScheme.surfaceVariant,
-                        colorScheme.onSurface,
-                        colorScheme.onSurfaceVariant,
-                        colorScheme.primary,
-                        colorScheme.primaryContainer,
-                        colorScheme.secondary,
-                        colorScheme.secondaryContainer,
-                        colorScheme.tertiary,
-                        colorScheme.tertiaryContainer,
-                        colorScheme.outline,
-                        colorScheme.outlineVariant,
-                        colorScheme.error,
-                        deviceConfig.screenWidthDp,
-                        deviceConfig.screenHeightDp,
-                        deviceConfig.smallestWidthDp,
-                        deviceConfig.fontScale,
-                        deviceConfig.isLandscape,
-                        deviceConfig.localeTag,
-                        deviceConfig.layoutDirection,
-                        deviceConfig.widthClass,
-                        deviceConfig.heightClass
-                    ) {
-                        applyDynamicHtmlPalette(webResult.html, colorScheme, deviceConfig)
-                    }
-
-                    if (webResult.warnings.isNotEmpty()) {
-                        WarningCard(warnings = webResult.warnings)
-                    }
-
-                    WebRenderPane(
-                        html = themedHtml,
-                        assetLoader = assetLoader,
-                        onOpenExternalUrl = onOpenExternalUrl,
-                        deviceConfig = deviceConfig,
-                        webBackgroundColor = colorScheme.surfaceContainerLowest.copy(alpha = 0.22f),
-                        modifier = Modifier.weight(1f)
+        ) { backgroundModifier ->
+            Column(
+                modifier = backgroundModifier
+                    .padding(horizontal = horizontalPadding, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                if (session == null || record == null || index < 0) {
+                    Text(
+                        text = stringResource(id = R.string.render_error_title),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.error
                     )
+                    Text(
+                        text = stringResource(id = R.string.error_session_missing),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    return@Column
                 }
 
-                RenderMode.NATIVE -> {
-                    val nativeResult = remember(record.rawJson, record.sourceDir) {
-                        GenUiNativeRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
+                val modeLabel = when (session.renderMode) {
+                    RenderMode.NATIVE -> stringResource(id = R.string.render_mode_native)
+                    RenderMode.WEB -> stringResource(id = R.string.render_mode_web)
+                }
+
+                Text(
+                    text = stringResource(
+                        id = R.string.rendering_position,
+                        index + 1,
+                        session.records.size,
+                        record.sourceLabel
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = modeLabel,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                when (session.renderMode) {
+                    RenderMode.WEB -> {
+                        val webResult = remember(record.rawJson, record.sourceDir) {
+                            GenUiHtmlRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
+                        }
+                        val colorScheme = MaterialTheme.colorScheme
+                        val themedHtml = remember(
+                            webResult.html,
+                            colorScheme.background,
+                            colorScheme.surface,
+                            colorScheme.surfaceContainerLowest,
+                            colorScheme.surfaceContainerLow,
+                            colorScheme.surfaceContainer,
+                            colorScheme.surfaceContainerHigh,
+                            colorScheme.surfaceVariant,
+                            colorScheme.onSurface,
+                            colorScheme.onSurfaceVariant,
+                            colorScheme.primary,
+                            colorScheme.primaryContainer,
+                            colorScheme.secondary,
+                            colorScheme.secondaryContainer,
+                            colorScheme.tertiary,
+                            colorScheme.tertiaryContainer,
+                            colorScheme.outline,
+                            colorScheme.outlineVariant,
+                            colorScheme.error,
+                            deviceConfig.screenWidthDp,
+                            deviceConfig.screenHeightDp,
+                            deviceConfig.smallestWidthDp,
+                            deviceConfig.fontScale,
+                            deviceConfig.isLandscape,
+                            deviceConfig.localeTag,
+                            deviceConfig.layoutDirection,
+                            deviceConfig.widthClass,
+                            deviceConfig.heightClass
+                        ) {
+                            applyDynamicHtmlPalette(webResult.html, colorScheme, deviceConfig)
+                        }
+
+                        if (webResult.warnings.isNotEmpty()) {
+                            WarningCard(warnings = webResult.warnings)
+                        }
+
+                        WebRenderPane(
+                            html = themedHtml,
+                            assetLoader = assetLoader,
+                            onOpenExternalUrl = onOpenExternalUrl,
+                            deviceConfig = deviceConfig,
+                            modifier = Modifier.weight(1f)
+                        )
                     }
 
-                    if (nativeResult.warnings.isNotEmpty()) {
-                        WarningCard(warnings = nativeResult.warnings)
-                    }
+                    RenderMode.NATIVE -> {
+                        val nativeResult = remember(record.rawJson, record.sourceDir) {
+                            GenUiNativeRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
+                        }
 
-                    GenUiNativeRenderer.Render(
-                        result = nativeResult,
-                        sourceDir = record.sourceDir,
-                        onOpenExternalUrl = onOpenExternalUrl,
-                        modifier = Modifier.weight(1f)
-                    )
+                        if (nativeResult.warnings.isNotEmpty()) {
+                            WarningCard(warnings = nativeResult.warnings)
+                        }
+
+                        GenUiNativeRenderer.Render(
+                            result = nativeResult,
+                            sourceDir = record.sourceDir,
+                            onOpenExternalUrl = onOpenExternalUrl,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }
@@ -245,7 +247,8 @@ private fun RenderScreen(
 @Composable
 private fun WarningCard(warnings: List<String>) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
         shape = RoundedCornerShape(GenUiTokens.RadiusLg),
         colors = genUiCardColors(GenUiCardTone.Error),
         elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -279,13 +282,12 @@ private fun WebRenderPane(
     assetLoader: WebViewAssetLoader,
     onOpenExternalUrl: (String) -> Unit,
     deviceConfig: DeviceUiConfig,
-    webBackgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
     AndroidView(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background),
+            .background(Color.Transparent),
         factory = { context ->
             WebView(context).apply {
                 settings.javaScriptEnabled = false
@@ -296,7 +298,7 @@ private fun WebRenderPane(
                 settings.builtInZoomControls = false
                 settings.displayZoomControls = false
                 settings.textZoom = deviceConfig.webViewTextZoomPercent()
-                setBackgroundColor(webBackgroundColor.toArgb())
+                setBackgroundColor(android.graphics.Color.TRANSPARENT)
 
                 webViewClient = object : WebViewClientCompat() {
                     override fun shouldInterceptRequest(
@@ -320,7 +322,7 @@ private fun WebRenderPane(
         },
         update = { webView ->
             webView.settings.textZoom = deviceConfig.webViewTextZoomPercent()
-            webView.setBackgroundColor(webBackgroundColor.toArgb())
+            webView.setBackgroundColor(android.graphics.Color.TRANSPARENT)
             webView.loadDataWithBaseURL(RenderActivity.APP_ASSET_BASE_URL, html, "text/html", "utf-8", null)
         }
     )
@@ -338,15 +340,15 @@ private fun applyDynamicHtmlPalette(
         colorScheme.primaryContainer,
         if (dark) 0.18f else 0.12f
     )
-    val surface = colorScheme.surface.toCssRgba(if (dark) 0.48f else 0.60f)
-    val surfaceLow = colorScheme.surfaceContainerLow.toCssRgba(if (dark) 0.46f else 0.58f)
-    val surfaceContainer = colorScheme.surfaceContainer.toCssRgba(if (dark) 0.50f else 0.62f)
-    val surfaceHigh = colorScheme.surfaceContainerHigh.toCssRgba(if (dark) 0.56f else 0.68f)
-    val toneOnTone = colorScheme.onSurface.toCssRgba(if (dark) 0.12f else 0.08f)
-    val toneOnToneHigh = colorScheme.onSurface.toCssRgba(if (dark) 0.18f else 0.12f)
-    val tableSurface = "transparent"
-    val tableStripe = colorScheme.onSurface.toCssRgba(if (dark) 0.06f else 0.035f)
-    val tableHeader = colorScheme.onSurface.toCssRgba(if (dark) 0.09f else 0.05f)
+    val surface = colorScheme.surfaceContainerHigh.toCssRgba(if (dark) 0.58f else 0.52f)
+    val surfaceLow = colorScheme.surfaceContainerLow.toCssRgba(if (dark) 0.54f else 0.48f)
+    val surfaceContainer = colorScheme.surfaceContainer.toCssRgba(if (dark) 0.58f else 0.52f)
+    val surfaceHigh = colorScheme.surfaceContainerHighest.toCssRgba(if (dark) 0.62f else 0.56f)
+    val toneOnTone = colorScheme.onSurface.toCssRgba(if (dark) 0.10f else 0.06f)
+    val toneOnToneHigh = colorScheme.onSurface.toCssRgba(if (dark) 0.14f else 0.10f)
+    val tableSurface = colorScheme.surfaceContainerHigh.toCssRgba(if (dark) 0.56f else 0.50f)
+    val tableStripe = colorScheme.onSurface.toCssRgba(if (dark) 0.040f else 0.026f)
+    val tableHeader = colorScheme.onSurface.toCssRgba(if (dark) 0.070f else 0.040f)
     val layoutDirection = if (deviceConfig.layoutDirection == LayoutDirection.Rtl) "rtl" else "ltr"
     val orientation = if (deviceConfig.isLandscape) "landscape" else "portrait"
     val bodyPadding = when (deviceConfig.widthClass) {
@@ -376,23 +378,23 @@ private fun applyDynamicHtmlPalette(
             --device-width-class: ${deviceConfig.widthClass.cssToken()};
             --device-height-class: ${deviceConfig.heightClass.cssToken()};
 
-            --sys-color-background: ${background.toCssRgba(if (dark) 0.26f else 0.36f)};
-            --sys-color-background-variant: ${backgroundVariant.toCssRgba(if (dark) 0.34f else 0.44f)};
+            --sys-color-background: ${background.toCssRgba(if (dark) 0.20f else 0.28f)};
+            --sys-color-background-variant: ${backgroundVariant.toCssRgba(if (dark) 0.24f else 0.32f)};
             --sys-color-surface: $surface;
             --sys-color-surface-bright: $surface;
             --sys-color-surface-brightest: $surface;
-            --sys-color-surface-variant: ${colorScheme.surfaceVariant.toCssRgba(if (dark) 0.52f else 0.66f)};
+            --sys-color-surface-variant: ${colorScheme.surfaceVariant.toCssRgba(if (dark) 0.44f else 0.56f)};
             --sys-color-surface-fixed: $surfaceHigh;
-            --sys-color-surface-fixed-variant: ${colorScheme.onSurface.toCssRgba(if (dark) 0.86f else 0.90f)};
+            --sys-color-surface-fixed-variant: ${colorScheme.onSurface.toCssRgba(if (dark) 0.78f else 0.84f)};
 
-            --sys-color-surface-container-lowest: ${background.toCssRgba(if (dark) 0.40f else 0.50f)};
+            --sys-color-surface-container-lowest: ${background.toCssRgba(if (dark) 0.32f else 0.40f)};
             --sys-color-surface-container-low: $surfaceLow;
             --sys-color-surface-container: $surfaceContainer;
             --sys-color-surface-container-high: $surfaceHigh;
             --sys-color-surface-container-higher: $surfaceHigh;
             --sys-color-surface-container-highest: $surfaceHigh;
             --sys-color-surface-container-fixed: $surface;
-            --sys-color-surface-container-fixed-variant: ${colorScheme.onSurface.toCssRgba(if (dark) 0.86f else 0.90f)};
+            --sys-color-surface-container-fixed-variant: ${colorScheme.onSurface.toCssRgba(if (dark) 0.78f else 0.84f)};
 
             --sys-color-tone-on-tone: $toneOnTone;
             --sys-color-tone-on-tone-high: $toneOnToneHigh;

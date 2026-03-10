@@ -1,14 +1,16 @@
-﻿package com.samsung.genuicraft
+package com.samsung.genuicraft
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,12 +39,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import java.io.File
 import java.util.Locale
 
@@ -78,9 +83,21 @@ class MainActivity : AppCompatActivity() {
             loadBundledSample(dataset)
         }
 
+    private val wallpaperPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            val granted = result.values.any { it }
+            if (granted) {
+                showStatus("Wallpaper blur enabled.", isError = false)
+            } else {
+                showStatus("Wallpaper blur fallback disabled (media permission denied).", isError = false)
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyOneUiWindowBlur()
         statusMessage = StatusMessage(getString(R.string.status_ready_select_source), isError = false)
+        requestWallpaperPermissionIfNeeded()
 
         setContent {
             GenUiCraftTheme {
@@ -118,6 +135,31 @@ class MainActivity : AppCompatActivity() {
 
     private fun openSampleSetPicker() {
         sampleSetPicker.launch(Intent(this, SampleDatasetPickerActivity::class.java))
+    }
+
+    private fun requestWallpaperPermissionIfNeeded() {
+        val permissions = wallpaperPermissionsForCurrentApi()
+        if (permissions.isEmpty()) {
+            return
+        }
+        val allGranted = permissions.all { permission ->
+            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+        }
+        if (allGranted) {
+            return
+        }
+        wallpaperPermissionLauncher.launch(permissions)
+    }
+
+    private fun wallpaperPermissionsForCurrentApi(): Array<String> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        } else {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
 
     private fun loadBundledSample(dataset: SampleDataset) {
@@ -222,22 +264,24 @@ private fun HomeScreen(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.56f),
+                    containerColor = genUiTopBarContainerColor(),
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         }
     ) { innerPadding ->
-        Column(
+        GenUiScreenBackground(
             modifier = Modifier
                 .fillMaxSize()
-                .background(genUiBackgroundBrush())
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
+        ) { backgroundModifier ->
+            Column(
+                modifier = backgroundModifier
                 .padding(horizontal = horizontalPadding, vertical = 16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
+            ) {
             Text(
                 text = stringResourceCompat(R.string.home_subtitle),
                 style = MaterialTheme.typography.bodySmall,
@@ -245,6 +289,8 @@ private fun HomeScreen(
             )
 
             Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(GenUiTokens.RadiusXl),
                 colors = genUiCardColors(GenUiCardTone.Primary),
                 elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationMd),
@@ -293,6 +339,8 @@ private fun HomeScreen(
             }
 
             Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                 colors = genUiCardColors(GenUiCardTone.Neutral),
                 elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -333,12 +381,15 @@ private fun HomeScreen(
                 color = statusColor,
                 modifier = Modifier.padding(horizontal = 4.dp)
             )
+            }
         }
     }
 }
 
 @Composable
 private fun DeviceConfigCard(deviceConfig: DeviceUiConfig) {
+    val context = LocalContext.current
+    val systemBlurActive = remember(context) { context.isCrossWindowBlurActive() }
     val webZoomLabel = "${deviceConfig.webViewTextZoomPercent()}%"
     val fontScaleLabel = String.format(Locale.US, "%.2fx", deviceConfig.fontScale)
     val densityLabel = String.format(Locale.US, "%.2f", deviceConfig.density)
@@ -347,6 +398,8 @@ private fun DeviceConfigCard(deviceConfig: DeviceUiConfig) {
     val themeLabel = if (deviceConfig.isDarkTheme) "Dark" else "Light"
 
     Card(
+        modifier = Modifier
+            .fillMaxWidth(),
         shape = RoundedCornerShape(GenUiTokens.RadiusLg),
         colors = genUiCardColors(GenUiCardTone.Neutral),
         elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -383,10 +436,14 @@ private fun DeviceConfigCard(deviceConfig: DeviceUiConfig) {
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.outline
             )
+            Text(
+                text = "Blur mode: ${if (systemBlurActive) "System window blur" else "Fallback wallpaper blur"}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline
+            )
         }
     }
 }
 
 @Composable
 private fun stringResourceCompat(id: Int): String = androidx.compose.ui.res.stringResource(id = id)
-

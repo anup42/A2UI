@@ -1,4 +1,4 @@
-﻿package com.samsung.genuicraft
+package com.samsung.genuicraft
 
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
@@ -206,7 +206,8 @@ object GenUiNativeRenderer {
             colors = genUiCardColors(GenUiCardTone.Neutral),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationMd),
             border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
@@ -463,7 +464,8 @@ object GenUiNativeRenderer {
         activePath: Set<String>
     ) {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
             colors = genUiCardColors(GenUiCardTone.Neutral),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -560,7 +562,8 @@ object GenUiNativeRenderer {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         block.items.forEach { step ->
                             Card(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth(),
                                 shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                                 colors = genUiCardColors(GenUiCardTone.Neutral),
                                 elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -638,30 +641,20 @@ object GenUiNativeRenderer {
                 }
                 if (titleParagraph != null && titleParagraph.text.length >= 180) {
                     val titleText = (block as TextBlock.Title).text
-                    Card(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-                        colors = genUiCardColors(GenUiCardTone.Neutral),
-                        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            MarkdownText(
-                                text = titleText,
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            MarkdownText(
-                                text = titleParagraph.text,
-                                style = paragraphStyle,
-                                color = baseColor
-                            )
-                        }
+                        MarkdownText(
+                            text = titleText,
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        MarkdownText(
+                            text = titleParagraph.text,
+                            style = paragraphStyle,
+                            color = baseColor
+                        )
                     }
                     index += 2
                     continue
@@ -689,27 +682,17 @@ object GenUiNativeRenderer {
                         sectionBlocks.any { it is TextBlock.Paragraph && it.text.length >= 120 }
 
                     if (sectionBlocks.isNotEmpty() && hasLongParagraph) {
-                        Card(
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-                            colors = genUiCardColors(GenUiCardTone.Neutral),
-                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                MarkdownText(
-                                    text = block.text,
-                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                sectionBlocks.forEach { sectionBlock ->
-                                    RenderSingleBlock(sectionBlock)
-                                }
+                            MarkdownText(
+                                text = block.text,
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            sectionBlocks.forEach { sectionBlock ->
+                                RenderSingleBlock(sectionBlock)
                             }
                         }
                         index = cursor
@@ -1011,7 +994,8 @@ object GenUiNativeRenderer {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             options.forEach { option ->
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Primary),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -1076,7 +1060,8 @@ object GenUiNativeRenderer {
 
         if (primary.isEmpty()) {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                 colors = genUiCardColors(GenUiCardTone.Neutral),
                 elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -1127,7 +1112,8 @@ object GenUiNativeRenderer {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             primary.forEachIndexed { index, entry ->
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Neutral),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -1202,7 +1188,7 @@ object GenUiNativeRenderer {
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
+                                            overflow = TextOverflow.Clip
                                         )
                                     }
                                 }
@@ -1226,32 +1212,38 @@ object GenUiNativeRenderer {
         val dark = isSystemInDarkTheme()
         val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.24f else 0.18f)
 
-        Column(
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .border(GenUiTokens.BorderMd, genUiCardBorderColor(), RoundedCornerShape(GenUiTokens.RadiusXl))
-                .clip(RoundedCornerShape(GenUiTokens.RadiusXl))
-                .background(genUiCardContainerColor(GenUiCardTone.Neutral).copy(alpha = if (dark) 0.44f else 0.54f))
-                .horizontalScroll(rememberScrollState())
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+            colors = CardDefaults.cardColors(containerColor = genUiTableContainerColor()),
+            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
-            RenderPlainTableRow(
-                values = header,
-                columnCount = columnCount,
-                columnWidths = columnWidths,
-                isHeader = true,
-                rowIndex = 0
-            )
-            HorizontalDivider(color = dividerColor)
-            body.forEachIndexed { index, row ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+            ) {
                 RenderPlainTableRow(
-                    values = row,
+                    values = header,
                     columnCount = columnCount,
                     columnWidths = columnWidths,
-                    isHeader = false,
-                    rowIndex = index
+                    isHeader = true,
+                    rowIndex = 0
                 )
-                if (index != body.lastIndex) {
-                    HorizontalDivider(color = dividerColor)
+                HorizontalDivider(color = dividerColor)
+                body.forEachIndexed { index, row ->
+                    RenderPlainTableRow(
+                        values = row,
+                        columnCount = columnCount,
+                        columnWidths = columnWidths,
+                        isHeader = false,
+                        rowIndex = index
+                    )
+                    if (index != body.lastIndex) {
+                        HorizontalDivider(color = dividerColor)
+                    }
                 }
             }
         }
@@ -1416,7 +1408,8 @@ object GenUiNativeRenderer {
                 val childId = tab?.getString("child")
 
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Primary),
                     border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
@@ -1477,34 +1470,40 @@ object GenUiNativeRenderer {
         val dark = isSystemInDarkTheme()
         val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.24f else 0.18f)
 
-        Column(
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .border(GenUiTokens.BorderMd, genUiCardBorderColor(), RoundedCornerShape(GenUiTokens.RadiusXl))
-                .clip(RoundedCornerShape(GenUiTokens.RadiusXl))
-                .background(genUiCardContainerColor(GenUiCardTone.Neutral).copy(alpha = if (dark) 0.44f else 0.54f))
-                .horizontalScroll(rememberScrollState())
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+            colors = CardDefaults.cardColors(containerColor = genUiTableContainerColor()),
+            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
-            spec.header?.let { header ->
-                RenderWeightedRow(
-                    cells = header,
-                    columnCount = columnCount,
-                    columnWidths = columnWidths,
-                    isHeader = true,
-                    rowIndex = 0
-                )
-                HorizontalDivider(color = dividerColor)
-            }
-            spec.rows.forEachIndexed { index, row ->
-                RenderWeightedRow(
-                    cells = row,
-                    columnCount = columnCount,
-                    columnWidths = columnWidths,
-                    isHeader = false,
-                    rowIndex = index
-                )
-                if (index != spec.rows.lastIndex) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+            ) {
+                spec.header?.let { header ->
+                    RenderWeightedRow(
+                        cells = header,
+                        columnCount = columnCount,
+                        columnWidths = columnWidths,
+                        isHeader = true,
+                        rowIndex = 0
+                    )
                     HorizontalDivider(color = dividerColor)
+                }
+                spec.rows.forEachIndexed { index, row ->
+                    RenderWeightedRow(
+                        cells = row,
+                        columnCount = columnCount,
+                        columnWidths = columnWidths,
+                        isHeader = false,
+                        rowIndex = index
+                    )
+                    if (index != spec.rows.lastIndex) {
+                        HorizontalDivider(color = dividerColor)
+                    }
                 }
             }
         }
@@ -1544,7 +1543,7 @@ object GenUiNativeRenderer {
                     style = style,
                     color = color,
                     maxLines = if (isHeader) 3 else 5,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Clip,
                     modifier = Modifier
                         .width(cellWidth)
                         .padding(horizontal = 12.dp, vertical = 10.dp)
@@ -1582,7 +1581,7 @@ object GenUiNativeRenderer {
                     },
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = if (isHeader) 3 else 5,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Clip,
                     modifier = Modifier
                         .width(columnWidths.getOrElse(column) { tableBaseCellWidth(columnCount) })
                         .padding(horizontal = 12.dp, vertical = 10.dp)
@@ -1610,9 +1609,9 @@ object GenUiNativeRenderer {
     private fun tableRowBackground(isHeader: Boolean, rowIndex: Int): Color {
         val dark = isSystemInDarkTheme()
         return when {
-            isHeader -> MaterialTheme.colorScheme.onSurface.copy(alpha = if (dark) 0.14f else 0.08f)
+            isHeader -> MaterialTheme.colorScheme.onSurface.copy(alpha = if (dark) 0.08f else 0.045f)
             rowIndex % 2 == 0 -> Color.Transparent
-            else -> MaterialTheme.colorScheme.onSurface.copy(alpha = if (dark) 0.08f else 0.05f)
+            else -> MaterialTheme.colorScheme.onSurface.copy(alpha = if (dark) 0.04f else 0.020f)
         }
     }
 
@@ -2781,4 +2780,3 @@ object GenUiNativeRenderer {
 
     private fun JsonObject.hasString(key: String): Boolean = getString(key) != null
 }
-

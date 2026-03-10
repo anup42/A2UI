@@ -35,10 +35,10 @@ object GenUiTokens {
     val BorderMd = 1.dp
     val BorderLg = 2.dp
 
-    val ElevationSm = 4.dp
-    val ElevationMd = 12.dp
-    val ElevationLg = 20.dp
-    val ElevationXl = 32.dp
+    val ElevationSm = 0.dp
+    val ElevationMd = 0.dp
+    val ElevationLg = 0.dp
+    val ElevationXl = 0.dp
 }
 
 enum class GenUiCardTone {
@@ -203,7 +203,7 @@ private val GenUiShapes = Shapes(
 fun genUiBackgroundBrush(): Brush {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
-    val top = scheme.surfaceContainerLowest.copy(alpha = if (dark) 0.30f else 0.36f)
+    val top = scheme.surfaceContainerLowest.copy(alpha = if (dark) 0.20f else 0.24f)
     val midPrimary = lerp(
         scheme.surfaceContainerLow,
         scheme.primaryContainer,
@@ -217,8 +217,8 @@ fun genUiBackgroundBrush(): Brush {
     return Brush.verticalGradient(
         colors = listOf(
             top,
-            midPrimary.copy(alpha = if (dark) 0.44f else 0.52f),
-            midAccent.copy(alpha = if (dark) 0.40f else 0.48f),
+            midPrimary.copy(alpha = if (dark) 0.34f else 0.40f),
+            midAccent.copy(alpha = if (dark) 0.30f else 0.36f),
             top
         )
     )
@@ -235,17 +235,14 @@ fun genUiCardContainerColor(tone: GenUiCardTone = GenUiCardTone.Neutral): Color 
         GenUiCardTone.Warning -> scheme.tertiaryContainer
         GenUiCardTone.Error -> scheme.errorContainer
     }
-    val blended = lerp(
-        tokenColor,
-        scheme.surface,
-        if (dark) 0.10f else 0.06f
-    )
+    val glassBase = lerp(tokenColor, scheme.surfaceContainerHighest, if (dark) 0.26f else 0.42f)
+    val blended = lerp(glassBase, scheme.primaryContainer, if (dark) 0.10f else 0.16f)
     val alpha = when (tone) {
-        GenUiCardTone.Neutral -> if (dark) 0.58f else 0.68f
-        GenUiCardTone.Primary -> if (dark) 0.62f else 0.74f
-        GenUiCardTone.Positive -> if (dark) 0.60f else 0.72f
-        GenUiCardTone.Warning -> if (dark) 0.60f else 0.72f
-        GenUiCardTone.Error -> if (dark) 0.62f else 0.74f
+        GenUiCardTone.Neutral -> if (dark) 0.56f else 0.50f
+        GenUiCardTone.Primary -> if (dark) 0.60f else 0.54f
+        GenUiCardTone.Positive -> if (dark) 0.60f else 0.54f
+        GenUiCardTone.Warning -> if (dark) 0.60f else 0.54f
+        GenUiCardTone.Error -> if (dark) 0.60f else 0.54f
     }
     return blended.copy(alpha = alpha)
 }
@@ -258,7 +255,20 @@ fun genUiCardColors(tone: GenUiCardTone = GenUiCardTone.Neutral): CardColors {
 @Composable
 fun genUiCardBorderColor(): Color {
     val dark = isSystemInDarkTheme()
-    return MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.82f else 0.92f)
+    return MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.52f else 0.42f)
+}
+
+@Composable
+fun genUiTableContainerColor(): Color {
+    val dark = isSystemInDarkTheme()
+    val scheme = MaterialTheme.colorScheme
+    val mixed = lerp(scheme.surfaceContainerLow, scheme.surfaceContainerHighest, if (dark) 0.24f else 0.40f)
+    return mixed.copy(alpha = if (dark) 0.54f else 0.48f)
+}
+
+@Composable
+fun genUiTopBarContainerColor(): Color {
+    return MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.42f)
 }
 
 @Composable

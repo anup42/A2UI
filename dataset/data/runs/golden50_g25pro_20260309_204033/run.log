@@ -1,0 +1,161 @@
+2026-03-10 02:10:55 INFO dataset: Stage1 intent=Information Retrieval created=2 total=2
+2026-03-10 02:11:14 INFO dataset: Stage1 intent=Entertainment created=2 total=2
+2026-03-10 02:11:36 INFO dataset: Stage1 intent=product_lookup created=2 total=2
+2026-03-10 02:11:56 INFO dataset: Stage1 intent=Booking created=2 total=2
+2026-03-10 02:12:10 INFO dataset: Stage1 intent=weather created=2 total=2
+2026-03-10 02:12:26 INFO dataset: Stage1 intent=data visualisation created=2 total=2
+2026-03-10 02:12:54 INFO dataset: Stage1 intent=Planning created=2 total=2
+2026-03-10 02:13:14 INFO dataset: Stage1 intent=productivity created=2 total=2
+2026-03-10 02:13:31 INFO dataset: Stage1 intent=Recipe created=2 total=2
+2026-03-10 02:13:49 INFO dataset: Stage1 intent=Localization created=2 total=2
+2026-03-10 02:14:02 INFO dataset: Stage1 intent=Technical support created=2 total=2
+2026-03-10 02:14:18 INFO dataset: Stage1 intent=Creating Writing created=2 total=2
+2026-03-10 02:14:39 INFO dataset: Stage1 intent=Event Schedule created=2 total=2
+2026-03-10 02:14:57 INFO dataset: Stage1 intent=Research Analysis created=2 total=2
+2026-03-10 02:15:14 INFO dataset: Stage1 intent=Comparison created=2 total=2
+2026-03-10 02:15:27 INFO dataset: Stage1 intent=calculation created=2 total=2
+2026-03-10 02:15:46 INFO dataset: Stage1 intent=Travel created=2 total=2
+2026-03-10 02:16:00 INFO dataset: Stage1 intent=Navigation created=2 total=2
+2026-03-10 02:16:12 INFO dataset: Stage1 intent=Education created=2 total=2
+2026-03-10 02:16:21 INFO dataset: Stage1 intent=Documentation created=2 total=2
+2026-03-10 02:16:40 INFO dataset: Stage1 intent=media playback created=2 total=2
+2026-03-10 02:16:56 INFO dataset: Stage1 intent=qr scanner created=2 total=2
+2026-03-10 02:17:12 INFO dataset: Stage1 intent=status check created=2 total=2
+2026-03-10 02:17:27 INFO dataset: Stage1 intent=notification created=2 total=2
+2026-03-10 02:17:49 INFO dataset: Stage1 reached max_total=50
+2026-03-10 02:18:18 INFO dataset: Stage2 icon catalog enabled icons=72 icons_only_mode=False
+2026-03-10 02:18:18 INFO dataset: Stage2 real-asset retry enabled attempts=3 min_valid_rate=1.00
+2026-03-10 02:19:51 WARNING dataset: Stage2 asset download failed url=https://loremflickr.com/1200/800/roman%20forum err=HTTP Error 403: Forbidden
+2026-03-10 02:19:51 WARNING dataset: Stage2 asset unresolved response_id=r_000001_01 kind=asset url=https://loremflickr.com/1200/800/roman%20forum
+2026-03-10 02:19:51 WARNING dataset: Stage2 asset retry exhausted response_id=r_000001_01 reason=visual intent response is missing image URLs in Images section
+2026-03-10 02:19:51 INFO dataset: Stage2 created response_id=r_000001_01
+2026-03-10 02:20:10 INFO dataset: Stage2 created response_id=r_000002_01
+2026-03-10 02:20:45 INFO dataset: Stage2 created response_id=r_000003_01
+2026-03-10 02:21:14 INFO dataset: Stage2 created response_id=r_000004_01
+2026-03-10 02:21:44 INFO dataset: Stage2 created response_id=r_000005_01
+2026-03-10 02:22:15 INFO dataset: Stage2 created response_id=r_000006_01
+2026-03-10 02:22:48 INFO dataset: Stage2 created response_id=r_000007_01
+2026-03-10 02:23:29 INFO dataset: Stage2 created response_id=r_000008_01
+2026-03-10 02:24:38 WARNING dataset: Stage2 asset retry exhausted response_id=r_000009_01 reason=visual intent response is missing image URLs in Images section
+2026-03-10 02:24:38 INFO dataset: Stage2 created response_id=r_000009_01
+2026-03-10 02:25:07 INFO dataset: Stage2 created response_id=r_000010_01
+2026-03-10 02:25:21 INFO dataset: Stage2 created response_id=r_000011_01
+2026-03-10 02:25:55 INFO dataset: Stage2 created response_id=r_000012_01
+2026-03-10 02:26:41 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/landmark-fill.svg err=HTTP Error 404: Not Found
+2026-03-10 02:26:41 WARNING dataset: Stage2 asset unresolved response_id=r_000013_01 kind=asset url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/landmark-fill.svg
+2026-03-10 02:27:22 INFO dataset: Stage2 created response_id=r_000013_01
+2026-03-10 02:28:06 INFO dataset: Stage2 created response_id=r_000014_01
+2026-03-10 02:28:31 INFO dataset: Stage2 created response_id=r_000015_01
+2026-03-10 02:29:00 INFO dataset: Stage2 created response_id=r_000016_01
+2026-03-10 02:29:31 INFO dataset: Stage2 created response_id=r_000017_01
+2026-03-10 02:30:10 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/leaf.svg err=HTTP Error 404: Not Found
+2026-03-10 02:30:10 WARNING dataset: Stage2 asset unresolved response_id=r_000018_01 kind=asset url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/leaf.svg
+2026-03-10 02:30:34 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/leaf.svg err=HTTP Error 404: Not Found
+2026-03-10 02:30:34 WARNING dataset: Stage2 asset unresolved response_id=r_000018_01 kind=asset url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/leaf.svg
+2026-03-10 02:30:56 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/leaf.svg err=HTTP Error 404: Not Found
+2026-03-10 02:30:56 WARNING dataset: Stage2 asset unresolved response_id=r_000018_01 kind=asset url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/leaf.svg
+2026-03-10 02:30:56 WARNING dataset: Stage2 asset retry exhausted response_id=r_000018_01 reason=visual intent response is missing image URLs in Images section
+2026-03-10 02:30:56 INFO dataset: Stage2 created response_id=r_000018_01
+2026-03-10 02:31:29 INFO dataset: Stage2 created response_id=r_000019_01
+2026-03-10 02:32:10 WARNING dataset: Stage2 asset download failed url=https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000019/19770/bus_navi_en202203.pdf err=HTTP Error 404: Not Found
+2026-03-10 02:32:10 WARNING dataset: Stage2 asset unresolved response_id=r_000020_01 kind=asset url=https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000019/19770/bus_navi_en202203.pdf
+2026-03-10 02:32:34 WARNING dataset: Stage2 asset download failed url=https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000019/19770/bus_navi_en202203.pdf err=HTTP Error 404: Not Found
+2026-03-10 02:32:34 WARNING dataset: Stage2 asset unresolved response_id=r_000020_01 kind=asset url=https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000019/19770/bus_navi_en202203.pdf
+2026-03-10 02:33:02 WARNING dataset: Stage2 asset download failed url=https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000019/19770/bus_navi_en202203.pdf err=HTTP Error 404: Not Found
+2026-03-10 02:33:02 WARNING dataset: Stage2 asset unresolved response_id=r_000020_01 kind=asset url=https://www.city.kyoto.lg.jp/kotsu/cmsfiles/contents/0000019/19770/bus_navi_en202203.pdf
+2026-03-10 02:33:02 WARNING dataset: Stage2 asset retry exhausted response_id=r_000020_01 reason=asset URL download rate too low (6/7, 0.86)
+2026-03-10 02:33:02 INFO dataset: Stage2 created response_id=r_000020_01
+2026-03-10 02:33:42 INFO dataset: Stage2 created response_id=r_000021_01
+2026-03-10 02:34:11 INFO dataset: Stage2 created response_id=r_000022_01
+2026-03-10 02:34:24 INFO dataset: Stage2 created response_id=r_000023_01
+2026-03-10 02:35:07 INFO dataset: Stage2 created response_id=r_000024_01
+2026-03-10 02:35:27 INFO dataset: Stage2 created response_id=r_000025_01
+2026-03-10 02:36:15 INFO dataset: Stage2 created response_id=r_000026_01
+2026-03-10 02:36:33 INFO dataset: Stage2 created response_id=r_000027_01
+2026-03-10 02:37:14 WARNING dataset: Stage2 asset download failed url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/beaker.svg err=HTTP Error 404: Not Found
+2026-03-10 02:37:14 WARNING dataset: Stage2 asset unresolved response_id=r_000028_01 kind=asset url=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/beaker.svg
+2026-03-10 02:37:51 INFO dataset: Stage2 created response_id=r_000028_01
+2026-03-10 02:38:18 INFO dataset: Stage2 created response_id=r_000029_01
+2026-03-10 02:38:56 INFO dataset: Stage2 created response_id=r_000030_01
+2026-03-10 02:39:23 INFO dataset: Stage2 created response_id=r_000031_01
+2026-03-10 02:39:51 INFO dataset: Stage2 created response_id=r_000032_01
+2026-03-10 02:41:52 INFO dataset: Stage2 created response_id=r_000033_01
+2026-03-10 02:44:01 INFO dataset: Stage2 created response_id=r_000034_01
+2026-03-10 02:44:24 INFO dataset: Stage2 created response_id=r_000035_01
+2026-03-10 02:45:10 INFO dataset: Stage2 created response_id=r_000036_01
+2026-03-10 02:45:51 INFO dataset: Stage2 created response_id=r_000037_01
+2026-03-10 02:46:24 INFO dataset: Stage2 created response_id=r_000038_01
+2026-03-10 02:46:47 INFO dataset: Stage2 created response_id=r_000039_01
+2026-03-10 02:47:11 INFO dataset: Stage2 created response_id=r_000040_01
+2026-03-10 02:48:03 INFO dataset: Stage2 created response_id=r_000041_01
+2026-03-10 02:48:40 INFO dataset: Stage2 created response_id=r_000042_01
+2026-03-10 02:49:51 INFO dataset: Stage2 created response_id=r_000043_01
+2026-03-10 02:50:20 INFO dataset: Stage2 created response_id=r_000044_01
+2026-03-10 02:50:51 INFO dataset: Stage2 created response_id=r_000045_01
+2026-03-10 02:51:09 INFO dataset: Stage2 created response_id=r_000046_01
+2026-03-10 02:51:29 INFO dataset: Stage2 created response_id=r_000047_01
+2026-03-10 02:51:54 INFO dataset: Stage2 created response_id=r_000048_01
+2026-03-10 02:52:08 INFO dataset: Stage2 created response_id=r_000049_01
+2026-03-10 02:53:31 WARNING dataset: Stage2 asset retry exhausted response_id=r_000050_01 reason=visual intent response is missing image URLs in Images section
+2026-03-10 02:53:31 INFO dataset: Stage2 created response_id=r_000050_01
+2026-03-10 03:15:56 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=5148 user_template_tokens=16
+2026-03-10 03:16:50 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-03-10 03:17:27 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-03-10 03:18:10 INFO dataset: Stage3 created ui_id=u_000003_01 schema_ok=True
+2026-03-10 03:18:43 INFO dataset: Stage3 created ui_id=u_000004_01 schema_ok=True
+2026-03-10 03:19:21 INFO dataset: Stage3 created ui_id=u_000005_01 schema_ok=True
+2026-03-10 03:20:07 INFO dataset: Stage3 created ui_id=u_000006_01 schema_ok=True
+2026-03-10 03:20:38 INFO dataset: Stage3 created ui_id=u_000007_01 schema_ok=True
+2026-03-10 03:21:30 INFO dataset: Stage3 created ui_id=u_000008_01 schema_ok=True
+2026-03-10 03:22:04 INFO dataset: Stage3 created ui_id=u_000009_01 schema_ok=True
+2026-03-10 03:22:57 INFO dataset: Stage3 created ui_id=u_000010_01 schema_ok=True
+2026-03-10 03:23:26 INFO dataset: Stage3 created ui_id=u_000011_01 schema_ok=True
+2026-03-10 03:24:12 INFO dataset: Stage3 created ui_id=u_000012_01 schema_ok=True
+2026-03-10 03:25:05 INFO dataset: Stage3 created ui_id=u_000013_01 schema_ok=True
+2026-03-10 03:26:01 INFO dataset: Stage3 created ui_id=u_000014_01 schema_ok=True
+2026-03-10 03:26:50 INFO dataset: Stage3 created ui_id=u_000015_01 schema_ok=True
+2026-03-10 03:27:20 INFO dataset: Stage3 created ui_id=u_000016_01 schema_ok=True
+2026-03-10 03:28:05 INFO dataset: Stage3 created ui_id=u_000017_01 schema_ok=True
+2026-03-10 03:28:52 INFO dataset: Stage3 created ui_id=u_000018_01 schema_ok=True
+2026-03-10 03:29:33 INFO dataset: Stage3 created ui_id=u_000019_01 schema_ok=True
+2026-03-10 03:30:25 INFO dataset: Stage3 created ui_id=u_000020_01 schema_ok=True
+2026-03-10 03:31:27 INFO dataset: Stage3 created ui_id=u_000021_01 schema_ok=True
+2026-03-10 03:32:25 INFO dataset: Stage3 created ui_id=u_000022_01 schema_ok=True
+2026-03-10 03:33:14 INFO dataset: Stage3 created ui_id=u_000023_01 schema_ok=True
+2026-03-10 03:33:56 INFO dataset: Stage3 created ui_id=u_000024_01 schema_ok=True
+2026-03-10 03:34:37 INFO dataset: Stage3 created ui_id=u_000025_01 schema_ok=True
+2026-03-10 03:35:20 INFO dataset: Stage3 created ui_id=u_000026_01 schema_ok=True
+2026-03-10 03:36:03 INFO dataset: Stage3 created ui_id=u_000027_01 schema_ok=True
+2026-03-10 03:36:44 INFO dataset: Stage3 created ui_id=u_000028_01 schema_ok=True
+2026-03-10 03:37:26 INFO dataset: Stage3 created ui_id=u_000029_01 schema_ok=True
+2026-03-10 03:38:11 INFO dataset: Stage3 created ui_id=u_000030_01 schema_ok=True
+2026-03-10 03:38:46 INFO dataset: Stage3 created ui_id=u_000031_01 schema_ok=True
+2026-03-10 03:39:31 INFO dataset: Stage3 created ui_id=u_000032_01 schema_ok=True
+2026-03-10 03:40:15 INFO dataset: Stage3 created ui_id=u_000033_01 schema_ok=True
+2026-03-10 03:41:15 INFO dataset: Stage3 created ui_id=u_000034_01 schema_ok=True
+2026-03-10 03:41:53 INFO dataset: Stage3 created ui_id=u_000035_01 schema_ok=True
+2026-03-10 03:42:48 INFO dataset: Stage3 created ui_id=u_000036_01 schema_ok=True
+2026-03-10 03:43:40 INFO dataset: Stage3 created ui_id=u_000037_01 schema_ok=True
+2026-03-10 03:44:05 INFO dataset: Stage3 created ui_id=u_000038_01 schema_ok=True
+2026-03-10 03:44:38 INFO dataset: Stage3 created ui_id=u_000039_01 schema_ok=True
+2026-03-10 03:45:20 INFO dataset: Stage3 created ui_id=u_000040_01 schema_ok=True
+2026-03-10 03:46:23 INFO dataset: Stage3 created ui_id=u_000041_01 schema_ok=True
+2026-03-10 03:47:16 INFO dataset: Stage3 created ui_id=u_000042_01 schema_ok=True
+2026-03-10 03:48:12 INFO dataset: Stage3 created ui_id=u_000043_01 schema_ok=True
+2026-03-10 03:48:48 INFO dataset: Stage3 created ui_id=u_000044_01 schema_ok=True
+2026-03-10 03:49:40 INFO dataset: Stage3 created ui_id=u_000045_01 schema_ok=True
+2026-03-10 03:50:07 INFO dataset: Stage3 created ui_id=u_000046_01 schema_ok=True
+2026-03-10 03:50:54 INFO dataset: Stage3 created ui_id=u_000047_01 schema_ok=True
+2026-03-10 03:51:26 INFO dataset: Stage3 created ui_id=u_000048_01 schema_ok=True
+2026-03-10 03:52:03 INFO dataset: Stage3 created ui_id=u_000049_01 schema_ok=True
+2026-03-10 03:52:39 INFO dataset: Stage3 created ui_id=u_000050_01 schema_ok=True
+2026-03-10 03:52:39 INFO dataset: Stage3 completed created=50
+2026-03-10 03:52:39 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\golden50_g25pro_20260309_204033\aggregates.json
+2026-03-10 03:52:39 INFO dataset: Stage3 complete.
+2026-03-10 03:53:08 INFO dataset: Stage4 HTTP server started on port 64615
+2026-03-10 03:53:09 INFO dataset: Stage4 rendering 50 images with 2 workers
+2026-03-10 03:55:37 ERROR dataset: Stage4 render error ui_id=u_000036_01: render_error: Page.wait_for_function: Timeout 15000ms exceeded.; console: requestfailed: https://www.parks.ca.gov/ net::ERR_BLOCKED_BY_ORB
+2026-03-10 03:55:37 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\golden50_g25pro_20260309_204033\rendered
+2026-03-10 03:55:59 INFO dataset: Stage4 HTTP server started on port 57298
+2026-03-10 03:56:05 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\golden50_g25pro_20260309_204033\rendered
+2026-03-10 03:57:23 INFO dataset: Stage3 already complete for run_id=golden50_g25pro_20260309_204033. Recomputed aggregates only (50 rows).

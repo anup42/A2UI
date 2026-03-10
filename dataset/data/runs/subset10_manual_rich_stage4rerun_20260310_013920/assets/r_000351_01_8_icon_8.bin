@@ -1,0 +1,1947 @@
+
+
+<!DOCTYPE html>
+<html lang="en-us" class="accuweather">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	
+	<meta charset="utf-8" />
+	<link rel="canonical" href="https://www.accuweather.com/" />
+	<title>Local, National, &amp; Global Daily Weather Forecast | AccuWeather</title>
+	<meta name="Description"
+		content="AccuWeather has local and international weather forecasts from the most accurate weather forecasting technology featuring up to the minute weather reports">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="referrer" content="origin">
+	
+	
+
+	<meta property="fb:profile_id" content="AccuWeather">
+<meta property="fb:app_id" content="132437483467956">
+<meta property="fb:pages" content="71781612888">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Local, National, &amp; Global Daily Weather Forecast | AccuWeather">
+<meta property="og:description" content="AccuWeather has local and international weather forecasts from the most accurate weather forecasting technology featuring up to the minute weather reports">
+<meta property="site_name" content="AccuWeather">
+<meta property="og:url" content="https://www.accuweather.com/">
+<meta property="og:image" content="https://www.accuweather.com/images/logos/aw-logo-og-meta.png">
+<meta property="og:image:url" content="https://www.accuweather.com/images/logos/aw-logo-og-meta.png">
+<meta property="og:image:secure_url" content="https://www.accuweather.com/images/logos/aw-logo-og-meta.png">
+<meta name="twitter:site" content="https://twitter.com/accuweather" >
+<meta name="twitter:card" content="summary">
+<meta name="twitter:text:title" content="Local, National, &amp; Global Daily Weather Forecast | AccuWeather">
+<meta name="twitter:title" content="Local, National, &amp; Global Daily Weather Forecast | AccuWeather">
+<meta name="twitter:description" content="AccuWeather has local and international weather forecasts from the most accurate weather forecasting technology featuring up to the minute weather reports">
+<meta name="twitter:site:id" content="https://twitter.com/accuweather">
+<meta name="twitter:creator" content="https://twitter.com/accuweather">
+<meta name="twitter:creator:id" content="https://twitter.com/accuweather">
+<meta name="twitter:image" content="https://www.accuweather.com/images/logos/aw-logo-og-meta.png">
+<meta name="twitter:app:name:iphone" content="AccuWeather: Weather Tracker">
+<meta name="twitter:app:id:iphone" content="U7D6TVQ9TT.com.yourcompany.TestWithCustomTabs">
+<meta name="twitter:app:url:iphone" content="https://apps.apple.com/US/app/id300048137?mt=8">
+<meta name="twitter:app:name:ipad" content="AccuWeather: Weather Tracker">
+<meta name="twitter:app:id:ipad" content="U7D6TVQ9TT.com.yourcompany.TestWithCustomTabs">
+<meta name="twitter:app:url:ipad" content="https://apps.apple.com/US/app/id300048137?mt=8">
+<meta name="twitter:app:name:googleplay" content="AccuWeather Winter weather alerts & forecast radar">
+<meta name="twitter:app:id:googleplay" content="com.accuweather.android">
+<meta name="twitter:app:url:googleplay" content="https://play.google.com/store/apps/details?id=com.accuweather.android">
+
+	<script type="application/ld&#x2B;json">
+{
+	"@context": "https://schema.org",
+	"@type": "Organization",
+	"name": "AccuWeather",
+	"url": "https://www.accuweather.com",
+	"sameAs": [
+		"https://www.facebook.com/AccuWeather",
+		"https://twitter.com/BreakingWeather",
+		"https://www.instagram.com/accuweather",
+		"https://www.youtube.com/user/accuweather"
+  ]
+}
+</script>
+
+	
+	
+
+		<script>window.tagEngineDataLayer = {} ?? {};</script>
+	<script>
+		window.tagEngineDataLayer = window.tagEngineDataLayer || {};
+		Object.assign(window.tagEngineDataLayer, {
+			adDataAdc: {
+				adInfo: {"fdate":"20260302","lang":"en-us","ut":"1","advelvet":"3","bot":"0","pgview":"1","partner":"accuweather","ufdb":"VI68","city":"Gandhinagar","country":"IN","state":"KA","dma":null,"key":"3352214","region":"asi","lat":"12.977","lon":"77.577","browser":"other","connection":"_vhigh_5000","wx_seg":"102100100,101108100,102103100,109101100,101105100,101103100,108103102,100110103,110100100,100108101,102101100,101100100,102102100,104100104,100101,100114107,100111100,100114108,100109109,100106102,100114101,100114106,107103103,104101101,101101103,107100102,101107101,102104102,100114103,103100102,100109104,101106102,109100102,101102102,109102102,109105102,100113103,108100102,109106102,103101102,110101101,109103102,108101102,107101102,100114104,105100102,109104101,101104100,108104104,108102103,100114109,100114102","cuhd":"54","cuhi":"73","cuuv":"0","cuwd":"6","cuwx":"34","realfeel":"70","pt":"0","userid":"active","userid3p":"active","sub":"free","auth":"false","site":"adc"},
+				adSlots: {"top":{"bidders":[{"bidder":"google","params":{"sizes":"970x250,728x90,fluid","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"rubicon","params":{"accountId":12562,"siteId":135890,"zoneId":640474,"position":"atf","userId":"fbf248339a244f48b8da954798a091f1","floor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"triplelift","params":{"inventoryCode":"accuweather_d_top_leaderboard_pbjs","floor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"criteo","params":{"networkId":12212,"pubid":"3852","uid":"472391","bidFloor":0.02,"bidFloorCur":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"pubmatic","params":{"publisherId":"34576","adSlot":"Web_Top","lat":"12.98","lon":"77.58","kadfloor":"0.02","currency":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"ix","params":{"siteId":"197759","bidFloor":0.02,"bidFloorCur":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"openx","params":{"delDomain":"accuweather-d.openx.net","unit":"539580665","customParams":{"fdate":["20260302"],"advelvet":["3"],"pgview":["1"],"partner":["accuweather"],"ufdb":["VI68"],"country":["IN"],"state":["KA"],"wx_seg":["102100100","101108100","102103100","109101100","101105100","101103100","108103102","100110103","110100100","100108101","102101100","101100100","102102100","104100104","100101","100114107","100111100","100114108","100109109","100106102","100114101","100114106","107103103","104101101","101101103","107100102","101107101","102104102","100114103","103100102","100109104","101106102","109100102","101102102","109102102","109105102","100113103","108100102","109106102","103101102","110101101","109103102","108101102","107101102","100114104","105100102","109104101","101104100","108104104","108102103","100114109","100114102"],"cuhd":["54"],"cuhi":["73"],"cuuv":["0"],"cuwd":["6"],"cuwx":["34"],"realfeel":["70"],"pt":["0"],"adunit":["/6581/web/in/top/news_info/country_home"]},"customFloor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"ttd","params":{"supplySourceId":"accuweather","publisherId":"1","bidfloor":0.02,"currency":"USD","Is_Buy_It_Now":false},"isBuyItNow":false}],"slot":"top","adDivId":"top","adUnitCode":"/6581/web/in/top/news_info/country_home","upr":0.15,"tid":"7207f59e-0d8e-43e9-b320-4f7a1efe3a36"},"oop":{"bidders":[{"bidder":"google","params":{"sizes":"oop","Is_Buy_It_Now":false},"isBuyItNow":false}],"slot":"oop","adDivId":"oop","adUnitCode":"/6581/web/in/oop/news_info/country_home","upr":0.02,"tid":"4d6582d0-711d-41cd-b6e3-983fed758a6e"},"interstitial":{"bidders":[{"bidder":"google","params":{"sizes":"interstitial","Is_Buy_It_Now":false},"isBuyItNow":false}],"slot":"interstitial","adDivId":"interstitial","adUnitCode":"/6581/web/in/interstitial/news_info/country_home","upr":0.2,"tid":"6736e6ae-a00a-4edd-a46a-18151098a1c0"},"top_right":{"bidders":[{"bidder":"google","params":{"sizes":"300x250,300x600,160x600,120x600,fluid","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"rubicon","params":{"accountId":12562,"siteId":135890,"zoneId":2745920,"position":"atf","userId":"fbf248339a244f48b8da954798a091f1","floor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"triplelift","params":{"inventoryCode":"accuweather_d_topright_rectangle_pbjs","floor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"criteo","params":{"networkId":12212,"pubid":"3852","uid":"472390","bidFloor":0.02,"bidFloorCur":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"pubmatic","params":{"publisherId":"34576","adSlot":"Web_TopRight","lat":"12.98","lon":"77.58","kadfloor":"0.02","currency":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"ix","params":{"siteId":"197760","bidFloor":0.02,"bidFloorCur":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"openx","params":{"delDomain":"accuweather-d.openx.net","unit":"539580668","customParams":{"fdate":["20260302"],"advelvet":["3"],"pgview":["1"],"partner":["accuweather"],"ufdb":["VI68"],"country":["IN"],"state":["KA"],"wx_seg":["102100100","101108100","102103100","109101100","101105100","101103100","108103102","100110103","110100100","100108101","102101100","101100100","102102100","104100104","100101","100114107","100111100","100114108","100109109","100106102","100114101","100114106","107103103","104101101","101101103","107100102","101107101","102104102","100114103","103100102","100109104","101106102","109100102","101102102","109102102","109105102","100113103","108100102","109106102","103101102","110101101","109103102","108101102","107101102","100114104","105100102","109104101","101104100","108104104","108102103","100114109","100114102"],"cuhd":["54"],"cuhi":["73"],"cuuv":["0"],"cuwd":["6"],"cuwx":["34"],"realfeel":["70"],"pt":["0"],"adunit":["/6581/web/in/top_right/news_info/country_home"]},"customFloor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"ttd","params":{"supplySourceId":"accuweather","publisherId":"1","bidfloor":0.02,"currency":"USD","Is_Buy_It_Now":false},"isBuyItNow":false}],"slot":"top_right","adDivId":"top_right","adUnitCode":"/6581/web/in/top_right/news_info/country_home","upr":0.1,"tid":"c92c428d-4475-4c51-9f3b-dbfc69026a51"},"bottom_right":{"bidders":[{"bidder":"google","params":{"sizes":"300x250,300x600,160x600,120x600,fluid","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"rubicon","params":{"accountId":12562,"siteId":135890,"zoneId":2745918,"position":"btf","userId":"fbf248339a244f48b8da954798a091f1","floor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"pubmatic","params":{"publisherId":"34576","adSlot":"Web_BottomRight","lat":"12.98","lon":"77.58","kadfloor":"0.02","currency":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"ix","params":{"siteId":"197765","bidFloor":0.02,"bidFloorCur":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"openx","params":{"delDomain":"accuweather-d.openx.net","unit":"539580673","customParams":{"fdate":["20260302"],"advelvet":["3"],"pgview":["1"],"partner":["accuweather"],"ufdb":["VI68"],"country":["IN"],"state":["KA"],"wx_seg":["102100100","101108100","102103100","109101100","101105100","101103100","108103102","100110103","110100100","100108101","102101100","101100100","102102100","104100104","100101","100114107","100111100","100114108","100109109","100106102","100114101","100114106","107103103","104101101","101101103","107100102","101107101","102104102","100114103","103100102","100109104","101106102","109100102","101102102","109102102","109105102","100113103","108100102","109106102","103101102","110101101","109103102","108101102","107101102","100114104","105100102","109104101","101104100","108104104","108102103","100114109","100114102"],"cuhd":["54"],"cuhi":["73"],"cuuv":["0"],"cuwd":["6"],"cuwx":["34"],"realfeel":["70"],"pt":["0"],"adunit":["/6581/web/in/bottom_right/news_info/country_home"]},"customFloor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false}],"slot":"bottom_right","adDivId":"bottom_right","adUnitCode":"/6581/web/in/bottom_right/news_info/country_home","upr":0.02,"tid":"5a46c0d2-a95c-4af7-ae4b-f7ea5a922601"},"bottom":{"bidders":[{"bidder":"google","params":{"sizes":"970x250,728x90,fluid","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"rubicon","params":{"accountId":12562,"siteId":135890,"zoneId":640476,"position":"btf","userId":"fbf248339a244f48b8da954798a091f1","floor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"pubmatic","params":{"publisherId":"34576","adSlot":"Web_Bottom","lat":"12.98","lon":"77.58","kadfloor":"0.02","currency":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"ix","params":{"siteId":"197764","bidFloor":0.02,"bidFloorCur":"USD","Is_Buy_It_Now":false},"isBuyItNow":false},{"bidder":"openx","params":{"delDomain":"accuweather-d.openx.net","unit":"539580672","customParams":{"fdate":["20260302"],"advelvet":["3"],"pgview":["1"],"partner":["accuweather"],"ufdb":["VI68"],"country":["IN"],"state":["KA"],"wx_seg":["102100100","101108100","102103100","109101100","101105100","101103100","108103102","100110103","110100100","100108101","102101100","101100100","102102100","104100104","100101","100114107","100111100","100114108","100109109","100106102","100114101","100114106","107103103","104101101","101101103","107100102","101107101","102104102","100114103","103100102","100109104","101106102","109100102","101102102","109102102","109105102","100113103","108100102","109106102","103101102","110101101","109103102","108101102","107101102","100114104","105100102","109104101","101104100","108104104","108102103","100114109","100114102"],"cuhd":["54"],"cuhi":["73"],"cuuv":["0"],"cuwd":["6"],"cuwx":["34"],"realfeel":["70"],"pt":["0"],"adunit":["/6581/web/in/bottom/news_info/country_home"]},"customFloor":0.02,"Is_Buy_It_Now":false},"isBuyItNow":false}],"slot":"bottom","adDivId":"bottom","adUnitCode":"/6581/web/in/bottom/news_info/country_home","upr":0.02,"tid":"f2ab5d84-f9bb-40ca-a428-ae0277716152"}},
+				globalAdConfig: {"prebidTimeout":500,"awxTimeout":750,"enableSingleRequest":true,"lazyLoadingData":"{fetchMarginPercent:150,renderMarginPercent:75,mobileScaling:1.0}","skipGoogleAdManager":true,"prebidBundleId":"a","testVariant":"","disableInitialAdLoad":true,"javascriptHead":"","javascriptBody":""},
+				ortbConfig: {"name":"AccuWeather","domain":"accuweather.com","categories":["IAB7","IAB10","IAB15","IAB20","223","274","390","464","653"],"sectionCategories":[""],"pageCategories":["IAB15-10","390"],"keywords":"","pageUrl":"","referrerUrl":"","isOptimizedForMobile":true,"hasPrivacyPolicy":true,"publisher":{"name":"AccuWeather","domain":"accuweather.com","categories":["IAB7","IAB10","IAB15","IAB20","223","274","390","464","653"]},"content":{"title":"","url":"","categories":["IAB15-10","390"],"productQuality":"1","context":"5","keywords":"","sourceRelationship":1,"language":"","data":{"name":"accuweather.com","extensions":{"segtax":"4"},"segments":[{"name":"id","value":"390"}]}}},
+				platform: 'web',
+				ppid: 'fbf248339a244f48b8da954798a091f1',
+				userData: {"city":"BANGALORE","continent":1,"countryCode":"IN","county":"","lat":12.98,"long":77.58,"regionCode":"KA","throughput":"vhigh","bw":"5000","networkType":"","network":"","zipCodes":[{"primary":""}],"device":{"browserVersion":""}},
+			}
+		});
+	</script>
+
+	<style>
+		@font-face {
+			font-family: 'Solis';
+			src: url('/fonts/Solis-Regular.woff2') format('woff2');
+			font-weight: 400;
+			font-style: normal;
+			font-display: swap;
+		}
+	</style>
+	<style>
+		:root {
+			--bg: #1f1f1f;
+			--header-bg: #1f1f1f;
+			--header-bg-top: #1f1f1f;
+		}
+	</style>
+
+	
+	<script type="text/javascript">
+		window.tagEngineDataLayer = window.tagEngineDataLayer || {};
+		window.tagEngineDataLayer.parsely = {
+            site: "accuweather.com"
+        };
+	</script>
+
+	
+<script>
+	window.pushlyTranslations = {"en":{"phrase":"Get AccuWeather alerts as they happen with our browser notifications.","enableNotifications":"Enable Notifications","noThanks":"No, Thanks","enabled":"Notifications Enabled","thanks":"Thanks! We'll keep you informed."},"es":{"phrase":"Recibe alertas de AccuWeather en su navegador en el momento","enableNotifications":"Habilitar Notificaciones","noThanks":"No, Gracias","enabled":"Notificaciones Habilitadas","thanks":"¡Gracias! Te mantendremos al tanto."}};
+</script>
+
+
+	<script>
+	var gaAppConfig = {
+  "snowfallMap": true,
+  "mapCta": true,
+  "iceChart": true,
+  "winterOutlookCard": true,
+  "winterUpcomingCard": true,
+  "impactedCities": true,
+  "tempWindChart": true,
+  "snowfallChart": true,
+  "postEventCta": true,
+  "winterCenterMap": true
+};
+	var userCookie = {"cDate":"2026-03-02","isDarkMapStyle":false,"lang":"en-us","rl":["3352214"],"tp":"C","ccb":true,"userContentAffinity":{}};
+	var recentLocations = [{"adminArea":{"englishName":"Karnataka","id":"KA","localizedName":"Karnataka"},"alertCount":0,"country":{"englishName":"India","id":"IN","localizedName":"India"},"icon":34,"key":"3352214","localizedName":"Gandhinagar","postalCode":"","temp":"23°","realFeel":"21°","isDayTime":false}];
+	var currentLocation = {"plumeLabsLink":"https://air.plumelabs.com/air-quality-in-gandhinagar-aw-3352214","englishName":"Gandhinagar","gmtOffset":5.5,"hasAlerts":true,"hasForecastConfidence":false,"hasPollen":false,"hasMinuteCast":true,"hasFutureRadar":true,"lat":12.977,"lon":77.577,"region":{"englishName":"Asia","id":"ASI","localizedName":"Asia"},"timeZone":"IST","timeZoneCode":"IST","administrativeArea":{"englishName":"Karnataka","id":"KA","localizedName":"Karnataka"},"country":{"englishName":"India","id":"IN","localizedName":"India"},"key":"3352214","localizedName":"Gandhinagar","primaryPostalCode":"","source":"AccuWeather"};
+	var weatherEvents = null;
+	var userData = {"city":"BANGALORE","continent":1,"countryCode":"IN","county":"","lat":12.98,"long":77.58,"regionCode":"KA","throughput":"vhigh","bw":"5000","networkType":"","network":"","zipCodes":[{"primary":""}],"device":{"browserVersion":""}};
+	var maplibre = { style: 'https://accutilerprod.z14.web.core.windows.net/Styles/accu-light-row.json' };
+	var dts = { token: 'de13920f574d420984d3080b1fa6132b' };
+	setTimeout(function () {
+		var reg = new RegExp('(\\s|^)' + 'ads-not-loaded' + '(\\s|$)');
+		if (document.body.hasAttribute('class')) {
+			document.body.setAttribute('class', document.body.getAttribute('class').replace(reg, ' '));
+		}
+	}, 3000);
+</script>
+
+	
+	<script type="text/javascript">
+		var PushlySDK = window.PushlySDK || [];
+		function pushly() { PushlySDK.push(arguments) }
+		window.pushlyCallback = function() {
+			pushly('load', {
+				domainKey: '16if7iQ5tgH1FcRA4cUeejyVcdf5guIAEV9R',
+				sw: '/pushly-sdk-worker.js'
+			});
+		};
+	</script>
+
+
+
+	
+
+
+<script>
+	window.tagEngineDataLayer = window.tagEngineDataLayer || {};
+
+	Object.assign(window.tagEngineDataLayer, {
+		isSPA: false,
+		pageGroup: "home",
+		raine: {
+			raineV1Host: "https://raine.accuweather.com",
+			raineV2Host: "https://raine.accuweather.com",
+			enabledVersions: [2],
+			raineV1: {
+				pageView: null,
+			},
+			raineV2: {
+				pageView: {"testGroup":"raine_variant","platformVersion":"2.3.24.0","pageInfo":{"group":"home","url":"/"},"adInfo":{"code":"/6581/web/in/top/news_info/country_home","status":"active","cookie3p":"active"},"sessionInfo":{"id":"a11a6714-299f-4cda-adaa-6dbcb54bc7bc","utm":{}},"userInfo":{"userPartner":"","id":"fbf24833-9a24-4f48-b8da-954798a091f1","language":"en-us","country":"IN","region":"KA","city":"BANGALORE","start":"2026-03-02"},"isBot":false,"infra":"glacier","id":"3fc5b630-e719-40dc-b492-3bc18d8a78e5","platform":"web","weather":{"key":"3352214"},"device":{"name":"","brand":"","version":"","category":"desktop"},"time":"2026-03-02T19:46:19Z"},
+			},
+		}
+	});
+</script>
+
+
+	<script>
+    if (window.tagEngineDataLayer?.ketch?.isEnabled !== false) {
+      // https://cdn.ketchjs.com/plugins/v1/tcf/stub.js
+      window.__gpp_addFrame=function(e){if(!window.frames[e])if(document.body){var t=document.createElement("iframe");t.style.cssText="display:none",t.name=e,document.body.appendChild(t)}else window.setTimeout(window.__gpp_addFrame,10,e)},window.__gpp_stub=function(){var e=arguments;if(__gpp.queue=__gpp.queue||[],__gpp.events=__gpp.events||[],!e.length||1==e.length&&"queue"==e[0])return __gpp.queue;if(1==e.length&&"events"==e[0])return __gpp.events;var t=e[0],p=e.length>1?e[1]:null,n=e.length>2?e[2]:null;const a=localStorage.getItem("_ketch_gpp_v1_");let s=null;if(a&&(s=JSON.parse(window.atob(a))),"ping"===t)p(s||{gppVersion:"1.1",cmpStatus:"stub",cmpDisplayStatus:"hidden",signalStatus:"not ready",sectionList:[],applicableSections:[],gppString:"",parsedSections:{}},!0);else if("addEventListener"===t){"lastId"in __gpp||(__gpp.lastId=0),__gpp.lastId++;var i=__gpp.lastId;__gpp.events.push({id:i,callback:p,parameter:n}),p({eventName:"listenerRegistered",listenerId:i,data:!0,pingData:s||{gppVersion:"1.1",cmpStatus:"stub",cmpDisplayStatus:"hidden",signalStatus:"not ready",sectionList:[],applicableSections:[],gppString:"",parsedSections:{}}},!0)}else if("removeEventListener"===t){for(var _=!1,l=0;l<__gpp.events.length;l++)if(__gpp.events[l].id==n){__gpp.events.splice(l,1),_=!0;break}p({eventName:"listenerRemoved",listenerId:n,data:_,pingData:s||{gppVersion:"1.1",cmpStatus:"stub",cmpDisplayStatus:"hidden",signalStatus:"not ready",sectionList:[],applicableSections:[],gppString:"",parsedSections:{}}},!0)}else"hasSection"===t?p(!1,!0):"getSection"===t||"getField"===t?p(null,!0):__gpp.queue.push([].slice.apply(e))},window.__gpp_msghandler=function(e){var t="string"==typeof e.data;try{var p=t?JSON.parse(e.data):e.data}catch(e){p=null}if("object"==typeof p&&null!==p&&"__gppCall"in p){var n=p.__gppCall;window.__gpp(n.command,(function(p,a){var s={__gppReturn:{returnValue:p,success:a,callId:n.callId}};e&&e.source&&e.source.postMessage&&e.source.postMessage(t?JSON.stringify(s):s,"*")}),"parameter"in n?n.parameter:null,"version"in n?n.version:"1.1")}},"__gpp"in window&&"function"==typeof window.__gpp||(window.__gpp=window.__gpp_stub,window.addEventListener("message",window.__gpp_msghandler,!1),window.__gpp_addFrame("__gppLocator"));
+
+      // https://cdn.ketchjs.com/plugins/v1/gpp/stub.js
+      !function(){const e=()=>{const e="__tcfapiLocator",t=[],n=window;let o,s,a=n;for(;a;){try{if(a.frames[e]){o=a;break}}catch(e){}if(a===n.top)break;a=a.parent}o||(!function t(){const o=n.document,s=!!n.frames[e];if(!s)if(o.body){const t=o.createElement("iframe");t.style.cssText="display:none",t.name=e,o.body.appendChild(t)}else setTimeout(t,5);return!s}(),n.__tcfapi=function(...e){if(!e.length)return t;if("setGdprApplies"===e[0])e.length>3&&2===parseInt(e[1],10)&&"boolean"==typeof e[3]&&(s=e[3],"function"==typeof e[2]&&e[2]("set",!0));else if("ping"===e[0]){const t=localStorage.getItem("_ketch_tcf_ping_v1_");t?"function"==typeof e[2]&&e[2](JSON.parse(window.atob(t))):"function"==typeof e[2]&&e[2]({gdprApplies:s,cmpLoaded:!1,cmpStatus:"stub"})}else if("addEventListener"===e[0]){const n=localStorage.getItem("_ketch_tcf_tcdata_v1_");n?"function"==typeof e[2]&&e[2](JSON.parse(window.atob(n)),!0):t.push(e)}else t.push(e)},n.addEventListener("message",(function(e){const t="string"==typeof e.data;let n={};if(t)try{n=JSON.parse(e.data)}catch(e){}else n=e.data;const o="object"==typeof n&&null!==n?n.__tcfapiCall:null;o&&window.__tcfapi(o.command,o.version,(function(n,s){let a={__tcfapiReturn:{returnValue:n,success:s,callId:o.callId}};e&&e.source&&e.source.postMessage&&e.source.postMessage(t?JSON.stringify(a):a,"*")}),o.parameter)}),!1))};"undefined"!=typeof module?module.exports=e:e()}();
+
+      // ketch boot script
+      (function () {
+        window.semaphore = window.semaphore || [];
+        window.ketch = function () {
+          window.semaphore.push(arguments);
+        };
+        var e = document.createElement("script");
+        e.type = "text/javascript";
+        e.src = "https://global.ketchcdn.com/web/v3/config/accuweather/website_smart_tag/boot.js";
+        e.defer = e.async = !0;
+        document.getElementsByTagName("head")[0].appendChild(e);
+      })();
+    }
+</script>
+<link rel="stylesheet" href="https://www.accuweather.com/tags/common/ketch/ketch-2d5abe96.css" />
+
+	
+	<script type="module" async src="https://www.accuweather.com/tags/shared/prebid/prebid-a-f3169ad4.js"></script>
+
+
+	<script>(async () => {function l(i){return`[${i}]
+`}function D(i,e){if(!i&&(!e||Array.isArray(e)&&e.length===0))return;const t=[];return i&&t.push(i),e&&(Array.isArray(e)?t.push(...e):t.push(e)),t}class R{timeouts=new Map;setTimeout(e,t,a){this.clearTimeout(e);const n=setTimeout(()=>{t(),this.clearTimeout(e)},a);this.timeouts.set(e,n)}clearTimeout(e){const t=this.timeouts.get(e);t&&(clearTimeout(t),this.timeouts.delete(e))}}const S=window.awxTimeoutProcessor??new R;window.awxTimeoutProcessor=S;function M(i){if(i<=5e3){if(i%500===0)return 500;if(i%1e3===0)return 1e3}return Math.floor(i/2)}function k(i,e,{callerScope:t,logger:a}={}){const n=Date.now();return new Promise(s=>{let r=e();const g=()=>{const E=Date.now()-n,I=[t??"","isReadyPromise"].filter(Boolean).join("::");return window.debugDataLayer?.enabled&&(a?a("debug",{scope:I,message:`Ready in ${E}ms`}):console.debug(l("isReadyPromise"),`Ready in ${E}ms`)),s(r)};if(r)return g();window.awxLogger?.withScope(`${t}::isReadyPromise`).debug("Waiting for isReadyChecker to return true");let d,c;const m=()=>{clearInterval(c),clearTimeout(d),d=void 0,c=void 0};c=setInterval(()=>{if(r=e(),r)return m(),g()},M(i)),d=setTimeout(()=>(m(),g()),i)})}const T={type:"application/json"},P=5e3,C={pageLeave:6e5,timers:3e4},$={timers:"timers",pageView:"pageview",pageLeave:"pageleave",genericEvents:"events",updateProfile:"update-profile"},N={1:["pageView","pageLeave"],2:["pageView","pageLeave","updateProfile","genericEvents"]},O={ads:"adInfo",bot:"isBot",page:"pageInfo",user:"userInfo",test:"testGroup",session:"sessionInfo",version:"platformVersion"},p=()=>!!window.adInfo?.userid3p&&!!window.adInfo?.userid;function j(i){return!!i?.pageView?.ads?.code&&p()}function z(i){return!!i?.pageView?.adInfo?.code&&p()}function u(i){return Array.isArray(window.tagEngineDataLayer?.raine?.enabledVersions)?i===void 0?window.tagEngineDataLayer.raine.enabledVersions.length>0:window.tagEngineDataLayer.raine.enabledVersions.includes(i):!1}function f(i,e){return e??=w()?.[i],u(i)&&!!e}function B(i,e){e??=w()?.[i];const t=()=>i===1?j(e):z(e);return u(i)&&f(i,e)&&t()}function y(i,e){return e?Object[i===1?"keys":"values"](O).every(n=>n in e):!1}function b(i,e=!0){return e?B(i):f(i)}async function G(i,e=5e3){return k(e,()=>b(i),{callerScope:"isRaineReadyAsync"})}const h={isReady:b,isEnabled:u,isAvailable:f,isDataValid:y,isReadyAsync:G};function w(){return{1:window.tagEngineDataLayer?.raine?.raineV1,2:window.tagEngineDataLayer?.raine?.raineV2}}function V(){return{eventsState:w(),eventsMap:N}}class H{pageIndex=0;version;events;isAdsSetupComplete=p();isInitialized=!1;maxInitializeDelay=P;debug=!1;isSPA=!1;timeoutDurations;logger=void 0;constructor(e,t){this.version=e,this.events=t??["pageview","pageleave"],this.isSPA=!!window.tagEngineDataLayer.isSPA;const a=window.tagEngineDataLayer.raine;this.debug=!!window.debugDataLayer?.enabled,this.maxInitializeDelay=a?.initializeDelay||P,this.timeoutDurations={...C,...a?.timeoutDurations}}isReady(){return this.isInitialized}getLogger(e){return this.logger??=window.awxLogger?.withScope("Analytics"),e?this.logger?.withScope(e):this.logger}setIsAdsSetupComplete(e){this.log("debug",{scope:"setIsAdsSetupComplete",message:`RaineV${this.version} ads setup complete...`,args:{instance:this}}),this.isAdsSetupComplete=e}setIsInitialized(e){this.log("debug",{scope:"setIsInitialized",message:`RaineV${this.version} is initialized...`,args:{instance:this}}),this.isInitialized=e}getRaineHost(){const e=`raineV${this.version}Host`;let t;if(window.tagEngineDataLayer.raine&&e in window.tagEngineDataLayer.raine&&window.tagEngineDataLayer.raine[e]&&(t=window.tagEngineDataLayer.raine[e]),!t){this.log("error",{scope:"getRaineHost",message:`RaineV${this.version} host not found in data layer`});return}return t}sendAnalyticsEventData(e,t,a){const n={hostUrl:e,event:t,data:a};this.log("debug",{scope:`sendAnalyticsEventData::${t}`,message:"Sending analytics event data.",args:n}),window.debugDataLayer?.analytics?.raine?.requestService==="fetch"?fetch(e,{method:"POST",keepalive:!0,priority:"high",body:JSON.stringify(a),headers:{"Content-Type":"application/json","X-Raine-Version":this.version.toString()}}).then(s=>{s.ok?this.log("debug",{scope:`sendAnalyticsEventData::${t}`,message:"Successfully sent analytics event data.",args:{...n,response:{...s,text:s.text()||"",json:s.json()||{}}}}):this.log("error",{scope:`sendAnalyticsEventData::${t}`,message:"Failed to send analytics event data.",args:this.debug?n:void 0})}).catch(s=>{this.log("error",{scope:`sendAnalyticsEventData::${t}`,message:"Error occurred while sending analytics event data.",args:this.debug?{...n,error:s}:void 0})}):navigator?.sendBeacon(e,new Blob([JSON.stringify(a)],T))?this.log("debug",{scope:`sendAnalyticsEventData::${t}`,message:"Successfully queued analytics event data using sendBeacon.",args:n}):this.log("error",{scope:`sendAnalyticsEventData::${t}`,message:"Failed to queue analytics event data using sendBeacon.",args:this.debug?n:void 0})}sendRaineEvent(e,t){const a=this.getRaineHost();if(this.isInitialized&&a&&t){const n=`${a}/tracker/v${this.version}/${e}`;this.sendAnalyticsEventData(n,e,t)}else{this.log("warning",{scope:"sendRaineEvent",message:`No data provided for RAINE event ${e}`,args:this.debug?{raineHost:a,data:t}:void 0});return}}}class x extends H{raineVersionedData;pageLeaveFired=!1;pageView;pageViewEvent=()=>new CustomEvent("updatePageViewOnPageChanged",{detail:this.pageView});pageLeave;constructor(e,t,a){super(e,t),e&&(this.version=e),this.pageView=a,this.raineVersionedData=w(),this.pageLeave=this.createPageLeaveEvent(),this.resetPageLeaveEventTimeout()}clearTimeout(e){window.awxTimeoutProcessor.clearTimeout(e)}resetEventTimeout(e,t){const a=e==="pageleave"?6e5:3e4;window.awxTimeoutProcessor.setTimeout(e,t.bind(this),this.timeoutDurations[e]??a)}resetPageLeaveEventTimeout(){this.resetEventTimeout("pageleave",this.sendPageLeaveEvent.bind(this,!0))}setPageGroup(e){return this.isSPA&&(e=window.location.pathname.split("/").pop()?.toLowerCase()??e),e}initRaine(){if(window.tagEngineDataLayer.raine){if(this.isInitialized){this.log("warning",{scope:"initRaine",message:"Raine object already initialized."});return}}else{this.log("error",{scope:"initRaine",message:"RAINE object not found in data layer."});return}this.setIsInitialized(!0),this.updatePageView(),this.sendPageViewEvent()}getUserOffset(){const e=r=>("0"+r).slice(-2),t=new Date().getTimezoneOffset(),a=Math.floor(Math.abs(t)/60),n=Math.abs(t)%60;return`${t>0?"-":"+"}${e(a)}:${e(n)}`}onPageChange(){this.logEvent("onPageChange"),this.sendPageLeaveEvent(),window.awxPerformance.startNewPageSession(++this.pageIndex),window.awxEventListenerProcessor.resetScrollDepth(),this.resetTimersOnPageChange(),window.dispatchEvent(this.pageViewEvent()),this.updatePageView(),this.sendPageViewEvent(),this.pageLeaveFired=!1,this.pageLeave=this.createPageLeaveEvent()}logEvent(e){this.log("debug",{scope:e,message:`Handling event logic for ${e}`})}onAdsReload(){this.logEvent("onAdsReload"),this.setIsAdsSetupComplete(!1)}onSetupAdInfo(){this.logEvent("onSetupAdInfo"),this.setIsAdsSetupComplete(!0),this.setPageViewAdInfo()}onVisibilityChange(){document.visibilityState==="hidden"&&!this.pageLeaveFired&&this.sendPageLeaveEvent()}initEventProcessor(){window.addEventListener("beforeunload",this.sendPageLeaveEvent.bind(this,!0)),document.addEventListener("visibilitychange",this.onVisibilityChange.bind(this)),this.isSPA&&window.addEventListener("popstate",this.onPageChange.bind(this)),window.addEventListener("onSetupAdInfo",this.onSetupAdInfo.bind(this)),window.addEventListener("adsReload",this.onAdsReload.bind(this)),this.initRaine()}initEventListeners(){this.log("debug",{scope:"initEventListeners",message:"Initializing event listeners."}),this.initEventProcessor()}log=(e,{message:t,args:a,scope:n})=>{if(!t&&!a)return;const s=[`RAINE${this.version?`v${this.version}`:""}`,n??""].filter(Boolean),r=s.join("::"),g=this.getLogger(r);if(g&&e in g){g[e](t,a);return}const d=D(t,a);if(e==="debug"&&!this.debug||!d||d.length===0)return;const c=console[e==="warning"?"warn":e];c(`[Analytics::${s.join("::")}]
+`,...d)};updateRaineConstants(e){if(!window.tagEngineDataLayer.raine){this.log("error",{scope:"updateRaineConstants",message:"RAINE object not found in data layer."});return}window.tagEngineDataLayer.raine?.constants||(window.tagEngineDataLayer.raine.constants=V()),window.tagEngineDataLayer.raine.constants={...window.tagEngineDataLayer.raine.constants,eventsState:{...window.tagEngineDataLayer.raine.constants.eventsState,[this.version]:{...window.tagEngineDataLayer.raine.constants.eventsState[this.version],...e}}}}}class U extends x{constructor(){super(1,["pageview","pageleave"],window.tagEngineDataLayer.raine.raineV1.pageView),this.initEventListeners()}getPageGroup(){return this.setPageGroup(window.tagEngineDataLayer.pageGroup)}setPageViewAdInfo(){const e="adInfo"in window?window.adInfo:{},t=this.pageView??{};t.ads.status="userid"in e?e.userid:"",t.ads.cookie3p="userid3p"in e?e.userid3p:"",window.tagEngineDataLayer.raine.raineV1.pageView=t}refreshRaineData(){if(window.tagEngineDataLayer.raine)return this.pageLeave=this.createPageLeaveEvent(),this.updateRaineConstants({pageView:this.pageView,pageLeave:this.pageLeave}),window.tagEngineDataLayer.raine}updatePageView(){this.pageView=this.createPageViewEvent(window.tagEngineDataLayer.raine?.raineV1?.pageView),window.tagEngineDataLayer.raine?.raineV1&&(window.tagEngineDataLayer.raine.raineV1.pageView=this.pageView)}createPageViewEvent(e){const t=e??this.pageView??{};return this.setPageViewAdInfo(),{...t,page:{...t.page,group:this.getPageGroup()},user:{...t.user,offset:this.getUserOffset()}}}sendPageViewEvent(){window.tagEngineDataLayer.raine?.raineV1Host?(this.sendAnalyticsEventData(`${window.tagEngineDataLayer.raine.raineV1Host}/rainev1/p`,"pageview",this.pageView),this.log("debug",{scope:"sendPageViewEvent",message:"Event pageview successfully sent.",args:{pageView:this.pageView,raineV1Events:window.tagEngineDataLayer.raine.raineV1}})):this.log("warning",{scope:"sendPageViewEvent",message:"Event pageview is undefined."})}createPageLeaveEvent(){const e=[],t=this.pageView?.id??window.tagEngineDataLayer.raine?.raineV1?.pageView?.id??"";return window.awxPerformance.iterateAwxPerformanceMarks(window.awxPerformance.getAwxPerformanceMarksByPageSession(this.pageIndex),(a,n)=>{this.pageIndex===a.detail.pageIndex&&e.push(n)}),e.push({name:"raine:timeOnPage",time:window.awxPerformance.getTimeOnPage(this.pageIndex)}),this.pageLeave={id:t,scroll:window.awxEventListenerProcessor.getScrollDepth(),timers:e},this.updateRaineConstants({pageLeave:this.pageLeave}),this.pageLeave}resetTimersOnPageChange(){this.resetPageLeaveEventTimeout()}sendPageLeaveEvent(e=!1){(e||this.isSPA||document.visibilityState==="hidden")&&!this.pageLeaveFired&&window.tagEngineDataLayer.raine?.raineV1Host&&(this.pageView&&this.createPageLeaveEvent()?(this.sendAnalyticsEventData(`${window.tagEngineDataLayer.raine.raineV1Host}/rainev1/leavepage`,"pageleave",this.pageLeave),this.pageLeaveFired=!0,this.log("debug",{scope:"sendPageLeaveEvent",message:"Event pageleave successfully sent.",args:{pageLeave:this.pageLeave}})):this.log("warning",{scope:"sendPageLeaveEvent",message:"Unable to sent pageleave event. Check the args to ensure they are valid.",args:{force:e,isSPA:this.isSPA,documentVisibilityState:document.visibilityState,isPageLeaveSent:this.pageLeaveFired,pageView:this.pageView,pageLeave:this.pageLeave}}))}}class F extends x{updateProfile;genericEvents={id:"",time:"",events:[]};timersEvent;constructor(){super(2,Object.values($).map(e=>e),window.tagEngineDataLayer.raine.raineV2.pageView),this.updateProfile=window.tagEngineDataLayer.raine?.raineV2?.updateProfile,this.updateProfile&&(this.updateProfile.user={...this.updateProfile.user,...this.pageView?.userInfo||{},offset:this.getUserOffset()},this.sendUpdateProfileEvent()),this.initEventListeners(),window.addEventListener("onUpdateProfile",this.onUpdateProfile.bind(this)),this.resetTimersEventTimeout(),this.initGenericEvents(),window.trackRaineEvent=this.trackRaineEvent.bind(this)}resetTimersOnPageChange(){this.log("debug",{scope:"resetTimersOnPageChange",message:"Resetting timers and page leave event on page change."}),this.resetPageLeaveEventTimeout(),this.resetTimersEventTimeout()}onUpdateProfile(e){e.detail?(this.log("debug",{scope:"onUpdateProfile",message:"Update profile event received.",args:{updateProfile:e}}),this.updateProfile=e.detail,this.sendUpdateProfileEvent()):this.log("warning",{scope:"onUpdateProfile",message:"Update profile event is undefined.",args:{updateProfile:e}})}resetTimersEventTimeout(){this.resetEventTimeout("timers",this.sendTimersEvent.bind(this))}refreshRaineData(){if(window.tagEngineDataLayer.raine)return this.pageLeave=this.createPageLeaveEvent(),this.updateRaineConstants({pageView:this.pageView,pageLeave:this.pageLeave,updateProfile:this.updateProfile,genericEvents:this.genericEvents,timers:this.createTimersEvent()}),window.tagEngineDataLayer.raine}getPageGroup(){return this.setPageGroup(window.tagEngineDataLayer.pageGroup)}setPageViewAdInfo(){(!window.adInfo?.userid3p||!window.adInfo?.userid)&&this.log("debug",{scope:"setPageViewAdInfo",message:"Ad info is not available.",args:{adInfo:window.adInfo}}),window.tagEngineDataLayer.raine||this.log("debug",{scope:"setPageViewAdInfo",message:"RAINE data layer is not available."}),this.pageView={...this.pageView,adInfo:{...this.pageView?.adInfo,status:window.adInfo?.userid||"",cookie3p:window.adInfo?.userid3p||""}},window.tagEngineDataLayer.raine.raineV2.pageView=this.pageView}updatePageView(){this.pageView=this.createPageViewEvent(window.tagEngineDataLayer.raine?.raineV2?.pageView),this.initGenericEvents(),window.tagEngineDataLayer.raine?.raineV2&&(window.tagEngineDataLayer.raine.raineV2.pageView=this.pageView)}createPageViewEvent(e){this.pageView=e??this.pageView??{};const t=this.getPageGroup(),a=this.getUserOffset();return this.log("debug",{scope:"createPageViewEvent",message:"Creating pageView data for sending to processor.",args:{pageView:this.pageView,adInfo:window.adInfo,pageGroup:t,userOffset:a}}),this.setPageViewAdInfo(),this.pageView={...this.pageView,pageInfo:{...this.pageView.pageInfo,group:t},userInfo:{...this.pageView.userInfo,offset:a}},this.log("debug",{scope:"createPageViewEvent",message:"RAINE data added for pageView.",args:{pageView:this.pageView}}),this.pageView}createPageLeaveEvent(){const e=this.pageView??{id:"",time:""};return this.pageLeave={id:e.id,time:e.time,adblock:!window.supportsAds,scroll:window.awxEventListenerProcessor.getScrollDepth(),duration:window.awxPerformance.getTimeOnPage(this.pageIndex)},this.pageLeave}sendPageLeaveEvent(e=!1){const t=e||this.isSPA||document.visibilityState==="hidden",a=()=>this.debug?{force:e,isSPA:this.isSPA,documentVisibilityState:document.visibilityState,isPageLeaveSent:this.pageLeaveFired,pageView:this.pageView,pageLeave:this.pageLeave}:void 0;if(this.pageLeaveFired){this.log("debug",{scope:"sendPageLeaveEvent",message:"Page leave event has already been sent for this page session. Skipping..."});return}const n=this.getRaineHost();if(!n||!t||!this.pageView){this.log("warning",{scope:"sendPageLeaveEvent",message:"Unable to sent pageleave event. Check the args to ensure they are valid.",args:a()});return}this.clearTimeout("pageleave");const s=this.createPageLeaveEvent();this.updateRaineConstants({pageLeave:s});const r=`${n}/tracker/v${this.version}/pageleave`;this.sendAnalyticsEventData(r,"pageleave",s),this.pageLeaveFired=!0,this.sendTimersEvent(),this.sendGenericEvents()}sendPageViewEvent(){this.sendRaineEvent("pageview",this.pageView)}sendUpdateProfileEvent(){this.sendRaineEvent("update-profile",this.updateProfile)}createTimersEvent(){const e={time:this.pageView.time,platform:this.pageView.platform,infra:this.pageView.infra,country:this.pageView.userInfo.country,timers:[]};return window.awxPerformance.iterateAwxPerformanceMarks(window.awxPerformance.getAwxPerformanceMarksByPageSession(this.pageIndex,"cache"),(t,a)=>{const n={...a,tags:[]};this.pageIndex===t.detail.pageIndex&&e.timers.push(n)}),this.updateRaineConstants({timers:e}),e}initGenericEvents(){this.genericEvents={id:this.pageView?.id??"",time:this.pageView?.time??"",events:[]}}sendGenericEvents(){this.genericEvents.events.length>0&&(this.sendRaineEvent("events",this.genericEvents),this.genericEvents.events=[])}trackRaineEvent(e,t,a,n){this.genericEvents.events.push({category:e,action:t,label:a,value:n}),25<=this.genericEvents.events.length&&this.sendGenericEvents()}sendTimersEvent(){if(this.clearTimeout("timers"),this.timersEvent=this.createTimersEvent(),this.timersEvent.timers.length===0){this.log("debug",{scope:"sendTimersEvent",message:"No timers found to send.",args:{timersEvent:this.timersEvent}});return}this.sendRaineEvent("timers",this.timersEvent),window.awxPerformance.clearAwxPerformanceMarks("cache")}}class A{debug;constructor(e){this.debug=e?.debug??!!window.debugDataLayer?.enabled}}class v extends A{eventsListMap={};events=[];constructor(e,t){super(t);let a={};Array.isArray(e)&&e.length>0&&typeof e[0]=="string"?e.forEach(n=>{a[n]=[]}):typeof e=="object"&&(a=e),this.setEventsListMap(a),this.registerScopedEvents()}setEventsListMap(e){this.eventsListMap=e,this.events=Object.keys(this.eventsListMap)}addCallbacksToEventListener(e,t){const a=this.eventsListMap[e];a&&a.length>0&&a.forEach(n=>{n(t)})}}class q extends v{registerScopedEvents(){window.pbjs=window.pbjs||{},pbjs.que=pbjs.que||[],pbjs.que&&pbjs.que.push(()=>{this.events.forEach(e=>{pbjs.onEvent(e,()=>{window.awxPerformance.createPerformanceMark(`prebid:${e}`)})})})}}class K extends v{allowedAdSlotIds=["top"];truncateAdId(e){if(e){const t=e.split("/");if(t.length>1){const a=t.findIndex(n=>n==="6581");e=t[a+3]}}return e}isAdSlotIdTrackable(e){return this.allowedAdSlotIds.some(t=>e.includes(t))}registerScopedEvents(){window.googletag=window.googletag||{cmd:[]},googletag.cmd&&googletag.cmd.push(()=>{this.events.forEach(e=>{googletag.pubads().addEventListener(e,t=>{const a=this.truncateAdId(t.slot.getSlotElementId());this.isAdSlotIdTrackable(a)&&window.awxPerformance.createPerformanceMark(`gpt:${e}:${a}`)})})})}}const W=["DOMContentLoaded","windowLoad"],J=[];class X extends v{registerScopedEvents(){this.events.forEach(e=>{const t=J.includes(e);window.addEventListener(e,a=>{this.addCallbacksToEventListener(e,a);const n=e==="load"?"windowLoad":e;W.includes(n)&&window.awxPerformance.createPerformanceMark(`document:${n}`)},{passive:t})})}}class _ extends A{eventListeners=new Map;scrollDepth=0;callCount=0;maxCallCount=0;constructor(e){super(e),this.initListeners(),window.tagEngineDataLayer.raine?.enabledVersions&&(this.maxCallCount=window.tagEngineDataLayer.raine.enabledVersions.length)}getScrollDepth(){return this.scrollDepth}resetScrollDepth(){if(this.callCount+1<this.maxCallCount){this.callCount++;return}this.callCount=0,this.scrollDepth=0}getEventListeners(){return Array.from(this.eventListeners.values())}setScrollDepth(e){const{scrollTop:t,scrollHeight:a,clientHeight:n}=document.documentElement,s=a-n,r=Math.round(t/s*100);r>this.scrollDepth&&(this.scrollDepth=Math.min(100,Math.max(0,r)))}initListeners(){const e=["auctionInit","auctionEnd","requestBids","setTargeting"];this.eventListeners.has("prebid")||this.eventListeners.set("prebid",new q(e));const t=["slotRequested","slotOnload","slotRenderEnded"];this.eventListeners.has("googleTag")||this.eventListeners.set("googleTag",new K(t)),this.eventListeners.has("domLoaded")||this.eventListeners.set("domLoaded",new X({DOMContentLoaded:[],load:[],scroll:[this.setScrollDepth.bind(this)]}))}}function Q(i){return new Promise(e=>{let a=0;const n=()=>{window.ketch||a>=i?e(window.ketch):(a+=100,setTimeout(n,100))};n()})}function Y(i,e){const t=w();if(!t||!t?.[i])return;const a=t[i];if(!e||e==="settings")return a;if(a&&y(i,a)&&e in a)return a[e]}function Z(){window.tagEngineDataLayer.raine={...window.tagEngineDataLayer.raine,constants:V(),utils:{isRaine:h,getEventOrEventPropData:Y}}}class ee{pageIndex=0;callCount=0;maxCallCount=0;awxPerformanceMarks=new Map;sentMarksCache=new Map;getPageIndex(){return this.pageIndex}getPageSessionPerformanceMark(e=this.pageIndex){const t=this.getPerformanceEntry(`awx:${e}:start`,"mark");if(t)return t}startNewPageSession(e,t="cache"){this.callCount++<this.maxCallCount||this.pageIndex===e||(this.pageIndex=e,this.clearAwxPerformanceMarks(t),this.createPerformanceMark("start",{prefix:"awx"}),this.callCount=0)}calculatePageSessionRelativeDuration(e,t){t??=e.detail?.pageIndex??this.pageIndex;const a=this.getPageSessionPerformanceMark(t);return Math.round(e.startTime-(a?.startTime??0))}getTimeOnPage(e){e??=this.pageIndex;const t=this.getPageSessionPerformanceMark(e);return Math.round(performance.now()-(t?.startTime??0))}createPerformanceMark(e,t={prefix:"aw",pageIndex:this.pageIndex}){t.prefix??="aw",t.pageIndex??=this.pageIndex;const a=this.getAwxPerformanceMarkName(e,t.prefix);if(this.awxPerformanceMarks.has(a))return this.awxPerformanceMarks.get(a);const n=this.getPerformanceEntry(a,"mark");if(n)return n;const s=this._createAwxPerformanceMark(a,t);return this.awxPerformanceMarks.set(a,s),s}getAwxPerformanceMarksByPageSession(e,t="marks"){const a=[];return this.iterateAwxPerformanceMarks(window.performance.getEntriesByType("mark"),n=>{if(n.detail.pageIndex===e){if(t==="cache"){if(this.sentMarksCache.has(n.name))return;this.sentMarksCache.set(n.name,n)}a.push(n)}}),a}clearAwxPerformanceMarks(e="cache"){["both","marks"].includes(e)&&this.iterateAwxPerformanceMarks(window.performance.getEntriesByType("mark"),t=>{performance.clearMarks(t.name)}),["both","cache"].includes(e)&&this.awxPerformanceMarks.clear()}performanceMarkToTimerItem(e){return{name:e.detail.name,time:this.calculatePageSessionRelativeDuration(e)}}getAwxPerformanceMarkName(e,t="aw"){const a=t||"aw";return e.startsWith(`${a}:`)?e:`${a}:${this.pageIndex}:${e}`}createPerformanceMeasurement(e){const t=this.getAwxPerformanceMarkName(e),a=`${t}:measure`,n=this.getPerformanceEntry(a,"measure");if(n instanceof PerformanceMeasure)return n;const s=this.getPageSessionPerformanceMark();return!s&&this.pageIndex>0&&window.awxLogger?.withScope("AwxPerformanceApi::createPerformanceMeasurement").error(`No page session mark found for page index ${this.pageIndex}.`),window.performance.measure(a,s?.name??{},t)}getPerformanceEntry(e,t){const a=window.performance.getEntriesByName(e,t);if(a.length>0)return a[a.length-1]}getAwxPerformanceMark(e,t="aw"){const a=this.getAwxPerformanceMarkName(e,t);return this.awxPerformanceMarks.has(a)?this.awxPerformanceMarks.get(a):this.getPerformanceEntry(a,"mark")}iterateAwxPerformanceMarks(e,t){e.forEach(a=>{a instanceof PerformanceMark&&this.isAwxPerformanceMark(a)&&t(a,this.performanceMarkToTimerItem(a))})}isAwxPerformanceMark(e){return(a=>{const n=a?.split(":");return n?.[0]==="aw"&&n?.length>2})(e.name)}_createAwxPerformanceMark(e,t={prefix:"aw",pageIndex:this.pageIndex}){const a=this.getAwxPerformanceMarkName(e,t.prefix),n=new RegExp(`^${t.prefix}:(\\d+):`);return window.performance.mark(a,{detail:{name:e.replace(n,""),pageIndex:t.pageIndex}})}getAwxPerformanceMarks(e="cache"){if(e==="cache")return Array.from(this.awxPerformanceMarks.values());const t=[];return this.iterateAwxPerformanceMarks(window.performance.getEntriesByType("mark"),a=>{t.push(a)}),t}}const te=window.awxEventListenerProcessor??new _;window.awxEventListenerProcessor=te;const ae=window.awxPerformance??new ee;window.awxPerformance=ae;Z();const o={};function L(){const i=l("tagEngine::enableRaineAnalytics");try{!o?.[1]&&h.isEnabled(1)&&(o[1]=new U),!o?.[2]&&h.isEnabled(2)&&(o[2]=new F)}catch(e){window.awxLogger?window.awxLogger.withScope("tagEngine::enableRaineAnalytics").debug("Error initializing RAINE",e):window.debugDataLayer?.enabled&&console.debug(`${i}Error initializing RAINE`,e)}window.debugDataLayer?.enabled&&(o?.[1]||o?.[2])&&(window.debugDataLayer.analytics={...window.debugDataLayer.analytics,raine:{...window.debugDataLayer.analytics?.raine||{requestService:"beacon"},instances:o}},window.awxLogger?window.awxLogger.withScope("tagEngine::enableRaineAnalytics").debug("RAINE instances initialized",o):window.debugDataLayer?.enabled&&console.debug(`${i}RAINE instances initialized`,o))}Q(1500).then(i=>{if(i)i("on","consent",function(e){window.debugDataLayer={...window.debugDataLayer,ketch:{consent:e}},e.purposes?.analytics&&L()});else{if(window.awxLogger)window.awxLogger.withScope("tagEngine::waitForKetch").debug("Ketch unavailable... Enabling RAINE analytics.");else if(window.debugDataLayer?.enabled){const e=l("tagEngine::waitForKetch");console.debug(`${e}Ketch unavailable... Enabling RAINE analytics.`)}L()}});
+//# sourceMappingURL=raine.inline-f9b6615e.js.map
+})();</script><script>(async () => {function A(e){try{const t=document.getElementById(`client-data-store-${e}`);if(t&&t.innerText){const o=JSON.parse(t.innerText);return window.awxLogger?.withScope(`tagEngine::parseClientDataStore::${e}`).debug("Successfully parsed store data",o),o}}catch(t){window.awxLogger?.withScope(`tagEngine::parseClientDataStore::${e}`).error(`Could not parse client data store '${e}'`,t)}window.awxLogger?.withScope(`tagEngine::parseClientDataStore::${e}`).debug(`${e}: Could not parse JSON data, likely missing client-data-store element.`)}function I(e,t=!1){try{return JSON.parse(e)}catch(o){if(t)throw o;return window.awxLogger?.withScope("tagEngine::tryParseJSON").error("Could not parse JSON data.",{jsonString:e,error:o}),null}}const F=()=>new Promise(e=>{typeof window.__gpp=="function"&&window.__gpp("ping",t=>{t?.gppString&&e()}),typeof window.ketch=="function"?window.ketch("on","consent",()=>{e()}):e()}),P=e=>{const{adData:t={},adDataAdc:o}=window.tagEngineDataLayer;if(o)return o;const n=window.location.pathname.replace("/app","").replaceAll("/","");return t[e||n||"home"]||{...t.home,adSlots:{}}},q=({globalAdConfig:e,ppid:t,ortbConfig:o,isPrebidDisabled:n,userData:r,platform:a,hashedEmail:l})=>{const d={prebidTimeout:750,awxTimeout:1e4,disableInitialAdLoad:!0,gptEnableSingleRequest:!0,gptLazyLoading:"{}",buyItNowSkipGoogleAdManager:!0,isPrebidDisabled:n,userData:r,...e};t&&(d.ppid=t),o&&(d.ortbConfig=o),a&&(d.platform=a),l&&(d.hashedEmail=l,window.eh2=l);try{const s=I(d.gptLazyLoading.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g,'"$2": '),!0);typeof s=="object"&&Object.keys(s).length>0?d.gptLazyLoading=s:delete d.gptLazyLoading}catch(s){window.awxLogger?.withScope("Ads::setupGlobalAdConfig").debug("Error parsing gptLazyLoading",s),delete d.gptLazyLoading}window.globalAdConfig=d},N=e=>{const t=new Set(["advelvet","alertscategory","alertssource","alertstypeid","country","cuhd","cuhi","cuuv","cuwd","cuwx","dma","fdate","hour","lfs","lfscategory","lfsday","lfsseverity","partner","pgview","pt","realfeel","site","state","wx_seg","ufdb"]);return Object.entries(e).reduce((o,[n,r])=>(t.has(n)&&(o[n]=r?.split(",")),o),{})},T=({adSlots:e})=>{const t=new Map;if(e&&Object.values(e).length){const n=Object.values(e)[0].adUnitCode.split("/")[2]!=="web"?["adhesion","top","middle","native","infeed","bottom","oop"]:["top","top_right","infeed","bottom_right","middle","native","bottom","oop"];window.adInfo.sub!=="premium-plus"&&n.push("interstitial");const r=N(window.adInfo);Object.values(e).sort((a,l)=>n.indexOf(a.slot)-n.indexOf(l.slot)).filter(a=>{const l=n.indexOf(a.slot)>-1,d=a.bidders?.some(s=>s.bidder==="google");return l&&d}).forEach(a=>{a.winner={auction:0},a.sizes=a.bidders.find(l=>l.bidder==="google")?.params?.sizes.split(",").map(l=>l.includes("x")?l.split("x").map(Number):l),a.bidders.forEach(l=>{for(const[d,s]of Object.entries(l.params))s==="%%targeting%%"?l.params[d]={adunit:[a.adUnitCode],...r}:typeof s=="string"&&s.includes("%%")&&delete l.params[d]}),t.set(a.adDivId,a)})}window.adsOnPage=t},$=()=>{const e="awx_pv",t=new Date;t.setDate(t.getDate()+1),t.setHours(0,0,0,0);let o=I(localStorage.getItem(e));o?.ttl&&new Date<o.ttl?o.val+=1:o={val:1,ttl:+t},localStorage.setItem(e,JSON.stringify(o))},C=e=>h(A("userSettings")?.isMetric?e*9/5+32:e),h=e=>e<0?-Math.round(-e):Math.round(e),k=new CustomEvent("onSetupAdInfo");function B({adInfo:e={}}){const{ortbConfig:t,testVariant:o}=window.globalAdConfig,n=I(localStorage.getItem("awx_pv")||'{ "val": 1 }');e.pgview=n.val.toString(),e.hour=new Date().getHours().toString();const r=document.documentElement.clientWidth,a=document.documentElement.clientHeight,l=g=>Math.ceil(g/10)*10;e.viewport=`${l(r)}x${l(a)}`,e.site==="adc"?e.site=r>=768?r>=1024?"desktop":"tablet":"mobile":e.site="one",t?.pageCategories&&(e.iabctax=t.pageCategories.join(","));const d=new URLSearchParams(window.location.search);d.get("adClicks")&&(e.clicks=d.get("adClicks"));const s=window.location.pathname.split("/").filter(Boolean);if(d.get("from")&&s?.[1].toLowerCase()==="today"){e.from=d.get("from");const g=window.location.href.replace(`?from=${d.get("from")}`,"");window.history.replaceState({},document.title,g)}else e.from=null;d.get("adtestkey")?e.test=d.get("adtestkey"):o&&(e.test=o),e.userid="active";const i=A("alerts");i?.length>0&&(e.alertscategory=i.map(g=>g.category).join(","),e.alertssource=i.map(g=>g.countryCode).join(","),e.alertstypeid=i.map(g=>g.typeId).join(","));const c=A("currentConditions");c&&(e.cuhd=h(c.extended?.humidityValue).toString(),e.cuhi=h(c.apparentTempImperial).toString(),e.cuuv=h(c.extended?.uv?.value).toString(),e.cuwd=h(c.windSpeedImperial).toString(),e.cuwx=c.iconCode.toString(),e.realfeel=h(C(c.realFeelValue)).toString());const u=A("currentAirQuality");if(u){const g=u.overallPlumeLabsIndex;let m="0";g>=0&&g<20?m="1":g>=20&&g<50?m="2":g>=50&&g<100?m="3":g>=100&&g<150?m="4":g>=150&&g<250?m="5":g>=250&&(m="6"),e.cuaq=m}const p="abcd",f=A("dailyForecasts");f&&f.slice(0,4).forEach((g,m)=>{e.realfeel+=`,${p[m]}${h(C(g.day.realFeelValue))}`});const w=A("localForecastSummary");if(w){const g=w.category?w.category.replace("/","-"):"x",m=Math.abs(new Date(w.startDate)-new Date)/(1e3*60*60*24),S=Math.min(Math.round(m),10)+1;e.lfscategory=g,e.lfsseverity=w.severity.toString(),e.lfsday=S.toString(),e.lfs=`${w.severity}_${g}_${S}`}e.pt=localStorage.getItem("timeOnPage")||"0",window.adInfo=e,window.dispatchEvent(k);const b=JSON.parse(localStorage.getItem("adResults"));n.val===1&&b&&(b.previousRatio=b.filledAds/b.possibleAds,b.filledAds=0,b.possibleAds=0),window.adResults=b||{}}function y(e,t){if(e==null)return e;const o=Math.pow(10,t);let n=Math.round(e*o)/o;const r=1/o;return n===+e&&(e>=0?n+=r:n-=r),parseFloat(n.toFixed(t))}const R=[],_=window._floorsByBidId||=new Map,z=e=>Array.isArray(e)?e[0]?.bidFloor??e[0]?.floor??null:e?.bidFloor??e?.floor??null;window._binAliases=window._binAliases||new Set;const L={rubicon:52,triplelift:28,appnexus:32},G=e=>{const t=`${e}-bin`;if(window._binAliases.has(t))return t;try{const o=L[e]?{gvlid:L[e]}:void 0;pbjs.aliasBidder(e,t,o),window._binAliases.add(t)}catch(o){window.awxLogger?.withScope("Ads::ensureBinAlias").debug(`Failed to alias bin bidder ${e} -> ${t}`,o)}return t},H=()=>{const{ppid:e,ortbConfig:t,userData:o,platform:n,hashedEmail:r}=window.globalAdConfig;let a={};window.adInfo.country?.toLowerCase()==="us"&&(a={country:"usa",region:window.adInfo.state,metro:window.adInfo.dma,city:window.adInfo.city,zip:window.adInfo.zip,type:3,lat:y(window.adInfo.lat,4),lon:y(window.adInfo.lon,4)});const l={data:{}};["userid","userid3p","partner","pgview","pt","viewport","hour"].forEach(p=>{window.adInfo&&window.adInfo[p]&&(l.data[p]=window.adInfo[p].replaceAll("-","neg"))});const d=`${window.location.protocol}//${window.location.host}${window.location.pathname}`,s={name:t.name||"AccuWeather",domain:t.domain||"www.accuweather.com",cat:t.categories||["IAB-7","IAB7-4","IAB15-10","IAB20","288","390","653"],page:d,ref:document.referrer,mobile:t.isOptimizedForMobile?1:0,privacypolicy:t.hasPrivacyPolicy?1:0,publisher:{name:t.publisher.name||"AccuWeather",domain:t.publisher.domain||"www.accuweather.com",cat:t.publisher.categories||["IAB-7","IAB7-4","IAB15-10","IAB20","288","390","653"]},content:{language:window.adInfo.lang?.substring(0,2),title:document.title,keywords:t.content.keywords,url:d,cat:t.content.categories,prodq:parseInt(t.content.productQuality),context:parseInt(t.content.context),sourcerelationship:typeof t.content.sourceRelationship=="number"?t.content.sourceRelationship:t.content.sourceRelationship?.toLowerCase()==="direct"?1:0,data:[{name:t.content.data.name,ext:{...t.content.data.extensions,segtax:parseInt(t.content.data.extensions.segtax)},segment:t.content.data.segments}]},sectioncat:t.sectionCategories,pagecat:t.pageCategories,keywords:t.keywords,ext:{data:{}}};if(["advelvet","country","cuhd","cuhi","cuuv","cuwd","cuwx","dma","fdate","state","wx_seg","ufdb","alertscategory","alertssource","alertstypeid","site","realfeel"].forEach(p=>{window.adInfo&&window.adInfo[p]&&(s.ext.data[p]=window.adInfo[p].replaceAll("-","neg").split(","))}),window.adsOnPage.has("top")){const{upr:p,bidders:f}=window.adsOnPage.get("top"),w=f.find(b=>b.bidder==="rubicon"&&b.isBuyItNow);s.ext.data.bin_top=w?.params?.floor,s.ext.data.upr_top=p}const i={debug:window.debugDataLayer?.prebidDebug||window.location.search.includes("pbjs_debug=true"),bidderTimeout:window.globalAdConfig?.prebidTimeout,enableSendAllBids:!1,disableAjaxTimeout:!0,maxRequestsPerOrigin:6,enableTIDs:!0,bidderSequence:"fixed",priceGranularity:{buckets:[{precision:2,max:3,increment:.01},{precision:2,max:8,increment:.05},{precision:2,max:20,increment:.5},{precision:2,max:100,increment:1}]},userSync:{filterSettings:{iframe:{bidders:"*",filter:"exclude"}},syncsPerBidder:3,aliasSyncEnabled:!0,syncDelay:3e3,userIds:[{name:"sharedId",storage:{type:"cookie",name:"_pubcid",expires:30}},{name:"criteo"},{name:"33acrossId",params:{pid:"0014000000xvF2DAAU"},storage:{name:"33acrossId",type:"html5",expires:90,refreshInSeconds:8*3600}},{name:"unifiedId",params:{partner:"vtlti0n"}}]},deviceAccess:!0,cache:{url:"https://prebid.adnxs.com/pbc/v1/cache"},rubicon:{singleRequest:!0},yahoossp:{endpoint:"https://c2shb.ssp.yahoo.com/bidRequest",singleRequestMode:!0},useBidCache:!0,bidCacheFilterFunction:p=>p.mediaType!=="video",timeoutBuffer:0,ortb2:{site:s,user:{ext:l,geo:a},device:{geo:{type:2,lat:y(o.lat,4),lon:y(o.long,4),city:o.city,country:o.countryCode,metro:String(o.dma),region:o.regionCode,zip:o.zipCodes?.[0]?.primary}}},realTimeData:{auctionDelay:100,dataProviders:[{name:"gamera",params:{},waitForIt:!0},{name:"scope3",params:{orgId:"84",timeout:100,debugMode:!1}}]}};window.adInfo.site==="one"&&(i.ortb2.site.ext.context={environment:"webview",site_page:d},i.ortb2.device.devicetype=1,i.ortb2.device.ua=window.navigator.userAgent);const c={name:"connectId",params:{pixelId:"58872"}};r?c.params.he=r:c.params.puid=e,i.userSync.userIds.push(c),r&&i.userSync.userIds.push({name:"uid2",params:{serverPublicKey:"UID2-X-P-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPKcMe5poNz1E2xltVpOwbp4txbEYCsrr8xkSEXwKamd2LoSSvBJCL4hCMv2Ad9elOUpMRnAUp7pdbzcNoP+SNQ==",subscriptionId:"xwoSMLaGio",emailHash:r}});const u={name:"pubProvidedId",params:{eids:[{source:"accuweather.com",uids:[{id:e,atype:1,ext:{stype:"ppuid"}}]}]}};if(window.localStorage?.OPTABLE_RESOLVED)try{const p=["adnxs.com","indexexchange.com","adsrvr.org","rubiconproject.com","pubmatic.com","triplelift.com"],f=I(window.localStorage.OPTABLE_RESOLVED)?.ortb2?.user?.eids;f?.length>0&&(f.forEach(w=>{p.includes(w.source)&&u.params.eids.push(w)}),window.adInfo.campaign?window.adInfo.campaign+=",optable":window.adInfo.campaign="optable")}catch(p){window.awxLogger?.withScope("Ads::prebidSetup").debug("Error parsing OPTABLE_RESOLVED",p)}if(i.userSync.userIds.push(u),i.consentManagement={gpp:{cmpApi:"iab",timeout:8e3}},Z(o.countryCode)&&(i.consentManagement.gdpr={cmpApi:"iab"}),n==="ios"||n==="android"){const p=n==="ios"?"https://apps.apple.com/us/app/accuweather-weather-forecast/id300048137":"https://play.google.com/store/apps/details?id=com.accuweather.android",f=(window.adInfo?.sub??"free").trim().toLowerCase()==="free"?0:1;i.ortb2.app={name:s.name,bundle:n==="ios"?"300048137":"com.accuweather.android",domain:s.domain,storeurl:p,cat:s.cat,sectioncat:s.sectioncat,ver:window.adInfo?.appVersion,privacypolicy:s.privacypolicy,paid:f,publisher:s.publisher,content:s.content,ext:s.ext},delete i.ortb2.site}return i},V=e=>{pbjs.setConfig(e),pbjs.bidderSettings={standard:{storageAllowed:!0}},window.globalAdConfig.hashedEmail&&pbjs.setBidderConfig({bidders:["criteo"],config:{ortb2:{user:{ext:{data:{eids:[{source:"accuweather.com",uids:[{id:window.globalAdConfig.hashedEmail,atype:3,ext:{stype:"hemsha256"}}]}]}}}}}}),pbjs.onEvent("auctionInit",a=>{a.bidderRequests.forEach(l=>{l.bids.forEach(d=>{d.isBuyItNow&&R.push(d.bidId)})})}),pbjs.onEvent("bidRequested",a=>{(a.bids||[]).forEach(l=>{let d=parseFloat(z(l.params));Number.isFinite(d)||(d=0);const s=l.requestId||l.bidId;_.set(s,d)})}),pbjs.onEvent("bidResponse",a=>{const l=a.requestId||a.bidId,d=_.get(l);d!=null&&a.cpm<d&&(a.cpm=0,a.ad=a.nurl="",a.bidderResponseDelivered=!0,a.status="rejected")});const t="li-module-enabled",o=a=>{window.googletag.cmd.push(()=>{let l=window.liModuleEnabled?"t1":"t0";a!==void 0&&(l+=a?"-e1":"-e0"),window.googletag.pubads().setTargeting(t,l)})};o(),window.liModuleEnabled&&(pbjs.mergeConfig({userSync:{auctionDelay:300,userIds:[{name:"liveIntentId",bidders:["rubicon","pubmatic","ix","ttd","grid","openx"],params:{publisherId:90448,requestedAttributesOverrides:{uid2:!0,bidswitch:!0,medianet:!0,magnite:!0,pubmatic:!0,index:!0,openx:!0,thetradedesk:!0,sovrn:!0}},storage:{type:"html5",name:"__tamLIResolveResult",expires:1}}]}}),pbjs.refreshUserIds({submoduleNames:["liveIntentId"]}));const r={};pbjs.onEvent("auctionInit",a=>{r[a.auctionId]=a.adUnits&&a.adUnits.some(l=>l.bids&&l.bids.some(d=>d.userIdAsEids&&d.userIdAsEids.some(s=>s.source==="liveintent.com"||s.uids&&s.uids.some(i=>i.ext&&i.ext.provider==="liveintent.com")))),o(r[a.auctionId])})},D={top:["300x250","320x50","300x50","336x280","728x90","970x250","970x90"],top_right:["300x250","300x600","160x600"],bottom_right:["300x250","300x600","160x600"],bottom:["300x250","320x50","300x50","300x600","336x280","728x90","970x250","970x90"],adhesion:["320x50","300x50"],middle:["300x250","320x50","300x50","300x600","336x280"],native:["1x1","2x2","300x250"],infeed:["1x1","2x2"]},j=()=>{window.adsOnPage.forEach(e=>{const{sizes:t,slot:o,adUnitCode:n,tid:r}=e;let{bidders:a}=e;if(["oop","interstitial","outstream","rewarded"].includes(o)||!a)return;a=a.filter(c=>c.bidder!=="google");const d=a.filter(c=>!c.isBuyItNow),s=a.filter(c=>c.isBuyItNow),i={banner:{sizes:t.filter(c=>{const u=D[o]||[];return Array.isArray(c)&&u.indexOf(c.join("x"))>-1})}};if((o==="native"||o==="infeed")&&(i.native={type:"image"}),window.logAdEvent(`Prebid: Add ad unit: ${n}`),pbjs.addAdUnits){const c={bids:d,mediaTypes:i,code:n,ortb2Imp:{exp:60,ext:{data:{pbadslot:n},gpid:n,tid:r}}};window.adInfo.site==="one"&&(c.ortb2Imp.ext.webview=1),pbjs.addAdUnits(c)}if(window.globalAdConfig.disableInitialAdLoad&&s.length){const c=`${n}-bin`,u=s.map(p=>{const f=G(p.bidder);return{...p,bidder:f}});if(pbjs.addAdUnits){const p={bids:u,mediaTypes:i,code:n,ortb2Imp:{exp:60,ext:{data:{pbadslot:c},gpid:c}}};window.adInfo.site==="one"&&(p.ortb2Imp.ext.webview=1),pbjs.addAdUnits(p)}}})},K=()=>{window.adsOnPage.forEach(e=>{const{sizes:t,slot:o,adUnitCode:n,bidders:r}=e;if(["oop","interstitial","outstream","rewarded"].includes(o)||!r)return;const l={banner:{sizes:t.filter(s=>{const i=D[o]||[];return Array.isArray(s)&&i.indexOf(s.join("x"))>-1})}};(o==="native"||o==="infeed")&&(l.native={type:"image"});const d=r.filter(s=>s.bidder==="ttd"&&!s.isBuyItNow).map(s=>({...s,bidder:"thetradedesk"}));if(d.length){window.logAdEvent(`Open Ads: Add ad unit: ${n}`);const s=d[0],i={exp:60,ext:{data:{pbadslot:n},gpid:n}};s?.params?.bidfloor&&(i.bidfloor=s.params.bidfloor,delete s.params.bidfloor),s?.params?.currency&&(i.bidfloorcur=s.params.currency,delete s.params.currency),oajs.addAdUnits({bids:d,mediaTypes:l,code:n,ortb2Imp:i})}})},U=(e=[])=>{if(window.globalAdConfig.isPrebidDisabled)return Promise.resolve();let t=!1;return new Promise(o=>{pbjs.que.push(()=>{if(t)return o();t=!0;try{window.logAdEvent("Prebid: Request bids start"),pbjs.requestBids({adUnitCodes:e,timeout:window.globalAdConfig.prebidTimeout,bidsBackHandler:n=>{window.logAdEvent("Prebid: Request bids complete"),o(n)}})}catch(n){console.error("Error pbjs.requestBids",n),o()}})})},O=(e=[])=>{if(window.globalAdConfig.isPrebidDisabled||!window.openAdsEnabled)return Promise.resolve();let t=!1;return new Promise(o=>{oajs.que.push(()=>{if(t)return o();t=!0;try{window.logAdEvent("Open Ads: Request bids start"),oajs.requestBids({adUnitCodes:e,timeout:window.globalAdConfig.prebidTimeout,bidsBackHandler:n=>{window.logAdEvent("Open Ads: Request bids complete"),o(n)}})}catch(n){console.error("Error oajs.requestBids",n),o()}})})},M=(e,t)=>{const o=document.getElementById(e);o.innerHTML="";const n=t.width<=2||t.height<=2,r=document.createElement("iframe");n||(r.setAttribute("src","https://www.awxcdn.com/safeframe/1-0-0/html/container.html"),r.setAttribute("sandbox","allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation"),r.setAttribute("name",t.adId),r.setAttribute("height",t.height),r.setAttribute("width",t.width)),r.setAttribute("style","display:block;margin:auto"),r.setAttribute("frameborder",0),r.setAttribute("scrolling","no"),r.setAttribute("marginheight",0),r.setAttribute("marginwidth",0),r.setAttribute("TOPMARGIN",0),r.setAttribute("LEFTMARGIN",0),r.setAttribute("allowtransparency","true"),o.appendChild(r),n&&pbjs.renderAd(r.contentWindow.document,t.adId)};window.renderPrebidWithIframe=M;const J=e=>{let t={cpm:0};return pbjs?.getBidResponsesForAdUnitCode&&pbjs.getBidResponsesForAdUnitCode(e).bids.forEach(n=>{R.indexOf(n.requestId)>-1&&n.cpm>t.cpm&&(t=n)}),t},W=e=>{const{adUnitCode:t,adDivId:o}=e;let n;const r=J(t);if(r.cpm>0){let a=t.split("/");if(a[3]="bin_prebid",a=a.join("/"),googletag.pubads().setTargeting("pug","1"),window.globalAdConfig.buyItNowSkipGoogleAdManager){e.winner.auction=1,M(o,r);const l=`${o}-oop`,d=document.createElement("div");d.setAttribute("id",l),d.setAttribute("class","tracking-slot"),document.body.appendChild(d),n=googletag.defineOutOfPageSlot(a,l),n&&(n.addService(googletag.pubads()),Object.keys(r.adserverTargeting).forEach(s=>{n.setTargeting(s,r.adserverTargeting[s])}),window.adInfo&&(n.setTargeting("partner",window.adInfo.partner),n.setTargeting("userid3p",window.adInfo.userid3p)),e.gptSlot=n)}}return n},Q=e=>{let t={upr:e.upr,upr_0:"no_bid",upr_auction:"skipped",hb_bid_1st:"no_bid",hb_bid_2nd:"no_bid"};if(pbjs?.getHighestCpmBids){const o=pbjs?.getHighestCpmBids?pbjs.getHighestCpmBids(e.adUnitCode):[],n=o.length&&o[0].cpm||0,a=n?(s=>s>15?"15.00":s>10?String(Math.round(s).toFixed(2)):String((Math.round(s*2)/2).toFixed(2)))(n):"no_bid";let l="no_bid",d="no_bid";if(pbjs?.getBidResponsesForAdUnitCode){const s=c=>(Math.round(c*10)/10).toFixed(2),i=pbjs.getBidResponsesForAdUnitCode(e.adUnitCode).bids;i.sort((c,u)=>u.cpm-c.cpm),i[0]&&(l=s(i[0].cpm)),i[1]&&(d=s(i[1].cpm))}t={upr:e.upr,upr_0:a,upr_auction:"prebid",userid3pbid:`${window.adInfo.userid3p}-${a}`,hb_bid_1st:l,hb_bid_2nd:d}}return t};window.getUprTargeting=Q;const Z=(e="")=>new Set(["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE","IS","LI","NO"]).has(e.toUpperCase()),Y=({adSlots:e,userData:t})=>{if(t?.countryCode?.toLowerCase()!=="us")return;window.gameraFromPage=!0;let o="",n="",r="",a="",l=1;try{e&&(n=Object.values(e)[0].adUnitCode),o=window.RaineV2?.pageView?.pageInfo?.group||"",r=window?.adInfo?.partner||"accuweather",a=window?.adInfo?.wx_seg||"",l=1}catch(i){window.awxLogger?.withScope("Ads::setupGamera").debug("Error getting Gamera data from adSlots or window.adInfo",i)}window.gamera=window.gamera||{},window.gamera.cmd=window.gamera.cmd||[],window.gamera.cmd.push(function(){window.gamera.addDimensions({aw_site:n.split("/")[2],aw_wxGeo:n.split("/")[3],aw_page:o.replace("/",""),aw_partner:r,aw_wx_seg:a,aw_sub:window?.adInfo?.sub||""});try{let i=window?.gamera?.getUserMetrics()?.avg_cpm||void 0;i&&(i=(Math.round(i*20)/20).toFixed(2),window.adInfo.ucpm=i)}catch(i){window.awxLogger?.withScope("Ads::setupGamera").debug("Error getting ucpm from Gamera",i)}try{let i=window?.gamera?.getUserMetrics()?.avg_fillrate||void 0;i&&(i=(Math.round(i*20)/20).toString(),window.adInfo.ufill=i)}catch{}try{let i=window?.gamera?.getUserMetrics()?.visits||void 0;i&&(i.last_7&&(window.adInfo.uvisits_7=i.last_7.toString()),i.last_14&&(window.adInfo.uvisits_14=i.last_14.toString()),i.last_30&&(window.adInfo.uvisits_30=i.last_30.toString()),i.lifetime&&(window.adInfo.uvisits_life=i.lifetime.toString()))}catch{}try{let i=window?.gamera?.getOnPageSegments()?.filter(c=>!/^user_/.test(c)).join(",")||void 0;i&&(window.adInfo.cohort=i)}catch{}try{let i=window?.gamera?.getPrebidSegments()?.user?.data[0]?.segment?.map(c=>c.id).join(",")||void 0;i&&(window.adInfo.iabatax=i)}catch(i){window.awxLogger?.withScope("Ads::setupGamera").debug("Error getting cohort from Gamera",i)}});const d=document.createElement("script");d.setAttribute("id","__gamera__"),d.setAttribute("async","true"),d.src=`https://metrics.rapidedge.io/gamera.js?domain=accuweather.com&ltv=${l}&tpcs=1`;const s=document.getElementsByTagName("script")[0];s?s.parentNode.insertBefore(d,s):window.awxLogger?.withScope("Ads::setupGamera").debug("Error adding Gamera script tag",{script:d})},X=()=>{const e=googletag.pubads(),t=window.adInfo??{};for(const[o,n]of Object.entries(t)){if(n==null||n===""){e.clearTargeting(o);continue}const r=Array.isArray(n)?n.map(String):String(n),l=e.getTargeting(o).join("|"),d=Array.isArray(r)?r.join("|"):r;l!==d&&e.setTargeting(o,r)}},ee=()=>{window.globalAdConfig.disableInitialAdLoad&&googletag.pubads().disableInitialLoad(),window.globalAdConfig.gptEnableSingleRequest&&googletag.pubads().enableSingleRequest(),window.globalAdConfig.gptLazyLoading&&googletag.pubads().enableLazyLoad(window.globalAdConfig.gptLazyLoading),googletag.enableServices(),googletag.pubads().enableAsyncRendering(),googletag.pubads().setCentering(!0),googletag.pubads().setSafeFrameConfig({allowOverlayExpansion:!1,allowPushExpansion:!0,sandbox:!0});for(const[t,o]of Object.entries(window.adInfo))o&&googletag.pubads().setTargeting(t,o);typeof window.ketch=="function"?window.ketch("once","consent",t=>{googletag.pubads().setTargeting("optout",t?.purposes?.targeted_advertising?"false":"true")}):googletag.pubads().setTargeting("optout","false");const e=window.globalAdConfig.hashedEmail||window.globalAdConfig.ppid;if(e&&googletag.pubads().setPublisherProvidedId(e),window.globalAdConfig.userData?.zipCodes?.length>0&&window.globalAdConfig.userData?.countryCode?.toLowerCase()==="us"){const t=window.globalAdConfig.userData.zipCodes[0].primary;googletag.pubads().setLocation(`${t},US`)}},te=()=>{window.liModuleEnabled===void 0&&(window.liModuleEnabled=Math.random()<.9,window.liTreatmentRate=.9)};window.googletag=window.googletag||{cmd:[]};window.pbjs=window.pbjs||{};window.pbjs.que=window.pbjs.que||[];window.oajs=window.oajs||{};window.oajs.que=window.oajs.que||[];let x=!1;window.adTimeline=[];window.logAdEvent=e=>{window.adTimeline.push([performance.now().toFixed(2),e])};document.addEventListener("DOMContentLoaded",()=>{window.logAdEvent("DOM Ready")});window.addEventListener("onAwxAppMounted",()=>{window.logAdEvent("App mounted")});$();const v=P();q(v);B(v);T(v);Y(v);te();F().then(()=>{window.logAdEvent("Starting ad process");const e=H();pbjs.que.push(()=>{window.logAdEvent("Prebid: Init"),V(e),j()}),oajs.que.push(()=>{window.logAdEvent("OpenAds: Init"),oajs.setConfig({...e,s2sConfig:{accountId:"accuweather",bidders:["thetradedesk"],enabled:!0,endpoint:"https://openads.adsrvr.org/openrtb2/auction",syncEndpoint:"https://openads.adsrvr.org/cookie_sync",timeout:window.globalAdConfig.prebidTimeout}}),K()}),window.prebidTimeoutPromise=new Promise(t=>{if(window.globalAdConfig.isPrebidDisabled)return Promise.resolve();pbjs.que.push(()=>{pbjs.onEvent("auctionInit",()=>{setTimeout(t,window.globalAdConfig?.prebidTimeout)})})}),window.prebidBidPromise=U(),window.openAdsBidPromise=O(),googletag.cmd.push(()=>{window.logAdEvent("GPT: Init"),ee();let t=!1;const o=()=>{if(t)return;t=!0;const n=document.querySelector(".app.loaded"),r=window.tagEngineDataLayer?.adDataAdc;n||r?E():window.addEventListener("onAwxAppMounted",E)};window.globalAdConfig.disableInitialAdLoad?(setTimeout(o,window.globalAdConfig.awxTimeout),Promise.all([window.prebidBidPromise,window.openAdsBidPromise]).then(o)):o(),googletag.pubads().addEventListener("slotResponseReceived",()=>{if(!x&&window.adsOnPage.has("interstitial")){x=!0;const{gptSlot:n}=window.adsOnPage.get("interstitial");n&&(googletag.display(n.getSlotElementId()),googletag.pubads().refresh([n]))}})})});window.reloadAds=(e,t)=>{window.dispatchEvent(new CustomEvent("adsReload"));const o=P(e);o?.adSlots&&(x=!1,B(o),googletag.cmd.push(X),T(o),j(),Promise.all([U(),O()]).then(()=>{if(t){const r=googletag.pubads().getSlots().filter(a=>Object.keys(o.adSlots).includes(a.getSlotElementId()));r.length>0&&googletag.destroySlots(r)}else googletag.destroySlots();E()}))};const E=()=>{window.dispatchEvent(new CustomEvent("refreshAdsOnPage"));const e=[];window.adsOnPage.forEach(a=>{if(!document.getElementById(a?.adDivId)){window.logAdEvent(`Unable to find ad div for: ${a?.adDivId}`);return}const{sizes:l,adDivId:d,slot:s}=a;let i=W(a);if(i)return e.push(i);if(s==="oop"?i=googletag.defineOutOfPageSlot(a.adUnitCode,d):s==="interstitial"?i=googletag.defineOutOfPageSlot(a.adUnitCode,googletag.enums.OutOfPageFormat.INTERSTITIAL):i=googletag.defineSlot(a.adUnitCode,l,d),i){a.gptSlot=i,i.addService(googletag.pubads()),window.logAdEvent(`GPT: Display: ${d}`),googletag.display(i);for(const[c,u]of Object.entries(window.getUprTargeting(a)))u&&i.setTargeting(c,String(u));try{window.gamera._getAdPlacements().forEach(({divId:c,universalPlacementId:u})=>{c===a.adDivId&&u&&i.setTargeting("upid",u)})}catch{}s!=="interstitial"&&s!=="preroll"&&e.push(i)}});const t=pbjs.getHighestCpmBids?.()||[],o=oajs.getHighestCpmBids?.()||[],n=[...t,...o],r=new Map;n.forEach(a=>{const l=r.get(a.adUnitCode);(!l||a.cpm>l.cpm)&&r.set(a.adUnitCode,a)}),r.forEach(a=>{const l=Array.from(window.adsOnPage.values()).find(d=>d.adUnitCode===a.adUnitCode);if(l?.gptSlot){const{adserverTargeting:d}=a;for(const[s,i]of Object.entries(d))typeof i=="string"&&i.includes(",")?d[s]=i.split(","):typeof i=="number"&&(d[s]=String(i));["bidder","size","pb"].forEach(s=>{const i=`oa_${s}`,c=`hb_${s}`;d[i]&&(d[c]=d[i])}),window.logAdEvent(`GPT: Set targeting for ${l.adDivId} - ${JSON.stringify(d)}`),l.gptSlot.setConfig({targeting:d})}}),window.globalAdConfig.disableInitialAdLoad&&(window.logAdEvent("GPT: Refresh"),window.globalAdConfig.gptEnableSingleRequest?googletag.pubads().refresh(e):e.forEach(a=>{googletag.pubads().refresh([a])}))};
+//# sourceMappingURL=gpt-script.inline-7bff7990.js.map
+})();</script><script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+<script type="text/javascript" src="//b-code.liadm.com/b-020q.min.js" async="true" charset="utf-8"></script>
+
+	<script type="text/javascript">
+(function () {
+	if (!window.tagEngineDataLayer.parsely?.site) {
+		console.warn('[Parsely Headline Testing] No site configured');
+		return;
+	}
+	var script = document.createElement('script');
+	script.src="https://experiments.parsely.com/vip-experiments.js?apiKey=" +
+		encodeURIComponent(window.tagEngineDataLayer.parsely?.site || 'accuweather.com');
+	script.defer = true;
+	script.onerror = function () {
+		window.parselyCallbackError = true;
+		console.error('[Parsely Headline Testing] Failed to load');
+	};
+	document.head.appendChild(script);
+})();
+</script>
+
+
+	<script>
+function getAwxSession(categories, pageId) {
+	const AWX_SESSION_NAME = 'awx_session';
+	const defaultVal = {
+		categoryFlow: [],
+		visitFlow: [],
+		ttl: Date.now() + 600000
+	};
+
+	let awxSession = JSON.parse(window.localStorage.getItem(AWX_SESSION_NAME) || '{}');
+	if (!awxSession.ttl || Date.now() > awxSession.ttl) {
+		awxSession = defaultVal;
+	}
+
+	if (categories) {
+		categories = categories.toLowerCase().replace(/\s/g, '-');
+		awxSession.categoryFlow = awxSession.categoryFlow.concat(categories.split('|')).slice(-30);
+	}
+
+	if (pageId) {
+		awxSession.visitFlow.push(pageId);
+	}
+
+	try {
+		window.localStorage.setItem(AWX_SESSION_NAME, JSON.stringify(awxSession));
+	} catch {};
+
+	return {
+		categoryFlow: awxSession.categoryFlow.join('/'),
+		visitFlow: awxSession.visitFlow.join('/'),
+		visitFlowArray: awxSession.visitFlow
+	};
+}
+
+function getUserContentAffinity(categories) {
+	const storageKey = 'awxContentAffinity';
+	const storageValue = window.localStorage.getItem(storageKey);
+	const contentAffinity = (storageValue && storageValue !== '{}') ? JSON.parse(storageValue) : window.userCookie.userContentAffinity;
+
+	if (categories) {
+		categories = categories.toLowerCase().replace(/\s/g, '-');
+		categories.split('|').forEach(function(category) {
+			contentAffinity[category] = (contentAffinity[category] || 0) + 1;
+		});
+	}
+
+	try {
+		window.localStorage.setItem(storageKey, JSON.stringify(contentAffinity));
+	} catch {};
+
+	return Object.keys(contentAffinity).map(function(category) {
+		return category + ':' + contentAffinity[category];
+	}).join('/');
+}
+</script>
+
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+	</script>
+				<link rel="stylesheet" href="https://www.awxcdn.com/adc-assets/bundles/7773.3ee78facce143fea8c0f.css" />
+		<link rel="stylesheet" href="https://www.awxcdn.com/adc-assets/bundles/4207.67441d56684b2bca10e9.css" />
+
+				<link rel="stylesheet" href="https://www.awxcdn.com/adc-assets/bundles/legacy-header.1bb55482157944ce1be7.css" />
+
+
+	<script>
+	(function () {
+		const COOKIE_NAME = 'tag-preview';
+		const COOKIE_DURATION_MINUTES = 10;
+
+		function setCookie(name, value, minutes) {
+			const expires = new Date(Date.now() + minutes * 60000).toUTCString();
+			document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+		}
+
+		function deleteCookie(name) {
+			document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+		}
+
+		function getQueryParam(param) {
+			const params = new URLSearchParams(window.location.search);
+			return params.get(param);
+		}
+
+		const previewParam = getQueryParam(COOKIE_NAME);
+
+		if (previewParam !== null) {
+			if (previewParam.trim() === '') {
+				deleteCookie(COOKIE_NAME);
+			} else {
+				setCookie(COOKIE_NAME, previewParam, COOKIE_DURATION_MINUTES);
+			}
+		}
+	})();
+</script>
+
+
+	
+<script >bazadebezolkohpepadr="1999152367"</script><script type="text/javascript" src="https://www.accuweather.com/akam/13/7728a444"  defer></script></head>
+
+<body class="home ads-not-loaded    full-animation rfphrase-disabled">
+	<div class="template-root" style="display:none">
+
+	
+
+<div class="page-hero hero-6 content-module ">
+	<div class="basic-header   is-hero is-at-top" style="visibility: hidden;">
+
+	<a href="/pwa" class="pwa-top-banner">
+		<svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#fff" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+		Go Back
+	</a>
+
+
+	    <div class="nav-alert-container no-banners">
+        	
+<div id="afb-nav-container" class="afb-nav-container">
+	<div class="afb-nav-items">
+		<ul>
+					<li>
+						<a href="https://afb.accuweather.com" class="afb-white" target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>
+							For Business
+						</a>
+					</li>
+					<li>|</li>
+					<li>
+						<a href="https://afb.accuweather.com/accuweather-skyguard" target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>
+							Warnings
+						</a>
+					</li>
+					<li>
+						<a href="https://afb.accuweather.com/accuweather-data-suite" target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>
+							Data Suite
+						</a>
+					</li>
+					<li>
+						<a href="https://afb.accuweather.com/accuweather-forensicservices" target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>
+							Forensics
+						</a>
+					</li>
+					<li>
+						<a href="https://advertising.accuweather.com/for-advertising/digital-advertising/" target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>
+							Advertising
+						</a>
+					</li>
+					<li>
+						<a href="https://afb.accuweather.com/accuweathers-proven-superior-accuracy" target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>
+							Superior Accuracy&#x2122;
+						</a>
+					</li>
+		</ul>
+	</div>
+</div>
+
+    </div>
+
+
+	<div class="header-outer">
+		<div class="header-inner">
+			<a class="header-logo" href="/">
+				<svg data-eager xmlns="http://www.w3.org/2000/svg" width="168" height="24" viewBox="0 0 168 24"><g clip-path="url(#clip0_1785_92941)"><path d="M163.324 20.2961V14.1771C163.324 12.9231 163.589 12.0833 164.119 11.6575C164.649 11.2318 165.501 11.0189 166.673 11.0189H167.805V8.2468H166.842C166.077 8.22951 165.316 8.36062 164.601 8.63286C164.017 8.85832 163.507 9.24234 163.129 9.74172L162.549 8.2468H160.38V20.2961H163.324ZM152.816 10.4877C153.652 10.4877 154.286 10.7287 154.72 11.2105C155.177 11.7511 155.432 12.4332 155.443 13.1408H149.971C149.982 12.4308 150.243 11.7475 150.708 11.2105C150.957 10.9599 151.257 10.7657 151.588 10.641C151.918 10.5163 152.272 10.464 152.624 10.4877H152.816ZM155.274 16.659C155.08 17.1042 154.752 17.4778 154.336 17.7281C153.92 17.9783 153.436 18.0926 152.952 18.0552H152.76C151.858 18.0552 151.181 17.8085 150.729 17.3092C150.252 16.7667 149.975 16.0773 149.945 15.3557H158.38V14.1278C158.38 12.2468 157.882 10.7441 156.885 9.6198C155.889 8.49547 154.534 7.9333 152.821 7.9333H152.63C150.908 7.9333 149.545 8.4916 148.543 9.6082C147.54 10.7248 147.038 12.1675 147.036 13.9362V14.7287C147.027 15.5424 147.163 16.3513 147.437 17.1176C147.681 17.8079 148.067 18.4397 148.569 18.9725C149.077 19.499 149.693 19.9099 150.374 20.1771C151.139 20.4754 151.954 20.6223 152.775 20.6096H152.967C153.976 20.6343 154.974 20.4026 155.869 19.9362C156.705 19.4714 157.391 18.7775 157.846 17.9362L155.274 16.659ZM137.199 20.2961V13.2599C137.186 12.5393 137.415 11.8354 137.849 11.2599C138.062 10.995 138.335 10.7847 138.645 10.6464C138.956 10.5081 139.295 10.4457 139.634 10.4645H139.924C140.217 10.4511 140.509 10.5001 140.781 10.6082C141.054 10.7163 141.3 10.8811 141.504 11.0915C141.898 11.5095 142.084 12.2004 142.084 13.1641V20.2961H145.051V12.6532C145.051 11.2395 144.659 10.0959 143.89 9.23083C143.501 8.79975 143.021 8.45953 142.486 8.23429C141.951 8.00906 141.373 7.90432 140.792 7.9275H140.456C139.833 7.92317 139.217 8.0508 138.647 8.30196C138.093 8.54218 137.598 8.8997 137.196 9.34985V3.42822H134.235V20.2961H137.199ZM129.44 17.6575C129.245 17.4892 129.149 17.1728 129.149 16.7054V10.6213H132.052V8.23519H129.149V5.58497H126.618L126.305 8.23519H124.34V10.6213H126.218V16.717C126.218 17.8259 126.483 18.6967 127.013 19.3295C127.543 19.9623 128.435 20.2787 129.689 20.2787H132.026V17.8927H130.316C130.005 17.917 129.696 17.8272 129.446 17.6401M117.129 18.0871C116.637 18.1193 116.147 17.9921 115.733 17.7243C115.575 17.6087 115.449 17.456 115.364 17.2798C115.28 17.1037 115.24 16.9094 115.248 16.7141V16.6154C115.245 16.4029 115.292 16.1927 115.386 16.0022C115.481 15.8118 115.62 15.6468 115.791 15.5211C116.155 15.2405 116.793 15.0992 117.707 15.0973H119.901V15.5559C119.901 16.4248 119.664 17.0673 119.19 17.4834C118.668 17.9181 118.002 18.1418 117.324 18.1104L117.129 18.0871ZM116.525 20.5922C117.236 20.6064 117.941 20.4585 118.586 20.1597C119.203 19.8575 119.725 19.3903 120.093 18.8099L120.601 20.2787H122.842V12.3919C122.842 10.8961 122.407 9.77172 121.538 9.01894C120.67 8.26615 119.457 7.88879 117.901 7.88685H117.611C116.215 7.88685 115.112 8.17713 114.311 8.74027C113.564 9.23427 113.011 9.97027 112.743 10.8245L115.356 11.8869C115.502 11.4815 115.766 11.1289 116.113 10.8738C116.539 10.5829 117.049 10.4392 117.565 10.4645H117.855C118.546 10.4645 119.06 10.6329 119.399 10.9696C119.574 11.1606 119.71 11.385 119.796 11.6293C119.883 11.8737 119.92 12.1331 119.904 12.3919V12.9957H117.75C115.983 12.9957 114.638 13.3411 113.713 14.032C113.272 14.3447 112.915 14.7613 112.673 15.2448C112.432 15.7283 112.313 16.2639 112.328 16.8041V16.9725C112.303 17.4653 112.383 17.9577 112.564 18.4169C112.744 18.876 113.021 19.2911 113.376 19.6343C114.074 20.2845 115.058 20.6096 116.328 20.6096L116.525 20.5922ZM105.393 10.4703C106.227 10.4703 106.862 10.7112 107.297 11.1931C107.753 11.7344 108.008 12.4161 108.02 13.1234H102.543C102.554 12.4139 102.814 11.731 103.277 11.1931C103.526 10.943 103.826 10.7491 104.157 10.6244C104.487 10.4997 104.841 10.4472 105.193 10.4703H105.393ZM107.852 16.6416C107.658 17.0867 107.33 17.4604 106.914 17.7106C106.498 17.9609 106.014 18.0752 105.53 18.0378H105.335C104.435 18.0378 103.756 17.7911 103.303 17.2918C102.827 16.7493 102.55 16.0598 102.52 15.3382H110.955V14.1104C110.955 12.2294 110.457 10.7267 109.46 9.60238C108.463 8.47805 107.109 7.91588 105.396 7.91588H105.181C103.463 7.91588 102.102 8.47419 101.097 9.59078C100.093 10.7074 99.5906 12.15 99.5906 13.9188V14.7112C99.582 15.5247 99.7166 16.3334 99.9883 17.1002C100.234 17.79 100.619 18.4215 101.12 18.9551C101.63 19.481 102.247 19.8918 102.929 20.1597C103.692 20.458 104.507 20.6049 105.326 20.5922H105.521C106.53 20.6169 107.529 20.3852 108.424 19.9188C109.259 19.4531 109.945 18.7594 110.401 17.9188L107.852 16.6416ZM85.4629 20.2787L88.9985 8.00877L92.3715 20.299H95.0711L99.9158 3.65464V3.43984H97.013L93.82 15.3673L90.6879 3.43984H87.4949L84.2031 15.5559L81.0885 3.42822H78.0319V3.65464L82.6763 20.3078L85.4629 20.2787ZM66.4237 8.22939V15.8694C66.4237 17.284 66.8108 18.4248 67.5848 19.2918C67.9752 19.7242 68.4563 20.065 68.9938 20.2898C69.5312 20.5146 70.1117 20.6179 70.6937 20.5922H71.0072C71.6954 20.6003 72.3762 20.4482 72.9956 20.1481C73.5931 19.8548 74.1101 19.4204 74.5021 18.8825L75.0072 20.2787H77.2249V8.2468H74.2728V15.2831C74.2854 16.0064 74.0521 16.7126 73.611 17.286C73.3946 17.55 73.1193 17.7594 72.8073 17.8976C72.4952 18.0357 72.155 18.0987 71.8142 18.0813H71.5239C71.2332 18.0927 70.9435 18.0427 70.6734 17.9347C70.4034 17.8267 70.159 17.663 69.9564 17.4543C69.5558 17.0364 69.3555 16.3455 69.3555 15.3818V8.2468L66.4237 8.22939ZM63.193 8.71125C62.3899 8.18294 61.3381 7.91782 60.0377 7.91588H59.8432C58.1248 7.91588 56.7634 8.42193 55.759 9.43403C54.7546 10.4461 54.2525 11.7959 54.2525 13.4834V15.0247C54.2525 16.7141 54.7546 18.0639 55.759 19.0741C56.7634 20.0842 58.1248 20.5903 59.8432 20.5922H60.0377C61.0687 20.6291 62.0911 20.3928 63.0014 19.9072C63.8122 19.4215 64.4584 18.7035 64.8562 17.8462L62.4208 16.4732C62.2315 16.9153 61.9316 17.3011 61.55 17.5937C61.1079 17.8938 60.58 18.0416 60.0464 18.0146H59.8519C58.9375 18.0146 58.2612 17.7243 57.82 17.1699C57.3631 16.5418 57.1329 15.7774 57.1668 15.0015V13.524C57.1297 12.7442 57.3602 11.975 57.82 11.344C58.2525 10.7896 58.9288 10.5139 59.8519 10.5139H60.0464C60.5919 10.4846 61.1311 10.6412 61.5761 10.958C61.9631 11.2752 62.2628 11.6858 62.447 12.151L65.0014 10.9464C64.635 10.0423 64.0048 9.26949 63.193 8.72866M51.312 8.72866C50.5089 8.20036 49.4562 7.93523 48.1538 7.9333H47.9622C46.2438 7.9333 44.8824 8.43935 43.878 9.45144C42.8737 10.4635 42.3715 11.8133 42.3715 13.5008V15.0422C42.3715 16.7316 42.8737 18.0813 43.878 19.0915C44.8824 20.1017 46.2438 20.6077 47.9622 20.6096H48.1538C49.1858 20.6468 50.2092 20.4104 51.1204 19.9246C51.9312 19.4389 52.5774 18.7209 52.9753 17.8636L50.5399 16.4906C50.3506 16.9327 50.0507 17.3185 49.669 17.6111C49.2261 17.9117 48.6971 18.0594 48.1625 18.032H47.9709C47.0536 18.032 46.3802 17.7417 45.939 17.1873C45.4844 16.5583 45.2553 15.7943 45.2888 15.0189V13.524C45.2522 12.7447 45.4815 11.976 45.939 11.344C46.3744 10.7896 47.0478 10.5139 47.9709 10.5139H48.1625C48.7089 10.4842 49.2492 10.6408 49.6951 10.958C50.0821 11.2752 50.3818 11.6858 50.566 12.151L53.1204 10.9464C52.754 10.0423 52.1238 9.26949 51.312 8.72866ZM34.4179 7.83751L36.4179 14.0552H32.3541L34.4179 7.83751ZM32.9956 3.42822L27.3875 20.0813V20.2961H30.3279L31.489 16.778H37.3207L38.4557 20.2961H41.5384V20.0813L35.9245 3.42822H32.9956Z" fill="white"/><path d="M12.003 20.328C10.3574 20.3286 8.74871 19.8412 7.38022 18.9274C6.01174 18.0136 4.94498 16.7145 4.31487 15.1944C3.68475 13.6743 3.51959 12.0015 3.84027 10.3875C4.16094 8.7735 4.95305 7.29086 6.11641 6.1271C7.27977 4.96333 8.76212 4.1707 10.376 3.84947C11.9899 3.52823 13.6627 3.69281 15.1831 4.3224C16.7034 4.95198 18.0029 6.01828 18.9171 7.38645C19.8314 8.75462 20.3194 10.3632 20.3194 12.0087C20.3171 14.2139 19.4402 16.3282 17.8812 17.8878C16.3221 19.4474 14.2082 20.3249 12.003 20.328ZM24.0088 11.9681L21.2715 9.48912L22.3745 5.97678L18.7664 5.19303L17.971 1.59071L14.4587 2.71988L11.9681 0L9.48918 2.73439L5.97104 1.62264L5.1931 5.22496L1.59078 6.02322L2.71415 9.54136L-0.0057373 12.0319L2.72576 14.508L1.61691 18.0261L5.22213 18.8041L6.02039 22.4064L9.53273 21.2801L12.0262 24L14.5022 21.2656L18.0204 22.3774L18.7983 18.7721L22.4007 17.971L21.2918 14.4586L24.0088 11.9681Z" fill="#F05514"/><path d="M6.75181 6.75475C7.78948 5.71723 9.1115 5.01071 10.5507 4.72452C11.9899 4.43833 13.4817 4.58532 14.8373 5.14691C16.193 5.7085 17.3517 6.65948 18.1669 7.87957C18.9821 9.09967 19.4172 10.5341 19.4172 12.0015C19.4172 13.4689 18.9821 14.9033 18.1669 16.1234C17.3517 17.3435 16.193 18.2945 14.8373 18.8561C13.4817 19.4176 11.9899 19.5646 10.5507 19.2785C9.1115 18.9923 7.78948 18.2857 6.75181 17.2482C5.36228 15.8556 4.58191 13.9687 4.58191 12.0015C4.58191 10.0342 5.36228 8.14733 6.75181 6.75475Z" fill="#F05514"/><path d="M166.328 20.2961C166.139 20.3008 165.952 20.2488 165.792 20.1469C165.633 20.045 165.507 19.8978 165.432 19.7241C165.356 19.5504 165.334 19.3581 165.368 19.1719C165.403 18.9856 165.492 18.8138 165.624 18.6784C165.757 18.543 165.926 18.4502 166.112 18.4119C166.297 18.3736 166.49 18.3915 166.665 18.4632C166.841 18.535 166.991 18.6574 167.096 18.8148C167.201 18.9723 167.257 19.1575 167.257 19.3469C167.258 19.4703 167.235 19.5928 167.19 19.7073C167.144 19.8218 167.076 19.9262 166.989 20.0144C166.903 20.1025 166.8 20.1728 166.687 20.2212C166.573 20.2695 166.451 20.295 166.328 20.2961ZM166.328 18.5545C166.171 18.5481 166.016 18.5887 165.883 18.6711C165.749 18.7534 165.644 18.8738 165.579 19.0167C165.515 19.1595 165.494 19.3185 165.521 19.473C165.547 19.6276 165.619 19.7707 165.727 19.884C165.836 19.9974 165.975 20.0758 166.129 20.1091C166.282 20.1425 166.441 20.1293 166.587 20.0713C166.733 20.0132 166.858 19.913 166.946 19.7834C167.034 19.6538 167.082 19.5008 167.083 19.344C167.085 19.2427 167.068 19.1418 167.031 19.0472C166.995 18.9526 166.94 18.8663 166.87 18.7931C166.799 18.7199 166.715 18.6614 166.622 18.621C166.529 18.5805 166.429 18.5589 166.328 18.5574V18.5545ZM165.965 18.7867H166.31C166.578 18.7867 166.728 18.8999 166.728 19.1205V19.1466C166.733 19.212 166.717 19.2773 166.682 19.3327C166.647 19.3881 166.595 19.4308 166.534 19.4543L166.752 19.8549H166.511L166.319 19.4863H166.194V19.8549H165.965V18.7867ZM166.194 19.0015V19.2744H166.334C166.438 19.2744 166.496 19.2308 166.496 19.1408V19.1263C166.496 19.045 166.438 19.0015 166.334 19.0015H166.194Z" fill="white"/></g><defs><clipPath id="clip0_1785_92941"><rect width="167.808" height="24" fill="white"/></clipPath></defs></svg>
+			</a>
+
+			
+
+			<div class="pull-right">
+				
+				<svg class="hamburger-button icon-hamburger" data-qa="navigationMenu" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <defs>
+                    <path id="svghamburger" d="M10 12v1H0v-1h10zm6-6v1H0V6h16zm0-6v1H0V0h16z"/>
+                </defs>
+                <use fill="#FFF" fill-rule="evenodd" transform="matrix(-1 0 0 1 20 6)" xlink:href="#svghamburger"/></svg>
+				<svg class="close-button close-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><g fill-rule="evenodd" transform="translate(-1 -1)"><rect width="2" height="24" x="9" y="-2" rx="1" transform="rotate(45 10 10)"/><rect width="2" height="24" x="9" y="-2" rx="1" transform="rotate(-45 10 10)"/></g></svg>
+			</div>
+		</div>
+	</div>
+
+	<div class="header-menu">
+		
+		<div class="settings-link">
+			<a href="/en/settings">
+				<svg class="icon-settings" xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="#FFF"><path d="M13.677.107l.871 2.674c.775.225 1.549.483 2.162.902l2.58-1.32 2.452 2.447-1.29 2.578c.354.612.645 1.353.87 2.094l2.678.902v3.414l-2.645.838c-.258.773-.549 1.578-.903 2.255l1.29 2.48-2.452 2.449-2.58-1.224c-.645.386-1.387.676-2.162.902l-.87 2.609h-3.42l-.903-2.61c-.742-.225-1.484-.482-2.161-.934L4.742 21.82 2.29 19.372l1.29-2.449c-.386-.676-.677-1.45-.903-2.255L0 13.798v-3.447l2.71-.902c.193-.74.451-1.481.87-2.094L2.29 4.843l2.452-2.449 2.452 1.289c.677-.387 1.419-.677 2.16-.902l.904-2.674h3.42zm-.838 1.128h-1.807l-.806 2.448-.549.193c-.677.194-1.354.419-1.935.773l-.548.29-2.29-1.16L3.58 5.1l1.225 2.384-.354.548c-.323.483-.581 1.127-.71 1.74l-.13.612-2.515.805v1.804l2.451.805.194.58c.193.677.42 1.385.774 1.965l.29.548-1.16 2.287L4.967 20.5l2.322-1.16.549.355c.58.354 1.226.612 1.903.773l.548.193.775 2.32h1.838l.774-2.417.581-.128c.677-.194 1.323-.42 1.903-.741l.484-.322 2.42 1.127 1.322-1.32-1.161-2.288.29-.483c.323-.645.58-1.353.774-2.062l.194-.58 2.42-.74V11.19l-2.452-.805-.194-.548c-.193-.677-.42-1.32-.742-1.836l-.29-.548 1.161-2.384-1.322-1.353-2.388 1.256-.548-.354a7.5 7.5 0 00-1.903-.74l-.58-.194-.807-2.448zm-.871 5.38c3.032 0 5.548 2.448 5.548 5.508 0 3.028-2.516 5.541-5.548 5.541-3.065 0-5.516-2.545-5.516-5.54a5.49 5.49 0 015.516-5.51zm0 1.063c-2.323 0-4.355 2.093-4.355 4.445 0 2.352 2.032 4.446 4.355 4.446 2.322 0 4.387-2.126 4.387-4.446 0-2.352-2.065-4.445-4.387-4.445z"/></svg>
+				settings
+			</a>
+			
+			
+				<svg class="close-button desktop-close close-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><g fill-rule="evenodd" transform="translate(-1 -1)"><rect width="2" height="24" x="9" y="-2" rx="1" transform="rotate(45 10 10)"/><rect width="2" height="24" x="9" y="-2" rx="1" transform="rotate(-45 10 10)"/></g></svg>
+			
+		</div>
+		<a class="header-link" target="_blank" href="https://support.accuweather.com/faq/">
+			Help
+		</a>
+		<div class="header-loc-weather">Gandhinagar, Karnataka Weather</div>
+			<a data-page-id="three-day" data-ga-page-id="today" class="header-link " href="/en/in/gandhinagar/3352214/weather-forecast/3352214">Today</a>
+			<a data-page-id="wintercast" data-ga-page-id="wintercast" class="header-link nav-red-dot hidden winter-link " href="/en/in/gandhinagar/3352214/winter-weather-forecast/3352214">WinterCast</a>
+			<a data-page-id="tropical" data-ga-page-id="local_{stormName}_tracker" class="header-link nav-red-tropical-image northern side-item hidden tropical-link " href="/en/in/gandhinagar/3352214/tropical-weather-forecast/3352214?eventkey={eventkey}">Local {stormName} Tracker</a>
+			<a data-page-id="hourly" data-ga-page-id="hourly" class="header-link " href="/en/in/gandhinagar/3352214/hourly-weather-forecast/3352214">Hourly</a>
+			<a data-page-id="daily" data-ga-page-id="daily" class="header-link " href="/en/in/gandhinagar/3352214/daily-weather-forecast/3352214">Daily</a>
+			<a data-page-id="city-radar" data-ga-page-id="radar" class="header-link " href="/en/in/gandhinagar/3352214/weather-radar/3352214">Radar</a>
+			<a data-page-id="minutecast" data-ga-page-id="minutecast" class="header-link " href="/en/in/gandhinagar/3352214/minute-weather-forecast/3352214">MinuteCast&#xAE;</a>
+			<a data-page-id="monthly" data-ga-page-id="monthly" class="header-link " href="/en/in/gandhinagar/3352214/march-weather/3352214">Monthly</a>
+			<a data-page-id="air-quality" data-ga-page-id="air_quality" class="header-link " href="/en/in/gandhinagar/3352214/air-quality-index/3352214">Air Quality</a>
+			<a data-page-id="lifestyle-home" data-ga-page-id="health_and_activities" class="header-link " href="/en/in/gandhinagar/3352214/health-activities/3352214">Health &amp; Activities</a>
+		
+<div class="more-cta-links ">
+	<h2 class="more-cta-title">
+		<p>Around the Globe</p>
+	</h2>
+			<a href="/en/hurricane" class="cta-link" data-page-id="hurricane" data-ga-page-id="hurricane_tracker">
+				<h3 class="cta-text">Hurricane Tracker</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+			<a href="/en/in/severe-weather" class="cta-link" data-page-id="severe-weather" data-ga-page-id="severe_weather">
+				<h3 class="cta-text">Severe Weather</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+			<a href="/en/in/karnataka/weather-radar" class="cta-link" data-page-id="map-radar" data-ga-page-id="radar_and_maps">
+				<h3 class="cta-text">Radar &amp; Maps</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+			<div class="sublink-container">
+				<div class="sublink-header">
+					<div class="sublink-title">News</div>
+					<svg class="icon-chevron chevron-icon down" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+				</div>
+					<a href="/en/weather-news" class="cta-link" data-page-id="news" data-ga-page-id="news_and_features" >
+						<h3 class="cta-text">News &amp; Features</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="/en/space-news" class="cta-link" data-page-id="content-landing" data-ga-page-id="astronomy" >
+						<h3 class="cta-text">Astronomy</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="/en/business" class="cta-link" data-page-id="content-landing" data-ga-page-id="business" >
+						<h3 class="cta-text">Business</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="/en/climate" class="cta-link" data-page-id="content-landing" data-ga-page-id="climate" >
+						<h3 class="cta-text">Climate</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="/en/health-wellness" class="cta-link" data-page-id="content-landing" data-ga-page-id="health" >
+						<h3 class="cta-text">Health</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="/en/leisure-recreation" class="cta-link" data-page-id="content-landing" data-ga-page-id="recreation" >
+						<h3 class="cta-text">Recreation</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="/en/sports" class="cta-link" data-page-id="content-landing" data-ga-page-id="sports" >
+						<h3 class="cta-text">Sports</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="/en/travel" class="cta-link" data-page-id="content-landing" data-ga-page-id="travel" >
+						<h3 class="cta-text">Travel</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+			</div>
+			<div class="sublink-container">
+				<div class="sublink-header">
+					<div class="sublink-title">For Business</div>
+					<svg class="icon-chevron chevron-icon down" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+				</div>
+					<a href="https://afb.accuweather.com/accuweather-skyguard" class="cta-link" data-page-id="AFB" data-ga-page-id="Warnings" target=&quot;_blank&quot;>
+						<h3 class="cta-text">Warnings</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="https://afb.accuweather.com/accuweather-data-suite" class="cta-link" data-page-id="AFB" data-ga-page-id="Data Suite" target=&quot;_blank&quot;>
+						<h3 class="cta-text">Data Suite</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="https://afb.accuweather.com/accuweather-forensicservices" class="cta-link" data-page-id="AFB" data-ga-page-id="Forensics" target=&quot;_blank&quot;>
+						<h3 class="cta-text">Forensics</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="https://advertising.accuweather.com/for-advertising/digital-advertising/" class="cta-link" data-page-id="AFB" data-ga-page-id="Advertising" target=&quot;_blank&quot;>
+						<h3 class="cta-text">Advertising</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+					<a href="https://afb.accuweather.com/accuweathers-proven-superior-accuracy" class="cta-link" data-page-id="AFB" data-ga-page-id="Superior Accuracy&#x2122;" target=&quot;_blank&quot;>
+						<h3 class="cta-text">Superior Accuracy&#x2122;</h3>
+						<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+					</a>
+			</div>
+			<a href="/en/videos" class="cta-link" data-page-id="video-wall" data-ga-page-id="video">
+				<h3 class="cta-text">Video</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+</div>
+
+	</div>
+</div>
+<div class="header-placeholder  has-AFB-menu "></div>
+
+
+	<div class="page-hero-content no-video">
+		<div class="page-hero-content__left">
+			
+
+<div class="featured-search-bar featured-search">
+	<div class="searchbar-content">
+		<svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path transform="translate(3 3)" d="M7.186 13.554c-3.462 0-6.303-2.869-6.303-6.359C.883 3.681 3.724.837 7.186.837c3.437 0 6.278 2.844 6.278 6.358 0 3.49-2.865 6.359-6.278 6.359zm5.323-1.602a7.176 7.176 0 0 0 1.815-4.757c0-3.968-3.2-7.195-7.138-7.195C3.223 0 0 3.227 0 7.195c0 3.944 3.223 7.171 7.186 7.171a7.058 7.058 0 0 0 4.75-1.84L17.427 18l.573-.55-5.49-5.498z"/></svg>
+		<form class="search-form" action="/en/search-locations" method="GET">
+			<input
+				name="query"
+				class="search-input"
+				type="text"
+				placeholder="Search your Address, City or Zip Code"
+				data-placeholder="Search your Address, City or Zip Code"
+				data-alternative-placeholder="Search your Address, City or Zip Code"
+				autocomplete="off"
+			/>
+		</form>
+		<svg class="clear-icon close-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><g fill-rule="evenodd" transform="translate(-1 -1)"><rect width="2" height="24" x="9" y="-2" rx="1" transform="rotate(45 10 10)"/><rect width="2" height="24" x="9" y="-2" rx="1" transform="rotate(-45 10 10)"/></g></svg>
+		<div class="search-options">
+			
+
+<div class="dropdown-legacy left-bar">
+	<div class="displayed-item">
+		<span>
+			Location
+		</span>
+		<svg
+	class="icon-chevron  arrow"
+	xmlns="http://www.w3.org/2000/svg"
+	width="10"
+	height="6"
+	viewBox="0 0 10 6"
+	role="img" 
+	aria-labelledby="chevronSVG"
+>
+	<title id="chevronSVG">Chevron down</title>
+	<path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" />
+</svg>
+
+	</div>
+	<div class="items">
+			<a class="item active" value="/en/search-locations">
+				<span>Location</span>
+				<svg class="item-icon icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" alt="" viewBox="0 0 24 24"><path d="M7.832 17.496L2.142 11.9.205 13.792l7.627 7.503L24.205 5.188l-1.924-1.893z"/><use fill="#000" fill-rule="evenodd" /></svg>
+			</a>
+			<a class="item" value="/en/search-news">
+				<span>News</span>
+				<svg class="item-icon icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" alt="" viewBox="0 0 24 24"><path d="M7.832 17.496L2.142 11.9.205 13.792l7.627 7.503L24.205 5.188l-1.924-1.893z"/><use fill="#000" fill-rule="evenodd" /></svg>
+			</a>
+			<a class="item" value="/en/search-video">
+				<span>Videos</span>
+				<svg class="item-icon icon-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" alt="" viewBox="0 0 24 24"><path d="M7.832 17.496L2.142 11.9.205 13.792l7.627 7.503L24.205 5.188l-1.924-1.893z"/><use fill="#000" fill-rule="evenodd" /></svg>
+			</a>
+	</div>
+</div>
+
+		</div>
+	</div>
+	<div class="search-results">
+		<div class="search-bar-result current-location-result" data-target="" data-error-target="">
+			<img alt="" class="current-location-icon" data-src="https://www.awxcdn.com/adc-assets/images/icons/icon-gps.svg" />
+			<span class="current-location-text">Use your current location</span>
+		</div>
+		<div class="results-container" data-url="" ></div>
+	</div>
+</div>
+
+			
+			<div class="featured-locations">
+				<div class="featured-locations__header">Recent Locations</div>
+					<div class="featured-locations__locations-wrapper stacked">
+						<div class="featured-locations__locations">
+								<a class="recent-location-item featured-location  " href="/web-api/three-day-redirect?key=3352214&amp;target=" data-location-key="3352214" data-fetch="false" data-ga-text="Gandhinagar, Karnataka">
+	<div class="recent-locaton-name-wrapper">
+		<div class="recent-location-name ">Gandhinagar<span class='recent-location-short-admin-name'>, India</span></div>
+		
+	</div>
+	<div class="recent-location-admin-name">India</div>
+	<div class="recent-location-current-weather-wrapper">
+		<img class="recent-location-icon" src="/images/weathericons/v2a/34.svg" width="32" height="32" />
+		<span class="recent-location-temp">
+23&#xB0; <span class="recent-location-temp-unit">C</span>
+		</span>
+	</div>
+	<div class="recent-location-real-feel">
+			<span class="recent-location-real-feel-text">RealFeel&#xAE;</span>
+		<span class="recent-location-real-feel-value">21&#xB0;</span>
+	</div>
+</a>
+
+						</div>
+					</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+	<div class="page-subnav">
+		
+	</div>
+	
+		<div class="glacier-ad unrendered top config-top content-module" ad-type="top" id="top"></div>
+
+	
+	
+		<div class="glacier-ad unrendered oop config-oop " ad-type="oop" id="oop"></div>
+
+		<div class="glacier-ad unrendered interstitial config-interstitial " ad-type="interstitial" id="interstitial"></div>
+
+	
+	<div class="two-column-page-content ">
+		<div class="page-column-1">
+			<div class="page-content content-module">
+				
+				
+	
+<a class="base-map-cta content-module is-en" href="/en/in/national/weather-radar" data-title="India Weather Radar">
+	<div class="cta-title">
+		<span class="cta-title-text">India Weather Radar</span>
+		<span class="cta-see-more">See more <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg></span>
+	</div>
+	
+	<img
+		alt="India Weather Radar"
+		class="component-image responsive-img lazy"
+		data-src="https://api.accuweather.com/maps/v1/radar/static/globalSIR/tile?apikey=de13920f574d420984d3080b1fa6132b&amp;zoom=3&amp;lon=77.000&amp;lat=20.000&amp;imgwidth=768&amp;imgheight=432&amp;language=en-us&amp;base_data=radar"
+		data-srcset="https://api.accuweather.com/maps/v1/radar/static/globalSIR/tile?apikey=de13920f574d420984d3080b1fa6132b&amp;zoom=3&amp;lon=77.000&amp;lat=20.000&amp;imgwidth=768&amp;imgheight=432&amp;language=en-us&amp;base_data=radar, https://api.accuweather.com/maps/v1/radar/static/globalSIR/tile?apikey=de13920f574d420984d3080b1fa6132b&amp;zoom=4&amp;lon=77.000&amp;lat=20.000&amp;imgwidth=480&amp;imgheight=270&amp;language=en-us&amp;base_data=radar"
+		sizes=""
+		src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAJAQMAAAAB5D5xAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjwA0AABsAAQrj5HwAAAAASUVORK5CYII="
+		title="India Weather Radar"
+	/>
+
+	
+<div class="  map-error-message">
+	<div class="map-error-message-content">
+		<div class="error-heading"><span id="mapName">Static Radar</span> Temporarily Unavailable</div>
+		<div class="error-thanks">Thank you for your patience as we work to get everything up and running again.</div>
+		<div class="error-refresh" onclick="javascript: location.reload()">Refresh Page</div>
+	</div>
+</div>
+
+</a>
+
+	
+<div class="nearby-locations content-module">
+	<p class="module-title spaced-content">
+		India Weather Conditions
+		<a href="/en/browse-locations/asi/in" class="nearby-see-more">See more <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg></a>
+	</p>
+	<div class="nearby-locations-list">
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=202438&amp;target="
+			>
+				<span class="text title no-wrap">Ahmedabad</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">25&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=204108&amp;target="
+			>
+				<span class="text title no-wrap">Bengaluru</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">22&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=204408&amp;target="
+			>
+				<span class="text title no-wrap">Bhopal</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">19&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=202350&amp;target="
+			>
+				<span class="text title no-wrap">Chandigarh</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">18&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=206671&amp;target="
+			>
+				<span class="text title no-wrap">Chennai</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">26&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=202396&amp;target="
+			>
+				<span class="text title no-wrap">Delhi</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/37.svg" viewBox="0 0 288 288" width="128" height="128"><g stroke-width="9.843" fill="none" fill-rule="evenodd"><path d="M19.05 257.314H270" stroke="#BABABA"/><path d="M124.42 257.314h54.679a117.183 117.183 0 0 0 72.347-52.169c-45.764 10.418-93.21-8.486-119.27-47.522-26.06-39.035-25.327-90.103 1.841-128.375-55.166 8.154-96.762 54.348-99.106 110.064-2.345 55.717 35.222 105.243 89.509 118.002h0Z" stroke="#686763" stroke-linecap="round" stroke-linejoin="bevel"/><path d="M122.353 183.49H270M19.05 217.794h147.548" stroke="#BABABA"/></g></svg>
+				<span class="text temp">20&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=3592996&amp;target="
+			>
+				<span class="text title no-wrap">Dispur</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/11.svg" viewBox="0 0 288 288" width="128" height="128"><g stroke="#BABABA" stroke-width="10.214" fill="none" fill-rule="evenodd"><path d="M261.77 160a58.681 58.681 0 0 0-54.033-81.715h-9.857c-18.765-22.093-49.013-30.67-76.583-21.715-27.57 8.954-47.004 33.669-49.206 62.572H59.783a38.304 38.304 0 0 0-38.354 38.304V160H261.77ZM1 195.75h285.949M1 160h285.949M1 231.55h285.949"/></g></svg>
+				<span class="text temp">19&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=202446&amp;target="
+			>
+				<span class="text title no-wrap">Faridabad</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/37.svg" viewBox="0 0 288 288" width="128" height="128"><g stroke-width="9.843" fill="none" fill-rule="evenodd"><path d="M19.05 257.314H270" stroke="#BABABA"/><path d="M124.42 257.314h54.679a117.183 117.183 0 0 0 72.347-52.169c-45.764 10.418-93.21-8.486-119.27-47.522-26.06-39.035-25.327-90.103 1.841-128.375-55.166 8.154-96.762 54.348-99.106 110.064-2.345 55.717 35.222 105.243 89.509 118.002h0Z" stroke="#686763" stroke-linecap="round" stroke-linejoin="bevel"/><path d="M122.353 183.49H270M19.05 217.794h147.548" stroke="#BABABA"/></g></svg>
+				<span class="text temp">20&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=186893&amp;target="
+			>
+				<span class="text title no-wrap">Guwahati</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/11.svg" viewBox="0 0 288 288" width="128" height="128"><g stroke="#BABABA" stroke-width="10.214" fill="none" fill-rule="evenodd"><path d="M261.77 160a58.681 58.681 0 0 0-54.033-81.715h-9.857c-18.765-22.093-49.013-30.67-76.583-21.715-27.57 8.954-47.004 33.669-49.206 62.572H59.783a38.304 38.304 0 0 0-38.354 38.304V160H261.77ZM1 195.75h285.949M1 160h285.949M1 231.55h285.949"/></g></svg>
+				<span class="text temp">19&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=205617&amp;target="
+			>
+				<span class="text title no-wrap">Jaipur</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/37.svg" viewBox="0 0 288 288" width="128" height="128"><g stroke-width="9.843" fill="none" fill-rule="evenodd"><path d="M19.05 257.314H270" stroke="#BABABA"/><path d="M124.42 257.314h54.679a117.183 117.183 0 0 0 72.347-52.169c-45.764 10.418-93.21-8.486-119.27-47.522-26.06-39.035-25.327-90.103 1.841-128.375-55.166 8.154-96.762 54.348-99.106 110.064-2.345 55.717 35.222 105.243 89.509 118.002h0Z" stroke="#686763" stroke-linecap="round" stroke-linejoin="bevel"/><path d="M122.353 183.49H270M19.05 217.794h147.548" stroke="#BABABA"/></g></svg>
+				<span class="text temp">21&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=206690&amp;target="
+			>
+				<span class="text title no-wrap">Kolkata</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/34.svg" viewBox="0 0 288 288" width="128" height="128"><g stroke-width="9.36" fill="none" fill-rule="evenodd"><path d="M137.342 141.12c-16.031-34.95-12.064-75.817 10.39-107.031-54.063 8.173-94.085 54.555-94.256 109.231.02 4.899.348 9.791.983 14.648M68.733 199.48a111.478 111.478 0 0 0 190.663 2.012c-38.06 8.573-77.794-3.933-104.083-32.76" stroke="#686763" stroke-linejoin="bevel"/><path d="M124.893 138.64h-4.071a37.44 37.44 0 0 0-66.55 22.464h-5.99c-10.242.506-18.287 8.957-18.287 19.211 0 10.255 8.045 18.706 18.287 19.212h76.611a30.467 30.467 0 1 0 0-60.84v-.047Z" stroke="#BABABA"/></g></svg>
+				<span class="text temp">23&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=206678&amp;target="
+			>
+				<span class="text title no-wrap">Lucknow</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">21&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=205592&amp;target="
+			>
+				<span class="text title no-wrap">Ludhiana</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/34.svg" viewBox="0 0 288 288" width="128" height="128"><g stroke-width="9.36" fill="none" fill-rule="evenodd"><path d="M137.342 141.12c-16.031-34.95-12.064-75.817 10.39-107.031-54.063 8.173-94.085 54.555-94.256 109.231.02 4.899.348 9.791.983 14.648M68.733 199.48a111.478 111.478 0 0 0 190.663 2.012c-38.06 8.573-77.794-3.933-104.083-32.76" stroke="#686763" stroke-linejoin="bevel"/><path d="M124.893 138.64h-4.071a37.44 37.44 0 0 0-66.55 22.464h-5.99c-10.242.506-18.287 8.957-18.287 19.211 0 10.255 8.045 18.706 18.287 19.212h76.611a30.467 30.467 0 1 0 0-60.84v-.047Z" stroke="#BABABA"/></g></svg>
+				<span class="text temp">16&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=204842&amp;target="
+			>
+				<span class="text title no-wrap">Mumbai</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">25&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=187745&amp;target="
+			>
+				<span class="text title no-wrap">New Delhi</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/37.svg" viewBox="0 0 288 288" width="128" height="128"><g stroke-width="9.843" fill="none" fill-rule="evenodd"><path d="M19.05 257.314H270" stroke="#BABABA"/><path d="M124.42 257.314h54.679a117.183 117.183 0 0 0 72.347-52.169c-45.764 10.418-93.21-8.486-119.27-47.522-26.06-39.035-25.327-90.103 1.841-128.375-55.166 8.154-96.762 54.348-99.106 110.064-2.345 55.717 35.222 105.243 89.509 118.002h0Z" stroke="#686763" stroke-linecap="round" stroke-linejoin="bevel"/><path d="M122.353 183.49H270M19.05 217.794h147.548" stroke="#BABABA"/></g></svg>
+				<span class="text temp">18&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=202349&amp;target="
+			>
+				<span class="text title no-wrap">Patna</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">20&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=204848&amp;target="
+			>
+				<span class="text title no-wrap">Pune</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">21&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=187458&amp;target="
+			>
+				<span class="text title no-wrap">Raipur</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">22&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=203541&amp;target="
+			>
+				<span class="text title no-wrap">Ranchi</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">18&#xB0;</span>
+			</a>
+			<a class="nearby-location weather-card"
+				href="/web-api/three-day-redirect?key=202441&amp;target="
+			>
+				<span class="text title no-wrap">Surat</span>
+				<svg class="icon" data-src="/images/weathericons/v2a/33.svg" viewBox="0 0 288 288" width="128" height="128"><path d="M221.96 203.022a106.311 106.311 0 0 1-106.68-106.31 105.34 105.34 0 0 1 19.875-61.661C85.26 42.978 47.299 84.06 43.33 134.424c-3.97 50.363 27.09 96.885 75.125 112.53 48.035 15.645 100.534-3.664 126.986-46.705a106.311 106.311 0 0 1-23.481 2.773Z" stroke="#686763" stroke-width="9.244" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel"/></svg>
+				<span class="text temp">23&#xB0;</span>
+			</a>
+	</div>
+</div>
+
+	<script>
+	window.collapseConnatix = () => {
+		const connatixEl = document.getElementById('connatix');
+		if (connatixEl) {
+			connatixEl.style.display = "none";
+		}
+	}
+</script>
+<div id="connatix" class="content-module"></div>
+
+		<div class="zone-centerWell1 content-module ">
+			
+
+<div class="indices-newsfeed full-mobile-width content-module">
+	<div class="spaced-content indices-newsfeed__title">
+		<span>Weather News</span>
+		<a href="https://www.accuweather.com/en/weather-news" class="indices-sm see-more" data-page-type="news" data-section-name="Weather News">
+			<span class="indices-cta-text"> See More </span>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+		</a>
+		
+	</div>
+	<div class="indices-body">
+			<div class="indices-touts">
+					<a class="story" href="https://www.accuweather.com/en/weather-news/5-injured-homes-evacuated-after-wildfire-erupts-in-colorado/1867951" data-display-type="LifestyleIndicesDisplay" data-section="Weather News" data-text="5 injured, homes evacuated after wildfire erupts in Colorado">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/ThorntonFire.jpeg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/weather-news/5-injured-homes-evacuated-after-wildfire-erupts-in-colorado/1867951">5 injured, homes evacuated after wildfire erupts in Colorado</div>
+						</div>
+						<div class="story-info__time">4 days ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/severe-weather/severe-storms-to-rumble-over-central-us-from-wednesday-through-the-weekend/1868856" data-display-type="LifestyleIndicesDisplay" data-section="Weather News" data-text="Severe storms to rumble in central U.S. into this weekend">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/03/WedSev2Mar.jpeg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/severe-weather/severe-storms-to-rumble-over-central-us-from-wednesday-through-the-weekend/1868856">Severe storms to rumble in central U.S. into this weekend</div>
+						</div>
+						<div class="story-info__time">57 minutes ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/health-wellness/great-value-cottage-cheese-sold-by-walmart-recalled/1868464" data-display-type="LifestyleIndicesDisplay" data-section="Weather News" data-text="Great Value cottage cheese sold by Walmart recalled">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/Screenshot-2026-02-27-at-2.29.14-PM.png?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/health-wellness/great-value-cottage-cheese-sold-by-walmart-recalled/1868464">Great Value cottage cheese sold by Walmart recalled</div>
+						</div>
+						<div class="story-info__time">2 days ago</div>
+					</a>
+			</div>
+	</div>
+</div>
+
+
+			
+
+<div class="indices-newsfeed full-mobile-width content-module">
+	<div class="spaced-content indices-newsfeed__title">
+		<span>Winter Weather</span>
+		
+		
+	</div>
+	<div class="indices-body">
+			<div class="indices-touts">
+					<a class="story" href="https://www.accuweather.com/en/videos/harsh-winter-conditions-dont-stop-kids-from-recess-in-alaska/7258ed76-b779-45a2-950b-b12872e21b19" data-display-type="LifestyleIndicesDisplay" data-section="Winter Weather" data-text="Harsh winter conditions don&#x2019;t stop kids from recess in Alask...">
+							<img alt="" class="js-content-image story-image" data-src="https://img.connatix.com/7258ed76-b779-45a2-950b-b12872e21b19/1_th.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/videos/harsh-winter-conditions-dont-stop-kids-from-recess-in-alaska/7258ed76-b779-45a2-950b-b12872e21b19">Harsh winter conditions don&#x2019;t stop kids from recess in Alask...</div>
+						</div>
+						<div class="story-info__time">6 hours ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/videos/ice-sheet-from-passing-vehicle-crashes-through-windshield/8bd7dcf0-9098-4709-8a39-9a10f7c30c5b" data-display-type="LifestyleIndicesDisplay" data-section="Winter Weather" data-text="Ice sheet from passing vehicle crashes through windshield">
+							<img alt="" class="js-content-image story-image" data-src="https://img.connatix.com/8bd7dcf0-9098-4709-8a39-9a10f7c30c5b/1_th.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/videos/ice-sheet-from-passing-vehicle-crashes-through-windshield/8bd7dcf0-9098-4709-8a39-9a10f7c30c5b">Ice sheet from passing vehicle crashes through windshield</div>
+						</div>
+						<div class="story-info__time">4 days ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/weather-news/dogs-rescued-by-snow-plow-driver-during-blizzard-set-to-return-home/1868011" data-display-type="LifestyleIndicesDisplay" data-section="Winter Weather" data-text="Dogs rescued by snow plow driver during blizzard set to retu...">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/image_a8a97b.png?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/weather-news/dogs-rescued-by-snow-plow-driver-during-blizzard-set-to-return-home/1868011">Dogs rescued by snow plow driver during blizzard set to retu...</div>
+						</div>
+						<div class="story-info__time">4 days ago</div>
+					</a>
+			</div>
+	</div>
+</div>
+
+
+			
+
+<div class="indices-newsfeed full-mobile-width ">
+	<div class="spaced-content indices-newsfeed__title">
+		<span>Trending Today</span>
+		<a href="https://www.accuweather.com/en/news/trending-now" class="indices-sm see-more" data-page-type="content-landing" data-section-name="Trending Today">
+			<span class="indices-cta-text"> See More </span>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+		</a>
+		
+	</div>
+	<div class="indices-body">
+			<div class="indices-touts">
+					<a class="story" href="https://www.accuweather.com/en/videos/people-rescued-after-hot-air-balloon-crashes-into-texas-cell-tower/74548278-4b35-483d-82cf-a63412e88dc9" data-display-type="LifestyleIndicesDisplay" data-section="Trending Today" data-text="People rescued after hot air balloon crashes into Texas cell...">
+							<img alt="" class="js-content-image story-image" data-src="https://img.connatix.com/74548278-4b35-483d-82cf-a63412e88dc9/1_th.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/videos/people-rescued-after-hot-air-balloon-crashes-into-texas-cell-tower/74548278-4b35-483d-82cf-a63412e88dc9">People rescued after hot air balloon crashes into Texas cell...</div>
+						</div>
+						<div class="story-info__time">9 hours ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/weather-news/a-baby-seal-shut-down-a-new-jersey-road-with-a-nap/1867867" data-display-type="LifestyleIndicesDisplay" data-section="Trending Today" data-text="A baby seal shut down a New Jersey road with a nap">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/seal-pup.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/weather-news/a-baby-seal-shut-down-a-new-jersey-road-with-a-nap/1867867">A baby seal shut down a New Jersey road with a nap</div>
+						</div>
+						<div class="story-info__time">3 days ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/videos/why-not-bury-power-lines/2348e348-c202-4615-b6ec-0c8083d0c926" data-display-type="LifestyleIndicesDisplay" data-section="Trending Today" data-text="Why not bury power lines?">
+							<img alt="" class="js-content-image story-image" data-src="https://img.connatix.com/2348e348-c202-4615-b6ec-0c8083d0c926/1_th.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/videos/why-not-bury-power-lines/2348e348-c202-4615-b6ec-0c8083d0c926">Why not bury power lines?</div>
+						</div>
+						<div class="story-info__time">3 days ago</div>
+					</a>
+			</div>
+	</div>
+</div>
+
+
+	</div>
+
+	
+		<div class="zone-centerWell2  ">
+			
+
+<div class="indices-newsfeed full-mobile-width content-module">
+	<div class="spaced-content indices-newsfeed__title">
+		<span>Space and Astronomy</span>
+		<a href="https://www.accuweather.com/en/space-news" class="indices-sm see-more" data-page-type="content-landing" data-section-name="Space and Astronomy">
+			<span class="indices-cta-text"> See More </span>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+		</a>
+		
+	</div>
+	<div class="indices-body">
+			<div class="indices-touts">
+					<a class="story" href="https://www.accuweather.com/en/space-news/marchs-total-lunar-eclipse-will-turn-the-moon-red-heres-when-to-see-it/1853015" data-display-type="LifestyleIndicesDisplay" data-section="Space and Astronomy" data-text="Total lunar eclipse will turn the moon red Monday night">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2023/05/AP18031645255986.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/space-news/marchs-total-lunar-eclipse-will-turn-the-moon-red-heres-when-to-see-it/1853015">Total lunar eclipse will turn the moon red Monday night</div>
+						</div>
+						<div class="story-info__time">4 hours ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/space-news/march-adds-daylight-fast-and-the-change-is-bigger-than-most-people-realize/1867563" data-display-type="LifestyleIndicesDisplay" data-section="Space and Astronomy" data-text="March adds daylight fast, a change bigger than most people r...">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/March-Daylight-gained-2026.png?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/space-news/march-adds-daylight-fast-and-the-change-is-bigger-than-most-people-realize/1867563">March adds daylight fast, a change bigger than most people r...</div>
+						</div>
+						<div class="story-info__time">6 hours ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/space-news/nasa-abruptly-changes-its-roadmap-to-putting-boots-back-on-the-moon/1868473" data-display-type="LifestyleIndicesDisplay" data-section="Space and Astronomy" data-text="NASA abruptly changes its roadmap to putting boots back on t...">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/cnn-L19jb21wb25lbnRzL2ltYWdlL2luc3RhbmNlcy9jbW01MG85NjcwMDBtM2I2cmlvYnN1ZGVq-L19jb21wb25lbnRzL2FydGljbGUvaW5zdGFuY2VzL2NtbTR5b3c0czAwMHkyY3A1ZGN3Y2gxd28.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/space-news/nasa-abruptly-changes-its-roadmap-to-putting-boots-back-on-the-moon/1868473">NASA abruptly changes its roadmap to putting boots back on t...</div>
+						</div>
+						<div class="story-info__time">2 days ago</div>
+					</a>
+			</div>
+	</div>
+</div>
+
+
+			
+
+<div class="indices-newsfeed full-mobile-width content-module">
+	<div class="spaced-content indices-newsfeed__title">
+		<span>Climate Reports</span>
+		<a href="https://www.accuweather.com/en/climate" class="indices-sm see-more" data-page-type="content-landing" data-section-name="Climate Reports">
+			<span class="indices-cta-text"> See More </span>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+		</a>
+		
+	</div>
+	<div class="indices-body">
+			<div class="indices-touts">
+					<a class="story" href="https://www.accuweather.com/en/climate/75-of-global-coffee-supply-faces-rising-extreme-heat-analysis-says/1865600" data-display-type="LifestyleIndicesDisplay" data-section="Climate Reports" data-text="75% of global coffee supply faces rising extreme heat, analy...">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/75-of-global-coffee-supply-faces-rising-extreme-heat-analysis-says.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/climate/75-of-global-coffee-supply-faces-rising-extreme-heat-analysis-says/1865600">75% of global coffee supply faces rising extreme heat, analy...</div>
+						</div>
+						<div class="story-info__time">1 week ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/weather-forecasts/el-nino-is-brewing-heres-what-it-means-for-us-weather-in-2026/1865308" data-display-type="LifestyleIndicesDisplay" data-section="Climate Reports" data-text="El Nino is brewing: Here&#x2019;s what it means for US weather in 2...">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/AP18005850792739.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/weather-forecasts/el-nino-is-brewing-heres-what-it-means-for-us-weather-in-2026/1865308">El Nino is brewing: Here&#x2019;s what it means for US weather in 2...</div>
+						</div>
+						<div class="story-info__time">1 week ago</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/climate/winter-is-getting-shorter-across-nearly-200-u-s-cities-new-climate-analysis-finds/1864679" data-display-type="LifestyleIndicesDisplay" data-section="Climate Reports" data-text="Winter is getting shorter across nearly 200 U.S. cities">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/GettyImages-2259102970.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/climate/winter-is-getting-shorter-across-nearly-200-u-s-cities-new-climate-analysis-finds/1864679">Winter is getting shorter across nearly 200 U.S. cities</div>
+						</div>
+						<div class="story-info__time">1 week ago</div>
+					</a>
+			</div>
+	</div>
+</div>
+
+
+			
+
+<div class="indices-newsfeed full-mobile-width ">
+	<div class="spaced-content indices-newsfeed__title">
+		<span>Invisible Iceberg</span>
+		
+		
+	</div>
+	<div class="indices-body">
+			<div class="indices-touts">
+					<a class="story" href="https://www.accuweather.com/en/videos/invisible-iceberg-weather-the-9-11-terrorist-attacks/0343f4fe-8d09-4114-8f7e-a2221469ac37" data-display-type="LifestyleIndicesDisplay" data-section="Invisible Iceberg" data-text="Invisible Iceberg: Weather &amp; The 9/11 Terrorist Attacks">
+							<img alt="" class="js-content-image story-image" data-src="https://img.connatix.com/0343f4fe-8d09-4114-8f7e-a2221469ac37/1_th.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/videos/invisible-iceberg-weather-the-9-11-terrorist-attacks/0343f4fe-8d09-4114-8f7e-a2221469ac37">Invisible Iceberg: Weather &amp; The 9/11 Terrorist Attacks</div>
+						</div>
+						<div class="story-info__time">Jan 15, 2025</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/videos/invisible-iceberg-a-chill-freezes-birds-and-transforms-europe/e38fd681-dcde-4812-90db-e1858ee10d89" data-display-type="LifestyleIndicesDisplay" data-section="Invisible Iceberg" data-text="Invisible Iceberg: A Chill Freezes Birds and Transforms Euro...">
+							<img alt="" class="js-content-image story-image" data-src="https://img.connatix.com/e38fd681-dcde-4812-90db-e1858ee10d89/1_th.jpg?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/videos/invisible-iceberg-a-chill-freezes-birds-and-transforms-europe/e38fd681-dcde-4812-90db-e1858ee10d89">Invisible Iceberg: A Chill Freezes Birds and Transforms Euro...</div>
+						</div>
+						<div class="story-info__time">Aug 5, 2025</div>
+					</a>
+					<a class="story" href="https://www.accuweather.com/en/weather-news/accuweather-founder-dr-joel-myers-discusses-his-book-invisible-iceberg-when-climate-and-weather-shaped-history/1611692" data-display-type="LifestyleIndicesDisplay" data-section="Invisible Iceberg" data-text="AccuWeather founder Dr. Joel Myers discusses his book">
+							<img alt="" class="js-content-image story-image" data-src="https://cms.accuweather.com/wp-content/uploads/2025/03/Screenshot-2025-03-04-at-12.25.35&#x202F;PM.png?w=304&amp;h=171&amp;crop=1"  />
+
+						<div class="story-info">
+							<div class="story-info__title" href="https://www.accuweather.com/en/weather-news/accuweather-founder-dr-joel-myers-discusses-his-book-invisible-iceberg-when-climate-and-weather-shaped-history/1611692">AccuWeather founder Dr. Joel Myers discusses his book</div>
+						</div>
+						
+					</a>
+			</div>
+	</div>
+</div>
+
+
+	</div>
+
+
+			</div>
+			
+				
+<div class="more-cta-links ">
+	<h2 class="more-cta-title">
+		<p>Around the Globe</p>
+	</h2>
+			<a href="/en/hurricane" class="cta-link" data-page-id="hurricane" data-ga-page-id="hurricane_tracker">
+				<h3 class="cta-text">Hurricane Tracker</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+			<a href="/en/in/severe-weather" class="cta-link" data-page-id="severe-weather" data-ga-page-id="severe_weather">
+				<h3 class="cta-text">Severe Weather</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+			<a href="/en/in/karnataka/weather-radar" class="cta-link" data-page-id="map-radar" data-ga-page-id="radar_and_maps">
+				<h3 class="cta-text">Radar &amp; Maps</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+			<a href="/en/weather-news" class="cta-link" data-page-id="" data-ga-page-id="">
+				<h3 class="cta-text">News</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+			<a href="/en/videos" class="cta-link" data-page-id="video-wall" data-ga-page-id="video">
+				<h3 class="cta-text">Video</h3>
+				<svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><path id="a" d="m8.495.505 5 5v.99l-5 5-.99-.99 3.805-3.806L0 6.7V5.3l11.31-.001-3.805-3.804.99-.99z"/></defs><use fill="#000" fill-rule="nonzero" xlink:href="#a" transform="translate(2 3)"/></svg>
+			</a>
+</div>
+
+			
+			
+		</div>
+		
+			<div class="page-column-2">
+				
+	<div class="right-rail left-align-children">
+		<div class="glacier-ad unrendered top_right config-top_right content-module" ad-type="top_right" id="top_right"></div>
+
+			<div class="zone-rightRail1 content-module ">
+			<div class="thumbnail-right-rail">
+	<p class="title">Top Stories</p>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/severe-weather/severe-storms-to-rumble-over-central-us-from-wednesday-through-the-weekend/1868856"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="Severe storms to rumble in central U.S. into this weekend"
+			data-ga-section="Top Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Severe Weather</p>
+				<p class="right-rail-article__title">Severe storms to rumble in central U.S. into this weekend</p>
+				
+				<p class="right-rail-article__time">57 minutes ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/03/WedSev2Mar.jpeg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/space-news/marchs-total-lunar-eclipse-will-turn-the-moon-red-heres-when-to-see-it/1853015"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="Total lunar eclipse will turn the moon red Monday night"
+			data-ga-section="Top Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Astronomy</p>
+				<p class="right-rail-article__title">Total lunar eclipse will turn the moon red Monday night</p>
+				
+				<p class="right-rail-article__time">4 hours ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2023/05/AP18031645255986.jpg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/winter-weather/brief-bursts-of-winter-ahead-of-warmup-across-the-midwest-northeast/1868640"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="Brief bursts of winter ahead of warmup across Midwest, Northeast"
+			data-ga-section="Top Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Winter Weather</p>
+				<p class="right-rail-article__title">Brief bursts of winter ahead of warmup across Midwest, Northeast</p>
+				
+				<p class="right-rail-article__time">7 minutes ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/03/TuesStormSnapNE2Mar.jpeg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/severe-weather/flood-risk-to-accompany-rounds-of-severe-weather-in-central-us-through-sunday/1868761"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="Flood risk to accompany rounds of severe weather in central US"
+			data-ga-section="Top Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Severe Weather</p>
+				<p class="right-rail-article__title">Flood risk to accompany rounds of severe weather in central US</p>
+				
+				<p class="right-rail-article__time">54 minutes ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/03/FloodRiskTuesThruSun2Mar.jpeg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/winter-weather/1966-blizzard-provided-north-dakotas-most-famous-photo/1868770"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="1966 blizzard provided &#x27;North Dakota&#x27;s most famous photo&#x27;"
+			data-ga-section="Top Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Winter Weather</p>
+				<p class="right-rail-article__title">1966 blizzard provided &#x27;North Dakota&#x27;s most famous photo&#x27;</p>
+				
+				<p class="right-rail-article__time">9 minutes ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/03/wea0095817654.jpg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+	<a class="cta" href="https://www.accuweather.com/en/weather-news">More Stories</a>
+</div>
+
+
+
+			<div class="thumbnail-right-rail">
+	<p class="title">Viral Weather</p>
+		<a class="right-rail-article right-rail-ga video "
+			href="https://www.accuweather.com/en/videos/woman-hangs-from-ski-lift-at-californias-big-bear-mountain-resort/4aa0e639-9b45-4b37-846b-77e893e75796"
+			data-ga-action="Right Rail Click Video"
+			data-ga-label="Woman hangs from ski lift at California&#x27;s Big Bear Mountain Resort"
+			data-ga-section="Viral Weather"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__video-thumb">
+					<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://img.connatix.com/4aa0e639-9b45-4b37-846b-77e893e75796/1_th.jpg?w=104&amp;h=58&amp;crop=1"  />
+
+				<div class="play-icon"><div class="play-icon__inner"></div></div>
+			</div>
+			<div class="right-rail-article__meta">
+				<p class="right-rail-article__title">Woman hangs from ski lift at California&#x27;s Big Bear Mountain Resort</p>
+				<div class="spaced-content">
+					<span class="right-rail-article__time">7 hours ago</span>
+					<span class="right-rail-article__video-time">0:18</span>
+				</div>
+			</div>
+		</a>
+		<a class="right-rail-article right-rail-ga video "
+			href="https://www.accuweather.com/en/videos/frozen-methane-bubbles-create-one-of-natures-wildest-optical-illusions/15ebd8eb-f254-4b73-9e15-1a49de154dd8"
+			data-ga-action="Right Rail Click Video"
+			data-ga-label="Frozen methane bubbles create one of nature&#x27;s wildest optical illusion..."
+			data-ga-section="Viral Weather"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__video-thumb">
+					<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://img.connatix.com/15ebd8eb-f254-4b73-9e15-1a49de154dd8/1_th.jpg?w=104&amp;h=58&amp;crop=1"  />
+
+				<div class="play-icon"><div class="play-icon__inner"></div></div>
+			</div>
+			<div class="right-rail-article__meta">
+				<p class="right-rail-article__title">Frozen methane bubbles create one of nature&#x27;s wildest optical illusion...</p>
+				<div class="spaced-content">
+					<span class="right-rail-article__time">4 days ago</span>
+					<span class="right-rail-article__video-time">0:56</span>
+				</div>
+			</div>
+		</a>
+		<a class="right-rail-article right-rail-ga video "
+			href="https://www.accuweather.com/en/videos/fisheye-lens-captures-bright-green-aurora-over-manitoba/c47b651b-acd7-4712-86d0-04823370e69f"
+			data-ga-action="Right Rail Click Video"
+			data-ga-label="Fisheye lens captures bright green aurora over Manitoba"
+			data-ga-section="Viral Weather"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__video-thumb">
+					<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://img.connatix.com/c47b651b-acd7-4712-86d0-04823370e69f/1_th.jpg?w=104&amp;h=58&amp;crop=1"  />
+
+				<div class="play-icon"><div class="play-icon__inner"></div></div>
+			</div>
+			<div class="right-rail-article__meta">
+				<p class="right-rail-article__title">Fisheye lens captures bright green aurora over Manitoba</p>
+				<div class="spaced-content">
+					<span class="right-rail-article__time">4 days ago</span>
+					<span class="right-rail-article__video-time">0:30</span>
+				</div>
+			</div>
+		</a>
+	
+</div>
+
+
+
+	</div>
+
+		<div class="glacier-ad unrendered bottom_right config-bottom_right content-module" ad-type="bottom_right" id="bottom_right"></div>
+
+			<div class="zone-rightRail2 content-module ">
+			<div class="thumbnail-right-rail">
+	<p class="title">Featured Stories</p>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/winter-weather/the-fences-that-saved-wyoming-big-money-and-cut-crashes-by-70/1868790"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="The fences that saved Wyoming big money and cut crashes by 70%"
+			data-ga-section="Featured Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Winter Weather</p>
+				<p class="right-rail-article__title">The fences that saved Wyoming big money and cut crashes by 70%</p>
+				
+				<p class="right-rail-article__time">3 hours ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/03/GettyImages-91228081.jpg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/travel/2-rescued-after-hot-air-balloon-crashes-dangles-from-texas-cell-tower/1868814"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="2 rescued after hot air balloon crashes, dangles from Texas cell tower"
+			data-ga-section="Featured Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Travel</p>
+				<p class="right-rail-article__title">2 rescued after hot air balloon crashes, dangles from Texas cell tower</p>
+				
+				<p class="right-rail-article__time">3 hours ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/03/2026-03-02_09-19-44.jpg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/space-news/march-adds-daylight-fast-and-the-change-is-bigger-than-most-people-realize/1867563"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="March adds daylight fast, a change bigger than most people realize"
+			data-ga-section="Featured Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Astronomy</p>
+				<p class="right-rail-article__title">March adds daylight fast, a change bigger than most people realize</p>
+				
+				<p class="right-rail-article__time">6 hours ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/March-Daylight-gained-2026.png?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/winter-weather/rhode-island-student-dies-while-charging-phone-in-car-during-blizzard/1868215"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="Rhode Island student dies while charging phone in car during blizzard"
+			data-ga-section="Featured Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Winter Weather</p>
+				<p class="right-rail-article__title">Rhode Island student dies while charging phone in car during blizzard</p>
+				
+				<p class="right-rail-article__time">3 days ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/AP354169587710.jpg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+		<a class="right-rail-article right-rail-ga  "
+			href="https://www.accuweather.com/en/weather-news/a-4-month-old-bird-flew-more-than-8000-miles-nonstop-from-alaska-to-tasmania/1867703"
+			data-ga-action="Right Rail Click Editorial"
+			data-ga-label="A 4-month-old bird flew over 8,000 miles nonstop across the Pacific"
+			data-ga-section="Featured Stories"
+			data-ga-display-type="RightRailThumbnail"
+		>
+			<div class="right-rail-article__meta">
+				
+				<p class="right-rail-article__category">Weather News</p>
+				<p class="right-rail-article__title">A 4-month-old bird flew over 8,000 miles nonstop across the Pacific</p>
+				
+				<p class="right-rail-article__time">4 days ago</p>
+			</div>
+				<img alt="" class="js-content-image right-rail-article__thumb" data-src="https://cms.accuweather.com/wp-content/uploads/2026/02/GettyImages-2164114301.jpg?w=64&amp;h=64&amp;crop=1"  />
+
+		</a>
+	
+</div>
+
+
+
+	</div>
+
+	</div>
+
+			</div>
+		
+	</div>
+	
+		<div class="glacier-ad unrendered bottom config-bottom content-module" ad-type="bottom" id="bottom"></div>
+
+	
+	
+		<div class="breadcrumbs ">
+	<div class="crumbs">
+			<a href="/en/world-weather" class="breadcrumbs__link">World</a>
+			<svg class="breadcrumbs__chevron chevron-icon right" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+			<a href="/en/asia-weather" class="breadcrumbs__link">Asia</a>
+			<svg class="breadcrumbs__chevron chevron-icon right" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+			<a href="/en/in/india-weather" class="breadcrumbs__link">India</a>
+			<svg class="breadcrumbs__chevron chevron-icon right" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+			<a href="/en/in/ka/karnataka-weather" class="breadcrumbs__link">Karnataka</a>
+			<svg class="breadcrumbs__chevron chevron-icon right" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+			<a href="/en/in/gandhinagar/3352214/weather-forecast/3352214" class="breadcrumbs__link">Gandhinagar</a>
+			
+	</div>
+</div>
+
+	
+	
+		
+	
+	<div class="base-footer is-en  ">
+	<span class="">
+			<div class="footer-content">
+	<div class="footer-content-mobile">
+		<div class="footer-content-accordion">
+				<div data-qa="" class="accordion-item accordion-item-simple footer-content-accordion-item" data-shared="true" data-collapsed="true">
+	<div class="accordion-item-header-container ">
+		<div class="accordion-item-header accordion-item-simple-header">
+		<span class="accordion-item-header-content">Company</span>
+	<svg class="accordion-item-header-icon chevron-icon down" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+</div>
+
+	</div>
+	<div class="accordion-item-content ">
+		<div class="footer-category-section footer-category-accordion">
+			<a data-gacategory="Company" data-gatext="Proven Superior Accuracy&#x2122;" data-pagetype="corporate" class="footer-category-section-link " href="https://corporate.accuweather.com/" target="_blank">
+				Proven Superior Accuracy&#x2122;
+			</a>
+			<a data-gacategory="Company" data-gatext="About AccuWeather" data-pagetype="corporate" class="footer-category-section-link " href="https://corporate.accuweather.com/company/about-us/" target="_blank">
+				About AccuWeather
+			</a>
+			<a data-gacategory="Company" data-gatext="Digital Advertising" data-pagetype="advertising" class="footer-category-section-link " href="https://advertising.accuweather.com/for-advertising/digital-advertising/" target="_blank">
+				Digital Advertising
+			</a>
+			<a data-gacategory="Company" data-gatext="Careers" data-pagetype="corporate" class="footer-category-section-link " href="https://corporate.accuweather.com/company/careers/" target="_blank">
+				Careers
+			</a>
+			<a data-gacategory="Company" data-gatext="Press" data-pagetype="corporate" class="footer-category-section-link " href="https://corporate.accuweather.com/newsroom/press-releases/" target="_blank">
+				Press
+			</a>
+			<a data-gacategory="Company" data-gatext="Contact Us" data-pagetype="corporate" class="footer-category-section-link " href="/en/contact" target="_blank">
+				Contact Us
+			</a>
+</div>
+
+	</div>
+</div>
+
+
+				<div data-qa="" class="accordion-item accordion-item-simple footer-content-accordion-item" data-shared="true" data-collapsed="true">
+	<div class="accordion-item-header-container ">
+		<div class="accordion-item-header accordion-item-simple-header">
+		<span class="accordion-item-header-content">Products &amp; Services</span>
+	<svg class="accordion-item-header-icon chevron-icon down" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+</div>
+
+	</div>
+	<div class="accordion-item-content ">
+		<div class="footer-category-section footer-category-accordion">
+			<a data-gacategory="Products &amp; Services" data-gatext="For Business" data-pagetype="business" class="footer-category-section-link " href="https://afb.accuweather.com/" target="_blank">
+				For Business
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="For Partners" data-pagetype="partners" class="footer-category-section-link " href="https://partners.accuweather.com/" target="_blank">
+				For Partners
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="For Advertising" data-pagetype="advertising" class="footer-category-section-link " href="https://advertising.accuweather.com/" target="_blank">
+				For Advertising
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="AccuWeather APIs" data-pagetype="developer" class="footer-category-section-link " href="https://developer.accuweather.com/" target="_blank">
+				AccuWeather APIs
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="AccuWeather Connect" data-pagetype="connect" class="footer-category-section-link " href="https://afb.accuweather.com/accuweather-connect-and-content-syndication" target="_blank">
+				AccuWeather Connect
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="Personal Weather Stations" data-pagetype="ambient-wx-stations" class="footer-category-section-link " href="https://app.accuweather.com/products/ambient-weather-stations" target="_blank">
+				Personal Weather Stations
+			</a>
+</div>
+
+	</div>
+</div>
+
+
+				<div data-qa="" class="accordion-item accordion-item-simple footer-content-accordion-item" data-shared="true" data-collapsed="true">
+	<div class="accordion-item-header-container ">
+		<div class="accordion-item-header accordion-item-simple-header">
+		<span class="accordion-item-header-content">Apps &amp; Downloads</span>
+	<svg class="accordion-item-header-icon chevron-icon down" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+</div>
+
+	</div>
+	<div class="accordion-item-content ">
+		<div class="footer-category-section footer-category-accordion">
+			<a data-gacategory="Apps &amp; Downloads" data-gatext="iPhone App" data-pagetype="apple" class="footer-category-section-link " href="https://go.onelink.me/app/ef253ee1" target="_blank">
+				iPhone App
+			</a>
+			<a data-gacategory="Apps &amp; Downloads" data-gatext="Android App" data-pagetype="android" class="footer-category-section-link " href="https://go.onelink.me/app/85d14e58" target="_blank">
+				Android App
+			</a>
+			<a data-gacategory="Apps &amp; Downloads" data-gatext="See all Apps &amp; Downloads" data-pagetype="downloads" class="footer-category-section-link " href="https://7482826.hs-sites.com/premium-plus" target="_blank">
+				See all Apps &amp; Downloads
+			</a>
+</div>
+
+	</div>
+</div>
+
+
+				<div data-qa="" class="accordion-item accordion-item-simple footer-content-accordion-item" data-shared="true" data-collapsed="true">
+	<div class="accordion-item-header-container ">
+		<div class="accordion-item-header accordion-item-simple-header">
+		<span class="accordion-item-header-content">Subscription Services</span>
+	<svg class="accordion-item-header-icon chevron-icon down" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+</div>
+
+	</div>
+	<div class="accordion-item-content ">
+		<div class="footer-category-section footer-category-accordion">
+			<a data-gacategory="Subscription Services" data-gatext="AccuWeather Premium" data-pagetype="premium" class="footer-category-section-link " href="https://wwwl.accuweather.com/premium_login.php" target="_blank">
+				AccuWeather Premium
+			</a>
+			<a data-gacategory="Subscription Services" data-gatext="AccuWeather Professional" data-pagetype="pro" class="footer-category-section-link " href="https://wwwl.accuweather.com/pro_login.php" target="_blank">
+				AccuWeather Professional
+			</a>
+</div>
+
+	</div>
+</div>
+
+
+				<div data-qa="" class="accordion-item accordion-item-simple footer-content-accordion-item" data-shared="true" data-collapsed="true">
+	<div class="accordion-item-header-container ">
+		<div class="accordion-item-header accordion-item-simple-header">
+		<span class="accordion-item-header-content">More</span>
+	<svg class="accordion-item-header-icon chevron-icon down" xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M10 .969L9.037 0 5 4.063.963 0 0 .969 5 6z" /></svg>
+</div>
+
+	</div>
+	<div class="accordion-item-content ">
+		<div class="footer-category-section footer-category-accordion">
+			<a data-gacategory="More" data-gatext="AccuWeather Ready" data-pagetype="accuweather-ready" class="footer-category-section-link " href="/en/accuweather-ready">
+				AccuWeather Ready
+			</a>
+			<a data-gacategory="More" data-gatext="Business" data-pagetype="content-landing" class="footer-category-section-link " href="/en/business">
+				Business
+			</a>
+			<a data-gacategory="More" data-gatext="Health" data-pagetype="content-landing" class="footer-category-section-link " href="/en/health-wellness">
+				Health
+			</a>
+			<a data-gacategory="More" data-gatext="Hurricane" data-pagetype="hurricane" class="footer-category-section-link " href="/en/hurricane">
+				Hurricane
+			</a>
+			<a data-gacategory="More" data-gatext="Leisure and Recreation" data-pagetype="content-landing" class="footer-category-section-link " href="/en/leisure-recreation">
+				Leisure and Recreation
+			</a>
+			<a data-gacategory="More" data-gatext="Severe Weather" data-pagetype="severe-weather" class="footer-category-section-link " href="/en/in/severe-weather">
+				Severe Weather
+			</a>
+			<a data-gacategory="More" data-gatext="Space and Astronomy" data-pagetype="content-landing" class="footer-category-section-link " href="/en/space-news">
+				Space and Astronomy
+			</a>
+			<a data-gacategory="More" data-gatext="Sports" data-pagetype="content-landing" class="footer-category-section-link " href="/en/sports">
+				Sports
+			</a>
+			<a data-gacategory="More" data-gatext="Travel" data-pagetype="content-landing" class="footer-category-section-link " href="/en/travel">
+				Travel
+			</a>
+			<a data-gacategory="More" data-gatext="Weather News" data-pagetype="news" class="footer-category-section-link " href="/en/weather-news">
+				Weather News
+			</a>
+</div>
+
+	</div>
+</div>
+
+
+		</div>
+		<div class="footer-social ">
+	<a
+		class="social-link"
+		data-gatype="social"
+		data-gacategory="Facebook"
+		data-galink="https://www.facebook.com/AccuWeather"
+		href="https://www.facebook.com/AccuWeather"
+		target="_blank"
+		rel="noopener noreferrer"
+	>
+		<svg data-src="/images/socialicons/facebook.svg" class="social-icon" alt="Social Icon" width="32" height="32" viewBox="0 0 36 36"><g fill-rule="nonzero" fill="none"><path d="M20.8 5.069c-9.946 0-11.514 4.3-11.514 14.247 0 8.092-1.997 5.082 5.346 7.352C16.315 27.188 16.145 36 18 36c1.72 0 3.383-.24 4.957-.69 2.408-.688 4.466-4.135 6.173-10.342 1.644-2.179 2.466-4.696 2.466-7.55 0-9.947-.85-12.35-10.796-12.35Z" fill="#FFF"/><path d="M18 0C8.053 0 0 8.053 0 18c0 9.893 7.987 17.933 17.867 18V23.653h-4.16V18.84h4.16v-3.547c0-4.12 2.52-6.36 6.186-6.36 1.76 0 3.267.134 3.707.187v4.307h-2.547c-2 0-2.386.946-2.386 2.346v3.067H27.6l-.627 4.813h-4.146v11.694C30.427 33.227 36 26.267 36 18c0-9.947-8.053-18-18-18Z" fill="#4167B2"/></g></svg>
+	</a>
+	<a
+		class="social-link"
+		data-gatype="social"
+		data-gacategory="Twitter"
+		data-galink="https://twitter.com/BreakingWeather"
+		href="https://twitter.com/BreakingWeather"
+		target="_blank"
+		rel="noopener noreferrer"
+	>
+		<svg data-src="/images/socialicons/twitter.svg" class="social-icon" alt="Social Icon" width="32" height="32" viewBox="0 0 36 36"><g fill-rule="nonzero" fill="none"><path d="M18 0C8.053 0 0 8.053 0 18s8.053 18 18 18 18-8.053 18-18S27.947 0 18 0Z" fill="#1DA1F3"/><path d="M26.904 14.316c.012.183.012.376.012.57 0 5.774-4.294 12.448-12.14 12.448a11.96 11.96 0 0 1-6.538-1.96c.33.046.672.058 1.014.058a8.424 8.424 0 0 0 5.296-1.868c-1.868-.034-3.44-1.298-3.987-3.04.262.056.524.079.798.079.387 0 .763-.057 1.127-.16-1.947-.398-3.428-2.163-3.428-4.293v-.057c.581.33 1.23.524 1.936.547a4.417 4.417 0 0 1-1.902-3.645c0-.797.205-1.549.581-2.198 2.107 2.654 5.25 4.385 8.792 4.567a4.717 4.717 0 0 1-.114-.99c0-2.415 1.914-4.374 4.26-4.374 1.23 0 2.335.535 3.109 1.378a8.26 8.26 0 0 0 2.71-1.06 4.3 4.3 0 0 1-1.879 2.415A8.4 8.4 0 0 0 29 12.05c-.535.877-1.264 1.64-2.096 2.266Z" fill="#FFF"/></g></svg>
+	</a>
+</div>
+
+	</div>
+	<div class="footer-content-tablet">
+			<div class="footer-content-category">
+				<div class="footer-content-category-wrapper">
+					<div class="footer-content-category-header">Company</div>
+					<div class="footer-category-section ">
+			<a data-gacategory="Company" data-gatext="Proven Superior Accuracy&#x2122;" data-pagetype="corporate" class="footer-category-section-link " href="https://corporate.accuweather.com/" target="_blank">
+				Proven Superior Accuracy&#x2122;
+			</a>
+			<a data-gacategory="Company" data-gatext="About AccuWeather" data-pagetype="corporate" class="footer-category-section-link " href="https://corporate.accuweather.com/company/about-us/" target="_blank">
+				About AccuWeather
+			</a>
+			<a data-gacategory="Company" data-gatext="Digital Advertising" data-pagetype="advertising" class="footer-category-section-link " href="https://advertising.accuweather.com/for-advertising/digital-advertising/" target="_blank">
+				Digital Advertising
+			</a>
+			<a data-gacategory="Company" data-gatext="Careers" data-pagetype="corporate" class="footer-category-section-link " href="https://corporate.accuweather.com/company/careers/" target="_blank">
+				Careers
+			</a>
+			<a data-gacategory="Company" data-gatext="Press" data-pagetype="corporate" class="footer-category-section-link " href="https://corporate.accuweather.com/newsroom/press-releases/" target="_blank">
+				Press
+			</a>
+			<a data-gacategory="Company" data-gatext="Contact Us" data-pagetype="corporate" class="footer-category-section-link " href="/en/contact" target="_blank">
+				Contact Us
+			</a>
+</div>
+
+				</div>
+			</div>
+			<div class="footer-content-category">
+				<div class="footer-content-category-wrapper">
+					<div class="footer-content-category-header">Products &amp; Services</div>
+					<div class="footer-category-section ">
+			<a data-gacategory="Products &amp; Services" data-gatext="For Business" data-pagetype="business" class="footer-category-section-link " href="https://afb.accuweather.com/" target="_blank">
+				For Business
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="For Partners" data-pagetype="partners" class="footer-category-section-link " href="https://partners.accuweather.com/" target="_blank">
+				For Partners
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="For Advertising" data-pagetype="advertising" class="footer-category-section-link " href="https://advertising.accuweather.com/" target="_blank">
+				For Advertising
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="AccuWeather APIs" data-pagetype="developer" class="footer-category-section-link " href="https://developer.accuweather.com/" target="_blank">
+				AccuWeather APIs
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="AccuWeather Connect" data-pagetype="connect" class="footer-category-section-link " href="https://afb.accuweather.com/accuweather-connect-and-content-syndication" target="_blank">
+				AccuWeather Connect
+			</a>
+			<a data-gacategory="Products &amp; Services" data-gatext="Personal Weather Stations" data-pagetype="ambient-wx-stations" class="footer-category-section-link " href="https://app.accuweather.com/products/ambient-weather-stations" target="_blank">
+				Personal Weather Stations
+			</a>
+</div>
+
+				</div>
+			</div>
+			<div class="footer-content-category">
+				<div class="footer-content-category-wrapper">
+					<div class="footer-content-category-header">Apps &amp; Downloads</div>
+					<div class="footer-category-section ">
+			<a data-gacategory="Apps &amp; Downloads" data-gatext="iPhone App" data-pagetype="apple" class="footer-category-section-link " href="https://go.onelink.me/app/ef253ee1" target="_blank">
+				iPhone App
+			</a>
+			<a data-gacategory="Apps &amp; Downloads" data-gatext="Android App" data-pagetype="android" class="footer-category-section-link " href="https://go.onelink.me/app/85d14e58" target="_blank">
+				Android App
+			</a>
+			<a data-gacategory="Apps &amp; Downloads" data-gatext="See all Apps &amp; Downloads" data-pagetype="downloads" class="footer-category-section-link " href="https://7482826.hs-sites.com/premium-plus" target="_blank">
+				See all Apps &amp; Downloads
+			</a>
+</div>
+
+				</div>
+			</div>
+			<div class="footer-content-category">
+				<div class="footer-content-category-wrapper">
+					<div class="footer-content-category-header">Subscription Services</div>
+					<div class="footer-category-section ">
+			<a data-gacategory="Subscription Services" data-gatext="AccuWeather Premium" data-pagetype="premium" class="footer-category-section-link " href="https://wwwl.accuweather.com/premium_login.php" target="_blank">
+				AccuWeather Premium
+			</a>
+			<a data-gacategory="Subscription Services" data-gatext="AccuWeather Professional" data-pagetype="pro" class="footer-category-section-link " href="https://wwwl.accuweather.com/pro_login.php" target="_blank">
+				AccuWeather Professional
+			</a>
+</div>
+
+				</div>
+			</div>
+			<div class="footer-content-category">
+				<div class="footer-content-category-wrapper">
+					<div class="footer-content-category-header">More</div>
+					<div class="footer-category-section ">
+			<a data-gacategory="More" data-gatext="AccuWeather Ready" data-pagetype="accuweather-ready" class="footer-category-section-link " href="/en/accuweather-ready">
+				AccuWeather Ready
+			</a>
+			<a data-gacategory="More" data-gatext="Business" data-pagetype="content-landing" class="footer-category-section-link " href="/en/business">
+				Business
+			</a>
+			<a data-gacategory="More" data-gatext="Health" data-pagetype="content-landing" class="footer-category-section-link " href="/en/health-wellness">
+				Health
+			</a>
+			<a data-gacategory="More" data-gatext="Hurricane" data-pagetype="hurricane" class="footer-category-section-link " href="/en/hurricane">
+				Hurricane
+			</a>
+			<a data-gacategory="More" data-gatext="Leisure and Recreation" data-pagetype="content-landing" class="footer-category-section-link " href="/en/leisure-recreation">
+				Leisure and Recreation
+			</a>
+			<a data-gacategory="More" data-gatext="Severe Weather" data-pagetype="severe-weather" class="footer-category-section-link " href="/en/in/severe-weather">
+				Severe Weather
+			</a>
+			<a data-gacategory="More" data-gatext="Space and Astronomy" data-pagetype="content-landing" class="footer-category-section-link " href="/en/space-news">
+				Space and Astronomy
+			</a>
+			<a data-gacategory="More" data-gatext="Sports" data-pagetype="content-landing" class="footer-category-section-link " href="/en/sports">
+				Sports
+			</a>
+			<a data-gacategory="More" data-gatext="Travel" data-pagetype="content-landing" class="footer-category-section-link " href="/en/travel">
+				Travel
+			</a>
+			<a data-gacategory="More" data-gatext="Weather News" data-pagetype="news" class="footer-category-section-link " href="/en/weather-news">
+				Weather News
+			</a>
+</div>
+
+						<div class="footer-social footer-social-tablet">
+	<a
+		class="social-link"
+		data-gatype="social"
+		data-gacategory="Facebook"
+		data-galink="https://www.facebook.com/AccuWeather"
+		href="https://www.facebook.com/AccuWeather"
+		target="_blank"
+		rel="noopener noreferrer"
+	>
+		<svg data-src="/images/socialicons/facebook.svg" class="social-icon" alt="Social Icon" width="32" height="32" viewBox="0 0 36 36"><g fill-rule="nonzero" fill="none"><path d="M20.8 5.069c-9.946 0-11.514 4.3-11.514 14.247 0 8.092-1.997 5.082 5.346 7.352C16.315 27.188 16.145 36 18 36c1.72 0 3.383-.24 4.957-.69 2.408-.688 4.466-4.135 6.173-10.342 1.644-2.179 2.466-4.696 2.466-7.55 0-9.947-.85-12.35-10.796-12.35Z" fill="#FFF"/><path d="M18 0C8.053 0 0 8.053 0 18c0 9.893 7.987 17.933 17.867 18V23.653h-4.16V18.84h4.16v-3.547c0-4.12 2.52-6.36 6.186-6.36 1.76 0 3.267.134 3.707.187v4.307h-2.547c-2 0-2.386.946-2.386 2.346v3.067H27.6l-.627 4.813h-4.146v11.694C30.427 33.227 36 26.267 36 18c0-9.947-8.053-18-18-18Z" fill="#4167B2"/></g></svg>
+	</a>
+	<a
+		class="social-link"
+		data-gatype="social"
+		data-gacategory="Twitter"
+		data-galink="https://twitter.com/BreakingWeather"
+		href="https://twitter.com/BreakingWeather"
+		target="_blank"
+		rel="noopener noreferrer"
+	>
+		<svg data-src="/images/socialicons/twitter.svg" class="social-icon" alt="Social Icon" width="32" height="32" viewBox="0 0 36 36"><g fill-rule="nonzero" fill="none"><path d="M18 0C8.053 0 0 8.053 0 18s8.053 18 18 18 18-8.053 18-18S27.947 0 18 0Z" fill="#1DA1F3"/><path d="M26.904 14.316c.012.183.012.376.012.57 0 5.774-4.294 12.448-12.14 12.448a11.96 11.96 0 0 1-6.538-1.96c.33.046.672.058 1.014.058a8.424 8.424 0 0 0 5.296-1.868c-1.868-.034-3.44-1.298-3.987-3.04.262.056.524.079.798.079.387 0 .763-.057 1.127-.16-1.947-.398-3.428-2.163-3.428-4.293v-.057c.581.33 1.23.524 1.936.547a4.417 4.417 0 0 1-1.902-3.645c0-.797.205-1.549.581-2.198 2.107 2.654 5.25 4.385 8.792 4.567a4.717 4.717 0 0 1-.114-.99c0-2.415 1.914-4.374 4.26-4.374 1.23 0 2.335.535 3.109 1.378a8.26 8.26 0 0 0 2.71-1.06 4.3 4.3 0 0 1-1.879 2.415A8.4 8.4 0 0 0 29 12.05c-.535.877-1.264 1.64-2.096 2.266Z" fill="#FFF"/></g></svg>
+	</a>
+</div>
+
+				</div>
+			</div>
+	</div>
+</div>
+
+	</span>
+	<div class="footer-legalese">
+	<div class="footer-copyright">
+		<span>
+			&#xA9; 2026 AccuWeather, Inc. &quot;AccuWeather&quot; and sun design are registered trademarks of AccuWeather, Inc. All Rights Reserved.
+
+		</span>
+	</div>
+	<div id="footer-terms" class="footer-terms">
+		<a
+			data-ga="Terms of Use"
+			href="/en/legal"
+			target="_blank"
+		>
+			Terms of Use
+		</a>
+		|
+		<a
+			data-ga="Privacy Policy"
+			href="/en/privacy"
+			target="_blank"
+		>
+			Privacy Policy
+		</a>
+		|
+		<a
+			data-ga="Cookie Policy"
+			href="/en/cookiepolicy"
+			target="_blank"
+		>
+			Cookie Policy
+		</a>
+		|
+		<a
+			data-ga="Data Sources"
+			href="/en/data-sources"
+			target="_blank"
+		>
+			Data Sources
+		</a>
+	</div>
+</div>
+
+</div>
+
+	
+</div>
+
+
+	<script>
+		// Check for third party cookie support
+		const thirdPartyIframe = document.createElement('iframe');
+		thirdPartyIframe.setAttribute(
+			'src',
+			'https://www.awxcdn.com/adc/3rdpartycheck.html'
+		);
+		thirdPartyIframe.setAttribute('style', 'width:0;height:0;display:none');
+		document.body.appendChild(thirdPartyIframe);
+	</script>
+
+		
+
+			<script charset="utf-8" src="https://www.awxcdn.com/adc-assets/bundles/home.home-desktop.974b9b1195b873a4382d.js" async></script>
+		<script charset="utf-8" src="https://www.awxcdn.com/adc-assets/bundles/7765.e88de4164095a4dd183c.js" async></script>
+
+			<script charset="utf-8" src="https://www.awxcdn.com/adc-assets/bundles/legacy-header.1f356ef2e85cc448ec92.js" async></script>
+
+
+
+	
+
+    <script>
+        window.tagEngineDataLayer = window.tagEngineDataLayer || {};
+        window.tagEngineDataLayer.comScore = {
+            cs_fpid: "fbf24833-9a24-4f48-b8da-954798a091f1",
+            c4: "https://www.accuweather.com/",
+            c7: "https://www.accuweather.com/",
+            c8: "Local, National, \u0026 Global Daily Weather Forecast | AccuWeather",
+            c9: ""
+        };
+    </script>
+
+	
+
+
+<script>
+	var isPushlyEnabled = true;
+</script>
+
+	<script>
+		window.tagEngineDataLayer = window.tagEngineDataLayer || {};
+		window.tagEngineDataLayer.pushly = {
+			isEnabled: true,
+			isPremiumPlus: false,
+			pushlyKey: "16if7iQ5tgH1FcRA4cUeejyVcdf5guIAEV9R",
+			userLocationKeys: ["3352214"]
+		};
+	</script>
+
+		<script>
+		function callBlockthroughScript() {
+			const scriptEl = document.getElementById('bt_bootstrap_2.0')
+			if (!scriptEl) {
+				const s = document.createElement("script");
+				el = document.getElementsByTagName("script")[0];
+				s.setAttribute('id', 'bt_bootstrap_2.0');
+				s.async = true;
+				s.src = "//accuweather-com.videoplayerhub.com/btTag.js?w=5760049299324928";
+				el.parentNode.insertBefore(s, el);
+			}
+		};
+
+			if (typeof window.ketch === 'function') {
+				window.ketch('on', 'consent', () => {
+					window.addEventListener('load', callBlockthroughScript);
+					setTimeout(callBlockthroughScript, 15000);
+				});
+			} else {
+				window.addEventListener('load', callBlockthroughScript);
+				setTimeout(callBlockthroughScript, 15000);
+			}
+				</script>
+
+	
+
+	<script>
+		try {
+		;
+		} catch (error) { }
+	</script>
+	<script async src="https://www.accuweather.com/tags/common/body/ad-script-7b9d4fb6.js" ></script>
+	<script async src="https://www.accuweather.com/tags/glacier/body/search-bar-ad-5d1d21c7.js" ></script><popup-banner
+	id="pushly-prompt-custom"
+	class="pushly-prompt-custom"
+	banner-order="1"
+	delay="4000"
+>
+	<div class="banner-body">
+		<div>
+			<p id="pushly-phrase-text">...</p>
+		</div>
+		<div>
+			<button
+				class="pushly-prompt-buttons-allow banner-enable-button"
+				id="pushly-allow-button"
+			>
+				...
+			</button>
+		</div>
+		<button
+			class="pushly-prompt-buttons-dismiss banner-dismiss-button"
+			id="pushly-dismiss-button"
+		>
+			...
+		</button>
+	</div>
+</popup-banner>
+
+<div
+	id="pushly-enabled-banner"
+	class="pushly-banner enabled-banner pushly-prompt-custom"
+	style="display: none"
+>
+	<div class="banner-body">
+		<p class="title" id="pushly-enabled-title">
+			<span class="checkmark-wrapper">
+				<check-icon></check-icon>
+			</span>
+			...
+		</p>
+		<p id="pushly-enabled-thanks">...</p>
+	</div>
+</div>
+<script>(async () => {(function(){function m(n,e){const c="https://sb.scorecardresearch.com/p?",t=Array.from(document.querySelectorAll('img[src^="'+c+'"]'));if(t.find(s=>s.src.includes(`cs_ucfr=${n}`)))return;const o=t.find(s=>s.src.includes("cs_ucfr=")&&!s.src.includes(`cs_ucfr=${n}`));o&&o.remove();const d=`${c}cs_fpid=${e.cs_fpid}&cs_fpit=c&c1=2&c2=6005068&c4=${encodeURIComponent(e.c4)}&c7=${encodeURIComponent(e.c7)}&c8=${encodeURIComponent(e.c8)}&c9=${encodeURIComponent(e.c9)}&cs_ucfr=${n}`,i=document.createElement("img");i.src=d,i.alt="ComScore",i.style.display="none",document.body.appendChild(i)}function a(){const n=window.tagEngineDataLayer?.comScore;if(!n)return;const e=100,c=2e3;let t=0;const r=()=>{typeof window.ketch=="function"?window.ketch("on","consent",function(o){const d=o?.purposes?.targeted_advertising;m(d===!0?1:0,n)}):t<c&&(t+=e,setTimeout(r,e))};r()}document.readyState==="complete"||document.readyState==="interactive"?a():document.addEventListener("DOMContentLoaded",a)})();
+//# sourceMappingURL=comscore.inline.5-abc6ca40.js.map
+})();</script><script>(async () => {(function(){try{var n=window.tagEngineDataLayer||{},r=n.pushly||{};if(!r.isEnabled||!r.pushlyKey){console.warn("[Pushly SDK] Not enabled or missing key");return}var e=document.createElement("script");e.src="https://cdn.p-n.io/pushly-sdk.min.js?domain_key="+encodeURIComponent(r.pushlyKey),e.defer=!0,e.onerror=function(){window.pushlyCallbackError=!0,console.error("[Pushly SDK] Failed to load")},document.head.appendChild(e)}catch(o){console.error("[Pushly SDK] Error loading SDK",o)}})();
+//# sourceMappingURL=pushly-sdk.inline.10-9f45dbaf.js.map
+})();</script><script>(async () => {(function(){const i=window.tagEngineDataLayer?.pushly;if(!i?.isEnabled||!window.PushlySDK)return;const t=i.userLocationKeys||[];window.PushlySDK=window.PushlySDK||[];function n(){window.PushlySDK.push(arguments)}function o(){let e=localStorage.getItem("pushlySettings");if(e){let s=JSON.parse(e);return{accuWeatherAlerts:s.accuWeatherAlerts===!0,daily:s.dailyAlerts?t[0]:null,gov:s.governmentAlerts.length>0?t:[],proximity:s.lightningAlerts.length>0?t:[],news:Object.keys(s.subcategories).filter(l=>s.subcategories[l]),locations:t}}return{accuWeatherAlerts:!1,daily:t.length>0?t[0]:null,gov:t,proximity:t,news:["airQuality","astronomy","sports","topStories"],locations:t}}n("on_ready",function(){const e=o();n("profile",{awx:e.accuWeatherAlerts&&i.isPremiumPlus?t:[],daily:e.daily,gov:e.gov,proximity:e.proximity,news:e.news,locations:e.locations})})})();
+//# sourceMappingURL=pushly-profile.inline.15-c6ca2e05.js.map
+})();</script><script>(async () => {(function(){var t=window.tagEngineDataLayer.parsely?.site;if(t){var e=document.createElement("script");e.type="text/javascript",e.id="parsely-cfg",e.src="//cdn.parsely.com/keys/"+t+"/p.js",e.defer=!0,document.head.appendChild(e)}})();
+//# sourceMappingURL=parsely.inline.20-4b2bfdbd.js.map
+})();</script><script>(async () => {window.bannerElements=window.bannerElements||[];const d=window.tagEngineDataLayer?.pushly?.isPremiumPlus===!0;function o(e){if(e){e.dataset.bannerOrder=null;const t=window.bannerElements.find(n=>n.el===e);t&&(t.order=null)}}function u(){if(window.bannerElements.length>0){const e=window.bannerElements.find(n=>n.isActive);if(e&&A(e))return;e&&(e.isActive=!1);const t=window.bannerElements.filter(n=>n.el.dataset.bannerOrder>=0).sort((n,i)=>n.order-i.order).find(n=>!n.didDisplay);t&&B(t)}}function B(e){if(!e||!e.hasOwnProperty("el")||window.bannerElements.filter(i=>i.isActive).length>0)return;e.didDisplay=!0,e.isActive=!0;let n=0;if(e.el.dataset.bannerDelay){const i=Date.now()-window.__bannerInitialLoad;n=e.el.dataset.bannerDelay-i}n<0&&(n=0),setTimeout(()=>{e.order!==null&&!E()&&(e.el.style.removeProperty?e.el.style.removeProperty("display"):e.el.style.removeAttribute("display"),e.el.visibleCallback&&e.el.visibleCallback())},n)}function E(){return window.bannerElements.map(e=>A(e)).filter(e=>e).length>0}function A(e){const t=document.getElementById(e.id);return t&&window.getComputedStyle(t).display!=="none"}window.__bannerInitialLoad=Date.now();document.querySelectorAll("div[data-banner-order]").forEach(e=>{window.bannerElements.find(t=>t.el===e)||window.bannerElements.push({el:e,order:e.dataset.bannerOrder,didDisplay:!1,isActive:!1,id:e.id})});u();const s=document.getElementById("pushly-prompt-custom"),l=document.getElementById("pushly-enabled-banner"),_=(window.userCookie?.lang||"en").toLowerCase(),r=window.pushlyTranslations?.[_]||window.pushlyTranslations.en,p=document.querySelector(".pushly-prompt-custom .banner-body p"),m=document.querySelector(".pushly-prompt-buttons-allow"),f=document.querySelector(".pushly-prompt-buttons-dismiss"),h=document.querySelector("#pushly-enabled-banner .title"),w=document.querySelector("#pushly-enabled-banner p:last-of-type");p&&(p.textContent=r.phrase);m&&(m.textContent=r.enableNotifications);f&&(f.textContent=r.noThanks);h&&(h.innerText=r.enabled);w&&(w.innerText=r.thanks);let b=!1;function a(e){e&&e.remove(e)}function c(){a(s),a(l),u()}function I(){g(s),g(l),u()}function g(e){e&&(e.style.display="none")}function S(e){e&&(e.style.display="block")}const v=e=>{const t=localStorage.getItem("pushlyStatus");(!t||t!=="subscribed")&&localStorage.setItem("pushlyStatus",e)};function x(e,t=5,n=250,i=1e3){const y=()=>{typeof window.ketch=="function"?setTimeout(e,i):t>0?(t--,setTimeout(y,n)):e()};y()}typeof pushly=="function"&&x(()=>{pushly("on_ready",()=>{b=!0;const e=PushlySDK?.context?.user?.subscriberState;if(["subscribed","blocked","dismissed"].includes(e)&&(v(e),o(s),c()),e==="subscribed"&&localStorage.getItem("pushlySettingsInitialized")!=="true"){const t={accuWeatherAlerts:!!d,dailyAlerts:!0,governmentAlerts:["gov-alerts"],lightningAlerts:["lightning-alerts"],weatherNews:!0,subcategories:{topStories:!0,astronomy:!0,airQuality:!0,sports:!0}};localStorage.setItem("pushlySettings",JSON.stringify(t)),localStorage.setItem("pushlySettingsInitialized","true"),pushly("profile",{awx:t.accuWeatherAlerts&&d?userLocationKeys:[],daily:t.dailyAlerts?userLocationKeys[0]:null,gov:t.governmentAlerts.length>0?userLocationKeys:[],proximity:t.lightningAlerts.length>0?userLocationKeys:[],news:Object.keys(t.subcategories).filter(n=>t.subcategories[n]),locations:userLocationKeys})}pushly("on_permission_allowed",()=>{if(v("subscribed"),a(s),S(l),localStorage.getItem("pushlySettingsInitialized")!=="true"){const t={accuWeatherAlerts:!!d,dailyAlerts:!0,governmentAlerts:["gov-alerts"],lightningAlerts:["lightning-alerts"],weatherNews:!0,subcategories:{topStories:!0,astronomy:!0,airQuality:!0,sports:!0}};localStorage.setItem("pushlySettings",JSON.stringify(t)),localStorage.setItem("pushlySettingsInitialized","true")}setTimeout(()=>{a(l),u()},2500)}),PushlySDK.context.user.subscriberState!=="subscribed"&&localStorage.setItem("pushly-interests",[])}),["on_permission_denied","on_permission_dismissed","on_prompt_dismissed","on_web_push_unsupported","on_prompt_ineligible"].forEach(e=>{pushly(e,()=>{I()})}),pushly("on_loaded",()=>{location.protocol.indexOf("https")<0&&o(s)}),window.showPushlyBanner=function(){S(s),"pushly"in window&&pushly("show_prompt")},window.pushlyCallback&&(window.pushlyCallback(),setTimeout(()=>{if(!b){if(!PushlySDK.context||!PushlySDK.context.domain){o(s),c();return}const e=PushlySDK.context.domain.whitelistDomains,t=location.hostname;e.indexOf(t)<0&&(o(s),c())}},3e3))});window.pushlyCallbackError&&o(s);
+//# sourceMappingURL=pushly-banner.inline.25-af815863.js.map
+})();</script><style>.pushly-prompt-custom{transition:opacity .3s;opacity:0;display:block;visibility:hidden;position:fixed;bottom:12px;width:320px;height:160px;background:#1f1f1fe6;border-radius:8px;z-index:2147483600}@media (width >= 344px){.pushly-prompt-custom{left:9px}}.pushly-prompt-custom.enabled-banner{animation:fadeIn .3s ease-out;animation-fill-mode:forwards;height:94px;text-align:center;opacity:1;visibility:visible}@keyframes fadeIn{0%{opacity:0}to{opacity:1}}.pushly-prompt-custom.enabled-banner .title{margin-bottom:8px;font-weight:700}.pushly-prompt-custom.enabled-banner .title .checkmark-wrapper{margin-right:12px}.pushly-prompt-custom.enabled-banner .title .checkmark-wrapper .icon-check{fill:#343434;background:#fff;border:solid .7px #343434;width:10px;height:10px;border-radius:50%;padding:2px}.pushly-prompt-custom .banner-body{padding:16px;position:relative;height:100%;width:100%;display:block}.pushly-prompt-custom .banner-body p{font-size:16px;color:#fff}.pushly-prompt-custom .banner-body .banner-enable-button{font-size:16px;font-weight:700;color:#000;background:#fff;border-radius:2px;border:none;padding:12px 0;cursor:pointer;width:100%;text-align:center;position:relative;top:16px;margin-bottom:12px}.pushly-prompt-custom .banner-body .banner-enable-button:hover{text-decoration:underline}.pushly-prompt-custom .banner-body .banner-dismiss-button{font-size:14px;color:#fff;cursor:pointer;width:100%;text-align:center;position:relative;top:14px;text-decoration:underline;background:none!important;border:none;padding:0!important}.pushly-prompt-custom.pushly-web-push-supported{visibility:visible;opacity:1}.pushly-prompt-custom.pushly-subscription-dismissed{display:none}@keyframes fadeInPushly{0%{opacity:0;visibility:hidden}to{opacity:1;visibility:visible}}.pushly-prompt-custom.pushly-fade-in{animation:fadeInPushly .3s ease-out forwards}@media (width >= 1024px){body.new-ui .pushly-prompt-custom{left:92px}}
+</style>
+<noscript><img src="https://www.accuweather.com/akam/13/pixel_7728a444?a=dD0wMWEyYWU1NTQ2NDVmMjk3Mzk4MDhlNWRlYTNkMmFjZTFhY2NhYzYyJmpzPW9mZg==" style="visibility: hidden; position: absolute; left: -999px; top: -999px;" /></noscript></body>
+
+</html>

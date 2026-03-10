@@ -1,11 +1,10 @@
-﻿package com.samsung.genuicraft
+package com.samsung.genuicraft
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,6 +39,7 @@ class SampleDatasetPickerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyOneUiWindowBlur()
         setContent {
             GenUiCraftTheme {
                 SampleDatasetPickerScreen(
@@ -76,26 +76,29 @@ private fun SampleDatasetPickerScreen(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.56f),
+                    containerColor = genUiTopBarContainerColor(),
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         }
     ) { innerPadding ->
-        Column(
+        GenUiScreenBackground(
             modifier = Modifier
                 .fillMaxSize()
-                .background(genUiBackgroundBrush())
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) { backgroundModifier ->
+            Column(
+                modifier = backgroundModifier
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                items(datasets, key = { it.id }) { dataset ->
-                    SampleDatasetCard(dataset = dataset, onSelect = { onSelect(dataset) })
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(datasets, key = { it.id }) { dataset ->
+                        SampleDatasetCard(dataset = dataset, onSelect = { onSelect(dataset) })
+                    }
                 }
             }
         }
@@ -132,7 +135,7 @@ private fun SampleDatasetCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Clip
             )
             Text(
                 text = "${dataset.expectedRecords} item(s) | ${dataset.sourceLabel}",

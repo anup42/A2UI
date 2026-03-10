@@ -1,0 +1,56 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-03-09T20:09:32Z",
+  "run_id": "subset10_manual_rich_stage4rerun_20260310_013920",
+  "stage": 4,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "039f88f39aff02413c6c86e0414c69bd47594420",
+    "git_branch": "main",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "openai_gpt4o",
+    "provider": "openai",
+    "model": "gpt-4o"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "f2be9fc97390fd6959d64d70af41f4ba6582f5a2ca6b2a4c62de47dd80de838c",
+      "configs\\models.yaml": "55f33e13327bfdc8281b4638c0e8cb97e83f5ced68a73f1cae3365560e62a51d"
+    },
+    "combined_sha256": "31e69f7bfd0a63047b879b4d6b1e31525b0989142231f47016a62f47125c0f46"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\subset10_manual_rich_stage4rerun_20260310_013920",
+    "queries_path": "data\\runs\\subset10_manual_rich_stage4rerun_20260310_013920\\queries.jsonl",
+    "responses_path": "data\\runs\\subset10_manual_rich_stage4rerun_20260310_013920\\responses.jsonl",
+    "genui_path": "data\\runs\\subset10_manual_rich_stage4rerun_20260310_013920\\genui.jsonl",
+    "metrics_path": "data\\runs\\subset10_manual_rich_stage4rerun_20260310_013920\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\subset10_manual_rich_stage4rerun_20260310_013920\\aggregates.json",
+    "artifacts_dir": "data\\runs\\subset10_manual_rich_stage4rerun_20260310_013920\\artifacts",
+    "manifest_path": "data\\runs\\subset10_manual_rich_stage4rerun_20260310_013920\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "4",
+      "--run_id",
+      "subset10_manual_rich_stage4rerun_20260310_013920"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\workspace\\A2UI\\dataset"
+  }
+}

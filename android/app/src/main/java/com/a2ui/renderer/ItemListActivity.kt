@@ -1,4 +1,4 @@
-﻿package com.samsung.genuicraft
+package com.samsung.genuicraft
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -54,6 +52,7 @@ class ItemListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyOneUiWindowBlur()
         session = RenderSessionStore.current()
 
         setContent {
@@ -103,21 +102,23 @@ private fun ItemListScreen(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.56f),
+                    containerColor = genUiTopBarContainerColor(),
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         }
     ) { innerPadding ->
-        Column(
+        GenUiScreenBackground(
             modifier = Modifier
                 .fillMaxSize()
-                .background(genUiBackgroundBrush())
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
+        ) { backgroundModifier ->
+            Column(
+                modifier = backgroundModifier
                 .padding(horizontal = horizontalPadding, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+            ) {
             val sourceText = session?.sourceLabel ?: stringResource(id = R.string.list_empty_source)
             val countText = stringResource(id = R.string.list_count, session?.records?.size ?: 0)
             val modeText = stringResource(
@@ -170,6 +171,7 @@ private fun ItemListScreen(
                     }
                 }
             }
+            }
         }
     }
 }
@@ -181,10 +183,9 @@ private fun RecordItemCard(
     deviceConfig: DeviceUiConfig,
     onClick: () -> Unit
 ) {
-    val dark = isSystemInDarkTheme()
     val allowExpanded = deviceConfig.allowLargeTextListLayout()
-    val cardContainer = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = if (dark) 0.70f else 0.84f)
-    val cardBorder = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.52f else 0.42f)
+    val cardContainer = genUiCardContainerColor(GenUiCardTone.Neutral)
+    val cardBorder = genUiCardBorderColor()
     val interactionSource = remember { MutableInteractionSource() }
 
     var resolvedMaxLines by remember(item.title, allowExpanded) { mutableIntStateOf(if (allowExpanded) 2 else 1) }
@@ -224,7 +225,7 @@ private fun RecordItemCard(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = resolvedMaxLines,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Clip,
                     onTextLayout = { layoutResult ->
                         if (allowExpanded) {
                             resolvedMaxLines = if (layoutResult.lineCount > 1) 2 else 1
@@ -239,7 +240,7 @@ private fun RecordItemCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = if (resolvedMaxLines == 2) 4 else 3,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Clip
             )
 
             Spacer(modifier = Modifier.height(2.dp))
