@@ -1,5 +1,6 @@
 package com.samsung.genuicraft
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardColors
@@ -9,11 +10,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -199,12 +203,23 @@ private val GenUiShapes = Shapes(
 fun genUiBackgroundBrush(): Brush {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
+    val top = scheme.surfaceContainerLowest.copy(alpha = if (dark) 0.30f else 0.36f)
+    val midPrimary = lerp(
+        scheme.surfaceContainerLow,
+        scheme.primaryContainer,
+        if (dark) 0.24f else 0.18f
+    )
+    val midAccent = lerp(
+        scheme.surfaceContainer,
+        scheme.tertiaryContainer,
+        if (dark) 0.22f else 0.16f
+    )
     return Brush.verticalGradient(
         colors = listOf(
-            scheme.background,
-            scheme.primary.copy(alpha = if (dark) 0.16f else 0.08f),
-            scheme.tertiary.copy(alpha = if (dark) 0.14f else 0.06f),
-            scheme.background
+            top,
+            midPrimary.copy(alpha = if (dark) 0.44f else 0.52f),
+            midAccent.copy(alpha = if (dark) 0.40f else 0.48f),
+            top
         )
     )
 }
@@ -213,22 +228,26 @@ fun genUiBackgroundBrush(): Brush {
 fun genUiCardContainerColor(tone: GenUiCardTone = GenUiCardTone.Neutral): Color {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
-    val base = if (dark) Color(0xFF17171A) else Color(0xFFFCFCFF)
-    val tint = when (tone) {
-        GenUiCardTone.Neutral -> scheme.surfaceVariant
-        GenUiCardTone.Primary -> scheme.primary
-        GenUiCardTone.Positive -> Color(0xFF11A85F)
-        GenUiCardTone.Warning -> Color(0xFFE65B17)
-        GenUiCardTone.Error -> scheme.error
+    val tokenColor = when (tone) {
+        GenUiCardTone.Neutral -> scheme.surfaceContainerLow
+        GenUiCardTone.Primary -> scheme.primaryContainer
+        GenUiCardTone.Positive -> scheme.secondaryContainer
+        GenUiCardTone.Warning -> scheme.tertiaryContainer
+        GenUiCardTone.Error -> scheme.errorContainer
     }
-    val tintStrength = when (tone) {
-        GenUiCardTone.Neutral -> if (dark) 0.34f else 0.22f
-        GenUiCardTone.Primary -> if (dark) 0.44f else 0.22f
-        GenUiCardTone.Positive -> if (dark) 0.38f else 0.20f
-        GenUiCardTone.Warning -> if (dark) 0.36f else 0.18f
-        GenUiCardTone.Error -> if (dark) 0.34f else 0.16f
+    val blended = lerp(
+        tokenColor,
+        scheme.surface,
+        if (dark) 0.10f else 0.06f
+    )
+    val alpha = when (tone) {
+        GenUiCardTone.Neutral -> if (dark) 0.58f else 0.68f
+        GenUiCardTone.Primary -> if (dark) 0.62f else 0.74f
+        GenUiCardTone.Positive -> if (dark) 0.60f else 0.72f
+        GenUiCardTone.Warning -> if (dark) 0.60f else 0.72f
+        GenUiCardTone.Error -> if (dark) 0.62f else 0.74f
     }
-    return lerp(base, tint, tintStrength).copy(alpha = if (dark) 0.84f else 0.90f)
+    return blended.copy(alpha = alpha)
 }
 
 @Composable
@@ -239,13 +258,23 @@ fun genUiCardColors(tone: GenUiCardTone = GenUiCardTone.Neutral): CardColors {
 @Composable
 fun genUiCardBorderColor(): Color {
     val dark = isSystemInDarkTheme()
-    return MaterialTheme.colorScheme.outline.copy(alpha = if (dark) 0.72f else 0.86f)
+    return MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.82f else 0.92f)
 }
 
 @Composable
 fun GenUiCraftTheme(content: @Composable () -> Unit) {
+    val context = LocalContext.current
+    val darkTheme = isSystemInDarkTheme()
+    val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    } else if (darkTheme) {
+        DarkScheme
+    } else {
+        LightScheme
+    }
+
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkScheme else LightScheme,
+        colorScheme = colorScheme,
         typography = GenUiTypography,
         shapes = GenUiShapes,
         content = content

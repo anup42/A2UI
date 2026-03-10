@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -1214,13 +1215,15 @@ object GenUiNativeRenderer {
         val body = rows.drop(1)
         val columnCount = rows.maxOf { it.size }.coerceAtLeast(2)
         val columnWidths = List(columnCount) { tableBaseCellWidth(columnCount) }
+        val dark = isSystemInDarkTheme()
+        val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.24f else 0.18f)
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(GenUiTokens.BorderMd, genUiCardBorderColor(), RoundedCornerShape(GenUiTokens.RadiusXl))
                 .clip(RoundedCornerShape(GenUiTokens.RadiusXl))
-                .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                .background(genUiCardContainerColor(GenUiCardTone.Neutral).copy(alpha = if (dark) 0.44f else 0.54f))
                 .horizontalScroll(rememberScrollState())
         ) {
             RenderPlainTableRow(
@@ -1230,7 +1233,7 @@ object GenUiNativeRenderer {
                 isHeader = true,
                 rowIndex = 0
             )
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            HorizontalDivider(color = dividerColor)
             body.forEachIndexed { index, row ->
                 RenderPlainTableRow(
                     values = row,
@@ -1240,7 +1243,7 @@ object GenUiNativeRenderer {
                     rowIndex = index
                 )
                 if (index != body.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = dividerColor)
                 }
             }
         }
@@ -1459,13 +1462,15 @@ object GenUiNativeRenderer {
             spec.header?.any { abs(it.weight - 1f) > 0.01f } == true ||
                 spec.rows.any { row -> row.any { abs(it.weight - 1f) > 0.01f } }
         val columnWidths = tableColumnWidths(spec, columnCount, hasExplicitWeights)
+        val dark = isSystemInDarkTheme()
+        val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.24f else 0.18f)
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(GenUiTokens.BorderMd, genUiCardBorderColor(), RoundedCornerShape(GenUiTokens.RadiusXl))
                 .clip(RoundedCornerShape(GenUiTokens.RadiusXl))
-                .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                .background(genUiCardContainerColor(GenUiCardTone.Neutral).copy(alpha = if (dark) 0.44f else 0.54f))
                 .horizontalScroll(rememberScrollState())
         ) {
             spec.header?.let { header ->
@@ -1476,7 +1481,7 @@ object GenUiNativeRenderer {
                     isHeader = true,
                     rowIndex = 0
                 )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(color = dividerColor)
             }
             spec.rows.forEachIndexed { index, row ->
                 RenderWeightedRow(
@@ -1487,7 +1492,7 @@ object GenUiNativeRenderer {
                     rowIndex = index
                 )
                 if (index != spec.rows.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = dividerColor)
                 }
             }
         }
@@ -1580,20 +1585,22 @@ object GenUiNativeRenderer {
 
     @Composable
     private fun TableCellDivider() {
+        val dark = isSystemInDarkTheme()
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(GenUiTokens.BorderSm)
-                .background(MaterialTheme.colorScheme.outlineVariant)
+                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.24f else 0.18f))
         )
     }
 
     @Composable
     private fun tableRowBackground(isHeader: Boolean, rowIndex: Int): Color {
+        val dark = isSystemInDarkTheme()
         return when {
-            isHeader -> genUiCardContainerColor(GenUiCardTone.Primary)
-            rowIndex % 2 == 0 -> genUiCardContainerColor(GenUiCardTone.Neutral)
-            else -> genUiCardContainerColor(GenUiCardTone.Neutral).copy(alpha = 0.74f)
+            isHeader -> MaterialTheme.colorScheme.onSurface.copy(alpha = if (dark) 0.14f else 0.08f)
+            rowIndex % 2 == 0 -> Color.Transparent
+            else -> MaterialTheme.colorScheme.onSurface.copy(alpha = if (dark) 0.08f else 0.05f)
         }
     }
 

@@ -5,10 +5,12 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -30,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,11 +41,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.interaction.MutableInteractionSource
 
 class ItemListActivity : AppCompatActivity() {
     private var session by mutableStateOf<RenderSessionStore.Session?>(null)
@@ -72,14 +78,21 @@ class ItemListActivity : AppCompatActivity() {
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 private fun ItemListScreen(
     session: RenderSessionStore.Session?,
     onItemClick: (Int) -> Unit
 ) {
+    val deviceConfig = rememberDeviceUiConfig()
+    val horizontalPadding = when (deviceConfig.widthClass) {
+        DeviceSizeClass.Compact -> 16.dp
+        DeviceSizeClass.Medium -> 24.dp
+        DeviceSizeClass.Expanded -> 30.dp
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             CenterAlignedTopAppBar(
@@ -90,7 +103,7 @@ private fun ItemListScreen(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.56f),
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
@@ -102,7 +115,7 @@ private fun ItemListScreen(
                 .background(genUiBackgroundBrush())
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = horizontalPadding, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val sourceText = session?.sourceLabel ?: stringResource(id = R.string.list_empty_source)
@@ -136,19 +149,25 @@ private fun ItemListScreen(
                 return@Column
             }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                itemsIndexed(
-                    items = session.records,
-                    key = { index, item -> "${item.uiId ?: item.title}_$index" }
-                ) { index, item ->
-                    RecordItemCard(
-                        index = index,
-                        item = item,
-                        onClick = { onItemClick(index) }
-                    )
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
+                ) {
+                    itemsIndexed(
+                        items = session.records,
+                        key = { index, item -> "${item.uiId ?: item.title}_$index" }
+                    ) { index, item ->
+                        RecordItemCard(
+                            index = index,
+                            item = item,
+                            deviceConfig = deviceConfig,
+                            onClick = { onItemClick(index) }
+                        )
+                    }
                 }
             }
         }
@@ -159,22 +178,28 @@ private fun ItemListScreen(
 private fun RecordItemCard(
     index: Int,
     item: GenUiRecord,
+    deviceConfig: DeviceUiConfig,
     onClick: () -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val allowExpanded =
-        (configuration.screenWidthDp <= 320 && configuration.fontScale >= 1.15f) ||
-            (configuration.screenWidthDp < 411 && configuration.fontScale >= 1.3f)
+    val dark = isSystemInDarkTheme()
+    val allowExpanded = deviceConfig.allowLargeTextListLayout()
+    val cardContainer = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = if (dark) 0.70f else 0.84f)
+    val cardBorder = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.52f else 0.42f)
+    val interactionSource = remember { MutableInteractionSource() }
 
     var resolvedMaxLines by remember(item.title, allowExpanded) { mutableIntStateOf(if (allowExpanded) 2 else 1) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
         shape = RoundedCornerShape(GenUiTokens.RadiusXl),
-        colors = genUiCardColors(GenUiCardTone.Neutral),
+        colors = CardDefaults.cardColors(containerColor = cardContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+        border = BorderStroke(GenUiTokens.BorderMd, cardBorder)
     ) {
         Column(
             modifier = Modifier

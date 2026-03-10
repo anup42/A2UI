@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,13 +31,20 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
+import java.util.Locale
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 class RenderActivity : AppCompatActivity() {
     companion object {
@@ -89,10 +97,17 @@ private fun RenderScreen(
     assetLoader: WebViewAssetLoader,
     onOpenExternalUrl: (String) -> Unit
 ) {
+    val deviceConfig = rememberDeviceUiConfig()
+    val horizontalPadding = when (deviceConfig.widthClass) {
+        DeviceSizeClass.Compact -> 12.dp
+        DeviceSizeClass.Medium -> 18.dp
+        DeviceSizeClass.Expanded -> 24.dp
+    }
+
     val topBarTitle = record?.uiId ?: record?.title ?: stringResource(id = R.string.app_name)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             CenterAlignedTopAppBar(
@@ -103,7 +118,7 @@ private fun RenderScreen(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.56f),
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
@@ -115,7 +130,7 @@ private fun RenderScreen(
                 .background(genUiBackgroundBrush())
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
-                .padding(horizontal = 12.dp, vertical = 14.dp),
+                .padding(horizontal = horizontalPadding, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             if (session == null || record == null || index < 0) {
@@ -158,15 +173,50 @@ private fun RenderScreen(
                     val webResult = remember(record.rawJson, record.sourceDir) {
                         GenUiHtmlRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
                     }
+                    val colorScheme = MaterialTheme.colorScheme
+                    val themedHtml = remember(
+                        webResult.html,
+                        colorScheme.background,
+                        colorScheme.surface,
+                        colorScheme.surfaceContainerLowest,
+                        colorScheme.surfaceContainerLow,
+                        colorScheme.surfaceContainer,
+                        colorScheme.surfaceContainerHigh,
+                        colorScheme.surfaceVariant,
+                        colorScheme.onSurface,
+                        colorScheme.onSurfaceVariant,
+                        colorScheme.primary,
+                        colorScheme.primaryContainer,
+                        colorScheme.secondary,
+                        colorScheme.secondaryContainer,
+                        colorScheme.tertiary,
+                        colorScheme.tertiaryContainer,
+                        colorScheme.outline,
+                        colorScheme.outlineVariant,
+                        colorScheme.error,
+                        deviceConfig.screenWidthDp,
+                        deviceConfig.screenHeightDp,
+                        deviceConfig.smallestWidthDp,
+                        deviceConfig.fontScale,
+                        deviceConfig.isLandscape,
+                        deviceConfig.localeTag,
+                        deviceConfig.layoutDirection,
+                        deviceConfig.widthClass,
+                        deviceConfig.heightClass
+                    ) {
+                        applyDynamicHtmlPalette(webResult.html, colorScheme, deviceConfig)
+                    }
 
                     if (webResult.warnings.isNotEmpty()) {
                         WarningCard(warnings = webResult.warnings)
                     }
 
                     WebRenderPane(
-                        html = webResult.html,
+                        html = themedHtml,
                         assetLoader = assetLoader,
                         onOpenExternalUrl = onOpenExternalUrl,
+                        deviceConfig = deviceConfig,
+                        webBackgroundColor = colorScheme.surfaceContainerLowest.copy(alpha = 0.22f),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -228,6 +278,8 @@ private fun WebRenderPane(
     html: String,
     assetLoader: WebViewAssetLoader,
     onOpenExternalUrl: (String) -> Unit,
+    deviceConfig: DeviceUiConfig,
+    webBackgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
     AndroidView(
@@ -239,7 +291,12 @@ private fun WebRenderPane(
                 settings.javaScriptEnabled = false
                 settings.allowFileAccess = true
                 settings.allowContentAccess = true
-                setBackgroundColor(ContextCompat.getColor(context, R.color.sys_color_background))
+                settings.useWideViewPort = true
+                settings.loadWithOverviewMode = true
+                settings.builtInZoomControls = false
+                settings.displayZoomControls = false
+                settings.textZoom = deviceConfig.webViewTextZoomPercent()
+                setBackgroundColor(webBackgroundColor.toArgb())
 
                 webViewClient = object : WebViewClientCompat() {
                     override fun shouldInterceptRequest(
@@ -262,7 +319,179 @@ private fun WebRenderPane(
             }
         },
         update = { webView ->
+            webView.settings.textZoom = deviceConfig.webViewTextZoomPercent()
+            webView.setBackgroundColor(webBackgroundColor.toArgb())
             webView.loadDataWithBaseURL(RenderActivity.APP_ASSET_BASE_URL, html, "text/html", "utf-8", null)
         }
     )
+}
+
+private fun applyDynamicHtmlPalette(
+    html: String,
+    colorScheme: ColorScheme,
+    deviceConfig: DeviceUiConfig
+): String {
+    val dark = colorScheme.background.luminance() < 0.5f
+    val background = colorScheme.surfaceContainerLowest
+    val backgroundVariant = lerp(
+        colorScheme.surfaceContainerLow,
+        colorScheme.primaryContainer,
+        if (dark) 0.18f else 0.12f
+    )
+    val surface = colorScheme.surface.toCssRgba(if (dark) 0.48f else 0.60f)
+    val surfaceLow = colorScheme.surfaceContainerLow.toCssRgba(if (dark) 0.46f else 0.58f)
+    val surfaceContainer = colorScheme.surfaceContainer.toCssRgba(if (dark) 0.50f else 0.62f)
+    val surfaceHigh = colorScheme.surfaceContainerHigh.toCssRgba(if (dark) 0.56f else 0.68f)
+    val toneOnTone = colorScheme.onSurface.toCssRgba(if (dark) 0.12f else 0.08f)
+    val toneOnToneHigh = colorScheme.onSurface.toCssRgba(if (dark) 0.18f else 0.12f)
+    val tableSurface = "transparent"
+    val tableStripe = colorScheme.onSurface.toCssRgba(if (dark) 0.06f else 0.035f)
+    val tableHeader = colorScheme.onSurface.toCssRgba(if (dark) 0.09f else 0.05f)
+    val layoutDirection = if (deviceConfig.layoutDirection == LayoutDirection.Rtl) "rtl" else "ltr"
+    val orientation = if (deviceConfig.isLandscape) "landscape" else "portrait"
+    val bodyPadding = when (deviceConfig.widthClass) {
+        DeviceSizeClass.Compact -> 10
+        DeviceSizeClass.Medium -> 14
+        DeviceSizeClass.Expanded -> 18
+    }
+    val tableMinWidth = when (deviceConfig.widthClass) {
+        DeviceSizeClass.Compact -> max(340, deviceConfig.screenWidthDp + 18)
+        DeviceSizeClass.Medium -> 460
+        DeviceSizeClass.Expanded -> 580
+    }
+    val webTextZoom = deviceConfig.webViewTextZoomPercent()
+
+    val overrideStyle = """
+        <style id="genuicraft-dynamic-palette">
+          :root {
+            --device-screen-width-dp: ${deviceConfig.screenWidthDp};
+            --device-screen-height-dp: ${deviceConfig.screenHeightDp};
+            --device-smallest-width-dp: ${deviceConfig.smallestWidthDp};
+            --device-density: ${deviceConfig.density.toCssFloat()};
+            --device-font-scale: ${deviceConfig.fontScale.toCssFloat()};
+            --device-text-zoom: ${webTextZoom}%;
+            --device-locale: "${deviceConfig.localeTag}";
+            --device-layout-direction: ${layoutDirection};
+            --device-orientation: ${orientation};
+            --device-width-class: ${deviceConfig.widthClass.cssToken()};
+            --device-height-class: ${deviceConfig.heightClass.cssToken()};
+
+            --sys-color-background: ${background.toCssRgba(if (dark) 0.26f else 0.36f)};
+            --sys-color-background-variant: ${backgroundVariant.toCssRgba(if (dark) 0.34f else 0.44f)};
+            --sys-color-surface: $surface;
+            --sys-color-surface-bright: $surface;
+            --sys-color-surface-brightest: $surface;
+            --sys-color-surface-variant: ${colorScheme.surfaceVariant.toCssRgba(if (dark) 0.52f else 0.66f)};
+            --sys-color-surface-fixed: $surfaceHigh;
+            --sys-color-surface-fixed-variant: ${colorScheme.onSurface.toCssRgba(if (dark) 0.86f else 0.90f)};
+
+            --sys-color-surface-container-lowest: ${background.toCssRgba(if (dark) 0.40f else 0.50f)};
+            --sys-color-surface-container-low: $surfaceLow;
+            --sys-color-surface-container: $surfaceContainer;
+            --sys-color-surface-container-high: $surfaceHigh;
+            --sys-color-surface-container-higher: $surfaceHigh;
+            --sys-color-surface-container-highest: $surfaceHigh;
+            --sys-color-surface-container-fixed: $surface;
+            --sys-color-surface-container-fixed-variant: ${colorScheme.onSurface.toCssRgba(if (dark) 0.86f else 0.90f)};
+
+            --sys-color-tone-on-tone: $toneOnTone;
+            --sys-color-tone-on-tone-high: $toneOnToneHigh;
+
+            --sys-color-on-surface-container-highest: ${colorScheme.onSurface.toCssHex()};
+            --sys-color-on-surface-container-high: ${colorScheme.onSurface.toCssHex()};
+            --sys-color-on-surface-container: ${colorScheme.onSurfaceVariant.toCssHex()};
+            --sys-color-on-surface-container-low: ${colorScheme.onSurfaceVariant.toCssHex()};
+            --sys-color-on-surface-container-lowest: ${colorScheme.onSurfaceVariant.toCssHex()};
+
+            --sys-color-outline: ${colorScheme.outline.toCssHex()};
+            --sys-color-outline-low: ${colorScheme.outlineVariant.toCssHex()};
+            --sys-color-outline-high: ${colorScheme.outline.toCssHex()};
+            --sys-color-outline-highest: ${colorScheme.outline.toCssHex()};
+
+            --sys-color-primary: ${colorScheme.primary.toCssHex()};
+            --sys-color-primary-high: ${colorScheme.primary.toCssHex()};
+            --sys-color-primary-bright: ${colorScheme.primaryContainer.toCssHex()};
+            --sys-color-functional-red: ${colorScheme.error.toCssHex()};
+            --sys-color-functional-red-bright: ${colorScheme.error.toCssHex()};
+            --sys-color-functional-green: ${colorScheme.secondary.toCssHex()};
+            --sys-color-functional-green-bright: ${colorScheme.secondaryContainer.toCssHex()};
+            --sys-color-functional-orange: ${colorScheme.tertiary.toCssHex()};
+            --sys-color-functional-orange-bright: ${colorScheme.tertiaryContainer.toCssHex()};
+          }
+
+          html {
+            direction: ${layoutDirection} !important;
+            -webkit-text-size-adjust: ${webTextZoom}% !important;
+            text-size-adjust: ${webTextZoom}% !important;
+          }
+
+          body {
+            padding: ${bodyPadding}px !important;
+          }
+
+          body::before {
+            opacity: 0.08 !important;
+          }
+
+          body::after {
+            opacity: 0.06 !important;
+          }
+
+          .surface,
+          .card,
+          .booking-card,
+          .media-card,
+          .table-wrap {
+            -webkit-backdrop-filter: blur(18px) saturate(1.08);
+            backdrop-filter: blur(18px) saturate(1.08);
+          }
+
+          .table-wrap {
+            background: $tableSurface !important;
+            border-color: ${colorScheme.outline.toCssRgba(if (dark) 0.78f else 0.84f)} !important;
+          }
+
+          .data-table {
+            background: transparent !important;
+            min-width: ${tableMinWidth}px !important;
+          }
+
+          .data-table thead th {
+            background: $tableHeader !important;
+          }
+
+          .data-table tbody tr:nth-child(even) {
+            background: $tableStripe !important;
+          }
+
+          .data-table tbody tr:nth-child(odd) {
+            background: transparent !important;
+          }
+        </style>
+    """.trimIndent()
+
+    return if (html.contains("</head>", ignoreCase = true)) {
+        html.replace("</head>", "$overrideStyle\n</head>", ignoreCase = true)
+    } else {
+        html + overrideStyle
+    }
+}
+
+private fun Color.toCssHex(): String {
+    val r = (red * 255f).roundToInt().coerceIn(0, 255)
+    val g = (green * 255f).roundToInt().coerceIn(0, 255)
+    val b = (blue * 255f).roundToInt().coerceIn(0, 255)
+    return String.format("#%02X%02X%02X", r, g, b)
+}
+
+private fun Color.toCssRgba(alphaValue: Float): String {
+    val r = (red * 255f).roundToInt().coerceIn(0, 255)
+    val g = (green * 255f).roundToInt().coerceIn(0, 255)
+    val b = (blue * 255f).roundToInt().coerceIn(0, 255)
+    val a = alphaValue.coerceIn(0f, 1f)
+    return "rgba($r, $g, $b, $a)"
+}
+
+private fun Float.toCssFloat(): String {
+    return String.format(Locale.US, "%.2f", this)
 }

@@ -1826,18 +1826,21 @@ object GenUiHtmlRenderer {
                   border: var(--sys-border-md) solid var(--sys-color-outline);
                   border-radius: var(--sys-radius-lg);
                   overflow-x: auto;
-                  background: var(--sys-color-surface-container-lowest);
+                  background: transparent;
                   box-shadow: var(--elevation-sm);
+                  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+                  backdrop-filter: blur(18px) saturate(1.08);
                 }
 
                 .data-table {
                   width: 100%;
                   border-collapse: collapse;
                   min-width: 580px;
+                  background: transparent;
                 }
 
                 .data-table thead th {
-                  background: var(--sys-color-surface-container-low);
+                  background: rgba(1, 1, 2, 0.07);
                   font-size: var(--type-body-2xs);
                   font-weight: var(--font-semibold);
                   text-transform: uppercase;
@@ -1859,8 +1862,30 @@ object GenUiHtmlRenderer {
                   color: var(--sys-color-on-surface-container);
                 }
 
+                .data-table tbody tr {
+                  background: transparent;
+                }
+
                 .data-table tbody tr:nth-child(even) {
-                  background: var(--sys-color-tone-on-tone);
+                  background: rgba(1, 1, 2, 0.04);
+                }
+
+                .data-table tbody tr:nth-child(odd) {
+                  background: transparent;
+                }
+
+                @media (prefers-color-scheme: dark) {
+                  .table-wrap {
+                    background: transparent;
+                  }
+
+                  .data-table thead th {
+                    background: rgba(252, 252, 255, 0.10);
+                  }
+
+                  .data-table tbody tr:nth-child(even) {
+                    background: rgba(252, 252, 255, 0.06);
+                  }
                 }
 
                 .component-table td,

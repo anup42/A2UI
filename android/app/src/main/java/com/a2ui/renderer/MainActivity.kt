@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.io.File
+import java.util.Locale
 
 private data class StatusMessage(
     val text: String,
@@ -63,6 +64,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    private val sampleSetPicker =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode != RESULT_OK) {
+                return@registerForActivityResult
+            }
+            val selectedId = result.data?.getStringExtra(SampleDatasetPickerActivity.EXTRA_DATASET_ID)
+            val dataset = SampleDatasets.byId(selectedId)
+            if (dataset == null) {
+                showStatus("Could not resolve selected sample set.", isError = true)
+                return@registerForActivityResult
+            }
+            loadBundledSample(dataset)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         statusMessage = StatusMessage(getString(R.string.status_ready_select_source), isError = false)
@@ -74,7 +89,7 @@ class MainActivity : AppCompatActivity() {
                     nativeRenderingEnabled = nativeRenderingEnabled,
                     onNativeRenderingChanged = { nativeRenderingEnabled = it },
                     onSelectFile = { filePicker.launch(arrayOf("application/json", "text/plain", "*/*")) },
-                    onLoadSample = { loadBundledSample() }
+                    onLoadSample = { openSampleSetPicker() }
                 )
             }
         }
@@ -101,16 +116,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadBundledSample() {
+    private fun openSampleSetPicker() {
+        sampleSetPicker.launch(Intent(this, SampleDatasetPickerActivity::class.java))
+    }
+
+    private fun loadBundledSample(dataset: SampleDataset) {
         try {
-            val sourceLabel = "sample_genui.jsonl"
-            val raw = assets.open(sourceLabel).bufferedReader(Charsets.UTF_8).use { it.readText() }
+            val raw = assets.open(dataset.assetFileName).bufferedReader(Charsets.UTF_8).use { it.readText() }
             val records = GenUiRecordParser.parseRecords(
                 raw = raw,
                 sourceDir = null,
-                sourceLabel = sourceLabel
+                sourceLabel = dataset.sourceLabel
             )
-            openItemList(sourceLabel, records)
+            openItemList(dataset.sourceLabel, records)
         } catch (exc: Exception) {
             showError(exc)
         }
@@ -178,15 +196,22 @@ private fun HomeScreen(
     onSelectFile: () -> Unit,
     onLoadSample: () -> Unit
 ) {
+    val deviceConfig = rememberDeviceUiConfig()
+    val horizontalPadding = when (deviceConfig.widthClass) {
+        DeviceSizeClass.Compact -> 20.dp
+        DeviceSizeClass.Medium -> 26.dp
+        DeviceSizeClass.Expanded -> 32.dp
+    }
+
     val statusColor = if (statusMessage.isError) {
         MaterialTheme.colorScheme.error
     } else {
-        Color(0xFF11A85F)
+        MaterialTheme.colorScheme.secondary
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             CenterAlignedTopAppBar(
@@ -197,7 +222,7 @@ private fun HomeScreen(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.56f),
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
@@ -209,7 +234,7 @@ private fun HomeScreen(
                 .background(genUiBackgroundBrush())
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(horizontal = horizontalPadding, vertical = 16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -300,11 +325,63 @@ private fun HomeScreen(
                 }
             }
 
+            DeviceConfigCard(deviceConfig = deviceConfig)
+
             Text(
                 text = statusMessage.text,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = statusColor,
                 modifier = Modifier.padding(horizontal = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeviceConfigCard(deviceConfig: DeviceUiConfig) {
+    val webZoomLabel = "${deviceConfig.webViewTextZoomPercent()}%"
+    val fontScaleLabel = String.format(Locale.US, "%.2fx", deviceConfig.fontScale)
+    val densityLabel = String.format(Locale.US, "%.2f", deviceConfig.density)
+    val widthLabel = "${deviceConfig.screenWidthDp}dp (${deviceConfig.widthClass.name.lowercase(Locale.US)})"
+    val heightLabel = "${deviceConfig.screenHeightDp}dp (${deviceConfig.heightClass.name.lowercase(Locale.US)})"
+    val themeLabel = if (deviceConfig.isDarkTheme) "Dark" else "Light"
+
+    Card(
+        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = "Device Configuration",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Theme: $themeLabel | ${deviceConfig.orientationLabel()} | Locale: ${deviceConfig.localeTag} | Dir: ${deviceConfig.layoutDirectionLabel()}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Screen: $widthLabel x $heightLabel | Smallest: ${deviceConfig.smallestWidthDp}dp",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Font scale: $fontScaleLabel | WebView text zoom: $webZoomLabel | Density: $densityLabel",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Applied: dynamic color, font scaling, responsive paddings, RTL direction, large-text list layout rule.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline
             )
         }
     }
