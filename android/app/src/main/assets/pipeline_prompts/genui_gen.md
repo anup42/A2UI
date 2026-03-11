@@ -43,6 +43,8 @@ Structural quality requirements (strict):
 - Convert action links/CTAs into Button with action.functionCall.call="openUrl".
 - Convert source links into borderless Buttons under a "Sources" section when possible.
 - Never place raw URLs (http/https/www) inside Text components; URLs must only appear inside Button action.functionCall.args.url (or Image.url for assets).
+- If a link appears as a bare domain (for example `timeanddate.com` or `www.example.com`), normalize it to `https://...` before writing `action.functionCall.args.url`.
+- Treat bare domains in Sources/Quick Actions as valid links to convert into Buttons (after `https://` normalization).
 - Parse and map inline media markers and keep them colocated with their related content:
   - Supported markers include:
     - `Media: Image=<url> Icon=<url>`

@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URLEncoder
 import java.net.URL
 import java.nio.charset.StandardCharsets
@@ -108,6 +109,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             maxOutputTokens = 4096,
             jsonMode = false,
             enableGoogleSearch = true,
+            allowCachedContent = false,
             structuredOutput = false
         )
         if (stage2Call.error != null) {
@@ -127,10 +129,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageDurationsMs = stageDurationsMs.toMap()
             )
         }
-        val stage2Response = ensureFlightQuickActions(
+        val stage2WithActions = ensureFlightQuickActions(
             responseText = stage2ResponseRaw,
             queryText = normalizedQuery
         )
+        val stage2Response = normalizeUrlTokensForDisplay(stage2WithActions)
+        val normalizedBareDomains = stage2Response != stage2WithActions
         markDuration(Stage.STAGE2, stage2StartedAtMs)
 
         val genUiTemplate = runCatching { loadPromptAsset(STAGE3_PROMPT_ASSET) }
@@ -150,11 +154,17 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
         val warnings = mutableListOf<String>()
         warnings += "Using Gemini model: $selectedModel"
+        if (normalizedBareDomains) {
+            warnings += "Normalized bare source/action domains to https URLs."
+        }
         val stage3Cache = ensureStage3InstructionCache(
             apiKey = apiKey,
             model = selectedModel,
             systemPrompt = promptContext.systemPrompt
         )
+        if (stage3Cache.name != null && !stage3Cache.created) {
+            warnings += "Stage 3 instruction cache hit."
+        }
         if (stage3Cache.created) {
             warnings += "Stage 3 instruction cache created."
         }
@@ -174,6 +184,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             jsonMode = true,
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
+            allowCachedContent = true,
             structuredOutput = true
         )
 
@@ -202,6 +213,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 jsonMode = true,
                 enableGoogleSearch = false,
                 cachedContentName = stage3Cache.name,
+                allowCachedContent = true,
                 structuredOutput = true
             )
             if (repairCall.error == null) {
@@ -218,12 +230,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         val normalizedGenUi = normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
         if (responseContainsInlineMedia(stage2Response) && !genUiPreservesInlineMedia(stage3Json) && !usedFallback) {
-            warnings += "Stage 3 dropped inline media; using text-preserving fallback UI."
+            warnings += "Media content was adjusted for compatibility."
             stage3Json = gson.toJson(buildFallbackGenUi(stage2Response))
             usedFallback = true
         }
         if (responseContainsActionButtons(stage2Response) && !genUiPreservesActionButtons(stage3Json) && !usedFallback) {
-            warnings += "Stage 3 dropped quick action URLs; using text-preserving fallback UI."
+            warnings += "Quick actions were adjusted for compatibility."
             stage3Json = gson.toJson(buildFallbackGenUi(stage2Response))
             usedFallback = true
         }
@@ -295,9 +307,13 @@ class GenUiStagePipeline(private val appContext: Context) {
             return responseText
         }
 
-        val hasActionWithUrl = Regex("""(?im)^\s*Action:\s*\[Button:\s*.+?\]\s*https?://\S+""")
+        val hasActionWithUrl = Regex(
+            """(?im)^\s*Action:\s*\[Button:\s*.+?\]\s*(?:https?://|//|www\.|(?:[a-z0-9-]+\.)+[a-z]{2,24})\S*"""
+        )
             .containsMatchIn(responseText)
-        val hasQuickActionsWithUrl = Regex("""(?is)Quick\s*Actions.*https?://""")
+        val hasQuickActionsWithUrl = Regex(
+            """(?is)Quick\s*Actions.*(?:https?://|//|www\.|(?:[a-z0-9-]+\.)+[a-z]{2,24})"""
+        )
             .containsMatchIn(responseText)
         if (hasActionWithUrl || hasQuickActionsWithUrl) {
             return responseText
@@ -339,12 +355,71 @@ class GenUiStagePipeline(private val appContext: Context) {
     }
 
     private fun extractUrlsForQuickActions(text: String): List<String> {
-        val urlRegex = Regex("""https?://[^\s<>\]]+""", RegexOption.IGNORE_CASE)
-        return urlRegex.findAll(text)
-            .map { it.value.trim().trimEnd('.', ',', ';', ')', ']') }
-            .filter { it.isNotBlank() }
+        return URL_TOKEN_REGEX.findAll(text)
+            .mapNotNull { normalizeExternalUrlCandidate(it.value) }
             .distinct()
             .toList()
+    }
+
+    private fun normalizeUrlTokensForDisplay(text: String): String {
+        if (text.isBlank()) {
+            return text
+        }
+        return URL_TOKEN_REGEX.replace(text) { match ->
+            normalizeExternalUrlCandidate(match.value) ?: match.value
+        }
+    }
+
+    private fun normalizeExternalUrlCandidate(value: String): String? {
+        val token = value.trim().trim('"', '\'').trimEnd('.', ',', ';', ')', ']', '}')
+        if (token.isBlank()) {
+            return null
+        }
+        if (token.startsWith("http://", ignoreCase = true) || token.startsWith("https://", ignoreCase = true)) {
+            return token
+        }
+        if (token.startsWith("//")) {
+            return "https:$token"
+        }
+        if (!token.startsWith("www.", ignoreCase = true) &&
+            !Regex("""(?i)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#].*)?""").matches(token)
+        ) {
+            return null
+        }
+
+        val host = token
+            .removePrefix("www.")
+            .substringBefore('/')
+            .substringBefore('?')
+            .substringBefore('#')
+            .lowercase(Locale.US)
+        if (!isLikelyPublicDomainHost(host)) {
+            return null
+        }
+        return "https://$token"
+    }
+
+    private fun isLikelyPublicDomainHost(host: String): Boolean {
+        if (host.isBlank() || host.contains('_')) {
+            return false
+        }
+        val labels = host.split('.').filter { it.isNotBlank() }
+        if (labels.size < 2 || labels.any { !HOST_LABEL_REGEX.matches(it) }) {
+            return false
+        }
+        val tld = labels.last().lowercase(Locale.US)
+        if (!tld.all { it in 'a'..'z' } || tld.length !in 2..24) {
+            return false
+        }
+        if (
+            tld in setOf(
+                "png", "jpg", "jpeg", "svg", "webp", "gif", "bmp", "ico",
+                "json", "xml", "txt", "csv", "md", "pdf", "zip", "apk"
+            )
+        ) {
+            return false
+        }
+        return true
     }
 
     private fun quickActionLabelForUrl(url: String, index: Int): String {
@@ -362,9 +437,20 @@ class GenUiStagePipeline(private val appContext: Context) {
     }
 
     private fun responseContainsInlineMedia(text: String): Boolean {
-        return Regex(
-            """(?im)^\s*(?:Media:\s*(?:Image|Icon)=|Image:\s*(?:https?://|/assets/|assets/)|Icon:\s*(?:https?://|/assets/|assets/))"""
-        ).containsMatchIn(text)
+        val assignmentRegex = Regex(
+            """(?im)\b(?:Media:\s*)?(?:Image|Icon)\s*=\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)"""
+        )
+        val colonRegex = Regex(
+            """(?im)^\s*(?:Image|Icon)\s*:\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)"""
+        )
+        val candidates = mutableListOf<String>()
+        assignmentRegex.findAll(text).forEach { match ->
+            candidates += sanitizeMediaUrlToken(match.groupValues[1])
+        }
+        colonRegex.findAll(text).forEach { match ->
+            candidates += sanitizeMediaUrlToken(match.groupValues[1])
+        }
+        return candidates.any(::looksLikeUsableInlineMediaUrl)
     }
 
     private fun genUiPreservesInlineMedia(jsonText: String): Boolean {
@@ -378,7 +464,9 @@ class GenUiStagePipeline(private val appContext: Context) {
     }
 
     private fun responseContainsActionButtons(text: String): Boolean {
-        return Regex("""(?im)^\s*Action:\s*\[Button:\s*.+?\]\s*https?://\S+""")
+        return Regex(
+            """(?im)^\s*Action:\s*\[Button:\s*.+?\]\s*(?:https?://|//|www\.|(?:[a-z0-9-]+\.)+[a-z]{2,24})\S*"""
+        )
             .containsMatchIn(text)
     }
 
@@ -388,6 +476,72 @@ class GenUiStagePipeline(private val appContext: Context) {
                 Regex("""(?i)"component"\s*:\s*"Button"""").containsMatchIn(jsonText) &&
                     Regex("""(?i)"url"\s*:\s*"https?://""").containsMatchIn(jsonText)
                 )
+    }
+
+    private fun sanitizeMediaUrlToken(value: String): String =
+        value.trim().trim('\'', '"').trimEnd('.', ',', ';', ')', ']')
+
+    private fun looksLikeUsableInlineMediaUrl(value: String): Boolean {
+        val normalized = value.trim()
+        if (normalized.isBlank()) {
+            return false
+        }
+        val lower = normalized.lowercase(Locale.US)
+        if (
+            lower in setOf(
+                "<image_url>",
+                "<icon_url>",
+                "<url>",
+                "image_url",
+                "icon_url",
+                "url",
+                "n/a",
+                "na",
+                "none",
+                "null",
+                "--"
+            ) ||
+            lower.contains("placeholder") ||
+            lower.contains("<") ||
+            lower.contains(">")
+        ) {
+            return false
+        }
+        if (lower.startsWith("/assets/") || lower.startsWith("assets/")) {
+            return true
+        }
+
+        val pathWithoutQuery = lower.substringBefore('?').substringBefore('#')
+        if (
+            pathWithoutQuery.endsWith(".png") ||
+            pathWithoutQuery.endsWith(".jpg") ||
+            pathWithoutQuery.endsWith(".jpeg") ||
+            pathWithoutQuery.endsWith(".svg") ||
+            pathWithoutQuery.endsWith(".webp")
+        ) {
+            return true
+        }
+
+        val uri = runCatching { URI(normalized) }.getOrNull() ?: return false
+        val scheme = uri.scheme?.lowercase(Locale.US) ?: return false
+        if (scheme != "http" && scheme != "https") {
+            return false
+        }
+        val host = uri.host?.lowercase(Locale.US).orEmpty()
+        val path = uri.path?.lowercase(Locale.US).orEmpty()
+        if (
+            host.contains("cdn.jsdelivr.net") ||
+            host.contains("raw.githubusercontent.com") ||
+            host.contains("upload.wikimedia.org") ||
+            host.contains("imgur.com") ||
+            host.contains("gstatic.com") ||
+            host.contains("twimg.com") ||
+            host.contains("loremflickr.com") ||
+            host.contains("picsum.photos")
+        ) {
+            return true
+        }
+        return path.contains("/icon") || path.contains("/icons/") || path.contains("/image") || path.contains("/images/")
     }
 
     private fun normalizeGenUiPayload(json: JsonElement): JsonElement {
@@ -465,7 +619,13 @@ class GenUiStagePipeline(private val appContext: Context) {
     private fun prepareStage3PromptContext(template: String): Stage3PromptContext {
         val placeholder = "{response_text}"
         if (!template.contains(placeholder)) {
-            return Stage3PromptContext(systemPrompt = null, userTemplate = template)
+            return Stage3PromptContext(
+                systemPrompt = template.trim(),
+                userTemplate =
+                    "Convert the response text into valid GenUICraft JSON.\n" +
+                        "Return ONLY the JSON message array.\n\n" +
+                        "Response:\n{response_text}"
+            )
         }
 
         val split = template.split(placeholder, limit = 2)
@@ -634,10 +794,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         jsonMode: Boolean,
         enableGoogleSearch: Boolean = false,
         cachedContentName: String? = null,
+        allowCachedContent: Boolean = true,
         structuredOutput: Boolean = false
     ): GeminiResponse {
         var attempt = 0
         var last: GeminiResponse = GeminiResponse(text = "", rawResponse = null, error = "Unknown Gemini error")
+        val effectiveCachedContentName = if (allowCachedContent) cachedContentName else null
         while (attempt < 3) {
             attempt += 1
             last = generateOnce(
@@ -649,7 +811,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 maxOutputTokens = maxOutputTokens,
                 jsonMode = jsonMode,
                 enableGoogleSearch = enableGoogleSearch,
-                cachedContentName = cachedContentName,
+                cachedContentName = effectiveCachedContentName,
                 structuredOutput = structuredOutput
             )
             if (last.error == null) {
@@ -665,7 +827,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                     maxOutputTokens = maxOutputTokens,
                     jsonMode = jsonMode,
                     enableGoogleSearch = false,
-                    cachedContentName = cachedContentName,
+                    cachedContentName = effectiveCachedContentName,
                     structuredOutput = structuredOutput
                 )
             }
@@ -679,7 +841,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                     maxOutputTokens = maxOutputTokens,
                     jsonMode = jsonMode,
                     enableGoogleSearch = enableGoogleSearch,
-                    cachedContentName = cachedContentName,
+                    cachedContentName = effectiveCachedContentName,
                     structuredOutput = false
                 )
             }
@@ -1190,6 +1352,10 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val CACHE_KEY_NAME = "stage3_cache_name"
         const val CACHE_KEY_EXPIRES_AT_MS = "stage3_cache_expires_at_ms"
         const val CACHE_EXPIRY_SAFETY_MS = 60_000L
+        val HOST_LABEL_REGEX = Regex("""(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$""")
+        val URL_TOKEN_REGEX = Regex(
+            """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
+        )
 
         val stage3CacheLock = Any()
         @Volatile

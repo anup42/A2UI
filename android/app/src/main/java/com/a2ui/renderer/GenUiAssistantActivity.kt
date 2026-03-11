@@ -47,6 +47,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,6 +79,20 @@ private data class AssistantLogItem(
     val content: String,
     val monospace: Boolean = false
 )
+
+private object GenUiAssistantSessionCache {
+    var inputText: String = ""
+    var debugMode: Boolean = false
+    var currentStatus: String = ""
+    var errorText: String? = null
+    var stage2Text: String? = null
+    var stage3Json: String? = null
+    var currentQuery: String? = null
+    var usedFallback: Boolean = false
+    var warnings: List<String> = emptyList()
+    var renderResult: GenUiNativeRenderer.RenderResult? = null
+    var logs: List<AssistantLogItem> = emptyList()
+}
 
 class GenUiAssistantActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,18 +133,56 @@ private fun GenUiAssistantScreen(
         )
     }
 
-    var inputText by remember { mutableStateOf("") }
-    var debugMode by remember { mutableStateOf(false) }
+    var inputText by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.inputText) }
+    var debugMode by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.debugMode) }
     var isRunning by remember { mutableStateOf(false) }
-    var currentStatus by remember { mutableStateOf("") }
-    var errorText by remember { mutableStateOf<String?>(null) }
-    var stage2Text by remember { mutableStateOf<String?>(null) }
-    var stage3Json by remember { mutableStateOf<String?>(null) }
-    var currentQuery by remember { mutableStateOf<String?>(null) }
-    var usedFallback by remember { mutableStateOf(false) }
-    var warnings by remember { mutableStateOf<List<String>>(emptyList()) }
-    var renderResult by remember { mutableStateOf<GenUiNativeRenderer.RenderResult?>(null) }
-    val logs = remember { mutableStateListOf<AssistantLogItem>() }
+    var currentStatus by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.currentStatus) }
+    var errorText by rememberSaveable { mutableStateOf<String?>(GenUiAssistantSessionCache.errorText) }
+    var stage2Text by remember { mutableStateOf<String?>(GenUiAssistantSessionCache.stage2Text) }
+    var stage3Json by remember { mutableStateOf<String?>(GenUiAssistantSessionCache.stage3Json) }
+    var currentQuery by rememberSaveable { mutableStateOf<String?>(GenUiAssistantSessionCache.currentQuery) }
+    var usedFallback by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.usedFallback) }
+    var warnings by remember { mutableStateOf(ArrayList(GenUiAssistantSessionCache.warnings)) }
+    var renderResult by remember {
+        mutableStateOf<GenUiNativeRenderer.RenderResult?>(GenUiAssistantSessionCache.renderResult)
+    }
+    val logs = remember {
+        mutableStateListOf<AssistantLogItem>().apply {
+            addAll(GenUiAssistantSessionCache.logs)
+        }
+    }
+    val restoredRenderResult = remember(stage3Json) {
+        stage3Json
+            ?.takeIf { it.isNotBlank() }
+            ?.let { GenUiNativeRenderer.render(rawInput = it, sourceDir = null) }
+            ?.takeIf { it.errorMessage == null }
+    }
+    val displayRenderResult = renderResult ?: restoredRenderResult
+    LaunchedEffect(
+        inputText,
+        debugMode,
+        currentStatus,
+        errorText,
+        stage2Text,
+        stage3Json,
+        currentQuery,
+        usedFallback,
+        warnings,
+        renderResult,
+        logs.toList()
+    ) {
+        GenUiAssistantSessionCache.inputText = inputText
+        GenUiAssistantSessionCache.debugMode = debugMode
+        GenUiAssistantSessionCache.currentStatus = currentStatus
+        GenUiAssistantSessionCache.errorText = errorText
+        GenUiAssistantSessionCache.stage2Text = stage2Text
+        GenUiAssistantSessionCache.stage3Json = stage3Json
+        GenUiAssistantSessionCache.currentQuery = currentQuery
+        GenUiAssistantSessionCache.usedFallback = usedFallback
+        GenUiAssistantSessionCache.warnings = warnings.toList()
+        GenUiAssistantSessionCache.renderResult = displayRenderResult
+        GenUiAssistantSessionCache.logs = logs.toList()
+    }
 
     fun resetSteps(initialStage: GenUiStagePipeline.Stage) {
         steps.indices.forEach { index ->
@@ -235,13 +288,13 @@ private fun GenUiAssistantScreen(
                 statusText = currentStatus,
                 running = isRunning,
                 errorText = errorText,
-                hasRenderedOutput = renderResult != null
+                hasRenderedOutput = displayRenderResult != null
             )
             val composerStatus = if (isRunning) "$composerBaseStatus$composerAnimatedDots" else composerBaseStatus
             val showComposerStatus = isRunning ||
                 currentStatus.isNotBlank() ||
                 !errorText.isNullOrBlank() ||
-                renderResult != null
+                displayRenderResult != null
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -321,13 +374,12 @@ private fun GenUiAssistantScreen(
                                 }
 
                                 currentQuery = query
-                                inputText = ""
                                 isRunning = true
                                 errorText = null
                                 stage2Text = null
                                 stage3Json = null
                                 renderResult = null
-                                warnings = emptyList()
+                                warnings = arrayListOf()
                                 usedFallback = false
                                 logs.clear()
                                 resetSteps(GenUiStagePipeline.Stage.STAGE2)
@@ -344,7 +396,7 @@ private fun GenUiAssistantScreen(
                                             stage2Text = result.stage2Response
                                             stage3Json = result.stage3Json
                                             renderResult = result.renderResult
-                                            warnings = result.warnings.map(::sanitizeUiLogText)
+                                            warnings = ArrayList(result.warnings.map(::sanitizeUiLogText))
                                             usedFallback = result.usedFallback
                                             logs.clear()
                                             logs += AssistantLogItem(
@@ -361,6 +413,7 @@ private fun GenUiAssistantScreen(
                                             }
                                             applyStageDurations(result.stageDurationsMs)
                                             currentStatus = "Pipeline completed"
+                                            inputText = ""
                                         }
 
                                         is GenUiStagePipeline.Outcome.Failure -> {
@@ -487,9 +540,9 @@ private fun GenUiAssistantScreen(
                     }
                 }
 
-                if (renderResult != null) {
+                if (displayRenderResult != null) {
                     item {
-                        renderResult?.let { resolvedRender ->
+                        displayRenderResult?.let { resolvedRender ->
                             GenUiNativeRenderer.RenderInline(
                                 result = resolvedRender,
                                 sourceDir = null,
@@ -522,7 +575,16 @@ private fun sanitizeUiLogText(value: String): String {
         Regex("""(?i)\bstage\s*\d+\s*:\s*"""),
         ""
     )
-    return withoutPrefix
+    val normalizedWarnings = withoutPrefix
+        .replace(
+            Regex("""(?i)\bdropped inline media\b.*"""),
+            "Adjusted media content for compatibility."
+        )
+        .replace(
+            Regex("""(?i)\bdropped quick action urls?\b.*"""),
+            "Adjusted quick actions for compatibility."
+        )
+    return normalizedWarnings
         .replace(Regex("""(?i)\bstage\s*\d+\b"""), "step")
         .replace(Regex("""\s{2,}"""), " ")
         .trim()

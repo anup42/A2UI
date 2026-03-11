@@ -1,8 +1,6 @@
 package com.samsung.genuicraft
 
-import android.Manifest
 import android.app.WallpaperManager
-import android.content.pm.PackageManager
 import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.graphics.drawable.Drawable
@@ -18,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 
 private const val FALLBACK_WALLPAPER_BLUR_RADIUS_PX = 48f
 
@@ -90,33 +87,23 @@ private fun BlurredWallpaperLayer(modifier: Modifier = Modifier) {
 }
 
 private fun loadWallpaperDrawable(context: android.content.Context): Drawable? {
-    if (!hasWallpaperReadPermission(context)) {
-        Log.d("GenUiBackdrop", "Wallpaper drawable unavailable: permission not granted")
-        return null
+    val manager = WallpaperManager.getInstance(context)
+    val drawable = sequenceOf(
+        "peekDrawable",
+        "getFastDrawable",
+        "getDrawable"
+    ).mapNotNull { methodName ->
+        runCatching {
+            val method = WallpaperManager::class.java.getMethod(methodName)
+            method.invoke(manager) as? Drawable
+        }.onFailure { error ->
+            Log.d("GenUiBackdrop", "Wallpaper method $methodName unavailable: ${error.message}")
+        }.getOrNull()
+    }.firstOrNull()
+    if (drawable == null) {
+        Log.w("GenUiBackdrop", "Wallpaper drawable unavailable for fallback frost layer.")
     }
-    return runCatching {
-        WallpaperManager.getInstance(context).drawable
-    }.onFailure { error ->
-        Log.w("GenUiBackdrop", "Wallpaper load failed: ${error.message}")
-    }.getOrNull().also { drawable ->
+    return drawable.also {
         Log.d("GenUiBackdrop", "Wallpaper drawable available=${drawable != null}")
     }
-}
-
-private fun hasWallpaperReadPermission(context: android.content.Context): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val imagesGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_MEDIA_IMAGES
-        ) == PackageManager.PERMISSION_GRANTED
-        val externalGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-        return imagesGranted || externalGranted
-    }
-    return ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    ) == PackageManager.PERMISSION_GRANTED
 }

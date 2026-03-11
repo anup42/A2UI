@@ -26,7 +26,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FlightTakeoff
+import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.Thunderstorm
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -56,7 +64,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.sp
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
@@ -67,6 +78,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.Locale
 import kotlin.math.abs
 
@@ -146,6 +158,10 @@ object GenUiNativeRenderer {
         val fare: String?,
         val status: String?
     )
+    private data class FlightPoint(
+        val time: String?,
+        val code: String?
+    )
 
     private data class StepEntry(
         val title: String,
@@ -161,6 +177,17 @@ object GenUiNativeRenderer {
         val bullet: String,
         val text: String,
         val variant: String
+    )
+    private data class WeatherCurrentDetails(
+        val iconUrl: String?,
+        val condition: String?,
+        val temperature: String?,
+        val feelsLike: String?,
+        val humidity: String?,
+        val wind: String?,
+        val rainChance: String?,
+        val uvIndex: String?,
+        val summary: String?
     )
 
     private sealed interface TextBlock {
@@ -180,17 +207,27 @@ object GenUiNativeRenderer {
         Regex("""^Option\s+\d+\s*:\s*(.+?)\s*\|\s*(.+)$""", RegexOption.IGNORE_CASE)
 
     private val BUTTON_LINE_REGEX =
-        Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(\S+)\s*$""", RegexOption.IGNORE_CASE)
+        Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(.+)$""", RegexOption.IGNORE_CASE)
     private val NUMBERED_STEP_REGEX = Regex("""^(\d+)\.\s+(.+)$""")
     private val INLINE_MEDIA_ASSIGNMENT_REGEX =
         Regex("""(?i)\b(Image|Icon)\s*=\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)""")
+    private val MARKDOWN_IMAGE_REGEX =
+        Regex("""!\[([^\]]*)\]\((https?://[^\s)]+|//[^\s)]+|/assets/[^\s)]+|assets/[^\s)]+)\)""", RegexOption.IGNORE_CASE)
+    private val MARKDOWN_SOURCE_LINK_REGEX =
+        Regex(
+            """\[(.+?)]\((https?://[^\s)]+|//[^\s)]+|www\.[^\s)]+|(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s)]*)?)\)""",
+            RegexOption.IGNORE_CASE
+        )
     private val LEADING_LABEL_REGEX =
         Regex("""^\s*([\u2022\-]\s*)?([^:;\uFF1A\uFF1B\n]{1,70}?)([:;\uFF1A\uFF1B])\s*(.+)$""")
     private val INLINE_LABEL_REGEX =
         Regex("""([A-Za-z][A-Za-z0-9/&()' \-]{0,60})([:;\uFF1A\uFF1B])""")
 
-    private val URL_REGEX = Regex("""https?://[^\s<>\]]+""", RegexOption.IGNORE_CASE)
+    private val URL_REGEX = Regex(
+        """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
+    )
     private val TABLE_PLACEHOLDER_CELL_REGEX = Regex("""^[:\-\u2013\u2014]+$""")
+    private val HOST_LABEL_REGEX = Regex("""(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$""")
 
     fun render(rawInput: String, sourceDir: File?): RenderResult {
         val warnings = mutableListOf<String>()
@@ -784,20 +821,36 @@ object GenUiNativeRenderer {
                         cursor++
                     }
 
-                    val shouldRenderSectionCard = sectionBlocks.isNotEmpty() && (
-                        sectionBlocks.any {
-                            it is TextBlock.MediaCards ||
-                                it is TextBlock.Actions ||
-                                it is TextBlock.Bullets ||
-                                it is TextBlock.Sources
-                        } || sectionBlocks.any { it is TextBlock.Paragraph }
-                    )
-                    if (shouldRenderSectionCard) {
-                        val titleText = when (block) {
-                            is TextBlock.Title -> block.text
-                            is TextBlock.Heading -> block.text
-                            else -> ""
+                    val titleText = when (block) {
+                        is TextBlock.Title -> block.text
+                        is TextBlock.Heading -> block.text
+                        else -> ""
+                    }
+                    val fallbackWeatherCondition = inferWeatherConditionFromSection(titleText, sectionBlocks)
+                    val (followUpWeatherLines, followUpConsumed) =
+                        if (isCurrentWeatherHeading(titleText)) {
+                            collectCurrentWeatherFollowUpLines(blocks, cursor)
+                        } else {
+                            emptyList<String>() to 0
                         }
+                    val currentWeatherDetails = buildCurrentWeatherDetails(
+                        title = titleText,
+                        sectionBlocks = sectionBlocks,
+                        fallbackCondition = fallbackWeatherCondition,
+                        additionalLines = followUpWeatherLines
+                    )
+                    val hasVisualMedia = sectionBlocks.any { section ->
+                        section is TextBlock.MediaCards && section.entries.any { entry -> !entry.iconLike }
+                    }
+                    val hasIconGallery = sectionBlocks.any { section ->
+                        section is TextBlock.MediaCards &&
+                            section.entries.none { entry -> !entry.iconLike } &&
+                            section.entries.count { entry -> entry.iconLike } >= 4
+                    }
+                    val shouldRenderSectionCard =
+                        sectionBlocks.isNotEmpty() &&
+                            (currentWeatherDetails != null || hasVisualMedia || hasIconGallery)
+                    if (shouldRenderSectionCard) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
@@ -811,16 +864,57 @@ object GenUiNativeRenderer {
                                     .padding(horizontal = 12.dp, vertical = 12.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                MarkdownText(
-                                    text = titleText,
-                                    style = if (block is TextBlock.Title) {
-                                        MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                                val titleStyle = if (block is TextBlock.Title) {
+                                    MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                                } else {
+                                    MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                                }
+                                if (currentWeatherDetails != null) {
+                                    RenderCurrentWeatherDetails(
+                                        titleText = titleText,
+                                        titleStyle = titleStyle,
+                                        details = currentWeatherDetails,
+                                        sourceDir = sourceDir
+                                    )
+                                } else {
+                                    if (!fallbackWeatherCondition.isNullOrBlank()) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            WeatherConditionIcon(
+                                                condition = fallbackWeatherCondition,
+                                                size = 20.dp
+                                            )
+                                            Box(modifier = Modifier.weight(1f)) {
+                                                MarkdownText(
+                                                    text = titleText,
+                                                    style = titleStyle,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        }
                                     } else {
-                                        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-                                    },
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                        MarkdownText(
+                                            text = titleText,
+                                            style = titleStyle,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
                                 sectionBlocks.forEach { sectionBlock ->
+                                    if (currentWeatherDetails != null &&
+                                        (sectionBlock is TextBlock.Paragraph || sectionBlock is TextBlock.Bullets)
+                                    ) {
+                                        return@forEach
+                                    }
+                                    if (currentWeatherDetails != null &&
+                                        sectionBlock is TextBlock.MediaCards &&
+                                        sectionBlock.entries.all { it.iconLike }
+                                    ) {
+                                        return@forEach
+                                    }
                                     when (sectionBlock) {
                                         is TextBlock.MediaCards -> RenderMediaEntriesInline(
                                             entries = sectionBlock.entries,
@@ -832,7 +926,7 @@ object GenUiNativeRenderer {
                                 }
                             }
                         }
-                        index = cursor
+                        index = cursor + followUpConsumed
                         continue
                     }
                 }
@@ -1172,14 +1266,64 @@ object GenUiNativeRenderer {
             return
         }
         val hasMarkdownBold = displayText.contains("**")
+        val hasMarkdownHeading = containsMarkdownHeading(displayText)
         Text(
-            text = remember(displayText) { parseBoldMarkdown(displayText) },
-            style = if (hasMarkdownBold) style.copy(fontWeight = FontWeight.Normal) else style,
+            text = remember(displayText, style) {
+                if (hasMarkdownHeading) {
+                    parseMarkdownWithHeadings(displayText, style)
+                } else {
+                    parseBoldMarkdown(displayText)
+                }
+            },
+            style = if (hasMarkdownBold || hasMarkdownHeading) style.copy(fontWeight = FontWeight.Normal) else style,
             color = color,
             modifier = modifier,
             maxLines = maxLines,
             overflow = overflow
         )
+    }
+
+    private fun containsMarkdownHeading(text: String): Boolean =
+        text.lineSequence().any { line -> line.trimStart().startsWith("###") }
+
+    private fun parseMarkdownWithHeadings(
+        text: String,
+        baseStyle: TextStyle
+    ): AnnotatedString {
+        val headingSize = markdownHeadingFontSize(baseStyle.fontSize)
+        return buildAnnotatedString {
+            val lines = text.split('\n')
+            lines.forEachIndexed { index, rawLine ->
+                val trimmedStart = rawLine.trimStart()
+                if (trimmedStart.startsWith("###")) {
+                    val headingText = trimmedStart.removePrefix("###").trim()
+                    if (headingText.isNotEmpty()) {
+                        val start = length
+                        append(parseBoldMarkdown(headingText))
+                        addStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.W700,
+                                fontSize = headingSize
+                            ),
+                            start = start,
+                            end = length
+                        )
+                    }
+                } else {
+                    append(parseBoldMarkdown(rawLine))
+                }
+                if (index != lines.lastIndex) {
+                    append('\n')
+                }
+            }
+        }
+    }
+
+    private fun markdownHeadingFontSize(baseSize: TextUnit): TextUnit {
+        if (!baseSize.isSpecified) {
+            return 20.sp
+        }
+        return baseSize * 1.22f
     }
 
     private fun parseBoldMarkdown(text: String): AnnotatedString {
@@ -1251,7 +1395,9 @@ object GenUiNativeRenderer {
             return text
         }
         var cleaned = text
-        cleaned = cleaned.replace(Regex("(?m)^\\s{0,3}#{1,6}\\s*"), "")
+        if (!preserveMarkdown) {
+            cleaned = cleaned.replace(Regex("(?m)^\\s{0,3}#{1,6}\\s*"), "")
+        }
         cleaned = cleaned.replace("ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢", "â€¢")
         cleaned = cleaned.replace(Regex("(?i)\\bfor\\s+example\\b\\s*[:,-]?\\s*"), "")
         cleaned = cleaned.replace(Regex("(?i)\\((?:\\s*(?:example|sample|illustrative|demo)\\s*)\\)"), "")
@@ -1263,6 +1409,10 @@ object GenUiNativeRenderer {
         )
         cleaned = cleaned.replace(
             Regex("(?im)^\\s*(accessing|fetching|retrieving|querying|searching)\\s+[^\\n]*(weather|flight|price|stock|trend|news)[^\\n]*$"),
+            ""
+        )
+        cleaned = cleaned.replace(
+            Regex("(?im)^\\s*(?:data\\s+)?as\\s+of\\b[^\\n]*$"),
             ""
         )
         if (!preserveMarkdown) {
@@ -1315,8 +1465,7 @@ object GenUiNativeRenderer {
         text.split('\n').forEach { line ->
             val trimmed = line.trim()
             if (trimmed.isNotEmpty() &&
-                !trimmed.contains("http://", ignoreCase = true) &&
-                !trimmed.contains("https://", ignoreCase = true)
+                !containsUrlLikeToken(trimmed)
             ) {
                 INLINE_LABEL_REGEX.findAll(line).forEach { match ->
                     val label = match.groups[1]?.value?.trim().orEmpty()
@@ -1658,6 +1807,7 @@ object GenUiNativeRenderer {
         val mediumFeature = variant.contains("mediumfeature")
         val likelyIcon =
             variant.contains("icon") ||
+                looksLikeCompactIconUrl(urlLower) ||
                 (!likelyLogo &&
                     urlLower.endsWith(".svg") &&
                     !variant.contains("feature") &&
@@ -1828,7 +1978,8 @@ object GenUiNativeRenderer {
         sourceDir: File?,
         modifier: Modifier,
         contentScale: ContentScale,
-        asIcon: Boolean
+        asIcon: Boolean,
+        fallbackCondition: String? = null
     ) {
         val context = LocalContext.current
         val model = remember(rawUrl, sourceDir) { resolveImageModel(rawUrl, sourceDir) }
@@ -1839,33 +1990,24 @@ object GenUiNativeRenderer {
         }
         var failed by remember(rawUrl, sourceDir) { mutableStateOf(false) }
 
-        val compactFallbackModifier = Modifier
-            .fillMaxWidth()
-            .height(58.dp)
-            .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
-            .border(
-                GenUiTokens.BorderMd,
-                genUiMediaFrameBorderColor(),
-                RoundedCornerShape(GenUiTokens.RadiusMd)
-            )
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isSystemInDarkTheme()) 0.22f else 0.45f))
-
-        val displayModifier = if (failed && !asIcon) compactFallbackModifier else modifier
         val loadingBg = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isSystemInDarkTheme()) 0.16f else 0.30f)
         val iconTintColor = if (asIcon) iconTintForAsset(rawUrl) else null
 
+        if (failed && !asIcon) {
+            // Collapse failed non-icon media instead of keeping an empty placeholder box.
+            return
+        }
+
         Box(
-            modifier = displayModifier.background(if (asIcon) Color.Transparent else loadingBg),
+            modifier = modifier.background(if (asIcon) Color.Transparent else loadingBg),
             contentAlignment = Alignment.Center
         ) {
             if (failed) {
                 if (asIcon) {
-                    // Skip icon placeholders to avoid tiny boxed artifacts in content.
-                } else {
-                    Text(
-                        text = "Image unavailable",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    // Keep icon slots informative even when remote icon fetch fails.
+                    WeatherConditionIcon(
+                        condition = fallbackCondition ?: inferWeatherConditionFromIconUrl(rawUrl) ?: "Cloudy",
+                        size = 18.dp
                     )
                 }
             } else {
@@ -1881,6 +2023,18 @@ object GenUiNativeRenderer {
                 )
             }
         }
+    }
+
+    private fun inferWeatherConditionFromIconUrl(rawUrl: String): String? {
+        val normalized = rawUrl.lowercase(Locale.US)
+        extractWeatherApiIconCode(normalized)?.let { code ->
+            val isNight = normalized.contains("/night/")
+            mapWeatherApiIconCode(code, isNight = isNight)?.let { return it }
+        }
+        extractOpenWeatherIconCode(normalized)?.let { code ->
+            mapOpenWeatherIconCode(code)?.let { return it }
+        }
+        return inferWeatherConditionFromTextPool(normalized)
     }
 
     @Composable
@@ -2111,9 +2265,9 @@ object GenUiNativeRenderer {
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = weatherConditionEmoji(todayRow.condition),
-                                    style = MaterialTheme.typography.displaySmall
+                                WeatherConditionIcon(
+                                    condition = todayRow.condition,
+                                    size = 38.dp
                                 )
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -2209,9 +2363,9 @@ object GenUiNativeRenderer {
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalAlignment = Alignment.Top
                                 ) {
-                                    Text(
-                                        text = weatherConditionEmoji(row.condition),
-                                        style = MaterialTheme.typography.titleLarge
+                                    WeatherConditionIcon(
+                                        condition = row.condition,
+                                        size = 26.dp
                                     )
                                     Column(
                                         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -2303,13 +2457,18 @@ object GenUiNativeRenderer {
                 val destinationCode = sanitizeDisplayText(row.destinationCode.orEmpty())
                     .ifBlank { extractAirportCode(arrive.orEmpty()).orEmpty() }
                     .ifBlank { null }
-                val duration = sanitizeDisplayText(row.duration.orEmpty()).ifBlank { null }
+                val departPoint = parseFlightPoint(depart, originCode)
+                val arrivePoint = parseFlightPoint(arrive, destinationCode)
+                val departDisplay = departPoint.time ?: departPoint.code ?: depart
+                val arriveDisplay = arrivePoint.time ?: arrivePoint.code ?: arrive
+                val duration = normalizeDurationLabel(row.duration)
                 val stopLabel = normalizeStopLabel(row.stops, row.status, depart, arrive)
                 val statusLabel = normalizeFlightStatus(row.status, stopLabel)
                 val topStatus = statusLabel?.takeIf { looksLikePunctualityStatus(it) }
                 val arrivalStatus = statusLabel?.takeUnless { looksLikePunctualityStatus(it) }
-                val centerMeta = stopLabel ?: arrivalStatus?.takeIf { it.length <= 26 }
-                val promoMeta = arrivalStatus?.takeIf { it.length > 26 }
+                val centerMeta = stopLabel ?: arrivalStatus?.takeIf { it.length <= 22 }
+                val promoMeta = arrivalStatus?.takeIf { it.length > 22 }
+                val hasTimeRow = departDisplay != null || arriveDisplay != null || duration != null
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -2341,34 +2500,55 @@ object GenUiNativeRenderer {
                                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
+                                    topStatus?.let { statusValue ->
+                                        Text(
+                                            text = statusValue,
+                                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
-                            topStatus?.let { statusValue ->
-                                Text(
-                                    text = statusValue,
-                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.End
-                                )
+                            if (fareValue != null) {
+                                Column(
+                                    modifier = Modifier.sizeIn(minWidth = 84.dp),
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = fareValue,
+                                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        textAlign = TextAlign.End
+                                    )
+                                    fareMeta?.let { fareSuffix ->
+                                        Text(
+                                            text = fareSuffix,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
                             }
                         }
 
-                        if (depart != null || arrive != null || duration != null) {
+                        if (hasTimeRow) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                verticalAlignment = Alignment.Top
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 FlightTimeCell(
-                                    title = depart,
-                                    subtitle = originCode,
+                                    title = departDisplay,
+                                    subtitle = departPoint.code,
                                     align = TextAlign.Start,
                                     modifier = Modifier.weight(1f),
                                     emphasis = true
                                 )
                                 Column(
-                                    modifier = Modifier.weight(1f),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier.weight(1.1f),
+                                    verticalArrangement = Arrangement.spacedBy(5.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     duration?.let { durationValue ->
@@ -2379,58 +2559,50 @@ object GenUiNativeRenderer {
                                             textAlign = TextAlign.Center
                                         )
                                     }
-                                    HorizontalDivider(
-                                        modifier = Modifier.width(72.dp),
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
-                                    )
-                                    centerMeta?.let { meta ->
-                                        Text(
-                                            text = meta,
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            textAlign = TextAlign.Center
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 2.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        HorizontalDivider(
+                                            modifier = Modifier.weight(1f),
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
                                         )
+                                        Icon(
+                                            imageVector = Icons.Filled.FlightTakeoff,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        HorizontalDivider(
+                                            modifier = Modifier.weight(1f),
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
+                                        )
+                                    }
+                                    centerMeta?.let { meta ->
+                                        FlightMetaChip(meta)
                                     }
                                 }
                                 FlightTimeCell(
-                                    title = arrive,
-                                    subtitle = destinationCode,
-                                    align = TextAlign.Start,
+                                    title = arriveDisplay,
+                                    subtitle = arrivePoint.code,
+                                    align = TextAlign.End,
                                     modifier = Modifier.weight(1f),
                                     emphasis = true
                                 )
-                                if (fareValue != null) {
-                                    Column(
-                                        modifier = Modifier.sizeIn(minWidth = 80.dp),
-                                        horizontalAlignment = Alignment.End,
-                                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                                    ) {
-                                        Text(
-                                            text = fareValue,
-                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            textAlign = TextAlign.End
-                                        )
-                                        fareMeta?.let { fareSuffix ->
-                                            Text(
-                                                text = fareSuffix,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                textAlign = TextAlign.End
-                                            )
-                                        }
-                                    }
-                                }
                             }
                             promoMeta?.let { promo ->
                                 Text(
                                     text = promo,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
                         } else {
-                            val meta = listOfNotNull(stopLabel, arrivalStatus, fareValue)
+                            val meta = listOfNotNull(stopLabel, arrivalStatus, fareValue, fareMeta)
                             if (meta.isNotEmpty()) {
                                 Text(
                                     text = meta.joinToString(" | "),
@@ -2443,6 +2615,59 @@ object GenUiNativeRenderer {
                 }
             }
         }
+    }
+
+    private fun parseFlightPoint(value: String?, fallbackCode: String?): FlightPoint {
+        val raw = sanitizeDisplayText(value.orEmpty()).trim()
+        val fallback = sanitizeDisplayText(fallbackCode.orEmpty()).ifBlank { null }
+        if (raw.isBlank()) {
+            return FlightPoint(time = null, code = fallback)
+        }
+
+        val time = normalizeFlightTime(raw)
+        val inlineCode = Regex("""\b([A-Z]{3})\b""")
+            .find(raw.uppercase(Locale.US))
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.uppercase(Locale.US)
+        return FlightPoint(
+            time = time,
+            code = inlineCode ?: fallback
+        )
+    }
+
+    private fun normalizeFlightTime(value: String): String? {
+        val cleaned = sanitizeDisplayText(value).trim()
+        if (cleaned.isBlank()) {
+            return null
+        }
+        val match = Regex("""\b(\d{1,2}:\d{2})(?:\s?(AM|PM))?(?:\+(\d+))?\b""", RegexOption.IGNORE_CASE)
+            .find(cleaned)
+            ?: return null
+        val hhmm = match.groupValues[1]
+        val suffix = match.groupValues.getOrNull(2).orEmpty().uppercase(Locale.US)
+        val dayOffset = match.groupValues.getOrNull(3).orEmpty()
+        val ampm = if (suffix.isBlank()) "" else " $suffix"
+        val plus = if (dayOffset.isBlank()) "" else "+$dayOffset"
+        return "$hhmm$ampm$plus"
+    }
+
+    private fun normalizeDurationLabel(value: String?): String? {
+        val raw = sanitizeDisplayText(value.orEmpty()).trim()
+        if (raw.isBlank()) {
+            return null
+        }
+        val match = Regex("""(?i)(\d+)\s*h(?:ours?)?\s*(?:(\d+)\s*m(?:in(?:ute)?s?)?)?""").find(raw)
+        if (match != null) {
+            val hours = match.groupValues[1]
+            val mins = match.groupValues.getOrNull(2).orEmpty()
+            return if (mins.isBlank()) "${hours}h" else "${hours}h ${mins}m"
+        }
+        val minsOnly = Regex("""(?i)(\d+)\s*m(?:in(?:ute)?s?)?""").find(raw)?.groupValues?.getOrNull(1)
+        if (!minsOnly.isNullOrBlank()) {
+            return "${minsOnly}m"
+        }
+        return raw
     }
 
     @Composable
@@ -2907,7 +3132,7 @@ object GenUiNativeRenderer {
 
     private fun looksLikeTimeValue(value: String): Boolean {
         val normalized = value.trim().uppercase(Locale.US)
-        return Regex("""^\d{1,2}:\d{2}(\s?(AM|PM))?$""").matches(normalized)
+        return Regex("""^\d{1,2}:\d{2}(\s?(AM|PM))?(\+\d+)?$""").matches(normalized)
     }
 
     private fun looksLikeDurationValue(value: String): Boolean {
@@ -2968,16 +3193,65 @@ object GenUiNativeRenderer {
     }
 
     private fun weatherTemperatureText(row: WeatherRow): String {
-        val temp = normalizeWeatherCell(row.temp)
+        val temp = formatTemperatureCellValue(row.temp)
         if (!temp.isNullOrBlank()) {
             return temp
         }
-        val high = normalizeWeatherCell(row.high)
-        val low = normalizeWeatherCell(row.low)
+        val high = formatTemperatureCellValue(row.high)
+        val low = formatTemperatureCellValue(row.low)
         if (!high.isNullOrBlank() && !low.isNullOrBlank()) {
             return "$high / $low"
         }
         return high ?: low ?: ""
+    }
+
+    private fun formatTemperatureCellValue(value: String?): String? {
+        val raw = normalizeWeatherCell(value) ?: return null
+        var formatted = raw
+            .replace("º", "°")
+            .replace("℃", "°C")
+            .replace("℉", "°F")
+            .replace(
+                Regex("""(?i)(-?\d{1,2}(?:\.\d+)?)\s*(?:°\s*)?([CF])\b""")
+            ) { match ->
+                val number = match.groupValues[1]
+                val unit = match.groupValues[2].uppercase(Locale.US)
+                "$number°$unit"
+            }
+        if (formatted.contains('°')) {
+            return formatted
+        }
+
+        val rangePattern = Regex(
+            """^\s*-?\d{1,2}(?:\.\d+)?\s*(?:/|–|-|to)\s*-?\d{1,2}(?:\.\d+)?\s*$""",
+            RegexOption.IGNORE_CASE
+        )
+        if (rangePattern.matches(formatted)) {
+            formatted = formatted.replace(Regex("""-?\d{1,2}(?:\.\d+)?""")) { match ->
+                "${match.value}°"
+            }
+            return formatted
+        }
+
+        val single = Regex("""^\s*(-?\d{1,2}(?:\.\d+)?)\s*$""").matchEntire(formatted)
+        if (single != null) {
+            return "${single.groupValues[1]}°"
+        }
+        return formatted
+    }
+
+    @Composable
+    private fun WeatherConditionIcon(
+        condition: String?,
+        size: Dp
+    ) {
+        val (icon, tint) = weatherConditionIconSpec(condition)
+        Icon(
+            imageVector = icon,
+            contentDescription = sanitizeDisplayText(condition.orEmpty()).ifBlank { "Weather condition" },
+            tint = tint,
+            modifier = Modifier.size(size)
+        )
     }
 
     private fun orderWeatherRows(rows: List<WeatherRow>): List<WeatherRow> {
@@ -3019,20 +3293,508 @@ object GenUiNativeRenderer {
         return normalized
     }
 
-    private fun weatherConditionEmoji(condition: String?): String {
+    private fun isCurrentWeatherHeading(title: String): Boolean {
+        val normalized = normalizeWeatherText(title)
+        return normalized.contains("current condition") ||
+            normalized.contains("current weather") ||
+            normalized == "currently" ||
+            normalized.contains("now")
+    }
+
+    private fun collectCurrentWeatherFollowUpLines(
+        blocks: List<TextBlock>,
+        startIndex: Int
+    ): Pair<List<String>, Int> {
+        val lines = mutableListOf<String>()
+        var consumed = 0
+        var cursor = startIndex
+        while (cursor < blocks.size && consumed < 6) {
+            val candidate = blocks[cursor]
+            val text = when (candidate) {
+                is TextBlock.Title -> candidate.text
+                is TextBlock.Heading -> candidate.text
+                is TextBlock.Paragraph -> candidate.text
+                is TextBlock.Bullets -> candidate.items.joinToString(" ")
+                else -> null
+            }?.trim().orEmpty()
+            if (text.isBlank()) {
+                break
+            }
+
+            val normalized = normalizeWeatherText(text)
+            val startsNewSection =
+                normalized.contains("forecast") ||
+                    normalized.contains("hourly") ||
+                    normalized.contains("sources") ||
+                    normalized.contains("quick action") ||
+                    normalized.contains("recommendation")
+            if (startsNewSection) {
+                break
+            }
+
+            if (!isLikelyCurrentWeatherDetailLine(text)) {
+                break
+            }
+            lines += text
+            consumed++
+            cursor++
+        }
+        return lines to consumed
+    }
+
+    private fun isLikelyCurrentWeatherDetailLine(text: String): Boolean {
+        val normalized = text.lowercase(Locale.US)
+        return Regex("""(?<!\d)-?\d{1,2}(?:\.\d+)?\s*°""").containsMatchIn(text) ||
+            normalized.contains("feels like") ||
+            normalized.contains("humidity") ||
+            normalized.contains("wind") ||
+            normalized.contains("uv index") ||
+            normalized.contains("chance of rain") ||
+            normalized.contains("precip") ||
+            normalized in setOf(
+                "clear",
+                "sunny",
+                "partly cloudy",
+                "cloudy",
+                "overcast",
+                "rain",
+                "rainy",
+                "thunderstorm",
+                "snow",
+                "fog",
+                "mist"
+            )
+    }
+
+    private fun inferWeatherConditionFromSection(
+        title: String,
+        sectionBlocks: List<TextBlock>
+    ): String? {
+        sectionBlocks.forEach { block ->
+            if (block is TextBlock.MediaCards) {
+                block.entries.forEach { entry ->
+                    if (entry.iconLike) {
+                        inferWeatherConditionFromIconUrl(entry.url)?.let { return it }
+                    }
+                }
+            }
+        }
+
+        val normalizedTitle = normalizeWeatherText(title)
+        val weatherContext =
+            normalizedTitle.contains("weather") ||
+                normalizedTitle.contains("condition") ||
+                normalizedTitle.contains("forecast")
+        if (!weatherContext) {
+            return null
+        }
+
+        val textPool = buildString {
+            append(title)
+            sectionBlocks.forEach { block ->
+                when (block) {
+                    is TextBlock.Paragraph -> {
+                        append(' ')
+                        append(block.text)
+                    }
+
+                    is TextBlock.Bullets -> {
+                        block.items.forEach { item ->
+                            append(' ')
+                            append(item)
+                        }
+                    }
+
+                    else -> Unit
+                }
+            }
+        }.lowercase(Locale.US)
+        return inferWeatherConditionFromTextPool(textPool)
+    }
+
+    private fun extractCurrentWeatherIconUrl(sectionBlocks: List<TextBlock>): String? {
+        sectionBlocks.forEach { block ->
+            if (block is TextBlock.MediaCards) {
+                block.entries.firstOrNull { entry ->
+                    val normalized = entry.url.trim().lowercase(Locale.US)
+                    val hasUsableUrl = normalized.isNotBlank() && !isLikelyPlaceholderMediaToken(normalized)
+                    hasUsableUrl && (entry.iconLike || looksLikeCompactIconUrl(normalized))
+                }?.let { return it.url }
+            }
+        }
+        return null
+    }
+
+    private fun inferWeatherConditionFromTextPool(textPool: String): String? {
+        return when {
+            textPool.contains("thunder") || textPool.contains("storm") || textPool.contains("lightning") -> "Thunderstorm"
+            textPool.contains("snow") || textPool.contains("sleet") || textPool.contains("blizzard") -> "Snow"
+            textPool.contains("rain") || textPool.contains("shower") || textPool.contains("drizzle") -> "Rain"
+            textPool.contains("fog") || textPool.contains("mist") || textPool.contains("haze") -> "Fog"
+            textPool.contains("cloud") || textPool.contains("overcast") || textPool.contains("partly cloudy") -> "Cloudy"
+            textPool.contains("clear") -> "Clear"
+            textPool.contains("sun") || textPool.contains("fair") -> "Sunny"
+            textPool.contains("wind") || textPool.contains("breeze") -> "Windy"
+            else -> null
+        }
+    }
+
+    private fun buildCurrentWeatherDetails(
+        title: String,
+        sectionBlocks: List<TextBlock>,
+        fallbackCondition: String?,
+        additionalLines: List<String> = emptyList()
+    ): WeatherCurrentDetails? {
+        if (!isCurrentWeatherHeading(title)) {
+            return null
+        }
+
+        val rawLines = mutableListOf<String>()
+        sectionBlocks.forEach { block ->
+            when (block) {
+                is TextBlock.Paragraph -> rawLines += block.text
+                is TextBlock.Bullets -> rawLines += block.items
+                else -> Unit
+            }
+        }
+        rawLines += additionalLines
+        if (rawLines.isEmpty()) {
+            return null
+        }
+
+        val merged = rawLines.joinToString(" ")
+            .replace(Regex("""\s+"""), " ")
+            .trim()
+        if (merged.isBlank()) {
+            return null
+        }
+
+        val iconUrl = extractCurrentWeatherIconUrl(sectionBlocks)
+        val iconCondition = iconUrl?.let(::inferWeatherConditionFromIconUrl)
+        val condition = iconCondition
+            ?: inferWeatherConditionFromTextPool(merged.lowercase(Locale.US))
+            ?: fallbackCondition
+        val temperature = extractTemperatureValue(merged)
+        val feelsLike = extractFeelsLikeValue(merged)
+        val humidity = extractHumidityValue(merged)
+        val wind = extractWindValue(merged)
+        val rainChance = extractRainChanceValue(merged)
+        val uvIndex = extractUvIndexValue(merged)
+        val summary = merged
+            .split(Regex("""(?<=[.!?])\s+"""))
+            .filter { it.isNotBlank() }
+            .take(2)
+            .joinToString(" ")
+            .trim()
+            .takeIf { it.isNotBlank() }
+
+        return WeatherCurrentDetails(
+            iconUrl = iconUrl,
+            condition = condition,
+            temperature = temperature,
+            feelsLike = feelsLike,
+            humidity = humidity,
+            wind = wind,
+            rainChance = rainChance,
+            uvIndex = uvIndex,
+            summary = summary
+        ).takeIf {
+            !it.iconUrl.isNullOrBlank() ||
+            !it.condition.isNullOrBlank() ||
+                !it.temperature.isNullOrBlank() ||
+                !it.feelsLike.isNullOrBlank() ||
+                !it.humidity.isNullOrBlank() ||
+                !it.wind.isNullOrBlank() ||
+                !it.rainChance.isNullOrBlank() ||
+                !it.uvIndex.isNullOrBlank()
+        }
+    }
+
+    private fun extractTemperatureValue(text: String): String? {
+        Regex("""(?<!\d)(-?\d{1,2}(?:\.\d+)?)\s*(?:°\s*([CF])|([CF]))\b""", RegexOption.IGNORE_CASE)
+            .find(text)
+            ?.let { match ->
+                val value = match.groupValues[1]
+                val unit = match.groupValues.getOrNull(2).orEmpty().ifBlank {
+                    match.groupValues.getOrNull(3).orEmpty()
+                }
+                return formatTemperatureReading(value, unit)
+            }
+
+        Regex("""(?<!\d)(-?\d{1,2}(?:\.\d+)?)\s*°\b""")
+            .find(text)
+            ?.let { match ->
+                return formatTemperatureReading(match.groupValues[1], null)
+            }
+
+        Regex("""(?i)\b(?:temperature|temp|currently|current)\b[^-\d]{0,16}(-?\d{1,2}(?:\.\d+)?)\s*(?:°\s*([CF])|([CF]))?""")
+            .find(text)
+            ?.let { match ->
+                val value = match.groupValues[1]
+                val unit = match.groupValues.getOrNull(2).orEmpty().ifBlank {
+                    match.groupValues.getOrNull(3).orEmpty()
+                }
+                return formatTemperatureReading(value, unit)
+            }
+
+        return null
+    }
+
+    private fun extractFeelsLikeValue(text: String): String? {
+        Regex("""(?i)\bfeels?\s+like\b[^-\d]{0,16}(-?\d{1,2}(?:\.\d+)?)\s*(?:°\s*([CF])|([CF]))?""")
+            .find(text)
+            ?.let { match ->
+                val value = match.groupValues[1]
+                val unit = match.groupValues.getOrNull(2).orEmpty().ifBlank {
+                    match.groupValues.getOrNull(3).orEmpty()
+                }
+                return formatTemperatureReading(value, unit)
+            }
+        return null
+    }
+
+    private fun formatTemperatureReading(value: String, unit: String?): String {
+        val cleanValue = value.trim()
+        val cleanUnit = unit.orEmpty().trim().uppercase(Locale.US)
+        return if (cleanUnit.isBlank()) "$cleanValue°" else "$cleanValue°$cleanUnit"
+    }
+
+    private fun extractHumidityValue(text: String): String? =
+        Regex("""(?i)\bhumidity\b[^0-9]{0,12}(\d{1,3})\s*%?""")
+            .find(text)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let { "${it}%" }
+
+    private fun extractWindValue(text: String): String? {
+        val explicit = Regex(
+            """(?i)\bwinds?\b[^0-9]{0,24}(\d{1,3}(?:\.\d+)?)\s*(km/?h|kph|mph|m/s)"""
+        ).find(text)
+        if (explicit != null) {
+            return "${explicit.groupValues[1]} ${explicit.groupValues[2]}"
+        }
+        val normalized = text.lowercase(Locale.US)
+        return when {
+            normalized.contains("wind is calm") || normalized.contains("winds are calm") || normalized.contains("calm wind") -> "Calm"
+            normalized.contains("breezy") -> "Breezy"
+            else -> null
+        }
+    }
+
+    private fun extractRainChanceValue(text: String): String? {
+        Regex("""(?i)(\d{1,3})\s*%\s*(?:chance of rain|chance of precipitation|rain chance|precip(?:itation)? chance)""")
+            .find(text)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let { return "${it}%" }
+        Regex("""(?i)\b(?:chance of rain|chance of precipitation|rain chance|precip(?:itation)? chance)\b[^0-9]{0,16}(\d{1,3})\s*%?""")
+            .find(text)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let { return "${it}%" }
+        return null
+    }
+
+    private fun extractUvIndexValue(text: String): String? =
+        Regex("""(?i)\buv(?:\s+index)?\b[^0-9]{0,10}(\d{1,2}(?:\.\d+)?)""")
+            .find(text)
+            ?.groupValues
+            ?.getOrNull(1)
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Composable
+    private fun RenderCurrentWeatherDetails(
+        titleText: String,
+        titleStyle: TextStyle,
+        details: WeatherCurrentDetails,
+        sourceDir: File?
+    ) {
+        val iconUrl = details.iconUrl?.trim().orEmpty()
+        val conditionText = details.condition?.let(::sanitizeDisplayText).orEmpty()
+        val temperatureText = details.temperature?.let(::sanitizeDisplayText).orEmpty()
+        val feelsLikeText = details.feelsLike?.let(::sanitizeDisplayText).orEmpty()
+
+        MarkdownText(
+            text = titleText,
+            style = titleStyle,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (iconUrl.isNotBlank()) {
+                MediaImage(
+                    rawUrl = iconUrl,
+                    sourceDir = sourceDir,
+                    modifier = Modifier.size(74.dp),
+                    contentScale = ContentScale.Fit,
+                    asIcon = true,
+                    fallbackCondition = details.condition
+                )
+            } else {
+                WeatherConditionIcon(
+                    condition = details.condition,
+                    size = 70.dp
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                if (temperatureText.isNotBlank()) {
+                    Text(
+                        text = temperatureText,
+                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                if (conditionText.isNotBlank()) {
+                    Text(
+                        text = conditionText,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                if (feelsLikeText.isNotBlank()) {
+                    Text(
+                        text = "Feels like $feelsLikeText",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        val chips = buildList {
+            details.humidity?.let { add("Humidity" to it) }
+            details.wind?.let { add("Wind" to it) }
+            details.rainChance?.let { add("Rain Chance" to it) }
+            details.uvIndex?.let { add("UV Index" to it) }
+        }
+        if (chips.isNotEmpty()) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                chips.forEach { (label, value) ->
+                    val chipValue = sanitizeDisplayText(value)
+                    if (chipValue.isBlank()) return@forEach
+                    Text(
+                        text = "$label $chipValue",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                            .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                            .border(
+                                GenUiTokens.BorderMd,
+                                genUiCardBorderColor(),
+                                RoundedCornerShape(GenUiTokens.RadiusPill)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 5.dp)
+                    )
+                }
+            }
+        }
+
+        details.summary
+            ?.let(::sanitizeDisplayText)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { summary ->
+                MarkdownText(
+                    text = summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+    }
+
+    private fun extractWeatherApiIconCode(normalizedUrl: String): Int? {
+        return Regex("""/(\d{3,4})\.(png|jpg|jpeg|webp|svg)(?:[?#].*)?$""")
+            .find(normalizedUrl)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.toIntOrNull()
+    }
+
+    private fun mapWeatherApiIconCode(code: Int, isNight: Boolean): String? {
+        return when (code) {
+            113 -> if (isNight) "Clear" else "Sunny"
+            116 -> "Partly Cloudy"
+            119, 122 -> "Cloudy"
+            143, 248, 260 -> "Fog"
+            176, 263, 266, 281, 284, 293, 296, 299, 302, 305, 308, 311, 314, 353, 356, 359 -> "Rain"
+            179, 182, 185, 317, 320, 323, 326, 329, 332, 335, 338, 362, 365, 368, 371, 374, 377 -> "Snow"
+            200, 386, 389, 392, 395 -> "Thunderstorm"
+            227, 230 -> "Blizzard"
+            350 -> "Ice"
+            else -> null
+        }
+    }
+
+    private fun extractOpenWeatherIconCode(normalizedUrl: String): String? {
+        return Regex("""/([0-9]{2}[dn])(?:@\dx)?\.(png|jpg|jpeg|webp|svg)(?:[?#].*)?$""")
+            .find(normalizedUrl)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.lowercase(Locale.US)
+    }
+
+    private fun mapOpenWeatherIconCode(code: String): String? {
+        return when (code) {
+            "01d" -> "Sunny"
+            "01n" -> "Clear"
+            "02d", "02n" -> "Partly Cloudy"
+            "03d", "03n", "04d", "04n" -> "Cloudy"
+            "09d", "09n", "10d", "10n" -> "Rain"
+            "11d", "11n" -> "Thunderstorm"
+            "13d", "13n" -> "Snow"
+            "50d", "50n" -> "Fog"
+            else -> null
+        }
+    }
+
+    @Composable
+    private fun weatherConditionIconSpec(condition: String?): Pair<ImageVector, Color> {
         val normalized = normalizeWeatherText(condition.orEmpty())
         return when {
-            normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning") -> "\u26C8\uFE0F"
-            normalized.contains("snow") || normalized.contains("sleet") || normalized.contains("blizzard") -> "\u2744\uFE0F"
-            normalized.contains("rain") || normalized.contains("shower") || normalized.contains("drizzle") -> "\uD83C\uDF27\uFE0F"
-            normalized.contains("partly") && normalized.contains("cloud") -> "\u26C5"
-            normalized.contains("cloud") || normalized.contains("overcast") -> "\u2601\uFE0F"
-            normalized.contains("fog") || normalized.contains("mist") || normalized.contains("haze") -> "\uD83C\uDF2B\uFE0F"
-            normalized.contains("wind") || normalized.contains("breeze") -> "\uD83D\uDCA8"
-            normalized.contains("night") && normalized.contains("clear") -> "\uD83C\uDF19"
-            normalized.contains("sun") || normalized.contains("clear") -> "\u2600\uFE0F"
-            else -> "\uD83C\uDF24\uFE0F"
+            normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning") ->
+                Icons.Filled.Thunderstorm to Color(0xFFE65B17)
+            normalized.contains("snow") || normalized.contains("sleet") || normalized.contains("blizzard") ->
+                Icons.Filled.AcUnit to Color(0xFF82B1FF)
+            normalized.contains("rain") || normalized.contains("shower") || normalized.contains("drizzle") ->
+                Icons.Filled.Grain to Color(0xFF2E65D4)
+            normalized.contains("fog") || normalized.contains("mist") || normalized.contains("haze") ||
+                normalized.contains("wind") || normalized.contains("breeze") ->
+                Icons.Filled.Air to Color(0xFF25B871)
+            normalized.contains("cloud") || normalized.contains("overcast") ->
+                Icons.Filled.Cloud to Color(0xFF7A7A85)
+            normalized.contains("clear") ->
+                if (isNightWeatherContext(condition)) {
+                    Icons.Filled.DarkMode to Color(0xFF7DA2FF)
+                } else {
+                    Icons.Filled.WbSunny to Color(0xFFFFB300)
+                }
+            normalized.contains("sun") ->
+                Icons.Filled.WbSunny to Color(0xFFFFB300)
+            else -> Icons.Filled.Cloud to MaterialTheme.colorScheme.primary
         }
+    }
+
+    private fun isNightWeatherContext(condition: String?): Boolean {
+        val normalized = normalizeWeatherText(condition.orEmpty())
+        if (normalized.contains("night") || normalized.contains("tonight") || normalized.contains("overnight") || normalized.contains("evening")) {
+            return true
+        }
+        if (normalized.contains("day") || normalized.contains("today") || normalized.contains("afternoon") || normalized.contains("morning")) {
+            return false
+        }
+        val hour = LocalTime.now().hour
+        return hour < 6 || hour >= 18
     }
 
     @Composable
@@ -3396,6 +4158,23 @@ object GenUiNativeRenderer {
                 continue
             }
 
+            val inlineLinkButtons =
+                if (looksLikeStandaloneLinkLine(line)) {
+                    parseSourceLinksFromLine(line)
+                } else {
+                    emptyList()
+                }
+            if (inlineLinkButtons.isNotEmpty()) {
+                blocks += if (inSourcesSection) {
+                    TextBlock.Sources(inlineLinkButtons)
+                } else {
+                    TextBlock.Actions(inlineLinkButtons)
+                }
+                renderedAny = true
+                index++
+                continue
+            }
+
             if (!renderedAny) {
                 blocks += TextBlock.Title(line)
                 renderedAny = true
@@ -3479,6 +4258,23 @@ object GenUiNativeRenderer {
 
     private fun parseSourceLinksFromLine(line: String): List<ParsedButton> {
         val normalized = line.removePrefix("- ").trim()
+        if (normalized.isBlank()) {
+            return emptyList()
+        }
+
+        val markdownLinks = MARKDOWN_SOURCE_LINK_REGEX
+            .findAll(normalized)
+            .mapNotNull { match ->
+                val rawLabel = sanitizeDisplayText(match.groupValues[1]).trim()
+                val normalizedUrl = toExternalUrl(sanitizeUrlToken(match.groupValues[2])) ?: return@mapNotNull null
+                val label = if (isUsefulSourceLabel(rawLabel)) rawLabel else buildSourceLabelFromUrl(normalizedUrl, 0)
+                ParsedButton(label = label, url = normalizedUrl)
+            }
+            .toList()
+        if (markdownLinks.isNotEmpty()) {
+            return markdownLinks.distinctBy { it.url.lowercase(Locale.US) }
+        }
+
         val urlMatches = URL_REGEX.findAll(normalized).toList()
         if (urlMatches.isEmpty()) {
             return emptyList()
@@ -3488,21 +4284,90 @@ object GenUiNativeRenderer {
         var cursor = 0
         urlMatches.forEachIndexed { index, match ->
             val rawUrl = sanitizeUrlToken(match.value)
+            val normalizedUrl = toExternalUrl(rawUrl) ?: return@forEachIndexed
+            val nextStart = urlMatches.getOrNull(index + 1)?.range?.first ?: normalized.length
             val labelChunk = normalized.substring(cursor, match.range.first).trim()
+            val trailingChunk = normalized.substring((match.range.last + 1).coerceAtMost(normalized.length), nextStart).trim()
+
             var label = labelChunk.removeSuffix(":").trim().trim('|')
             if (index == 0) {
                 label = label.replace(Regex("""^(sources?|references?)\s*:?\s*""", RegexOption.IGNORE_CASE), "")
             }
-            if (label.isBlank()) {
-                label = Uri.parse(rawUrl).host?.removePrefix("www.").orEmpty().ifBlank { "Source ${index + 1}" }
+            label = label
+                .replace(Regex("""^\s*\d+\s*[\).:\-–—]?\s*"""), "")
+                .replace(Regex("""^\s*[-–—|:]\s*"""), "")
+                .trim(' ', '-', '–', '—', '|', ':')
+
+            if (label.isBlank() && trailingChunk.isNotBlank() && !containsUrlLikeToken(trailingChunk)) {
+                label = trailingChunk
+                    .replace(Regex("""^\s*[-–—|:\u2022]\s*"""), "")
+                    .trim(' ', '-', '–', '—', '|', ':')
             }
+
+            if (!isUsefulSourceLabel(label)) {
+                label = buildSourceLabelFromUrl(normalizedUrl, index)
+            }
+
             links += ParsedButton(
                 label = label,
-                url = rawUrl
+                url = normalizedUrl
             )
-            cursor = match.range.last + 1
+            cursor = nextStart
         }
         return links
+    }
+
+    private fun isUsefulSourceLabel(label: String): Boolean {
+        val normalized = label.trim()
+        if (normalized.isBlank()) {
+            return false
+        }
+        if (containsUrlLikeToken(normalized)) {
+            return false
+        }
+        if (Regex("""(?i)^(?:www\.)?(?:[a-z0-9-]+\.)+[a-z]{2,24}$""").matches(normalized)) {
+            return false
+        }
+        val lower = normalized.lowercase(Locale.US)
+        if (lower in setOf("source", "sources", "reference", "references", "link", "links")) {
+            return false
+        }
+        return normalized.any { it.isLetter() }
+    }
+
+    private fun buildSourceLabelFromUrl(url: String, index: Int): String {
+        val uri = runCatching { Uri.parse(url) }.getOrNull()
+        val host = uri?.host?.removePrefix("www.")?.trim().orEmpty()
+        if (host.isBlank()) {
+            return "Source ${index + 1}"
+        }
+        val hostLabel = host
+            .substringBefore('.')
+            .replace('-', ' ')
+            .replace('_', ' ')
+            .split(Regex("""\s+"""))
+            .filter { it.isNotBlank() }
+            .joinToString(" ") { token ->
+                token.lowercase(Locale.US).replaceFirstChar { ch ->
+                    if (ch.isLowerCase()) ch.titlecase(Locale.US) else ch.toString()
+                }
+            }
+            .ifBlank { host }
+        val pathHint = uri?.pathSegments
+            ?.firstOrNull { segment -> segment.length >= 3 && segment.any { it.isLetter() } }
+            ?.replace('-', ' ')
+            ?.replace('_', ' ')
+            ?.split(Regex("""\s+"""))
+            ?.filter { it.isNotBlank() }
+            ?.take(3)
+            ?.joinToString(" ") { token ->
+                token.lowercase(Locale.US).replaceFirstChar { ch ->
+                    if (ch.isLowerCase()) ch.titlecase(Locale.US) else ch.toString()
+                }
+            }
+            ?.takeIf { it.isNotBlank() && !hostLabel.contains(it, ignoreCase = true) }
+
+        return if (pathHint != null) "$hostLabel $pathHint" else hostLabel
     }
 
     private fun collectBookingOptions(
@@ -3789,7 +4654,9 @@ object GenUiNativeRenderer {
         val lowerLabel = label.lowercase(Locale.US)
         val lowerValue = value.lowercase(Locale.US)
         val iconLike = lowerLabel.contains("icon") ||
-            lowerValue.endsWith(".svg") && !lowerLabel.contains("logo") && !lowerValue.contains("logo")
+            looksLikeCompactIconUrl(lowerValue) ||
+            (lowerValue.endsWith(".svg") && !lowerLabel.contains("logo") && !lowerValue.contains("logo")) ||
+            (lowerValue.contains("/icon") && !lowerLabel.contains("logo") && !lowerValue.contains("logo"))
 
         return ParsedMediaEntry(
             label = label,
@@ -3803,7 +4670,7 @@ object GenUiNativeRenderer {
             return emptyList()
         }
 
-        return INLINE_MEDIA_ASSIGNMENT_REGEX
+        val assignmentEntries = INLINE_MEDIA_ASSIGNMENT_REGEX
             .findAll(line)
             .mapNotNull { match ->
                 val mediaType = match.groupValues[1].trim()
@@ -3811,10 +4678,44 @@ object GenUiNativeRenderer {
                 if (!looksLikeImagePath(rawValue, labelHint = mediaType)) {
                     null
                 } else {
+                    val normalizedType = mediaType.lowercase(Locale.US)
+                    val normalizedUrl = rawValue.lowercase(Locale.US)
+                    val inlineIconLike = normalizedType.contains("icon") ||
+                        looksLikeCompactIconUrl(normalizedUrl) ||
+                        (normalizedUrl.endsWith(".svg") && !normalizedUrl.contains("logo")) ||
+                        (normalizedUrl.contains("/icon") && !normalizedUrl.contains("logo"))
                     ParsedMediaEntry(
                         label = mediaType,
                         url = rawValue,
-                        iconLike = mediaType.equals("Icon", ignoreCase = true)
+                        iconLike = inlineIconLike
+                    )
+                }
+            }
+            .toList()
+        val markdownEntries = parseMarkdownImageEntries(line)
+        return (assignmentEntries + markdownEntries)
+            .distinctBy { "${it.label.lowercase(Locale.US)}|${it.url.lowercase(Locale.US)}" }
+    }
+
+    private fun parseMarkdownImageEntries(line: String): List<ParsedMediaEntry> {
+        return MARKDOWN_IMAGE_REGEX
+            .findAll(line)
+            .mapNotNull { match ->
+                val label = match.groupValues.getOrNull(1)?.trim().orEmpty().ifBlank { "Image" }
+                val rawValue = sanitizeUrlToken(match.groupValues.getOrNull(2).orEmpty())
+                if (!looksLikeImagePath(rawValue, labelHint = label)) {
+                    null
+                } else {
+                    val normalizedLabel = label.lowercase(Locale.US)
+                    val normalizedUrl = rawValue.lowercase(Locale.US)
+                    val iconLike = normalizedLabel.contains("icon") ||
+                        looksLikeCompactIconUrl(normalizedUrl) ||
+                        (normalizedUrl.endsWith(".svg") && !normalizedUrl.contains("logo")) ||
+                        (normalizedUrl.contains("/icon") && !normalizedUrl.contains("logo"))
+                    ParsedMediaEntry(
+                        label = label,
+                        url = rawValue,
+                        iconLike = iconLike
                     )
                 }
             }
@@ -3823,6 +4724,9 @@ object GenUiNativeRenderer {
 
     private fun isInlineMediaLine(line: String): Boolean {
         val trimmed = line.trim()
+        if (MARKDOWN_IMAGE_REGEX.containsMatchIn(trimmed)) {
+            return true
+        }
         if (trimmed.startsWith("Media:", ignoreCase = true)) {
             return INLINE_MEDIA_ASSIGNMENT_REGEX.containsMatchIn(trimmed)
         }
@@ -3920,7 +4824,9 @@ object GenUiNativeRenderer {
     private fun parseButtonLine(line: String): ParsedButton? {
         val match = BUTTON_LINE_REGEX.find(line) ?: return null
         val label = match.groupValues[1].trim()
-        val url = sanitizeUrlToken(match.groupValues[2])
+        val trailing = match.groupValues[2].trim()
+        val rawUrlToken = URL_REGEX.find(trailing)?.value ?: trailing
+        val url = canonicalizeNetworkUrlToken(sanitizeUrlToken(rawUrlToken))
         if (label.isBlank() || url.isBlank()) {
             return null
         }
@@ -3928,10 +4834,10 @@ object GenUiNativeRenderer {
     }
 
     private fun sanitizeUrlToken(value: String): String =
-        value.trim().trimEnd('.', ',', ';')
+        value.trim().trim('"', '\'', '<', '>', '`').trimEnd('.', ',', ';', ')', ']', '}')
 
     private fun isTableLikeLine(line: String): Boolean {
-        if (line.contains("http://", ignoreCase = true) || line.contains("https://", ignoreCase = true)) {
+        if (containsUrlLikeToken(line)) {
             return false
         }
         return splitTableCells(line).size >= 3
@@ -3992,13 +4898,33 @@ object GenUiNativeRenderer {
         if (line.startsWith("- ") || line.endsWith(".") || line.endsWith("?") || line.endsWith("!")) {
             return false
         }
-        if (line.contains('|') || line.contains("http://", ignoreCase = true) || line.contains("https://", ignoreCase = true)) {
+        if (line.contains('|') || containsUrlLikeToken(line)) {
             return false
         }
         if (line.contains("[Button:", ignoreCase = true)) {
             return false
         }
         return line.any { it.isLetter() }
+    }
+
+    private fun containsUrlLikeToken(value: String): Boolean =
+        URL_REGEX.containsMatchIn(value)
+
+    private fun looksLikeStandaloneLinkLine(value: String): Boolean {
+        val line = value.trim()
+        if (line.isBlank() || !containsUrlLikeToken(line)) {
+            return false
+        }
+        if (isInlineMediaLine(line) || isMediaMarkerHeading(line)) {
+            return false
+        }
+        if (line.length > 260) {
+            return false
+        }
+        if (line.contains('|') && splitTableCells(line).size >= 3) {
+            return false
+        }
+        return true
     }
 
     private fun isBoilerplateContextHeading(text: String): Boolean {
@@ -4048,8 +4974,14 @@ object GenUiNativeRenderer {
 
     private fun looksLikeImagePath(value: String, labelHint: String? = null): Boolean {
         val normalized = value.trim()
+        if (normalized.isBlank() || isLikelyPlaceholderMediaToken(normalized)) {
+            return false
+        }
         val normalizedLower = normalized.lowercase(Locale.US)
         val pathWithoutQuery = normalizedLower.substringBefore('?').substringBefore('#')
+        if (pathWithoutQuery.contains("<") || pathWithoutQuery.contains(">")) {
+            return false
+        }
         if (
             pathWithoutQuery.endsWith(".png") ||
             pathWithoutQuery.endsWith(".jpg") ||
@@ -4064,20 +4996,67 @@ object GenUiNativeRenderer {
         val scheme = uri?.scheme?.lowercase(Locale.US)
         if (scheme == "http" || scheme == "https") {
             val host = uri.host?.lowercase(Locale.US).orEmpty()
-            val hint = labelHint.orEmpty().lowercase(Locale.US)
+            val path = uri.path.orEmpty().lowercase(Locale.US)
             if (
                 host.contains("loremflickr.com") ||
                 host.contains("picsum.photos") ||
                 host.contains("placehold.co") ||
-                host.contains("dummyimage.com")
+                host.contains("dummyimage.com") ||
+                host.contains("cdn.jsdelivr.net") ||
+                host.contains("raw.githubusercontent.com") ||
+                host.contains("upload.wikimedia.org") ||
+                host.contains("imgur.com") ||
+                host.contains("gstatic.com") ||
+                host.contains("twimg.com")
             ) {
                 return true
             }
-            if (hint.contains("image") || hint.contains("photo") || hint.contains("icon") || hint.contains("logo")) {
+            if (
+                path.contains("/icon") ||
+                path.contains("/icons/") ||
+                path.contains("/image") ||
+                path.contains("/images/")
+            ) {
                 return true
             }
         }
         return false
+    }
+
+    private fun isLikelyPlaceholderMediaToken(value: String): Boolean {
+        val normalized = value
+            .trim()
+            .trim('\'', '"')
+            .lowercase(Locale.US)
+        if (normalized.isBlank()) {
+            return true
+        }
+        return normalized in setOf(
+            "<image_url>",
+            "<icon_url>",
+            "<url>",
+            "image_url",
+            "icon_url",
+            "url",
+            "n/a",
+            "na",
+            "none",
+            "null",
+            "--"
+        ) || normalized.contains("placeholder")
+    }
+
+    private fun looksLikeCompactIconUrl(value: String): Boolean {
+        val normalized = value.lowercase(Locale.US)
+        return normalized.contains("/icon") ||
+            normalized.contains("/icons/") ||
+            normalized.contains("weatherapi.com/weather/") ||
+            normalized.contains("/weather/64x64/") ||
+            normalized.contains("/weather/128x128/") ||
+            normalized.contains("/weather/icons/") ||
+            normalized.contains("openweathermap.org/img/wn/") ||
+            normalized.contains("/img/wn/") ||
+            Regex("""/\d{2}[dn](?:@\dx)?\.(png|webp|jpg|jpeg)(?:[?#].*)?$""").containsMatchIn(normalized)
     }
 
     private fun shouldShowMediaLabel(label: String): Boolean {
@@ -4142,8 +5121,9 @@ object GenUiNativeRenderer {
         if (value.isNullOrBlank()) {
             return null
         }
-        val scheme = runCatching { Uri.parse(value).scheme?.lowercase(Locale.US) }.getOrNull()
-        return if (scheme == "http" || scheme == "https") value else null
+        val normalized = canonicalizeNetworkUrlToken(value)
+        val scheme = runCatching { Uri.parse(normalized).scheme?.lowercase(Locale.US) }.getOrNull()
+        return if (scheme == "http" || scheme == "https") normalized else null
     }
 
     private fun parseJsonOrJsonl(rawInput: String, warnings: MutableList<String>): JsonElement {
@@ -4403,7 +5383,7 @@ object GenUiNativeRenderer {
     }
 
     private fun resolveAssetUrl(raw: String, sourceDir: File?): String {
-        val normalized = raw.replace("\\", "/")
+        val normalized = canonicalizeNetworkUrlToken(raw.replace("\\", "/").trim())
         if (sourceDir == null) {
             return when {
                 normalized.startsWith("../assets/") -> "/" + normalized.removePrefix("../")
@@ -4426,6 +5406,75 @@ object GenUiNativeRenderer {
         } catch (_: Exception) {
             normalized
         }
+    }
+
+    private fun canonicalizeNetworkUrlToken(value: String): String {
+        val trimmed = value.trim()
+        if (trimmed.isBlank()) {
+            return trimmed
+        }
+        return normalizeHttpUrlCandidate(trimmed) ?: trimmed
+    }
+
+    private fun normalizeHttpUrlCandidate(value: String): String? {
+        val trimmed = value.trim().trim('"', '\'')
+        if (trimmed.isBlank()) {
+            return null
+        }
+        if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
+            return trimmed
+        }
+        if (trimmed.startsWith("//")) {
+            return "https:$trimmed"
+        }
+        if (
+            trimmed.startsWith("/") ||
+            trimmed.startsWith("assets/", ignoreCase = true) ||
+            trimmed.startsWith("../assets/", ignoreCase = true) ||
+            trimmed.startsWith("./assets/", ignoreCase = true) ||
+            trimmed.startsWith("file:", ignoreCase = true) ||
+            trimmed.startsWith("content:", ignoreCase = true)
+        ) {
+            return null
+        }
+
+        val pathCandidate = trimmed.trimEnd('.', ',', ';', ')', ']', '}')
+        if (!URL_REGEX.matches(pathCandidate)) {
+            return null
+        }
+        val host = pathCandidate
+            .removePrefix("www.")
+            .substringBefore('/')
+            .substringBefore('?')
+            .substringBefore('#')
+            .lowercase(Locale.US)
+        if (!isLikelyPublicDomainHost(host)) {
+            return null
+        }
+        return "https://$pathCandidate"
+    }
+
+    private fun isLikelyPublicDomainHost(host: String): Boolean {
+        if (host.isBlank() || host.contains('_')) {
+            return false
+        }
+        val labels = host.split('.').filter { it.isNotBlank() }
+        if (labels.size < 2 || labels.any { !HOST_LABEL_REGEX.matches(it) }) {
+            return false
+        }
+        val tld = labels.last().lowercase(Locale.US)
+        if (!tld.all { it in 'a'..'z' } || tld.length !in 2..24) {
+            return false
+        }
+        if (
+            tld in setOf(
+                "png", "jpg", "jpeg", "svg", "webp", "gif", "bmp", "ico",
+                "json", "xml", "txt", "csv", "md", "pdf", "zip", "apk"
+            )
+        ) {
+            return false
+        }
+        return true
     }
 
     private fun String.normalizeLayoutToken(): String {
