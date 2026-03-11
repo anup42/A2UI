@@ -37,6 +37,9 @@ Structural quality requirements (strict):
   - Prefer one card per day/place/item with image/icon inline in that card.
 - For recommendation/comparison responses:
   - Keep the compact table plus optional best-option cards when both are present in the response.
+- For flight comparison tables:
+  - Preserve columns for departure, arrival, duration, stops, and fare when present.
+  - Render each row as a rich flight card-like structure (airline identity + time row + fare + stops chip), not as a plain text paragraph.
 - Convert action links/CTAs into Button with action.functionCall.call="openUrl".
 - Convert source links into borderless Buttons under a "Sources" section when possible.
 - Never place raw URLs (http/https/www) inside Text components; URLs must only appear inside Button action.functionCall.args.url (or Image.url for assets).
@@ -55,6 +58,7 @@ Structural quality requirements (strict):
   - If both image and icon exist, image should be primary visual and icon should be supporting visual (badge/chip/leading icon).
   - Never leave `Media:` marker text inside a Text component when Image/Icon components can be emitted.
 - Remove markdown markers from rendered text content ("###", "|", "*", "[ ]", "[Button: ...]").
+- Drop generic boilerplate headings like "Information Context" or "Background Information" when they only introduce long explanatory text that duplicates the actual comparison/table content.
 - Avoid duplicate lines across table rows/cards; keep each row/card concise and non-redundant.
 - Prefer robust decomposition for rich responses (target roughly 30-60 components when content is long enough), while keeping hierarchy valid and non-dangling.
 - Preserve key facts exactly (numbers, units, dates, currency, rates).

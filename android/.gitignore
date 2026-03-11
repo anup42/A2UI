@@ -4,4 +4,5 @@ local.properties
 /.idea/
 /.kotlin/
 **/build/
-
+tmp/test-artifacts/*
+!tmp/test-artifacts/.gitkeep

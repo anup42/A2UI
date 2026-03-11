@@ -1,13 +1,21 @@
 <resources>
-    <string name="app_name">GenUI Craft Renderer</string>
-    <string name="launcher_title">GenUI Craft</string>
+    <string name="app_name">GenUICraft</string>
+    <string name="launcher_title">GenUICraft</string>
     <string name="launcher_subtitle"></string>
     <string name="launcher_genui_title">GenUI Demo</string>
     <string name="launcher_genui_subtitle">Generate rich response with stage 2, convert with stage 3, and render natively in stage 4.</string>
     <string name="launcher_renderer_title">Renderer Demo</string>
     <string name="launcher_renderer_subtitle">Open the file/sample renderer flow for existing GenUI JSON/JSONL assets.</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_model_title">Gemini Model</string>
+    <string name="settings_model_description">This model is used for response generation and GenUICraft IR conversion stages.</string>
+    <string name="settings_model_available">Available models</string>
+    <string name="settings_model_loading">Fetching available Gemini models...</string>
+    <string name="settings_model_fetch_failed">Could not fetch Gemini models.</string>
+    <string name="settings_model_api_key_missing">Gemini API key is missing. Showing default model options.</string>
+    <string name="settings_refresh_models">Refresh model list</string>
 
-    <string name="home_title">GenUI Craft Renderer</string>
+    <string name="home_title">GenUICraft</string>
     <string name="home_subtitle">Load a GenUI JSON or JSONL file and render each entry in native Compose or WebView mode.</string>
     <string name="home_source_title">Choose Source</string>
     <string name="home_source_subtitle">Select a file from your device or open the bundled sample dataset.</string>

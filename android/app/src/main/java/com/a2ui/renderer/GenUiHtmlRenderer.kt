@@ -56,6 +56,7 @@ object GenUiHtmlRenderer {
         Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(\S+)\s*$""", RegexOption.IGNORE_CASE)
 
     private val URL_REGEX = Regex("""https?://[^\s<>()]+""", RegexOption.IGNORE_CASE)
+    private val TABLE_PLACEHOLDER_CELL_REGEX = Regex("""^[:\-\u2013\u2014]+$""")
     private val BOLD_REGEX = Regex("""\*\*(.+?)\*\*""")
     private val LEADING_LABEL_REGEX =
         Regex("""^\s*([•\-]\s*)?([^:;：；\n]{1,70}?)([:;：；])\s*(.+)$""")
@@ -445,7 +446,11 @@ object GenUiHtmlRenderer {
         }
 
         val headerCells = if (headerLike) textRows.first() else emptyList()
-        val bodyRows = if (headerLike) textRows.drop(1) else textRows
+        val bodyRows = (if (headerLike) textRows.drop(1) else textRows)
+            .filterNot { row -> isPlaceholderTableStringRow(row.map { readDynamicString(it.get("text")) }) }
+        if (bodyRows.isEmpty()) {
+            return null
+        }
 
         val thead = if (headerCells.isNotEmpty()) {
             val headers = headerCells.joinToString(separator = "") { cell ->
@@ -459,7 +464,10 @@ object GenUiHtmlRenderer {
 
         val tbody = bodyRows.joinToString(separator = "") { row ->
             val cells = row.joinToString(separator = "") { cell ->
-                val value = formatInlineText(readDynamicString(cell.get("text")), sourceDir)
+                val value = formatInlineText(
+                    sanitizeTableCellDisplayValue(readDynamicString(cell.get("text"))),
+                    sourceDir
+                )
                 "<td>$value</td>"
             }
             "<tr>$cells</tr>"
@@ -655,16 +663,21 @@ object GenUiHtmlRenderer {
                     if (!listLine.startsWith("- ")) {
                         break
                     }
-                    items += listLine.removePrefix("- ").trim()
+                    val item = listLine.removePrefix("- ").trim()
+                    if (!isPlaceholderListEntry(item)) {
+                        items += item
+                    }
                     cursor++
                 }
-                out.append("<ul class=\"text-list\">")
-                items.forEach { item ->
-                    out.append("<li>${renderListItem(item, sourceDir)}</li>")
+                if (items.isNotEmpty()) {
+                    out.append("<ul class=\"text-list\">")
+                    items.forEach { item ->
+                        out.append("<li>${renderListItem(item, sourceDir)}</li>")
+                    }
+                    out.append("</ul>")
+                    renderedAny = true
                 }
-                out.append("</ul>")
                 index = cursor
-                renderedAny = true
                 continue
             }
 
@@ -1050,21 +1063,26 @@ object GenUiHtmlRenderer {
             cursor++
         }
 
-        if (rows.size < 2) {
+        val filteredRows = rows.filterIndexed { index, row ->
+            index == 0 || !isPlaceholderTableStringRow(row)
+        }
+        if (filteredRows.size < 2) {
             return null
         }
-        return rows to cursor
+        return filteredRows to cursor
     }
 
     private fun renderTable(rows: List<List<String>>, sourceDir: File?): String {
+        if (rows.isEmpty()) return ""
         val header = rows.first()
-        val body = rows.drop(1)
+        val body = rows.drop(1).filterNot { isPlaceholderTableStringRow(it) }
+        if (body.isEmpty()) return ""
         val headHtml = header.joinToString(separator = "") { cell ->
             "<th>${formatInlineText(cell, sourceDir)}</th>"
         }
         val bodyHtml = body.joinToString(separator = "") { row ->
             val cells = row.joinToString(separator = "") { cell ->
-                "<td>${formatInlineText(cell, sourceDir)}</td>"
+                "<td>${formatInlineText(sanitizeTableCellDisplayValue(cell), sourceDir)}</td>"
             }
             "<tr>$cells</tr>"
         }
@@ -1139,6 +1157,42 @@ object GenUiHtmlRenderer {
             .split('|')
             .map { it.trim() }
             .filter { it.isNotEmpty() }
+
+    private fun isPlaceholderTableStringRow(row: List<String>): Boolean {
+        if (row.isEmpty()) return true
+        return row.all(::isPlaceholderTableCellValue)
+    }
+
+    private fun sanitizeTableCellDisplayValue(value: String): String {
+        val normalized = value.trim()
+        return if (isPlaceholderTableCellValue(normalized)) "" else normalized
+    }
+
+    private fun isPlaceholderTableCellValue(value: String): Boolean {
+        val normalized = value.trim()
+        if (normalized.isEmpty()) {
+            return true
+        }
+        val compact = normalized.replace(Regex("""\s+"""), "")
+        if (TABLE_PLACEHOLDER_CELL_REGEX.matches(compact)) {
+            return true
+        }
+        return when (normalized.lowercase(Locale.US)) {
+            "na", "n/a", "null", "none", "not available" -> true
+            else -> false
+        }
+    }
+
+    private fun isPlaceholderListEntry(value: String): Boolean {
+        val normalized = value
+            .replace(Regex("""^[\u2022•\-]\s*"""), "")
+            .trim()
+        if (isPlaceholderTableCellValue(normalized)) {
+            return true
+        }
+        val leadingLabel = parseLeadingLabelValue(normalized) ?: return false
+        return isPlaceholderTableCellValue(leadingLabel.value)
+    }
 
     private fun looksLikeSectionHeading(line: String): Boolean {
         if (line.length > 80) {
@@ -1465,7 +1519,7 @@ object GenUiHtmlRenderer {
             <head>
               <meta charset="utf-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>GenUI Craft Renderer</title>
+              <title>GenUICraft</title>
               <style>
                 :root {
                   --font-family: "One UI Sans GUI", "sec", "SamsungOne", "Segoe UI", sans-serif;

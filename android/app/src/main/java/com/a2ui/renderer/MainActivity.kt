@@ -19,10 +19,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,7 +43,8 @@ class MainActivity : AppCompatActivity() {
             GenUiCraftTheme {
                 LauncherScreen(
                     onOpenRenderer = { startActivity(Intent(this, RendererHomeActivity::class.java)) },
-                    onOpenGenUi = { startActivity(Intent(this, GenUiAssistantActivity::class.java)) }
+                    onOpenGenUi = { startActivity(Intent(this, GenUiAssistantActivity::class.java)) },
+                    onOpenSettings = { startActivity(Intent(this, SettingsActivity::class.java)) }
                 )
             }
         }
@@ -50,7 +55,8 @@ class MainActivity : AppCompatActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 private fun LauncherScreen(
     onOpenRenderer: () -> Unit,
-    onOpenGenUi: () -> Unit
+    onOpenGenUi: () -> Unit,
+    onOpenSettings: () -> Unit
 ) {
     val deviceConfig = rememberDeviceUiConfig()
     val horizontalPadding = when (deviceConfig.widthClass) {
@@ -70,6 +76,15 @@ private fun LauncherScreen(
                         text = stringResource(id = R.string.launcher_title),
                         style = MaterialTheme.typography.headlineSmall
                     )
+                },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = stringResource(id = R.string.settings_title),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = genUiTopBarContainerColor(),

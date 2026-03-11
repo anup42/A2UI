@@ -156,6 +156,35 @@ private fun GenUiAssistantScreen(
         }
     }
 
+    fun formatDurationLabel(durationMs: Long): String {
+        val totalSeconds = (durationMs / 1000.0)
+        return if (totalSeconds < 60.0) {
+            String.format(java.util.Locale.US, "%.1fs", totalSeconds)
+        } else {
+            val minutes = (durationMs / 60000L)
+            val seconds = ((durationMs % 60000L) / 1000L)
+            "${minutes}m ${seconds}s"
+        }
+    }
+
+    fun applyStageDurations(
+        durations: Map<GenUiStagePipeline.Stage, Long>,
+        failedStage: GenUiStagePipeline.Stage? = null
+    ) {
+        if (durations.isEmpty()) return
+        steps.indices.forEach { index ->
+            val step = steps[index]
+            val duration = durations[step.stage] ?: return@forEach
+            val label = formatDurationLabel(duration)
+            val message = if (failedStage == step.stage) {
+                "Failed after $label"
+            } else {
+                "Completed in $label"
+            }
+            steps[index] = step.copy(message = message)
+        }
+    }
+
     val deviceConfig = rememberDeviceUiConfig()
     val horizontalPadding = when (deviceConfig.widthClass) {
         DeviceSizeClass.Compact -> 14.dp
@@ -330,6 +359,7 @@ private fun GenUiAssistantScreen(
                                             steps.indices.forEach { i ->
                                                 steps[i] = steps[i].copy(status = PipelineStepStatus.Done)
                                             }
+                                            applyStageDurations(result.stageDurationsMs)
                                             currentStatus = "Pipeline completed"
                                         }
 
@@ -359,6 +389,10 @@ private fun GenUiAssistantScreen(
                                                 }
                                                 steps[i] = step.copy(status = status)
                                             }
+                                            applyStageDurations(
+                                                durations = outcome.stageDurationsMs,
+                                                failedStage = outcome.stage
+                                            )
                                             currentStatus = "Pipeline failed"
                                         }
                                     }
@@ -621,6 +655,15 @@ private fun StageProgressCard(
                     maxLines = 2,
                     overflow = TextOverflow.Clip
                 )
+                if (step.message.isNotBlank()) {
+                    Text(
+                        text = sanitizeUiLogText(step.message),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
             if (running || statusText.isNotBlank()) {
                 Row(

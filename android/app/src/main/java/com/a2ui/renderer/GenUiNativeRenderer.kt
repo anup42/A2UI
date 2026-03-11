@@ -1,4 +1,4 @@
-package com.samsung.genuicraft
+﻿package com.samsung.genuicraft
 
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
@@ -25,10 +25,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -122,6 +125,28 @@ object GenUiNativeRenderer {
         val temp: String?,
         val metrics: List<Pair<String, String>>
     )
+    private data class FlightTableColumns(
+        val airline: Int,
+        val depart: Int?,
+        val arrive: Int?,
+        val duration: Int?,
+        val stops: Int?,
+        val fare: Int?,
+        val status: Int?
+    )
+
+    private data class FlightRow(
+        val airline: String,
+        val depart: String?,
+        val originCode: String?,
+        val arrive: String?,
+        val destinationCode: String?,
+        val duration: String?,
+        val stops: String?,
+        val fare: String?,
+        val status: String?
+    )
+
     private data class StepEntry(
         val title: String,
         val details: String
@@ -165,6 +190,7 @@ object GenUiNativeRenderer {
         Regex("""([A-Za-z][A-Za-z0-9/&()' \-]{0,60})([:;\uFF1A\uFF1B])""")
 
     private val URL_REGEX = Regex("""https?://[^\s<>\]]+""", RegexOption.IGNORE_CASE)
+    private val TABLE_PLACEHOLDER_CELL_REGEX = Regex("""^[:\-\u2013\u2014]+$""")
 
     fun render(rawInput: String, sourceDir: File?): RenderResult {
         val warnings = mutableListOf<String>()
@@ -351,6 +377,11 @@ object GenUiNativeRenderer {
         }
 
         if (!rowLayout) {
+            maybeExtractCardRowTable(children, index)?.let {
+                RenderTableSpec(it)
+                return
+            }
+
             maybeExtractTable(children, index)?.let {
                 RenderTableSpec(it)
                 return
@@ -398,8 +429,19 @@ object GenUiNativeRenderer {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = horizontalAlignment
         ) {
-            children.forEach { childId ->
+            var cursor = 0
+            while (cursor < children.size) {
+                val tableRun = maybeExtractTableRun(children, cursor, index)
+                if (tableRun != null) {
+                    val (tableSpec, consumed) = tableRun
+                    RenderTableSpec(tableSpec)
+                    cursor += consumed
+                    continue
+                }
+
+                val childId = children[cursor]
                 RenderComponent(childId, index, sourceDir, onOpenExternalUrl, activePath)
+                cursor++
             }
         }
     }
@@ -618,9 +660,12 @@ object GenUiNativeRenderer {
                 )
 
                 is TextBlock.Bullets -> {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        block.items.forEach { item ->
-                            RenderListItem(item = "\u2022 ${item.trim()}", sourceDir = sourceDir)
+                    val visibleItems = block.items.filterNot(::isPlaceholderListEntry)
+                    if (visibleItems.isNotEmpty()) {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            visibleItems.forEach { item ->
+                                RenderListItem(item = "\u2022 ${item.trim()}", sourceDir = sourceDir)
+                            }
                         }
                     }
                 }
@@ -709,6 +754,20 @@ object GenUiNativeRenderer {
             var index = 0
             while (index < blocks.size) {
                 val block = blocks[index]
+                val headingText = when (block) {
+                    is TextBlock.Title -> block.text
+                    is TextBlock.Heading -> block.text
+                    else -> null
+                }
+                if (headingText != null && isBoilerplateContextHeading(headingText)) {
+                    val nextBlock = blocks.getOrNull(index + 1)
+                    if (nextBlock is TextBlock.Paragraph && isBoilerplateContextParagraph(nextBlock.text)) {
+                        index += 2
+                    } else {
+                        index += 1
+                    }
+                    continue
+                }
 
                 if (block is TextBlock.Title || block is TextBlock.Heading) {
                     val sectionBlocks = mutableListOf<TextBlock>()
@@ -1108,7 +1167,7 @@ object GenUiNativeRenderer {
         maxLines: Int = Int.MAX_VALUE,
         overflow: TextOverflow = TextOverflow.Clip
     ) {
-        val displayText = remember(text) { sanitizeDisplayText(text) }
+        val displayText = remember(text) { sanitizeDisplayText(text, preserveMarkdown = true) }
         if (displayText.isBlank()) {
             return
         }
@@ -1135,7 +1194,7 @@ object GenUiNativeRenderer {
 
                 val close = text.indexOf("**", open + 2)
                 if (close < 0) {
-                    append(text.substring(cursor))
+                    append(text.substring(cursor).replace("**", ""))
                     break
                 }
 
@@ -1187,12 +1246,13 @@ object GenUiNativeRenderer {
         }
     }
 
-    private fun sanitizeDisplayText(text: String): String {
+    private fun sanitizeDisplayText(text: String, preserveMarkdown: Boolean = false): String {
         if (text.isBlank()) {
             return text
         }
         var cleaned = text
-        cleaned = cleaned.replace("Ã¢â‚¬Â¢", "•")
+        cleaned = cleaned.replace(Regex("(?m)^\\s{0,3}#{1,6}\\s*"), "")
+        cleaned = cleaned.replace("ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢", "â€¢")
         cleaned = cleaned.replace(Regex("(?i)\\bfor\\s+example\\b\\s*[:,-]?\\s*"), "")
         cleaned = cleaned.replace(Regex("(?i)\\((?:\\s*(?:example|sample|illustrative|demo)\\s*)\\)"), "")
         cleaned = cleaned.replace(Regex("(?i)\\b(?:example|sample|illustrative|demo)s?\\b\\s*:?"), "")
@@ -1205,6 +1265,9 @@ object GenUiNativeRenderer {
             Regex("(?im)^\\s*(accessing|fetching|retrieving|querying|searching)\\s+[^\\n]*(weather|flight|price|stock|trend|news)[^\\n]*$"),
             ""
         )
+        if (!preserveMarkdown) {
+            cleaned = cleaned.replace("**", "")
+        }
         cleaned = cleaned.replace(Regex("[ \\t]{2,}"), " ")
         cleaned = cleaned.replace(Regex(" *([,.;:])"), "$1")
         cleaned = cleaned.replace(Regex("\\n{3,}"), "\n\n")
@@ -1277,7 +1340,7 @@ object GenUiNativeRenderer {
             return true
         }
         val prev = line[start - 1]
-        if (prev == '•' || prev == '-') {
+        if (prev == '\u2022' || prev == '-') {
             return true
         }
         if (prev != ' ') {
@@ -1287,7 +1350,7 @@ object GenUiNativeRenderer {
         if (prevNonSpaceIndex < 0) {
             return true
         }
-        return line[prevNonSpaceIndex] in charArrayOf('.', '!', '?', '•', '-', ')')
+        return line[prevNonSpaceIndex] in charArrayOf('.', '!', '?', '\u2022', '-', ')')
     }
 
     @Composable
@@ -1519,10 +1582,17 @@ object GenUiNativeRenderer {
             return
         }
         val header = rows.first()
-        val body = rows.drop(1)
+        val body = rows.drop(1).filterNot { isPlaceholderTableStringRow(it) }
+        if (body.isEmpty()) {
+            return
+        }
 
         buildWeatherRows(header, body)?.let { weatherRows ->
             RenderWeatherRows(weatherRows)
+            return
+        }
+        buildFlightRows(header, body)?.let { flightRows ->
+            RenderFlightRows(flightRows)
             return
         }
 
@@ -1830,23 +1900,40 @@ object GenUiNativeRenderer {
 
     @Composable
     private fun RenderTableSpec(spec: TableSpec) {
-        val specHeader = spec.header?.map { it.text }
-        val specBody = spec.rows.map { row -> row.map { it.text } }
-        if (specHeader != null && specBody.isNotEmpty()) {
-            buildWeatherRows(specHeader, specBody)?.let { weatherRows ->
+        val filteredRows = spec.rows.filterNot { isPlaceholderTableCellRow(it) }
+        if (filteredRows.isEmpty()) {
+            return
+        }
+        val normalizedSpec = if (filteredRows.size == spec.rows.size) spec else spec.copy(rows = filteredRows)
+
+        val specHeader = normalizedSpec.header?.map { it.text }
+        val specBody = normalizedSpec.rows.map { row -> row.map { it.text } }
+        val inferredHeader = specBody.firstOrNull()
+        val semanticHeader = specHeader ?: inferredHeader
+        val semanticBody = when {
+            specHeader != null -> specBody
+            inferredHeader != null -> specBody.drop(1)
+            else -> emptyList()
+        }
+        if (semanticHeader != null && semanticBody.isNotEmpty()) {
+            buildWeatherRows(semanticHeader, semanticBody)?.let { weatherRows ->
                 RenderWeatherRows(weatherRows)
+                return
+            }
+            buildFlightRows(semanticHeader, semanticBody)?.let { flightRows ->
+                RenderFlightRows(flightRows)
                 return
             }
         }
 
-        val columnCount = listOfNotNull(spec.header?.size, spec.rows.maxOfOrNull { it.size })
+        val columnCount = listOfNotNull(normalizedSpec.header?.size, normalizedSpec.rows.maxOfOrNull { it.size })
             .maxOrNull()
             ?.coerceAtLeast(2)
             ?: return
         val hasExplicitWeights =
-            spec.header?.any { abs(it.weight - 1f) > 0.01f } == true ||
-                spec.rows.any { row -> row.any { abs(it.weight - 1f) > 0.01f } }
-        val columnWidths = tableColumnWidths(spec, columnCount, hasExplicitWeights)
+            normalizedSpec.header?.any { abs(it.weight - 1f) > 0.01f } == true ||
+                normalizedSpec.rows.any { row -> row.any { abs(it.weight - 1f) > 0.01f } }
+        val columnWidths = tableColumnWidths(normalizedSpec, columnCount, hasExplicitWeights)
         val dark = isSystemInDarkTheme()
         val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.24f else 0.18f)
 
@@ -1863,7 +1950,7 @@ object GenUiNativeRenderer {
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState())
             ) {
-                spec.header?.let { header ->
+                normalizedSpec.header?.let { header ->
                     RenderWeightedRow(
                         cells = header,
                         columnCount = columnCount,
@@ -1873,7 +1960,7 @@ object GenUiNativeRenderer {
                     )
                     HorizontalDivider(color = dividerColor)
                 }
-                spec.rows.forEachIndexed { index, row ->
+                normalizedSpec.rows.forEachIndexed { index, row ->
                     RenderWeightedRow(
                         cells = row,
                         columnCount = columnCount,
@@ -1881,7 +1968,7 @@ object GenUiNativeRenderer {
                         isHeader = false,
                         rowIndex = index
                     )
-                    if (index != spec.rows.lastIndex) {
+                    if (index != normalizedSpec.rows.lastIndex) {
                         HorizontalDivider(color = dividerColor)
                     }
                 }
@@ -1905,7 +1992,7 @@ object GenUiNativeRenderer {
         ) {
             for (column in 0 until columnCount) {
                 val cell = cells.getOrNull(column)
-                val displayText = cell?.text.orEmpty().trim()
+                val displayText = sanitizeTableCellDisplayValue(cell?.text.orEmpty())
                 val style = if (isHeader) {
                     MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
                 } else {
@@ -1951,7 +2038,7 @@ object GenUiNativeRenderer {
                 .background(tableRowBackground(isHeader = isHeader, rowIndex = rowIndex))
         ) {
             for (column in 0 until columnCount) {
-                val value = values.getOrNull(column).orEmpty().trim()
+                val value = sanitizeTableCellDisplayValue(values.getOrNull(column).orEmpty())
                 MarkdownText(
                     text = value,
                     style = if (isHeader) {
@@ -2197,6 +2284,383 @@ object GenUiNativeRenderer {
         }
     }
 
+    @Composable
+    private fun RenderFlightRows(rows: List<FlightRow>) {
+        if (rows.isEmpty()) {
+            return
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            rows.forEach { row ->
+                val airline = sanitizeDisplayText(row.airline)
+                val fare = sanitizeDisplayText(row.fare.orEmpty()).ifBlank { null }
+                val (fareValue, fareMeta) = splitFareDisplay(fare)
+                val depart = sanitizeDisplayText(row.depart.orEmpty()).ifBlank { null }
+                val arrive = sanitizeDisplayText(row.arrive.orEmpty()).ifBlank { null }
+                val originCode = sanitizeDisplayText(row.originCode.orEmpty())
+                    .ifBlank { extractAirportCode(depart.orEmpty()).orEmpty() }
+                    .ifBlank { null }
+                val destinationCode = sanitizeDisplayText(row.destinationCode.orEmpty())
+                    .ifBlank { extractAirportCode(arrive.orEmpty()).orEmpty() }
+                    .ifBlank { null }
+                val duration = sanitizeDisplayText(row.duration.orEmpty()).ifBlank { null }
+                val stopLabel = normalizeStopLabel(row.stops, row.status, depart, arrive)
+                val statusLabel = normalizeFlightStatus(row.status, stopLabel)
+                val topStatus = statusLabel?.takeIf { looksLikePunctualityStatus(it) }
+                val arrivalStatus = statusLabel?.takeUnless { looksLikePunctualityStatus(it) }
+                val centerMeta = stopLabel ?: arrivalStatus?.takeIf { it.length <= 26 }
+                val promoMeta = arrivalStatus?.takeIf { it.length > 26 }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                    colors = genUiCardColors(GenUiCardTone.Neutral),
+                    elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                AirlineBadge(airline = airline)
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text(
+                                        text = airline,
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                            topStatus?.let { statusValue ->
+                                Text(
+                                    text = statusValue,
+                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.End
+                                )
+                            }
+                        }
+
+                        if (depart != null || arrive != null || duration != null) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                FlightTimeCell(
+                                    title = depart,
+                                    subtitle = originCode,
+                                    align = TextAlign.Start,
+                                    modifier = Modifier.weight(1f),
+                                    emphasis = true
+                                )
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    duration?.let { durationValue ->
+                                        Text(
+                                            text = durationValue,
+                                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                    HorizontalDivider(
+                                        modifier = Modifier.width(72.dp),
+                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
+                                    )
+                                    centerMeta?.let { meta ->
+                                        Text(
+                                            text = meta,
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
+                                FlightTimeCell(
+                                    title = arrive,
+                                    subtitle = destinationCode,
+                                    align = TextAlign.Start,
+                                    modifier = Modifier.weight(1f),
+                                    emphasis = true
+                                )
+                                if (fareValue != null) {
+                                    Column(
+                                        modifier = Modifier.sizeIn(minWidth = 80.dp),
+                                        horizontalAlignment = Alignment.End,
+                                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        Text(
+                                            text = fareValue,
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            textAlign = TextAlign.End
+                                        )
+                                        fareMeta?.let { fareSuffix ->
+                                            Text(
+                                                text = fareSuffix,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                textAlign = TextAlign.End
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            promoMeta?.let { promo ->
+                                Text(
+                                    text = promo,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        } else {
+                            val meta = listOfNotNull(stopLabel, arrivalStatus, fareValue)
+                            if (meta.isNotEmpty()) {
+                                Text(
+                                    text = meta.joinToString(" | "),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun AirlineBadge(airline: String) {
+        val accent = airlineAccentColor(airline)
+        val code = airlineBadgeCode(airline)
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(accent.copy(alpha = 0.18f))
+                .border(
+                    width = GenUiTokens.BorderMd,
+                    color = accent.copy(alpha = 0.45f),
+                    shape = RoundedCornerShape(10.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.FlightTakeoff,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(15.dp)
+            )
+            if (code.isNotBlank()) {
+                Text(
+                    text = code,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = accent,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 1.dp)
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun FlightMetaChip(text: String) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                .border(
+                    width = GenUiTokens.BorderMd,
+                    color = genUiCardBorderColor(),
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill)
+                )
+                .padding(horizontal = 8.dp, vertical = 3.dp)
+        )
+    }
+
+    @Composable
+    private fun FlightTimeCell(
+        title: String?,
+        subtitle: String?,
+        align: TextAlign,
+        modifier: Modifier = Modifier,
+        emphasis: Boolean = false
+    ) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalAlignment = when (align) {
+                TextAlign.End -> Alignment.End
+                TextAlign.Center -> Alignment.CenterHorizontally
+                else -> Alignment.Start
+            }
+        ) {
+            if (!title.isNullOrBlank()) {
+                Text(
+                    text = title,
+                    style = if (emphasis) {
+                        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    } else {
+                        MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold)
+                    },
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = align
+                )
+            }
+            if (!subtitle.isNullOrBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = align
+                )
+            }
+        }
+    }
+
+    private fun splitFareDisplay(fare: String?): Pair<String?, String?> {
+        val raw = sanitizeDisplayText(fare.orEmpty()).trim()
+        if (raw.isBlank()) {
+            return null to null
+        }
+        val compact = raw.replace(Regex("""\s+"""), " ")
+        val lower = compact.lowercase(Locale.US)
+        val amount = Regex("""([\u20B9$\u20AC\u00A3]\s?\d[\d,]*(?:\.\d+)?)""").find(compact)?.groupValues?.getOrNull(1)
+        val normalizedAmount = amount?.replace(Regex("""\s+"""), "")
+        val suffix = when {
+            lower.contains("/adult") || lower.contains("per adult") -> "/adult"
+            lower.contains("/person") || lower.contains("per person") -> "/person"
+            else -> null
+        }
+        if (!normalizedAmount.isNullOrBlank()) {
+            return normalizedAmount to suffix
+        }
+        return when {
+            lower.contains("/adult") -> compact.replace(Regex("""(?i)\s*/\s*adult"""), "").trim() to "/adult"
+            lower.contains("per adult") -> compact.replace(Regex("""(?i)\s*per\s*adult"""), "").trim() to "/adult"
+            lower.contains("/person") -> compact.replace(Regex("""(?i)\s*/\s*person"""), "").trim() to "/person"
+            lower.contains("per person") -> compact.replace(Regex("""(?i)\s*per\s*person"""), "").trim() to "/person"
+            else -> compact to null
+        }
+    }
+
+    private fun normalizeStopLabel(
+        rawStops: String?,
+        rawStatus: String?,
+        depart: String?,
+        arrive: String?
+    ): String? {
+        canonicalizeStopLabel(rawStops)?.let { return it }
+        canonicalizeStopLabel(rawStatus)?.let { return it }
+        if (!depart.isNullOrBlank() && !arrive.isNullOrBlank()) {
+            return "Non-stop"
+        }
+        return null
+    }
+
+    private fun canonicalizeStopLabel(value: String?): String? {
+        val text = sanitizeDisplayText(value.orEmpty()).trim()
+        if (text.isBlank()) {
+            return null
+        }
+        val normalized = normalizeMatchText(text)
+        return when {
+            normalized.contains("non stop") || normalized.contains("nonstop") || normalized.contains("direct") ||
+                normalized == "0 stop" || normalized == "0 stops" -> "Non-stop"
+
+            Regex("""\b1\b.*\bstop""").containsMatchIn(normalized) || normalized.contains("one stop") -> "1 stop"
+            Regex("""\b2\b.*\bstop""").containsMatchIn(normalized) || normalized.contains("two stop") -> "2 stops"
+            normalized.contains("stop") || normalized.contains("layover") || normalized.contains("connection") -> text
+            else -> null
+        }
+    }
+
+    private fun normalizeFlightStatus(rawStatus: String?, stopLabel: String?): String? {
+        val status = sanitizeDisplayText(rawStatus.orEmpty()).trim()
+        if (status.isBlank()) {
+            return null
+        }
+        val normalized = normalizeMatchText(status)
+        if (normalized in setOf("direct", "non stop", "nonstop")) {
+            return null
+        }
+        if (stopLabel != null && canonicalizeStopLabel(status) != null) {
+            return null
+        }
+        return status
+    }
+
+    private fun looksLikePunctualityStatus(text: String): Boolean {
+        val normalized = normalizeMatchText(text)
+        return normalized.contains("on time") ||
+            normalized.contains("punctual") ||
+            Regex("""\b\d{1,3}\s*%""").containsMatchIn(text)
+    }
+
+    private fun airlineBadgeCode(airline: String): String {
+        val normalized = normalizeMatchText(airline)
+        val explicit = when {
+            normalized.contains("indigo") -> "6E"
+            normalized.contains("air india express") -> "IX"
+            normalized == "air india" || normalized.startsWith("air india ") -> "AI"
+            normalized.contains("akasa") -> "QP"
+            normalized.contains("vistara") -> "UK"
+            normalized.contains("spicejet") -> "SG"
+            normalized.contains("emirates") -> "EK"
+            normalized.contains("british airways") -> "BA"
+            normalized.contains("qatar") -> "QR"
+            else -> ""
+        }
+        if (explicit.isNotBlank()) {
+            return explicit
+        }
+
+        val initials = airline
+            .split(Regex("""[^A-Za-z0-9]+"""))
+            .filter { it.isNotBlank() }
+            .take(2)
+            .map { token ->
+                token.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString().orEmpty()
+            }
+            .joinToString("")
+        return initials.take(2)
+    }
+
+    @Composable
+    private fun airlineAccentColor(airline: String): Color {
+        val normalized = normalizeMatchText(airline)
+        return when {
+            normalized.contains("indigo") -> Color(0xFF3F51B5)
+            normalized.contains("akasa") -> Color(0xFF6D1B7B)
+            normalized.contains("air india express") -> Color(0xFFE53935)
+            normalized == "air india" || normalized.startsWith("air india ") -> Color(0xFFD32F2F)
+            normalized.contains("vistara") -> Color(0xFF6A1B9A)
+            normalized.contains("spicejet") -> Color(0xFFD84315)
+            normalized.contains("emirates") -> Color(0xFFB71C1C)
+            else -> MaterialTheme.colorScheme.primary
+        }
+    }
+
     private fun buildWeatherRows(
         header: List<String>,
         body: List<List<String>>
@@ -2206,26 +2670,57 @@ object GenUiNativeRenderer {
         }
         val columns = detectWeatherColumns(header) ?: return null
         val rows = body.mapNotNull { row ->
-            val period = readCell(row, columns.period).orEmpty()
+            val period = normalizeWeatherCell(readCell(row, columns.period)).orEmpty()
             if (period.isBlank()) {
                 return@mapNotNull null
             }
 
             val metrics = buildList {
-                readCell(row, columns.precip)?.let { add("Precip" to it) }
-                readCell(row, columns.wind)?.let { add("Wind" to it) }
-                readCell(row, columns.humidity)?.let { add("Humidity" to it) }
-                readCell(row, columns.uv)?.let { add("UV" to it) }
+                normalizeWeatherCell(readCell(row, columns.precip))?.let { add("Precip" to it) }
+                normalizeWeatherCell(readCell(row, columns.wind))?.let { add("Wind" to it) }
+                normalizeWeatherCell(readCell(row, columns.humidity))?.let { add("Humidity" to it) }
+                normalizeWeatherCell(readCell(row, columns.uv))?.let { add("UV" to it) }
             }
 
             WeatherRow(
                 period = period,
-                date = readCell(row, columns.date),
-                condition = readCell(row, columns.condition),
-                high = readCell(row, columns.high),
-                low = readCell(row, columns.low),
-                temp = readCell(row, columns.temp),
+                date = normalizeWeatherCell(readCell(row, columns.date)),
+                condition = normalizeWeatherCell(readCell(row, columns.condition)),
+                high = normalizeWeatherCell(readCell(row, columns.high)),
+                low = normalizeWeatherCell(readCell(row, columns.low)),
+                temp = normalizeWeatherCell(readCell(row, columns.temp)),
                 metrics = metrics
+            )
+        }
+        return rows.takeIf { it.isNotEmpty() }
+    }
+
+    private fun buildFlightRows(
+        header: List<String>,
+        body: List<List<String>>
+    ): List<FlightRow>? {
+        if (header.isEmpty() || body.isEmpty()) {
+            return null
+        }
+        val detectedColumns = detectFlightColumns(header) ?: return null
+        val columns = resolveFlightColumns(detectedColumns, body)
+        val originCode = columns.depart?.let { extractAirportCode(header.getOrNull(it).orEmpty()) }
+        val destinationCode = columns.arrive?.let { extractAirportCode(header.getOrNull(it).orEmpty()) }
+        val rows = body.mapNotNull { row ->
+            val airline = readCell(row, columns.airline).orEmpty()
+            if (airline.isBlank()) {
+                return@mapNotNull null
+            }
+            FlightRow(
+                airline = airline,
+                depart = readCell(row, columns.depart),
+                originCode = originCode,
+                arrive = readCell(row, columns.arrive),
+                destinationCode = destinationCode,
+                duration = readCell(row, columns.duration),
+                stops = readCell(row, columns.stops),
+                fare = readCell(row, columns.fare),
+                status = readCell(row, columns.status)
             )
         }
         return rows.takeIf { it.isNotEmpty() }
@@ -2284,6 +2779,162 @@ object GenUiNativeRenderer {
         )
     }
 
+    private fun detectFlightColumns(header: List<String>): FlightTableColumns? {
+        val normalized = header.map { normalizeWeatherHeader(it) }
+        val flightSignal = normalized.count { token ->
+            token.contains("airline") ||
+                token.contains("carrier") ||
+                token.contains("flight") ||
+                token.contains("depart") ||
+                token.contains("arrival") ||
+                token.contains("arrive") ||
+                token.contains("duration") ||
+                token.contains("fare") ||
+                token.contains("price") ||
+                token.contains("cost") ||
+                token.contains("stop") ||
+                token.contains("layover") ||
+                token.contains("status") ||
+                token.contains("time")
+        }
+        if (flightSignal < 2) {
+            return null
+        }
+
+        val airline = findHeaderIndex(normalized, listOf("airline", "carrier", "operator", "flight", "route"))
+            ?: return null
+        val depart = findHeaderIndex(normalized, listOf("depart", "departure", "takeoff", "from", "origin"), exclude = setOf(airline))
+        val arrive = findHeaderIndex(normalized, listOf("arrive", "arrival", "landing", "to", "destination"), exclude = setOf(airline) + listOfNotNull(depart))
+        val duration = findHeaderIndex(normalized, listOf("duration", "travel time", "elapsed"), exclude = setOf(airline) + listOfNotNull(depart, arrive))
+        val stops = findHeaderIndex(normalized, listOf("stop", "stops", "layover", "connection", "type"), exclude = setOf(airline) + listOfNotNull(depart, arrive, duration))
+        val fare = findHeaderIndex(normalized, listOf("fare", "price", "cost", "amount", "rate"), exclude = setOf(airline) + listOfNotNull(depart, arrive, duration, stops))
+        val status = findHeaderIndex(normalized, listOf("status", "on time", "punctual", "delay"), exclude = setOf(airline) + listOfNotNull(depart, arrive, duration, stops, fare))
+
+        val contentSignals = listOf(depart, arrive, duration, stops, fare, status).count { it != null }
+        if (contentSignals < 2) {
+            return null
+        }
+
+        return FlightTableColumns(
+            airline = airline,
+            depart = depart,
+            arrive = arrive,
+            duration = duration,
+            stops = stops,
+            fare = fare,
+            status = status
+        )
+    }
+
+    private fun resolveFlightColumns(
+        detected: FlightTableColumns,
+        body: List<List<String>>
+    ): FlightTableColumns {
+        if (body.isEmpty()) {
+            return detected
+        }
+        val columnCount = body.maxOfOrNull { it.size } ?: return detected
+        val sampleRows = body.take(5)
+        val indices = (0 until columnCount).toList()
+
+        fun score(index: Int?, predicate: (String) -> Boolean): Float {
+            if (index == null || index !in indices) return 0f
+            val values = sampleRows.mapNotNull { row -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() } }
+            if (values.isEmpty()) return 0f
+            return values.count(predicate).toFloat() / values.size.toFloat()
+        }
+
+        fun bestIndex(
+            candidates: List<Int>,
+            predicate: (String) -> Boolean,
+            exclude: Set<Int> = emptySet()
+        ): Int? {
+            return candidates
+                .filterNot { it in exclude }
+                .maxByOrNull { idx -> score(idx, predicate) }
+                ?.takeIf { score(it, predicate) >= 0.5f }
+        }
+
+        val timeScore: (String) -> Boolean = { looksLikeTimeValue(it) }
+        val durationScore: (String) -> Boolean = { looksLikeDurationValue(it) }
+        val fareScore: (String) -> Boolean = { looksLikeFareValue(it) }
+        val stopScore: (String) -> Boolean = { canonicalizeStopLabel(it) != null }
+        val airlineScore: (String) -> Boolean = { looksLikeAirlineValue(it) }
+
+        var airline = detected.airline
+        var depart = detected.depart
+        var arrive = detected.arrive
+        var duration = detected.duration
+        var stops = detected.stops
+        var fare = detected.fare
+
+        // If airline values look like times or fares, remap to a text-like column.
+        val airlineLooksWrong = score(airline, timeScore) >= 0.5f || score(airline, fareScore) >= 0.5f
+        if (airlineLooksWrong || score(airline, airlineScore) < 0.4f) {
+            bestIndex(indices, airlineScore, exclude = setOfNotNull(depart, arrive, duration, stops, fare))
+                ?.let { airline = it }
+        }
+
+        if (depart == null || score(depart, timeScore) < 0.5f) {
+            depart = bestIndex(indices, timeScore, exclude = setOf(airline))
+        }
+
+        if (arrive == null || score(arrive, timeScore) < 0.5f || arrive == depart) {
+            arrive = bestIndex(indices, timeScore, exclude = setOfNotNull(airline, depart))
+        }
+
+        if (duration == null || score(duration, durationScore) < 0.4f) {
+            duration = bestIndex(indices, durationScore, exclude = setOfNotNull(airline, depart, arrive))
+        }
+
+        if (fare == null || score(fare, fareScore) < 0.4f) {
+            fare = bestIndex(indices, fareScore, exclude = setOfNotNull(airline, depart, arrive, duration, stops))
+        }
+
+        if (stops == null || score(stops, stopScore) < 0.4f) {
+            stops = bestIndex(indices, stopScore, exclude = setOfNotNull(airline, depart, arrive, duration, fare))
+        }
+
+        return detected.copy(
+            airline = airline,
+            depart = depart,
+            arrive = arrive,
+            duration = duration,
+            stops = stops,
+            fare = fare
+        )
+    }
+
+    private fun looksLikeTimeValue(value: String): Boolean {
+        val normalized = value.trim().uppercase(Locale.US)
+        return Regex("""^\d{1,2}:\d{2}(\s?(AM|PM))?$""").matches(normalized)
+    }
+
+    private fun looksLikeDurationValue(value: String): Boolean {
+        val normalized = value.trim().lowercase(Locale.US)
+        return Regex("""\d+\s*h""").containsMatchIn(normalized) || Regex("""\d+\s*m""").containsMatchIn(normalized)
+    }
+
+    private fun looksLikeFareValue(value: String): Boolean {
+        val normalized = value.trim()
+        return normalized.contains("â‚¹") ||
+            normalized.contains("rs", ignoreCase = true) ||
+            Regex("""\bfrom\s*\d""", RegexOption.IGNORE_CASE).containsMatchIn(normalized) ||
+            Regex("""\d[\d,]+""").containsMatchIn(normalized)
+    }
+
+    private fun looksLikeAirlineValue(value: String): Boolean {
+        val normalized = value.trim()
+        if (normalized.length < 3) return false
+        if (looksLikeTimeValue(normalized) || looksLikeDurationValue(normalized) || looksLikeFareValue(normalized)) {
+            return false
+        }
+        if (Regex("""^[A-Z]{3}$""").matches(normalized.uppercase(Locale.US))) {
+            return false
+        }
+        return normalized.any { it.isLetter() } && !normalized.equals("non-stop", ignoreCase = true)
+    }
+
     private fun findHeaderIndex(
         normalizedHeader: List<String>,
         keywords: List<String>,
@@ -2308,14 +2959,25 @@ object GenUiNativeRenderer {
         return row[index].trim().takeIf { it.isNotEmpty() }
     }
 
+    private fun extractAirportCode(headerText: String): String? {
+        if (headerText.isBlank()) {
+            return null
+        }
+        val match = Regex("""\(([A-Za-z]{3})\)""").find(headerText)
+        return match?.groupValues?.getOrNull(1)?.uppercase(Locale.US)
+    }
+
     private fun weatherTemperatureText(row: WeatherRow): String {
-        if (!row.temp.isNullOrBlank()) {
-            return row.temp
+        val temp = normalizeWeatherCell(row.temp)
+        if (!temp.isNullOrBlank()) {
+            return temp
         }
-        if (!row.high.isNullOrBlank() && !row.low.isNullOrBlank()) {
-            return "${row.high} / ${row.low}"
+        val high = normalizeWeatherCell(row.high)
+        val low = normalizeWeatherCell(row.low)
+        if (!high.isNullOrBlank() && !low.isNullOrBlank()) {
+            return "$high / $low"
         }
-        return row.high ?: row.low ?: ""
+        return high ?: low ?: ""
     }
 
     private fun orderWeatherRows(rows: List<WeatherRow>): List<WeatherRow> {
@@ -2349,19 +3011,27 @@ object GenUiNativeRenderer {
         return value.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), " ").trim()
     }
 
+    private fun normalizeWeatherCell(value: String?): String? {
+        val normalized = value?.trim().orEmpty()
+        if (isPlaceholderTableCellValue(normalized)) {
+            return null
+        }
+        return normalized
+    }
+
     private fun weatherConditionEmoji(condition: String?): String {
         val normalized = normalizeWeatherText(condition.orEmpty())
         return when {
-            normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning") -> "⛈️"
-            normalized.contains("snow") || normalized.contains("sleet") || normalized.contains("blizzard") -> "❄️"
-            normalized.contains("rain") || normalized.contains("shower") || normalized.contains("drizzle") -> "🌧️"
-            normalized.contains("partly") && normalized.contains("cloud") -> "⛅"
-            normalized.contains("cloud") || normalized.contains("overcast") -> "☁️"
-            normalized.contains("fog") || normalized.contains("mist") || normalized.contains("haze") -> "🌫️"
-            normalized.contains("wind") || normalized.contains("breeze") -> "💨"
-            normalized.contains("night") && normalized.contains("clear") -> "🌙"
-            normalized.contains("sun") || normalized.contains("clear") -> "☀️"
-            else -> "🌤️"
+            normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning") -> "\u26C8\uFE0F"
+            normalized.contains("snow") || normalized.contains("sleet") || normalized.contains("blizzard") -> "\u2744\uFE0F"
+            normalized.contains("rain") || normalized.contains("shower") || normalized.contains("drizzle") -> "\uD83C\uDF27\uFE0F"
+            normalized.contains("partly") && normalized.contains("cloud") -> "\u26C5"
+            normalized.contains("cloud") || normalized.contains("overcast") -> "\u2601\uFE0F"
+            normalized.contains("fog") || normalized.contains("mist") || normalized.contains("haze") -> "\uD83C\uDF2B\uFE0F"
+            normalized.contains("wind") || normalized.contains("breeze") -> "\uD83D\uDCA8"
+            normalized.contains("night") && normalized.contains("clear") -> "\uD83C\uDF19"
+            normalized.contains("sun") || normalized.contains("clear") -> "\u2600\uFE0F"
+            else -> "\uD83C\uDF24\uFE0F"
         }
     }
 
@@ -2410,17 +3080,35 @@ object GenUiNativeRenderer {
     }
 
     private fun maybeExtractTable(children: List<String>, index: Map<String, JsonObject>): TableSpec? {
-        if (children.size < 2) {
+        val extracted = maybeExtractTableRun(children, 0, index) ?: return null
+        val (tableSpec, consumed) = extracted
+        if (consumed != children.size) {
+            return null
+        }
+        return tableSpec
+    }
+
+    private fun maybeExtractTableRun(
+        children: List<String>,
+        startIndex: Int,
+        index: Map<String, JsonObject>
+    ): Pair<TableSpec, Int>? {
+        if (startIndex !in children.indices) {
             return null
         }
 
         val rowComponents = mutableListOf<JsonObject>()
-        for (childId in children) {
-            val child = index[childId] ?: return null
+        var cursor = startIndex
+        while (cursor < children.size) {
+            val child = index[children[cursor]] ?: return null
             if (child.getString("component") != "Row") {
-                return null
+                break
             }
             rowComponents += child
+            cursor++
+        }
+        if (rowComponents.size < 2) {
+            return null
         }
 
         val rowCells = rowComponents.map { readChildren(it) }
@@ -2456,16 +3144,102 @@ object GenUiNativeRenderer {
         val headerLike = textRows.first().all { it.variant in headerLikeVariants } ||
             rowCells.first().all { it.startsWith("th-", ignoreCase = true) || it.startsWith("th_", ignoreCase = true) }
         val weatherHeaderLike = detectWeatherColumns(textRows.first().map { it.text }) != null
-        if (!hasWeight && !headerLike && !weatherHeaderLike) {
+        val flightHeaderLike = detectFlightColumns(textRows.first().map { it.text }) != null
+        if (!hasWeight && !headerLike && !weatherHeaderLike && !flightHeaderLike) {
             return null
         }
 
-        val header = if (headerLike || weatherHeaderLike) textRows.first() else null
+        val header = if (headerLike || weatherHeaderLike || flightHeaderLike) textRows.first() else null
         val body = if (header != null) textRows.drop(1) else textRows
-        if (body.isEmpty()) {
+        val filteredBody = body.filterNot { isPlaceholderTableCellRow(it) }
+        if (filteredBody.isEmpty()) {
             return null
         }
-        return TableSpec(header = header, rows = body)
+        return TableSpec(header = header, rows = filteredBody) to (cursor - startIndex)
+    }
+
+    private fun maybeExtractCardRowTable(children: List<String>, index: Map<String, JsonObject>): TableSpec? {
+        if (children.size < 2) {
+            return null
+        }
+
+        val headerRowId = children.first()
+        val headerCells = extractTableCellsFromRow(headerRowId, index) ?: return null
+        if (headerCells.size < 2) {
+            return null
+        }
+
+        val body = mutableListOf<List<TableCell>>()
+        for (childId in children.drop(1)) {
+            val child = index[childId] ?: return null
+            val rowCells = when (child.getString("component")) {
+                "Row" -> extractTableCellsFromRow(childId, index)
+                "Card" -> {
+                    val directChild = child.getString("child")
+                    when {
+                        !directChild.isNullOrBlank() -> extractTableCellsFromRow(directChild, index)
+                        else -> {
+                            val nested = readChildren(child)
+                            if (nested.size == 1) extractTableCellsFromRow(nested.first(), index) else null
+                        }
+                    }
+                }
+
+                else -> null
+            } ?: return null
+
+            if (rowCells.size != headerCells.size) {
+                return null
+            }
+            body += rowCells
+        }
+
+        val filteredBody = body.filterNot { isPlaceholderTableCellRow(it) }
+        if (filteredBody.isEmpty()) {
+            return null
+        }
+
+        val headerText = headerCells.map { it.text }
+        val weatherHeaderLike = detectWeatherColumns(headerText) != null
+        val flightHeaderLike = detectFlightColumns(headerText) != null
+        if (!weatherHeaderLike && !flightHeaderLike) {
+            return null
+        }
+
+        return TableSpec(
+            header = headerCells,
+            rows = filteredBody
+        )
+    }
+
+    private fun extractTableCellsFromRow(
+        rowId: String,
+        index: Map<String, JsonObject>
+    ): List<TableCell>? {
+        val row = index[rowId] ?: return null
+        if (row.getString("component") != "Row") {
+            return null
+        }
+
+        val cellIds = readChildren(row)
+        if (cellIds.isEmpty()) {
+            return null
+        }
+
+        val cells = mutableListOf<TableCell>()
+        cellIds.forEach { cellId ->
+            val cell = index[cellId] ?: return null
+            if (cell.getString("component") != "Text") {
+                return null
+            }
+
+            cells += TableCell(
+                text = readDynamicString(cell.get("text")),
+                variant = (cell.getString("variant") ?: "body").lowercase(Locale.US),
+                weight = (cell.getAsNumberOrNull("weight") ?: 1.0).toFloat().coerceAtLeast(0.6f)
+            )
+        }
+        return cells
     }
 
     private fun maybeExtractTextList(children: List<String>, index: Map<String, JsonObject>): List<String>? {
@@ -2594,11 +3368,16 @@ object GenUiNativeRenderer {
                 while (cursor < lines.size) {
                     val l = lines[cursor].trim()
                     if (!l.startsWith("- ")) break
-                    items += l.removePrefix("- ").trim()
+                    val item = l.removePrefix("- ").trim()
+                    if (!isPlaceholderListEntry(item)) {
+                        items += item
+                    }
                     cursor++
                 }
-                blocks += TextBlock.Bullets(items)
-                renderedAny = true
+                if (items.isNotEmpty()) {
+                    blocks += TextBlock.Bullets(items)
+                    renderedAny = true
+                }
                 index = cursor
                 continue
             }
@@ -3119,10 +3898,13 @@ object GenUiNativeRenderer {
             rows += splitTableCells(candidate)
             cursor++
         }
-        if (rows.size < 2) {
+        val filteredRows = rows.filterIndexed { index, row ->
+            index == 0 || !isPlaceholderTableStringRow(row)
+        }
+        if (filteredRows.size < 2) {
             return null
         }
-        return rows to cursor
+        return filteredRows to cursor
     }
 
     private fun parseOptionLine(line: String): Pair<String, String>? {
@@ -3158,6 +3940,45 @@ object GenUiNativeRenderer {
     private fun splitTableCells(line: String): List<String> =
         line.split('|').map { it.trim() }.filter { it.isNotEmpty() }
 
+    private fun isPlaceholderTableStringRow(row: List<String>): Boolean {
+        if (row.isEmpty()) return true
+        return row.all(::isPlaceholderTableCellValue)
+    }
+
+    private fun isPlaceholderTableCellRow(row: List<TableCell>): Boolean =
+        isPlaceholderTableStringRow(row.map { it.text })
+
+    private fun sanitizeTableCellDisplayValue(value: String): String {
+        val normalized = value.trim()
+        return if (isPlaceholderTableCellValue(normalized)) "" else normalized
+    }
+
+    private fun isPlaceholderTableCellValue(value: String): Boolean {
+        val normalized = value.trim()
+        if (normalized.isEmpty()) {
+            return true
+        }
+        val compact = normalized.replace(Regex("""\s+"""), "")
+        if (TABLE_PLACEHOLDER_CELL_REGEX.matches(compact)) {
+            return true
+        }
+        return when (normalized.lowercase(Locale.US)) {
+            "na", "n/a", "null", "none", "not available" -> true
+            else -> false
+        }
+    }
+
+    private fun isPlaceholderListEntry(value: String): Boolean {
+        val normalized = value
+            .replace(Regex("""^[\u2022â€¢\-]\s*"""), "")
+            .trim()
+        if (isPlaceholderTableCellValue(normalized)) {
+            return true
+        }
+        val leadingLabel = parseLeadingLabelValue(normalized) ?: return false
+        return isPlaceholderTableCellValue(leadingLabel.value)
+    }
+
     private fun looksLikeSectionHeading(line: String): Boolean {
         if (line.length > 80) {
             return false
@@ -3178,6 +3999,35 @@ object GenUiNativeRenderer {
             return false
         }
         return line.any { it.isLetter() }
+    }
+
+    private fun isBoilerplateContextHeading(text: String): Boolean {
+        val normalized = normalizeMatchText(text.removeSuffix(":"))
+        if (normalized.isBlank()) {
+            return false
+        }
+        if (normalized in setOf("information context", "context", "background context", "background information")) {
+            return true
+        }
+        if (normalized.contains("information context")) {
+            return true
+        }
+        return normalized.contains("assumption") ||
+            normalized.contains("travel planning") ||
+            normalized.startsWith("a note") ||
+            normalized.contains("background")
+    }
+
+    private fun isBoilerplateContextParagraph(text: String): Boolean {
+        val normalized = normalizeMatchText(text)
+        if (text.length < 120) {
+            return false
+        }
+        return normalized.contains("subject to change") ||
+            normalized.contains("following table") ||
+            normalized.contains("for informational purposes") ||
+            normalized.contains("comparison of") ||
+            normalized.contains("the following tables")
     }
 
     private fun isStructuredBoundary(line: String): Boolean {
@@ -3635,4 +4485,5 @@ object GenUiNativeRenderer {
 
     private fun JsonObject.hasString(key: String): Boolean = getString(key) != null
 }
+
 

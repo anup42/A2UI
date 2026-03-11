@@ -38,6 +38,7 @@ Required response shape (headings are mandatory, but must be meaningful and topi
 
 Heading quality rules (strict):
 - Never use generic section titles: "Summary", "Assumptions", "Structured Details".
+- Never use generic context headers such as "Information Context" or "Background Information".
 - Headings must reflect the query domain and content.
 - For weather/climate comparisons, use headings like:
   - "January Climate Snapshot"
@@ -48,6 +49,11 @@ Heading quality rules (strict):
 Structured Details rules (critical):
 - If the query compares options, schedules, metrics, statuses, or calculations with 3+ items:
   include exactly one compact pipe table with a header and 3-8 data rows.
+- For flight comparison responses, the table must include explicit columns for:
+  Airline | Departure | Arrival | Duration | Stops | Fare.
+  Use values like "Non-stop", "1 stop", "2 stops" for Stops.
+  Also include a "Quick Actions" section with at least 2 action lines in this exact format:
+  Action: [Button: <label>] <https://...>
 - If table is not natural, provide 3-6 option cards in this strict pattern:
   Option 1: <title> | <one-line summary> | <key attribute>
   Action: [Button: <label>] <url>
@@ -81,6 +87,7 @@ Quality constraints:
 - Keep 4-7 headings maximum.
 - Prefer concise, information-dense sections over long narrative paragraphs.
 - Most sections should use 1-3 short sentences or 1-4 short rows, not dense multi-sentence prose blocks.
+- If context notes are needed, keep them to one short sentence; do not add long introductory preambles.
 - Avoid large key:value dumps; if many fields exist, summarize them in a table.
 - If a URL is provided, it must be a real-world, publicly reachable URL on a real domain.
 - Never invent fake domains or placeholder hosts (for instance: static.icons, icon.url, localhost).

@@ -13,6 +13,8 @@ import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.net.URL
 import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.time.Instant
 import java.util.Locale
 import kotlin.math.min
 
@@ -35,6 +37,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3Prompt: String,
         val stage3SystemPrompt: String?,
         val stage3Json: String,
+        val stageDurationsMs: Map<Stage, Long>,
         val usedFallback: Boolean,
         val warnings: List<String>,
         val renderResult: GenUiNativeRenderer.RenderResult
@@ -46,7 +49,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             val stage: Stage,
             val message: String,
             val stage2Response: String? = null,
-            val stage3Json: String? = null
+            val stage3Json: String? = null,
+            val stageDurationsMs: Map<Stage, Long> = emptyMap()
         ) : Outcome
     }
 
@@ -54,6 +58,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         queryText: String,
         onStageUpdate: (StageUpdate) -> Unit
     ): Outcome = withContext(Dispatchers.IO) {
+        val stageDurationsMs = linkedMapOf<Stage, Long>()
+        fun markDuration(stage: Stage, startMs: Long) {
+            if (startMs <= 0L) return
+            stageDurationsMs[stage] = (System.currentTimeMillis() - startMs).coerceAtLeast(0L)
+        }
+
         val normalizedQuery = queryText.trim()
         if (normalizedQuery.isBlank()) {
             return@withContext Outcome.Failure(
@@ -61,6 +71,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 message = "Query is empty."
             )
         }
+
+        val selectedModel = GeminiModelSettings.getSelectedModel(appContext)
 
         val apiKey = BuildConfig.GEMINI_API_KEY.trim()
         if (apiKey.isBlank()) {
@@ -86,29 +98,40 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
 
         postUpdate(onStageUpdate, Stage.STAGE2, "Fetching response")
+        val stage2StartedAtMs = System.currentTimeMillis()
         val stage2Call = generateWithRetry(
             apiKey = apiKey,
-            model = MODEL_GEMINI_2_5_PRO,
+            model = selectedModel,
             prompt = stage2Prompt,
             systemPrompt = null,
             temperature = 0.3,
             maxOutputTokens = 4096,
             jsonMode = false,
-            enableGoogleSearch = true
+            enableGoogleSearch = true,
+            structuredOutput = false
         )
         if (stage2Call.error != null) {
+            markDuration(Stage.STAGE2, stage2StartedAtMs)
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
-                message = stage2Call.error
+                message = stage2Call.error,
+                stageDurationsMs = stageDurationsMs.toMap()
             )
         }
-        val stage2Response = stage2Call.text.trim()
-        if (stage2Response.isBlank()) {
+        val stage2ResponseRaw = stage2Call.text.trim()
+        if (stage2ResponseRaw.isBlank()) {
+            markDuration(Stage.STAGE2, stage2StartedAtMs)
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
-                message = "Stage 2 returned empty output."
+                message = "Stage 2 returned empty output.",
+                stageDurationsMs = stageDurationsMs.toMap()
             )
         }
+        val stage2Response = ensureFlightQuickActions(
+            responseText = stage2ResponseRaw,
+            queryText = normalizedQuery
+        )
+        markDuration(Stage.STAGE2, stage2StartedAtMs)
 
         val genUiTemplate = runCatching { loadPromptAsset(STAGE3_PROMPT_ASSET) }
             .getOrElse {
@@ -125,28 +148,45 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = stage2Response,
             assets = emptyList()
         )
+        val warnings = mutableListOf<String>()
+        warnings += "Using Gemini model: $selectedModel"
+        val stage3Cache = ensureStage3InstructionCache(
+            apiKey = apiKey,
+            model = selectedModel,
+            systemPrompt = promptContext.systemPrompt
+        )
+        if (stage3Cache.created) {
+            warnings += "Stage 3 instruction cache created."
+        }
+        stage3Cache.error?.let {
+            warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
+        }
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
+        val stage3StartedAtMs = System.currentTimeMillis()
         val stage3Call = generateWithRetry(
             apiKey = apiKey,
-            model = MODEL_GEMINI_2_5_PRO,
+            model = selectedModel,
             prompt = stage3Prompt,
-            systemPrompt = promptContext.systemPrompt,
+            systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
             temperature = 0.2,
             maxOutputTokens = 8192,
             jsonMode = true,
-            enableGoogleSearch = false
+            enableGoogleSearch = false,
+            cachedContentName = stage3Cache.name,
+            structuredOutput = true
         )
 
         if (stage3Call.error != null) {
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
                 message = stage3Call.error,
-                stage2Response = stage2Response
+                stage2Response = stage2Response,
+                stageDurationsMs = stageDurationsMs.toMap()
             )
         }
 
-        val warnings = mutableListOf<String>()
         var stage3JsonElement = extractJsonElement(stage3Call.text)
         var usedFallback = false
 
@@ -154,13 +194,15 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Stage 3 JSON parse failed; running repair pass."
             val repairCall = generateWithRetry(
                 apiKey = apiKey,
-                model = MODEL_GEMINI_2_5_PRO,
+                model = selectedModel,
                 prompt = buildRepairPrompt(stage3Call.text),
-                systemPrompt = promptContext.systemPrompt,
+                systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
                 temperature = 0.2,
                 maxOutputTokens = 8192,
                 jsonMode = true,
-                enableGoogleSearch = false
+                enableGoogleSearch = false,
+                cachedContentName = stage3Cache.name,
+                structuredOutput = true
             )
             if (repairCall.error == null) {
                 stage3JsonElement = extractJsonElement(repairCall.text)
@@ -180,8 +222,15 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = gson.toJson(buildFallbackGenUi(stage2Response))
             usedFallback = true
         }
+        if (responseContainsActionButtons(stage2Response) && !genUiPreservesActionButtons(stage3Json) && !usedFallback) {
+            warnings += "Stage 3 dropped quick action URLs; using text-preserving fallback UI."
+            stage3Json = gson.toJson(buildFallbackGenUi(stage2Response))
+            usedFallback = true
+        }
+        markDuration(Stage.STAGE3, stage3StartedAtMs)
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
+        val stage4StartedAtMs = System.currentTimeMillis()
         var renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
 
         if (renderResult.errorMessage != null && !usedFallback) {
@@ -193,13 +242,16 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         if (renderResult.errorMessage != null) {
+            markDuration(Stage.STAGE4, stage4StartedAtMs)
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE4,
                 message = renderResult.errorMessage,
                 stage2Response = stage2Response,
-                stage3Json = stage3Json
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap()
             )
         }
+        markDuration(Stage.STAGE4, stage4StartedAtMs)
 
         return@withContext Outcome.Success(
             result = PipelineResult(
@@ -209,6 +261,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3Prompt = stage3Prompt,
                 stage3SystemPrompt = promptContext.systemPrompt,
                 stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
                 usedFallback = usedFallback,
                 warnings = warnings,
                 renderResult = renderResult
@@ -234,6 +287,80 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
     }
 
+    private fun ensureFlightQuickActions(
+        responseText: String,
+        queryText: String
+    ): String {
+        if (!looksLikeFlightQuery(queryText) && !looksLikeFlightContent(responseText)) {
+            return responseText
+        }
+
+        val hasActionWithUrl = Regex("""(?im)^\s*Action:\s*\[Button:\s*.+?\]\s*https?://\S+""")
+            .containsMatchIn(responseText)
+        val hasQuickActionsWithUrl = Regex("""(?is)Quick\s*Actions.*https?://""")
+            .containsMatchIn(responseText)
+        if (hasActionWithUrl || hasQuickActionsWithUrl) {
+            return responseText
+        }
+
+        val sourceUrls = extractUrlsForQuickActions(responseText)
+        val actionLines = if (sourceUrls.isNotEmpty()) {
+            sourceUrls.take(3).mapIndexed { index, url ->
+                "Action: [Button: ${quickActionLabelForUrl(url, index)}] $url"
+            }
+        } else {
+            listOf(
+                "Action: [Button: Search on MakeMyTrip] https://www.makemytrip.com/flights/",
+                "Action: [Button: Search on Skyscanner] https://www.skyscanner.co.in/",
+                "Action: [Button: Search on Goibibo] https://www.goibibo.com/flights/"
+            )
+        }
+
+        return buildString {
+            append(responseText.trimEnd())
+            append("\n\nQuick Actions\n")
+            append(actionLines.joinToString(separator = "\n"))
+        }
+    }
+
+    private fun looksLikeFlightQuery(queryText: String): Boolean {
+        val normalized = queryText.lowercase(Locale.US)
+        return normalized.contains("flight") ||
+            normalized.contains("airline") ||
+            normalized.contains("departure") ||
+            normalized.contains("arrival")
+    }
+
+    private fun looksLikeFlightContent(text: String): Boolean {
+        val normalized = text.lowercase(Locale.US)
+        return normalized.contains("airline") &&
+            (normalized.contains("departure") || normalized.contains("arrival")) &&
+            normalized.contains("fare")
+    }
+
+    private fun extractUrlsForQuickActions(text: String): List<String> {
+        val urlRegex = Regex("""https?://[^\s<>\]]+""", RegexOption.IGNORE_CASE)
+        return urlRegex.findAll(text)
+            .map { it.value.trim().trimEnd('.', ',', ';', ')', ']') }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .toList()
+    }
+
+    private fun quickActionLabelForUrl(url: String, index: Int): String {
+        val host = runCatching { URL(url).host.lowercase(Locale.US) }.getOrDefault("")
+        return when {
+            host.contains("makemytrip") -> "Search on MakeMyTrip"
+            host.contains("skyscanner") -> "Search on Skyscanner"
+            host.contains("goibibo") -> "Search on Goibibo"
+            host.contains("goindigo") -> "Open IndiGo"
+            host.contains("airindia") -> "Open Air India"
+            host.contains("akasaair") -> "Open Akasa Air"
+            host.contains("flightsfrom") -> "Open FlightsFrom"
+            else -> "Open Source ${index + 1}"
+        }
+    }
+
     private fun responseContainsInlineMedia(text: String): Boolean {
         return Regex(
             """(?im)^\s*(?:Media:\s*(?:Image|Icon)=|Image:\s*(?:https?://|/assets/|assets/)|Icon:\s*(?:https?://|/assets/|assets/))"""
@@ -248,6 +375,19 @@ class GenUiStagePipeline(private val appContext: Context) {
             Regex(
                 """(?i)Media:\s*(?:Image|Icon)=|(?:^|\\n)(?:Image|Icon):\s*(?:https?://|/assets/|assets/)"""
             ).containsMatchIn(jsonText)
+    }
+
+    private fun responseContainsActionButtons(text: String): Boolean {
+        return Regex("""(?im)^\s*Action:\s*\[Button:\s*.+?\]\s*https?://\S+""")
+            .containsMatchIn(text)
+    }
+
+    private fun genUiPreservesActionButtons(jsonText: String): Boolean {
+        return Regex("""(?i)"call"\s*:\s*"openUrl"""").containsMatchIn(jsonText) ||
+            (
+                Regex("""(?i)"component"\s*:\s*"Button"""").containsMatchIn(jsonText) &&
+                    Regex("""(?i)"url"\s*:\s*"https?://""").containsMatchIn(jsonText)
+                )
     }
 
     private fun normalizeGenUiPayload(json: JsonElement): JsonElement {
@@ -492,7 +632,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         temperature: Double,
         maxOutputTokens: Int,
         jsonMode: Boolean,
-        enableGoogleSearch: Boolean = false
+        enableGoogleSearch: Boolean = false,
+        cachedContentName: String? = null,
+        structuredOutput: Boolean = false
     ): GeminiResponse {
         var attempt = 0
         var last: GeminiResponse = GeminiResponse(text = "", rawResponse = null, error = "Unknown Gemini error")
@@ -506,7 +648,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 temperature = temperature,
                 maxOutputTokens = maxOutputTokens,
                 jsonMode = jsonMode,
-                enableGoogleSearch = enableGoogleSearch
+                enableGoogleSearch = enableGoogleSearch,
+                cachedContentName = cachedContentName,
+                structuredOutput = structuredOutput
             )
             if (last.error == null) {
                 return last
@@ -520,7 +664,23 @@ class GenUiStagePipeline(private val appContext: Context) {
                     temperature = temperature,
                     maxOutputTokens = maxOutputTokens,
                     jsonMode = jsonMode,
-                    enableGoogleSearch = false
+                    enableGoogleSearch = false,
+                    cachedContentName = cachedContentName,
+                    structuredOutput = structuredOutput
+                )
+            }
+            if (structuredOutput && isStructuredOutputConfigError(last.error)) {
+                return generateOnce(
+                    apiKey = apiKey,
+                    model = model,
+                    prompt = prompt,
+                    systemPrompt = systemPrompt,
+                    temperature = temperature,
+                    maxOutputTokens = maxOutputTokens,
+                    jsonMode = jsonMode,
+                    enableGoogleSearch = enableGoogleSearch,
+                    cachedContentName = cachedContentName,
+                    structuredOutput = false
                 )
             }
             val lower = last.error.lowercase(Locale.US)
@@ -545,7 +705,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         temperature: Double,
         maxOutputTokens: Int,
         jsonMode: Boolean,
-        enableGoogleSearch: Boolean = false
+        enableGoogleSearch: Boolean = false,
+        cachedContentName: String? = null,
+        structuredOutput: Boolean = false
     ): GeminiResponse {
         val encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8.name())
         val endpoint = URL("https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$encodedKey")
@@ -563,7 +725,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             temperature = temperature,
             maxOutputTokens = maxOutputTokens,
             jsonMode = jsonMode,
-            enableGoogleSearch = enableGoogleSearch
+            enableGoogleSearch = enableGoogleSearch,
+            cachedContentName = cachedContentName,
+            structuredOutput = structuredOutput
         )
 
         return try {
@@ -716,9 +880,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         temperature: Double,
         maxOutputTokens: Int,
         jsonMode: Boolean,
-        enableGoogleSearch: Boolean
+        enableGoogleSearch: Boolean,
+        cachedContentName: String?,
+        structuredOutput: Boolean
     ): String {
         val body = JsonObject().apply {
+            if (!cachedContentName.isNullOrBlank()) {
+                addProperty("cachedContent", cachedContentName)
+            }
             add("contents", JsonArray().apply {
                 add(JsonObject().apply {
                     addProperty("role", "user")
@@ -735,6 +904,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 addProperty("maxOutputTokens", min(maxOutputTokens, 8192))
                 if (jsonMode) {
                     addProperty("responseMimeType", "application/json")
+                    if (structuredOutput) {
+                        add("responseSchema", buildStage3ResponseSchema())
+                    }
                 }
             })
 
@@ -768,10 +940,229 @@ class GenUiStagePipeline(private val appContext: Context) {
             (normalized.contains("http 400") && normalized.contains("tool"))
     }
 
+    private fun isStructuredOutputConfigError(error: String): Boolean {
+        val normalized = error.lowercase(Locale.US)
+        return normalized.contains("responseschema") ||
+            normalized.contains("response schema") ||
+            normalized.contains("unknown name \"responseschema\"") ||
+            normalized.contains("unknown field \"responseschema\"") ||
+            (normalized.contains("invalid_argument") && normalized.contains("schema")) ||
+            (normalized.contains("http 400") && normalized.contains("schema"))
+    }
+
+    private fun buildStage3ResponseSchema(): JsonObject {
+        // Keep schema permissive to reduce rejection risk while still forcing structured JSON output.
+        return JsonObject().apply {
+            addProperty("type", "ARRAY")
+            add("items", JsonObject().apply {
+                addProperty("type", "OBJECT")
+                add("properties", JsonObject().apply {
+                    add("version", JsonObject().apply { addProperty("type", "STRING") })
+                    add("createSurface", JsonObject().apply { addProperty("type", "OBJECT") })
+                    add("updateComponents", JsonObject().apply { addProperty("type", "OBJECT") })
+                    add("clearSurface", JsonObject().apply { addProperty("type", "OBJECT") })
+                })
+            })
+        }
+    }
+
+    private fun ensureStage3InstructionCache(
+        apiKey: String,
+        model: String,
+        systemPrompt: String?
+    ): CacheSetupResult {
+        if (systemPrompt.isNullOrBlank()) {
+            return CacheSetupResult(name = null, created = false, error = null)
+        }
+
+        val promptHash = sha256Hex("$model\n$systemPrompt")
+        val now = System.currentTimeMillis()
+
+        synchronized(stage3CacheLock) {
+            val inMemory = stage3InstructionCache
+            if (inMemory != null && inMemory.hash == promptHash && inMemory.expiresAtMs > now + CACHE_EXPIRY_SAFETY_MS) {
+                return CacheSetupResult(name = inMemory.name, created = false, error = null)
+            }
+        }
+
+        readPersistedStage3Cache()?.let { persisted ->
+            if (persisted.hash == promptHash && persisted.expiresAtMs > now + CACHE_EXPIRY_SAFETY_MS) {
+                synchronized(stage3CacheLock) {
+                    stage3InstructionCache = persisted
+                }
+                return CacheSetupResult(name = persisted.name, created = false, error = null)
+            }
+        }
+
+        val created = createCachedInstruction(
+            apiKey = apiKey,
+            model = model,
+            promptHash = promptHash,
+            systemPrompt = systemPrompt
+        )
+        if (created.name != null) {
+            val expiresAtMs = created.expiresAtMs ?: now + STAGE3_CACHE_TTL_SECONDS * 1000L
+            val entry = CachedInstructionEntry(
+                hash = promptHash,
+                name = created.name,
+                expiresAtMs = expiresAtMs
+            )
+            synchronized(stage3CacheLock) {
+                stage3InstructionCache = entry
+            }
+            persistStage3Cache(entry)
+            return CacheSetupResult(name = entry.name, created = true, error = null)
+        }
+        return CacheSetupResult(name = null, created = false, error = created.error)
+    }
+
+    private fun createCachedInstruction(
+        apiKey: String,
+        model: String,
+        promptHash: String,
+        systemPrompt: String
+    ): CachedInstructionCreateResult {
+        val encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8.name())
+        val endpoint = URL("https://generativelanguage.googleapis.com/v1beta/cachedContents?key=$encodedKey")
+        val connection = (endpoint.openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = 20000
+            readTimeout = 60000
+            doOutput = true
+            setRequestProperty("Content-Type", "application/json")
+        }
+
+        val body = JsonObject().apply {
+            addProperty("model", "models/$model")
+            addProperty("displayName", "genuicraft_stage3_${promptHash.take(12)}")
+            addProperty("ttl", "${STAGE3_CACHE_TTL_SECONDS}s")
+            add("systemInstruction", JsonObject().apply {
+                add("parts", JsonArray().apply {
+                    add(JsonObject().apply {
+                        addProperty("text", systemPrompt)
+                    })
+                })
+            })
+            // Keep one tiny content part so cache creation stays valid across API variants.
+            add("contents", JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("role", "user")
+                    add("parts", JsonArray().apply {
+                        add(JsonObject().apply {
+                            addProperty("text", "Use the cached GenUICraft conversion instructions.")
+                        })
+                    })
+                })
+            })
+        }
+
+        return try {
+            connection.outputStream.use { out ->
+                out.write(gson.toJson(body).toByteArray(StandardCharsets.UTF_8))
+            }
+            val code = connection.responseCode
+            val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+            val raw = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+            if (code !in 200..299) {
+                val short = raw.trim().ifBlank { "HTTP $code" }
+                return CachedInstructionCreateResult(
+                    name = null,
+                    expiresAtMs = null,
+                    error = "HTTP $code: ${short.take(180)}"
+                )
+            }
+
+            val root = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
+                ?: return CachedInstructionCreateResult(
+                    name = null,
+                    expiresAtMs = null,
+                    error = "Cache create response was not valid JSON."
+                )
+            val name = root.get("name")?.takeIf { it.isJsonPrimitive }?.asString?.trim()
+            if (name.isNullOrBlank()) {
+                return CachedInstructionCreateResult(
+                    name = null,
+                    expiresAtMs = null,
+                    error = "Cache create response did not include name."
+                )
+            }
+            val expireTime = root.get("expireTime")?.takeIf { it.isJsonPrimitive }?.asString
+            CachedInstructionCreateResult(
+                name = name,
+                expiresAtMs = parseExpireTimeMillis(expireTime),
+                error = null
+            )
+        } catch (io: IOException) {
+            CachedInstructionCreateResult(
+                name = null,
+                expiresAtMs = null,
+                error = io.message ?: io.javaClass.simpleName
+            )
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun parseExpireTimeMillis(value: String?): Long? {
+        if (value.isNullOrBlank()) {
+            return null
+        }
+        return runCatching { Instant.parse(value).toEpochMilli() }.getOrNull()
+    }
+
+    private fun sha256Hex(value: String): String {
+        val digest = MessageDigest.getInstance("SHA-256").digest(value.toByteArray(StandardCharsets.UTF_8))
+        val hex = StringBuilder(digest.size * 2)
+        digest.forEach { byte ->
+            val v = byte.toInt() and 0xff
+            if (v < 16) hex.append('0')
+            hex.append(v.toString(16))
+        }
+        return hex.toString()
+    }
+
+    private fun readPersistedStage3Cache(): CachedInstructionEntry? {
+        val prefs = appContext.getSharedPreferences(CACHE_PREFS_NAME, Context.MODE_PRIVATE)
+        val hash = prefs.getString(CACHE_KEY_HASH, null)?.trim().orEmpty()
+        val name = prefs.getString(CACHE_KEY_NAME, null)?.trim().orEmpty()
+        val expiresAt = prefs.getLong(CACHE_KEY_EXPIRES_AT_MS, 0L)
+        if (hash.isBlank() || name.isBlank() || expiresAt <= 0L) {
+            return null
+        }
+        return CachedInstructionEntry(hash = hash, name = name, expiresAtMs = expiresAt)
+    }
+
+    private fun persistStage3Cache(entry: CachedInstructionEntry) {
+        appContext.getSharedPreferences(CACHE_PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(CACHE_KEY_HASH, entry.hash)
+            .putString(CACHE_KEY_NAME, entry.name)
+            .putLong(CACHE_KEY_EXPIRES_AT_MS, entry.expiresAtMs)
+            .apply()
+    }
+
     private data class GeminiResponse(
         val text: String,
         val rawResponse: String?,
         val error: String?
+    )
+
+    private data class CacheSetupResult(
+        val name: String?,
+        val created: Boolean,
+        val error: String?
+    )
+
+    private data class CachedInstructionCreateResult(
+        val name: String?,
+        val expiresAtMs: Long?,
+        val error: String?
+    )
+
+    private data class CachedInstructionEntry(
+        val hash: String,
+        val name: String,
+        val expiresAtMs: Long
     )
 
     private data class GeminiTextExtraction(
@@ -793,7 +1184,16 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val STAGE2_PROMPT_ASSET = "pipeline_prompts/response_gen.md"
         const val STAGE3_PROMPT_ASSET = "pipeline_prompts/genui_gen.md"
         const val MODEL_GEMINI_2_5_PRO = "gemini-2.5-pro"
+        const val STAGE3_CACHE_TTL_SECONDS = 21600
+        const val CACHE_PREFS_NAME = "genui_stage_pipeline_cache"
+        const val CACHE_KEY_HASH = "stage3_cache_hash"
+        const val CACHE_KEY_NAME = "stage3_cache_name"
+        const val CACHE_KEY_EXPIRES_AT_MS = "stage3_cache_expires_at_ms"
+        const val CACHE_EXPIRY_SAFETY_MS = 60_000L
 
+        val stage3CacheLock = Any()
+        @Volatile
+        var stage3InstructionCache: CachedInstructionEntry? = null
         val gson = com.google.gson.GsonBuilder().disableHtmlEscaping().create()
     }
 }
