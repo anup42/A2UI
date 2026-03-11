@@ -1,0 +1,685 @@
+package com.samsung.genuicraft
+
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.view.WindowManager
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+enum class PipelineStepStatus {
+    Pending,
+    Running,
+    Done,
+    Failed
+}
+
+private data class StageStepUi(
+    val stage: GenUiStagePipeline.Stage,
+    val title: String,
+    val status: PipelineStepStatus = PipelineStepStatus.Pending,
+    val message: String = ""
+)
+
+private data class AssistantLogItem(
+    val title: String,
+    val content: String,
+    val monospace: Boolean = false
+)
+
+class GenUiAssistantActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        applyOneUiWindowBlur()
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+        setContent {
+            GenUiCraftTheme {
+                GenUiAssistantScreen(
+                    onOpenExternalUrl = { openExternalUrl(it) }
+                )
+            }
+        }
+    }
+
+    private fun openExternalUrl(url: String) {
+        val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return
+        val scheme = uri.scheme?.lowercase()
+        if (scheme == "http" || scheme == "https") {
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun GenUiAssistantScreen(
+    onOpenExternalUrl: (String) -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val pipeline = remember { GenUiStagePipeline(context.applicationContext) }
+    val coroutineScope = rememberCoroutineScope()
+    val steps = remember {
+        mutableStateListOf(
+            StageStepUi(GenUiStagePipeline.Stage.STAGE2, "Rich response"),
+            StageStepUi(GenUiStagePipeline.Stage.STAGE3, "GenUI JSON"),
+            StageStepUi(GenUiStagePipeline.Stage.STAGE4, "Native render")
+        )
+    }
+
+    var inputText by remember { mutableStateOf("") }
+    var debugMode by remember { mutableStateOf(false) }
+    var isRunning by remember { mutableStateOf(false) }
+    var currentStatus by remember { mutableStateOf("") }
+    var errorText by remember { mutableStateOf<String?>(null) }
+    var stage2Text by remember { mutableStateOf<String?>(null) }
+    var stage3Json by remember { mutableStateOf<String?>(null) }
+    var currentQuery by remember { mutableStateOf<String?>(null) }
+    var usedFallback by remember { mutableStateOf(false) }
+    var warnings by remember { mutableStateOf<List<String>>(emptyList()) }
+    var renderResult by remember { mutableStateOf<GenUiNativeRenderer.RenderResult?>(null) }
+    val logs = remember { mutableStateListOf<AssistantLogItem>() }
+
+    fun resetSteps(initialStage: GenUiStagePipeline.Stage) {
+        steps.indices.forEach { index ->
+            val step = steps[index]
+            val status = if (step.stage == initialStage) {
+                PipelineStepStatus.Running
+            } else {
+                PipelineStepStatus.Pending
+            }
+            steps[index] = step.copy(status = status, message = "")
+        }
+    }
+
+    fun updateSteps(update: GenUiStagePipeline.StageUpdate) {
+        steps.indices.forEach { index ->
+            val step = steps[index]
+            val status = when {
+                step.stage == update.stage -> PipelineStepStatus.Running
+                step.stage.ordinal < update.stage.ordinal -> PipelineStepStatus.Done
+                else -> PipelineStepStatus.Pending
+            }
+            val message = if (step.stage == update.stage) update.message else step.message
+            steps[index] = step.copy(status = status, message = message)
+        }
+    }
+
+    val deviceConfig = rememberDeviceUiConfig()
+    val horizontalPadding = when (deviceConfig.widthClass) {
+        DeviceSizeClass.Compact -> 14.dp
+        DeviceSizeClass.Medium -> 20.dp
+        DeviceSizeClass.Expanded -> 26.dp
+    }
+    val imeVisible = WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
+    val listBottomPadding = if (imeVisible) 16.dp else 112.dp
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets.safeDrawing,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.genui_assistant_title),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
+                actions = {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 6.dp)
+                    ) {
+                        Text(
+                            text = "Debug",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Switch(
+                            checked = debugMode,
+                            onCheckedChange = { debugMode = it }
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = genUiTopBarContainerColor(),
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
+            )
+        },
+        bottomBar = {
+            val composerAnimatedDots = rememberAnimatedDots(isRunning)
+            val composerBaseStatus = resolveCompactStatusText(
+                statusText = currentStatus,
+                running = isRunning,
+                errorText = errorText,
+                hasRenderedOutput = renderResult != null
+            )
+            val composerStatus = if (isRunning) "$composerBaseStatus$composerAnimatedDots" else composerBaseStatus
+            val showComposerStatus = isRunning ||
+                currentStatus.isNotBlank() ||
+                !errorText.isNullOrBlank() ||
+                renderResult != null
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = horizontalPadding, vertical = 6.dp)
+                    .imePadding()
+                    .navigationBarsPadding(),
+                shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                colors = genUiCardColors(GenUiCardTone.Neutral),
+                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+                elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    if (showComposerStatus) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (isRunning) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(12.dp),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    strokeWidth = 1.7.dp
+                                )
+                            }
+                            Text(
+                                text = composerStatus,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (!errorText.isNullOrBlank()) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = inputText,
+                            onValueChange = { inputText = it },
+                            placeholder = {
+                                Text(
+                                    text = stringResource(id = R.string.genui_assistant_placeholder),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = 52.dp),
+                            singleLine = true,
+                            maxLines = 1,
+                            enabled = !isRunning,
+                            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                            textStyle = MaterialTheme.typography.bodySmall
+                        )
+
+                        IconButton(
+                            onClick = {
+                                val query = inputText.trim()
+                                if (query.isBlank() || isRunning) {
+                                    return@IconButton
+                                }
+
+                                currentQuery = query
+                                inputText = ""
+                                isRunning = true
+                                errorText = null
+                                stage2Text = null
+                                stage3Json = null
+                                renderResult = null
+                                warnings = emptyList()
+                                usedFallback = false
+                                logs.clear()
+                                resetSteps(GenUiStagePipeline.Stage.STAGE2)
+                                currentStatus = "Starting pipeline"
+
+                                coroutineScope.launch {
+                                    val outcome = pipeline.execute(query) { update ->
+                                        currentStatus = sanitizeUiLogText(update.message)
+                                        updateSteps(update)
+                                    }
+                                    when (outcome) {
+                                        is GenUiStagePipeline.Outcome.Success -> {
+                                            val result = outcome.result
+                                            stage2Text = result.stage2Response
+                                            stage3Json = result.stage3Json
+                                            renderResult = result.renderResult
+                                            warnings = result.warnings.map(::sanitizeUiLogText)
+                                            usedFallback = result.usedFallback
+                                            logs.clear()
+                                            logs += AssistantLogItem(
+                                                title = "Response",
+                                                content = result.stage2Response
+                                            )
+                                            logs += AssistantLogItem(
+                                                title = "GenUI JSON",
+                                                content = result.stage3Json,
+                                                monospace = true
+                                            )
+                                            steps.indices.forEach { i ->
+                                                steps[i] = steps[i].copy(status = PipelineStepStatus.Done)
+                                            }
+                                            currentStatus = "Pipeline completed"
+                                        }
+
+                                        is GenUiStagePipeline.Outcome.Failure -> {
+                                            errorText = sanitizeUiLogText(outcome.message)
+                                            if (!outcome.stage2Response.isNullOrBlank()) {
+                                                stage2Text = outcome.stage2Response
+                                                logs += AssistantLogItem(
+                                                    title = "Response",
+                                                    content = outcome.stage2Response
+                                                )
+                                            }
+                                            if (!outcome.stage3Json.isNullOrBlank()) {
+                                                stage3Json = outcome.stage3Json
+                                                logs += AssistantLogItem(
+                                                    title = "GenUI JSON",
+                                                    content = outcome.stage3Json,
+                                                    monospace = true
+                                                )
+                                            }
+                                            steps.indices.forEach { i ->
+                                                val step = steps[i]
+                                                val status = when {
+                                                    step.stage == outcome.stage -> PipelineStepStatus.Failed
+                                                    step.stage.ordinal < outcome.stage.ordinal -> PipelineStepStatus.Done
+                                                    else -> PipelineStepStatus.Pending
+                                                }
+                                                steps[i] = step.copy(status = status)
+                                            }
+                                            currentStatus = "Pipeline failed"
+                                        }
+                                    }
+                                    isRunning = false
+                                }
+                            },
+                            enabled = !isRunning && inputText.trim().isNotEmpty()
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                contentDescription = stringResource(id = R.string.genui_assistant_send_content_desc),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    ) { innerPadding ->
+        GenUiScreenBackground(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
+        ) { backgroundModifier ->
+            LazyColumn(
+                modifier = backgroundModifier
+                    .fillMaxSize()
+                    .padding(horizontal = horizontalPadding, vertical = 10.dp),
+                contentPadding = PaddingValues(bottom = listBottomPadding),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                if (debugMode) {
+                    if (currentQuery != null) {
+                        item {
+                            StageCard(
+                                title = "Prompt",
+                                content = currentQuery.orEmpty(),
+                                monospace = false,
+                                tone = GenUiCardTone.Primary
+                            )
+                        }
+                    }
+
+                    item {
+                        StageProgressCard(
+                            steps = steps,
+                            statusText = currentStatus,
+                            running = isRunning
+                        )
+                    }
+
+                    if (errorText != null) {
+                        item {
+                            StageCard(
+                                title = "Error",
+                                content = errorText.orEmpty(),
+                                monospace = false,
+                                tone = GenUiCardTone.Error
+                            )
+                        }
+                    }
+
+                    items(logs) { log ->
+                        StageCard(
+                            title = log.title,
+                            content = log.content,
+                            monospace = log.monospace,
+                            tone = GenUiCardTone.Neutral
+                        )
+                    }
+
+                    if (warnings.isNotEmpty()) {
+                        item {
+                            StageCard(
+                                title = "Warnings",
+                                content = warnings.joinToString("\n") { "- $it" },
+                                monospace = false,
+                                tone = GenUiCardTone.Warning
+                            )
+                        }
+                    }
+
+                    if (usedFallback) {
+                        item {
+                            Text(
+                                text = "Fallback GenUI was used to keep rendering stable.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                    }
+                }
+
+                if (renderResult != null) {
+                    item {
+                        renderResult?.let { resolvedRender ->
+                            GenUiNativeRenderer.RenderInline(
+                                result = resolvedRender,
+                                sourceDir = null,
+                                onOpenExternalUrl = onOpenExternalUrl,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+
+                if (debugMode && !isRunning && logs.isEmpty() && errorText == null) {
+                    item {
+                        StageCard(
+                            title = "How It Works",
+                            content = "1) Generate a rich response from your prompt.\n2) Convert that response into GenUI JSON.\n3) Render it with native Compose components.",
+                            tone = GenUiCardTone.Neutral
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun sanitizeUiLogText(value: String): String {
+    if (value.isBlank()) {
+        return value
+    }
+    val withoutPrefix = value.replace(
+        Regex("""(?i)\bstage\s*\d+\s*:\s*"""),
+        ""
+    )
+    return withoutPrefix
+        .replace(Regex("""(?i)\bstage\s*\d+\b"""), "step")
+        .replace(Regex("""\s{2,}"""), " ")
+        .trim()
+}
+
+@Composable
+private fun CompactStatusLine(
+    statusText: String,
+    running: Boolean,
+    errorText: String?,
+    hasRenderedOutput: Boolean
+) {
+    val animatedDots = rememberAnimatedDots(running)
+    val oneLineError = errorText?.lineSequence()?.firstOrNull()?.trim().orEmpty()
+    val baseStatus = resolveCompactStatusText(
+        statusText = statusText,
+        running = running,
+        errorText = errorText,
+        hasRenderedOutput = hasRenderedOutput
+    )
+
+    val status = if (running) "$baseStatus$animatedDots" else baseStatus
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+        colors = genUiCardColors(if (oneLineError.isNotBlank()) GenUiCardTone.Error else GenUiCardTone.Neutral),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (running) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(14.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 1.8.dp
+                )
+            }
+            Text(
+                text = status,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+private fun resolveCompactStatusText(
+    statusText: String,
+    running: Boolean,
+    errorText: String?,
+    hasRenderedOutput: Boolean
+): String {
+    val oneLineError = errorText?.lineSequence()?.firstOrNull()?.trim().orEmpty()
+    return when {
+        running && statusText.isNotBlank() -> statusText
+        running -> "Working"
+        oneLineError.isNotBlank() -> "Failed: $oneLineError"
+        hasRenderedOutput -> "Completed. Rendered output is ready."
+        statusText.isNotBlank() -> statusText
+        else -> "Ready"
+    }.replace('\n', ' ').trim()
+}
+
+@Composable
+private fun rememberAnimatedDots(active: Boolean): String {
+    var dotCount by remember(active) { mutableStateOf(0) }
+    LaunchedEffect(active) {
+        if (!active) {
+            dotCount = 0
+            return@LaunchedEffect
+        }
+        while (true) {
+            delay(420)
+            dotCount = (dotCount + 1) % 4
+        }
+    }
+    return ".".repeat(dotCount)
+}
+
+@Composable
+private fun StageProgressCard(
+    steps: List<StageStepUi>,
+    statusText: String,
+    running: Boolean
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Pipeline Status",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            steps.forEach { step ->
+                val statusLabel = when (step.status) {
+                    PipelineStepStatus.Pending -> "Pending"
+                    PipelineStepStatus.Running -> "Running"
+                    PipelineStepStatus.Done -> "Done"
+                    PipelineStepStatus.Failed -> "Failed"
+                }
+                val color = when (step.status) {
+                    PipelineStepStatus.Pending -> MaterialTheme.colorScheme.onSurfaceVariant
+                    PipelineStepStatus.Running -> MaterialTheme.colorScheme.primary
+                    PipelineStepStatus.Done -> MaterialTheme.colorScheme.secondary
+                    PipelineStepStatus.Failed -> MaterialTheme.colorScheme.error
+                }
+                Text(
+                    text = "${step.title} - $statusLabel",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = color,
+                    maxLines = 2,
+                    overflow = TextOverflow.Clip
+                )
+            }
+            if (running || statusText.isNotBlank()) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (running) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(14.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 1.8.dp
+                        )
+                    }
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StageCard(
+    title: String,
+    content: String,
+    monospace: Boolean = false,
+    tone: GenUiCardTone = GenUiCardTone.Neutral
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+        colors = genUiCardColors(tone),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = content,
+                style = if (monospace) {
+                    MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace)
+                } else {
+                    MaterialTheme.typography.bodySmall
+                },
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}

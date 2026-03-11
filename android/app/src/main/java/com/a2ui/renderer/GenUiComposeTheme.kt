@@ -259,6 +259,12 @@ fun genUiCardBorderColor(): Color {
 }
 
 @Composable
+fun genUiMediaFrameBorderColor(): Color {
+    // Keep media borders neutral so dynamic palettes do not produce warm/red-looking image frames.
+    return if (isSystemInDarkTheme()) Color(0xFF636368) else Color(0xFFB7B7BB)
+}
+
+@Composable
 fun genUiTableContainerColor(): Color {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme

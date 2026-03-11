@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">GenUI Craft Renderer</string>
+    <string name="launcher_title">GenUI Craft</string>
+    <string name="launcher_subtitle"></string>
+    <string name="launcher_genui_title">GenUI Demo</string>
+    <string name="launcher_genui_subtitle">Generate rich response with stage 2, convert with stage 3, and render natively in stage 4.</string>
+    <string name="launcher_renderer_title">Renderer Demo</string>
+    <string name="launcher_renderer_subtitle">Open the file/sample renderer flow for existing GenUI JSON/JSONL assets.</string>
+
     <string name="home_title">GenUI Craft Renderer</string>
     <string name="home_subtitle">Load a GenUI JSON or JSONL file and render each entry in native Compose or WebView mode.</string>
     <string name="home_source_title">Choose Source</string>
@@ -30,4 +37,9 @@
     <string name="error_session_missing">No loaded item found. Return and load a GenUI source.</string>
     <string name="render_error_title">Render Error</string>
     <string name="rendering_position">Item %1$d of %2$d from %3$s</string>
+
+    <string name="genui_assistant_title">GenUICraft</string>
+    <string name="genui_assistant_placeholder">Type your request</string>
+    <string name="genui_assistant_send">Send</string>
+    <string name="genui_assistant_send_content_desc">Send prompt</string>
 </resources>

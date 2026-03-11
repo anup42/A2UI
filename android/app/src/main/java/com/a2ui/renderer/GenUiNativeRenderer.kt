@@ -34,11 +34,15 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -46,6 +50,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -58,6 +63,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.File
+import java.time.LocalDate
 import java.util.Locale
 import kotlin.math.abs
 
@@ -94,6 +100,28 @@ object GenUiNativeRenderer {
         val header: List<TableCell>?,
         val rows: List<List<TableCell>>
     )
+    private data class WeatherTableColumns(
+        val period: Int,
+        val date: Int?,
+        val condition: Int?,
+        val high: Int?,
+        val low: Int?,
+        val temp: Int?,
+        val precip: Int?,
+        val wind: Int?,
+        val humidity: Int?,
+        val uv: Int?
+    )
+
+    private data class WeatherRow(
+        val period: String,
+        val date: String?,
+        val condition: String?,
+        val high: String?,
+        val low: String?,
+        val temp: String?,
+        val metrics: List<Pair<String, String>>
+    )
     private data class StepEntry(
         val title: String,
         val details: String
@@ -129,10 +157,12 @@ object GenUiNativeRenderer {
     private val BUTTON_LINE_REGEX =
         Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(\S+)\s*$""", RegexOption.IGNORE_CASE)
     private val NUMBERED_STEP_REGEX = Regex("""^(\d+)\.\s+(.+)$""")
+    private val INLINE_MEDIA_ASSIGNMENT_REGEX =
+        Regex("""(?i)\b(Image|Icon)\s*=\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)""")
     private val LEADING_LABEL_REGEX =
-        Regex("""^\s*([•\-]\s*)?([^:;：；\n]{1,70}?)([:;：；])\s*(.+)$""")
+        Regex("""^\s*([\u2022\-]\s*)?([^:;\uFF1A\uFF1B\n]{1,70}?)([:;\uFF1A\uFF1B])\s*(.+)$""")
     private val INLINE_LABEL_REGEX =
-        Regex("""([A-Za-z][A-Za-z0-9/&()' \-]{0,60})([:;：；])""")
+        Regex("""([A-Za-z][A-Za-z0-9/&()' \-]{0,60})([:;\uFF1A\uFF1B])""")
 
     private val URL_REGEX = Regex("""https?://[^\s<>\]]+""", RegexOption.IGNORE_CASE)
 
@@ -191,6 +221,43 @@ object GenUiNativeRenderer {
         ) {
             items(items = result.surfaces, key = { it.surfaceId }) { surface ->
                 SurfaceCard(surface, sourceDir, onOpenExternalUrl)
+            }
+        }
+    }
+
+    @Composable
+    fun RenderInline(
+        result: RenderResult,
+        sourceDir: File?,
+        onOpenExternalUrl: (String) -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        if (result.errorMessage != null) {
+            Surface(
+                modifier = modifier.fillMaxWidth(),
+                color = genUiCardContainerColor(GenUiCardTone.Error),
+                shape = RoundedCornerShape(GenUiTokens.RadiusXl)
+            ) {
+                Text(
+                    text = result.errorMessage,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+            return
+        }
+
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            result.surfaces.forEach { surface ->
+                SurfaceCard(
+                    surface = surface,
+                    sourceDir = sourceDir,
+                    onOpenExternalUrl = onOpenExternalUrl
+                )
             }
         }
     }
@@ -294,7 +361,7 @@ object GenUiNativeRenderer {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         items.forEach { item ->
                             MarkdownText(
-                                text = "• ${item.trim()}",
+                                text = "\u2022 ${item.trim()}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.fillMaxWidth()
@@ -437,7 +504,7 @@ object GenUiNativeRenderer {
         }
 
         val bulletToken = readDynamicString(bulletNode.get("text")).trim()
-        if (!bulletToken.matches(Regex("""^[•●◦·▪*-]$"""))) {
+        if (!bulletToken.matches(Regex("""^[\u2022\u25CF\u25E6\u00B7\u25AA*-]$"""))) {
             return null
         }
 
@@ -447,7 +514,7 @@ object GenUiNativeRenderer {
         }
 
         val variant = (textNode.getString("variant") ?: "body").lowercase(Locale.US)
-        val normalizedBullet = if (bulletToken == "-") "•" else bulletToken
+        val normalizedBullet = if (bulletToken == "-") "\u2022" else bulletToken
         return InlineBulletRow(
             bullet = normalizedBullet,
             text = text,
@@ -496,7 +563,7 @@ object GenUiNativeRenderer {
         onOpenExternalUrl: (String) -> Unit
     ) {
         val variant = (component.getString("variant") ?: "body").lowercase(Locale.US)
-        val rawText = readDynamicString(component.get("text")).replace("â€¢", "•")
+        val rawText = readDynamicString(component.get("text"))
         val style = textStyleForVariant(variant)
         val color = textColorForVariant(variant)
 
@@ -553,7 +620,7 @@ object GenUiNativeRenderer {
                 is TextBlock.Bullets -> {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         block.items.forEach { item ->
-                            RenderListItem(item = "• ${item.trim()}", sourceDir = sourceDir)
+                            RenderListItem(item = "\u2022 ${item.trim()}", sourceDir = sourceDir)
                         }
                     }
                 }
@@ -629,10 +696,87 @@ object GenUiNativeRenderer {
             }
         }
 
+        fun isSimpleSectionBlock(block: TextBlock): Boolean = when (block) {
+            is TextBlock.Paragraph,
+            is TextBlock.Bullets,
+            is TextBlock.Actions,
+            is TextBlock.Sources,
+            is TextBlock.MediaCards -> true
+            else -> false
+        }
+
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             var index = 0
             while (index < blocks.size) {
                 val block = blocks[index]
+
+                if (block is TextBlock.Title || block is TextBlock.Heading) {
+                    val sectionBlocks = mutableListOf<TextBlock>()
+                    var cursor = index + 1
+                    while (cursor < blocks.size) {
+                        val candidate = blocks[cursor]
+                        if (candidate is TextBlock.Title || candidate is TextBlock.Heading) {
+                            break
+                        }
+                        if (!isSimpleSectionBlock(candidate)) {
+                            break
+                        }
+                        sectionBlocks += candidate
+                        cursor++
+                    }
+
+                    val shouldRenderSectionCard = sectionBlocks.isNotEmpty() && (
+                        sectionBlocks.any {
+                            it is TextBlock.MediaCards ||
+                                it is TextBlock.Actions ||
+                                it is TextBlock.Bullets ||
+                                it is TextBlock.Sources
+                        } || sectionBlocks.any { it is TextBlock.Paragraph }
+                    )
+                    if (shouldRenderSectionCard) {
+                        val titleText = when (block) {
+                            is TextBlock.Title -> block.text
+                            is TextBlock.Heading -> block.text
+                            else -> ""
+                        }
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                            colors = genUiCardColors(GenUiCardTone.Neutral),
+                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                MarkdownText(
+                                    text = titleText,
+                                    style = if (block is TextBlock.Title) {
+                                        MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                                    } else {
+                                        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                                    },
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                sectionBlocks.forEach { sectionBlock ->
+                                    when (sectionBlock) {
+                                        is TextBlock.MediaCards -> RenderMediaEntriesInline(
+                                            entries = sectionBlock.entries,
+                                            sourceDir = sourceDir
+                                        )
+
+                                        else -> RenderSingleBlock(sectionBlock)
+                                    }
+                                }
+                            }
+                        }
+                        index = cursor
+                        continue
+                    }
+                }
 
                 val titleParagraph = if (block is TextBlock.Title) {
                     blocks.getOrNull(index + 1) as? TextBlock.Paragraph
@@ -706,18 +850,153 @@ object GenUiNativeRenderer {
         }
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
+    @Composable
+    private fun RenderMediaEntriesInline(entries: List<ParsedMediaEntry>, sourceDir: File?) {
+        if (entries.isEmpty()) {
+            return
+        }
+
+        val primary = entries.filterNot { it.iconLike }
+        val icons = entries.filter { it.iconLike }
+        if (primary.isEmpty()) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                icons.forEach { icon ->
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                            .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                            .border(
+                                GenUiTokens.BorderMd,
+                                genUiCardBorderColor(),
+                                RoundedCornerShape(GenUiTokens.RadiusPill)
+                            )
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        MediaImage(
+                            rawUrl = icon.url,
+                            sourceDir = sourceDir,
+                            modifier = Modifier.size(16.dp),
+                            contentScale = ContentScale.Fit,
+                            asIcon = true
+                        )
+                        if (shouldShowMediaLabel(icon.label)) {
+                            Text(
+                                text = sanitizeDisplayText(icon.label),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+            return
+        }
+
+        val iconBuckets = assignIconsToPrimary(primary, icons)
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            primary.forEachIndexed { index, entry ->
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    MediaImage(
+                        rawUrl = entry.url,
+                        sourceDir = sourceDir,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(164.dp)
+                            .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
+                            .border(
+                                GenUiTokens.BorderMd,
+                                genUiMediaFrameBorderColor(),
+                                RoundedCornerShape(GenUiTokens.RadiusMd)
+                            ),
+                        contentScale = defaultImageScale(
+                            rawUrl = entry.url,
+                            fitValue = null,
+                            defaultCoverForRaster = true
+                        ),
+                        asIcon = false
+                    )
+
+                    if (shouldShowMediaLabel(entry.label)) {
+                        Text(
+                            text = sanitizeDisplayText(entry.label),
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    val inlineIcons = iconBuckets.getOrElse(index) { emptyList() }
+                    if (inlineIcons.isNotEmpty()) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            inlineIcons.forEach { icon ->
+                                Row(
+                                    modifier = Modifier
+                                        .sizeIn(maxWidth = 170.dp)
+                                        .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                        .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                                        .border(
+                                            GenUiTokens.BorderMd,
+                                            genUiCardBorderColor(),
+                                            RoundedCornerShape(GenUiTokens.RadiusPill)
+                                        )
+                                        .padding(horizontal = 8.dp, vertical = 5.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier.size(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        MediaImage(
+                                            rawUrl = icon.url,
+                                            sourceDir = sourceDir,
+                                            modifier = Modifier.size(14.dp),
+                                            contentScale = ContentScale.Fit,
+                                            asIcon = true
+                                        )
+                                    }
+                                    if (shouldShowMediaLabel(icon.label)) {
+                                        Text(
+                                            text = sanitizeDisplayText(icon.label),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Clip
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Composable
     private fun ExternalActionButton(
         label: String,
         url: String?,
         onOpenExternalUrl: (String) -> Unit
     ) {
+        val displayLabel = sanitizeDisplayText(label).ifBlank { "Open" }
         Button(
             onClick = { url?.let(onOpenExternalUrl) },
             enabled = url != null,
             shape = RoundedCornerShape(GenUiTokens.RadiusPill)
         ) {
-            Text(label, style = MaterialTheme.typography.labelLarge)
+            Text(displayLabel, style = MaterialTheme.typography.labelLarge)
         }
     }
 
@@ -729,13 +1008,13 @@ object GenUiNativeRenderer {
             val label = leadingLabel.label
             val delimiter = leadingLabel.delimiter
             val value = leadingLabel.value
-            if (looksLikeImagePath(value)) {
+            if (looksLikeImagePath(value, labelHint = label)) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = "$prefix$label$delimiter",
+                        text = sanitizeDisplayText("$prefix$label$delimiter"),
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -748,7 +1027,7 @@ object GenUiNativeRenderer {
                             .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
                             .border(
                                 GenUiTokens.BorderMd,
-                                MaterialTheme.colorScheme.outlineVariant,
+                                genUiMediaFrameBorderColor(),
                                 RoundedCornerShape(GenUiTokens.RadiusMd)
                             ),
                         contentScale = defaultImageScale(
@@ -829,9 +1108,13 @@ object GenUiNativeRenderer {
         maxLines: Int = Int.MAX_VALUE,
         overflow: TextOverflow = TextOverflow.Clip
     ) {
-        val hasMarkdownBold = text.contains("**")
+        val displayText = remember(text) { sanitizeDisplayText(text) }
+        if (displayText.isBlank()) {
+            return
+        }
+        val hasMarkdownBold = displayText.contains("**")
         Text(
-            text = remember(text) { parseBoldMarkdown(text) },
+            text = remember(displayText) { parseBoldMarkdown(displayText) },
             style = if (hasMarkdownBold) style.copy(fontWeight = FontWeight.Normal) else style,
             color = color,
             modifier = modifier,
@@ -889,17 +1172,43 @@ object GenUiNativeRenderer {
         delimiter: String,
         value: String
     ): AnnotatedString {
+        val safeLabel = sanitizeDisplayText(label)
+        val safeValue = sanitizeDisplayText(value)
         return buildAnnotatedString {
             if (prefix.isNotBlank()) {
                 append(prefix)
             }
             pushStyle(SpanStyle(fontWeight = FontWeight.W700))
-            append(label)
+            append(safeLabel)
             append(delimiter)
             pop()
             append(' ')
-            append(value)
+            append(safeValue)
         }
+    }
+
+    private fun sanitizeDisplayText(text: String): String {
+        if (text.isBlank()) {
+            return text
+        }
+        var cleaned = text
+        cleaned = cleaned.replace("Ã¢â‚¬Â¢", "•")
+        cleaned = cleaned.replace(Regex("(?i)\\bfor\\s+example\\b\\s*[:,-]?\\s*"), "")
+        cleaned = cleaned.replace(Regex("(?i)\\((?:\\s*(?:example|sample|illustrative|demo)\\s*)\\)"), "")
+        cleaned = cleaned.replace(Regex("(?i)\\b(?:example|sample|illustrative|demo)s?\\b\\s*:?"), "")
+        cleaned = cleaned.replace(Regex("(?m)^[ \\t]*:[ \\t]*$"), "")
+        cleaned = cleaned.replace(
+            Regex("(?im)^\\s*(accessing|fetching|retrieving|querying|searching)\\s+live\\s+[^\\n]*$"),
+            ""
+        )
+        cleaned = cleaned.replace(
+            Regex("(?im)^\\s*(accessing|fetching|retrieving|querying|searching)\\s+[^\\n]*(weather|flight|price|stock|trend|news)[^\\n]*$"),
+            ""
+        )
+        cleaned = cleaned.replace(Regex("[ \\t]{2,}"), " ")
+        cleaned = cleaned.replace(Regex(" *([,.;:])"), "$1")
+        cleaned = cleaned.replace(Regex("\\n{3,}"), "\n\n")
+        return cleaned.trim()
     }
 
     private fun parseLeadingLabelValue(text: String): LeadingLabelValue? {
@@ -1025,7 +1334,7 @@ object GenUiNativeRenderer {
                             }
 
                             Text(
-                                text = option.title,
+                                text = sanitizeDisplayText(option.title),
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f)
@@ -1033,14 +1342,18 @@ object GenUiNativeRenderer {
                         }
 
                         Text(
-                            text = option.details,
+                            text = sanitizeDisplayText(option.details),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         option.button?.let { button ->
                             val resolved = resolveExternalUrl(button.url, sourceDir)
-                            ExternalActionButton(button.label, resolved, onOpenExternalUrl)
+                            ExternalActionButton(
+                                sanitizeDisplayText(button.label).ifBlank { "Open" },
+                                resolved,
+                                onOpenExternalUrl
+                            )
                         }
                     }
                 }
@@ -1096,7 +1409,7 @@ object GenUiNativeRenderer {
                                 asIcon = true
                             )
                             Text(
-                                text = icon.label,
+                                text = sanitizeDisplayText(icon.label),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1134,7 +1447,7 @@ object GenUiNativeRenderer {
                                 .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
                                 .border(
                                     GenUiTokens.BorderMd,
-                                    MaterialTheme.colorScheme.outlineVariant,
+                                    genUiMediaFrameBorderColor(),
                                     RoundedCornerShape(GenUiTokens.RadiusMd)
                                 ),
                             contentScale = defaultImageScale(
@@ -1145,7 +1458,7 @@ object GenUiNativeRenderer {
                             asIcon = false
                         )
                         Text(
-                            text = entry.label,
+                            text = sanitizeDisplayText(entry.label),
                             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -1184,7 +1497,7 @@ object GenUiNativeRenderer {
                                             )
                                         }
                                         Text(
-                                            text = icon.label,
+                                            text = sanitizeDisplayText(icon.label),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             maxLines = 1,
@@ -1207,6 +1520,12 @@ object GenUiNativeRenderer {
         }
         val header = rows.first()
         val body = rows.drop(1)
+
+        buildWeatherRows(header, body)?.let { weatherRows ->
+            RenderWeatherRows(weatherRows)
+            return
+        }
+
         val columnCount = rows.maxOf { it.size }.coerceAtLeast(2)
         val columnWidths = List(columnCount) { tableBaseCellWidth(columnCount) }
         val dark = isSystemInDarkTheme()
@@ -1289,7 +1608,7 @@ object GenUiNativeRenderer {
                     .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
                     .border(
                         GenUiTokens.BorderMd,
-                        MaterialTheme.colorScheme.outlineVariant,
+                        genUiMediaFrameBorderColor(),
                         RoundedCornerShape(GenUiTokens.RadiusMd)
                     )
                 variant.contains("feature") -> Modifier
@@ -1298,7 +1617,7 @@ object GenUiNativeRenderer {
                     .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
                     .border(
                         GenUiTokens.BorderMd,
-                        MaterialTheme.colorScheme.outlineVariant,
+                        genUiMediaFrameBorderColor(),
                         RoundedCornerShape(GenUiTokens.RadiusMd)
                     )
                 variant.contains("thumbnail") -> Modifier
@@ -1307,7 +1626,7 @@ object GenUiNativeRenderer {
                     .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
                     .border(
                         GenUiTokens.BorderMd,
-                        MaterialTheme.colorScheme.outlineVariant,
+                        genUiMediaFrameBorderColor(),
                         RoundedCornerShape(GenUiTokens.RadiusMd)
                     )
                 else -> Modifier
@@ -1316,7 +1635,7 @@ object GenUiNativeRenderer {
                     .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
                     .border(
                         GenUiTokens.BorderMd,
-                        MaterialTheme.colorScheme.outlineVariant,
+                        genUiMediaFrameBorderColor(),
                         RoundedCornerShape(GenUiTokens.RadiusMd)
                     )
             },
@@ -1362,6 +1681,7 @@ object GenUiNativeRenderer {
             }
             ?.ifBlank { null }
             ?: "Open"
+        val displayLabel = sanitizeDisplayText(label).ifBlank { "Open" }
 
         val resolvedUrl = extractOpenUrl(component)
             ?.let { resolveAssetUrl(it, sourceDir) }
@@ -1374,7 +1694,7 @@ object GenUiNativeRenderer {
                 shape = RoundedCornerShape(GenUiTokens.RadiusPill),
                 border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
             ) {
-                Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Text(displayLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             }
             return
         }
@@ -1384,7 +1704,7 @@ object GenUiNativeRenderer {
             enabled = resolvedUrl != null,
             shape = RoundedCornerShape(GenUiTokens.RadiusPill)
         ) {
-            Text(label, style = MaterialTheme.typography.labelLarge)
+            Text(displayLabel, style = MaterialTheme.typography.labelLarge)
         }
     }
 
@@ -1404,7 +1724,7 @@ object GenUiNativeRenderer {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             tabs.forEachIndexed { tabIndex, tabElement ->
                 val tab = tabElement.asJsonObjectOrNull()
-                val title = readDynamicString(tab?.get("title")).ifBlank { "Tab ${tabIndex + 1}" }
+                val title = sanitizeDisplayText(readDynamicString(tab?.get("title"))).ifBlank { "Tab ${tabIndex + 1}" }
                 val childId = tab?.getString("child")
 
                 Card(
@@ -1447,18 +1767,78 @@ object GenUiNativeRenderer {
                 .components { add(SvgDecoder.Factory()) }
                 .build()
         }
+        var failed by remember(rawUrl, sourceDir) { mutableStateOf(false) }
 
-        AsyncImage(
-            model = ImageRequest.Builder(context).data(model).crossfade(true).build(),
-            imageLoader = imageLoader,
-            contentDescription = null,
-            modifier = modifier,
-            contentScale = contentScale
-        )
+        val compactFallbackModifier = Modifier
+            .fillMaxWidth()
+            .height(58.dp)
+            .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
+            .border(
+                GenUiTokens.BorderMd,
+                genUiMediaFrameBorderColor(),
+                RoundedCornerShape(GenUiTokens.RadiusMd)
+            )
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isSystemInDarkTheme()) 0.22f else 0.45f))
+
+        val displayModifier = if (failed && !asIcon) compactFallbackModifier else modifier
+        val loadingBg = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isSystemInDarkTheme()) 0.16f else 0.30f)
+        val iconTintColor = if (asIcon) iconTintForAsset(rawUrl) else null
+
+        Box(
+            modifier = displayModifier.background(if (asIcon) Color.Transparent else loadingBg),
+            contentAlignment = Alignment.Center
+        ) {
+            if (failed) {
+                if (asIcon) {
+                    // Skip icon placeholders to avoid tiny boxed artifacts in content.
+                } else {
+                    Text(
+                        text = "Image unavailable",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                AsyncImage(
+                    model = ImageRequest.Builder(context).data(model).crossfade(true).build(),
+                    imageLoader = imageLoader,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = contentScale,
+                    colorFilter = iconTintColor?.let { ColorFilter.tint(it) },
+                    onSuccess = { failed = false },
+                    onError = { failed = true }
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun iconTintForAsset(rawUrl: String): Color {
+        val key = rawUrl.lowercase(Locale.US)
+        val scheme = MaterialTheme.colorScheme
+        return when {
+            key.contains("sun") || key.contains("clear") -> Color(0xFFFFB300)
+            key.contains("rain") || key.contains("shower") || key.contains("water") -> Color(0xFF2E65D4)
+            key.contains("cloud") || key.contains("fog") || key.contains("mist") -> Color(0xFF7A7A85)
+            key.contains("wind") -> Color(0xFF25B871)
+            key.contains("snow") || key.contains("ice") -> Color(0xFF82B1FF)
+            key.contains("warn") || key.contains("alert") -> Color(0xFFE65B17)
+            else -> scheme.primary
+        }
     }
 
     @Composable
     private fun RenderTableSpec(spec: TableSpec) {
+        val specHeader = spec.header?.map { it.text }
+        val specBody = spec.rows.map { row -> row.map { it.text } }
+        if (specHeader != null && specBody.isNotEmpty()) {
+            buildWeatherRows(specHeader, specBody)?.let { weatherRows ->
+                RenderWeatherRows(weatherRows)
+                return
+            }
+        }
+
         val columnCount = listOfNotNull(spec.header?.size, spec.rows.maxOfOrNull { it.size })
             .maxOrNull()
             ?.coerceAtLeast(2)
@@ -1594,6 +1974,397 @@ object GenUiNativeRenderer {
         }
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
+    @Composable
+    private fun RenderWeatherRows(rows: List<WeatherRow>) {
+        if (rows.isEmpty()) {
+            return
+        }
+        val orderedRows = remember(rows) { orderWeatherRows(rows) }
+        val todayRow = orderedRows.first()
+        val laterRows = orderedRows.drop(1)
+        val todayTemperature = weatherTemperatureText(todayRow)
+        val todayCondition = sanitizeDisplayText(todayRow.condition.orEmpty())
+        val todayDate = sanitizeDisplayText(todayRow.date.orEmpty()).ifBlank { null }
+        val todayLabel = if (isTodayWeatherRow(todayRow)) "Today" else sanitizeDisplayText(todayRow.period)
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+            colors = CardDefaults.cardColors(containerColor = genUiTableContainerColor()),
+            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                    colors = genUiCardColors(GenUiCardTone.Primary),
+                    elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = weatherConditionEmoji(todayRow.condition),
+                                    style = MaterialTheme.typography.displaySmall
+                                )
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = todayLabel,
+                                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    todayDate?.let { dateValue ->
+                                        Text(
+                                            text = dateValue,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (todayTemperature.isNotBlank()) {
+                                Text(
+                                    text = sanitizeDisplayText(todayTemperature),
+                                    style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.End
+                                )
+                            }
+                        }
+
+                        if (todayCondition.isNotBlank()) {
+                            Text(
+                                text = todayCondition,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        if (todayRow.metrics.isNotEmpty()) {
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                todayRow.metrics.forEach { (label, value) ->
+                                    val chipLabel = sanitizeDisplayText(label)
+                                    val chipValue = sanitizeDisplayText(value)
+                                    if (chipLabel.isNotBlank() && chipValue.isNotBlank()) {
+                                        Text(
+                                            text = "$chipLabel $chipValue",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                                .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                                                .border(
+                                                    GenUiTokens.BorderMd,
+                                                    genUiCardBorderColor(),
+                                                    RoundedCornerShape(GenUiTokens.RadiusPill)
+                                                )
+                                                .padding(horizontal = 8.dp, vertical = 5.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                laterRows.forEach { row ->
+                    val temperature = weatherTemperatureText(row)
+                    val periodText = sanitizeDisplayText(row.period)
+                    val dateText = sanitizeDisplayText(row.date.orEmpty()).ifBlank { null }
+                    val conditionText = sanitizeDisplayText(row.condition.orEmpty()).ifBlank { null }
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                        colors = genUiCardColors(GenUiCardTone.Neutral),
+                        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.Top
+                                ) {
+                                    Text(
+                                        text = weatherConditionEmoji(row.condition),
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        Text(
+                                            text = periodText,
+                                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        dateText?.let { dateValue ->
+                                            Text(
+                                                text = dateValue,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    }
+                                }
+                                if (temperature.isNotBlank()) {
+                                    Text(
+                                        text = sanitizeDisplayText(temperature),
+                                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        textAlign = TextAlign.End
+                                    )
+                                }
+                            }
+
+                            conditionText?.let { condition ->
+                                Text(
+                                    text = condition,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            if (row.metrics.isNotEmpty()) {
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    row.metrics.forEach { (label, value) ->
+                                        val chipLabel = sanitizeDisplayText(label)
+                                        val chipValue = sanitizeDisplayText(value)
+                                        if (chipLabel.isNotBlank() && chipValue.isNotBlank()) {
+                                            Text(
+                                                text = "$chipLabel $chipValue",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                                    .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                                                    .border(
+                                                        GenUiTokens.BorderMd,
+                                                        genUiCardBorderColor(),
+                                                        RoundedCornerShape(GenUiTokens.RadiusPill)
+                                                    )
+                                                    .padding(horizontal = 8.dp, vertical = 5.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun buildWeatherRows(
+        header: List<String>,
+        body: List<List<String>>
+    ): List<WeatherRow>? {
+        if (header.isEmpty() || body.isEmpty()) {
+            return null
+        }
+        val columns = detectWeatherColumns(header) ?: return null
+        val rows = body.mapNotNull { row ->
+            val period = readCell(row, columns.period).orEmpty()
+            if (period.isBlank()) {
+                return@mapNotNull null
+            }
+
+            val metrics = buildList {
+                readCell(row, columns.precip)?.let { add("Precip" to it) }
+                readCell(row, columns.wind)?.let { add("Wind" to it) }
+                readCell(row, columns.humidity)?.let { add("Humidity" to it) }
+                readCell(row, columns.uv)?.let { add("UV" to it) }
+            }
+
+            WeatherRow(
+                period = period,
+                date = readCell(row, columns.date),
+                condition = readCell(row, columns.condition),
+                high = readCell(row, columns.high),
+                low = readCell(row, columns.low),
+                temp = readCell(row, columns.temp),
+                metrics = metrics
+            )
+        }
+        return rows.takeIf { it.isNotEmpty() }
+    }
+
+    private fun detectWeatherColumns(header: List<String>): WeatherTableColumns? {
+        val normalized = header.map { normalizeWeatherHeader(it) }
+        val weatherSignal = normalized.count { token ->
+            token.contains("weather") ||
+                token.contains("forecast") ||
+                token.contains("condition") ||
+                token.contains("temp") ||
+                token.contains("high") ||
+                token.contains("low") ||
+                token.contains("precip") ||
+                token.contains("rain") ||
+                token.contains("humidity") ||
+                token.contains("wind") ||
+                token.contains("uv")
+        }
+        if (weatherSignal < 2) {
+            return null
+        }
+
+        val period = findHeaderIndex(normalized, listOf("day", "time", "hour", "period", "date")) ?: return null
+        val date = findHeaderIndex(normalized, listOf("date"), exclude = setOf(period))
+        val condition = findHeaderIndex(normalized, listOf("condition", "forecast", "weather", "summary"), exclude = setOf(period))
+        val temp = findHeaderIndex(
+            normalized,
+            listOf("temperature", "temp", "high low", "high low c", "high low f"),
+            exclude = setOf(period) + listOfNotNull(date, condition)
+        )
+        val high = findHeaderIndex(normalized, listOf("high", "max"), exclude = setOf(period) + listOfNotNull(date, condition, temp))
+        val low = findHeaderIndex(normalized, listOf("low", "min"), exclude = setOf(period) + listOfNotNull(date, condition, temp, high))
+        val precip = findHeaderIndex(normalized, listOf("precip", "rain", "chance", "pop"), exclude = setOf(period))
+        val wind = findHeaderIndex(normalized, listOf("wind"), exclude = setOf(period))
+        val humidity = findHeaderIndex(normalized, listOf("humidity"), exclude = setOf(period))
+        val uv = findHeaderIndex(normalized, listOf("uv"), exclude = setOf(period))
+
+        val contentSignals = listOf(condition, temp, high, low, precip, wind, humidity, uv).count { it != null }
+        if (contentSignals < 2) {
+            return null
+        }
+
+        return WeatherTableColumns(
+            period = period,
+            date = date,
+            condition = condition,
+            high = high,
+            low = low,
+            temp = temp,
+            precip = precip,
+            wind = wind,
+            humidity = humidity,
+            uv = uv
+        )
+    }
+
+    private fun findHeaderIndex(
+        normalizedHeader: List<String>,
+        keywords: List<String>,
+        exclude: Set<Int> = emptySet()
+    ): Int? {
+        return normalizedHeader.indices.firstOrNull { index ->
+            index !in exclude && keywords.any { key -> normalizedHeader[index].contains(key) }
+        }
+    }
+
+    private fun normalizeWeatherHeader(value: String): String {
+        return value
+            .lowercase(Locale.US)
+            .replace(Regex("[^a-z0-9]+"), " ")
+            .trim()
+    }
+
+    private fun readCell(row: List<String>, index: Int?): String? {
+        if (index == null || index !in row.indices) {
+            return null
+        }
+        return row[index].trim().takeIf { it.isNotEmpty() }
+    }
+
+    private fun weatherTemperatureText(row: WeatherRow): String {
+        if (!row.temp.isNullOrBlank()) {
+            return row.temp
+        }
+        if (!row.high.isNullOrBlank() && !row.low.isNullOrBlank()) {
+            return "${row.high} / ${row.low}"
+        }
+        return row.high ?: row.low ?: ""
+    }
+
+    private fun orderWeatherRows(rows: List<WeatherRow>): List<WeatherRow> {
+        val todayIndex = rows.indexOfFirst { isTodayWeatherRow(it) }
+        if (todayIndex <= 0) {
+            return rows
+        }
+        return buildList {
+            add(rows[todayIndex])
+            rows.forEachIndexed { index, row ->
+                if (index != todayIndex) {
+                    add(row)
+                }
+            }
+        }
+    }
+
+    private fun isTodayWeatherRow(row: WeatherRow): Boolean {
+        val period = normalizeWeatherText(row.period)
+        val date = normalizeWeatherText(row.date.orEmpty())
+        if (period.contains("today") || date.contains("today")) {
+            return true
+        }
+        val today = LocalDate.now()
+        val fullDay = today.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.US).lowercase(Locale.US)
+        val shortDay = today.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, Locale.US).lowercase(Locale.US)
+        return period.contains(fullDay) || period.contains(shortDay) || date.contains(fullDay) || date.contains(shortDay)
+    }
+
+    private fun normalizeWeatherText(value: String): String {
+        return value.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), " ").trim()
+    }
+
+    private fun weatherConditionEmoji(condition: String?): String {
+        val normalized = normalizeWeatherText(condition.orEmpty())
+        return when {
+            normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning") -> "⛈️"
+            normalized.contains("snow") || normalized.contains("sleet") || normalized.contains("blizzard") -> "❄️"
+            normalized.contains("rain") || normalized.contains("shower") || normalized.contains("drizzle") -> "🌧️"
+            normalized.contains("partly") && normalized.contains("cloud") -> "⛅"
+            normalized.contains("cloud") || normalized.contains("overcast") -> "☁️"
+            normalized.contains("fog") || normalized.contains("mist") || normalized.contains("haze") -> "🌫️"
+            normalized.contains("wind") || normalized.contains("breeze") -> "💨"
+            normalized.contains("night") && normalized.contains("clear") -> "🌙"
+            normalized.contains("sun") || normalized.contains("clear") -> "☀️"
+            else -> "🌤️"
+        }
+    }
+
     @Composable
     private fun TableCellDivider() {
         val dark = isSystemInDarkTheme()
@@ -1684,12 +2455,13 @@ object GenUiNativeRenderer {
         val headerLikeVariants = setOf("h1", "h2", "h3", "h4", "h5", "h6")
         val headerLike = textRows.first().all { it.variant in headerLikeVariants } ||
             rowCells.first().all { it.startsWith("th-", ignoreCase = true) || it.startsWith("th_", ignoreCase = true) }
-        if (!hasWeight && !headerLike) {
+        val weatherHeaderLike = detectWeatherColumns(textRows.first().map { it.text }) != null
+        if (!hasWeight && !headerLike && !weatherHeaderLike) {
             return null
         }
 
-        val header = if (headerLike) textRows.first() else null
-        val body = if (headerLike) textRows.drop(1) else textRows
+        val header = if (headerLike || weatherHeaderLike) textRows.first() else null
+        val body = if (header != null) textRows.drop(1) else textRows
         if (body.isEmpty()) {
             return null
         }
@@ -1744,7 +2516,9 @@ object GenUiNativeRenderer {
         val hasButtons = normalized.contains("[Button:", ignoreCase = true)
         val hasTable = lines.count { isTableLikeLine(it) } >= 2
         val hasBullets = lines.count { it.startsWith("- ") } >= 2
-        return hasButtons || hasTable || hasBullets || normalized.contains("\n\n")
+        val hasMedia = lines.any { isInlineMediaLine(it) || isMediaMarkerHeading(it) }
+        val hasMultiLineLayout = lines.size >= 3
+        return hasButtons || hasTable || hasBullets || hasMedia || hasMultiLineLayout || normalized.contains("\n\n")
     }
 
     private fun parseTextBlocks(rawText: String): List<TextBlock> {
@@ -2039,7 +2813,7 @@ object GenUiNativeRenderer {
             if (parts.size == 2) {
                 val label = parts[0].trim()
                 val value = parts[1].trim()
-                if (label.isNotEmpty() && looksLikeImagePath(value)) {
+                if (label.isNotEmpty() && looksLikeImagePath(value, labelHint = label)) {
                     logos += ParsedLogo(label = label, url = value)
                 }
             }
@@ -2177,6 +2951,13 @@ object GenUiNativeRenderer {
                 cursor++
                 continue
             }
+
+            val inlineEntries = parseInlineMediaEntries(line)
+            if (inlineEntries.isNotEmpty()) {
+                entries += inlineEntries
+                cursor++
+                continue
+            }
             break
         }
 
@@ -2201,6 +2982,7 @@ object GenUiNativeRenderer {
     private fun isMediaMarkerHeading(line: String): Boolean {
         val normalized = line.trim().lowercase(Locale.US)
         return normalized in setOf(
+            "media:",
             "icons:",
             "icon:",
             "assets:",
@@ -2221,7 +3003,7 @@ object GenUiNativeRenderer {
         }
         val label = parts[0].trim()
         val value = parts[1].trim()
-        if (label.isEmpty() || !looksLikeImagePath(value)) {
+        if (label.isEmpty() || !looksLikeImagePath(value, labelHint = label)) {
             return null
         }
 
@@ -2235,6 +3017,40 @@ object GenUiNativeRenderer {
             url = value,
             iconLike = iconLike
         )
+    }
+
+    private fun parseInlineMediaEntries(line: String): List<ParsedMediaEntry> {
+        if (!isInlineMediaLine(line)) {
+            return emptyList()
+        }
+
+        return INLINE_MEDIA_ASSIGNMENT_REGEX
+            .findAll(line)
+            .mapNotNull { match ->
+                val mediaType = match.groupValues[1].trim()
+                val rawValue = sanitizeUrlToken(match.groupValues[2])
+                if (!looksLikeImagePath(rawValue, labelHint = mediaType)) {
+                    null
+                } else {
+                    ParsedMediaEntry(
+                        label = mediaType,
+                        url = rawValue,
+                        iconLike = mediaType.equals("Icon", ignoreCase = true)
+                    )
+                }
+            }
+            .toList()
+    }
+
+    private fun isInlineMediaLine(line: String): Boolean {
+        val trimmed = line.trim()
+        if (trimmed.startsWith("Media:", ignoreCase = true)) {
+            return INLINE_MEDIA_ASSIGNMENT_REGEX.containsMatchIn(trimmed)
+        }
+        if (trimmed.startsWith("Image:", ignoreCase = true) || trimmed.startsWith("Icon:", ignoreCase = true)) {
+            return true
+        }
+        return INLINE_MEDIA_ASSIGNMENT_REGEX.containsMatchIn(trimmed)
     }
 
     private fun collectNumberedSteps(
@@ -2346,6 +3162,12 @@ object GenUiNativeRenderer {
         if (line.length > 80) {
             return false
         }
+        if (Regex("""^day\s+\d+\s*:""", RegexOption.IGNORE_CASE).containsMatchIn(line)) {
+            return true
+        }
+        if (parseLeadingLabelValue(line) != null) {
+            return false
+        }
         if (line.startsWith("- ") || line.endsWith(".") || line.endsWith("?") || line.endsWith("!")) {
             return false
         }
@@ -2362,6 +3184,9 @@ object GenUiNativeRenderer {
         if (line.startsWith("- ")) {
             return true
         }
+        if (isInlineMediaLine(line) || isMediaMarkerHeading(line)) {
+            return true
+        }
         if (parseButtonLine(line) != null || parseOptionLine(line) != null || NUMBERED_STEP_REGEX.matchEntire(line) != null) {
             return true
         }
@@ -2371,13 +3196,43 @@ object GenUiNativeRenderer {
         return false
     }
 
-    private fun looksLikeImagePath(value: String): Boolean {
-        val normalized = value.trim().lowercase(Locale.US)
-        return normalized.endsWith(".png") ||
-            normalized.endsWith(".jpg") ||
-            normalized.endsWith(".jpeg") ||
-            normalized.endsWith(".svg") ||
-            normalized.endsWith(".webp")
+    private fun looksLikeImagePath(value: String, labelHint: String? = null): Boolean {
+        val normalized = value.trim()
+        val normalizedLower = normalized.lowercase(Locale.US)
+        val pathWithoutQuery = normalizedLower.substringBefore('?').substringBefore('#')
+        if (
+            pathWithoutQuery.endsWith(".png") ||
+            pathWithoutQuery.endsWith(".jpg") ||
+            pathWithoutQuery.endsWith(".jpeg") ||
+            pathWithoutQuery.endsWith(".svg") ||
+            pathWithoutQuery.endsWith(".webp")
+        ) {
+            return true
+        }
+
+        val uri = runCatching { Uri.parse(normalized) }.getOrNull()
+        val scheme = uri?.scheme?.lowercase(Locale.US)
+        if (scheme == "http" || scheme == "https") {
+            val host = uri.host?.lowercase(Locale.US).orEmpty()
+            val hint = labelHint.orEmpty().lowercase(Locale.US)
+            if (
+                host.contains("loremflickr.com") ||
+                host.contains("picsum.photos") ||
+                host.contains("placehold.co") ||
+                host.contains("dummyimage.com")
+            ) {
+                return true
+            }
+            if (hint.contains("image") || hint.contains("photo") || hint.contains("icon") || hint.contains("logo")) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun shouldShowMediaLabel(label: String): Boolean {
+        val normalized = sanitizeDisplayText(label).lowercase(Locale.US)
+        return normalized.isNotBlank() && normalized !in setOf("image", "icon", "photo", "logo", "media")
     }
 
     private fun isVectorImagePath(value: String): Boolean =
@@ -2780,3 +3635,4 @@ object GenUiNativeRenderer {
 
     private fun JsonObject.hasString(key: String): Boolean = getString(key) != null
 }
+

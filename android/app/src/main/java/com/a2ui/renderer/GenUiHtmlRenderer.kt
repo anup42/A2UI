@@ -1535,6 +1535,7 @@ object GenUiHtmlRenderer {
                   --sys-color-outline-high: #848487;
                   --sys-color-outline: #CCCCCC;
                   --sys-color-outline-low: #E4E4E7;
+                  --sys-color-media-border: #B7B7BB;
 
                   --sys-color-primary: #387AFF;
                   --sys-color-primary-bright: #387AFF;
@@ -1605,6 +1606,7 @@ object GenUiHtmlRenderer {
                     --sys-color-outline-high: #A3A3A7;
                     --sys-color-outline: #636368;
                     --sys-color-outline-low: #3A3A3D;
+                    --sys-color-media-border: #636368;
 
                     --sys-color-primary: #387AFF;
                     --sys-color-primary-bright: #578FFF;
@@ -1957,7 +1959,7 @@ object GenUiHtmlRenderer {
 
                 .media-preview-wrap {
                   border-radius: var(--sys-radius-md);
-                  border: var(--sys-border-md) solid var(--sys-color-outline-low);
+                  border: var(--sys-border-md) solid var(--sys-color-media-border);
                   background: var(--sys-color-surface);
                   min-height: 72px;
                   display: flex;
@@ -1997,7 +1999,7 @@ object GenUiHtmlRenderer {
                   height: 28px;
                   border-radius: var(--sys-radius-50);
                   background: var(--sys-color-tone-on-tone-high);
-                  border: var(--sys-border-md) solid var(--sys-color-outline-low);
+                  border: var(--sys-border-md) solid var(--sys-color-media-border);
                   display: inline-flex;
                   align-items: center;
                   justify-content: center;
@@ -2072,7 +2074,7 @@ object GenUiHtmlRenderer {
                   height: 170px;
                   object-fit: cover;
                   border-radius: var(--sys-radius-md);
-                  border: var(--sys-border-md) solid var(--sys-color-outline-low);
+                  border: var(--sys-border-md) solid var(--sys-color-media-border);
                   display: block;
                   background: transparent;
                 }

@@ -1,8 +1,82 @@
-﻿plugins {
+import java.io.File
+import java.util.Properties
+
+plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    }
+}
+
+fun parseDotEnv(file: File): Map<String, String> {
+    val values = mutableMapOf<String, String>()
+    file.forEachLine { rawLine ->
+        val line = rawLine.trim()
+        if (line.isEmpty() || line.startsWith("#")) {
+            return@forEachLine
+        }
+
+        val normalized = if (line.startsWith("export ")) {
+            line.removePrefix("export ").trim()
+        } else {
+            line
+        }
+
+        val delimiter = normalized.indexOf('=')
+        if (delimiter <= 0) {
+            return@forEachLine
+        }
+
+        val key = normalized.substring(0, delimiter).trim()
+        if (key.isEmpty()) {
+            return@forEachLine
+        }
+
+        var value = normalized.substring(delimiter + 1).trim()
+        if (
+            (value.startsWith("\"") && value.endsWith("\"")) ||
+                (value.startsWith("'") && value.endsWith("'"))
+        ) {
+            value = value.substring(1, value.length - 1)
+        }
+        values[key] = value
+    }
+    return values
+}
+
+fun escapeForBuildConfig(value: String): String {
+    return value.replace("\\", "\\\\").replace("\"", "\\\"")
+}
+
+val dotEnvCandidates = listOf(
+    rootProject.file(".env"),
+    rootProject.file("../.env"),
+    rootProject.file("../dataset/.env")
+)
+
+val geminiApiKey: String =
+    (
+        (project.findProperty("GEMINI_API_KEY") as? String)
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+            ?: localProperties
+                .getProperty("GEMINI_API_KEY")
+                ?.trim()
+                ?.takeIf { it.isNotBlank() }
+            ?: dotEnvCandidates
+                .asSequence()
+                .filter { it.exists() }
+                .mapNotNull { parseDotEnv(it)["GEMINI_API_KEY"]?.takeIf { key -> key.isNotBlank() } }
+                .firstOrNull()
+            ?: System.getenv("GEMINI_API_KEY")?.takeIf { it.isNotBlank() }
+            ?: ""
+        )
 
 android {
     namespace = "com.samsung.genuicraft"
@@ -15,6 +89,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "GEMINI_API_KEY", "\"${escapeForBuildConfig(geminiApiKey)}\"")
     }
 
     buildTypes {
@@ -38,6 +113,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

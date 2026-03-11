@@ -409,6 +409,7 @@ private fun applyDynamicHtmlPalette(
             --sys-color-outline-low: ${colorScheme.outlineVariant.toCssHex()};
             --sys-color-outline-high: ${colorScheme.outline.toCssHex()};
             --sys-color-outline-highest: ${colorScheme.outline.toCssHex()};
+            --sys-color-media-border: ${if (dark) "#636368" else "#B7B7BB"};
 
             --sys-color-primary: ${colorScheme.primary.toCssHex()};
             --sys-color-primary-high: ${colorScheme.primary.toCssHex()};

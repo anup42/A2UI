@@ -25,6 +25,12 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".GenUiAssistantActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RendererHomeActivity"
+            android:exported="false" />
+        <activity
             android:name=".ItemListActivity"
             android:exported="false" />
         <activity
