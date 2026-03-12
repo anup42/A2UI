@@ -30,6 +30,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -80,8 +81,17 @@ private fun SettingsScreen(
         DeviceSizeClass.Expanded -> 26.dp
     }
 
+    var selectedProvider by remember {
+        mutableStateOf(InferenceBackendSettings.getProvider(context))
+    }
     var selectedModel by remember {
         mutableStateOf(GeminiModelSettings.getSelectedModel(context))
+    }
+    var localServerBaseUrl by remember {
+        mutableStateOf(InferenceBackendSettings.getLocalServerBaseUrl(context))
+    }
+    var localModelPath by remember {
+        mutableStateOf(InferenceBackendSettings.getLocalModelPath(context))
     }
     var availableModels by remember {
         mutableStateOf(defaultModelOptions(selectedModel))
@@ -90,6 +100,12 @@ private fun SettingsScreen(
     var errorText by remember { mutableStateOf<String?>(null) }
 
     fun refreshModels() {
+        if (selectedProvider != InferenceBackendSettings.Provider.GEMINI) {
+            loading = false
+            errorText = null
+            availableModels = defaultModelOptions(selectedModel)
+            return
+        }
         if (loading) return
         val apiKey = BuildConfig.GEMINI_API_KEY.trim()
         if (apiKey.isBlank()) {
@@ -115,7 +131,7 @@ private fun SettingsScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(selectedProvider) {
         refreshModels()
     }
 
@@ -141,7 +157,10 @@ private fun SettingsScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = ::refreshModels, enabled = !loading) {
+                    IconButton(
+                        onClick = ::refreshModels,
+                        enabled = !loading && selectedProvider == InferenceBackendSettings.Provider.GEMINI
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Refresh,
                             contentDescription = stringResource(id = R.string.settings_refresh_models),
@@ -183,109 +202,219 @@ private fun SettingsScreen(
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(
-                                text = stringResource(id = R.string.settings_model_title),
+                                text = stringResource(id = R.string.settings_provider_title),
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = selectedModel,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = stringResource(id = R.string.settings_model_description),
+                                text = stringResource(id = R.string.settings_provider_description),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                        }
-                    }
-                }
-
-                if (loading) {
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp, vertical = 2.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(14.dp),
-                                strokeWidth = 2.dp
+                            val providerRows = listOf(
+                                InferenceBackendSettings.Provider.GEMINI to stringResource(id = R.string.settings_provider_gemini),
+                                InferenceBackendSettings.Provider.LOCAL_SERVER to stringResource(id = R.string.settings_provider_local_server)
                             )
-                            Text(
-                                text = stringResource(id = R.string.settings_model_loading),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-
-                if (!errorText.isNullOrBlank()) {
-                    item {
-                        Text(
-                            text = errorText.orEmpty(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-
-                item {
-                    Text(
-                        text = stringResource(id = R.string.settings_model_available),
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                items(availableModels, key = { it }) { model ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                selectedModel = model
-                                GeminiModelSettings.setSelectedModel(context, model)
-                            },
-                        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-                        colors = genUiCardColors(GenUiCardTone.Neutral),
-                        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = model == selectedModel,
-                                onClick = {
-                                    selectedModel = model
-                                    GeminiModelSettings.setSelectedModel(context, model)
+                            providerRows.forEach { (provider, label) ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            selectedProvider = provider
+                                            InferenceBackendSettings.setProvider(context, provider)
+                                        }
+                                        .padding(vertical = 2.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = selectedProvider == provider,
+                                        onClick = {
+                                            selectedProvider = provider
+                                            InferenceBackendSettings.setProvider(context, provider)
+                                        }
+                                    )
+                                    Text(
+                                        text = label,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
-                            )
+                            }
+                        }
+                    }
+                }
+
+                if (selectedProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                            colors = genUiCardColors(GenUiCardTone.Neutral),
+                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        ) {
                             Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = model,
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    text = stringResource(id = R.string.settings_local_server_title),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                OutlinedTextField(
+                                    value = localServerBaseUrl,
+                                    onValueChange = {
+                                        localServerBaseUrl = it
+                                        InferenceBackendSettings.setLocalServerBaseUrl(context, it)
+                                    },
+                                    label = { Text(stringResource(id = R.string.settings_local_server_url_label)) },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                OutlinedTextField(
+                                    value = localModelPath,
+                                    onValueChange = {
+                                        localModelPath = it
+                                        InferenceBackendSettings.setLocalModelPath(context, it)
+                                    },
+                                    label = { Text(stringResource(id = R.string.settings_local_model_path_label)) },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                                 Text(
-                                    text = "models/$model",
+                                    text = stringResource(id = R.string.settings_local_server_hint),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                            }
+                        }
+                    }
+                }
+
+                if (selectedProvider == InferenceBackendSettings.Provider.GEMINI) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                            colors = genUiCardColors(GenUiCardTone.Neutral),
+                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.settings_model_title),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = selectedModel,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.settings_model_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    if (loading) {
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp, vertical = 2.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(14.dp),
+                                    strokeWidth = 2.dp
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.settings_model_loading),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    if (!errorText.isNullOrBlank()) {
+                        item {
+                            Text(
+                                text = errorText.orEmpty(),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.settings_model_available),
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    items(availableModels, key = { it }) { model ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedModel = model
+                                    GeminiModelSettings.setSelectedModel(context, model)
+                                },
+                            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                            colors = genUiCardColors(GenUiCardTone.Neutral),
+                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = model == selectedModel,
+                                    onClick = {
+                                        selectedModel = model
+                                        GeminiModelSettings.setSelectedModel(context, model)
+                                    }
+                                )
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = model,
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "models/$model",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             }
                         }
                     }
@@ -326,4 +455,3 @@ private fun mergeSelectedModel(models: List<String>, selectedModel: String): Lis
     }
     return normalized
 }
-

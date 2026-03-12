@@ -12,6 +12,9 @@ This Android app renders GenUI payloads (`genui.json` and `genui.jsonl`) into HT
 - Bundles sample run assets/icons in `app/src/main/assets/r_*` so `/assets/...` paths render inside WebView.
 - Converts GenUI component trees (`v0.9` and basic `v0.8`) to HTML/CSS
 - Renders common components: `Column`, `Row`, `List`, `Text`, `Image`, `Icon`, `Button`, `Divider`, `Card`, `Tabs`
+- Settings supports two inference backends for the GenUI assistant flow:
+  - `Gemini API` (default, with selectable Gemini model)
+  - `Local Server` (configure server URL + Hugging Face model path)
 - Applies device configuration adaptively:
   - Dynamic color + dark/light mode from system theme
   - Font scale for accessibility (`WebView` `textZoom` + Compose large-text layout handling)

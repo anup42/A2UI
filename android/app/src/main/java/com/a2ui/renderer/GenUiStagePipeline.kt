@@ -81,13 +81,26 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
+        val provider = InferenceBackendSettings.getProvider(appContext)
         val selectedModel = GeminiModelSettings.getSelectedModel(appContext)
+        val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
+        val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
 
-        val apiKey = BuildConfig.GEMINI_API_KEY.trim()
-        if (apiKey.isBlank()) {
+        val apiKey = if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            BuildConfig.GEMINI_API_KEY.trim()
+        } else {
+            ""
+        }
+        if (provider == InferenceBackendSettings.Provider.GEMINI && apiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
                 message = "Gemini API key is missing. Set GEMINI_API_KEY before building the app."
+            )
+        }
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && localServerBaseUrl.isBlank()) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE2,
+                message = "Local server URL is missing. Open Settings and configure Local Server."
             )
         }
 
@@ -114,32 +127,39 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         val promptContext = prepareStage3PromptContext(genUiTemplate)
-        val stage3CacheDeferred = async(Dispatchers.IO) {
-            ensureStage3InstructionCache(
-                apiKey = apiKey,
-                model = selectedModel,
-                systemPrompt = promptContext.systemPrompt
-            )
+        val stage3CacheDeferred = if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            async(Dispatchers.IO) {
+                ensureStage3InstructionCache(
+                    apiKey = apiKey,
+                    model = selectedModel,
+                    systemPrompt = promptContext.systemPrompt
+                )
+            }
+        } else {
+            null
         }
 
         postUpdate(onStageUpdate, Stage.STAGE2, "Fetching response")
         val stage2StartedAtMs = System.currentTimeMillis()
         val stage2Call = generateWithRetry(
+            provider = provider,
             apiKey = apiKey,
             model = selectedModel,
+            localServerBaseUrl = localServerBaseUrl,
+            localModelPath = localModelPath,
             prompt = stage2Prompt,
             systemPrompt = null,
             temperature = 0.3,
             maxOutputTokens = 4096,
             jsonMode = false,
-            enableGoogleSearch = true,
+            enableGoogleSearch = provider == InferenceBackendSettings.Provider.GEMINI,
             allowCachedContent = false,
             structuredOutput = false
         )
         markStreamDuration(Stage.STAGE2, stage2Call.streamDurationMs)
         if (stage2Call.error != null) {
             markDuration(Stage.STAGE2, stage2StartedAtMs)
-            stage3CacheDeferred.cancel()
+            stage3CacheDeferred?.cancel()
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
                 message = stage2Call.error,
@@ -150,7 +170,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage2ResponseRaw = stage2Call.text.trim()
         if (stage2ResponseRaw.isBlank()) {
             markDuration(Stage.STAGE2, stage2StartedAtMs)
-            stage3CacheDeferred.cancel()
+            stage3CacheDeferred?.cancel()
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
                 message = "Stage 2 returned empty output.",
@@ -176,36 +196,50 @@ class GenUiStagePipeline(private val appContext: Context) {
             assets = emptyList()
         )
         val warnings = mutableListOf<String>()
-        warnings += "Using Gemini model: $selectedModel"
+        if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            warnings += "Using Gemini model: $selectedModel"
+        } else {
+            warnings += "Using local server: $localServerBaseUrl"
+            warnings += "Local model path: $localModelPath"
+        }
         if (normalizedBareDomains) {
             warnings += "Normalized bare source/action domains to https URLs."
         }
         if (injectedTravelMedia) {
             warnings += "Added fallback inline media URLs for travel content."
         }
-        val stage3Cache = runCatching { stage3CacheDeferred.await() }
-            .getOrElse {
-                CacheSetupResult(
-                    name = null,
-                    created = false,
-                    error = it.message ?: it.javaClass.simpleName
-                )
+        val stage3Cache = if (stage3CacheDeferred != null) {
+            runCatching { stage3CacheDeferred.await() }
+                .getOrElse {
+                    CacheSetupResult(
+                        name = null,
+                        created = false,
+                        error = it.message ?: it.javaClass.simpleName
+                    )
+                }
+        } else {
+            CacheSetupResult(name = null, created = false, error = null)
+        }
+        if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            if (stage3Cache.name != null && !stage3Cache.created) {
+                warnings += "Stage 3 instruction cache hit."
             }
-        if (stage3Cache.name != null && !stage3Cache.created) {
-            warnings += "Stage 3 instruction cache hit."
-        }
-        if (stage3Cache.created) {
-            warnings += "Stage 3 instruction cache created."
-        }
-        stage3Cache.error?.let {
-            warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
+            if (stage3Cache.created) {
+                warnings += "Stage 3 instruction cache created."
+            }
+            stage3Cache.error?.let {
+                warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
+            }
         }
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
         val stage3Call = generateWithRetry(
+            provider = provider,
             apiKey = apiKey,
             model = selectedModel,
+            localServerBaseUrl = localServerBaseUrl,
+            localModelPath = localModelPath,
             prompt = stage3Prompt,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
             temperature = 0.2,
@@ -214,7 +248,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
             allowCachedContent = true,
-            structuredOutput = true
+            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -235,8 +269,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (stage3JsonElement == null) {
             warnings += "Stage 3 JSON parse failed; running repair pass."
             val repairCall = generateWithRetry(
+                provider = provider,
                 apiKey = apiKey,
                 model = selectedModel,
+                localServerBaseUrl = localServerBaseUrl,
+                localModelPath = localModelPath,
                 prompt = buildRepairPrompt(stage3Call.text),
                 systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
                 temperature = 0.2,
@@ -245,7 +282,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 enableGoogleSearch = false,
                 cachedContentName = stage3Cache.name,
                 allowCachedContent = true,
-                structuredOutput = true
+                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI
             )
             markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
             if (repairCall.error == null) {
@@ -1102,8 +1139,11 @@ class GenUiStagePipeline(private val appContext: Context) {
     }
 
     private fun generateWithRetry(
+        provider: InferenceBackendSettings.Provider,
         apiKey: String,
         model: String,
+        localServerBaseUrl: String,
+        localModelPath: String,
         prompt: String,
         systemPrompt: String?,
         temperature: Double,
@@ -1120,15 +1160,24 @@ class GenUiStagePipeline(private val appContext: Context) {
         var last: GeminiResponse = GeminiResponse(
             text = "",
             rawResponse = null,
-            error = "Unknown Gemini error",
+            error = "Unknown generation error",
             streamDurationMs = null
         )
-        val effectiveCachedContentName = if (allowCachedContent) cachedContentName else null
+        val effectiveCachedContentName = if (
+            allowCachedContent && provider == InferenceBackendSettings.Provider.GEMINI
+        ) {
+            cachedContentName
+        } else {
+            null
+        }
         while (attempt < 3) {
             attempt += 1
             last = generateOnce(
+                provider = provider,
                 apiKey = apiKey,
                 model = model,
+                localServerBaseUrl = localServerBaseUrl,
+                localModelPath = localModelPath,
                 prompt = prompt,
                 systemPrompt = systemPrompt,
                 temperature = temperature,
@@ -1145,10 +1194,17 @@ class GenUiStagePipeline(private val appContext: Context) {
             if (last.error == null) {
                 return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
-            if (enableGoogleSearch && isSearchToolConfigError(last.error)) {
+            if (
+                provider == InferenceBackendSettings.Provider.GEMINI &&
+                enableGoogleSearch &&
+                isSearchToolConfigError(last.error)
+            ) {
                 val fallback = generateOnce(
+                    provider = provider,
                     apiKey = apiKey,
                     model = model,
+                    localServerBaseUrl = localServerBaseUrl,
+                    localModelPath = localModelPath,
                     prompt = prompt,
                     systemPrompt = systemPrompt,
                     temperature = temperature,
@@ -1164,10 +1220,17 @@ class GenUiStagePipeline(private val appContext: Context) {
                 }
                 return fallback.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
-            if (structuredOutput && isStructuredOutputConfigError(last.error)) {
+            if (
+                provider == InferenceBackendSettings.Provider.GEMINI &&
+                structuredOutput &&
+                isStructuredOutputConfigError(last.error)
+            ) {
                 val fallback = generateOnce(
+                    provider = provider,
                     apiKey = apiKey,
                     model = model,
+                    localServerBaseUrl = localServerBaseUrl,
+                    localModelPath = localModelPath,
                     prompt = prompt,
                     systemPrompt = systemPrompt,
                     temperature = temperature,
@@ -1198,6 +1261,47 @@ class GenUiStagePipeline(private val appContext: Context) {
     }
 
     private fun generateOnce(
+        provider: InferenceBackendSettings.Provider,
+        apiKey: String,
+        model: String,
+        localServerBaseUrl: String,
+        localModelPath: String,
+        prompt: String,
+        systemPrompt: String?,
+        temperature: Double,
+        maxOutputTokens: Int,
+        jsonMode: Boolean,
+        enableGoogleSearch: Boolean = false,
+        cachedContentName: String? = null,
+        structuredOutput: Boolean = false
+    ): GeminiResponse {
+        return when (provider) {
+            InferenceBackendSettings.Provider.GEMINI -> generateOnceGemini(
+                apiKey = apiKey,
+                model = model,
+                prompt = prompt,
+                systemPrompt = systemPrompt,
+                temperature = temperature,
+                maxOutputTokens = maxOutputTokens,
+                jsonMode = jsonMode,
+                enableGoogleSearch = enableGoogleSearch,
+                cachedContentName = cachedContentName,
+                structuredOutput = structuredOutput
+            )
+
+            InferenceBackendSettings.Provider.LOCAL_SERVER -> generateOnceLocalServer(
+                localServerBaseUrl = localServerBaseUrl,
+                localModelPath = localModelPath,
+                prompt = prompt,
+                systemPrompt = systemPrompt,
+                temperature = temperature,
+                maxOutputTokens = maxOutputTokens,
+                jsonMode = jsonMode
+            )
+        }
+    }
+
+    private fun generateOnceGemini(
         apiKey: String,
         model: String,
         prompt: String,
@@ -1277,6 +1381,128 @@ class GenUiStagePipeline(private val appContext: Context) {
         } finally {
             connection.disconnect()
         }
+    }
+
+    private fun generateOnceLocalServer(
+        localServerBaseUrl: String,
+        localModelPath: String,
+        prompt: String,
+        systemPrompt: String?,
+        temperature: Double,
+        maxOutputTokens: Int,
+        jsonMode: Boolean
+    ): GeminiResponse {
+        val baseUrl = localServerBaseUrl.trim().trimEnd('/')
+        if (baseUrl.isBlank()) {
+            return GeminiResponse(
+                text = "",
+                rawResponse = null,
+                error = "Local server URL is empty.",
+                streamDurationMs = null
+            )
+        }
+        val endpoint = URL("$baseUrl/v1/generate")
+        val connection = (endpoint.openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = 20000
+            readTimeout = 300000
+            doOutput = true
+            setRequestProperty("Content-Type", "application/json")
+        }
+
+        val body = JsonObject().apply {
+            addProperty("prompt", prompt)
+            if (!systemPrompt.isNullOrBlank()) {
+                addProperty("system_prompt", systemPrompt)
+            }
+            addProperty("temperature", temperature)
+            addProperty("max_output_tokens", min(maxOutputTokens, 8192))
+            addProperty("json_mode", jsonMode)
+            if (localModelPath.isNotBlank()) {
+                addProperty("model_path", localModelPath)
+            }
+        }
+
+        return try {
+            connection.outputStream.use { out ->
+                out.write(gson.toJson(body).toByteArray(StandardCharsets.UTF_8))
+            }
+
+            val code = connection.responseCode
+            val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+            val streamRead = readStreamWithTiming(stream)
+            val raw = streamRead.text
+
+            if (code !in 200..299) {
+                val short = raw.trim().ifBlank { "HTTP $code" }
+                return GeminiResponse(
+                    text = "",
+                    rawResponse = raw,
+                    error = "HTTP $code: ${short.take(320)}",
+                    streamDurationMs = streamRead.streamDurationMs
+                )
+            }
+
+            val text = extractLocalServerText(raw)
+            if (text.isNullOrBlank()) {
+                return GeminiResponse(
+                    text = "",
+                    rawResponse = raw,
+                    error = "Local server response did not include text output.",
+                    streamDurationMs = streamRead.streamDurationMs
+                )
+            }
+
+            GeminiResponse(
+                text = text,
+                rawResponse = raw,
+                error = null,
+                streamDurationMs = streamRead.streamDurationMs
+            )
+        } catch (io: IOException) {
+            GeminiResponse(
+                text = "",
+                rawResponse = null,
+                error = io.message ?: io.javaClass.simpleName,
+                streamDurationMs = null
+            )
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun extractLocalServerText(raw: String): String? {
+        val root = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull() ?: return null
+        val directText = root.get("text")
+            ?.takeIf { it.isJsonPrimitive }
+            ?.asString
+            ?.trim()
+        if (!directText.isNullOrBlank()) {
+            return directText
+        }
+
+        val outputText = root.get("output_text")
+            ?.takeIf { it.isJsonPrimitive }
+            ?.asString
+            ?.trim()
+        if (!outputText.isNullOrBlank()) {
+            return outputText
+        }
+
+        val choices = root.getAsJsonArray("choices")
+        if (choices != null && choices.size() > 0) {
+            val first = runCatching { choices[0].asJsonObject }.getOrNull()
+            val message = first?.getAsJsonObject("message")
+            val content = message
+                ?.get("content")
+                ?.takeIf { it.isJsonPrimitive }
+                ?.asString
+                ?.trim()
+            if (!content.isNullOrBlank()) {
+                return content
+            }
+        }
+        return null
     }
 
     private fun readStreamWithTiming(stream: java.io.InputStream?): StreamReadResult {

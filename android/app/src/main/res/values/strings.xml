@@ -7,6 +7,14 @@
     <string name="launcher_renderer_title">Renderer Demo</string>
     <string name="launcher_renderer_subtitle">Open the file/sample renderer flow for existing GenUI JSON/JSONL assets.</string>
     <string name="settings_title">Settings</string>
+    <string name="settings_provider_title">Inference Backend</string>
+    <string name="settings_provider_description">Choose how responses are generated for stage 2 and stage 3.</string>
+    <string name="settings_provider_gemini">Gemini API</string>
+    <string name="settings_provider_local_server">Local Server</string>
+    <string name="settings_local_server_title">Local Server Settings</string>
+    <string name="settings_local_server_url_label">Server URL</string>
+    <string name="settings_local_model_path_label">Model path</string>
+    <string name="settings_local_server_hint">Use 10.0.2.2 for emulator access to a server running on your computer.</string>
     <string name="settings_model_title">Gemini Model</string>
     <string name="settings_model_description">This model is used for response generation and GenUICraft IR conversion stages.</string>
     <string name="settings_model_available">Available models</string>
