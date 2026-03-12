@@ -97,3 +97,28 @@ You can override prompt/tokens:
 ```powershell
 python main.py --model-path Qwen/Qwen2.5-Coder-7B-Instruct --device cuda --self-test-only --self-test-prompt "show pizza recipie" --self-test-max-output-tokens 256
 ```
+
+## 7) vLLM server variant (`server_vllm.py`)
+
+If you want vLLM backend (as recommended for Qwen deployment throughput), use:
+
+```powershell
+cd server
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements-vllm.txt
+```
+
+Run:
+
+```powershell
+python server_vllm.py --model-path Qwen/Qwen2.5-Coder-7B-Instruct --host 0.0.0.0 --port 8000 --dtype auto --gpu-memory-utilization 0.9
+```
+
+The API contract remains the same (`/health`, `POST /v1/generate`) so Android settings do not need request-shape changes.
+
+`server_vllm.py` supports additional sampling fields in requests:
+- `top_p` (default `0.95`)
+- `top_k` (default `20`)
+- `presence_penalty` (default `0.0`)
+- `enable_thinking` (optional, passed only when tokenizer template supports it)
