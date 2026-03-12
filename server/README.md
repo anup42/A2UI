@@ -14,13 +14,14 @@ pip install -r requirements.txt
 ## 2) Run on your GPU
 
 ```powershell
-python main.py --model-path Qwen/Qwen2.5-Coder-7B-Instruct --host 0.0.0.0 --port 8000 --device cuda
+python main.py --model-path Qwen/Qwen2.5-Coder-7B-Instruct --host 0.0.0.0 --port 8000 --device cuda --attn-implementation sdpa
 ```
 
 Notes:
 - `--model-path` accepts either a Hugging Face repo id or a local filesystem path.
 - First load can take time while weights are downloaded/loaded.
 - If your model needs custom code, add `--trust-remote-code`.
+- If you see a FlashAttention GPU compatibility error, use `--attn-implementation sdpa` or `--attn-implementation eager`.
 
 ## 3) Health check
 

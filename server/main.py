@@ -36,10 +36,17 @@ class GenerateResponse(BaseModel):
 
 
 class LocalGenerationEngine:
-    def __init__(self, default_model_path: str, preferred_device: str, trust_remote_code: bool) -> None:
+    def __init__(
+        self,
+        default_model_path: str,
+        preferred_device: str,
+        trust_remote_code: bool,
+        attn_implementation: str
+    ) -> None:
         self._default_model_path = default_model_path.strip() or DEFAULT_MODEL_PATH
         self._preferred_device = preferred_device.strip() or "cuda"
         self._trust_remote_code = trust_remote_code
+        self._attn_implementation = attn_implementation.strip().lower()
 
         self._request_lock = asyncio.Lock()
         self._tokenizer: Any | None = None
@@ -91,6 +98,10 @@ class LocalGenerationEngine:
         use_mps = self._preferred_device.startswith("mps") and torch.backends.mps.is_available()
 
         model_kwargs: dict[str, Any] = {"trust_remote_code": self._trust_remote_code}
+        attn_impl = self._resolved_attn_implementation(use_cuda=use_cuda)
+        if attn_impl is not None:
+            model_kwargs["attn_implementation"] = attn_impl
+
         if use_cuda:
             dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
             model_kwargs["torch_dtype"] = dtype
@@ -100,7 +111,19 @@ class LocalGenerationEngine:
             model_kwargs["torch_dtype"] = torch.float32
             inference_device = "mps" if use_mps else "cpu"
 
-        model = AutoModelForCausalLM.from_pretrained(model_path, **model_kwargs)
+        try:
+            model = AutoModelForCausalLM.from_pretrained(model_path, **model_kwargs)
+        except Exception as exc:  # noqa: BLE001
+            # Some stacks auto-pick flash attention and fail on non-Ampere GPUs.
+            message = str(exc).lower()
+            if "flash attention" in message or "flashattention" in message:
+                LOGGER.warning(
+                    "FlashAttention is unsupported on this GPU/runtime. Retrying with eager attention."
+                )
+                model_kwargs["attn_implementation"] = "eager"
+                model = AutoModelForCausalLM.from_pretrained(model_path, **model_kwargs)
+            else:
+                raise
         if not use_cuda:
             model.to(inference_device)
         model.eval()
@@ -115,11 +138,24 @@ class LocalGenerationEngine:
         self._last_load_ms = (time.perf_counter() - started) * 1000.0
 
         LOGGER.info(
-            "Model ready: path='%s', device='%s', load_ms=%.0f",
+            "Model ready: path='%s', device='%s', attn='%s', load_ms=%.0f",
             self._loaded_model_path,
             self._inference_device,
+            model_kwargs.get("attn_implementation", "default"),
             self._last_load_ms
         )
+
+    def _resolved_attn_implementation(self, use_cuda: bool) -> str | None:
+        if self._attn_implementation in {"eager", "sdpa", "flash_attention_2"}:
+            return self._attn_implementation
+        if self._attn_implementation == "default":
+            return None
+        if self._attn_implementation == "auto":
+            # Avoid flash-attention hard failures on older GPUs by defaulting to SDPA/eager.
+            if use_cuda:
+                return "sdpa"
+            return "eager"
+        return "sdpa" if use_cuda else "eager"
 
     def _cleanup_model(self) -> None:
         if self._model is not None:
@@ -232,6 +268,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trust-remote-code", action="store_true")
     parser.add_argument("--lazy-load", action="store_true", help="Load model on first request instead of startup.")
     parser.add_argument(
+        "--attn-implementation",
+        default="auto",
+        choices=["auto", "default", "sdpa", "eager", "flash_attention_2"],
+        help="Attention backend used by Transformers."
+    )
+    parser.add_argument(
         "--log-level",
         default="info",
         choices=["debug", "info", "warning", "error", "critical"]
@@ -249,7 +291,8 @@ def main() -> None:
     engine = LocalGenerationEngine(
         default_model_path=args.model_path,
         preferred_device=args.device,
-        trust_remote_code=args.trust_remote_code
+        trust_remote_code=args.trust_remote_code,
+        attn_implementation=args.attn_implementation
     )
     app = create_app(engine=engine, lazy_load=args.lazy_load)
     uvicorn.run(app, host=args.host, port=args.port, log_level=args.log_level)
