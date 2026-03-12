@@ -1664,11 +1664,13 @@ object GenUiNativeRenderer {
                             ),
                             asIcon = false
                         )
-                        Text(
-                            text = sanitizeDisplayText(entry.label),
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        if (shouldShowMediaLabel(entry.label)) {
+                            Text(
+                                text = sanitizeDisplayText(entry.label),
+                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
 
                         val inlineIcons = iconBuckets[index]
                         if (inlineIcons.isNotEmpty()) {
@@ -1703,13 +1705,15 @@ object GenUiNativeRenderer {
                                                 asIcon = true
                                             )
                                         }
-                                        Text(
-                                            text = sanitizeDisplayText(icon.label),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Clip
-                                        )
+                                        if (shouldShowMediaLabel(icon.label)) {
+                                            Text(
+                                                text = sanitizeDisplayText(icon.label),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Clip
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -5056,7 +5060,14 @@ object GenUiNativeRenderer {
 
     private fun shouldShowMediaLabel(label: String): Boolean {
         val normalized = sanitizeDisplayText(label).lowercase(Locale.US)
-        return normalized.isNotBlank() && normalized !in setOf("image", "icon", "photo", "logo", "media")
+        if (normalized.isBlank()) {
+            return false
+        }
+        if (normalized in setOf("image", "icon", "photo", "logo", "media")) {
+            return false
+        }
+        return !Regex("""^(image|icon|photo|logo|media)\s*[:#-]?\s*\d*$""", RegexOption.IGNORE_CASE)
+            .matches(normalized)
     }
 
     private fun isVectorImagePath(value: String): Boolean =

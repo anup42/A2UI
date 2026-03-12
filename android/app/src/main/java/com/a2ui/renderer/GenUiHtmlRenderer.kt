@@ -951,6 +951,18 @@ object GenUiHtmlRenderer {
         return normalized in setOf("airline", "time", "calendar")
     }
 
+    private fun shouldShowMediaLabel(label: String): Boolean {
+        val normalized = normalizeMatchText(label)
+        if (normalized.isBlank()) {
+            return false
+        }
+        if (normalized in setOf("image", "icon", "photo", "logo", "media")) {
+            return false
+        }
+        return !Regex("""^(image|icon|photo|logo|media)\s*[:#-]?\s*\d*$""", RegexOption.IGNORE_CASE)
+            .matches(normalized)
+    }
+
     private fun isMediaMarkerHeading(line: String): Boolean {
         val normalized = line.trim().lowercase(Locale.US)
         return normalized in setOf(
@@ -1016,13 +1028,18 @@ object GenUiHtmlRenderer {
                     }
                     """<div class="media-icon-row">$iconHtml</div>"""
                 }
+                val labelHtml = if (shouldShowMediaLabel(entry.label)) {
+                    """<p class="media-label">${escapeHtml(entry.label)}</p>"""
+                } else {
+                    ""
+                }
 
                 """
                     <article class="media-card">
                       <div class="media-preview-wrap media-preview-wrap-image">
                         <img class="media-preview" src="${escapeAttr(resolved)}" alt="${escapeAttr(entry.label)}" />
                       </div>
-                      <p class="media-label">${escapeHtml(entry.label)}</p>
+                      $labelHtml
                       $iconStrip
                     </article>
                 """.trimIndent()
@@ -1030,12 +1047,17 @@ object GenUiHtmlRenderer {
         } else {
             entries.joinToString(separator = "") { entry ->
                 val resolved = resolveAssetUrl(entry.url, sourceDir)
+                val labelHtml = if (shouldShowMediaLabel(entry.label)) {
+                    """<p class="media-label">${escapeHtml(entry.label)}</p>"""
+                } else {
+                    ""
+                }
                 """
                     <article class="media-card">
                       <div class="media-preview-wrap media-preview-wrap-icon">
                         <img class="media-preview media-preview-icon" src="${escapeAttr(resolved)}" alt="${escapeAttr(entry.label)}" />
                       </div>
-                      <p class="media-label">${escapeHtml(entry.label)}</p>
+                      $labelHtml
                     </article>
                 """.trimIndent()
             }
