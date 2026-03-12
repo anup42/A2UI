@@ -34,6 +34,12 @@
             android:name=".RendererHomeActivity"
             android:exported="false" />
         <activity
+            android:name=".IrDemoListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".IrDemoRenderActivity"
+            android:exported="false" />
+        <activity
             android:name=".ItemListActivity"
             android:exported="false" />
         <activity

@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                 LauncherScreen(
                     onOpenRenderer = { startActivity(Intent(this, RendererHomeActivity::class.java)) },
                     onOpenGenUi = { startActivity(Intent(this, GenUiAssistantActivity::class.java)) },
+                    onOpenIrDemo = { startActivity(Intent(this, IrDemoListActivity::class.java)) },
                     onOpenSettings = { startActivity(Intent(this, SettingsActivity::class.java)) }
                 )
             }
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity() {
 private fun LauncherScreen(
     onOpenRenderer: () -> Unit,
     onOpenGenUi: () -> Unit,
+    onOpenIrDemo: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
     val deviceConfig = rememberDeviceUiConfig()
@@ -112,6 +114,11 @@ private fun LauncherScreen(
                 LauncherCard(
                     title = stringResource(id = R.string.launcher_renderer_title),
                     onClick = onOpenRenderer
+                )
+
+                LauncherCard(
+                    title = stringResource(id = R.string.launcher_ir_demo_title),
+                    onClick = onOpenIrDemo
                 )
             }
         }

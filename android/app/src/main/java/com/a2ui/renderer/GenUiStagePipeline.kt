@@ -374,6 +374,281 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
     }
 
+    suspend fun executeStage3FromResponse(
+        queryText: String,
+        stage2ResponseText: String,
+        onStageUpdate: (StageUpdate) -> Unit
+    ): Outcome = withContext(Dispatchers.IO) {
+        val stageDurationsMs = linkedMapOf<Stage, Long>()
+        val stageStreamDurationsMs = linkedMapOf<Stage, Long>()
+        fun markDuration(stage: Stage, startMs: Long) {
+            if (startMs <= 0L) return
+            stageDurationsMs[stage] = (System.currentTimeMillis() - startMs).coerceAtLeast(0L)
+        }
+        fun markStreamDuration(stage: Stage, durationMs: Long?) {
+            val duration = durationMs ?: return
+            stageStreamDurationsMs[stage] = (stageStreamDurationsMs[stage] ?: 0L) + duration.coerceAtLeast(0L)
+        }
+
+        val normalizedQuery = queryText.trim()
+            .takeIf { it.isNotBlank() }
+            ?: "IR demo query"
+        val normalizedResponseRaw = stage2ResponseText.trim()
+        if (normalizedResponseRaw.isBlank()) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Response text is empty.",
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+
+        val provider = InferenceBackendSettings.getProvider(appContext)
+        val selectedModel = GeminiModelSettings.getSelectedModel(appContext)
+        val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
+        val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
+        val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
+        val stage3MaxOutputTokens = if (isLocalServer) LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS else STAGE3_MAX_OUTPUT_TOKENS
+        val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
+
+        val apiKey = if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            BuildConfig.GEMINI_API_KEY.trim()
+        } else {
+            ""
+        }
+        if (provider == InferenceBackendSettings.Provider.GEMINI && apiKey.isBlank()) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Gemini API key is missing. Set GEMINI_API_KEY before building the app.",
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && localServerBaseUrl.isBlank()) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Local server URL is missing. Open Settings and configure Local Server.",
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            postUpdate(onStageUpdate, Stage.STAGE3, "Checking local server connectivity")
+            val health = checkLocalServerHealth(localServerBaseUrl)
+            if (health != null) {
+                return@withContext Outcome.Failure(
+                    stage = Stage.STAGE3,
+                    message = health,
+                    stageDurationsMs = stageDurationsMs.toMap(),
+                    stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+                )
+            }
+        }
+
+        val genUiTemplate = runCatching { loadPromptAsset(STAGE3_PROMPT_ASSET) }
+            .getOrElse {
+                return@withContext Outcome.Failure(
+                    stage = Stage.STAGE3,
+                    message = "Could not load stage 3 prompt: ${it.message ?: it.javaClass.simpleName}",
+                    stageDurationsMs = stageDurationsMs.toMap(),
+                    stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+                )
+            }
+        val promptContext = prepareStage3PromptContext(genUiTemplate)
+        val stage3CacheDeferred = if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            async(Dispatchers.IO) {
+                ensureStage3InstructionCache(
+                    apiKey = apiKey,
+                    model = selectedModel,
+                    systemPrompt = promptContext.systemPrompt
+                )
+            }
+        } else {
+            null
+        }
+
+        val stage2WithActions = ensureFlightQuickActions(
+            responseText = normalizedResponseRaw,
+            queryText = normalizedQuery
+        )
+        val stage2WithTravelMedia = ensureTravelInlineMedia(
+            responseText = stage2WithActions,
+            queryText = normalizedQuery
+        )
+        val stage2Response = normalizeUrlTokensForDisplay(stage2WithTravelMedia)
+        val normalizedBareDomains = stage2Response != stage2WithTravelMedia
+        val injectedTravelMedia = stage2WithTravelMedia != stage2WithActions
+
+        val stage3Prompt = buildStage3UserPrompt(
+            userTemplate = promptContext.userTemplate,
+            stage2Response = stage2Response,
+            assets = emptyList()
+        )
+        val warnings = mutableListOf<String>()
+        warnings += "Using preloaded IR demo response (stage 2 skipped)."
+        if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            warnings += "Using Gemini model: $selectedModel"
+        } else {
+            warnings += "Using local server: $localServerBaseUrl"
+            warnings += "Local model path: $localModelPath"
+            warnings += "Local token cap: stage3=$stage3MaxOutputTokens"
+        }
+        if (normalizedBareDomains) {
+            warnings += "Normalized bare source/action domains to https URLs."
+        }
+        if (injectedTravelMedia) {
+            warnings += "Added fallback inline media URLs for travel content."
+        }
+        val stage3Cache = if (stage3CacheDeferred != null) {
+            runCatching { stage3CacheDeferred.await() }
+                .getOrElse {
+                    CacheSetupResult(
+                        name = null,
+                        created = false,
+                        error = it.message ?: it.javaClass.simpleName
+                    )
+                }
+        } else {
+            CacheSetupResult(name = null, created = false, error = null)
+        }
+        if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            if (stage3Cache.name != null && !stage3Cache.created) {
+                warnings += "Stage 3 instruction cache hit."
+            }
+            if (stage3Cache.created) {
+                warnings += "Stage 3 instruction cache created."
+            }
+            stage3Cache.error?.let {
+                warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
+            }
+        }
+
+        postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
+        val stage3StartedAtMs = System.currentTimeMillis()
+        val stage3Call = generateWithRetry(
+            provider = provider,
+            apiKey = apiKey,
+            model = selectedModel,
+            localServerBaseUrl = localServerBaseUrl,
+            localModelPath = localModelPath,
+            prompt = stage3Prompt,
+            systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
+            temperature = 0.2,
+            maxOutputTokens = stage3MaxOutputTokens,
+            jsonMode = true,
+            enableGoogleSearch = false,
+            cachedContentName = stage3Cache.name,
+            allowCachedContent = true,
+            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI
+        )
+        markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
+
+        if (stage3Call.error != null) {
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = stage3Call.error,
+                stage2Response = stage2Response,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+
+        var stage3JsonElement = extractJsonElement(stage3Call.text)
+        var usedFallback = false
+
+        if (stage3JsonElement == null) {
+            warnings += "Stage 3 JSON parse failed; running repair pass."
+            val repairCall = generateWithRetry(
+                provider = provider,
+                apiKey = apiKey,
+                model = selectedModel,
+                localServerBaseUrl = localServerBaseUrl,
+                localModelPath = localModelPath,
+                prompt = buildRepairPrompt(stage3Call.text),
+                systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
+                temperature = 0.2,
+                maxOutputTokens = stage3RepairMaxOutputTokens,
+                jsonMode = true,
+                enableGoogleSearch = false,
+                cachedContentName = stage3Cache.name,
+                allowCachedContent = true,
+                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI
+            )
+            markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
+            if (repairCall.error == null) {
+                stage3JsonElement = extractJsonElement(repairCall.text)
+            }
+        }
+
+        if (stage3JsonElement == null) {
+            warnings += "Stage 3 fallback JSON was used."
+            stage3JsonElement = buildFallbackGenUi(stage2Response)
+            usedFallback = true
+        }
+
+        val normalizedGenUi = normalizeGenUiPayload(stage3JsonElement)
+        var stage3Json = gson.toJson(normalizedGenUi)
+        val stage2HasInlineImage = hasInlineImageUrl(stage2Response)
+        val stage2HasInlineIcon = hasInlineIconUrl(stage2Response)
+        val stage3HasInlineImage = genUiPreservesInlineImages(stage3Json)
+        val stage3HasInlineIcon = genUiPreservesInlineIcons(stage3Json)
+        val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
+        val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
+        if ((missingInlineImage || missingInlineIcon) && !usedFallback) {
+            warnings += "Media content was adjusted for compatibility."
+            stage3Json = gson.toJson(buildFallbackGenUi(stage2Response))
+            usedFallback = true
+        }
+        if (responseContainsActionButtons(stage2Response) && !genUiPreservesActionButtons(stage3Json) && !usedFallback) {
+            warnings += "Quick actions were adjusted for compatibility."
+            stage3Json = gson.toJson(buildFallbackGenUi(stage2Response))
+            usedFallback = true
+        }
+        markDuration(Stage.STAGE3, stage3StartedAtMs)
+
+        postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
+        val stage4StartedAtMs = System.currentTimeMillis()
+        var renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
+
+        if (renderResult.errorMessage != null && !usedFallback) {
+            warnings += "Native rendering failed for stage 3 output; using fallback UI."
+            val fallback = buildFallbackGenUi(stage2Response)
+            stage3Json = gson.toJson(fallback)
+            renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
+            usedFallback = true
+        }
+
+        if (renderResult.errorMessage != null) {
+            markDuration(Stage.STAGE4, stage4StartedAtMs)
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE4,
+                message = renderResult.errorMessage,
+                stage2Response = stage2Response,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        markDuration(Stage.STAGE4, stage4StartedAtMs)
+
+        return@withContext Outcome.Success(
+            result = PipelineResult(
+                queryText = normalizedQuery,
+                stage2Prompt = "IR demo preloaded response (stage 2 skipped).",
+                stage2Response = stage2Response,
+                stage3Prompt = stage3Prompt,
+                stage3SystemPrompt = promptContext.systemPrompt,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
+                usedFallback = usedFallback,
+                warnings = warnings,
+                renderResult = renderResult
+            )
+        )
+    }
+
     private suspend fun postUpdate(
         callback: (StageUpdate) -> Unit,
         stage: Stage,
