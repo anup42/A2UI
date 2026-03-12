@@ -11,7 +11,7 @@ import torch
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 
 LOGGER = logging.getLogger("local_genui_server")
@@ -41,18 +41,21 @@ class LocalGenerationEngine:
         default_model_path: str,
         preferred_device: str,
         trust_remote_code: bool,
-        attn_implementation: str
+        attn_implementation: str,
+        strict_attention_backend: bool
     ) -> None:
         self._default_model_path = default_model_path.strip() or DEFAULT_MODEL_PATH
         self._preferred_device = preferred_device.strip() or "cuda"
         self._trust_remote_code = trust_remote_code
         self._attn_implementation = attn_implementation.strip().lower()
+        self._strict_attention_backend = strict_attention_backend
 
         self._request_lock = asyncio.Lock()
         self._tokenizer: Any | None = None
         self._model: Any | None = None
         self._loaded_model_path: str | None = None
         self._inference_device: str = "cpu"
+        self._effective_attn_implementation: str = "default"
         self._last_load_ms: float | None = None
 
     @property
@@ -66,6 +69,10 @@ class LocalGenerationEngine:
     @property
     def last_load_ms(self) -> float | None:
         return self._last_load_ms
+
+    @property
+    def effective_attn_implementation(self) -> str:
+        return self._effective_attn_implementation
 
     async def warmup(self) -> None:
         async with self._request_lock:
@@ -82,7 +89,7 @@ class LocalGenerationEngine:
             return
         await asyncio.to_thread(self._load_model_sync, model_path)
 
-    def _load_model_sync(self, model_path: str) -> None:
+    def _load_model_sync(self, model_path: str, force_attn_implementation: str | None = None) -> None:
         started = time.perf_counter()
         LOGGER.info("Loading model from '%s'...", model_path)
 
@@ -98,7 +105,13 @@ class LocalGenerationEngine:
         use_mps = self._preferred_device.startswith("mps") and torch.backends.mps.is_available()
 
         model_kwargs: dict[str, Any] = {"trust_remote_code": self._trust_remote_code}
-        attn_impl = self._resolved_attn_implementation(use_cuda=use_cuda)
+        attn_impl = force_attn_implementation or self._resolved_attn_implementation(use_cuda=use_cuda)
+        config = AutoConfig.from_pretrained(
+            model_path,
+            trust_remote_code=self._trust_remote_code
+        )
+        self._apply_attention_overrides(config, attn_impl)
+        model_kwargs["config"] = config
         if attn_impl is not None:
             model_kwargs["attn_implementation"] = attn_impl
 
@@ -115,12 +128,14 @@ class LocalGenerationEngine:
             model = AutoModelForCausalLM.from_pretrained(model_path, **model_kwargs)
         except Exception as exc:  # noqa: BLE001
             # Some stacks auto-pick flash attention and fail on non-Ampere GPUs.
-            message = str(exc).lower()
-            if "flash attention" in message or "flashattention" in message:
+            if self._is_flash_attention_error(exc):
+                if self._strict_attention_backend:
+                    raise
                 LOGGER.warning(
                     "FlashAttention is unsupported on this GPU/runtime. Retrying with eager attention."
                 )
                 model_kwargs["attn_implementation"] = "eager"
+                self._apply_attention_overrides(config, "eager")
                 model = AutoModelForCausalLM.from_pretrained(model_path, **model_kwargs)
             else:
                 raise
@@ -135,15 +150,30 @@ class LocalGenerationEngine:
         self._model = model
         self._loaded_model_path = model_path
         self._inference_device = inference_device
+        self._effective_attn_implementation = model_kwargs.get("attn_implementation", "default")
         self._last_load_ms = (time.perf_counter() - started) * 1000.0
 
         LOGGER.info(
             "Model ready: path='%s', device='%s', attn='%s', load_ms=%.0f",
             self._loaded_model_path,
             self._inference_device,
-            model_kwargs.get("attn_implementation", "default"),
+            self._effective_attn_implementation,
             self._last_load_ms
         )
+
+    def _apply_attention_overrides(self, config: Any, attn_impl: str | None) -> None:
+        if attn_impl is None:
+            return
+        # Some model implementations read one of these fields directly.
+        setattr(config, "attn_implementation", attn_impl)
+        setattr(config, "_attn_implementation", attn_impl)
+        if attn_impl != "flash_attention_2":
+            if hasattr(config, "use_flash_attn"):
+                setattr(config, "use_flash_attn", False)
+            if hasattr(config, "flash_attn"):
+                setattr(config, "flash_attn", False)
+            if hasattr(config, "flash_attention"):
+                setattr(config, "flash_attention", False)
 
     def _resolved_attn_implementation(self, use_cuda: bool) -> str | None:
         if self._attn_implementation in {"eager", "sdpa", "flash_attention_2"}:
@@ -167,6 +197,14 @@ class LocalGenerationEngine:
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
+    def _is_flash_attention_error(self, exc: Exception) -> bool:
+        message = str(exc).lower()
+        return (
+            "flash attention" in message or
+            "flashattention" in message or
+            "ampere" in message and "newer" in message
+        )
 
     def _generate_sync(self, request: GenerateRequest, model_path: str) -> GenerateResponse:
         if self._model is None or self._tokenizer is None:
@@ -206,8 +244,28 @@ class LocalGenerationEngine:
             generation_kwargs["temperature"] = float(request.temperature)
             generation_kwargs["top_p"] = 0.95
 
-        with torch.inference_mode():
-            output_ids = self._model.generate(tokenized, **generation_kwargs)
+        try:
+            with torch.inference_mode():
+                output_ids = self._model.generate(tokenized, **generation_kwargs)
+        except Exception as exc:  # noqa: BLE001
+            if (
+                self._is_flash_attention_error(exc) and
+                self._effective_attn_implementation != "eager" and
+                not self._strict_attention_backend
+            ):
+                LOGGER.warning(
+                    "FlashAttention was triggered during generation while attn='%s'. "
+                    "Reloading with eager attention and retrying once.",
+                    self._effective_attn_implementation
+                )
+                self._load_model_sync(model_path, force_attn_implementation="eager")
+                tokenized = tokenized.to(self._inference_device)
+                attention_mask = torch.ones_like(tokenized)
+                generation_kwargs["attention_mask"] = attention_mask
+                with torch.inference_mode():
+                    output_ids = self._model.generate(tokenized, **generation_kwargs)
+            else:
+                raise
 
         prompt_tokens = int(tokenized.shape[-1])
         completion_ids = output_ids[0, prompt_tokens:]
@@ -245,6 +303,7 @@ def create_app(engine: LocalGenerationEngine, lazy_load: bool) -> FastAPI:
             "status": "ok",
             "loaded_model_path": engine.loaded_model_path,
             "device": engine.inference_device,
+            "attn_implementation": engine.effective_attn_implementation,
             "last_load_ms": engine.last_load_ms
         }
 
@@ -274,6 +333,11 @@ def parse_args() -> argparse.Namespace:
         help="Attention backend used by Transformers."
     )
     parser.add_argument(
+        "--strict-attn",
+        action="store_true",
+        help="Do not fallback to eager when the selected attention backend fails."
+    )
+    parser.add_argument(
         "--log-level",
         default="info",
         choices=["debug", "info", "warning", "error", "critical"]
@@ -292,7 +356,8 @@ def main() -> None:
         default_model_path=args.model_path,
         preferred_device=args.device,
         trust_remote_code=args.trust_remote_code,
-        attn_implementation=args.attn_implementation
+        attn_implementation=args.attn_implementation,
+        strict_attention_backend=args.strict_attn
     )
     app = create_app(engine=engine, lazy_load=args.lazy_load)
     uvicorn.run(app, host=args.host, port=args.port, log_level=args.log_level)

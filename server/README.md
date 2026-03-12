@@ -22,6 +22,8 @@ Notes:
 - First load can take time while weights are downloaded/loaded.
 - If your model needs custom code, add `--trust-remote-code`.
 - If you see a FlashAttention GPU compatibility error, use `--attn-implementation sdpa` or `--attn-implementation eager`.
+- Current server build also auto-fallbacks to `eager` if a FlashAttention runtime error appears during generation.
+- To disable that fallback and fail fast with only the selected backend, add `--strict-attn`.
 
 ## 3) Health check
 
