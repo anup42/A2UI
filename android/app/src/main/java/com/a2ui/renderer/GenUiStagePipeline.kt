@@ -7,6 +7,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -39,6 +40,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3SystemPrompt: String?,
         val stage3Json: String,
         val stageDurationsMs: Map<Stage, Long>,
+        val stageStreamDurationsMs: Map<Stage, Long>,
         val usedFallback: Boolean,
         val warnings: List<String>,
         val renderResult: GenUiNativeRenderer.RenderResult
@@ -51,7 +53,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             val message: String,
             val stage2Response: String? = null,
             val stage3Json: String? = null,
-            val stageDurationsMs: Map<Stage, Long> = emptyMap()
+            val stageDurationsMs: Map<Stage, Long> = emptyMap(),
+            val stageStreamDurationsMs: Map<Stage, Long> = emptyMap()
         ) : Outcome
     }
 
@@ -60,9 +63,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         onStageUpdate: (StageUpdate) -> Unit
     ): Outcome = withContext(Dispatchers.IO) {
         val stageDurationsMs = linkedMapOf<Stage, Long>()
+        val stageStreamDurationsMs = linkedMapOf<Stage, Long>()
         fun markDuration(stage: Stage, startMs: Long) {
             if (startMs <= 0L) return
             stageDurationsMs[stage] = (System.currentTimeMillis() - startMs).coerceAtLeast(0L)
+        }
+        fun markStreamDuration(stage: Stage, durationMs: Long?) {
+            val duration = durationMs ?: return
+            stageStreamDurationsMs[stage] = (stageStreamDurationsMs[stage] ?: 0L) + duration.coerceAtLeast(0L)
         }
 
         val normalizedQuery = queryText.trim()
@@ -98,6 +106,22 @@ class GenUiStagePipeline(private val appContext: Context) {
             "tags" to ""
         )
 
+        val genUiTemplate = runCatching { loadPromptAsset(STAGE3_PROMPT_ASSET) }
+            .getOrElse {
+                return@withContext Outcome.Failure(
+                    stage = Stage.STAGE3,
+                    message = "Could not load stage 3 prompt: ${it.message ?: it.javaClass.simpleName}"
+                )
+            }
+        val promptContext = prepareStage3PromptContext(genUiTemplate)
+        val stage3CacheDeferred = async(Dispatchers.IO) {
+            ensureStage3InstructionCache(
+                apiKey = apiKey,
+                model = selectedModel,
+                systemPrompt = promptContext.systemPrompt
+            )
+        }
+
         postUpdate(onStageUpdate, Stage.STAGE2, "Fetching response")
         val stage2StartedAtMs = System.currentTimeMillis()
         val stage2Call = generateWithRetry(
@@ -112,41 +136,40 @@ class GenUiStagePipeline(private val appContext: Context) {
             allowCachedContent = false,
             structuredOutput = false
         )
+        markStreamDuration(Stage.STAGE2, stage2Call.streamDurationMs)
         if (stage2Call.error != null) {
             markDuration(Stage.STAGE2, stage2StartedAtMs)
+            stage3CacheDeferred.cancel()
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
                 message = stage2Call.error,
-                stageDurationsMs = stageDurationsMs.toMap()
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
         val stage2ResponseRaw = stage2Call.text.trim()
         if (stage2ResponseRaw.isBlank()) {
             markDuration(Stage.STAGE2, stage2StartedAtMs)
+            stage3CacheDeferred.cancel()
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
                 message = "Stage 2 returned empty output.",
-                stageDurationsMs = stageDurationsMs.toMap()
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
         val stage2WithActions = ensureFlightQuickActions(
             responseText = stage2ResponseRaw,
             queryText = normalizedQuery
         )
-        val stage2Response = normalizeUrlTokensForDisplay(stage2WithActions)
-        val normalizedBareDomains = stage2Response != stage2WithActions
+        val stage2WithTravelMedia = ensureTravelInlineMedia(
+            responseText = stage2WithActions,
+            queryText = normalizedQuery
+        )
+        val stage2Response = normalizeUrlTokensForDisplay(stage2WithTravelMedia)
+        val normalizedBareDomains = stage2Response != stage2WithTravelMedia
+        val injectedTravelMedia = stage2WithTravelMedia != stage2WithActions
         markDuration(Stage.STAGE2, stage2StartedAtMs)
-
-        val genUiTemplate = runCatching { loadPromptAsset(STAGE3_PROMPT_ASSET) }
-            .getOrElse {
-                return@withContext Outcome.Failure(
-                    stage = Stage.STAGE3,
-                    message = "Could not load stage 3 prompt: ${it.message ?: it.javaClass.simpleName}",
-                    stage2Response = stage2Response
-                )
-            }
-
-        val promptContext = prepareStage3PromptContext(genUiTemplate)
         val stage3Prompt = buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
             stage2Response = stage2Response,
@@ -157,11 +180,17 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (normalizedBareDomains) {
             warnings += "Normalized bare source/action domains to https URLs."
         }
-        val stage3Cache = ensureStage3InstructionCache(
-            apiKey = apiKey,
-            model = selectedModel,
-            systemPrompt = promptContext.systemPrompt
-        )
+        if (injectedTravelMedia) {
+            warnings += "Added fallback inline media URLs for travel content."
+        }
+        val stage3Cache = runCatching { stage3CacheDeferred.await() }
+            .getOrElse {
+                CacheSetupResult(
+                    name = null,
+                    created = false,
+                    error = it.message ?: it.javaClass.simpleName
+                )
+            }
         if (stage3Cache.name != null && !stage3Cache.created) {
             warnings += "Stage 3 instruction cache hit."
         }
@@ -187,6 +216,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             allowCachedContent = true,
             structuredOutput = true
         )
+        markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
         if (stage3Call.error != null) {
             markDuration(Stage.STAGE3, stage3StartedAtMs)
@@ -194,7 +224,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage = Stage.STAGE3,
                 message = stage3Call.error,
                 stage2Response = stage2Response,
-                stageDurationsMs = stageDurationsMs.toMap()
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
 
@@ -216,6 +247,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 allowCachedContent = true,
                 structuredOutput = true
             )
+            markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
             if (repairCall.error == null) {
                 stage3JsonElement = extractJsonElement(repairCall.text)
             }
@@ -229,7 +261,13 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val normalizedGenUi = normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
-        if (responseContainsInlineMedia(stage2Response) && !genUiPreservesInlineMedia(stage3Json) && !usedFallback) {
+        val stage2HasInlineImage = hasInlineImageUrl(stage2Response)
+        val stage2HasInlineIcon = hasInlineIconUrl(stage2Response)
+        val stage3HasInlineImage = genUiPreservesInlineImages(stage3Json)
+        val stage3HasInlineIcon = genUiPreservesInlineIcons(stage3Json)
+        val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
+        val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
+        if ((missingInlineImage || missingInlineIcon) && !usedFallback) {
             warnings += "Media content was adjusted for compatibility."
             stage3Json = gson.toJson(buildFallbackGenUi(stage2Response))
             usedFallback = true
@@ -260,7 +298,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 message = renderResult.errorMessage,
                 stage2Response = stage2Response,
                 stage3Json = stage3Json,
-                stageDurationsMs = stageDurationsMs.toMap()
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
         markDuration(Stage.STAGE4, stage4StartedAtMs)
@@ -274,6 +313,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3SystemPrompt = promptContext.systemPrompt,
                 stage3Json = stage3Json,
                 stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
                 usedFallback = usedFallback,
                 warnings = warnings,
                 renderResult = renderResult
@@ -337,6 +377,269 @@ class GenUiStagePipeline(private val appContext: Context) {
             append("\n\nQuick Actions\n")
             append(actionLines.joinToString(separator = "\n"))
         }
+    }
+
+    private fun ensureTravelInlineMedia(
+        responseText: String,
+        queryText: String
+    ): String {
+        if (!looksLikeTravelQuery(queryText) && !looksLikeTravelContent(responseText)) {
+            return responseText
+        }
+        if (hasTravelMediaCoverage(responseText)) {
+            return responseText
+        }
+
+        val normalized = responseText.replace("\r\n", "\n").trim()
+        if (normalized.isBlank()) {
+            return responseText
+        }
+
+        val lines = normalized.split('\n')
+        val output = mutableListOf<String>()
+        val locationKeyword = extractTravelLocationKeyword(queryText)
+        var inserted = 0
+        val maxInsertions = 4
+
+        lines.forEachIndexed { index, rawLine ->
+            val line = rawLine.trimEnd()
+            output += rawLine
+
+            if (inserted >= maxInsertions) {
+                return@forEachIndexed
+            }
+
+            val trimmed = line.trim()
+            if (!shouldAttachTravelMediaAfterLine(trimmed)) {
+                return@forEachIndexed
+            }
+            if (hasNearbyMediaLine(lines, index)) {
+                return@forEachIndexed
+            }
+
+            val mediaLine = buildTravelMediaLine(
+                line = trimmed,
+                locationKeyword = locationKeyword,
+                baseText = normalized
+            )
+            output += mediaLine
+            inserted += 1
+        }
+
+        if (inserted == 0) {
+            val mediaLine = buildTravelMediaLine(
+                line = queryText,
+                locationKeyword = locationKeyword,
+                baseText = normalized
+            )
+            return buildString {
+                append(normalized)
+                append("\n\n")
+                append(mediaLine)
+            }
+        }
+
+        return output.joinToString(separator = "\n").trimEnd()
+    }
+
+    private fun looksLikeTravelQuery(queryText: String): Boolean {
+        val normalized = queryText.lowercase(Locale.US)
+        return normalized.contains("travel") ||
+            normalized.contains("trip") ||
+            normalized.contains("itinerary") ||
+            normalized.contains("places to visit") ||
+            normalized.contains("things to do") ||
+            normalized.contains("attractions") ||
+            normalized.contains("visit")
+    }
+
+    private fun looksLikeTravelContent(text: String): Boolean {
+        val normalized = text.lowercase(Locale.US)
+        return normalized.contains("day 1") ||
+            normalized.contains("itinerary") ||
+            normalized.contains("places to visit") ||
+            normalized.contains("things to do") ||
+            normalized.contains("attraction") ||
+            normalized.contains("must-visit")
+    }
+
+    private fun hasNearbyMediaLine(lines: List<String>, index: Int): Boolean {
+        val start = maxOf(0, index)
+        val end = minOf(lines.lastIndex, index + 2)
+        for (cursor in start..end) {
+            val candidate = lines[cursor].trim()
+            if (candidate.isBlank()) {
+                continue
+            }
+            if (candidate.startsWith("Media:", ignoreCase = true)) {
+                return true
+            }
+            if (candidate.contains("Image=", ignoreCase = true) || candidate.contains("Icon=", ignoreCase = true)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun shouldAttachTravelMediaAfterLine(line: String): Boolean {
+        if (line.isBlank()) {
+            return false
+        }
+        val normalized = line
+            .trim()
+            .replace(Regex("""^#+\s*"""), "")
+        if (containsUrlLikeToken(normalized)) {
+            return false
+        }
+        if (normalized.startsWith("Media:", ignoreCase = true) ||
+            normalized.startsWith("Action:", ignoreCase = true) ||
+            normalized.startsWith("Source", ignoreCase = true) ||
+            normalized.startsWith("Sources", ignoreCase = true) ||
+            normalized.startsWith("Quick Actions", ignoreCase = true)
+        ) {
+            return false
+        }
+        if (Regex("""(?i)^(option\s*\d+|day\s*\d+|place\s*\d+|stop\s*\d+|attraction\s*\d+)\s*[:\-]""").containsMatchIn(normalized)) {
+            return true
+        }
+        if (normalized.contains('|')) {
+            return false
+        }
+        if (normalized.startsWith("-") || normalized.startsWith("\u2022")) {
+            return false
+        }
+
+        val wordCount = normalized.split(Regex("""\s+""")).count { it.isNotBlank() }
+        if (wordCount in 2..12 && normalized.length <= 96 && !normalized.endsWith(".")) {
+            return true
+        }
+        return Regex("""(?i)^(day\s*\d+|place\s*\d+|stop\s*\d+|attraction\s*\d+)\b""")
+            .containsMatchIn(normalized)
+    }
+
+    private fun containsUrlLikeToken(value: String): Boolean {
+        val normalized = value.lowercase(Locale.US)
+        return normalized.contains("http://") ||
+            normalized.contains("https://") ||
+            Regex("""(?i)\b(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}\b""")
+                .containsMatchIn(value)
+    }
+
+    private fun buildTravelMediaLine(
+        line: String,
+        locationKeyword: String,
+        baseText: String
+    ): String {
+        val imageKeyword = buildTravelImageKeyword(line, locationKeyword)
+        val iconName = pickTravelIconName(line)
+        val hasImage = hasInlineImageUrl(baseText)
+        val hasIcon = hasInlineIconUrl(baseText)
+        return when {
+            !hasImage && !hasIcon ->
+                "Media: Image=https://loremflickr.com/1200/800/$imageKeyword Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
+            !hasImage ->
+                "Media: Image=https://loremflickr.com/1200/800/$imageKeyword"
+            !hasIcon ->
+                "Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
+            else ->
+                "Media: Image=https://loremflickr.com/1200/800/$imageKeyword Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
+        }
+    }
+
+    private fun buildTravelImageKeyword(line: String, locationKeyword: String): String {
+        val stopwords = setOf(
+            "the", "and", "for", "with", "from", "into", "your", "this", "that", "day",
+            "place", "visit", "best", "top", "must", "to", "in", "of", "at", "on", "a", "an"
+        )
+        val words = line.lowercase(Locale.US)
+            .replace(Regex("""[^a-z0-9\s-]"""), " ")
+            .split(Regex("""\s+"""))
+            .filter { it.length >= 3 && it !in stopwords }
+            .take(3)
+        val merged = buildList {
+            add(locationKeyword)
+            addAll(words)
+        }
+            .distinct()
+            .joinToString(",")
+            .ifBlank { "$locationKeyword,travel" }
+        return URLEncoder.encode(merged, StandardCharsets.UTF_8.name())
+            .replace("+", "%20")
+    }
+
+    private fun pickTravelIconName(line: String): String {
+        val normalized = line.lowercase(Locale.US)
+        return when {
+            normalized.contains("beach") || normalized.contains("island") || normalized.contains("sea") || normalized.contains("bay") -> "water"
+            normalized.contains("temple") || normalized.contains("shrine") || normalized.contains("buddha") || normalized.contains("old town") -> "building"
+            normalized.contains("market") || normalized.contains("food") || normalized.contains("street") -> "shop"
+            normalized.contains("night") || normalized.contains("sunset") -> "moon-stars"
+            normalized.contains("view") || normalized.contains("hike") || normalized.contains("trail") -> "signpost-split"
+            normalized.contains("boat") || normalized.contains("pier") -> "geo-alt"
+            else -> "geo-alt"
+        }
+    }
+
+    private fun hasTravelMediaCoverage(text: String): Boolean =
+        hasInlineImageUrl(text) && hasInlineIconUrl(text)
+
+    private fun hasInlineImageUrl(text: String): Boolean {
+        val imageAssignment = Regex(
+            """(?im)\bImage\s*=\s*(https?://\S+|/assets/\S+|assets/\S+)"""
+        )
+            .findAll(text)
+            .map { sanitizeMediaUrlToken(it.groupValues[1]) }
+            .any { looksLikeUsableInlineMediaUrl(it) }
+        if (imageAssignment) {
+            return true
+        }
+        val imageColon = Regex(
+            """(?im)^\s*Image\s*:\s*(https?://\S+|/assets/\S+|assets/\S+)"""
+        )
+            .findAll(text)
+            .map { sanitizeMediaUrlToken(it.groupValues[1]) }
+            .any { looksLikeUsableInlineMediaUrl(it) }
+        return imageColon
+    }
+
+    private fun hasInlineIconUrl(text: String): Boolean {
+        val iconAssignment = Regex(
+            """(?im)\bIcon\s*=\s*(https?://\S+|/assets/\S+|assets/\S+)"""
+        )
+            .findAll(text)
+            .map { sanitizeMediaUrlToken(it.groupValues[1]) }
+            .any { looksLikeUsableInlineMediaUrl(it) }
+        if (iconAssignment) {
+            return true
+        }
+        val iconColon = Regex(
+            """(?im)^\s*Icon\s*:\s*(https?://\S+|/assets/\S+|assets/\S+)"""
+        )
+            .findAll(text)
+            .map { sanitizeMediaUrlToken(it.groupValues[1]) }
+            .any { looksLikeUsableInlineMediaUrl(it) }
+        return iconColon
+    }
+
+    private fun extractTravelLocationKeyword(queryText: String): String {
+        val prepositionMatch = Regex("""(?i)\b(?:in|at|to|from|for)\s+([a-z][a-z0-9-]{2,30})\b""")
+            .findAll(queryText)
+            .lastOrNull()
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.lowercase(Locale.US)
+        if (!prepositionMatch.isNullOrBlank()) {
+            return prepositionMatch
+        }
+
+        val blocked = setOf(
+            "show", "best", "top", "places", "visit", "travel", "trip", "itinerary",
+            "things", "todo", "to", "in", "for", "with"
+        )
+        val token = queryText.lowercase(Locale.US)
+            .split(Regex("""[^a-z0-9-]+"""))
+            .firstOrNull { it.length >= 3 && it !in blocked }
+        return token ?: "travel"
     }
 
     private fun looksLikeFlightQuery(queryText: String): Boolean {
@@ -454,12 +757,26 @@ class GenUiStagePipeline(private val appContext: Context) {
     }
 
     private fun genUiPreservesInlineMedia(jsonText: String): Boolean {
+        return genUiPreservesInlineImages(jsonText) || genUiPreservesInlineIcons(jsonText)
+    }
+
+    private fun genUiPreservesInlineImages(jsonText: String): Boolean {
         return Regex(
-            """"component"\s*:\s*"(?:Image|Icon)"""",
-            RegexOption.IGNORE_CASE
+            """"component"\s*:\s*"Image"[\s\S]{0,320}"(?:url|src|source|image)"\s*:\s*"(?:https?://|/assets/|assets/)"""",
+            setOf(RegexOption.IGNORE_CASE)
         ).containsMatchIn(jsonText) ||
             Regex(
-                """(?i)Media:\s*(?:Image|Icon)=|(?:^|\\n)(?:Image|Icon):\s*(?:https?://|/assets/|assets/)"""
+                """(?i)Media:\s*Image=|(?:^|\\n)Image:\s*(?:https?://|/assets/|assets/)"""
+            ).containsMatchIn(jsonText)
+    }
+
+    private fun genUiPreservesInlineIcons(jsonText: String): Boolean {
+        return Regex(
+            """"component"\s*:\s*"Icon"[\s\S]{0,240}"(?:url|icon|name|glyph|asset)"\s*:\s*"[^"]+"""",
+            setOf(RegexOption.IGNORE_CASE)
+        ).containsMatchIn(jsonText) ||
+            Regex(
+                """(?i)Media:\s*Icon=|(?:^|\\n)Icon:\s*(?:https?://|/assets/|assets/)"""
             ).containsMatchIn(jsonText)
     }
 
@@ -798,7 +1115,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         structuredOutput: Boolean = false
     ): GeminiResponse {
         var attempt = 0
-        var last: GeminiResponse = GeminiResponse(text = "", rawResponse = null, error = "Unknown Gemini error")
+        var accumulatedStreamMs = 0L
+        var hasStreamSample = false
+        var last: GeminiResponse = GeminiResponse(
+            text = "",
+            rawResponse = null,
+            error = "Unknown Gemini error",
+            streamDurationMs = null
+        )
         val effectiveCachedContentName = if (allowCachedContent) cachedContentName else null
         while (attempt < 3) {
             attempt += 1
@@ -814,11 +1138,15 @@ class GenUiStagePipeline(private val appContext: Context) {
                 cachedContentName = effectiveCachedContentName,
                 structuredOutput = structuredOutput
             )
+            last.streamDurationMs?.let {
+                accumulatedStreamMs += it
+                hasStreamSample = true
+            }
             if (last.error == null) {
-                return last
+                return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
             if (enableGoogleSearch && isSearchToolConfigError(last.error)) {
-                return generateOnce(
+                val fallback = generateOnce(
                     apiKey = apiKey,
                     model = model,
                     prompt = prompt,
@@ -830,9 +1158,14 @@ class GenUiStagePipeline(private val appContext: Context) {
                     cachedContentName = effectiveCachedContentName,
                     structuredOutput = structuredOutput
                 )
+                fallback.streamDurationMs?.let {
+                    accumulatedStreamMs += it
+                    hasStreamSample = true
+                }
+                return fallback.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
             if (structuredOutput && isStructuredOutputConfigError(last.error)) {
-                return generateOnce(
+                val fallback = generateOnce(
                     apiKey = apiKey,
                     model = model,
                     prompt = prompt,
@@ -844,6 +1177,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                     cachedContentName = effectiveCachedContentName,
                     structuredOutput = false
                 )
+                fallback.streamDurationMs?.let {
+                    accumulatedStreamMs += it
+                    hasStreamSample = true
+                }
+                return fallback.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
             val lower = last.error.lowercase(Locale.US)
             val retryable = lower.contains("timed out") ||
@@ -852,11 +1190,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                 lower.contains("http 503") ||
                 lower.contains("candidate text")
             if (!retryable || attempt >= 3) {
-                return last
+                return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
             Thread.sleep(1000L * attempt)
         }
-        return last
+        return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
     }
 
     private fun generateOnce(
@@ -899,14 +1237,16 @@ class GenUiStagePipeline(private val appContext: Context) {
 
             val code = connection.responseCode
             val stream = if (code in 200..299) connection.inputStream else connection.errorStream
-            val raw = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+            val streamRead = readStreamWithTiming(stream)
+            val raw = streamRead.text
 
             if (code !in 200..299) {
                 val short = raw.trim().ifBlank { "HTTP $code" }
                 return GeminiResponse(
                     text = "",
                     rawResponse = raw,
-                    error = "HTTP $code: ${short.take(320)}"
+                    error = "HTTP $code: ${short.take(320)}",
+                    streamDurationMs = streamRead.streamDurationMs
                 )
             }
 
@@ -916,24 +1256,55 @@ class GenUiStagePipeline(private val appContext: Context) {
                 return GeminiResponse(
                     text = "",
                     rawResponse = raw,
-                    error = "Gemini response did not include candidate text.$details"
+                    error = "Gemini response did not include candidate text.$details",
+                    streamDurationMs = streamRead.streamDurationMs
                 )
             }
 
             GeminiResponse(
                 text = extraction.text,
                 rawResponse = raw,
-                error = null
+                error = null,
+                streamDurationMs = streamRead.streamDurationMs
             )
         } catch (io: IOException) {
             GeminiResponse(
                 text = "",
                 rawResponse = null,
-                error = io.message ?: io.javaClass.simpleName
+                error = io.message ?: io.javaClass.simpleName,
+                streamDurationMs = null
             )
         } finally {
             connection.disconnect()
         }
+    }
+
+    private fun readStreamWithTiming(stream: java.io.InputStream?): StreamReadResult {
+        if (stream == null) {
+            return StreamReadResult(text = "", streamDurationMs = null)
+        }
+        var firstChunkAtMs: Long? = null
+        val builder = StringBuilder()
+        stream.bufferedReader(Charsets.UTF_8).use { reader ->
+            val buffer = CharArray(4096)
+            while (true) {
+                val read = reader.read(buffer)
+                if (read <= 0) {
+                    break
+                }
+                if (firstChunkAtMs == null) {
+                    firstChunkAtMs = System.currentTimeMillis()
+                }
+                builder.append(buffer, 0, read)
+            }
+        }
+        val streamDurationMs = firstChunkAtMs?.let { start ->
+            (System.currentTimeMillis() - start).coerceAtLeast(0L)
+        }
+        return StreamReadResult(
+            text = builder.toString(),
+            streamDurationMs = streamDurationMs
+        )
     }
 
     private fun extractGeminiText(raw: String): GeminiTextExtraction {
@@ -1306,7 +1677,13 @@ class GenUiStagePipeline(private val appContext: Context) {
     private data class GeminiResponse(
         val text: String,
         val rawResponse: String?,
-        val error: String?
+        val error: String?,
+        val streamDurationMs: Long?
+    )
+
+    private data class StreamReadResult(
+        val text: String,
+        val streamDurationMs: Long?
     )
 
     private data class CacheSetupResult(

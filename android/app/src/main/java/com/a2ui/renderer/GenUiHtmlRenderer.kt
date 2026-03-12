@@ -5,6 +5,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.File
+import java.nio.charset.Charset
 import java.util.Locale
 
 object GenUiHtmlRenderer {
@@ -58,10 +59,11 @@ object GenUiHtmlRenderer {
     private val URL_REGEX = Regex("""https?://[^\s<>()]+""", RegexOption.IGNORE_CASE)
     private val TABLE_PLACEHOLDER_CELL_REGEX = Regex("""^[:\-\u2013\u2014]+$""")
     private val BOLD_REGEX = Regex("""\*\*(.+?)\*\*""")
+    private val BULLET_LINE_REGEX = Regex("""^\s*([\-*\u2022])\s+(.+)$""")
     private val LEADING_LABEL_REGEX =
-        Regex("""^\s*([•\-]\s*)?([^:;：；\n]{1,70}?)([:;：；])\s*(.+)$""")
+        Regex("""^\s*([•\-*]\s*)?([^:;：；\n]{1,70}?)([:;：；])\s*(.+)$""")
     private val INLINE_LABEL_REGEX =
-        Regex("""([A-Za-z][A-Za-z0-9/&()' \-]{0,60})([:;：；])""")
+        Regex("""([\p{L}\p{N}][\p{L}\p{N}/&()' .-]{0,84})([:;：；])""")
 
     fun render(rawInput: String, sourceDir: File? = null): RenderResult {
         val warnings = mutableListOf<String>()
@@ -511,9 +513,7 @@ object GenUiHtmlRenderer {
 
         val itemsHtml = textItems.joinToString(separator = "") { item ->
             var value = readDynamicString(item.get("text")).trim()
-            if (value.startsWith("- ")) {
-                value = value.removePrefix("- ").trim()
-            }
+            value = stripLeadingBulletMarker(value)
             "<li>${formatInlineText(value, sourceDir)}</li>"
         }
         return """<ul class="component-list">$itemsHtml</ul>"""
@@ -606,7 +606,7 @@ object GenUiHtmlRenderer {
         }
         val buttonSyntax = normalized.contains("[Button:", ignoreCase = true)
         val tableSyntax = lines.count { isTableLikeLine(it) } >= 2
-        val listSyntax = lines.count { it.startsWith("- ") } >= 2
+        val listSyntax = lines.count { isBulletListLine(it) } >= 2
         val sectionBreaks = normalized.contains("\n\n")
         return buttonSyntax || tableSyntax || listSyntax || sectionBreaks
     }
@@ -655,15 +655,15 @@ object GenUiHtmlRenderer {
                 continue
             }
 
-            if (line.startsWith("- ")) {
+            if (isBulletListLine(line)) {
                 val items = mutableListOf<String>()
                 var cursor = index
                 while (cursor < lines.size) {
                     val listLine = lines[cursor].trim()
-                    if (!listLine.startsWith("- ")) {
+                    if (!isBulletListLine(listLine)) {
                         break
                     }
-                    val item = listLine.removePrefix("- ").trim()
+                    val item = extractBulletListItem(listLine) ?: break
                     if (!isPlaceholderListEntry(item)) {
                         items += item
                     }
@@ -807,11 +807,11 @@ object GenUiHtmlRenderer {
                 cursor++
                 continue
             }
-            if (!line.startsWith("- ")) {
+            if (!isBulletListLine(line)) {
                 break
             }
 
-            val item = line.removePrefix("- ").trim()
+            val item = extractBulletListItem(line) ?: break
             val parts = item.split(":", limit = 2)
             if (parts.size == 2) {
                 val label = parts[0].trim()
@@ -967,7 +967,7 @@ object GenUiHtmlRenderer {
     }
 
     private fun parseMediaEntryLine(line: String): ParsedMediaEntry? {
-        val normalized = line.removePrefix("- ").trim()
+        val normalized = stripLeadingBulletMarker(line)
         val parts = normalized.split(":", limit = 2)
         if (parts.size != 2) {
             return null
@@ -1099,18 +1099,15 @@ object GenUiHtmlRenderer {
     private fun renderListItem(item: String, sourceDir: File?): String {
         val leadingLabel = parseLeadingLabelValue(item)
         if (leadingLabel != null) {
-            val prefix = leadingLabel.prefix
             val label = leadingLabel.label
-            val delimiter = leadingLabel.delimiter
             val value = leadingLabel.value
             if (looksLikeImagePath(value)) {
                 val imageUrl = resolveAssetUrl(value, sourceDir)
                 return """
-                    <span class="list-label">${escapeHtml(prefix)}${escapeHtml(label)}${escapeHtml(delimiter)}</span>
+                    <span class="list-label">${escapeHtml(leadingLabel.prefix)}${escapeHtml(label)}${escapeHtml(leadingLabel.delimiter)}</span>
                     <img class="inline-logo" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(label)}" />
                 """.trimIndent()
             }
-            return "<span class=\"list-label\">${escapeHtml(prefix)}${escapeHtml(label)}${escapeHtml(delimiter)}</span> ${formatInlineText(value, sourceDir)}"
         }
         return formatInlineText(item, sourceDir)
     }
@@ -1185,7 +1182,7 @@ object GenUiHtmlRenderer {
 
     private fun isPlaceholderListEntry(value: String): Boolean {
         val normalized = value
-            .replace(Regex("""^[\u2022•\-]\s*"""), "")
+            .replace(Regex("""^[\u2022•\-*]\s*"""), "")
             .trim()
         if (isPlaceholderTableCellValue(normalized)) {
             return true
@@ -1198,7 +1195,7 @@ object GenUiHtmlRenderer {
         if (line.length > 80) {
             return false
         }
-        if (line.startsWith("- ") || line.endsWith(".") || line.endsWith("?") || line.endsWith("!")) {
+        if (isBulletListLine(line) || line.endsWith(".") || line.endsWith("?") || line.endsWith("!")) {
             return false
         }
         if (line.contains('|') || line.contains("http://", ignoreCase = true) || line.contains("https://", ignoreCase = true)) {
@@ -1211,7 +1208,7 @@ object GenUiHtmlRenderer {
     }
 
     private fun isStructuredBoundary(line: String): Boolean {
-        if (line.startsWith("- ")) {
+        if (isBulletListLine(line)) {
             return true
         }
         if (parseButtonLine(line) != null || parseOptionLine(line) != null) {
@@ -1223,6 +1220,19 @@ object GenUiHtmlRenderer {
         return false
     }
 
+    private fun isBulletListLine(line: String): Boolean =
+        BULLET_LINE_REGEX.matches(line.trim())
+
+    private fun extractBulletListItem(line: String): String? =
+        BULLET_LINE_REGEX.matchEntire(line.trim())
+            ?.groupValues
+            ?.getOrNull(2)
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+
+    private fun stripLeadingBulletMarker(line: String): String =
+        extractBulletListItem(line) ?: line.trim()
+
     private fun looksLikeImagePath(value: String): Boolean {
         val normalized = value.trim().lowercase(Locale.US)
         return normalized.endsWith(".png") ||
@@ -1233,7 +1243,7 @@ object GenUiHtmlRenderer {
     }
 
     private fun formatInlineText(rawText: String, sourceDir: File?): String {
-        val escaped = escapeHtml(rawText)
+        val escaped = escapeHtml(normalizeMojibakeText(rawText))
         val withLeadingLabels = emphasizeLeadingLabels(escaped)
         val withBold = BOLD_REGEX.replace(withLeadingLabels) { match ->
             "<strong>${match.groupValues[1]}</strong>"
@@ -1469,21 +1479,69 @@ object GenUiHtmlRenderer {
         if (element.isJsonPrimitive) {
             val primitive = element.asJsonPrimitive
             return when {
-                primitive.isString -> primitive.asString
+                primitive.isString -> normalizeMojibakeText(primitive.asString)
                 primitive.isBoolean -> primitive.asBoolean.toString()
                 primitive.isNumber -> primitive.asNumber.toString()
                 else -> primitive.toString()
             }
         }
         if (!element.isJsonObject) {
-            return element.toString()
+            return normalizeMojibakeText(element.toString())
         }
         val obj = element.asJsonObject
-        obj.getString("literalString")?.let { return it }
-        obj.getString("path")?.let { return it }
-        obj.get("literalNumber")?.let { return it.toString().trim('"') }
-        obj.get("literalBoolean")?.let { return it.toString().trim('"') }
-        return obj.toString()
+        obj.getString("literalString")?.let { return normalizeMojibakeText(it) }
+        obj.getString("path")?.let { return normalizeMojibakeText(it) }
+        obj.get("literalNumber")?.let { return normalizeMojibakeText(it.toString().trim('"')) }
+        obj.get("literalBoolean")?.let { return normalizeMojibakeText(it.toString().trim('"')) }
+        return normalizeMojibakeText(obj.toString())
+    }
+
+    private fun normalizeMojibakeText(value: String): String {
+        if (value.isBlank()) {
+            return value
+        }
+        val candidates = linkedSetOf(value)
+        if (value.contains('Ã') || value.contains('Â') || value.contains('â')) {
+            runCatching {
+                String(value.toByteArray(Charset.forName("windows-1252")), Charsets.UTF_8)
+            }.onSuccess { candidates += it }
+            runCatching {
+                String(value.toByteArray(Charsets.ISO_8859_1), Charsets.UTF_8)
+            }.onSuccess { candidates += it }
+        }
+        val normalized = candidates.minByOrNull(::mojibakeScore) ?: value
+        return normalized
+            .replace("Â°", "°")
+            .replace("Â₹", "₹")
+            .replace("â‚¹", "₹")
+            .replace("â€¢", "•")
+    }
+
+    private fun mojibakeScore(value: String): Int {
+        if (value.isBlank()) {
+            return 0
+        }
+        val markers = listOf(
+            "Ã", "Â", "â€¢", "â‚¹", "â€“", "â€”", "â€˜", "â€™", "â€œ", "â€�", "�"
+        )
+        return markers.sumOf { marker -> countOccurrences(value, marker) }
+    }
+
+    private fun countOccurrences(value: String, needle: String): Int {
+        if (needle.isEmpty()) {
+            return 0
+        }
+        var count = 0
+        var cursor = 0
+        while (true) {
+            val index = value.indexOf(needle, cursor)
+            if (index < 0) {
+                break
+            }
+            count++
+            cursor = index + needle.length
+        }
+        return count
     }
 
     private fun resolveAssetUrl(raw: String, sourceDir: File?): String {

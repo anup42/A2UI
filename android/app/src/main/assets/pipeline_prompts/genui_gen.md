@@ -20,7 +20,7 @@ Structural quality requirements (strict):
 - Do NOT dump the entire response into one Text component except for very short single-paragraph responses.
 - Build clear sections with heading Text variants (h2/h3/h4) and separate body Text nodes.
 - For medium/long responses, create at least 3 semantic sections (e.g., Summary, Comparison, Actions/Sources) with explicit heading components.
-- Convert bullet-style content into multiple child nodes (List/Column + Text rows), not markdown bullets in one Text blob.
+- Convert bullet-style content into multiple child nodes (List/Column + Text rows) and keep list semantics visible in UI.
 - Treat the response like an app screen, not a document:
   - Section/option blocks should render as cards or grouped rows.
   - Keep related title, text, media, and CTA together in the same block hierarchy.
@@ -59,7 +59,7 @@ Structural quality requirements (strict):
     4) CTA button(s)
   - If both image and icon exist, image should be primary visual and icon should be supporting visual (badge/chip/leading icon).
   - Never leave `Media:` marker text inside a Text component when Image/Icon components can be emitted.
-- Remove markdown markers from rendered text content ("###", "|", "*", "[ ]", "[Button: ...]").
+- Remove non-semantic markdown markers from rendered text content ("###", "|", "[ ]", "[Button: ...]"), but preserve real bullet list semantics when present.
 - Drop generic boilerplate headings like "Information Context" or "Background Information" when they only introduce long explanatory text that duplicates the actual comparison/table content.
 - Avoid duplicate lines across table rows/cards; keep each row/card concise and non-redundant.
 - Prefer robust decomposition for rich responses (target roughly 30-60 components when content is long enough), while keeping hierarchy valid and non-dangling.

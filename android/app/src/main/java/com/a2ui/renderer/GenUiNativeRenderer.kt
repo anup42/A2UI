@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -77,6 +78,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.File
+import java.nio.charset.Charset
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.Locale
@@ -218,10 +220,11 @@ object GenUiNativeRenderer {
             """\[(.+?)]\((https?://[^\s)]+|//[^\s)]+|www\.[^\s)]+|(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s)]*)?)\)""",
             RegexOption.IGNORE_CASE
         )
+    private val BULLET_LINE_REGEX = Regex("""^\s*([\-*\u2022])\s+(.+)$""")
     private val LEADING_LABEL_REGEX =
-        Regex("""^\s*([\u2022\-]\s*)?([^:;\uFF1A\uFF1B\n]{1,70}?)([:;\uFF1A\uFF1B])\s*(.+)$""")
+        Regex("""^\s*([\u2022\-*]\s*)?([^:;\uFF1A\uFF1B\n]{1,70}?)([:;\uFF1A\uFF1B])\s*(.+)$""")
     private val INLINE_LABEL_REGEX =
-        Regex("""([A-Za-z][A-Za-z0-9/&()' \-]{0,60})([:;\uFF1A\uFF1B])""")
+        Regex("""([\p{L}\p{N}][\p{L}\p{N}/&()' .-]{0,84})([:;\uFF1A\uFF1B])""")
 
     private val URL_REGEX = Regex(
         """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
@@ -1194,20 +1197,8 @@ object GenUiNativeRenderer {
                 return
             }
 
-            if (item.contains("**")) {
-                MarkdownText(
-                    text = item,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                return
-            }
-
-            Text(
-                text = remember(prefix, label, delimiter, value) {
-                    formatLabelValueText(prefix, label, delimiter, value)
-                },
+            MarkdownText(
+                text = item,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
@@ -1369,32 +1360,11 @@ object GenUiNativeRenderer {
         }
     }
 
-    private fun formatLabelValueText(
-        prefix: String,
-        label: String,
-        delimiter: String,
-        value: String
-    ): AnnotatedString {
-        val safeLabel = sanitizeDisplayText(label)
-        val safeValue = sanitizeDisplayText(value)
-        return buildAnnotatedString {
-            if (prefix.isNotBlank()) {
-                append(prefix)
-            }
-            pushStyle(SpanStyle(fontWeight = FontWeight.W700))
-            append(safeLabel)
-            append(delimiter)
-            pop()
-            append(' ')
-            append(safeValue)
-        }
-    }
-
     private fun sanitizeDisplayText(text: String, preserveMarkdown: Boolean = false): String {
         if (text.isBlank()) {
             return text
         }
-        var cleaned = text
+        var cleaned = normalizeMojibakeText(text)
         if (!preserveMarkdown) {
             cleaned = cleaned.replace(Regex("(?m)^\\s{0,3}#{1,6}\\s*"), "")
         }
@@ -1422,6 +1392,54 @@ object GenUiNativeRenderer {
         cleaned = cleaned.replace(Regex(" *([,.;:])"), "$1")
         cleaned = cleaned.replace(Regex("\\n{3,}"), "\n\n")
         return cleaned.trim()
+    }
+
+    private fun normalizeMojibakeText(value: String): String {
+        if (value.isBlank()) {
+            return value
+        }
+        val candidates = linkedSetOf(value)
+        if (value.contains('Ã') || value.contains('Â') || value.contains('â')) {
+            runCatching {
+                String(value.toByteArray(Charset.forName("windows-1252")), Charsets.UTF_8)
+            }.onSuccess { candidates += it }
+            runCatching {
+                String(value.toByteArray(Charsets.ISO_8859_1), Charsets.UTF_8)
+            }.onSuccess { candidates += it }
+        }
+        val normalized = candidates.minByOrNull(::mojibakeScore) ?: value
+        return normalized
+            .replace("Â°", "°")
+            .replace("Â₹", "₹")
+            .replace("â‚¹", "₹")
+            .replace("â€¢", "•")
+    }
+
+    private fun mojibakeScore(value: String): Int {
+        if (value.isBlank()) {
+            return 0
+        }
+        val markers = listOf(
+            "Ã", "Â", "â€¢", "â‚¹", "â€“", "â€”", "â€˜", "â€™", "â€œ", "â€�", "�"
+        )
+        return markers.sumOf { marker -> countOccurrences(value, marker) }
+    }
+
+    private fun countOccurrences(value: String, needle: String): Int {
+        if (needle.isEmpty()) {
+            return 0
+        }
+        var count = 0
+        var cursor = 0
+        while (true) {
+            val index = value.indexOf(needle, cursor)
+            if (index < 0) {
+                break
+            }
+            count++
+            cursor = index + needle.length
+        }
+        return count
     }
 
     private fun parseLeadingLabelValue(text: String): LeadingLabelValue? {
@@ -1979,7 +1997,8 @@ object GenUiNativeRenderer {
         modifier: Modifier,
         contentScale: ContentScale,
         asIcon: Boolean,
-        fallbackCondition: String? = null
+        fallbackCondition: String? = null,
+        iconFallbackSize: Dp = 18.dp
     ) {
         val context = LocalContext.current
         val model = remember(rawUrl, sourceDir) { resolveImageModel(rawUrl, sourceDir) }
@@ -2007,7 +2026,7 @@ object GenUiNativeRenderer {
                     // Keep icon slots informative even when remote icon fetch fails.
                     WeatherConditionIcon(
                         condition = fallbackCondition ?: inferWeatherConditionFromIconUrl(rawUrl) ?: "Cloudy",
-                        size = 18.dp
+                        size = iconFallbackSize
                     )
                 }
             } else {
@@ -2140,7 +2159,7 @@ object GenUiNativeRenderer {
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .wrapContentWidth(align = Alignment.Start)
                 .height(IntrinsicSize.Min)
                 .background(tableRowBackground(isHeader = isHeader, rowIndex = rowIndex))
         ) {
@@ -2163,7 +2182,7 @@ object GenUiNativeRenderer {
                     text = displayText,
                     style = style,
                     color = color,
-                    maxLines = if (isHeader) 3 else 5,
+                    maxLines = if (isHeader) 4 else Int.MAX_VALUE,
                     overflow = TextOverflow.Clip,
                     modifier = Modifier
                         .width(cellWidth)
@@ -2187,7 +2206,7 @@ object GenUiNativeRenderer {
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .wrapContentWidth(align = Alignment.Start)
                 .height(IntrinsicSize.Min)
                 .background(tableRowBackground(isHeader = isHeader, rowIndex = rowIndex))
         ) {
@@ -2201,7 +2220,7 @@ object GenUiNativeRenderer {
                         MaterialTheme.typography.bodySmall
                     },
                     color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = if (isHeader) 3 else 5,
+                    maxLines = if (isHeader) 4 else Int.MAX_VALUE,
                     overflow = TextOverflow.Clip,
                     modifier = Modifier
                         .width(columnWidths.getOrElse(column) { tableBaseCellWidth(columnCount) })
@@ -2267,14 +2286,14 @@ object GenUiNativeRenderer {
                             ) {
                                 WeatherConditionIcon(
                                     condition = todayRow.condition,
-                                    size = 38.dp
+                                    size = 32.dp
                                 )
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
                                     Text(
                                         text = todayLabel,
-                                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     todayDate?.let { dateValue ->
@@ -2290,7 +2309,7 @@ object GenUiNativeRenderer {
                             if (todayTemperature.isNotBlank()) {
                                 Text(
                                     text = sanitizeDisplayText(todayTemperature),
-                                    style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold),
+                                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                                     color = MaterialTheme.colorScheme.onSurface,
                                     textAlign = TextAlign.End
                                 )
@@ -2300,7 +2319,7 @@ object GenUiNativeRenderer {
                         if (todayCondition.isNotBlank()) {
                             Text(
                                 text = todayCondition,
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -3610,7 +3629,11 @@ object GenUiNativeRenderer {
         sourceDir: File?
     ) {
         val iconUrl = details.iconUrl?.trim().orEmpty()
-        val conditionText = details.condition?.let(::sanitizeDisplayText).orEmpty()
+        val iconBasedCondition = iconUrl
+            .takeIf { it.isNotBlank() }
+            ?.let(::inferWeatherConditionFromIconUrl)
+        val heroCondition = iconBasedCondition ?: details.condition
+        val conditionText = (details.condition ?: heroCondition)?.let(::sanitizeDisplayText).orEmpty()
         val temperatureText = details.temperature?.let(::sanitizeDisplayText).orEmpty()
         val feelsLikeText = details.feelsLike?.let(::sanitizeDisplayText).orEmpty()
 
@@ -3625,21 +3648,10 @@ object GenUiNativeRenderer {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (iconUrl.isNotBlank()) {
-                MediaImage(
-                    rawUrl = iconUrl,
-                    sourceDir = sourceDir,
-                    modifier = Modifier.size(74.dp),
-                    contentScale = ContentScale.Fit,
-                    asIcon = true,
-                    fallbackCondition = details.condition
-                )
-            } else {
-                WeatherConditionIcon(
-                    condition = details.condition,
-                    size = 70.dp
-                )
-            }
+            WeatherConditionIcon(
+                condition = heroCondition,
+                size = 124.dp
+            )
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -3819,7 +3831,12 @@ object GenUiNativeRenderer {
     }
 
     private fun tableBaseCellWidth(columnCount: Int): Dp {
-        return if (columnCount <= 3) 152.dp else 132.dp
+        return when {
+            columnCount <= 2 -> 220.dp
+            columnCount == 3 -> 196.dp
+            columnCount == 4 -> 172.dp
+            else -> 156.dp
+        }
     }
 
     private fun tableColumnWidths(spec: TableSpec, columnCount: Int, weightedLayout: Boolean): List<Dp> {
@@ -4051,7 +4068,7 @@ object GenUiNativeRenderer {
 
         val hasButtons = normalized.contains("[Button:", ignoreCase = true)
         val hasTable = lines.count { isTableLikeLine(it) } >= 2
-        val hasBullets = lines.count { it.startsWith("- ") } >= 2
+        val hasBullets = lines.count { isBulletListLine(it) } >= 2
         val hasMedia = lines.any { isInlineMediaLine(it) || isMediaMarkerHeading(it) }
         val hasMultiLineLayout = lines.size >= 3
         return hasButtons || hasTable || hasBullets || hasMedia || hasMultiLineLayout || normalized.contains("\n\n")
@@ -4124,13 +4141,13 @@ object GenUiNativeRenderer {
                 }
             }
 
-            if (line.startsWith("- ")) {
+            if (isBulletListLine(line)) {
                 val items = mutableListOf<String>()
                 var cursor = index
                 while (cursor < lines.size) {
                     val l = lines[cursor].trim()
-                    if (!l.startsWith("- ")) break
-                    val item = l.removePrefix("- ").trim()
+                    if (!isBulletListLine(l)) break
+                    val item = extractBulletListItem(l) ?: break
                     if (!isPlaceholderListEntry(item)) {
                         items += item
                     }
@@ -4257,7 +4274,7 @@ object GenUiNativeRenderer {
     }
 
     private fun parseSourceLinksFromLine(line: String): List<ParsedButton> {
-        val normalized = line.removePrefix("- ").trim()
+        val normalized = stripLeadingBulletMarker(line)
         if (normalized.isBlank()) {
             return emptyList()
         }
@@ -4448,11 +4465,11 @@ object GenUiNativeRenderer {
                 cursor++
                 continue
             }
-            if (!line.startsWith("- ")) {
+            if (!isBulletListLine(line)) {
                 break
             }
 
-            val item = line.removePrefix("- ").trim()
+            val item = extractBulletListItem(line) ?: break
             val parts = item.split(":", limit = 2)
             if (parts.size == 2) {
                 val label = parts[0].trim()
@@ -4640,13 +4657,18 @@ object GenUiNativeRenderer {
     }
 
     private fun parseMediaEntryLine(line: String): ParsedMediaEntry? {
-        val normalized = line.removePrefix("- ").trim()
+        val normalized = stripLeadingBulletMarker(line)
         val parts = normalized.split(":", limit = 2)
         if (parts.size != 2) {
             return null
         }
         val label = parts[0].trim()
         val value = parts[1].trim()
+        // Let parseInlineMediaEntries handle compound assignments like:
+        // Media: Image=... Icon=...
+        if (value.contains("Image=", ignoreCase = true) || value.contains("Icon=", ignoreCase = true)) {
+            return null
+        }
         if (label.isEmpty() || !looksLikeImagePath(value, labelHint = label)) {
             return null
         }
@@ -4876,7 +4898,7 @@ object GenUiNativeRenderer {
 
     private fun isPlaceholderListEntry(value: String): Boolean {
         val normalized = value
-            .replace(Regex("""^[\u2022â€¢\-]\s*"""), "")
+            .replace(Regex("""^[\u2022•\-*]\s*"""), "")
             .trim()
         if (isPlaceholderTableCellValue(normalized)) {
             return true
@@ -4895,7 +4917,7 @@ object GenUiNativeRenderer {
         if (parseLeadingLabelValue(line) != null) {
             return false
         }
-        if (line.startsWith("- ") || line.endsWith(".") || line.endsWith("?") || line.endsWith("!")) {
+        if (isBulletListLine(line) || line.endsWith(".") || line.endsWith("?") || line.endsWith("!")) {
             return false
         }
         if (line.contains('|') || containsUrlLikeToken(line)) {
@@ -4957,7 +4979,7 @@ object GenUiNativeRenderer {
     }
 
     private fun isStructuredBoundary(line: String): Boolean {
-        if (line.startsWith("- ")) {
+        if (isBulletListLine(line)) {
             return true
         }
         if (isInlineMediaLine(line) || isMediaMarkerHeading(line)) {
@@ -4971,6 +4993,19 @@ object GenUiNativeRenderer {
         }
         return false
     }
+
+    private fun isBulletListLine(line: String): Boolean =
+        BULLET_LINE_REGEX.matches(line.trim())
+
+    private fun extractBulletListItem(line: String): String? =
+        BULLET_LINE_REGEX.matchEntire(line.trim())
+            ?.groupValues
+            ?.getOrNull(2)
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+
+    private fun stripLeadingBulletMarker(line: String): String =
+        extractBulletListItem(line) ?: line.trim()
 
     private fun looksLikeImagePath(value: String, labelHint: String? = null): Boolean {
         val normalized = value.trim()
@@ -5048,8 +5083,9 @@ object GenUiNativeRenderer {
 
     private fun looksLikeCompactIconUrl(value: String): Boolean {
         val normalized = value.lowercase(Locale.US)
-        return normalized.contains("/icon") ||
-            normalized.contains("/icons/") ||
+        val iconPathLike = Regex("""(?:^|/)(?:icon|icons)(?:/|[-_.]|$)""")
+            .containsMatchIn(normalized)
+        return iconPathLike ||
             normalized.contains("weatherapi.com/weather/") ||
             normalized.contains("/weather/64x64/") ||
             normalized.contains("/weather/128x128/") ||
@@ -5364,22 +5400,22 @@ object GenUiNativeRenderer {
         if (element.isJsonPrimitive) {
             val primitive = element.asJsonPrimitive
             return when {
-                primitive.isString -> primitive.asString
+                primitive.isString -> normalizeMojibakeText(primitive.asString)
                 primitive.isBoolean -> primitive.asBoolean.toString()
                 primitive.isNumber -> primitive.asNumber.toString()
                 else -> primitive.toString()
             }
         }
         if (!element.isJsonObject) {
-            return element.toString()
+            return normalizeMojibakeText(element.toString())
         }
 
         val obj = element.asJsonObject
-        obj.getString("literalString")?.let { return it }
-        obj.getString("path")?.let { return it }
-        obj.get("literalNumber")?.let { return it.toString().trim('"') }
-        obj.get("literalBoolean")?.let { return it.toString().trim('"') }
-        return obj.toString()
+        obj.getString("literalString")?.let { return normalizeMojibakeText(it) }
+        obj.getString("path")?.let { return normalizeMojibakeText(it) }
+        obj.get("literalNumber")?.let { return normalizeMojibakeText(it.toString().trim('"')) }
+        obj.get("literalBoolean")?.let { return normalizeMojibakeText(it.toString().trim('"')) }
+        return normalizeMojibakeText(obj.toString())
     }
 
     private fun resolveAssetUrl(raw: String, sourceDir: File?): String {

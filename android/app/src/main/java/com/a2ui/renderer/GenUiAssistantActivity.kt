@@ -222,17 +222,31 @@ private fun GenUiAssistantScreen(
 
     fun applyStageDurations(
         durations: Map<GenUiStagePipeline.Stage, Long>,
+        streamDurations: Map<GenUiStagePipeline.Stage, Long> = emptyMap(),
         failedStage: GenUiStagePipeline.Stage? = null
     ) {
-        if (durations.isEmpty()) return
+        if (durations.isEmpty() && streamDurations.isEmpty()) return
         steps.indices.forEach { index ->
             val step = steps[index]
-            val duration = durations[step.stage] ?: return@forEach
-            val label = formatDurationLabel(duration)
-            val message = if (failedStage == step.stage) {
-                "Failed after $label"
+            val duration = durations[step.stage]
+            val streamDuration = streamDurations[step.stage]
+            val streamLabel = streamDuration?.let { formatDurationLabel(it) }
+            val message = if (duration != null) {
+                val label = formatDurationLabel(duration)
+                val suffix = streamLabel?.let { " | stream $it" }.orEmpty()
+                if (failedStage == step.stage) {
+                    "Failed after $label$suffix"
+                } else {
+                    "Completed in $label$suffix"
+                }
+            } else if (streamLabel != null) {
+                if (failedStage == step.stage) {
+                    "Failed | stream $streamLabel"
+                } else {
+                    "Completed | stream $streamLabel"
+                }
             } else {
-                "Completed in $label"
+                step.message
             }
             steps[index] = step.copy(message = message)
         }
@@ -411,7 +425,10 @@ private fun GenUiAssistantScreen(
                                             steps.indices.forEach { i ->
                                                 steps[i] = steps[i].copy(status = PipelineStepStatus.Done)
                                             }
-                                            applyStageDurations(result.stageDurationsMs)
+                                            applyStageDurations(
+                                                durations = result.stageDurationsMs,
+                                                streamDurations = result.stageStreamDurationsMs
+                                            )
                                             currentStatus = "Pipeline completed"
                                             inputText = ""
                                         }
@@ -444,6 +461,7 @@ private fun GenUiAssistantScreen(
                                             }
                                             applyStageDurations(
                                                 durations = outcome.stageDurationsMs,
+                                                streamDurations = outcome.stageStreamDurationsMs,
                                                 failedStage = outcome.stage
                                             )
                                             currentStatus = "Pipeline failed"
