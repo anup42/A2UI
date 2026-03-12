@@ -117,14 +117,17 @@ python server_vllm.py --model-path Qwen/Qwen2.5-Coder-7B-Instruct --host 0.0.0.0
 
 The API contract remains the same (`/health`, `POST /v1/generate`) so Android settings do not need request-shape changes.
 For long prompts (for example 15k+ tokens in Stage 2/Stage 3 pipeline input), the server now auto-fits prompt+generation into model context by reducing output tokens and truncating prompt tokens (head+tail) when required.
+`server_vllm.py` now enables vLLM prefix KV caching by default, so repeated IR generations with the same instruction prefix are faster after the first request.
 If you know your model context size, pass it explicitly for tighter control:
 
 ```powershell
 python server_vllm.py --model-path /home/anup/models/Qwen2.5-Coder-7B-Instruct --max-model-len 32768
 ```
+To disable prefix KV caching (not recommended), add `--disable-prefix-caching`.
 
 `server_vllm.py` supports additional sampling fields in requests:
 - `top_p` (default `0.95`)
 - `top_k` (default `20`)
 - `presence_penalty` (default `0.0`)
 - `enable_thinking` (optional, passed only when tokenizer template supports it)
+- `system_prompt_cache_key` (optional: cache/reuse large `system_prompt` values on server)

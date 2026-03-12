@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from collections import OrderedDict
 import gc
+import inspect
 import logging
 import os
 import time
@@ -70,6 +72,10 @@ def _patch_tokenizer_compat() -> None:
 class GenerateRequest(BaseModel):
     prompt: str = Field(..., min_length=1)
     system_prompt: str | None = None
+    system_prompt_cache_key: str | None = Field(
+        default=None,
+        description="Optional key to cache/reuse large system prompts in server memory."
+    )
     temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     top_p: float = Field(default=0.95, ge=0.0, le=1.0)
     top_k: int = Field(default=20, ge=-1)
@@ -96,7 +102,9 @@ class VllmGenerationEngine:
         tensor_parallel_size: int,
         gpu_memory_utilization: float,
         max_model_len: int,
-        enforce_eager: bool
+        enforce_eager: bool,
+        enable_prefix_caching: bool,
+        system_prompt_cache_max_entries: int
     ) -> None:
         self._default_model_path = default_model_path.strip() or DEFAULT_MODEL_PATH
         self._trust_remote_code = trust_remote_code
@@ -105,6 +113,8 @@ class VllmGenerationEngine:
         self._gpu_memory_utilization = max(0.1, min(0.99, float(gpu_memory_utilization)))
         self._max_model_len = max(0, int(max_model_len))
         self._enforce_eager = enforce_eager
+        self._enable_prefix_caching = bool(enable_prefix_caching)
+        self._system_prompt_cache_max_entries = max(1, int(system_prompt_cache_max_entries))
 
         self._request_lock = asyncio.Lock()
         self._llm: Any | None = None
@@ -114,6 +124,9 @@ class VllmGenerationEngine:
         self._last_failed_load_key: tuple[str, str, bool] | None = None
         self._last_failed_load_error: str | None = None
         self._resolved_max_context_tokens: int | None = None
+        self._system_prompt_cache: OrderedDict[str, str] = OrderedDict()
+        self._system_prompt_cache_hits = 0
+        self._system_prompt_cache_misses = 0
 
     @property
     def loaded_model_path(self) -> str | None:
@@ -126,6 +139,18 @@ class VllmGenerationEngine:
     @property
     def last_failed_load_error(self) -> str | None:
         return self._last_failed_load_error
+
+    @property
+    def system_prompt_cache_size(self) -> int:
+        return len(self._system_prompt_cache)
+
+    @property
+    def system_prompt_cache_hits(self) -> int:
+        return self._system_prompt_cache_hits
+
+    @property
+    def system_prompt_cache_misses(self) -> int:
+        return self._system_prompt_cache_misses
 
     async def warmup(self) -> None:
         async with self._request_lock:
@@ -191,6 +216,14 @@ class VllmGenerationEngine:
             "gpu_memory_utilization": self._gpu_memory_utilization,
             "enforce_eager": self._enforce_eager
         }
+        llm_init_params = inspect.signature(LLM.__init__).parameters
+        if "enable_prefix_caching" in llm_init_params:
+            llm_kwargs["enable_prefix_caching"] = self._enable_prefix_caching
+        elif self._enable_prefix_caching:
+            LOGGER.warning(
+                "Installed vLLM does not expose 'enable_prefix_caching' in LLM.__init__. "
+                "Prefix KV caching may be unavailable."
+            )
         if self._max_model_len > 0:
             llm_kwargs["max_model_len"] = self._max_model_len
 
@@ -201,11 +234,13 @@ class VllmGenerationEngine:
         self._last_failed_load_key = None
         self._last_failed_load_error = None
         LOGGER.info(
-            "vLLM model ready: path='%s', dtype='%s', tp=%d, max_context_tokens=%d, load_ms=%.0f",
+            "vLLM model ready: path='%s', dtype='%s', tp=%d, max_context_tokens=%d, "
+            "prefix_caching=%s, load_ms=%.0f",
             self._loaded_model_path,
             self._dtype,
             self._tensor_parallel_size,
             self.max_context_tokens,
+            self._enable_prefix_caching,
             self._last_load_ms
         )
 
@@ -231,6 +266,50 @@ class VllmGenerationEngine:
     def _is_qwen_instruct_model(self, model_path: str) -> bool:
         normalized = model_path.replace("\\", "/").lower()
         return "qwen2.5-coder" in normalized and "instruct" in normalized
+
+    def _normalize_cache_key(self, key: str | None) -> str | None:
+        if key is None:
+            return None
+        normalized = key.strip()
+        return normalized or None
+
+    def _put_system_prompt_cache(self, key: str, prompt: str) -> None:
+        existing = self._system_prompt_cache.get(key)
+        if existing == prompt:
+            self._system_prompt_cache.move_to_end(key)
+            return
+        self._system_prompt_cache[key] = prompt
+        self._system_prompt_cache.move_to_end(key)
+        while len(self._system_prompt_cache) > self._system_prompt_cache_max_entries:
+            self._system_prompt_cache.popitem(last=False)
+
+    def _get_system_prompt_cache(self, key: str) -> str | None:
+        prompt = self._system_prompt_cache.get(key)
+        if prompt is None:
+            self._system_prompt_cache_misses += 1
+            return None
+        self._system_prompt_cache.move_to_end(key)
+        self._system_prompt_cache_hits += 1
+        return prompt
+
+    def _resolve_request_system_prompt(self, request: GenerateRequest) -> str:
+        cache_key = self._normalize_cache_key(request.system_prompt_cache_key)
+        direct_system_prompt = (request.system_prompt or "").strip()
+
+        if cache_key is None:
+            return direct_system_prompt
+
+        if direct_system_prompt:
+            self._put_system_prompt_cache(cache_key, direct_system_prompt)
+            return direct_system_prompt
+
+        cached_prompt = self._get_system_prompt_cache(cache_key)
+        if cached_prompt is None:
+            raise RuntimeError(
+                "System prompt cache miss for key "
+                f"'{cache_key}'. Send 'system_prompt' once with this key before reusing it."
+            )
+        return cached_prompt
 
     @property
     def max_context_tokens(self) -> int:
@@ -351,7 +430,7 @@ class VllmGenerationEngine:
         if self._tokenizer is None:
             raise RuntimeError("Tokenizer is not loaded.")
 
-        system_prompt = (request.system_prompt or "").strip()
+        system_prompt = self._resolve_request_system_prompt(request)
         if not system_prompt and self._is_qwen_instruct_model(model_path):
             system_prompt = QWEN_DEFAULT_SYSTEM_PROMPT
         if request.json_mode:
@@ -508,20 +587,27 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
             "loaded_model_path": engine.loaded_model_path,
             "backend": "vllm",
             "last_load_ms": engine.last_load_ms,
-            "last_failed_load_error": engine.last_failed_load_error
+            "last_failed_load_error": engine.last_failed_load_error,
+            "system_prompt_cache": {
+                "size": engine.system_prompt_cache_size,
+                "hits": engine.system_prompt_cache_hits,
+                "misses": engine.system_prompt_cache_misses
+            }
         }
 
     @app.post("/v1/generate", response_model=GenerateResponse)
     async def generate(request: GenerateRequest) -> GenerateResponse:
         LOGGER.info(
-            "Generate request received. model_path=%s prompt_chars=%d json_mode=%s temp=%.2f top_p=%.2f top_k=%d max_tokens=%d",
+            "Generate request received. model_path=%s prompt_chars=%d json_mode=%s "
+            "temp=%.2f top_p=%.2f top_k=%d max_tokens=%d system_prompt_cache_key=%s",
             request.model_path or engine.loaded_model_path or "<default>",
             len(request.prompt),
             request.json_mode,
             request.temperature,
             request.top_p,
             request.top_k,
-            request.max_output_tokens
+            request.max_output_tokens,
+            request.system_prompt_cache_key or "<none>"
         )
         try:
             return await engine.generate(request)
@@ -584,6 +670,17 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Maximum model length. Keep 0 to use vLLM/model default."
     )
+    parser.add_argument(
+        "--disable-prefix-caching",
+        action="store_true",
+        help="Disable vLLM automatic prefix KV caching."
+    )
+    parser.add_argument(
+        "--system-prompt-cache-max-entries",
+        type=int,
+        default=16,
+        help="Max number of cached system prompts when using system_prompt_cache_key."
+    )
     parser.add_argument("--enforce-eager", action="store_true", help="Use eager mode in vLLM.")
     parser.add_argument(
         "--log-level",
@@ -628,7 +725,9 @@ def main() -> None:
         tensor_parallel_size=args.tensor_parallel_size,
         gpu_memory_utilization=args.gpu_memory_utilization,
         max_model_len=args.max_model_len,
-        enforce_eager=args.enforce_eager
+        enforce_eager=args.enforce_eager,
+        enable_prefix_caching=not args.disable_prefix_caching,
+        system_prompt_cache_max_entries=args.system_prompt_cache_max_entries
     )
     if args.self_test or args.self_test_only:
         run_self_test(

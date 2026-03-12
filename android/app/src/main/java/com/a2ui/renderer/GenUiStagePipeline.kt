@@ -210,6 +210,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = stage2Response,
             assets = emptyList()
         )
+        val localStage3SystemPromptCacheKey = if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            buildLocalSystemPromptCacheKey(
+                model = localModelPath.ifBlank { selectedModel },
+                systemPrompt = promptContext.systemPrompt
+            )
+        } else {
+            null
+        }
         val warnings = mutableListOf<String>()
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Using Gemini model: $selectedModel"
@@ -217,6 +225,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Using local server: $localServerBaseUrl"
             warnings += "Local model path: $localModelPath"
             warnings += "Local token caps: stage2=$stage2MaxOutputTokens, stage3=$stage3MaxOutputTokens"
+            if (!localStage3SystemPromptCacheKey.isNullOrBlank()) {
+                warnings += "Local stage3 prompt cache key: ${localStage3SystemPromptCacheKey.take(16)}..."
+            }
         }
         if (normalizedBareDomains) {
             warnings += "Normalized bare source/action domains to https URLs."
@@ -264,7 +275,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
             allowCachedContent = true,
-            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI
+            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+            localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
+            localSendSystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -298,7 +311,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 enableGoogleSearch = false,
                 cachedContentName = stage3Cache.name,
                 allowCachedContent = true,
-                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI
+                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+                localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
+                localSendSystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
             )
             markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
             if (repairCall.error == null) {
@@ -484,6 +499,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = stage2Response,
             assets = emptyList()
         )
+        val localStage3SystemPromptCacheKey = if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            buildLocalSystemPromptCacheKey(
+                model = localModelPath.ifBlank { selectedModel },
+                systemPrompt = promptContext.systemPrompt
+            )
+        } else {
+            null
+        }
         val warnings = mutableListOf<String>()
         warnings += "Using preloaded IR demo response (stage 2 skipped)."
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
@@ -492,6 +515,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Using local server: $localServerBaseUrl"
             warnings += "Local model path: $localModelPath"
             warnings += "Local token cap: stage3=$stage3MaxOutputTokens"
+            if (!localStage3SystemPromptCacheKey.isNullOrBlank()) {
+                warnings += "Local stage3 prompt cache key: ${localStage3SystemPromptCacheKey.take(16)}..."
+            }
         }
         if (normalizedBareDomains) {
             warnings += "Normalized bare source/action domains to https URLs."
@@ -539,7 +565,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
             allowCachedContent = true,
-            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI
+            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+            localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
+            localSendSystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -573,7 +601,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 enableGoogleSearch = false,
                 cachedContentName = stage3Cache.name,
                 allowCachedContent = true,
-                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI
+                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+                localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
+                localSendSystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
             )
             markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
             if (repairCall.error == null) {
@@ -1443,7 +1473,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         enableGoogleSearch: Boolean = false,
         cachedContentName: String? = null,
         allowCachedContent: Boolean = true,
-        structuredOutput: Boolean = false
+        structuredOutput: Boolean = false,
+        localSystemPromptCacheKey: String? = null,
+        localSendSystemPrompt: Boolean = true
     ): GeminiResponse {
         var attempt = 0
         var accumulatedStreamMs = 0L
@@ -1476,13 +1508,22 @@ class GenUiStagePipeline(private val appContext: Context) {
                 jsonMode = jsonMode,
                 enableGoogleSearch = enableGoogleSearch,
                 cachedContentName = effectiveCachedContentName,
-                structuredOutput = structuredOutput
+                structuredOutput = structuredOutput,
+                localSystemPromptCacheKey = localSystemPromptCacheKey,
+                localSendSystemPrompt = localSendSystemPrompt
             )
             last.streamDurationMs?.let {
                 accumulatedStreamMs += it
                 hasStreamSample = true
             }
             if (last.error == null) {
+                if (
+                    provider == InferenceBackendSettings.Provider.LOCAL_SERVER &&
+                    localSendSystemPrompt &&
+                    !localSystemPromptCacheKey.isNullOrBlank()
+                ) {
+                    markLocalSystemPromptCacheKeyReady(localSystemPromptCacheKey)
+                }
                 return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
             if (
@@ -1503,7 +1544,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                     jsonMode = jsonMode,
                     enableGoogleSearch = false,
                     cachedContentName = effectiveCachedContentName,
-                    structuredOutput = structuredOutput
+                    structuredOutput = structuredOutput,
+                    localSystemPromptCacheKey = localSystemPromptCacheKey,
+                    localSendSystemPrompt = localSendSystemPrompt
                 )
                 fallback.streamDurationMs?.let {
                     accumulatedStreamMs += it
@@ -1529,13 +1572,47 @@ class GenUiStagePipeline(private val appContext: Context) {
                     jsonMode = jsonMode,
                     enableGoogleSearch = enableGoogleSearch,
                     cachedContentName = effectiveCachedContentName,
-                    structuredOutput = false
+                    structuredOutput = false,
+                    localSystemPromptCacheKey = localSystemPromptCacheKey,
+                    localSendSystemPrompt = localSendSystemPrompt
                 )
                 fallback.streamDurationMs?.let {
                     accumulatedStreamMs += it
                     hasStreamSample = true
                 }
                 return fallback.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+            }
+            if (
+                provider == InferenceBackendSettings.Provider.LOCAL_SERVER &&
+                !localSendSystemPrompt &&
+                !localSystemPromptCacheKey.isNullOrBlank() &&
+                isLocalSystemPromptCacheMiss(last.error)
+            ) {
+                val cacheRecovery = generateOnce(
+                    provider = provider,
+                    apiKey = apiKey,
+                    model = model,
+                    localServerBaseUrl = localServerBaseUrl,
+                    localModelPath = localModelPath,
+                    prompt = prompt,
+                    systemPrompt = systemPrompt,
+                    temperature = temperature,
+                    maxOutputTokens = maxOutputTokens,
+                    jsonMode = jsonMode,
+                    enableGoogleSearch = enableGoogleSearch,
+                    cachedContentName = effectiveCachedContentName,
+                    structuredOutput = structuredOutput,
+                    localSystemPromptCacheKey = localSystemPromptCacheKey,
+                    localSendSystemPrompt = true
+                )
+                cacheRecovery.streamDurationMs?.let {
+                    accumulatedStreamMs += it
+                    hasStreamSample = true
+                }
+                if (cacheRecovery.error == null) {
+                    markLocalSystemPromptCacheKeyReady(localSystemPromptCacheKey)
+                }
+                return cacheRecovery.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
             val lower = last.error.lowercase(Locale.US)
             val retryable = lower.contains("timed out") ||
@@ -1564,7 +1641,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         jsonMode: Boolean,
         enableGoogleSearch: Boolean = false,
         cachedContentName: String? = null,
-        structuredOutput: Boolean = false
+        structuredOutput: Boolean = false,
+        localSystemPromptCacheKey: String? = null,
+        localSendSystemPrompt: Boolean = true
     ): GeminiResponse {
         return when (provider) {
             InferenceBackendSettings.Provider.GEMINI -> generateOnceGemini(
@@ -1585,6 +1664,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 localModelPath = localModelPath,
                 prompt = prompt,
                 systemPrompt = systemPrompt,
+                localSystemPromptCacheKey = localSystemPromptCacheKey,
+                localSendSystemPrompt = localSendSystemPrompt,
                 temperature = temperature,
                 maxOutputTokens = maxOutputTokens,
                 jsonMode = jsonMode
@@ -1679,6 +1760,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         localModelPath: String,
         prompt: String,
         systemPrompt: String?,
+        localSystemPromptCacheKey: String?,
+        localSendSystemPrompt: Boolean,
         temperature: Double,
         maxOutputTokens: Int,
         jsonMode: Boolean
@@ -1703,8 +1786,11 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val body = JsonObject().apply {
             addProperty("prompt", prompt)
-            if (!systemPrompt.isNullOrBlank()) {
+            if (localSendSystemPrompt && !systemPrompt.isNullOrBlank()) {
                 addProperty("system_prompt", systemPrompt)
+            }
+            if (!localSystemPromptCacheKey.isNullOrBlank()) {
+                addProperty("system_prompt_cache_key", localSystemPromptCacheKey)
             }
             addProperty("temperature", temperature)
             addProperty("max_output_tokens", min(maxOutputTokens, 8192))
@@ -2027,6 +2113,37 @@ class GenUiStagePipeline(private val appContext: Context) {
             (normalized.contains("http 400") && normalized.contains("tool"))
     }
 
+    private fun isLocalSystemPromptCacheMiss(error: String): Boolean {
+        val normalized = error.lowercase(Locale.US)
+        return normalized.contains("system prompt cache miss for key")
+    }
+
+    private fun buildLocalSystemPromptCacheKey(model: String, systemPrompt: String?): String? {
+        if (systemPrompt.isNullOrBlank()) {
+            return null
+        }
+        val baseModel = model.trim().ifBlank { "default_model" }
+        return "stage3_${sha256Hex("$baseModel\n$systemPrompt").take(20)}"
+    }
+
+    private fun shouldSendLocalSystemPrompt(cacheKey: String?): Boolean {
+        if (cacheKey.isNullOrBlank()) {
+            return true
+        }
+        synchronized(localSystemPromptCacheLock) {
+            return !localReadySystemPromptCacheKeys.contains(cacheKey)
+        }
+    }
+
+    private fun markLocalSystemPromptCacheKeyReady(cacheKey: String?) {
+        if (cacheKey.isNullOrBlank()) {
+            return
+        }
+        synchronized(localSystemPromptCacheLock) {
+            localReadySystemPromptCacheKeys += cacheKey
+        }
+    }
+
     private fun isStructuredOutputConfigError(error: String): Boolean {
         val normalized = error.lowercase(Locale.US)
         return normalized.contains("responseschema") ||
@@ -2293,8 +2410,10 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
 
         val stage3CacheLock = Any()
+        val localSystemPromptCacheLock = Any()
         @Volatile
         var stage3InstructionCache: CachedInstructionEntry? = null
+        val localReadySystemPromptCacheKeys = mutableSetOf<String>()
         val gson = com.google.gson.GsonBuilder().disableHtmlEscaping().create()
     }
 }
