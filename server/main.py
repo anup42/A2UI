@@ -392,6 +392,33 @@ def create_app(engine: LocalGenerationEngine, lazy_load: bool) -> FastAPI:
     return app
 
 
+def run_self_test(engine: LocalGenerationEngine, prompt: str, max_output_tokens: int) -> None:
+    LOGGER.info(
+        "Running self-test prompt. prompt_chars=%d max_output_tokens=%d",
+        len(prompt),
+        max_output_tokens
+    )
+    request = GenerateRequest(
+        prompt=prompt,
+        system_prompt=None,
+        temperature=0.2,
+        max_output_tokens=max_output_tokens,
+        json_mode=False,
+        model_path=None
+    )
+    started = time.perf_counter()
+    response = asyncio.run(engine.generate(request))
+    wall_ms = (time.perf_counter() - started) * 1000.0
+
+    print("\n=== SELF TEST OUTPUT ===")
+    print(response.text)
+    print("=== END SELF TEST OUTPUT ===")
+    print(f"model_path: {response.model_path}")
+    print(f"usage: {response.usage}")
+    print(f"timings: {response.timings}")
+    print(f"wall_time_ms: {wall_ms:.0f}")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run local Hugging Face model server for GenUICraft.")
     parser.add_argument("--model-path", default=DEFAULT_MODEL_PATH, help="Default HF model id or local path.")
@@ -416,6 +443,27 @@ def parse_args() -> argparse.Namespace:
         default="info",
         choices=["debug", "info", "warning", "error", "critical"]
     )
+    parser.add_argument(
+        "--self-test",
+        action="store_true",
+        help="Run one generation test at startup and print output."
+    )
+    parser.add_argument(
+        "--self-test-only",
+        action="store_true",
+        help="Run one generation test and exit without starting the HTTP server."
+    )
+    parser.add_argument(
+        "--self-test-prompt",
+        default="show pizza recipie",
+        help="Prompt text used by --self-test / --self-test-only."
+    )
+    parser.add_argument(
+        "--self-test-max-output-tokens",
+        type=int,
+        default=256,
+        help="Max new tokens for self-test generation."
+    )
     return parser.parse_args()
 
 
@@ -433,6 +481,16 @@ def main() -> None:
         attn_implementation=args.attn_implementation,
         strict_attention_backend=args.strict_attn
     )
+    if args.self_test or args.self_test_only:
+        run_self_test(
+            engine=engine,
+            prompt=args.self_test_prompt,
+            max_output_tokens=args.self_test_max_output_tokens
+        )
+    if args.self_test_only:
+        LOGGER.info("Self-test completed. Exiting because --self-test-only was set.")
+        return
+
     app = create_app(engine=engine, lazy_load=args.lazy_load)
     uvicorn.run(app, host=args.host, port=args.port, log_level=args.log_level, access_log=True)
 

@@ -76,3 +76,23 @@ In the app:
 - Set `Model path` to the same model id/path you want to use
 
 If using a physical phone, use your computer's LAN IP instead of `10.0.2.2`.
+
+## 6) Quick self-test from CLI
+
+Run one local test generation (prints output):
+
+```powershell
+python main.py --model-path Qwen/Qwen2.5-Coder-7B-Instruct --device cuda --self-test-only
+```
+
+By default this uses prompt:
+
+```text
+show pizza recipie
+```
+
+You can override prompt/tokens:
+
+```powershell
+python main.py --model-path Qwen/Qwen2.5-Coder-7B-Instruct --device cuda --self-test-only --self-test-prompt "show pizza recipie" --self-test-max-output-tokens 256
+```
