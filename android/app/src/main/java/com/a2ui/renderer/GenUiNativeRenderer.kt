@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -1064,15 +1065,7 @@ object GenUiNativeRenderer {
                     MediaImage(
                         rawUrl = entry.url,
                         sourceDir = sourceDir,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(164.dp)
-                            .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
-                            .border(
-                                GenUiTokens.BorderMd,
-                                genUiMediaFrameBorderColor(),
-                                RoundedCornerShape(GenUiTokens.RadiusMd)
-                            ),
+                        modifier = mediaFrameModifier(),
                         contentScale = defaultImageScale(
                             rawUrl = entry.url,
                             fitValue = null,
@@ -1177,15 +1170,7 @@ object GenUiNativeRenderer {
                     MediaImage(
                         rawUrl = value,
                         sourceDir = sourceDir,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(72.dp)
-                            .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
-                            .border(
-                                GenUiTokens.BorderMd,
-                                genUiMediaFrameBorderColor(),
-                                RoundedCornerShape(GenUiTokens.RadiusMd)
-                            ),
+                        modifier = mediaFrameModifier(),
                         contentScale = defaultImageScale(
                             rawUrl = value,
                             fitValue = null,
@@ -1671,15 +1656,7 @@ object GenUiNativeRenderer {
                         MediaImage(
                             rawUrl = entry.url,
                             sourceDir = sourceDir,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(132.dp)
-                                .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
-                                .border(
-                                    GenUiTokens.BorderMd,
-                                    genUiMediaFrameBorderColor(),
-                                    RoundedCornerShape(GenUiTokens.RadiusMd)
-                                ),
+                            modifier = mediaFrameModifier(),
                             contentScale = defaultImageScale(
                                 rawUrl = entry.url,
                                 fitValue = null,
@@ -1840,42 +1817,10 @@ object GenUiNativeRenderer {
                 likelyLogo -> Modifier
                     .width(90.dp)
                     .height(30.dp)
-                mediumFeature && rasterImage -> Modifier
-                    .fillMaxWidth()
-                    .height(168.dp)
-                    .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
-                    .border(
-                        GenUiTokens.BorderMd,
-                        genUiMediaFrameBorderColor(),
-                        RoundedCornerShape(GenUiTokens.RadiusMd)
-                    )
-                variant.contains("feature") -> Modifier
-                    .fillMaxWidth()
-                    .height(170.dp)
-                    .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
-                    .border(
-                        GenUiTokens.BorderMd,
-                        genUiMediaFrameBorderColor(),
-                        RoundedCornerShape(GenUiTokens.RadiusMd)
-                    )
-                variant.contains("thumbnail") -> Modifier
-                    .fillMaxWidth()
-                    .height(92.dp)
-                    .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
-                    .border(
-                        GenUiTokens.BorderMd,
-                        genUiMediaFrameBorderColor(),
-                        RoundedCornerShape(GenUiTokens.RadiusMd)
-                    )
-                else -> Modifier
-                    .fillMaxWidth()
-                    .height(if (urlLower.endsWith(".svg")) 56.dp else 150.dp)
-                    .clip(RoundedCornerShape(GenUiTokens.RadiusMd))
-                    .border(
-                        GenUiTokens.BorderMd,
-                        genUiMediaFrameBorderColor(),
-                        RoundedCornerShape(GenUiTokens.RadiusMd)
-                    )
+                mediumFeature && rasterImage -> mediaFrameModifier()
+                variant.contains("feature") -> mediaFrameModifier()
+                variant.contains("thumbnail") -> mediaFrameModifier()
+                else -> mediaFrameModifier()
             },
             contentScale = defaultImageScale(
                 rawUrl = rawUrl,
@@ -1884,6 +1829,20 @@ object GenUiNativeRenderer {
             ),
             asIcon = inlineIconLike
         )
+    }
+
+    @Composable
+    private fun mediaFrameModifier(): Modifier {
+        val shape = RoundedCornerShape(GenUiTokens.RadiusMd)
+        return Modifier
+            .fillMaxWidth()
+            .aspectRatio(3f / 2f)
+            .clip(shape)
+            .border(
+                GenUiTokens.BorderMd,
+                genUiMediaFrameBorderColor(),
+                shape
+            )
     }
 
     @Composable

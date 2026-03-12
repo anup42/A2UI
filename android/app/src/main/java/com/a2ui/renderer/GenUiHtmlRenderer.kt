@@ -1019,7 +1019,7 @@ object GenUiHtmlRenderer {
 
                 """
                     <article class="media-card">
-                      <div class="media-preview-wrap">
+                      <div class="media-preview-wrap media-preview-wrap-image">
                         <img class="media-preview" src="${escapeAttr(resolved)}" alt="${escapeAttr(entry.label)}" />
                       </div>
                       <p class="media-label">${escapeHtml(entry.label)}</p>
@@ -1032,7 +1032,7 @@ object GenUiHtmlRenderer {
                 val resolved = resolveAssetUrl(entry.url, sourceDir)
                 """
                     <article class="media-card">
-                      <div class="media-preview-wrap">
+                      <div class="media-preview-wrap media-preview-wrap-icon">
                         <img class="media-preview media-preview-icon" src="${escapeAttr(resolved)}" alt="${escapeAttr(entry.label)}" />
                       </div>
                       <p class="media-label">${escapeHtml(entry.label)}</p>
@@ -2073,22 +2073,30 @@ object GenUiHtmlRenderer {
                   border-radius: var(--sys-radius-md);
                   border: var(--sys-border-md) solid var(--sys-color-media-border);
                   background: var(--sys-color-surface);
-                  min-height: 72px;
                   display: flex;
                   align-items: center;
                   justify-content: center;
                   padding: 0;
                   overflow: hidden;
                 }
+                .media-preview-wrap-image {
+                  width: 100%;
+                  aspect-ratio: 3 / 2;
+                }
+                .media-preview-wrap-icon {
+                  width: 52px;
+                  height: 52px;
+                  border-radius: var(--sys-radius-50);
+                }
                 .media-preview {
                   width: 100%;
-                  height: 120px;
+                  height: 100%;
                   object-fit: cover;
                   display: block;
                 }
                 .media-preview-icon {
-                  width: 42px;
-                  height: 42px;
+                  width: 32px;
+                  height: 32px;
                   object-fit: contain;
                 }
 
@@ -2183,7 +2191,7 @@ object GenUiHtmlRenderer {
 
                 .image {
                   width: 100%;
-                  height: 170px;
+                  aspect-ratio: 3 / 2;
                   object-fit: cover;
                   border-radius: var(--sys-radius-md);
                   border: var(--sys-border-md) solid var(--sys-color-media-border);
@@ -2192,8 +2200,6 @@ object GenUiHtmlRenderer {
                 }
 
                 .image.image-contain {
-                  height: auto;
-                  max-height: 170px;
                   object-fit: contain;
                 }
 
