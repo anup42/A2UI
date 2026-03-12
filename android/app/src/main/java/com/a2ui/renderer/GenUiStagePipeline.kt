@@ -86,6 +86,10 @@ class GenUiStagePipeline(private val appContext: Context) {
         val selectedModel = GeminiModelSettings.getSelectedModel(appContext)
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
+        val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
+        val stage2MaxOutputTokens = if (isLocalServer) LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS else STAGE2_MAX_OUTPUT_TOKENS
+        val stage3MaxOutputTokens = if (isLocalServer) LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS else STAGE3_MAX_OUTPUT_TOKENS
+        val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
 
         val apiKey = if (provider == InferenceBackendSettings.Provider.GEMINI) {
             BuildConfig.GEMINI_API_KEY.trim()
@@ -161,7 +165,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             prompt = stage2Prompt,
             systemPrompt = null,
             temperature = 0.3,
-            maxOutputTokens = 4096,
+            maxOutputTokens = stage2MaxOutputTokens,
             jsonMode = false,
             enableGoogleSearch = provider == InferenceBackendSettings.Provider.GEMINI,
             allowCachedContent = false,
@@ -212,6 +216,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             warnings += "Using local server: $localServerBaseUrl"
             warnings += "Local model path: $localModelPath"
+            warnings += "Local token caps: stage2=$stage2MaxOutputTokens, stage3=$stage3MaxOutputTokens"
         }
         if (normalizedBareDomains) {
             warnings += "Normalized bare source/action domains to https URLs."
@@ -254,7 +259,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             prompt = stage3Prompt,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
             temperature = 0.2,
-            maxOutputTokens = 8192,
+            maxOutputTokens = stage3MaxOutputTokens,
             jsonMode = true,
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
@@ -288,7 +293,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 prompt = buildRepairPrompt(stage3Call.text),
                 systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
                 temperature = 0.2,
-                maxOutputTokens = 8192,
+                maxOutputTokens = stage3RepairMaxOutputTokens,
                 jsonMode = true,
                 enableGoogleSearch = false,
                 cachedContentName = stage3Cache.name,
@@ -1997,6 +2002,10 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val STAGE2_PROMPT_ASSET = "pipeline_prompts/response_gen.md"
         const val STAGE3_PROMPT_ASSET = "pipeline_prompts/genui_gen.md"
         const val MODEL_GEMINI_2_5_PRO = "gemini-2.5-pro"
+        const val STAGE2_MAX_OUTPUT_TOKENS = 4096
+        const val STAGE3_MAX_OUTPUT_TOKENS = 8192
+        const val LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS = 1024
+        const val LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS = 2048
         const val STAGE3_CACHE_TTL_SECONDS = 21600
         const val CACHE_PREFS_NAME = "genui_stage_pipeline_cache"
         const val CACHE_KEY_HASH = "stage3_cache_hash"

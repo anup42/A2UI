@@ -270,6 +270,7 @@ class LocalGenerationEngine:
         )
         tokenized = tokenized.to(self._inference_device)
         attention_mask = torch.ones_like(tokenized)
+        prompt_tokens = int(tokenized.shape[-1])
 
         do_sample = request.temperature > 0.0
         generation_kwargs: dict[str, Any] = {
@@ -282,6 +283,15 @@ class LocalGenerationEngine:
         if do_sample:
             generation_kwargs["temperature"] = float(request.temperature)
             generation_kwargs["top_p"] = 0.95
+
+        LOGGER.info(
+            "Generation started. model=%s attn=%s prompt_tokens=%d max_new_tokens=%d device=%s",
+            model_path,
+            self._effective_attn_implementation,
+            prompt_tokens,
+            generation_kwargs["max_new_tokens"],
+            self._inference_device
+        )
 
         try:
             with torch.inference_mode():
@@ -306,12 +316,23 @@ class LocalGenerationEngine:
             else:
                 raise
 
-        prompt_tokens = int(tokenized.shape[-1])
         completion_ids = output_ids[0, prompt_tokens:]
         completion_tokens = int(completion_ids.shape[-1])
         text = self._tokenizer.decode(completion_ids, skip_special_tokens=True).strip()
 
         total_ms = (time.perf_counter() - prompt_started) * 1000.0
+        tokens_per_sec = (
+            completion_tokens / (total_ms / 1000.0)
+            if completion_tokens > 0 and total_ms > 0
+            else 0.0
+        )
+        LOGGER.info(
+            "Generation completed. prompt_tokens=%d completion_tokens=%d total_ms=%.0f tok_per_s=%.2f",
+            prompt_tokens,
+            completion_tokens,
+            total_ms,
+            tokens_per_sec
+        )
         return GenerateResponse(
             text=text,
             model_path=model_path,

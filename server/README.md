@@ -25,6 +25,7 @@ Notes:
 - Current server build also auto-fallbacks to `eager` if a FlashAttention runtime error appears during generation.
 - To disable that fallback and fail fast with only the selected backend, add `--strict-attn`.
 - The server normalizes absolute model paths and caches failed load attempts to avoid repeatedly re-loading checkpoint shards for the same failing config.
+- Local requests now log generation start/end with prompt token count, completion token count, total latency, and tokens/sec for easier debugging.
 
 ## 3) Health check
 
