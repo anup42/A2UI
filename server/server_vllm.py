@@ -11,7 +11,7 @@ from typing import Any
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, PreTrainedTokenizerBase
 
 try:
     from vllm import LLM, SamplingParams
@@ -26,6 +26,42 @@ LOGGER = logging.getLogger("local_genui_server_vllm")
 DEFAULT_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
 JSON_MODE_INSTRUCTION = "Return only valid JSON. Do not include markdown code fences."
 QWEN_DEFAULT_SYSTEM_PROMPT = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
+_TOKENIZER_COMPAT_PATCHED = False
+
+
+def _patch_tokenizer_compat() -> None:
+    global _TOKENIZER_COMPAT_PATCHED
+    if _TOKENIZER_COMPAT_PATCHED:
+        return
+
+    if not hasattr(PreTrainedTokenizerBase, "all_special_tokens_extended"):
+        @property
+        def _all_special_tokens_extended(self: PreTrainedTokenizerBase) -> list[str]:
+            return list(getattr(self, "all_special_tokens", []))
+
+        setattr(
+            PreTrainedTokenizerBase,
+            "all_special_tokens_extended",
+            _all_special_tokens_extended
+        )
+
+    # Defensive compatibility alias for environments where a dependency
+    # accidentally accesses a misspelled attribute name.
+    if not hasattr(PreTrainedTokenizerBase, "all_special_tokens_extened"):
+        @property
+        def _all_special_tokens_extened(self: PreTrainedTokenizerBase) -> list[str]:
+            extended = getattr(self, "all_special_tokens_extended", None)
+            if extended is not None:
+                return list(extended)
+            return list(getattr(self, "all_special_tokens", []))
+
+        setattr(
+            PreTrainedTokenizerBase,
+            "all_special_tokens_extened",
+            _all_special_tokens_extened
+        )
+
+    _TOKENIZER_COMPAT_PATCHED = True
 
 
 class GenerateRequest(BaseModel):
@@ -131,6 +167,7 @@ class VllmGenerationEngine:
                 f"Original import error: {VLLM_IMPORT_ERROR}"
             )
 
+        _patch_tokenizer_compat()
         started = time.perf_counter()
         LOGGER.info("Loading vLLM model from '%s'...", model_path)
         self._cleanup_engine()
@@ -222,7 +259,24 @@ class VllmGenerationEngine:
                         apply_kwargs["enable_thinking"] = request.enable_thinking
                 except Exception:  # noqa: BLE001
                     pass
-            return self._tokenizer.apply_chat_template(messages, **apply_kwargs)
+            try:
+                return self._tokenizer.apply_chat_template(messages, **apply_kwargs)
+            except AttributeError as exc:
+                err = str(exc)
+                if (
+                    "all_special_tokens_extened" in err
+                    or "all_special_tokens_extended" in err
+                ):
+                    LOGGER.warning(
+                        "Tokenizer compatibility issue while applying chat template (%s). "
+                        "Falling back to manual prompt format.",
+                        err
+                    )
+                else:
+                    raise
+
+        if self._is_qwen_instruct_model(model_path):
+            return self._build_qwen_chatml_prompt(system_prompt, request.prompt.strip())
 
         # Fallback in case tokenizer lacks chat template helper.
         parts = []
@@ -231,6 +285,14 @@ class VllmGenerationEngine:
         parts.append(f"User: {request.prompt.strip()}")
         parts.append("Assistant:")
         return "\n\n".join(parts)
+
+    def _build_qwen_chatml_prompt(self, system_prompt: str, user_prompt: str) -> str:
+        parts: list[str] = []
+        if system_prompt:
+            parts.append(f"<|im_start|>system\n{system_prompt}<|im_end|>")
+        parts.append(f"<|im_start|>user\n{user_prompt}<|im_end|>")
+        parts.append("<|im_start|>assistant\n")
+        return "\n".join(parts)
 
     def _generate_sync(self, request: GenerateRequest, model_path: str) -> GenerateResponse:
         if self._llm is None:
