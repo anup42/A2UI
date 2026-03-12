@@ -26,6 +26,9 @@ LOGGER = logging.getLogger("local_genui_server_vllm")
 DEFAULT_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
 JSON_MODE_INSTRUCTION = "Return only valid JSON. Do not include markdown code fences."
 QWEN_DEFAULT_SYSTEM_PROMPT = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
+CONTEXT_SAFETY_MARGIN_TOKENS = 64
+CONTEXT_FALLBACK_TOKENS = 32768
+MIN_OUTPUT_TOKENS = 64
 _TOKENIZER_COMPAT_PATCHED = False
 
 
@@ -110,6 +113,7 @@ class VllmGenerationEngine:
         self._last_load_ms: float | None = None
         self._last_failed_load_key: tuple[str, str, bool] | None = None
         self._last_failed_load_error: str | None = None
+        self._resolved_max_context_tokens: int | None = None
 
     @property
     def loaded_model_path(self) -> str | None:
@@ -192,14 +196,16 @@ class VllmGenerationEngine:
 
         self._llm = LLM(**llm_kwargs)
         self._loaded_model_path = model_path
+        self._resolved_max_context_tokens = self._resolve_max_context_tokens()
         self._last_load_ms = (time.perf_counter() - started) * 1000.0
         self._last_failed_load_key = None
         self._last_failed_load_error = None
         LOGGER.info(
-            "vLLM model ready: path='%s', dtype='%s', tp=%d, load_ms=%.0f",
+            "vLLM model ready: path='%s', dtype='%s', tp=%d, max_context_tokens=%d, load_ms=%.0f",
             self._loaded_model_path,
             self._dtype,
             self._tensor_parallel_size,
+            self.max_context_tokens,
             self._last_load_ms
         )
 
@@ -210,6 +216,7 @@ class VllmGenerationEngine:
         if self._tokenizer is not None:
             del self._tokenizer
             self._tokenizer = None
+        self._resolved_max_context_tokens = None
         gc.collect()
 
     def _normalize_model_path(self, model_path: str) -> str:
@@ -224,6 +231,121 @@ class VllmGenerationEngine:
     def _is_qwen_instruct_model(self, model_path: str) -> bool:
         normalized = model_path.replace("\\", "/").lower()
         return "qwen2.5-coder" in normalized and "instruct" in normalized
+
+    @property
+    def max_context_tokens(self) -> int:
+        if self._resolved_max_context_tokens is not None:
+            return self._resolved_max_context_tokens
+        return self._resolve_max_context_tokens()
+
+    def _resolve_max_context_tokens(self) -> int:
+        if self._max_model_len > 0:
+            return self._max_model_len
+        if self._llm is None:
+            return CONTEXT_FALLBACK_TOKENS
+
+        candidates = (
+            ("llm_engine", "model_config", "max_model_len"),
+            ("engine", "model_config", "max_model_len"),
+            ("engine_config", "model_config", "max_model_len"),
+            ("model_config", "max_model_len")
+        )
+        for path in candidates:
+            value = self._nested_attr(self._llm, path)
+            if value is None:
+                continue
+            try:
+                parsed = int(value)
+            except (TypeError, ValueError):
+                continue
+            if parsed > 0:
+                return parsed
+        return CONTEXT_FALLBACK_TOKENS
+
+    def _nested_attr(self, obj: Any, path: tuple[str, ...]) -> Any | None:
+        current = obj
+        for name in path:
+            if current is None or not hasattr(current, name):
+                return None
+            current = getattr(current, name)
+        return current
+
+    def _encode_prompt_tokens(self, text: str) -> list[int]:
+        if self._tokenizer is None:
+            return []
+        try:
+            return list(self._tokenizer.encode(text, add_special_tokens=False))
+        except TypeError:
+            return list(self._tokenizer.encode(text))
+
+    def _decode_prompt_tokens(self, token_ids: list[int]) -> str:
+        if self._tokenizer is None:
+            return ""
+        try:
+            return self._tokenizer.decode(
+                token_ids,
+                skip_special_tokens=False,
+                clean_up_tokenization_spaces=False
+            )
+        except TypeError:
+            return self._tokenizer.decode(token_ids, skip_special_tokens=False)
+
+    def _truncate_prompt_token_ids(self, token_ids: list[int], max_prompt_tokens: int) -> list[int]:
+        if len(token_ids) <= max_prompt_tokens:
+            return token_ids
+        if max_prompt_tokens <= 0:
+            return []
+        if max_prompt_tokens <= 256:
+            return token_ids[-max_prompt_tokens:]
+
+        head_tokens = max(128, int(max_prompt_tokens * 0.35))
+        head_tokens = min(head_tokens, max_prompt_tokens - 1)
+        tail_tokens = max_prompt_tokens - head_tokens
+        return token_ids[:head_tokens] + token_ids[-tail_tokens:]
+
+    def _fit_prompt_to_context(
+        self,
+        prompt_text: str,
+        requested_max_output_tokens: int
+    ) -> tuple[str, int, int, bool]:
+        token_ids = self._encode_prompt_tokens(prompt_text)
+        prompt_tokens = len(token_ids)
+        context_limit = self.max_context_tokens
+
+        requested_output_tokens = max(1, int(requested_max_output_tokens))
+        effective_max_output_tokens = requested_output_tokens
+        budget_after_prompt = context_limit - prompt_tokens - CONTEXT_SAFETY_MARGIN_TOKENS
+
+        if budget_after_prompt < effective_max_output_tokens:
+            effective_max_output_tokens = max(1, min(requested_output_tokens, max(budget_after_prompt, 1)))
+            if effective_max_output_tokens < MIN_OUTPUT_TOKENS:
+                LOGGER.warning(
+                    "Reducing max output tokens from %d to %d due context budget. "
+                    "context_limit=%d prompt_tokens=%d",
+                    requested_output_tokens,
+                    effective_max_output_tokens,
+                    context_limit,
+                    prompt_tokens
+                )
+
+        prompt_token_budget = context_limit - effective_max_output_tokens - CONTEXT_SAFETY_MARGIN_TOKENS
+        prompt_was_truncated = False
+        if prompt_tokens > prompt_token_budget:
+            truncated_ids = self._truncate_prompt_token_ids(token_ids, max(prompt_token_budget, 1))
+            prompt_text = self._decode_prompt_tokens(truncated_ids)
+            prompt_tokens = len(truncated_ids)
+            prompt_was_truncated = True
+            LOGGER.warning(
+                "Prompt exceeded context budget and was truncated. original_tokens=%d kept_tokens=%d "
+                "requested_output_tokens=%d effective_output_tokens=%d context_limit=%d",
+                len(token_ids),
+                prompt_tokens,
+                requested_output_tokens,
+                effective_max_output_tokens,
+                context_limit
+            )
+
+        return prompt_text, prompt_tokens, effective_max_output_tokens, prompt_was_truncated
 
     def _build_prompt_text(self, request: GenerateRequest, model_path: str) -> str:
         if self._tokenizer is None:
@@ -302,12 +424,15 @@ class VllmGenerationEngine:
 
         started = time.perf_counter()
         prompt_text = self._build_prompt_text(request, model_path)
+        prompt_text, prompt_tokens_estimate, effective_max_output_tokens, prompt_was_truncated = (
+            self._fit_prompt_to_context(prompt_text, requested_max_output_tokens=int(request.max_output_tokens))
+        )
         prompt_char_len = len(prompt_text)
         temperature = float(request.temperature)
         do_sample = temperature > 0.0
 
         sampling = SamplingParams(
-            max_tokens=int(request.max_output_tokens),
+            max_tokens=effective_max_output_tokens,
             temperature=temperature if do_sample else 0.0,
             top_p=float(request.top_p) if do_sample else 1.0,
             top_k=int(request.top_k),
@@ -315,10 +440,14 @@ class VllmGenerationEngine:
         )
 
         LOGGER.info(
-            "vLLM generation started. model=%s prompt_chars=%d max_tokens=%d temp=%.2f top_p=%.2f top_k=%d",
+            "vLLM generation started. model=%s prompt_chars=%d prompt_tokens_est=%d max_tokens=%d "
+            "requested_max_tokens=%d truncated=%s temp=%.2f top_p=%.2f top_k=%d",
             model_path,
             prompt_char_len,
+            prompt_tokens_estimate,
             sampling.max_tokens,
+            int(request.max_output_tokens),
+            prompt_was_truncated,
             temperature,
             sampling.top_p,
             sampling.top_k
@@ -353,7 +482,9 @@ class VllmGenerationEngine:
             usage={
                 "prompt_tokens": prompt_tokens,
                 "completion_tokens": completion_tokens,
-                "total_tokens": prompt_tokens + completion_tokens
+                "total_tokens": prompt_tokens + completion_tokens,
+                "requested_max_output_tokens": int(request.max_output_tokens),
+                "effective_max_output_tokens": int(sampling.max_tokens)
             },
             timings={"total_ms": total_ms}
         )

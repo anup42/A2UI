@@ -116,6 +116,12 @@ python server_vllm.py --model-path Qwen/Qwen2.5-Coder-7B-Instruct --host 0.0.0.0
 ```
 
 The API contract remains the same (`/health`, `POST /v1/generate`) so Android settings do not need request-shape changes.
+For long prompts (for example 15k+ tokens in Stage 2/Stage 3 pipeline input), the server now auto-fits prompt+generation into model context by reducing output tokens and truncating prompt tokens (head+tail) when required.
+If you know your model context size, pass it explicitly for tighter control:
+
+```powershell
+python server_vllm.py --model-path /home/anup/models/Qwen2.5-Coder-7B-Instruct --max-model-len 32768
+```
 
 `server_vllm.py` supports additional sampling fields in requests:
 - `top_p` (default `0.95`)
