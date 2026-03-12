@@ -24,6 +24,7 @@ Notes:
 - If you see a FlashAttention GPU compatibility error, use `--attn-implementation sdpa` or `--attn-implementation eager`.
 - Current server build also auto-fallbacks to `eager` if a FlashAttention runtime error appears during generation.
 - To disable that fallback and fail fast with only the selected backend, add `--strict-attn`.
+- The server normalizes absolute model paths and caches failed load attempts to avoid repeatedly re-loading checkpoint shards for the same failing config.
 
 ## 3) Health check
 

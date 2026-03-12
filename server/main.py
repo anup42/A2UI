@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import gc
 import logging
+import os
 import time
 from typing import Any
 
@@ -57,6 +58,8 @@ class LocalGenerationEngine:
         self._inference_device: str = "cpu"
         self._effective_attn_implementation: str = "default"
         self._last_load_ms: float | None = None
+        self._last_failed_load_key: tuple[str, str, bool] | None = None
+        self._last_failed_load_error: str | None = None
 
     @property
     def loaded_model_path(self) -> str | None:
@@ -74,12 +77,18 @@ class LocalGenerationEngine:
     def effective_attn_implementation(self) -> str:
         return self._effective_attn_implementation
 
+    @property
+    def last_failed_load_error(self) -> str | None:
+        return self._last_failed_load_error
+
     async def warmup(self) -> None:
         async with self._request_lock:
-            await self._ensure_model_locked(self._default_model_path)
+            await self._ensure_model_locked(self._normalize_model_path(self._default_model_path))
 
     async def generate(self, request: GenerateRequest) -> GenerateResponse:
-        target_model_path = (request.model_path or self._default_model_path).strip() or self._default_model_path
+        target_model_path = self._normalize_model_path(
+            (request.model_path or self._default_model_path).strip() or self._default_model_path
+        )
         async with self._request_lock:
             await self._ensure_model_locked(target_model_path)
             return await asyncio.to_thread(self._generate_sync, request, target_model_path)
@@ -87,7 +96,26 @@ class LocalGenerationEngine:
     async def _ensure_model_locked(self, model_path: str) -> None:
         if self._model is not None and self._tokenizer is not None and self._loaded_model_path == model_path:
             return
-        await asyncio.to_thread(self._load_model_sync, model_path)
+        if self._model is not None and self._loaded_model_path != model_path:
+            LOGGER.info(
+                "Switching loaded model from '%s' to '%s' due request model path.",
+                self._loaded_model_path,
+                model_path
+            )
+
+        failed_key = (model_path, self._attn_implementation, self._strict_attention_backend)
+        if self._last_failed_load_key == failed_key and self._last_failed_load_error is not None:
+            raise RuntimeError(
+                "Previous load attempt for this model/backend already failed. "
+                f"Last error: {self._last_failed_load_error}"
+            )
+
+        try:
+            await asyncio.to_thread(self._load_model_sync, model_path)
+        except Exception as exc:
+            self._last_failed_load_key = failed_key
+            self._last_failed_load_error = str(exc)
+            raise
 
     def _load_model_sync(self, model_path: str, force_attn_implementation: str | None = None) -> None:
         started = time.perf_counter()
@@ -152,6 +180,8 @@ class LocalGenerationEngine:
         self._inference_device = inference_device
         self._effective_attn_implementation = model_kwargs.get("attn_implementation", "default")
         self._last_load_ms = (time.perf_counter() - started) * 1000.0
+        self._last_failed_load_key = None
+        self._last_failed_load_error = None
 
         LOGGER.info(
             "Model ready: path='%s', device='%s', attn='%s', load_ms=%.0f",
@@ -197,6 +227,15 @@ class LocalGenerationEngine:
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
+    def _normalize_model_path(self, model_path: str) -> str:
+        value = model_path.strip()
+        if not value:
+            return self._default_model_path
+        expanded = os.path.expanduser(value)
+        if os.path.isabs(expanded):
+            return os.path.realpath(os.path.normpath(expanded))
+        return value
 
     def _is_flash_attention_error(self, exc: Exception) -> bool:
         message = str(exc).lower()
@@ -304,7 +343,8 @@ def create_app(engine: LocalGenerationEngine, lazy_load: bool) -> FastAPI:
             "loaded_model_path": engine.loaded_model_path,
             "device": engine.inference_device,
             "attn_implementation": engine.effective_attn_implementation,
-            "last_load_ms": engine.last_load_ms
+            "last_load_ms": engine.last_load_ms,
+            "last_failed_load_error": engine.last_failed_load_error
         }
 
     @app.post("/v1/generate", response_model=GenerateResponse)
