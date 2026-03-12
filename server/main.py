@@ -18,6 +18,7 @@ from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 LOGGER = logging.getLogger("local_genui_server")
 DEFAULT_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
 JSON_MODE_INSTRUCTION = "Return only valid JSON. Do not include markdown code fences."
+QWEN_DEFAULT_SYSTEM_PROMPT = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
 
 
 class GenerateRequest(BaseModel):
@@ -144,8 +145,8 @@ class LocalGenerationEngine:
             model_kwargs["attn_implementation"] = attn_impl
 
         if use_cuda:
-            dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
-            model_kwargs["torch_dtype"] = dtype
+            # Align with the official model guidance: let Transformers infer best dtype.
+            model_kwargs["torch_dtype"] = "auto"
             model_kwargs["device_map"] = "auto"
             inference_device = "cuda"
         else:
@@ -237,6 +238,10 @@ class LocalGenerationEngine:
             return os.path.realpath(os.path.normpath(expanded))
         return value
 
+    def _is_qwen_instruct_model(self, model_path: str) -> bool:
+        normalized = model_path.replace("\\", "/").lower()
+        return "qwen2.5-coder" in normalized and "instruct" in normalized
+
     def _is_flash_attention_error(self, exc: Exception) -> bool:
         message = str(exc).lower()
         return (
@@ -251,6 +256,8 @@ class LocalGenerationEngine:
 
         prompt_started = time.perf_counter()
         system_prompt = (request.system_prompt or "").strip()
+        if not system_prompt and self._is_qwen_instruct_model(model_path):
+            system_prompt = QWEN_DEFAULT_SYSTEM_PROMPT
         if request.json_mode:
             if system_prompt:
                 system_prompt = f"{system_prompt}\n\n{JSON_MODE_INSTRUCTION}"
@@ -262,24 +269,29 @@ class LocalGenerationEngine:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": request.prompt.strip()})
 
-        tokenized = self._tokenizer.apply_chat_template(
+        # Follow official Qwen generation flow:
+        # 1) render chat template to text, 2) tokenize as model inputs.
+        rendered_chat = self._tokenizer.apply_chat_template(
             messages,
-            tokenize=True,
-            add_generation_prompt=True,
-            return_tensors="pt"
+            tokenize=False,
+            add_generation_prompt=True
         )
-        tokenized = tokenized.to(self._inference_device)
-        attention_mask = torch.ones_like(tokenized)
-        prompt_tokens = int(tokenized.shape[-1])
+        model_inputs = self._tokenizer([rendered_chat], return_tensors="pt")
+        input_ids = model_inputs["input_ids"].to(self._inference_device)
+        attention_mask = model_inputs.get("attention_mask")
+        if attention_mask is not None:
+            attention_mask = attention_mask.to(self._inference_device)
+        prompt_tokens = int(input_ids.shape[-1])
 
         do_sample = request.temperature > 0.0
         generation_kwargs: dict[str, Any] = {
             "max_new_tokens": int(request.max_output_tokens),
             "do_sample": do_sample,
             "pad_token_id": self._tokenizer.eos_token_id,
-            "eos_token_id": self._tokenizer.eos_token_id,
-            "attention_mask": attention_mask
+            "eos_token_id": self._tokenizer.eos_token_id
         }
+        if attention_mask is not None:
+            generation_kwargs["attention_mask"] = attention_mask
         if do_sample:
             generation_kwargs["temperature"] = float(request.temperature)
             generation_kwargs["top_p"] = 0.95
@@ -295,7 +307,7 @@ class LocalGenerationEngine:
 
         try:
             with torch.inference_mode():
-                output_ids = self._model.generate(tokenized, **generation_kwargs)
+                output_ids = self._model.generate(input_ids, **generation_kwargs)
         except Exception as exc:  # noqa: BLE001
             if (
                 self._is_flash_attention_error(exc) and
@@ -308,11 +320,14 @@ class LocalGenerationEngine:
                     self._effective_attn_implementation
                 )
                 self._load_model_sync(model_path, force_attn_implementation="eager")
-                tokenized = tokenized.to(self._inference_device)
-                attention_mask = torch.ones_like(tokenized)
-                generation_kwargs["attention_mask"] = attention_mask
+                input_ids = input_ids.to(self._inference_device)
+                if attention_mask is not None:
+                    attention_mask = attention_mask.to(self._inference_device)
+                    generation_kwargs["attention_mask"] = attention_mask
+                else:
+                    generation_kwargs.pop("attention_mask", None)
                 with torch.inference_mode():
-                    output_ids = self._model.generate(tokenized, **generation_kwargs)
+                    output_ids = self._model.generate(input_ids, **generation_kwargs)
             else:
                 raise
 

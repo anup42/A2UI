@@ -26,6 +26,7 @@ Notes:
 - To disable that fallback and fail fast with only the selected backend, add `--strict-attn`.
 - The server normalizes absolute model paths and caches failed load attempts to avoid repeatedly re-loading checkpoint shards for the same failing config.
 - Local requests now log generation start/end with prompt token count, completion token count, total latency, and tokens/sec for easier debugging.
+- Qwen generation path follows the official model guide: chat template rendering followed by tokenizer/model input encoding. For Qwen Instruct models, default system prompt is automatically applied when none is provided.
 
 ## 3) Health check
 
