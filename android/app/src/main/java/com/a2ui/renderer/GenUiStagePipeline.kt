@@ -14,6 +14,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URLEncoder
 import java.net.URL
+import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.time.Instant
@@ -102,6 +103,16 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage = Stage.STAGE2,
                 message = "Local server URL is missing. Open Settings and configure Local Server."
             )
+        }
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            postUpdate(onStageUpdate, Stage.STAGE2, "Checking local server connectivity")
+            val health = checkLocalServerHealth(localServerBaseUrl)
+            if (health != null) {
+                return@withContext Outcome.Failure(
+                    stage = Stage.STAGE2,
+                    message = health
+                )
+            }
         }
 
         val responseTemplate = runCatching { loadPromptAsset(STAGE2_PROMPT_ASSET) }
@@ -1404,7 +1415,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val endpoint = URL("$baseUrl/v1/generate")
         val connection = (endpoint.openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
-            connectTimeout = 20000
+            connectTimeout = 7000
             readTimeout = 300000
             doOutput = true
             setRequestProperty("Content-Type", "application/json")
@@ -1459,11 +1470,18 @@ class GenUiStagePipeline(private val appContext: Context) {
                 error = null,
                 streamDurationMs = streamRead.streamDurationMs
             )
+        } catch (unknownHost: UnknownHostException) {
+            GeminiResponse(
+                text = "",
+                rawResponse = null,
+                error = "Local server host is unreachable ($baseUrl): ${unknownHost.message ?: "unknown host"}",
+                streamDurationMs = null
+            )
         } catch (io: IOException) {
             GeminiResponse(
                 text = "",
                 rawResponse = null,
-                error = io.message ?: io.javaClass.simpleName,
+                error = "Local server request failed at $baseUrl: ${io.message ?: io.javaClass.simpleName}",
                 streamDurationMs = null
             )
         } finally {
@@ -1503,6 +1521,36 @@ class GenUiStagePipeline(private val appContext: Context) {
             }
         }
         return null
+    }
+
+    private fun checkLocalServerHealth(localServerBaseUrl: String): String? {
+        val baseUrl = localServerBaseUrl.trim().trimEnd('/')
+        if (baseUrl.isBlank()) {
+            return "Local server URL is empty."
+        }
+        val endpoint = URL("$baseUrl/health")
+        val connection = (endpoint.openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            connectTimeout = 5000
+            readTimeout = 7000
+        }
+        return try {
+            val code = connection.responseCode
+            val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+            val raw = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+            if (code !in 200..299) {
+                val short = raw.trim().ifBlank { "HTTP $code" }
+                "Local server health check failed: HTTP $code: ${short.take(200)}"
+            } else {
+                null
+            }
+        } catch (unknownHost: UnknownHostException) {
+            "Local server host is unreachable: ${unknownHost.message ?: "unknown host"}"
+        } catch (io: IOException) {
+            "Could not connect to local server at $baseUrl (${io.message ?: io.javaClass.simpleName})"
+        } finally {
+            connection.disconnect()
+        }
     }
 
     private fun readStreamWithTiming(stream: java.io.InputStream?): StreamReadResult {

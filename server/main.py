@@ -338,6 +338,11 @@ def create_app(engine: LocalGenerationEngine, lazy_load: bool) -> FastAPI:
 
     @app.get("/health")
     async def health() -> dict[str, Any]:
+        LOGGER.info(
+            "Health check requested. loaded_model=%s attn=%s",
+            engine.loaded_model_path,
+            engine.effective_attn_implementation
+        )
         return {
             "status": "ok",
             "loaded_model_path": engine.loaded_model_path,
@@ -349,6 +354,14 @@ def create_app(engine: LocalGenerationEngine, lazy_load: bool) -> FastAPI:
 
     @app.post("/v1/generate", response_model=GenerateResponse)
     async def generate(request: GenerateRequest) -> GenerateResponse:
+        LOGGER.info(
+            "Generate request received. model_path=%s prompt_chars=%d json_mode=%s temp=%.2f max_tokens=%d",
+            request.model_path or engine.loaded_model_path or "<default>",
+            len(request.prompt),
+            request.json_mode,
+            request.temperature,
+            request.max_output_tokens
+        )
         try:
             return await engine.generate(request)
         except Exception as exc:  # noqa: BLE001
@@ -400,7 +413,7 @@ def main() -> None:
         strict_attention_backend=args.strict_attn
     )
     app = create_app(engine=engine, lazy_load=args.lazy_load)
-    uvicorn.run(app, host=args.host, port=args.port, log_level=args.log_level)
+    uvicorn.run(app, host=args.host, port=args.port, log_level=args.log_level, access_log=True)
 
 
 if __name__ == "__main__":
