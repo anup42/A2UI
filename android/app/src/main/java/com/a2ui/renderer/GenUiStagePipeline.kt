@@ -1793,7 +1793,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 addProperty("system_prompt_cache_key", localSystemPromptCacheKey)
             }
             addProperty("temperature", temperature)
-            addProperty("max_output_tokens", min(maxOutputTokens, 8192))
+                addProperty("max_output_tokens", min(maxOutputTokens, 8192))
             addProperty("json_mode", jsonMode)
             if (localModelPath.isNotBlank()) {
                 addProperty("model_path", localModelPath)
@@ -2397,7 +2397,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val STAGE2_MAX_OUTPUT_TOKENS = 4096
         const val STAGE3_MAX_OUTPUT_TOKENS = 8192
         const val LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS = 1024
-        const val LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS = 2048
+        const val LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS = 15000
         const val STAGE3_CACHE_TTL_SECONDS = 21600
         const val CACHE_PREFS_NAME = "genui_stage_pipeline_cache"
         const val CACHE_KEY_HASH = "stage3_cache_hash"
