@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Thunderstorm
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Button
@@ -192,6 +193,11 @@ object GenUiNativeRenderer {
         val uvIndex: String?,
         val summary: String?
     )
+
+    private enum class IconFallbackKind {
+        Generic,
+        Weather
+    }
 
     private sealed interface TextBlock {
         data class Title(val text: String) : TextBlock
@@ -2000,6 +2006,7 @@ object GenUiNativeRenderer {
         contentScale: ContentScale,
         asIcon: Boolean,
         fallbackCondition: String? = null,
+        iconFallbackKind: IconFallbackKind = IconFallbackKind.Generic,
         iconFallbackSize: Dp = 18.dp
     ) {
         val context = LocalContext.current
@@ -2025,11 +2032,23 @@ object GenUiNativeRenderer {
         ) {
             if (failed) {
                 if (asIcon) {
-                    // Keep icon slots informative even when remote icon fetch fails.
-                    WeatherConditionIcon(
-                        condition = fallbackCondition ?: inferWeatherConditionFromIconUrl(rawUrl) ?: "Cloudy",
-                        size = iconFallbackSize
-                    )
+                    when (iconFallbackKind) {
+                        IconFallbackKind.Weather -> {
+                            // Keep weather icon slots informative even when remote icon fetch fails.
+                            WeatherConditionIcon(
+                                condition = fallbackCondition ?: inferWeatherConditionFromIconUrl(rawUrl) ?: "Cloudy",
+                                size = iconFallbackSize
+                            )
+                        }
+                        IconFallbackKind.Generic -> {
+                            Icon(
+                                imageVector = Icons.Filled.Image,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(iconFallbackSize)
+                            )
+                        }
+                    }
                 }
             } else {
                 AsyncImage(
@@ -5672,5 +5691,4 @@ object GenUiNativeRenderer {
 
     private fun JsonObject.hasString(key: String): Boolean = getString(key) != null
 }
-
 
