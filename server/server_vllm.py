@@ -165,6 +165,10 @@ class VllmGenerationEngine:
     def system_prompt_cache_misses(self) -> int:
         return self._system_prompt_cache_misses
 
+    @property
+    def prefix_caching_enabled(self) -> bool:
+        return self._enable_prefix_caching
+
     async def warmup(self) -> None:
         async with self._request_lock:
             await self._ensure_model_locked(self._normalize_model_path(self._default_model_path))
@@ -639,6 +643,7 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
             "status": "ok",
             "loaded_model_path": engine.loaded_model_path,
             "backend": "vllm",
+            "prefix_kv_caching_enabled": engine.prefix_caching_enabled,
             "last_load_ms": engine.last_load_ms,
             "last_failed_load_error": engine.last_failed_load_error,
             "system_prompt_cache": {
@@ -682,7 +687,7 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
         LOGGER.info(
             "Generate request received. model_path=%s prompt_chars=%d json_mode=%s "
             "temp=%.2f top_p=%.2f top_k=%d max_tokens=%d system_prompt_cache_key=%s "
-            "system_prompt_included=%s",
+            "system_prompt_included=%s prefix_kv_caching=%s",
             request.model_path or engine.loaded_model_path or "<default>",
             len(request.prompt),
             request.json_mode,
@@ -691,7 +696,8 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
             request.top_k,
             request.max_output_tokens,
             request.system_prompt_cache_key or "<none>",
-            bool((request.system_prompt or "").strip())
+            bool((request.system_prompt or "").strip()),
+            engine.prefix_caching_enabled
         )
         try:
             return await engine.generate(request)

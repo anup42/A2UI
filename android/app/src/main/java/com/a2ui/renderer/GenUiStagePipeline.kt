@@ -267,26 +267,26 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
             when {
                 !primeResult.error.isNullOrBlank() -> {
-                    warnings += "Local stage3 prompt cache prime failed (${primeResult.error})."
-                    Log.w(LOG_TAG, "Local stage3 prompt cache prime failed: ${primeResult.error}")
+                    warnings += "Local stage3 KV prefix cache prime failed (${primeResult.error})."
+                    Log.w(LOG_TAG, "Local stage3 KV prefix cache prime failed: ${primeResult.error}")
                 }
                 primeResult.cacheHit == true -> {
-                    warnings += "Local stage3 prompt cache hit."
+                    warnings += "Local stage3 KV prefix cache hit."
                 }
                 primeResult.cacheHit == false -> {
-                    warnings += "Local stage3 prompt cache miss -> primed."
+                    warnings += "Local stage3 KV prefix cache miss -> primed."
                 }
                 !localStage3SystemPromptCacheKey.isNullOrBlank() -> {
-                    warnings += "Local stage3 prompt cache primed."
+                    warnings += "Local stage3 KV prefix cache primed."
                 }
             }
         }
         val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
         if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
             warnings += if (localSendStage3SystemPrompt) {
-                "Local stage3 generation cache miss path (system_prompt sent)."
+                "Local stage3 KV prefix cache miss path (system_prompt sent)."
             } else {
-                "Local stage3 generation cache hit path (cache key only)."
+                "Local stage3 KV prefix cache hit path (cache key only)."
             }
         }
 
@@ -587,26 +587,26 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
             when {
                 !primeResult.error.isNullOrBlank() -> {
-                    warnings += "Local stage3 prompt cache prime failed (${primeResult.error})."
-                    Log.w(LOG_TAG, "Local stage3 prompt cache prime failed: ${primeResult.error}")
+                    warnings += "Local stage3 KV prefix cache prime failed (${primeResult.error})."
+                    Log.w(LOG_TAG, "Local stage3 KV prefix cache prime failed: ${primeResult.error}")
                 }
                 primeResult.cacheHit == true -> {
-                    warnings += "Local stage3 prompt cache hit."
+                    warnings += "Local stage3 KV prefix cache hit."
                 }
                 primeResult.cacheHit == false -> {
-                    warnings += "Local stage3 prompt cache miss -> primed."
+                    warnings += "Local stage3 KV prefix cache miss -> primed."
                 }
                 !localStage3SystemPromptCacheKey.isNullOrBlank() -> {
-                    warnings += "Local stage3 prompt cache primed."
+                    warnings += "Local stage3 KV prefix cache primed."
                 }
             }
         }
         val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
         if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
             warnings += if (localSendStage3SystemPrompt) {
-                "Local stage3 generation cache miss path (system_prompt sent)."
+                "Local stage3 KV prefix cache miss path (system_prompt sent)."
             } else {
-                "Local stage3 generation cache hit path (cache key only)."
+                "Local stage3 KV prefix cache hit path (cache key only)."
             }
         }
 
@@ -1651,7 +1651,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             ) {
                 Log.w(
                     LOG_TAG,
-                    "Local stage3 cache miss detected for key=$localSystemPromptCacheKey, retrying with inline system prompt."
+                    "Local stage3 KV prefix cache miss detected for key=$localSystemPromptCacheKey, retrying with inline system prompt."
                 )
                 val cacheRecovery = generateOnce(
                     provider = provider,
@@ -1676,9 +1676,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 }
                 if (cacheRecovery.error == null) {
                     markLocalSystemPromptCacheKeyReady(localSystemPromptCacheKey)
-                    Log.i(LOG_TAG, "Local stage3 cache recovery succeeded for key=$localSystemPromptCacheKey")
+                    Log.i(LOG_TAG, "Local stage3 KV prefix cache recovery succeeded for key=$localSystemPromptCacheKey")
                 } else {
-                    Log.w(LOG_TAG, "Local stage3 cache recovery failed for key=$localSystemPromptCacheKey: ${cacheRecovery.error}")
+                    Log.w(LOG_TAG, "Local stage3 KV prefix cache recovery failed for key=$localSystemPromptCacheKey: ${cacheRecovery.error}")
                 }
                 return cacheRecovery.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
@@ -2264,7 +2264,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             } else {
                 val cacheHit = extractLocalSystemPromptPrimeHit(raw)
                 markLocalSystemPromptCacheKeyReady(normalizedKey)
-                Log.i(LOG_TAG, "Local Stage3 prompt cache prime success: key=$normalizedKey cacheHit=$cacheHit")
+                Log.i(LOG_TAG, "Local Stage3 KV prefix cache prime success: key=$normalizedKey cacheHit=$cacheHit")
                 LocalSystemPromptCachePrimeResult(cacheHit = cacheHit, error = null)
             }
         } catch (unknownHost: UnknownHostException) {

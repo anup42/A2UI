@@ -603,7 +603,7 @@ private fun IrDemoLogCard(logs: List<String>) {
 
 private fun sanitizeIrDemoLogText(value: String): String {
     return value
-        .replace(Regex("""(?i)\bstage\s*[34]\b\s*[:\-]?\s*"""), "")
+        .replace(Regex("""(?i)\bstage\s*[234]\b\s*[:\-]?\s*"""), "")
         .replace('\n', ' ')
         .replace(Regex("""\s{2,}"""), " ")
         .trim()
