@@ -310,31 +310,37 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
             }
         }
-        if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
-            val primeResult = ensureLocalSystemPromptCache(
-                localServerBaseUrl = localServerBaseUrl,
-                localModelPath = localModelPath,
-                cacheKey = localStage3SystemPromptCacheKey,
-                systemPrompt = promptContext.systemPrompt
-            )
-            when {
-                !primeResult.error.isNullOrBlank() -> {
-                    warnings += "Local stage3 KV prefix cache prime failed (${primeResult.error})."
-                    Log.w(LOG_TAG, "Local stage3 KV prefix cache prime failed: ${primeResult.error}")
-                }
-                primeResult.cacheHit == true -> {
-                    warnings += "Local stage3 KV prefix cache hit."
-                }
-                primeResult.cacheHit == false -> {
-                    warnings += "Local stage3 KV prefix cache miss -> primed."
-                }
-                !localStage3SystemPromptCacheKey.isNullOrBlank() -> {
-                    warnings += "Local stage3 KV prefix cache primed."
-                }
-            }
-        }
-        val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+        var localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
         if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
+            if (localSendStage3SystemPrompt) {
+                val primeResult = ensureLocalSystemPromptCache(
+                    localServerBaseUrl = localServerBaseUrl,
+                    localModelPath = localModelPath,
+                    cacheKey = localStage3SystemPromptCacheKey,
+                    systemPrompt = promptContext.systemPrompt
+                )
+                when {
+                    !primeResult.error.isNullOrBlank() -> {
+                        warnings += "Local stage3 KV prefix cache prime failed (${primeResult.error})."
+                        Log.w(LOG_TAG, "Local stage3 KV prefix cache prime failed: ${primeResult.error}")
+                    }
+                    primeResult.cacheHit == true -> {
+                        warnings += "Local stage3 KV prefix cache hit."
+                    }
+                    primeResult.cacheHit == false -> {
+                        warnings += "Local stage3 KV prefix cache miss -> primed."
+                    }
+                    else -> {
+                        warnings += "Local stage3 KV prefix cache primed."
+                    }
+                }
+                if (primeResult.error.isNullOrBlank()) {
+                    localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+                }
+            } else {
+                warnings += "Local stage3 KV prefix cache already primed (skipping prime request)."
+                Log.i(LOG_TAG, "Local stage3 KV prefix cache already primed for key=$localStage3SystemPromptCacheKey; skipping prime.")
+            }
             warnings += if (localSendStage3SystemPrompt) {
                 "Local stage3 KV prefix cache miss path (system_prompt sent)."
             } else {
@@ -630,31 +636,37 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
             }
         }
-        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
-            val primeResult = ensureLocalSystemPromptCache(
-                localServerBaseUrl = localServerBaseUrl,
-                localModelPath = localModelPath,
-                cacheKey = localStage3SystemPromptCacheKey,
-                systemPrompt = promptContext.systemPrompt
-            )
-            when {
-                !primeResult.error.isNullOrBlank() -> {
-                    warnings += "Local stage3 KV prefix cache prime failed (${primeResult.error})."
-                    Log.w(LOG_TAG, "Local stage3 KV prefix cache prime failed: ${primeResult.error}")
-                }
-                primeResult.cacheHit == true -> {
-                    warnings += "Local stage3 KV prefix cache hit."
-                }
-                primeResult.cacheHit == false -> {
-                    warnings += "Local stage3 KV prefix cache miss -> primed."
-                }
-                !localStage3SystemPromptCacheKey.isNullOrBlank() -> {
-                    warnings += "Local stage3 KV prefix cache primed."
-                }
-            }
-        }
-        val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+        var localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
         if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
+            if (localSendStage3SystemPrompt) {
+                val primeResult = ensureLocalSystemPromptCache(
+                    localServerBaseUrl = localServerBaseUrl,
+                    localModelPath = localModelPath,
+                    cacheKey = localStage3SystemPromptCacheKey,
+                    systemPrompt = promptContext.systemPrompt
+                )
+                when {
+                    !primeResult.error.isNullOrBlank() -> {
+                        warnings += "Local stage3 KV prefix cache prime failed (${primeResult.error})."
+                        Log.w(LOG_TAG, "Local stage3 KV prefix cache prime failed: ${primeResult.error}")
+                    }
+                    primeResult.cacheHit == true -> {
+                        warnings += "Local stage3 KV prefix cache hit."
+                    }
+                    primeResult.cacheHit == false -> {
+                        warnings += "Local stage3 KV prefix cache miss -> primed."
+                    }
+                    else -> {
+                        warnings += "Local stage3 KV prefix cache primed."
+                    }
+                }
+                if (primeResult.error.isNullOrBlank()) {
+                    localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+                }
+            } else {
+                warnings += "Local stage3 KV prefix cache already primed (skipping prime request)."
+                Log.i(LOG_TAG, "Local stage3 KV prefix cache already primed for key=$localStage3SystemPromptCacheKey; skipping prime.")
+            }
             warnings += if (localSendStage3SystemPrompt) {
                 "Local stage3 KV prefix cache miss path (system_prompt sent)."
             } else {

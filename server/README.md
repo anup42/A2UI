@@ -135,6 +135,18 @@ curl -X POST http://127.0.0.1:8000/v1/cache/system_prompt \
   }'
 ```
 Prime response includes `cache_hit` so you can see hit/miss status for the cache key.
+For fastest first Stage 3 request without an external prime call, you can warm at server startup:
+
+```bash
+python server_vllm.py \
+  --model-path /home/anup/models/Qwen2.5-Coder-7B-Instruct \
+  --warm-prefix-cache-key stage3_ir_system_prompt_v1 \
+  --warm-prefix-system-prompt-file /path/to/stage3_system_prompt.txt \
+  --warm-prefix-max-output-tokens 1
+```
+
+This seeds server-side system prompt cache and runs a tiny warm generation to prefill vLLM prefix KV cache before app traffic arrives.
+`/health` also reports `active_generations` so you can verify concurrent load behavior.
 
 `server_vllm.py` supports additional sampling fields in requests:
 - `top_p` (default `0.95`)

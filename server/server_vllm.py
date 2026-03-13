@@ -7,6 +7,7 @@ import gc
 import inspect
 import logging
 import os
+import threading
 import time
 from typing import Any
 
@@ -32,6 +33,11 @@ CONTEXT_SAFETY_MARGIN_TOKENS = 64
 CONTEXT_FALLBACK_TOKENS = 32768
 MIN_OUTPUT_TOKENS = 64
 _TOKENIZER_COMPAT_PATCHED = False
+DEFAULT_STAGE3_WARM_USER_PROMPT = (
+    "Convert the response text into valid GenUICraft JSON.\n"
+    "Return ONLY the JSON message array.\n\n"
+    "Response:\n"
+)
 
 
 def _patch_tokenizer_compat() -> None:
@@ -129,7 +135,11 @@ class VllmGenerationEngine:
         self._enable_prefix_caching = bool(enable_prefix_caching)
         self._system_prompt_cache_max_entries = max(1, int(system_prompt_cache_max_entries))
 
-        self._request_lock = asyncio.Lock()
+        self._state_lock = asyncio.Lock()
+        self._state_changed = asyncio.Condition(self._state_lock)
+        self._loading_model_path: str | None = None
+        self._active_generations = 0
+        self._system_prompt_cache_lock = threading.Lock()
         self._llm: Any | None = None
         self._tokenizer: Any | None = None
         self._loaded_model_path: str | None = None
@@ -155,56 +165,151 @@ class VllmGenerationEngine:
 
     @property
     def system_prompt_cache_size(self) -> int:
-        return len(self._system_prompt_cache)
+        with self._system_prompt_cache_lock:
+            return len(self._system_prompt_cache)
 
     @property
     def system_prompt_cache_hits(self) -> int:
-        return self._system_prompt_cache_hits
+        with self._system_prompt_cache_lock:
+            return self._system_prompt_cache_hits
 
     @property
     def system_prompt_cache_misses(self) -> int:
-        return self._system_prompt_cache_misses
+        with self._system_prompt_cache_lock:
+            return self._system_prompt_cache_misses
 
     @property
     def prefix_caching_enabled(self) -> bool:
         return self._enable_prefix_caching
 
+    @property
+    def active_generations(self) -> int:
+        return self._active_generations
+
     async def warmup(self) -> None:
-        async with self._request_lock:
-            await self._ensure_model_locked(self._normalize_model_path(self._default_model_path))
+        await self._ensure_model_ready(self._normalize_model_path(self._default_model_path))
 
     async def generate(self, request: GenerateRequest) -> GenerateResponse:
         target_model_path = self._normalize_model_path(
             (request.model_path or self._default_model_path).strip() or self._default_model_path
         )
-        async with self._request_lock:
-            await self._ensure_model_locked(target_model_path)
-            return await asyncio.to_thread(self._generate_sync, request, target_model_path)
-
-    async def _ensure_model_locked(self, model_path: str) -> None:
-        if self._llm is not None and self._tokenizer is not None and self._loaded_model_path == model_path:
-            return
-
-        if self._llm is not None and self._loaded_model_path != model_path:
-            LOGGER.info(
-                "Switching loaded model from '%s' to '%s' due request model path.",
-                self._loaded_model_path,
-                model_path
-            )
-
-        failed_key = (model_path, self._dtype, self._enforce_eager)
-        if self._last_failed_load_key == failed_key and self._last_failed_load_error is not None:
-            raise RuntimeError(
-                "Previous load attempt for this model/backend already failed. "
-                f"Last error: {self._last_failed_load_error}"
-            )
-
+        await self._acquire_generation_slot_for_model(target_model_path)
         try:
-            await asyncio.to_thread(self._load_model_sync, model_path)
-        except Exception as exc:
-            self._last_failed_load_key = failed_key
-            self._last_failed_load_error = str(exc)
-            raise
+            return await asyncio.to_thread(self._generate_sync, request, target_model_path)
+        finally:
+            await self._release_generation_slot()
+
+    async def warm_prefix_cache(
+        self,
+        cache_key: str,
+        system_prompt: str,
+        user_prompt: str,
+        max_output_tokens: int = 1,
+        model_path: str | None = None
+    ) -> None:
+        normalized_key = self._normalize_cache_key(cache_key)
+        if normalized_key is None:
+            raise RuntimeError("warm_prefix cache_key is empty.")
+        normalized_system_prompt = system_prompt.strip()
+        if not normalized_system_prompt:
+            raise RuntimeError("warm_prefix system_prompt is empty.")
+        normalized_user_prompt = user_prompt.strip()
+        if not normalized_user_prompt:
+            raise RuntimeError("warm_prefix user_prompt is empty.")
+
+        target_model_path = self._normalize_model_path(
+            (model_path or self._default_model_path).strip() or self._default_model_path
+        )
+        await self._ensure_model_ready(target_model_path)
+        cache_hit = self._put_system_prompt_cache(normalized_key, normalized_system_prompt)
+        LOGGER.info(
+            "Startup prefix warm cache seed ready. key=%s cache_hit=%s",
+            normalized_key,
+            cache_hit
+        )
+
+        warm_request = GenerateRequest(
+            prompt=normalized_user_prompt,
+            system_prompt=None,
+            system_prompt_cache_key=normalized_key,
+            temperature=0.0,
+            top_p=1.0,
+            top_k=-1,
+            presence_penalty=0.0,
+            enable_thinking=None,
+            max_output_tokens=max(1, min(int(max_output_tokens), 8192)),
+            json_mode=True,
+            model_path=target_model_path
+        )
+        await self._acquire_generation_slot_for_model(target_model_path)
+        try:
+            response = await asyncio.to_thread(self._generate_sync, warm_request, target_model_path)
+        finally:
+            await self._release_generation_slot()
+        LOGGER.info(
+            "Startup prefix warm generation done. key=%s prompt_tokens=%d completion_tokens=%d",
+            normalized_key,
+            response.usage.get("prompt_tokens", 0),
+            response.usage.get("completion_tokens", 0)
+        )
+
+    async def _ensure_model_ready(self, model_path: str) -> None:
+        # Ensure model is ready by temporarily reserving and releasing one generation slot.
+        await self._acquire_generation_slot_for_model(model_path)
+        await self._release_generation_slot()
+
+    async def _acquire_generation_slot_for_model(self, model_path: str) -> None:
+        failed_key = (model_path, self._dtype, self._enforce_eager)
+        while True:
+            async with self._state_lock:
+                ready_for_generation = (
+                    self._loading_model_path is None
+                    and self._llm is not None
+                    and self._tokenizer is not None
+                    and self._loaded_model_path == model_path
+                )
+                if ready_for_generation:
+                    self._active_generations += 1
+                    return
+                if self._loading_model_path is not None:
+                    await self._state_changed.wait()
+                    continue
+                if self._active_generations > 0:
+                    await self._state_changed.wait()
+                    continue
+                if self._llm is not None and self._loaded_model_path != model_path:
+                    LOGGER.info(
+                        "Switching loaded model from '%s' to '%s' due request model path.",
+                        self._loaded_model_path,
+                        model_path
+                    )
+                if self._last_failed_load_key == failed_key and self._last_failed_load_error is not None:
+                    raise RuntimeError(
+                        "Previous load attempt for this model/backend already failed. "
+                        f"Last error: {self._last_failed_load_error}"
+                    )
+                self._loading_model_path = model_path
+
+            try:
+                await asyncio.to_thread(self._load_model_sync, model_path)
+            except Exception as exc:
+                async with self._state_lock:
+                    self._last_failed_load_key = failed_key
+                    self._last_failed_load_error = str(exc)
+                    self._loading_model_path = None
+                    self._state_changed.notify_all()
+                raise
+
+            async with self._state_lock:
+                self._loading_model_path = None
+                self._active_generations += 1
+                self._state_changed.notify_all()
+                return
+
+    async def _release_generation_slot(self) -> None:
+        async with self._state_lock:
+            self._active_generations = max(0, self._active_generations - 1)
+            self._state_changed.notify_all()
 
     def _load_model_sync(self, model_path: str) -> None:
         if VLLM_IMPORT_ERROR is not None or LLM is None:
@@ -291,47 +396,49 @@ class VllmGenerationEngine:
         return normalized or None
 
     def _put_system_prompt_cache(self, key: str, prompt: str) -> bool:
-        existing = self._system_prompt_cache.get(key)
-        if existing == prompt:
+        with self._system_prompt_cache_lock:
+            existing = self._system_prompt_cache.get(key)
+            if existing == prompt:
+                self._system_prompt_cache.move_to_end(key)
+                LOGGER.info(
+                    "System prompt cache reused existing key '%s' (size=%d).",
+                    key,
+                    len(self._system_prompt_cache)
+                )
+                return True
+            self._system_prompt_cache[key] = prompt
             self._system_prompt_cache.move_to_end(key)
+            while len(self._system_prompt_cache) > self._system_prompt_cache_max_entries:
+                self._system_prompt_cache.popitem(last=False)
             LOGGER.info(
-                "System prompt cache reused existing key '%s' (size=%d).",
+                "System prompt cache upserted key '%s' (chars=%d, size=%d).",
                 key,
+                len(prompt),
                 len(self._system_prompt_cache)
             )
-            return True
-        self._system_prompt_cache[key] = prompt
-        self._system_prompt_cache.move_to_end(key)
-        while len(self._system_prompt_cache) > self._system_prompt_cache_max_entries:
-            self._system_prompt_cache.popitem(last=False)
-        LOGGER.info(
-            "System prompt cache upserted key '%s' (chars=%d, size=%d).",
-            key,
-            len(prompt),
-            len(self._system_prompt_cache)
-        )
-        return False
+            return False
 
     def _get_system_prompt_cache(self, key: str) -> str | None:
-        prompt = self._system_prompt_cache.get(key)
-        if prompt is None:
-            self._system_prompt_cache_misses += 1
-            LOGGER.warning(
-                "System prompt cache miss for key '%s' (hits=%d misses=%d).",
+        with self._system_prompt_cache_lock:
+            prompt = self._system_prompt_cache.get(key)
+            if prompt is None:
+                self._system_prompt_cache_misses += 1
+                LOGGER.warning(
+                    "System prompt cache miss for key '%s' (hits=%d misses=%d).",
+                    key,
+                    self._system_prompt_cache_hits,
+                    self._system_prompt_cache_misses
+                )
+                return None
+            self._system_prompt_cache.move_to_end(key)
+            self._system_prompt_cache_hits += 1
+            LOGGER.info(
+                "System prompt cache hit for key '%s' (hits=%d misses=%d).",
                 key,
                 self._system_prompt_cache_hits,
                 self._system_prompt_cache_misses
             )
-            return None
-        self._system_prompt_cache.move_to_end(key)
-        self._system_prompt_cache_hits += 1
-        LOGGER.info(
-            "System prompt cache hit for key '%s' (hits=%d misses=%d).",
-            key,
-            self._system_prompt_cache_hits,
-            self._system_prompt_cache_misses
-        )
-        return prompt
+            return prompt
 
     async def prime_system_prompt_cache(self, cache_key: str, system_prompt: str) -> tuple[str, bool]:
         normalized_key = self._normalize_cache_key(cache_key)
@@ -340,8 +447,7 @@ class VllmGenerationEngine:
         normalized_prompt = system_prompt.strip()
         if not normalized_prompt:
             raise RuntimeError("system_prompt is empty.")
-        async with self._request_lock:
-            cache_hit = self._put_system_prompt_cache(normalized_key, normalized_prompt)
+        cache_hit = self._put_system_prompt_cache(normalized_key, normalized_prompt)
         return normalized_key, cache_hit
 
     def _resolve_request_system_prompt(self, request: GenerateRequest) -> str:
@@ -626,15 +732,45 @@ class VllmGenerationEngine:
         )
 
 
-def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
+def create_app(
+    engine: VllmGenerationEngine,
+    lazy_load: bool,
+    warm_prefix_cache_key: str | None = None,
+    warm_prefix_system_prompt: str | None = None,
+    warm_prefix_user_prompt: str = DEFAULT_STAGE3_WARM_USER_PROMPT,
+    warm_prefix_max_output_tokens: int = 1,
+    warm_prefix_model_path: str | None = None
+) -> FastAPI:
     app = FastAPI(title="Local GenUI Model Server (vLLM)", version="1.0.0")
 
     @app.on_event("startup")
     async def startup_event() -> None:
-        if lazy_load:
+        startup_prefix_warm_enabled = (
+            warm_prefix_cache_key is not None
+            and warm_prefix_system_prompt is not None
+            and bool(warm_prefix_user_prompt.strip())
+        )
+
+        if lazy_load and not startup_prefix_warm_enabled:
             LOGGER.info("Lazy-load enabled. Model will load on first request.")
             return
+
+        if lazy_load and startup_prefix_warm_enabled:
+            LOGGER.info(
+                "Lazy-load requested, but startup prefix warm is configured. "
+                "Loading model during startup to prefill KV prefix cache."
+            )
+
         await engine.warmup()
+
+        if startup_prefix_warm_enabled:
+            await engine.warm_prefix_cache(
+                cache_key=warm_prefix_cache_key,
+                system_prompt=warm_prefix_system_prompt,
+                user_prompt=warm_prefix_user_prompt,
+                max_output_tokens=warm_prefix_max_output_tokens,
+                model_path=warm_prefix_model_path
+            )
 
     @app.get("/health")
     async def health() -> dict[str, Any]:
@@ -644,6 +780,7 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
             "loaded_model_path": engine.loaded_model_path,
             "backend": "vllm",
             "prefix_kv_caching_enabled": engine.prefix_caching_enabled,
+            "active_generations": engine.active_generations,
             "last_load_ms": engine.last_load_ms,
             "last_failed_load_error": engine.last_failed_load_error,
             "system_prompt_cache": {
@@ -798,6 +935,37 @@ def parse_args() -> argparse.Namespace:
         default=256,
         help="Max new tokens for self-test generation."
     )
+    parser.add_argument(
+        "--warm-prefix-cache-key",
+        default=None,
+        help="Cache key used for startup prefix warm (for example: stage3_ir_system_prompt_v1)."
+    )
+    parser.add_argument(
+        "--warm-prefix-system-prompt",
+        default=None,
+        help="System prompt text used for startup prefix warm."
+    )
+    parser.add_argument(
+        "--warm-prefix-system-prompt-file",
+        default=None,
+        help="UTF-8 text file path for startup warm system prompt."
+    )
+    parser.add_argument(
+        "--warm-prefix-user-prompt",
+        default=DEFAULT_STAGE3_WARM_USER_PROMPT,
+        help="User prompt used during startup warm generation."
+    )
+    parser.add_argument(
+        "--warm-prefix-max-output-tokens",
+        type=int,
+        default=1,
+        help="Max output tokens for startup warm generation."
+    )
+    parser.add_argument(
+        "--warm-prefix-model-path",
+        default=None,
+        help="Optional model path override for startup warm generation."
+    )
     return parser.parse_args()
 
 
@@ -807,6 +975,46 @@ def main() -> None:
         level=getattr(logging, args.log_level.upper(), logging.INFO),
         format="%(asctime)s %(levelname)s %(name)s - %(message)s"
     )
+
+    warm_prefix_cache_key = (args.warm_prefix_cache_key or "").strip() or None
+    warm_prefix_system_prompt: str | None = None
+    warm_prefix_system_prompt_file = (args.warm_prefix_system_prompt_file or "").strip()
+    if warm_prefix_system_prompt_file:
+        if args.warm_prefix_system_prompt:
+            LOGGER.warning(
+                "Both --warm-prefix-system-prompt and --warm-prefix-system-prompt-file were provided. "
+                "Using file content."
+            )
+        expanded = os.path.realpath(os.path.expanduser(warm_prefix_system_prompt_file))
+        try:
+            with open(expanded, "r", encoding="utf-8") as handle:
+                warm_prefix_system_prompt = handle.read().strip()
+        except Exception as exc:  # noqa: BLE001
+            raise SystemExit(
+                f"Failed to read --warm-prefix-system-prompt-file '{expanded}': {exc}"
+            ) from exc
+        LOGGER.info(
+            "Loaded startup warm system prompt file: %s (chars=%d)",
+            expanded,
+            len(warm_prefix_system_prompt)
+        )
+    else:
+        inline_prompt = (args.warm_prefix_system_prompt or "").strip()
+        warm_prefix_system_prompt = inline_prompt or None
+
+    warm_prefix_requested = (
+        warm_prefix_cache_key is not None
+        or warm_prefix_system_prompt is not None
+        or bool(warm_prefix_system_prompt_file)
+    )
+    if warm_prefix_requested and (warm_prefix_cache_key is None or warm_prefix_system_prompt is None):
+        raise SystemExit(
+            "Startup prefix warm requires both --warm-prefix-cache-key and "
+            "--warm-prefix-system-prompt (or --warm-prefix-system-prompt-file)."
+        )
+
+    warm_prefix_user_prompt = (args.warm_prefix_user_prompt or "").strip() or DEFAULT_STAGE3_WARM_USER_PROMPT
+    warm_prefix_model_path = (args.warm_prefix_model_path or "").strip() or None
 
     engine = VllmGenerationEngine(
         default_model_path=args.model_path,
@@ -829,7 +1037,15 @@ def main() -> None:
         LOGGER.info("Self-test completed. Exiting because --self-test-only was set.")
         return
 
-    app = create_app(engine=engine, lazy_load=args.lazy_load)
+    app = create_app(
+        engine=engine,
+        lazy_load=args.lazy_load,
+        warm_prefix_cache_key=warm_prefix_cache_key,
+        warm_prefix_system_prompt=warm_prefix_system_prompt,
+        warm_prefix_user_prompt=warm_prefix_user_prompt,
+        warm_prefix_max_output_tokens=args.warm_prefix_max_output_tokens,
+        warm_prefix_model_path=warm_prefix_model_path
+    )
     uvicorn.run(app, host=args.host, port=args.port, log_level=args.log_level, access_log=True)
 
 
