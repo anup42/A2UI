@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -51,6 +52,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
     private var session by mutableStateOf<IrDemoSessionStore.Session?>(null)
     private var record by mutableStateOf<IrDemoRecord?>(null)
+    private var pipelineLogs by mutableStateOf<List<String>>(emptyList())
     private var uiState by mutableStateOf<IrDemoRenderUiState>(
         IrDemoRenderUiState.Loading(message = "")
     )
@@ -75,20 +77,39 @@ class IrDemoRenderActivity : AppCompatActivity() {
                     session = session,
                     record = record,
                     uiState = uiState,
+                    logs = pipelineLogs,
                     onOpenExternalUrl = { openExternalUrl(it) }
                 )
             }
         }
     }
 
+    private fun appendPipelineLog(message: String) {
+        val sanitized = sanitizeIrDemoLogText(message)
+        if (sanitized.isBlank()) {
+            return
+        }
+        pipelineLogs = (pipelineLogs + sanitized).takeLast(40)
+    }
+
     private fun runStage3ForRecord(record: IrDemoRecord) {
         val pipeline = GenUiStagePipeline(this)
+        pipelineLogs = emptyList()
+        appendPipelineLog("IR demo started for ${record.queryId}")
+        val provider = InferenceBackendSettings.getProvider(this)
+        appendPipelineLog("Backend: ${provider.name.lowercase()}")
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            val localUrl = InferenceBackendSettings.getLocalServerBaseUrl(this)
+            appendPipelineLog("Local server URL: ${localUrl.ifBlank { "<empty>" }}")
+        }
+
         uiState = IrDemoRenderUiState.Loading(getString(R.string.ir_demo_status_initializing))
         lifecycleScope.launch {
             val outcome = pipeline.executeStage3FromResponse(
                 queryText = record.queryText,
                 stage2ResponseText = record.responseText
             ) { update ->
+                appendPipelineLog("Stage ${update.stage.name.removePrefix("STAGE")}: ${update.message}")
                 val message = when (update.stage) {
                     GenUiStagePipeline.Stage.STAGE3 -> getString(R.string.ir_demo_status_stage3)
                     GenUiStagePipeline.Stage.STAGE4 -> getString(R.string.ir_demo_status_stage4)
@@ -99,11 +120,29 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
             uiState = when (outcome) {
                 is GenUiStagePipeline.Outcome.Success -> {
+                    appendPipelineLog("Pipeline completed successfully.")
+                    if (outcome.result.warnings.isNotEmpty()) {
+                        outcome.result.warnings.forEach { warning ->
+                            appendPipelineLog("Warning: $warning")
+                        }
+                    }
                     IrDemoRenderUiState.Success(outcome.result)
                 }
 
                 is GenUiStagePipeline.Outcome.Failure -> {
                     val stageName = outcome.stage.name.removePrefix("STAGE")
+                    appendPipelineLog("Pipeline failed at stage $stageName.")
+                    appendPipelineLog("Error: ${outcome.message}")
+                    if (!outcome.stage2Response.isNullOrBlank()) {
+                        appendPipelineLog(
+                            "Stage2 preview: ${previewIrDemoLog(outcome.stage2Response)}"
+                        )
+                    }
+                    if (!outcome.stage3Json.isNullOrBlank()) {
+                        appendPipelineLog(
+                            "Stage3 JSON preview: ${previewIrDemoLog(outcome.stage3Json)}"
+                        )
+                    }
                     IrDemoRenderUiState.Failure(
                         getString(R.string.ir_demo_error_failed, stageName, outcome.message)
                     )
@@ -128,6 +167,7 @@ private fun IrDemoRenderScreen(
     session: IrDemoSessionStore.Session?,
     record: IrDemoRecord?,
     uiState: IrDemoRenderUiState,
+    logs: List<String>,
     onOpenExternalUrl: (String) -> Unit
 ) {
     val deviceConfig = rememberDeviceUiConfig()
@@ -189,6 +229,10 @@ private fun IrDemoRenderScreen(
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )
+                }
+
+                if (logs.isNotEmpty()) {
+                    IrDemoLogCard(logs = logs)
                 }
 
                 when (uiState) {
@@ -270,3 +314,45 @@ private fun IrDemoWarningCard(warnings: List<String>) {
     }
 }
 
+@Composable
+private fun IrDemoLogCard(logs: List<String>) {
+    val recent = if (logs.size <= 12) logs else logs.takeLast(12)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "Logs",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            recent.forEach { line ->
+                Text(
+                    text = line,
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+private fun sanitizeIrDemoLogText(value: String): String {
+    return value
+        .replace('\n', ' ')
+        .replace(Regex("""\s{2,}"""), " ")
+        .trim()
+}
+
+private fun previewIrDemoLog(value: String): String {
+    return sanitizeIrDemoLogText(value).take(240)
+}
