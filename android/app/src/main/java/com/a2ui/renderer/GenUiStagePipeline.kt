@@ -2,6 +2,7 @@ package com.samsung.genuicraft
 
 import android.content.Context
 import android.util.Base64
+import android.util.Log
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -258,19 +259,36 @@ class GenUiStagePipeline(private val appContext: Context) {
             }
         }
         if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
-            val primeError = ensureLocalSystemPromptCache(
+            val primeResult = ensureLocalSystemPromptCache(
                 localServerBaseUrl = localServerBaseUrl,
                 localModelPath = localModelPath,
                 cacheKey = localStage3SystemPromptCacheKey,
                 systemPrompt = promptContext.systemPrompt
             )
-            if (primeError == null && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
-                warnings += "Local stage3 prompt cache primed."
-            } else if (!primeError.isNullOrBlank()) {
-                warnings += "Local stage3 prompt cache prime failed ($primeError)."
+            when {
+                !primeResult.error.isNullOrBlank() -> {
+                    warnings += "Local stage3 prompt cache prime failed (${primeResult.error})."
+                    Log.w(LOG_TAG, "Local stage3 prompt cache prime failed: ${primeResult.error}")
+                }
+                primeResult.cacheHit == true -> {
+                    warnings += "Local stage3 prompt cache hit."
+                }
+                primeResult.cacheHit == false -> {
+                    warnings += "Local stage3 prompt cache miss -> primed."
+                }
+                !localStage3SystemPromptCacheKey.isNullOrBlank() -> {
+                    warnings += "Local stage3 prompt cache primed."
+                }
             }
         }
         val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
+            warnings += if (localSendStage3SystemPrompt) {
+                "Local stage3 generation cache miss path (system_prompt sent)."
+            } else {
+                "Local stage3 generation cache hit path (cache key only)."
+            }
+        }
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
@@ -561,19 +579,36 @@ class GenUiStagePipeline(private val appContext: Context) {
             }
         }
         if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
-            val primeError = ensureLocalSystemPromptCache(
+            val primeResult = ensureLocalSystemPromptCache(
                 localServerBaseUrl = localServerBaseUrl,
                 localModelPath = localModelPath,
                 cacheKey = localStage3SystemPromptCacheKey,
                 systemPrompt = promptContext.systemPrompt
             )
-            if (primeError == null && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
-                warnings += "Local stage3 prompt cache primed."
-            } else if (!primeError.isNullOrBlank()) {
-                warnings += "Local stage3 prompt cache prime failed ($primeError)."
+            when {
+                !primeResult.error.isNullOrBlank() -> {
+                    warnings += "Local stage3 prompt cache prime failed (${primeResult.error})."
+                    Log.w(LOG_TAG, "Local stage3 prompt cache prime failed: ${primeResult.error}")
+                }
+                primeResult.cacheHit == true -> {
+                    warnings += "Local stage3 prompt cache hit."
+                }
+                primeResult.cacheHit == false -> {
+                    warnings += "Local stage3 prompt cache miss -> primed."
+                }
+                !localStage3SystemPromptCacheKey.isNullOrBlank() -> {
+                    warnings += "Local stage3 prompt cache primed."
+                }
             }
         }
         val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
+            warnings += if (localSendStage3SystemPrompt) {
+                "Local stage3 generation cache miss path (system_prompt sent)."
+            } else {
+                "Local stage3 generation cache hit path (cache key only)."
+            }
+        }
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
@@ -1614,6 +1649,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                 !localSystemPromptCacheKey.isNullOrBlank() &&
                 isLocalSystemPromptCacheMiss(last.error)
             ) {
+                Log.w(
+                    LOG_TAG,
+                    "Local stage3 cache miss detected for key=$localSystemPromptCacheKey, retrying with inline system prompt."
+                )
                 val cacheRecovery = generateOnce(
                     provider = provider,
                     apiKey = apiKey,
@@ -1637,6 +1676,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 }
                 if (cacheRecovery.error == null) {
                     markLocalSystemPromptCacheKeyReady(localSystemPromptCacheKey)
+                    Log.i(LOG_TAG, "Local stage3 cache recovery succeeded for key=$localSystemPromptCacheKey")
+                } else {
+                    Log.w(LOG_TAG, "Local stage3 cache recovery failed for key=$localSystemPromptCacheKey: ${cacheRecovery.error}")
                 }
                 return cacheRecovery.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
@@ -2174,19 +2216,19 @@ class GenUiStagePipeline(private val appContext: Context) {
         localModelPath: String,
         cacheKey: String?,
         systemPrompt: String?
-    ): String? {
+    ): LocalSystemPromptCachePrimeResult {
         val normalizedKey = cacheKey?.trim().orEmpty()
         val normalizedPrompt = systemPrompt?.trim().orEmpty()
         if (normalizedKey.isBlank() || normalizedPrompt.isBlank()) {
-            return null
-        }
-        if (!shouldSendLocalSystemPrompt(normalizedKey)) {
-            return null
+            return LocalSystemPromptCachePrimeResult(cacheHit = null, error = null)
         }
 
         val baseUrl = localServerBaseUrl.trim().trimEnd('/')
         if (baseUrl.isBlank()) {
-            return "Local server URL is empty."
+            return LocalSystemPromptCachePrimeResult(
+                cacheHit = null,
+                error = "Local server URL is empty."
+            )
         }
 
         val endpoint = URL("$baseUrl/v1/cache/system_prompt")
@@ -2215,18 +2257,38 @@ class GenUiStagePipeline(private val appContext: Context) {
             val raw = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
             if (code !in 200..299) {
                 val short = raw.trim().ifBlank { "HTTP $code" }
-                "HTTP $code: ${short.take(220)}"
+                LocalSystemPromptCachePrimeResult(
+                    cacheHit = null,
+                    error = "HTTP $code: ${short.take(220)}"
+                )
             } else {
+                val cacheHit = extractLocalSystemPromptPrimeHit(raw)
                 markLocalSystemPromptCacheKeyReady(normalizedKey)
-                null
+                Log.i(LOG_TAG, "Local Stage3 prompt cache prime success: key=$normalizedKey cacheHit=$cacheHit")
+                LocalSystemPromptCachePrimeResult(cacheHit = cacheHit, error = null)
             }
         } catch (unknownHost: UnknownHostException) {
-            "Local server host is unreachable: ${unknownHost.message ?: "unknown host"}"
+            LocalSystemPromptCachePrimeResult(
+                cacheHit = null,
+                error = "Local server host is unreachable: ${unknownHost.message ?: "unknown host"}"
+            )
         } catch (io: IOException) {
-            io.message ?: io.javaClass.simpleName
+            LocalSystemPromptCachePrimeResult(
+                cacheHit = null,
+                error = io.message ?: io.javaClass.simpleName
+            )
         } finally {
             connection.disconnect()
         }
+    }
+
+    private fun extractLocalSystemPromptPrimeHit(raw: String): Boolean? {
+        val root = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull() ?: return null
+        val value = root.get("cache_hit")
+        if (value != null && value.isJsonPrimitive) {
+            return runCatching { value.asBoolean }.getOrNull()
+        }
+        return null
     }
 
     private fun isStructuredOutputConfigError(error: String): Boolean {
@@ -2448,6 +2510,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         val error: String?
     )
 
+    private data class LocalSystemPromptCachePrimeResult(
+        val cacheHit: Boolean?,
+        val error: String?
+    )
+
     private data class CachedInstructionCreateResult(
         val name: String?,
         val expiresAtMs: Long?,
@@ -2490,6 +2557,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val CACHE_KEY_EXPIRES_AT_MS = "stage3_cache_expires_at_ms"
         const val CACHE_EXPIRY_SAFETY_MS = 60_000L
         const val LOCAL_STAGE3_SYSTEM_PROMPT_CACHE_KEY = "stage3_ir_system_prompt_v1"
+        const val LOG_TAG = "GenUiStagePipeline"
         val HOST_LABEL_REGEX = Regex("""(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$""")
         val URL_TOKEN_REGEX = Regex(
             """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""

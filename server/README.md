@@ -134,6 +134,7 @@ curl -X POST http://127.0.0.1:8000/v1/cache/system_prompt \
     "system_prompt": "YOUR_STAGE3_SYSTEM_PROMPT"
   }'
 ```
+Prime response includes `cache_hit` so you can see hit/miss status for the cache key.
 
 `server_vllm.py` supports additional sampling fields in requests:
 - `top_p` (default `0.95`)

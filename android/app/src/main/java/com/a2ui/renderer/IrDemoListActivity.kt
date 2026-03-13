@@ -23,10 +23,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +61,11 @@ class IrDemoListActivity : AppCompatActivity() {
                         startActivity(
                             Intent(this, IrDemoRenderActivity::class.java)
                                 .putExtra(IrDemoRenderActivity.EXTRA_RECORD_INDEX, index)
+                                .putExtra(IrDemoRenderActivity.EXTRA_FORCE_FRESH, true)
                         )
+                    },
+                    onDeleteItem = { index ->
+                        deleteRecordAt(index)
                     }
                 )
             }
@@ -66,12 +74,13 @@ class IrDemoListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        session = IrDemoSessionStore.current()
+        refreshFromRepository()
     }
 
     private fun loadDefaultIrDemo() {
         try {
-            val records = IrDemoRecordLoader.loadDefault(assets)
+            val defaultRecords = IrDemoRecordLoader.loadDefault(assets)
+            val records = IrDemoRecordRepository.ensureInitialized(this, defaultRecords)
             IrDemoSessionStore.update(
                 sourceLabel = getString(R.string.ir_demo_source),
                 records = records
@@ -84,6 +93,36 @@ class IrDemoListActivity : AppCompatActivity() {
             session = null
         }
     }
+
+    private fun refreshFromRepository() {
+        val records = IrDemoRecordRepository.load(this)
+        if (records != null) {
+            IrDemoSessionStore.update(
+                sourceLabel = getString(R.string.ir_demo_source),
+                records = records
+            )
+            session = IrDemoSessionStore.current()
+            errorMessage = null
+        } else {
+            loadDefaultIrDemo()
+        }
+    }
+
+    private fun deleteRecordAt(index: Int) {
+        val current = session ?: return
+        if (index !in current.records.indices) {
+            return
+        }
+        val updated = current.records.toMutableList().apply {
+            removeAt(index)
+        }
+        IrDemoRecordRepository.save(this, updated)
+        IrDemoSessionStore.update(
+            sourceLabel = current.sourceLabel,
+            records = updated
+        )
+        session = IrDemoSessionStore.current()
+    }
 }
 
 @Composable
@@ -91,7 +130,8 @@ class IrDemoListActivity : AppCompatActivity() {
 private fun IrDemoListScreen(
     session: IrDemoSessionStore.Session?,
     errorMessage: String?,
-    onItemClick: (Int) -> Unit
+    onItemClick: (Int) -> Unit,
+    onDeleteItem: (Int) -> Unit
 ) {
     val deviceConfig = rememberDeviceUiConfig()
     val horizontalPadding = when (deviceConfig.widthClass) {
@@ -173,7 +213,8 @@ private fun IrDemoListScreen(
                         IrDemoItemCard(
                             index = index,
                             record = item,
-                            onClick = { onItemClick(index) }
+                            onClick = { onItemClick(index) },
+                            onDeleteClick = { onDeleteItem(index) }
                         )
                     }
                 }
@@ -186,7 +227,8 @@ private fun IrDemoListScreen(
 private fun IrDemoItemCard(
     index: Int,
     record: IrDemoRecord,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -221,6 +263,15 @@ private fun IrDemoItemCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
+                IconButton(
+                    onClick = onDeleteClick
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = stringResource(id = R.string.ir_demo_delete_item_content_desc),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
 
             Text(
@@ -259,4 +310,3 @@ private fun previewResponse(text: String): String {
 
     return normalized.take(220)
 }
-

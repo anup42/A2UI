@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -260,6 +261,9 @@ private fun GenUiAssistantScreen(
     }
     val imeVisible = WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
     val listBottomPadding = if (imeVisible) 16.dp else 112.dp
+    val canSaveToIrDemo = !isRunning &&
+        !currentQuery.isNullOrBlank() &&
+        !stage2Text.isNullOrBlank()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -279,6 +283,39 @@ private fun GenUiAssistantScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(end = 6.dp)
                     ) {
+                        IconButton(
+                            onClick = {
+                                val savedRecord = IrDemoRecordRepository.addSavedResponse(
+                                    context = context.applicationContext,
+                                    queryText = currentQuery.orEmpty(),
+                                    responseText = stage2Text.orEmpty()
+                                )
+                                if (savedRecord != null) {
+                                    IrDemoSessionStore.current()?.let { currentSession ->
+                                        IrDemoSessionStore.update(
+                                            sourceLabel = currentSession.sourceLabel,
+                                            records = listOf(savedRecord) + currentSession.records
+                                        )
+                                    }
+                                    currentStatus = "Saved response to IR Demo"
+                                    logs += AssistantLogItem(
+                                        title = "Saved",
+                                        content = "Added current response to IR Demo list."
+                                    )
+                                }
+                            },
+                            enabled = canSaveToIrDemo
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Save,
+                                contentDescription = stringResource(id = R.string.genui_assistant_save_ir_content_desc),
+                                tint = if (canSaveToIrDemo) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.outline
+                                }
+                            )
+                        }
                         Text(
                             text = "Debug",
                             style = MaterialTheme.typography.labelSmall,

@@ -61,6 +61,7 @@ private object IrDemoRenderSessionCache {
 class IrDemoRenderActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_RECORD_INDEX = "extra_record_index"
+        const val EXTRA_FORCE_FRESH = "extra_force_fresh"
     }
 
     private var session by mutableStateOf<IrDemoSessionStore.Session?>(null)
@@ -77,7 +78,11 @@ class IrDemoRenderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         applyOneUiWindowBlur()
         val index = intent.getIntExtra(EXTRA_RECORD_INDEX, -1)
+        val forceFreshLaunch = intent.getBooleanExtra(EXTRA_FORCE_FRESH, false) && savedInstanceState == null
         currentRecordIndex = index
+        if (forceFreshLaunch) {
+            clearSessionCache()
+        }
         session = IrDemoSessionStore.current()
         record = session?.records?.getOrNull(index)
 
@@ -109,6 +114,16 @@ class IrDemoRenderActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    private fun clearSessionCache() {
+        IrDemoRenderSessionCache.recordIndex = -1
+        IrDemoRenderSessionCache.debugMode = false
+        IrDemoRenderSessionCache.logs = emptyList()
+        IrDemoRenderSessionCache.generatedIrJson = null
+        IrDemoRenderSessionCache.successResult = null
+        IrDemoRenderSessionCache.loadingMessage = null
+        IrDemoRenderSessionCache.failureMessage = null
     }
 
     private fun restoreFromSessionCache(): Boolean {

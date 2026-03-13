@@ -103,6 +103,7 @@ class SystemPromptCachePrimeResponse(BaseModel):
     cache_key: str
     cache_size: int
     cached: bool
+    cache_hit: bool
 
 
 class VllmGenerationEngine:
@@ -285,7 +286,7 @@ class VllmGenerationEngine:
         normalized = key.strip()
         return normalized or None
 
-    def _put_system_prompt_cache(self, key: str, prompt: str) -> None:
+    def _put_system_prompt_cache(self, key: str, prompt: str) -> bool:
         existing = self._system_prompt_cache.get(key)
         if existing == prompt:
             self._system_prompt_cache.move_to_end(key)
@@ -294,7 +295,7 @@ class VllmGenerationEngine:
                 key,
                 len(self._system_prompt_cache)
             )
-            return
+            return True
         self._system_prompt_cache[key] = prompt
         self._system_prompt_cache.move_to_end(key)
         while len(self._system_prompt_cache) > self._system_prompt_cache_max_entries:
@@ -305,6 +306,7 @@ class VllmGenerationEngine:
             len(prompt),
             len(self._system_prompt_cache)
         )
+        return False
 
     def _get_system_prompt_cache(self, key: str) -> str | None:
         prompt = self._system_prompt_cache.get(key)
@@ -327,7 +329,7 @@ class VllmGenerationEngine:
         )
         return prompt
 
-    async def prime_system_prompt_cache(self, cache_key: str, system_prompt: str) -> str:
+    async def prime_system_prompt_cache(self, cache_key: str, system_prompt: str) -> tuple[str, bool]:
         normalized_key = self._normalize_cache_key(cache_key)
         if normalized_key is None:
             raise RuntimeError("cache_key is empty.")
@@ -335,8 +337,8 @@ class VllmGenerationEngine:
         if not normalized_prompt:
             raise RuntimeError("system_prompt is empty.")
         async with self._request_lock:
-            self._put_system_prompt_cache(normalized_key, normalized_prompt)
-        return normalized_key
+            cache_hit = self._put_system_prompt_cache(normalized_key, normalized_prompt)
+        return normalized_key, cache_hit
 
     def _resolve_request_system_prompt(self, request: GenerateRequest) -> str:
         cache_key = self._normalize_cache_key(request.system_prompt_cache_key)
@@ -346,7 +348,12 @@ class VllmGenerationEngine:
             return direct_system_prompt
 
         if direct_system_prompt:
-            self._put_system_prompt_cache(cache_key, direct_system_prompt)
+            cache_hit = self._put_system_prompt_cache(cache_key, direct_system_prompt)
+            LOGGER.info(
+                "System prompt provided inline with cache key '%s' (cache_hit=%s).",
+                cache_key,
+                cache_hit
+            )
             return direct_system_prompt
 
         cached_prompt = self._get_system_prompt_cache(cache_key)
@@ -650,14 +657,21 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
             len(request.system_prompt)
         )
         try:
-            cache_key = await engine.prime_system_prompt_cache(
+            cache_key, cache_hit = await engine.prime_system_prompt_cache(
                 cache_key=request.cache_key,
                 system_prompt=request.system_prompt
+            )
+            LOGGER.info(
+                "System prompt cache prime completed. key=%s cache_hit=%s size=%d",
+                cache_key,
+                cache_hit,
+                engine.system_prompt_cache_size
             )
             return SystemPromptCachePrimeResponse(
                 cache_key=cache_key,
                 cache_size=engine.system_prompt_cache_size,
-                cached=True
+                cached=True,
+                cache_hit=cache_hit
             )
         except Exception as exc:  # noqa: BLE001
             LOGGER.exception("System prompt cache prime failed")
@@ -667,7 +681,8 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
     async def generate(request: GenerateRequest) -> GenerateResponse:
         LOGGER.info(
             "Generate request received. model_path=%s prompt_chars=%d json_mode=%s "
-            "temp=%.2f top_p=%.2f top_k=%d max_tokens=%d system_prompt_cache_key=%s",
+            "temp=%.2f top_p=%.2f top_k=%d max_tokens=%d system_prompt_cache_key=%s "
+            "system_prompt_included=%s",
             request.model_path or engine.loaded_model_path or "<default>",
             len(request.prompt),
             request.json_mode,
@@ -675,7 +690,8 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
             request.top_p,
             request.top_k,
             request.max_output_tokens,
-            request.system_prompt_cache_key or "<none>"
+            request.system_prompt_cache_key or "<none>",
+            bool((request.system_prompt or "").strip())
         )
         try:
             return await engine.generate(request)
