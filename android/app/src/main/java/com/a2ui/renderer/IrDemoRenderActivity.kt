@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -243,102 +245,175 @@ private fun IrDemoRenderScreen(
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
         ) { backgroundModifier ->
-            Column(
-                modifier = backgroundModifier
-                    .padding(horizontal = horizontalPadding, vertical = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                if (session != null) {
-                    Text(
-                        text = session.sourceLabel,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+            if (debugMode) {
+                LazyColumn(
+                    modifier = backgroundModifier
+                        .fillMaxSize()
+                        .padding(horizontal = horizontalPadding, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
+                ) {
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            if (session != null) {
+                                Text(
+                                    text = session.sourceLabel,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
-                if (record != null) {
-                    Text(
-                        text = stringResource(id = R.string.ir_demo_query_prefix),
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = record.queryText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                if (debugMode && logs.isNotEmpty()) {
-                    IrDemoLogCard(logs = logs)
-                }
-
-                if (debugMode) {
-                    IrDemoDebugCard(
-                        title = "Response",
-                        content = record?.responseText.orEmpty(),
-                        monospace = false
-                    )
-                    if (!generatedIrJson.isNullOrBlank()) {
-                        IrDemoDebugCard(
-                            title = "Generated IR JSON",
-                            content = generatedIrJson,
-                            monospace = true
-                        )
-                    }
-                }
-
-                when (uiState) {
-                    is IrDemoRenderUiState.Loading -> {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-                            colors = genUiCardColors(GenUiCardTone.Primary),
-                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 14.dp, vertical = 12.dp),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                CircularProgressIndicator(
-                                    strokeWidth = 2.dp,
-                                    modifier = Modifier.padding(top = 2.dp)
+                            if (record != null) {
+                                Text(
+                                    text = stringResource(id = R.string.ir_demo_query_prefix),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = uiState.message,
+                                    text = record.queryText,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
                     }
 
-                    is IrDemoRenderUiState.Failure -> {
+                    if (logs.isNotEmpty()) {
+                        item { IrDemoLogCard(logs = logs) }
+                    }
+                    item {
+                        IrDemoDebugCard(
+                            title = "Response",
+                            content = record?.responseText.orEmpty(),
+                            monospace = false
+                        )
+                    }
+                    if (!generatedIrJson.isNullOrBlank()) {
+                        item {
+                            IrDemoDebugCard(
+                                title = "Generated IR JSON",
+                                content = generatedIrJson,
+                                monospace = true
+                            )
+                        }
+                    }
+
+                    when (uiState) {
+                        is IrDemoRenderUiState.Loading -> {
+                            item { IrDemoLoadingCard(message = uiState.message) }
+                        }
+
+                        is IrDemoRenderUiState.Failure -> {
+                            item {
+                                Text(
+                                    text = uiState.message,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+
+                        is IrDemoRenderUiState.Success -> {
+                            if (uiState.result.warnings.isNotEmpty()) {
+                                item { IrDemoWarningCard(warnings = uiState.result.warnings) }
+                            }
+                            item {
+                                GenUiNativeRenderer.RenderInline(
+                                    result = uiState.result.renderResult,
+                                    sourceDir = null,
+                                    onOpenExternalUrl = onOpenExternalUrl,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                Column(
+                    modifier = backgroundModifier
+                        .padding(horizontal = horizontalPadding, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    if (session != null) {
                         Text(
-                            text = uiState.message,
+                            text = session.sourceLabel,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
-                    is IrDemoRenderUiState.Success -> {
-                        if (uiState.result.warnings.isNotEmpty()) {
-                            IrDemoWarningCard(warnings = uiState.result.warnings)
-                        }
-                        GenUiNativeRenderer.Render(
-                            result = uiState.result.renderResult,
-                            sourceDir = null,
-                            onOpenExternalUrl = onOpenExternalUrl,
-                            modifier = Modifier.weight(1f)
+                    if (record != null) {
+                        Text(
+                            text = stringResource(id = R.string.ir_demo_query_prefix),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.primary
                         )
+                        Text(
+                            text = record.queryText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    when (uiState) {
+                        is IrDemoRenderUiState.Loading -> {
+                            IrDemoLoadingCard(message = uiState.message)
+                        }
+
+                        is IrDemoRenderUiState.Failure -> {
+                            Text(
+                                text = uiState.message,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+
+                        is IrDemoRenderUiState.Success -> {
+                            if (uiState.result.warnings.isNotEmpty()) {
+                                IrDemoWarningCard(warnings = uiState.result.warnings)
+                            }
+                            GenUiNativeRenderer.Render(
+                                result = uiState.result.renderResult,
+                                sourceDir = null,
+                                onOpenExternalUrl = onOpenExternalUrl,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun IrDemoLoadingCard(message: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+        colors = genUiCardColors(GenUiCardTone.Primary),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            CircularProgressIndicator(
+                strokeWidth = 2.dp,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
