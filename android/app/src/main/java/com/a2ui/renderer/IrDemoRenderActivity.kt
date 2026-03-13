@@ -48,6 +48,16 @@ private sealed interface IrDemoRenderUiState {
     data class Failure(val message: String) : IrDemoRenderUiState
 }
 
+private object IrDemoRenderSessionCache {
+    var recordIndex: Int = -1
+    var debugMode: Boolean = false
+    var logs: List<String> = emptyList()
+    var generatedIrJson: String? = null
+    var successResult: GenUiStagePipeline.PipelineResult? = null
+    var loadingMessage: String? = null
+    var failureMessage: String? = null
+}
+
 class IrDemoRenderActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_RECORD_INDEX = "extra_record_index"
@@ -58,6 +68,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
     private var debugMode by mutableStateOf(false)
     private var pipelineLogs by mutableStateOf<List<String>>(emptyList())
     private var generatedIrJson by mutableStateOf<String?>(null)
+    private var currentRecordIndex: Int = -1
     private var uiState by mutableStateOf<IrDemoRenderUiState>(
         IrDemoRenderUiState.Loading(message = "")
     )
@@ -66,14 +77,19 @@ class IrDemoRenderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         applyOneUiWindowBlur()
         val index = intent.getIntExtra(EXTRA_RECORD_INDEX, -1)
+        currentRecordIndex = index
         session = IrDemoSessionStore.current()
         record = session?.records?.getOrNull(index)
 
         val selected = record
         if (selected == null) {
             uiState = IrDemoRenderUiState.Failure(getString(R.string.ir_demo_error_missing))
+            persistSessionCache()
         } else {
-            runStage3ForRecord(selected)
+            val restored = restoreFromSessionCache()
+            if (!restored) {
+                runStage3ForRecord(selected)
+            }
         }
 
         setContent {
@@ -85,9 +101,61 @@ class IrDemoRenderActivity : AppCompatActivity() {
                     logs = pipelineLogs,
                     debugMode = debugMode,
                     generatedIrJson = generatedIrJson,
-                    onDebugModeChange = { debugMode = it },
+                    onDebugModeChange = {
+                        debugMode = it
+                        persistSessionCache()
+                    },
                     onOpenExternalUrl = { openExternalUrl(it) }
                 )
+            }
+        }
+    }
+
+    private fun restoreFromSessionCache(): Boolean {
+        if (IrDemoRenderSessionCache.recordIndex != currentRecordIndex) {
+            return false
+        }
+
+        debugMode = IrDemoRenderSessionCache.debugMode
+        pipelineLogs = IrDemoRenderSessionCache.logs
+        generatedIrJson = IrDemoRenderSessionCache.generatedIrJson
+
+        IrDemoRenderSessionCache.successResult?.let {
+            uiState = IrDemoRenderUiState.Success(it)
+            return true
+        }
+        IrDemoRenderSessionCache.failureMessage?.takeIf { it.isNotBlank() }?.let {
+            uiState = IrDemoRenderUiState.Failure(it)
+            return true
+        }
+        IrDemoRenderSessionCache.loadingMessage?.takeIf { it.isNotBlank() }?.let {
+            uiState = IrDemoRenderUiState.Loading(it)
+        }
+        return false
+    }
+
+    private fun persistSessionCache() {
+        IrDemoRenderSessionCache.recordIndex = currentRecordIndex
+        IrDemoRenderSessionCache.debugMode = debugMode
+        IrDemoRenderSessionCache.logs = pipelineLogs
+        IrDemoRenderSessionCache.generatedIrJson = generatedIrJson
+        when (val state = uiState) {
+            is IrDemoRenderUiState.Success -> {
+                IrDemoRenderSessionCache.successResult = state.result
+                IrDemoRenderSessionCache.loadingMessage = null
+                IrDemoRenderSessionCache.failureMessage = null
+            }
+
+            is IrDemoRenderUiState.Loading -> {
+                IrDemoRenderSessionCache.successResult = null
+                IrDemoRenderSessionCache.loadingMessage = state.message
+                IrDemoRenderSessionCache.failureMessage = null
+            }
+
+            is IrDemoRenderUiState.Failure -> {
+                IrDemoRenderSessionCache.successResult = null
+                IrDemoRenderSessionCache.loadingMessage = null
+                IrDemoRenderSessionCache.failureMessage = state.message
             }
         }
     }
@@ -98,12 +166,15 @@ class IrDemoRenderActivity : AppCompatActivity() {
             return
         }
         pipelineLogs = pipelineLogs + sanitized
+        persistSessionCache()
     }
 
     private fun runStage3ForRecord(record: IrDemoRecord) {
         val pipeline = GenUiStagePipeline(this)
         generatedIrJson = null
         pipelineLogs = emptyList()
+        uiState = IrDemoRenderUiState.Loading(getString(R.string.ir_demo_status_initializing))
+        persistSessionCache()
         appendPipelineLog("IR demo started for ${record.queryId}")
         val provider = InferenceBackendSettings.getProvider(this)
         appendPipelineLog("Backend: ${provider.name.lowercase()}")
@@ -112,7 +183,6 @@ class IrDemoRenderActivity : AppCompatActivity() {
             appendPipelineLog("Local server URL: ${localUrl.ifBlank { "<empty>" }}")
         }
 
-        uiState = IrDemoRenderUiState.Loading(getString(R.string.ir_demo_status_initializing))
         lifecycleScope.launch {
             val outcome = pipeline.executeStage3FromResponse(
                 queryText = record.queryText,
@@ -125,6 +195,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
                     else -> update.message
                 }
                 uiState = IrDemoRenderUiState.Loading(message)
+                persistSessionCache()
             }
 
             uiState = when (outcome) {
@@ -170,6 +241,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
                     )
                 }
             }
+            persistSessionCache()
         }
     }
 
