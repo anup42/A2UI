@@ -93,6 +93,18 @@ class GenerateResponse(BaseModel):
     timings: dict[str, float]
 
 
+class SystemPromptCachePrimeRequest(BaseModel):
+    cache_key: str = Field(..., min_length=1)
+    system_prompt: str = Field(..., min_length=1)
+    model_path: str | None = None
+
+
+class SystemPromptCachePrimeResponse(BaseModel):
+    cache_key: str
+    cache_size: int
+    cached: bool
+
+
 class VllmGenerationEngine:
     def __init__(
         self,
@@ -277,20 +289,54 @@ class VllmGenerationEngine:
         existing = self._system_prompt_cache.get(key)
         if existing == prompt:
             self._system_prompt_cache.move_to_end(key)
+            LOGGER.info(
+                "System prompt cache reused existing key '%s' (size=%d).",
+                key,
+                len(self._system_prompt_cache)
+            )
             return
         self._system_prompt_cache[key] = prompt
         self._system_prompt_cache.move_to_end(key)
         while len(self._system_prompt_cache) > self._system_prompt_cache_max_entries:
             self._system_prompt_cache.popitem(last=False)
+        LOGGER.info(
+            "System prompt cache upserted key '%s' (chars=%d, size=%d).",
+            key,
+            len(prompt),
+            len(self._system_prompt_cache)
+        )
 
     def _get_system_prompt_cache(self, key: str) -> str | None:
         prompt = self._system_prompt_cache.get(key)
         if prompt is None:
             self._system_prompt_cache_misses += 1
+            LOGGER.warning(
+                "System prompt cache miss for key '%s' (hits=%d misses=%d).",
+                key,
+                self._system_prompt_cache_hits,
+                self._system_prompt_cache_misses
+            )
             return None
         self._system_prompt_cache.move_to_end(key)
         self._system_prompt_cache_hits += 1
+        LOGGER.info(
+            "System prompt cache hit for key '%s' (hits=%d misses=%d).",
+            key,
+            self._system_prompt_cache_hits,
+            self._system_prompt_cache_misses
+        )
         return prompt
+
+    async def prime_system_prompt_cache(self, cache_key: str, system_prompt: str) -> str:
+        normalized_key = self._normalize_cache_key(cache_key)
+        if normalized_key is None:
+            raise RuntimeError("cache_key is empty.")
+        normalized_prompt = system_prompt.strip()
+        if not normalized_prompt:
+            raise RuntimeError("system_prompt is empty.")
+        async with self._request_lock:
+            self._put_system_prompt_cache(normalized_key, normalized_prompt)
+        return normalized_key
 
     def _resolve_request_system_prompt(self, request: GenerateRequest) -> str:
         cache_key = self._normalize_cache_key(request.system_prompt_cache_key)
@@ -594,6 +640,28 @@ def create_app(engine: VllmGenerationEngine, lazy_load: bool) -> FastAPI:
                 "misses": engine.system_prompt_cache_misses
             }
         }
+
+    @app.post("/v1/cache/system_prompt", response_model=SystemPromptCachePrimeResponse)
+    async def cache_system_prompt(request: SystemPromptCachePrimeRequest) -> SystemPromptCachePrimeResponse:
+        LOGGER.info(
+            "System prompt cache prime requested. key=%s model_path=%s prompt_chars=%d",
+            request.cache_key,
+            request.model_path or "<default>",
+            len(request.system_prompt)
+        )
+        try:
+            cache_key = await engine.prime_system_prompt_cache(
+                cache_key=request.cache_key,
+                system_prompt=request.system_prompt
+            )
+            return SystemPromptCachePrimeResponse(
+                cache_key=cache_key,
+                cache_size=engine.system_prompt_cache_size,
+                cached=True
+            )
+        except Exception as exc:  # noqa: BLE001
+            LOGGER.exception("System prompt cache prime failed")
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     @app.post("/v1/generate", response_model=GenerateResponse)
     async def generate(request: GenerateRequest) -> GenerateResponse:
