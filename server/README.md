@@ -124,6 +124,16 @@ If you know your model context size, pass it explicitly for tighter control:
 python server_vllm.py --model-path /home/anup/models/Qwen2.5-Coder-7B-Instruct --max-model-len 32768
 ```
 To disable prefix KV caching (not recommended), add `--disable-prefix-caching`.
+To pre-prime Stage 3 system prompt cache before generation (so first generation call can be a cache hit), call:
+
+```bash
+curl -X POST http://127.0.0.1:8000/v1/cache/system_prompt \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cache_key": "stage3_ir_system_prompt_v1",
+    "system_prompt": "YOUR_STAGE3_SYSTEM_PROMPT"
+  }'
+```
 
 `server_vllm.py` supports additional sampling fields in requests:
 - `top_p` (default `0.95`)

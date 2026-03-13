@@ -212,7 +212,6 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
         val localStage3SystemPromptCacheKey = if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             buildLocalSystemPromptCacheKey(
-                model = localModelPath.ifBlank { selectedModel },
                 systemPrompt = promptContext.systemPrompt
             )
         } else {
@@ -258,6 +257,20 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
             }
         }
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            val primeError = ensureLocalSystemPromptCache(
+                localServerBaseUrl = localServerBaseUrl,
+                localModelPath = localModelPath,
+                cacheKey = localStage3SystemPromptCacheKey,
+                systemPrompt = promptContext.systemPrompt
+            )
+            if (primeError == null && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
+                warnings += "Local stage3 prompt cache primed."
+            } else if (!primeError.isNullOrBlank()) {
+                warnings += "Local stage3 prompt cache prime failed ($primeError)."
+            }
+        }
+        val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
@@ -277,7 +290,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             allowCachedContent = true,
             structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
             localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-            localSendSystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+            localSendSystemPrompt = localSendStage3SystemPrompt
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -313,7 +326,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 allowCachedContent = true,
                 structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
                 localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-                localSendSystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+                localSendSystemPrompt = localSendStage3SystemPrompt
             )
             markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
             if (repairCall.error == null) {
@@ -501,7 +514,6 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
         val localStage3SystemPromptCacheKey = if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             buildLocalSystemPromptCacheKey(
-                model = localModelPath.ifBlank { selectedModel },
                 systemPrompt = promptContext.systemPrompt
             )
         } else {
@@ -548,6 +560,20 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
             }
         }
+        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            val primeError = ensureLocalSystemPromptCache(
+                localServerBaseUrl = localServerBaseUrl,
+                localModelPath = localModelPath,
+                cacheKey = localStage3SystemPromptCacheKey,
+                systemPrompt = promptContext.systemPrompt
+            )
+            if (primeError == null && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
+                warnings += "Local stage3 prompt cache primed."
+            } else if (!primeError.isNullOrBlank()) {
+                warnings += "Local stage3 prompt cache prime failed ($primeError)."
+            }
+        }
+        val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
@@ -567,7 +593,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             allowCachedContent = true,
             structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
             localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-            localSendSystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+            localSendSystemPrompt = localSendStage3SystemPrompt
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -603,7 +629,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 allowCachedContent = true,
                 structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
                 localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-                localSendSystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
+                localSendSystemPrompt = localSendStage3SystemPrompt
             )
             markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
             if (repairCall.error == null) {
@@ -1793,7 +1819,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 addProperty("system_prompt_cache_key", localSystemPromptCacheKey)
             }
             addProperty("temperature", temperature)
-                addProperty("max_output_tokens", min(maxOutputTokens, 8192))
+            addProperty("max_output_tokens", min(maxOutputTokens, 8192))
             addProperty("json_mode", jsonMode)
             if (localModelPath.isNotBlank()) {
                 addProperty("model_path", localModelPath)
@@ -2118,12 +2144,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         return normalized.contains("system prompt cache miss for key")
     }
 
-    private fun buildLocalSystemPromptCacheKey(model: String, systemPrompt: String?): String? {
+    private fun buildLocalSystemPromptCacheKey(systemPrompt: String?): String? {
         if (systemPrompt.isNullOrBlank()) {
             return null
         }
-        val baseModel = model.trim().ifBlank { "default_model" }
-        return "stage3_${sha256Hex("$baseModel\n$systemPrompt").take(20)}"
+        return LOCAL_STAGE3_SYSTEM_PROMPT_CACHE_KEY
     }
 
     private fun shouldSendLocalSystemPrompt(cacheKey: String?): Boolean {
@@ -2141,6 +2166,66 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         synchronized(localSystemPromptCacheLock) {
             localReadySystemPromptCacheKeys += cacheKey
+        }
+    }
+
+    private fun ensureLocalSystemPromptCache(
+        localServerBaseUrl: String,
+        localModelPath: String,
+        cacheKey: String?,
+        systemPrompt: String?
+    ): String? {
+        val normalizedKey = cacheKey?.trim().orEmpty()
+        val normalizedPrompt = systemPrompt?.trim().orEmpty()
+        if (normalizedKey.isBlank() || normalizedPrompt.isBlank()) {
+            return null
+        }
+        if (!shouldSendLocalSystemPrompt(normalizedKey)) {
+            return null
+        }
+
+        val baseUrl = localServerBaseUrl.trim().trimEnd('/')
+        if (baseUrl.isBlank()) {
+            return "Local server URL is empty."
+        }
+
+        val endpoint = URL("$baseUrl/v1/cache/system_prompt")
+        val connection = (endpoint.openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = 5000
+            readTimeout = 30000
+            doOutput = true
+            setRequestProperty("Content-Type", "application/json")
+        }
+
+        val body = JsonObject().apply {
+            addProperty("cache_key", normalizedKey)
+            addProperty("system_prompt", normalizedPrompt)
+            if (localModelPath.isNotBlank()) {
+                addProperty("model_path", localModelPath)
+            }
+        }
+
+        return try {
+            connection.outputStream.use { out ->
+                out.write(gson.toJson(body).toByteArray(StandardCharsets.UTF_8))
+            }
+            val code = connection.responseCode
+            val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+            val raw = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+            if (code !in 200..299) {
+                val short = raw.trim().ifBlank { "HTTP $code" }
+                "HTTP $code: ${short.take(220)}"
+            } else {
+                markLocalSystemPromptCacheKeyReady(normalizedKey)
+                null
+            }
+        } catch (unknownHost: UnknownHostException) {
+            "Local server host is unreachable: ${unknownHost.message ?: "unknown host"}"
+        } catch (io: IOException) {
+            io.message ?: io.javaClass.simpleName
+        } finally {
+            connection.disconnect()
         }
     }
 
@@ -2404,6 +2489,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val CACHE_KEY_NAME = "stage3_cache_name"
         const val CACHE_KEY_EXPIRES_AT_MS = "stage3_cache_expires_at_ms"
         const val CACHE_EXPIRY_SAFETY_MS = 60_000L
+        const val LOCAL_STAGE3_SYSTEM_PROMPT_CACHE_KEY = "stage3_ir_system_prompt_v1"
         val HOST_LABEL_REGEX = Regex("""(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$""")
         val URL_TOKEN_REGEX = Regex(
             """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
