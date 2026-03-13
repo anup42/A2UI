@@ -137,6 +137,10 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
         IrDemoRenderSessionCache.successResult?.let {
             uiState = IrDemoRenderUiState.Success(it)
+            ensureIrGenerationTimingLog(
+                stageDurationsMs = it.stageDurationsMs,
+                stageStreamDurationsMs = it.stageStreamDurationsMs
+            )
             return true
         }
         IrDemoRenderSessionCache.failureMessage?.takeIf { it.isNotBlank() }?.let {
@@ -184,6 +188,38 @@ class IrDemoRenderActivity : AppCompatActivity() {
         persistSessionCache()
     }
 
+    private fun ensureIrGenerationTimingLog(
+        stageDurationsMs: Map<GenUiStagePipeline.Stage, Long>,
+        stageStreamDurationsMs: Map<GenUiStagePipeline.Stage, Long>,
+        fallbackDurationMs: Long? = null,
+        beforeFailure: Boolean = false
+    ) {
+        val alreadyLogged = pipelineLogs.any {
+            it.startsWith("IR generation time:", ignoreCase = true) ||
+                it.startsWith("IR generation time before failure:", ignoreCase = true)
+        }
+        if (alreadyLogged) {
+            return
+        }
+
+        val durationMs = stageDurationsMs[GenUiStagePipeline.Stage.STAGE3]
+            ?: fallbackDurationMs
+        val streamPart = stageStreamDurationsMs[GenUiStagePipeline.Stage.STAGE3]
+            ?.let { " (stream ${formatIrDemoDuration(it)})" }
+            .orEmpty()
+        val prefix = if (beforeFailure) {
+            "IR generation time before failure"
+        } else {
+            "IR generation time"
+        }
+        val value = if (durationMs != null && durationMs > 0L) {
+            "${formatIrDemoDuration(durationMs)}$streamPart"
+        } else {
+            "unavailable"
+        }
+        appendPipelineLog("$prefix: $value")
+    }
+
     private fun runStage3ForRecord(record: IrDemoRecord) {
         val pipeline = GenUiStagePipeline(this)
         val queryText = decodeIrDemoQueryText(record.queryText)
@@ -191,6 +227,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
         pipelineLogs = emptyList()
         uiState = IrDemoRenderUiState.Loading(getString(R.string.ir_demo_status_initializing))
         persistSessionCache()
+        val runStartedAtMs = System.currentTimeMillis()
         appendPipelineLog("IR demo started for ${record.queryId}")
         val provider = InferenceBackendSettings.getIrProvider(this)
         appendPipelineLog("IR backend: ${provider.name.lowercase()}")
@@ -217,12 +254,11 @@ class IrDemoRenderActivity : AppCompatActivity() {
             uiState = when (outcome) {
                 is GenUiStagePipeline.Outcome.Success -> {
                     generatedIrJson = outcome.result.stage3Json
-                    outcome.result.stageDurationsMs[GenUiStagePipeline.Stage.STAGE3]?.let { durationMs ->
-                        val streamPart = outcome.result.stageStreamDurationsMs[GenUiStagePipeline.Stage.STAGE3]
-                            ?.let { " (stream ${formatIrDemoDuration(it)})" }
-                            .orEmpty()
-                        appendPipelineLog("IR generation time: ${formatIrDemoDuration(durationMs)}$streamPart")
-                    }
+                    ensureIrGenerationTimingLog(
+                        stageDurationsMs = outcome.result.stageDurationsMs,
+                        stageStreamDurationsMs = outcome.result.stageStreamDurationsMs,
+                        fallbackDurationMs = System.currentTimeMillis() - runStartedAtMs
+                    )
                     appendPipelineLog("Pipeline completed successfully.")
                     if (outcome.result.warnings.isNotEmpty()) {
                         outcome.result.warnings.forEach { warning ->
@@ -234,12 +270,12 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
                 is GenUiStagePipeline.Outcome.Failure -> {
                     generatedIrJson = outcome.stage3Json
-                    outcome.stageDurationsMs[GenUiStagePipeline.Stage.STAGE3]?.let { durationMs ->
-                        val streamPart = outcome.stageStreamDurationsMs[GenUiStagePipeline.Stage.STAGE3]
-                            ?.let { " (stream ${formatIrDemoDuration(it)})" }
-                            .orEmpty()
-                        appendPipelineLog("IR generation time before failure: ${formatIrDemoDuration(durationMs)}$streamPart")
-                    }
+                    ensureIrGenerationTimingLog(
+                        stageDurationsMs = outcome.stageDurationsMs,
+                        stageStreamDurationsMs = outcome.stageStreamDurationsMs,
+                        fallbackDurationMs = System.currentTimeMillis() - runStartedAtMs,
+                        beforeFailure = true
+                    )
                     appendPipelineLog("Pipeline failed.")
                     appendPipelineLog("Error: ${outcome.message}")
                     if (!outcome.stage2Response.isNullOrBlank()) {
