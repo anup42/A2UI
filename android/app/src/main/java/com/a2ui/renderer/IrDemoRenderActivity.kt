@@ -13,12 +13,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -98,7 +95,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
         if (sanitized.isBlank()) {
             return
         }
-        pipelineLogs = (pipelineLogs + sanitized).takeLast(40)
+        pipelineLogs = pipelineLogs + sanitized
     }
 
     private fun runStage3ForRecord(record: IrDemoRecord) {
@@ -379,10 +376,7 @@ private fun IrDemoDebugCard(
                     fontFamily = if (monospace) FontFamily.Monospace else FontFamily.Default
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 260.dp)
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -416,7 +410,6 @@ private fun IrDemoWarningCard(warnings: List<String>) {
 
 @Composable
 private fun IrDemoLogCard(logs: List<String>) {
-    val recent = if (logs.size <= 12) logs else logs.takeLast(12)
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(GenUiTokens.RadiusLg),
@@ -435,7 +428,7 @@ private fun IrDemoLogCard(logs: List<String>) {
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurface
             )
-            recent.forEach { line ->
+            logs.forEach { line ->
                 Text(
                     text = line,
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),

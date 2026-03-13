@@ -68,7 +68,7 @@
     <string name="ir_demo_response_prefix">Response</string>
     <string name="ir_demo_render_title">IR Render</string>
     <string name="ir_demo_status_initializing">Preparing selected response...</string>
-    <string name="ir_demo_status_stage3">Converting selected response to GenUI IR JSON...</string>
+    <string name="ir_demo_status_stage3">Converting to GenUI IR Json...</string>
     <string name="ir_demo_status_stage4">Rendering converted IR...</string>
     <string name="ir_demo_error_missing">Selected IR demo item is unavailable. Go back and choose again.</string>
     <string name="ir_demo_error_load">Could not load default IR demo dataset: %1$s</string>
