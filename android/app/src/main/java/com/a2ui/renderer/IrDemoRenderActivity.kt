@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -23,6 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -52,7 +56,9 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
     private var session by mutableStateOf<IrDemoSessionStore.Session?>(null)
     private var record by mutableStateOf<IrDemoRecord?>(null)
+    private var debugMode by mutableStateOf(false)
     private var pipelineLogs by mutableStateOf<List<String>>(emptyList())
+    private var generatedIrJson by mutableStateOf<String?>(null)
     private var uiState by mutableStateOf<IrDemoRenderUiState>(
         IrDemoRenderUiState.Loading(message = "")
     )
@@ -78,6 +84,9 @@ class IrDemoRenderActivity : AppCompatActivity() {
                     record = record,
                     uiState = uiState,
                     logs = pipelineLogs,
+                    debugMode = debugMode,
+                    generatedIrJson = generatedIrJson,
+                    onDebugModeChange = { debugMode = it },
                     onOpenExternalUrl = { openExternalUrl(it) }
                 )
             }
@@ -94,6 +103,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
     private fun runStage3ForRecord(record: IrDemoRecord) {
         val pipeline = GenUiStagePipeline(this)
+        generatedIrJson = null
         pipelineLogs = emptyList()
         appendPipelineLog("IR demo started for ${record.queryId}")
         val provider = InferenceBackendSettings.getProvider(this)
@@ -109,7 +119,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
                 queryText = record.queryText,
                 stage2ResponseText = record.responseText
             ) { update ->
-                appendPipelineLog("Stage ${update.stage.name.removePrefix("STAGE")}: ${update.message}")
+                appendPipelineLog(update.message)
                 val message = when (update.stage) {
                     GenUiStagePipeline.Stage.STAGE3 -> getString(R.string.ir_demo_status_stage3)
                     GenUiStagePipeline.Stage.STAGE4 -> getString(R.string.ir_demo_status_stage4)
@@ -120,6 +130,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
             uiState = when (outcome) {
                 is GenUiStagePipeline.Outcome.Success -> {
+                    generatedIrJson = outcome.result.stage3Json
                     appendPipelineLog("Pipeline completed successfully.")
                     if (outcome.result.warnings.isNotEmpty()) {
                         outcome.result.warnings.forEach { warning ->
@@ -130,21 +141,21 @@ class IrDemoRenderActivity : AppCompatActivity() {
                 }
 
                 is GenUiStagePipeline.Outcome.Failure -> {
-                    val stageName = outcome.stage.name.removePrefix("STAGE")
-                    appendPipelineLog("Pipeline failed at stage $stageName.")
+                    generatedIrJson = outcome.stage3Json
+                    appendPipelineLog("Pipeline failed.")
                     appendPipelineLog("Error: ${outcome.message}")
                     if (!outcome.stage2Response.isNullOrBlank()) {
                         appendPipelineLog(
-                            "Stage2 preview: ${previewIrDemoLog(outcome.stage2Response)}"
+                            "Response preview: ${previewIrDemoLog(outcome.stage2Response)}"
                         )
                     }
                     if (!outcome.stage3Json.isNullOrBlank()) {
                         appendPipelineLog(
-                            "Stage3 JSON preview: ${previewIrDemoLog(outcome.stage3Json)}"
+                            "IR JSON preview: ${previewIrDemoLog(outcome.stage3Json)}"
                         )
                     }
                     IrDemoRenderUiState.Failure(
-                        getString(R.string.ir_demo_error_failed, stageName, outcome.message)
+                        outcome.message
                     )
                 }
             }
@@ -168,6 +179,9 @@ private fun IrDemoRenderScreen(
     record: IrDemoRecord?,
     uiState: IrDemoRenderUiState,
     logs: List<String>,
+    debugMode: Boolean,
+    generatedIrJson: String?,
+    onDebugModeChange: (Boolean) -> Unit,
     onOpenExternalUrl: (String) -> Unit
 ) {
     val deviceConfig = rememberDeviceUiConfig()
@@ -189,6 +203,23 @@ private fun IrDemoRenderScreen(
                         text = topBarTitle,
                         style = MaterialTheme.typography.headlineSmall
                     )
+                },
+                actions = {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 6.dp)
+                    ) {
+                        Text(
+                            text = "Debug",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Switch(
+                            checked = debugMode,
+                            onCheckedChange = onDebugModeChange
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = genUiTopBarContainerColor(),
@@ -231,8 +262,23 @@ private fun IrDemoRenderScreen(
                     )
                 }
 
-                if (logs.isNotEmpty()) {
+                if (debugMode && logs.isNotEmpty()) {
                     IrDemoLogCard(logs = logs)
+                }
+
+                if (debugMode) {
+                    IrDemoDebugCard(
+                        title = "Response",
+                        content = record?.responseText.orEmpty(),
+                        monospace = false
+                    )
+                    if (!generatedIrJson.isNullOrBlank()) {
+                        IrDemoDebugCard(
+                            title = "Generated IR JSON",
+                            content = generatedIrJson,
+                            monospace = true
+                        )
+                    }
                 }
 
                 when (uiState) {
@@ -284,6 +330,48 @@ private fun IrDemoRenderScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun IrDemoDebugCard(
+    title: String,
+    content: String,
+    monospace: Boolean
+) {
+    if (content.isBlank()) {
+        return
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = if (monospace) FontFamily.Monospace else FontFamily.Default
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 260.dp)
+                    .verticalScroll(rememberScrollState())
+            )
         }
     }
 }
@@ -348,6 +436,7 @@ private fun IrDemoLogCard(logs: List<String>) {
 
 private fun sanitizeIrDemoLogText(value: String): String {
     return value
+        .replace(Regex("""(?i)\bstage\s*[34]\b\s*[:\-]?\s*"""), "")
         .replace('\n', ' ')
         .replace(Regex("""\s{2,}"""), " ")
         .trim()
