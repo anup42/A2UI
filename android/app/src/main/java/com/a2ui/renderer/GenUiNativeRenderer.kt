@@ -391,6 +391,7 @@ object GenUiNativeRenderer {
             "Text" -> RenderTextComponent(component, sourceDir, onOpenExternalUrl)
             "Image" -> RenderImageComponent(component, sourceDir)
             "Icon" -> RenderIconComponent(component, sourceDir)
+            "Table" -> RenderTableComponent(component)
             "Divider" -> HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             "Button" -> RenderButtonComponent(component, index, sourceDir, onOpenExternalUrl)
             "Tabs" -> RenderTabsComponent(component, index, sourceDir, onOpenExternalUrl, nextPath)
@@ -1784,6 +1785,44 @@ object GenUiNativeRenderer {
                 }
             }
         }
+    }
+
+    @Composable
+    private fun RenderTableComponent(component: JsonObject) {
+        val columns = component.getAsJsonArrayOrNull("columns") ?: return
+        if (columns.size() == 0) {
+            return
+        }
+
+        val headers = mutableListOf<String>()
+        val columnValues = mutableListOf<List<String>>()
+        columns.forEach { columnElement ->
+            val column = columnElement.asJsonObjectOrNull() ?: return@forEach
+            headers += readDynamicString(column.get("header")).trim()
+            val values = (column.getAsJsonArrayOrNull("data")
+                ?: column.getAsJsonArrayOrNull("values")
+                ?: JsonArray()).map { value ->
+                readDynamicString(value).trim()
+            }
+            columnValues += values
+        }
+
+        if (headers.isEmpty()) {
+            return
+        }
+
+        val rowCount = columnValues.maxOfOrNull { it.size } ?: 0
+        if (rowCount == 0) {
+            return
+        }
+
+        val rows = mutableListOf<List<String>>()
+        rows += headers
+        repeat(rowCount) { rowIndex ->
+            rows += columnValues.map { values -> values.getOrNull(rowIndex).orEmpty() }
+        }
+
+        RenderTextTable(rows)
     }
 
     @Composable
@@ -5242,20 +5281,113 @@ object GenUiNativeRenderer {
     }
 
     private fun normalizeComponents(components: JsonArray, warnings: MutableList<String>): List<JsonObject> {
-        val normalized = mutableListOf<JsonObject>()
-        components.forEach { element ->
-            val raw = element.asJsonObjectOrNull() ?: return@forEach
-            if (raw.hasString("component")) {
-                normalized += raw
-                return@forEach
-            }
+        val normalizedById = linkedMapOf<String, JsonObject>()
+        var generatedIdCounter = 0
 
-            val converted = convertV08Component(raw, warnings)
-            if (converted != null) {
-                normalized += converted
+        fun nextGeneratedId(prefix: String): String {
+            generatedIdCounter += 1
+            return "${prefix}_${generatedIdCounter}"
+        }
+
+        fun addNode(node: JsonObject) {
+            val id = node.getString("id") ?: return
+            if (!normalizedById.containsKey(id)) {
+                normalizedById[id] = node
             }
         }
-        return normalized
+
+        fun canonicalComponentType(rawType: String?): String? {
+            val token = rawType?.trim()?.lowercase(Locale.US) ?: return null
+            return when (token) {
+                "column" -> "Column"
+                "row" -> "Row"
+                "list" -> "List"
+                "card" -> "Card"
+                "text" -> "Text"
+                "image" -> "Image"
+                "icon" -> "Icon"
+                "table" -> "Table"
+                "button" -> "Button"
+                "tabs", "tab", "tabgroup" -> "Tabs"
+                "divider" -> "Divider"
+                else -> rawType?.trim()
+            }
+        }
+
+        fun normalizeSingleComponent(raw: JsonObject): JsonObject? {
+            val out = if (raw.hasString("component")) {
+                raw.deepCopy().asJsonObject
+            } else {
+                convertV08Component(raw, warnings)?.deepCopy()?.asJsonObject ?: return null
+            }
+
+            val canonicalType = canonicalComponentType(out.getString("component"))
+            if (!canonicalType.isNullOrBlank()) {
+                out.addProperty("component", canonicalType)
+            }
+
+            if (!out.hasString("id")) {
+                val prefix = canonicalType?.lowercase(Locale.US)?.ifBlank { "component" } ?: "component"
+                out.addProperty("id", nextGeneratedId(prefix))
+            }
+
+            fun normalizeChildElement(child: JsonElement): String? {
+                if (child.isJsonPrimitive && child.asJsonPrimitive.isString) {
+                    return child.asString.trim().takeIf { it.isNotBlank() }
+                }
+                if (!child.isJsonObject) {
+                    return null
+                }
+                val normalizedChild = normalizeSingleComponent(child.asJsonObject) ?: return null
+                val childId = normalizedChild.getString("id") ?: return null
+                addNode(normalizedChild)
+                return childId
+            }
+
+            out.get("child")?.let { child ->
+                if (child.isJsonObject) {
+                    val childId = normalizeChildElement(child)
+                    if (!childId.isNullOrBlank()) {
+                        out.addProperty("child", childId)
+                    } else {
+                        out.remove("child")
+                    }
+                }
+            }
+
+            out.get("children")?.let { children ->
+                val childIds = JsonArray()
+                when {
+                    children.isJsonPrimitive && children.asJsonPrimitive.isString -> {
+                        normalizeChildElement(children)?.let { childIds.add(it) }
+                    }
+
+                    children.isJsonArray -> {
+                        children.asJsonArray.forEach { child ->
+                            normalizeChildElement(child)?.let { childIds.add(it) }
+                        }
+                    }
+
+                    children.isJsonObject -> {
+                        val explicit = children.asJsonObject.getAsJsonArrayOrNull("explicitList")
+                        explicit?.forEach { child ->
+                            normalizeChildElement(child)?.let { childIds.add(it) }
+                        }
+                    }
+                }
+                out.add("children", childIds)
+            }
+
+            return out
+        }
+
+        components.forEach { element ->
+            val raw = element.asJsonObjectOrNull() ?: return@forEach
+            val normalized = normalizeSingleComponent(raw) ?: return@forEach
+            addNode(normalized)
+        }
+
+        return normalizedById.values.toList()
     }
 
     private fun convertV08Component(raw: JsonObject, warnings: MutableList<String>): JsonObject? {
