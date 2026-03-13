@@ -192,8 +192,8 @@ class IrDemoRenderActivity : AppCompatActivity() {
         uiState = IrDemoRenderUiState.Loading(getString(R.string.ir_demo_status_initializing))
         persistSessionCache()
         appendPipelineLog("IR demo started for ${record.queryId}")
-        val provider = InferenceBackendSettings.getProvider(this)
-        appendPipelineLog("Backend: ${provider.name.lowercase()}")
+        val provider = InferenceBackendSettings.getIrProvider(this)
+        appendPipelineLog("IR backend: ${provider.name.lowercase()}")
         if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             val localUrl = InferenceBackendSettings.getLocalServerBaseUrl(this)
             appendPipelineLog("Local server URL: ${localUrl.ifBlank { "<empty>" }}")

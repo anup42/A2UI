@@ -83,34 +83,61 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        val provider = InferenceBackendSettings.getProvider(appContext)
+        val responseProvider = InferenceBackendSettings.getResponseProvider(appContext)
+        val irProvider = InferenceBackendSettings.getIrProvider(appContext)
         val responseModel = GeminiModelSettings.getResponseModel(appContext)
         val irModel = GeminiModelSettings.getIrModel(appContext)
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
-        val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
-        val stage2MaxOutputTokens = if (isLocalServer) LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS else STAGE2_MAX_OUTPUT_TOKENS
-        val stage3MaxOutputTokens = if (isLocalServer) LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS else STAGE3_MAX_OUTPUT_TOKENS
+        val stage2MaxOutputTokens = if (responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS
+        } else {
+            STAGE2_MAX_OUTPUT_TOKENS
+        }
+        val stage3MaxOutputTokens = if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS
+        } else {
+            STAGE3_MAX_OUTPUT_TOKENS
+        }
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
 
-        val apiKey = if (provider == InferenceBackendSettings.Provider.GEMINI) {
+        val responseApiKey = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
             BuildConfig.GEMINI_API_KEY.trim()
         } else {
             ""
         }
-        if (provider == InferenceBackendSettings.Provider.GEMINI && apiKey.isBlank()) {
+        val irApiKey = if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
+            BuildConfig.GEMINI_API_KEY.trim()
+        } else {
+            ""
+        }
+        if (responseProvider == InferenceBackendSettings.Provider.GEMINI && responseApiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
                 message = "Gemini API key is missing. Set GEMINI_API_KEY before building the app."
             )
         }
-        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && localServerBaseUrl.isBlank()) {
+        if (irProvider == InferenceBackendSettings.Provider.GEMINI && irApiKey.isBlank()) {
             return@withContext Outcome.Failure(
-                stage = Stage.STAGE2,
+                stage = Stage.STAGE3,
+                message = "Gemini API key is missing. Set GEMINI_API_KEY before building the app."
+            )
+        }
+        if ((responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER ||
+                irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) &&
+            localServerBaseUrl.isBlank()
+        ) {
+            val failureStage = if (responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+                Stage.STAGE2
+            } else {
+                Stage.STAGE3
+            }
+            return@withContext Outcome.Failure(
+                stage = failureStage,
                 message = "Local server URL is missing. Open Settings and configure Local Server."
             )
         }
-        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+        if (responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             postUpdate(onStageUpdate, Stage.STAGE2, "Checking local server connectivity")
             val health = checkLocalServerHealth(localServerBaseUrl)
             if (health != null) {
@@ -144,10 +171,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         val promptContext = prepareStage3PromptContext(genUiTemplate)
-        val stage3CacheDeferred = if (provider == InferenceBackendSettings.Provider.GEMINI) {
+        val stage3CacheDeferred = if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
             async(Dispatchers.IO) {
                 ensureStage3InstructionCache(
-                    apiKey = apiKey,
+                    apiKey = irApiKey,
                     model = irModel,
                     systemPrompt = promptContext.systemPrompt
                 )
@@ -159,8 +186,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         postUpdate(onStageUpdate, Stage.STAGE2, "Fetching response")
         val stage2StartedAtMs = System.currentTimeMillis()
         val stage2Call = generateWithRetry(
-            provider = provider,
-            apiKey = apiKey,
+            provider = responseProvider,
+            apiKey = responseApiKey,
             model = responseModel,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
@@ -169,7 +196,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             temperature = 0.3,
             maxOutputTokens = stage2MaxOutputTokens,
             jsonMode = false,
-            enableGoogleSearch = provider == InferenceBackendSettings.Provider.GEMINI,
+            enableGoogleSearch = responseProvider == InferenceBackendSettings.Provider.GEMINI,
             allowCachedContent = false,
             structuredOutput = false
         )
@@ -212,7 +239,22 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = stage2Response,
             assets = emptyList()
         )
-        val localStage3SystemPromptCacheKey = if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+        if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER &&
+            responseProvider != InferenceBackendSettings.Provider.LOCAL_SERVER
+        ) {
+            postUpdate(onStageUpdate, Stage.STAGE3, "Checking local server connectivity")
+            val health = checkLocalServerHealth(localServerBaseUrl)
+            if (health != null) {
+                return@withContext Outcome.Failure(
+                    stage = Stage.STAGE3,
+                    message = health,
+                    stageDurationsMs = stageDurationsMs.toMap(),
+                    stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+                )
+            }
+        }
+
+        val localStage3SystemPromptCacheKey = if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             buildLocalSystemPromptCacheKey(
                 systemPrompt = promptContext.systemPrompt
             )
@@ -220,13 +262,21 @@ class GenUiStagePipeline(private val appContext: Context) {
             null
         }
         val warnings = mutableListOf<String>()
-        if (provider == InferenceBackendSettings.Provider.GEMINI) {
+        warnings += "Response backend: ${responseProvider.rawValue}"
+        warnings += "IR backend: ${irProvider.rawValue}"
+        if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini response model: $responseModel"
+        } else {
+            warnings += "Local server (response): $localServerBaseUrl"
+            warnings += "Local model path (response): $localModelPath"
+            warnings += "Local token cap (response): stage2=$stage2MaxOutputTokens"
+        }
+        if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini IR model: $irModel"
         } else {
-            warnings += "Using local server: $localServerBaseUrl"
-            warnings += "Local model path: $localModelPath"
-            warnings += "Local token caps: stage2=$stage2MaxOutputTokens, stage3=$stage3MaxOutputTokens"
+            warnings += "Local server (IR): $localServerBaseUrl"
+            warnings += "Local model path (IR): $localModelPath"
+            warnings += "Local token cap (IR): stage3=$stage3MaxOutputTokens"
             if (!localStage3SystemPromptCacheKey.isNullOrBlank()) {
                 warnings += "Local stage3 prompt cache key: ${localStage3SystemPromptCacheKey.take(16)}..."
             }
@@ -249,7 +299,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             CacheSetupResult(name = null, created = false, error = null)
         }
-        if (provider == InferenceBackendSettings.Provider.GEMINI) {
+        if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
             if (stage3Cache.name != null && !stage3Cache.created) {
                 warnings += "Stage 3 instruction cache hit."
             }
@@ -260,7 +310,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Stage 3 instruction cache unavailable ($it). Using direct prompt."
             }
         }
-        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+        if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             val primeResult = ensureLocalSystemPromptCache(
                 localServerBaseUrl = localServerBaseUrl,
                 localModelPath = localModelPath,
@@ -284,7 +334,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             }
         }
         val localSendStage3SystemPrompt = shouldSendLocalSystemPrompt(localStage3SystemPromptCacheKey)
-        if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
+        if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER && !localStage3SystemPromptCacheKey.isNullOrBlank()) {
             warnings += if (localSendStage3SystemPrompt) {
                 "Local stage3 KV prefix cache miss path (system_prompt sent)."
             } else {
@@ -295,8 +345,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
         val stage3Call = generateWithRetry(
-            provider = provider,
-            apiKey = apiKey,
+            provider = irProvider,
+            apiKey = irApiKey,
             model = irModel,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
@@ -308,7 +358,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
             allowCachedContent = true,
-            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+            structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI,
             localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
             localSendSystemPrompt = localSendStage3SystemPrompt
         )
@@ -331,8 +381,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (stage3JsonElement == null) {
             warnings += "Stage 3 JSON parse failed; running repair pass."
             val repairCall = generateWithRetry(
-                provider = provider,
-                apiKey = apiKey,
+                provider = irProvider,
+                apiKey = irApiKey,
                 model = irModel,
                 localServerBaseUrl = localServerBaseUrl,
                 localModelPath = localModelPath,
@@ -344,7 +394,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 enableGoogleSearch = false,
                 cachedContentName = stage3Cache.name,
                 allowCachedContent = true,
-                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+                structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI,
                 localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
                 localSendSystemPrompt = localSendStage3SystemPrompt
             )
@@ -451,7 +501,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        val provider = InferenceBackendSettings.getProvider(appContext)
+        val provider = InferenceBackendSettings.getIrProvider(appContext)
         val irModel = GeminiModelSettings.getIrModel(appContext)
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)

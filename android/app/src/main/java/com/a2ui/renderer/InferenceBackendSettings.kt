@@ -5,6 +5,8 @@ import android.content.Context
 object InferenceBackendSettings {
     private const val PREFS_NAME = "inference_backend_settings"
     private const val KEY_PROVIDER = "provider"
+    private const val KEY_RESPONSE_PROVIDER = "response_provider"
+    private const val KEY_IR_PROVIDER = "ir_provider"
     private const val KEY_LOCAL_SERVER_BASE_URL = "local_server_base_url"
     private const val KEY_LOCAL_MODEL_PATH = "local_model_path"
 
@@ -24,14 +26,46 @@ object InferenceBackendSettings {
     }
 
     fun getProvider(context: Context): Provider {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return Provider.fromRawValue(prefs.getString(KEY_PROVIDER, Provider.GEMINI.rawValue))
+        return getResponseProvider(context)
     }
 
     fun setProvider(context: Context, provider: Provider) {
+        setResponseProvider(context, provider)
+        setIrProvider(context, provider)
+    }
+
+    fun getResponseProvider(context: Context): Provider {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val responseRaw = prefs.getString(KEY_RESPONSE_PROVIDER, null)
+        if (!responseRaw.isNullOrBlank()) {
+            return Provider.fromRawValue(responseRaw)
+        }
+        val legacy = prefs.getString(KEY_PROVIDER, Provider.GEMINI.rawValue)
+        return Provider.fromRawValue(legacy)
+    }
+
+    fun setResponseProvider(context: Context, provider: Provider) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
+            .putString(KEY_RESPONSE_PROVIDER, provider.rawValue)
             .putString(KEY_PROVIDER, provider.rawValue)
+            .apply()
+    }
+
+    fun getIrProvider(context: Context): Provider {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val irRaw = prefs.getString(KEY_IR_PROVIDER, null)
+        if (!irRaw.isNullOrBlank()) {
+            return Provider.fromRawValue(irRaw)
+        }
+        val legacy = prefs.getString(KEY_PROVIDER, Provider.GEMINI.rawValue)
+        return Provider.fromRawValue(legacy)
+    }
+
+    fun setIrProvider(context: Context, provider: Provider) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_IR_PROVIDER, provider.rawValue)
             .apply()
     }
 
