@@ -84,8 +84,11 @@ private fun SettingsScreen(
     var selectedProvider by remember {
         mutableStateOf(InferenceBackendSettings.getProvider(context))
     }
-    var selectedModel by remember {
-        mutableStateOf(GeminiModelSettings.getSelectedModel(context))
+    var selectedResponseModel by remember {
+        mutableStateOf(GeminiModelSettings.getResponseModel(context))
+    }
+    var selectedIrModel by remember {
+        mutableStateOf(GeminiModelSettings.getIrModel(context))
     }
     var localServerBaseUrl by remember {
         mutableStateOf(InferenceBackendSettings.getLocalServerBaseUrl(context))
@@ -94,7 +97,7 @@ private fun SettingsScreen(
         mutableStateOf(InferenceBackendSettings.getLocalModelPath(context))
     }
     var availableModels by remember {
-        mutableStateOf(defaultModelOptions(selectedModel))
+        mutableStateOf(defaultModelOptions(selectedResponseModel, selectedIrModel))
     }
     var loading by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
@@ -103,14 +106,14 @@ private fun SettingsScreen(
         if (selectedProvider != InferenceBackendSettings.Provider.GEMINI) {
             loading = false
             errorText = null
-            availableModels = defaultModelOptions(selectedModel)
+            availableModels = defaultModelOptions(selectedResponseModel, selectedIrModel)
             return
         }
         if (loading) return
         val apiKey = BuildConfig.GEMINI_API_KEY.trim()
         if (apiKey.isBlank()) {
             errorText = context.getString(R.string.settings_model_api_key_missing)
-            availableModels = defaultModelOptions(selectedModel)
+            availableModels = defaultModelOptions(selectedResponseModel, selectedIrModel)
             return
         }
 
@@ -121,11 +124,11 @@ private fun SettingsScreen(
             }
             if (result.isSuccess) {
                 val models = result.getOrNull().orEmpty()
-                availableModels = mergeSelectedModel(models, selectedModel)
+                availableModels = mergeSelectedModels(models, selectedResponseModel, selectedIrModel)
                 errorText = null
             } else {
                 errorText = result.exceptionOrNull()?.message ?: context.getString(R.string.settings_model_fetch_failed)
-                availableModels = defaultModelOptions(selectedModel)
+                availableModels = defaultModelOptions(selectedResponseModel, selectedIrModel)
             }
             loading = false
         }
@@ -316,7 +319,12 @@ private fun SettingsScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = selectedModel,
+                                    text = "${stringResource(id = R.string.settings_model_response_title)}: $selectedResponseModel",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "${stringResource(id = R.string.settings_model_ir_title)}: $selectedIrModel",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -363,19 +371,19 @@ private fun SettingsScreen(
 
                     item {
                         Text(
-                            text = stringResource(id = R.string.settings_model_available),
+                            text = stringResource(id = R.string.settings_model_response_title),
                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
-                    items(availableModels, key = { it }) { model ->
+                    items(availableModels, key = { "response_$it" }) { model ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    selectedModel = model
-                                    GeminiModelSettings.setSelectedModel(context, model)
+                                    selectedResponseModel = model
+                                    GeminiModelSettings.setResponseModel(context, model)
                                 },
                             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                             colors = genUiCardColors(GenUiCardTone.Neutral),
@@ -390,10 +398,68 @@ private fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
-                                    selected = model == selectedModel,
+                                    selected = model == selectedResponseModel,
                                     onClick = {
-                                        selectedModel = model
-                                        GeminiModelSettings.setSelectedModel(context, model)
+                                        selectedResponseModel = model
+                                        GeminiModelSettings.setResponseModel(context, model)
+                                    }
+                                )
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = model,
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "models/$model",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.settings_model_ir_title),
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    items(availableModels, key = { "ir_$it" }) { model ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedIrModel = model
+                                    GeminiModelSettings.setIrModel(context, model)
+                                },
+                            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                            colors = genUiCardColors(GenUiCardTone.Neutral),
+                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = model == selectedIrModel,
+                                    onClick = {
+                                        selectedIrModel = model
+                                        GeminiModelSettings.setIrModel(context, model)
                                     }
                                 )
                                 Column(
@@ -430,7 +496,7 @@ private fun SettingsScreen(
     }
 }
 
-private fun defaultModelOptions(selectedModel: String): List<String> {
+private fun defaultModelOptions(selectedResponseModel: String, selectedIrModel: String): List<String> {
     val defaults = listOf(
         "gemini-2.5-pro",
         "gemini-2.5-flash",
@@ -441,17 +507,24 @@ private fun defaultModelOptions(selectedModel: String): List<String> {
         "gemini-flash-latest",
         "gemini-flash-lite-latest"
     )
-    return mergeSelectedModel(defaults, selectedModel)
+    return mergeSelectedModels(defaults, selectedResponseModel, selectedIrModel)
 }
 
-private fun mergeSelectedModel(models: List<String>, selectedModel: String): List<String> {
+private fun mergeSelectedModels(
+    models: List<String>,
+    selectedResponseModel: String,
+    selectedIrModel: String
+): List<String> {
     val normalized = models
         .map { GeminiModelSettings.normalizeModelName(it) }
         .filter { it.isNotBlank() }
         .distinct()
         .toMutableList()
-    if (normalized.none { it == selectedModel }) {
-        normalized.add(0, selectedModel)
+    if (selectedResponseModel.isNotBlank() && normalized.none { it == selectedResponseModel }) {
+        normalized.add(0, selectedResponseModel)
+    }
+    if (selectedIrModel.isNotBlank() && normalized.none { it == selectedIrModel }) {
+        normalized.add(0, selectedIrModel)
     }
     return normalized
 }

@@ -84,7 +84,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         val provider = InferenceBackendSettings.getProvider(appContext)
-        val selectedModel = GeminiModelSettings.getSelectedModel(appContext)
+        val responseModel = GeminiModelSettings.getResponseModel(appContext)
+        val irModel = GeminiModelSettings.getIrModel(appContext)
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
         val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
@@ -147,7 +148,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             async(Dispatchers.IO) {
                 ensureStage3InstructionCache(
                     apiKey = apiKey,
-                    model = selectedModel,
+                    model = irModel,
                     systemPrompt = promptContext.systemPrompt
                 )
             }
@@ -160,7 +161,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage2Call = generateWithRetry(
             provider = provider,
             apiKey = apiKey,
-            model = selectedModel,
+            model = responseModel,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
             prompt = stage2Prompt,
@@ -220,7 +221,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         val warnings = mutableListOf<String>()
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
-            warnings += "Using Gemini model: $selectedModel"
+            warnings += "Gemini response model: $responseModel"
+            warnings += "Gemini IR model: $irModel"
         } else {
             warnings += "Using local server: $localServerBaseUrl"
             warnings += "Local model path: $localModelPath"
@@ -295,7 +297,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3Call = generateWithRetry(
             provider = provider,
             apiKey = apiKey,
-            model = selectedModel,
+            model = irModel,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
             prompt = stage3Prompt,
@@ -331,7 +333,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             val repairCall = generateWithRetry(
                 provider = provider,
                 apiKey = apiKey,
-                model = selectedModel,
+                model = irModel,
                 localServerBaseUrl = localServerBaseUrl,
                 localModelPath = localModelPath,
                 prompt = buildRepairPrompt(stage3Call.text),
@@ -450,7 +452,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         val provider = InferenceBackendSettings.getProvider(appContext)
-        val selectedModel = GeminiModelSettings.getSelectedModel(appContext)
+        val irModel = GeminiModelSettings.getIrModel(appContext)
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
         val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
@@ -505,7 +507,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             async(Dispatchers.IO) {
                 ensureStage3InstructionCache(
                     apiKey = apiKey,
-                    model = selectedModel,
+                    model = irModel,
                     systemPrompt = promptContext.systemPrompt
                 )
             }
@@ -540,7 +542,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val warnings = mutableListOf<String>()
         warnings += "Using preloaded IR demo response (stage 2 skipped)."
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
-            warnings += "Using Gemini model: $selectedModel"
+            warnings += "Gemini IR model: $irModel"
         } else {
             warnings += "Using local server: $localServerBaseUrl"
             warnings += "Local model path: $localModelPath"
@@ -615,7 +617,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3Call = generateWithRetry(
             provider = provider,
             apiKey = apiKey,
-            model = selectedModel,
+            model = irModel,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
             prompt = stage3Prompt,
@@ -651,7 +653,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             val repairCall = generateWithRetry(
                 provider = provider,
                 apiKey = apiKey,
-                model = selectedModel,
+                model = irModel,
                 localServerBaseUrl = localServerBaseUrl,
                 localModelPath = localModelPath,
                 prompt = buildRepairPrompt(stage3Call.text),

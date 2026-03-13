@@ -17,7 +17,9 @@
     <string name="settings_local_model_path_label">Model path</string>
     <string name="settings_local_server_hint">Use 10.0.2.2 for emulator access to a server running on your computer.</string>
     <string name="settings_model_title">Gemini Model</string>
-    <string name="settings_model_description">This model is used for response generation and GenUICraft IR conversion stages.</string>
+    <string name="settings_model_description">Choose separate Gemini models for response generation and GenUICraft IR conversion.</string>
+    <string name="settings_model_response_title">Response model</string>
+    <string name="settings_model_ir_title">IR generation model</string>
     <string name="settings_model_available">Available models</string>
     <string name="settings_model_loading">Fetching available Gemini models...</string>
     <string name="settings_model_fetch_failed">Could not fetch Gemini models.</string>
