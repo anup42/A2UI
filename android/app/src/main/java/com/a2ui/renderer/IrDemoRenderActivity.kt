@@ -131,6 +131,12 @@ class IrDemoRenderActivity : AppCompatActivity() {
             uiState = when (outcome) {
                 is GenUiStagePipeline.Outcome.Success -> {
                     generatedIrJson = outcome.result.stage3Json
+                    outcome.result.stageDurationsMs[GenUiStagePipeline.Stage.STAGE3]?.let { durationMs ->
+                        val streamPart = outcome.result.stageStreamDurationsMs[GenUiStagePipeline.Stage.STAGE3]
+                            ?.let { " (stream ${formatIrDemoDuration(it)})" }
+                            .orEmpty()
+                        appendPipelineLog("IR generation time: ${formatIrDemoDuration(durationMs)}$streamPart")
+                    }
                     appendPipelineLog("Pipeline completed successfully.")
                     if (outcome.result.warnings.isNotEmpty()) {
                         outcome.result.warnings.forEach { warning ->
@@ -142,6 +148,12 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
                 is GenUiStagePipeline.Outcome.Failure -> {
                     generatedIrJson = outcome.stage3Json
+                    outcome.stageDurationsMs[GenUiStagePipeline.Stage.STAGE3]?.let { durationMs ->
+                        val streamPart = outcome.stageStreamDurationsMs[GenUiStagePipeline.Stage.STAGE3]
+                            ?.let { " (stream ${formatIrDemoDuration(it)})" }
+                            .orEmpty()
+                        appendPipelineLog("IR generation time before failure: ${formatIrDemoDuration(durationMs)}$streamPart")
+                    }
                     appendPipelineLog("Pipeline failed.")
                     appendPipelineLog("Error: ${outcome.message}")
                     if (!outcome.stage2Response.isNullOrBlank()) {
@@ -444,4 +456,13 @@ private fun sanitizeIrDemoLogText(value: String): String {
 
 private fun previewIrDemoLog(value: String): String {
     return sanitizeIrDemoLogText(value).take(240)
+}
+
+private fun formatIrDemoDuration(durationMs: Long): String {
+    if (durationMs < 60_000L) {
+        return String.format(java.util.Locale.US, "%.1fs", durationMs / 1000.0)
+    }
+    val minutes = durationMs / 60_000L
+    val seconds = (durationMs % 60_000L) / 1000L
+    return "${minutes}m ${seconds}s"
 }
