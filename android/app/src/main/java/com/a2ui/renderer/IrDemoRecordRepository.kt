@@ -11,6 +11,8 @@ object IrDemoRecordRepository {
     private const val KEY_RECORDS_JSON = "records_json"
     private const val KEY_INITIALIZED = "initialized"
     private const val TAG = "IrDemoRecordRepo"
+    private const val MAX_SAVED_RESPONSE_CHARS = 120_000
+    private const val MAX_RECORDS = 200
 
     fun ensureInitialized(context: Context, defaultRecords: List<IrDemoRecord>): List<IrDemoRecord> {
         val existing = load(context)
@@ -62,8 +64,8 @@ object IrDemoRecordRepository {
         queryText: String,
         responseText: String
     ): IrDemoRecord? {
-        val normalizedQuery = queryText.trim()
-        val normalizedResponse = responseText.trim()
+        val normalizedQuery = decodeIrDemoQueryText(queryText)
+        val normalizedResponse = responseText.trim().take(MAX_SAVED_RESPONSE_CHARS)
         if (normalizedQuery.isBlank() || normalizedResponse.isBlank()) {
             return null
         }
@@ -77,6 +79,9 @@ object IrDemoRecordRepository {
         )
         val updated = mutableListOf(record)
         updated += load(context).orEmpty()
+        if (updated.size > MAX_RECORDS) {
+            updated.subList(MAX_RECORDS, updated.size).clear()
+        }
         save(context, updated)
         return record
     }
@@ -89,7 +94,7 @@ object IrDemoRecordRepository {
         return root.asJsonArray.mapNotNull { element ->
             val obj = element.takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
             val queryId = obj.getString("query_id")?.trim().orEmpty()
-            val queryText = obj.getString("query_text")?.trim().orEmpty()
+            val queryText = decodeIrDemoQueryText(obj.getString("query_text").orEmpty())
             val responseText = obj.getString("response_text")?.trim().orEmpty()
             if (queryId.isBlank() || queryText.isBlank() || responseText.isBlank()) {
                 return@mapNotNull null
@@ -108,4 +113,3 @@ object IrDemoRecordRepository {
         return if (value.isJsonPrimitive && value.asJsonPrimitive.isString) value.asString else null
     }
 }
-

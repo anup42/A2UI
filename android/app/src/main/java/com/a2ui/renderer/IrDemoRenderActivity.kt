@@ -186,6 +186,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
     private fun runStage3ForRecord(record: IrDemoRecord) {
         val pipeline = GenUiStagePipeline(this)
+        val queryText = decodeIrDemoQueryText(record.queryText)
         generatedIrJson = null
         pipelineLogs = emptyList()
         uiState = IrDemoRenderUiState.Loading(getString(R.string.ir_demo_status_initializing))
@@ -200,7 +201,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val outcome = pipeline.executeStage3FromResponse(
-                queryText = record.queryText,
+                queryText = queryText,
                 stage2ResponseText = record.responseText
             ) { update ->
                 appendPipelineLog(update.message)
@@ -357,7 +358,7 @@ private fun IrDemoRenderScreen(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = record.queryText,
+                                    text = decodeIrDemoQueryText(record.queryText),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 3,
@@ -438,7 +439,7 @@ private fun IrDemoRenderScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = record.queryText,
+                            text = decodeIrDemoQueryText(record.queryText),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 3,

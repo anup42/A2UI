@@ -256,7 +256,7 @@ private fun IrDemoItemCard(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = record.queryText,
+                    text = decodeIrDemoQueryText(record.queryText),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,

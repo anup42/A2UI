@@ -285,22 +285,31 @@ private fun GenUiAssistantScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                val savedRecord = IrDemoRecordRepository.addSavedResponse(
-                                    context = context.applicationContext,
-                                    queryText = currentQuery.orEmpty(),
-                                    responseText = stage2Text.orEmpty()
-                                )
-                                if (savedRecord != null) {
-                                    IrDemoSessionStore.current()?.let { currentSession ->
+                                runCatching {
+                                    val savedRecord = IrDemoRecordRepository.addSavedResponse(
+                                        context = context.applicationContext,
+                                        queryText = currentQuery.orEmpty(),
+                                        responseText = stage2Text.orEmpty()
+                                    )
+                                    if (savedRecord != null) {
+                                        val refreshed = IrDemoRecordRepository.load(context.applicationContext).orEmpty()
+                                        val sourceLabel = IrDemoSessionStore.current()?.sourceLabel
+                                            ?: context.getString(R.string.ir_demo_source)
                                         IrDemoSessionStore.update(
-                                            sourceLabel = currentSession.sourceLabel,
-                                            records = listOf(savedRecord) + currentSession.records
+                                            sourceLabel = sourceLabel,
+                                            records = refreshed
+                                        )
+                                        currentStatus = "Saved response to IR Demo"
+                                        logs += AssistantLogItem(
+                                            title = "Saved",
+                                            content = "Added current response to IR Demo list."
                                         )
                                     }
-                                    currentStatus = "Saved response to IR Demo"
+                                }.onFailure { error ->
+                                    errorText = "Failed to save response: ${error.message ?: error.javaClass.simpleName}"
                                     logs += AssistantLogItem(
-                                        title = "Saved",
-                                        content = "Added current response to IR Demo list."
+                                        title = "Save error",
+                                        content = errorText.orEmpty()
                                     )
                                 }
                             },

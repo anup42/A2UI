@@ -14,7 +14,7 @@ object IrDemoRecordLoader {
             .mapNotNull { element ->
                 val obj = element.asJsonObjectOrNull() ?: return@mapNotNull null
                 val queryId = obj.getString("query_id")?.trim().orEmpty()
-                val queryText = obj.getString("query_text")?.trim().orEmpty()
+                val queryText = decodeIrDemoQueryText(obj.getString("query_text").orEmpty())
                 if (queryId.isBlank() || queryText.isBlank()) {
                     null
                 } else {
@@ -58,4 +58,3 @@ object IrDemoRecordLoader {
         return if (value.isJsonPrimitive && value.asJsonPrimitive.isString) value.asString else null
     }
 }
-
