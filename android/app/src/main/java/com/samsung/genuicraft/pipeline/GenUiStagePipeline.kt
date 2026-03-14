@@ -158,9 +158,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val stage2Prompt = renderPrompt(
             responseTemplate,
-            "query_text" to normalizedQuery,
-            "intent" to "",
-            "tags" to ""
+            "query_text" to normalizedQuery
         )
 
         val genUiTemplate = runCatching { loadPromptAsset(STAGE3_PROMPT_ASSET) }

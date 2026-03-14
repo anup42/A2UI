@@ -364,8 +364,6 @@ def main() -> int:
         stage2_template,
         {
             "query_text": args.query.strip(),
-            "intent": "",
-            "tags": "",
         },
     )
 

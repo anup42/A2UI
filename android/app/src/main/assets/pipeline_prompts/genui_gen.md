@@ -59,7 +59,8 @@ Structural quality requirements (strict):
     4) CTA button(s)
   - If both image and icon exist, image should be primary visual and icon should be supporting visual (badge/chip/leading icon).
   - Never leave `Media:` marker text inside a Text component when Image/Icon components can be emitted.
-- Remove non-semantic markdown markers from rendered text content ("###", "|", "[ ]", "[Button: ...]"), but preserve real bullet list semantics when present.
+- Preserve semantic markdown formatting markers in Text when they carry intent (`#` heading prefixes, `**bold**`, `_italic_`, and backticks) so renderer can style them.
+- Still remove non-semantic artifacts ("|", "[ ]", "[Button: ...]") when structured components can be emitted.
 - Drop generic boilerplate headings like "Information Context" or "Background Information" when they only introduce long explanatory text that duplicates the actual comparison/table content.
 - Avoid duplicate lines across table rows/cards; keep each row/card concise and non-redundant.
 - Prefer robust decomposition for rich responses (target roughly 30-60 components when content is long enough), while keeping hierarchy valid and non-dangling.

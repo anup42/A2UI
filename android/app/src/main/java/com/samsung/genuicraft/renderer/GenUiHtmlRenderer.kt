@@ -63,7 +63,7 @@ object GenUiHtmlRenderer {
     private val LEADING_LABEL_REGEX =
         Regex("""^\s*([•\-*]\s*)?([^:;：；\n]{1,70}?)([:;：；])\s*(.+)$""")
     private val INLINE_LABEL_REGEX =
-        Regex("""([\p{L}\p{N}][\p{L}\p{N}/&()' .-]{0,84})([:;：；])""")
+        Regex("""(?:^|(?<=[.!?)]\s)|(?<=[\u2022\-]\s))([\p{L}\p{N}][\p{L}\p{N}/&()' -]{0,84}?)([:;\uFF1A\uFF1B])""")
 
     fun render(rawInput: String, sourceDir: File? = null): RenderResult {
         val warnings = mutableListOf<String>()
@@ -1277,24 +1277,42 @@ object GenUiHtmlRenderer {
         val out = StringBuilder()
         val lines = text.split('\n')
         lines.forEachIndexed { lineIndex, line ->
-            var cursor = 0
-            INLINE_LABEL_REGEX.findAll(line).forEach { match ->
-                val label = match.groups[1]?.value?.trim().orEmpty()
-                val start = match.range.first
-                val valueText = line.substring(match.range.last + 1).trimStart()
-                if (valueText.isEmpty() ||
-                    !isLikelyLeadingLabel(label, valueText) ||
-                    !isSentenceBoundary(line, start)
-                ) {
-                    return@forEach
+            val ranges = mutableListOf<IntRange>()
+            if (line.trim().isNotEmpty() && !URL_REGEX.containsMatchIn(line)) {
+                INLINE_LABEL_REGEX.findAll(line).forEach { match ->
+                    val label = match.groups[1]?.value?.trim().orEmpty()
+                    val labelStart = match.groups[1]?.range?.first ?: match.range.first
+                    val delimiterEnd = match.groups[2]?.range?.last ?: match.range.last
+                    val valueText = line.substring(delimiterEnd + 1).trimStart()
+                    if (valueText.isEmpty() ||
+                        !isLikelyLeadingLabel(label, valueText) ||
+                        !isSentenceBoundary(line, labelStart)
+                    ) {
+                        return@forEach
+                    }
+                    ranges += labelStart..delimiterEnd
                 }
-                out.append(line.substring(cursor, start))
-                out.append("<strong>")
-                out.append(line.substring(start, match.range.last + 1))
-                out.append("</strong>")
-                cursor = match.range.last + 1
             }
-            out.append(line.substring(cursor))
+
+            if (ranges.isEmpty()) {
+                out.append(line)
+            } else {
+                var cursor = 0
+                ranges
+                    .sortedBy { it.first }
+                    .forEach { range ->
+                        if (range.first < cursor) {
+                            return@forEach
+                        }
+                        out.append(line.substring(cursor, range.first))
+                        out.append("<strong>")
+                        out.append(line.substring(range.first, range.last + 1))
+                        out.append("</strong>")
+                        cursor = range.last + 1
+                    }
+                out.append(line.substring(cursor))
+            }
+
             if (lineIndex != lines.lastIndex) {
                 out.append('\n')
             }

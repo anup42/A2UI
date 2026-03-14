@@ -1,0 +1,328 @@
+package com.samsung.genuicraft.renderer.native.intents.flight
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FlightTakeoff
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.samsung.genuicraft.GenUiCardTone
+import com.samsung.genuicraft.GenUiTokens
+import com.samsung.genuicraft.genUiCardBorderColor
+import com.samsung.genuicraft.genUiCardColors
+import com.samsung.genuicraft.genUiCardContainerColor
+import com.samsung.genuicraft.renderer.native.FlightRow
+import com.samsung.genuicraft.renderer.native.NativeTextFormatter
+
+internal object NativeFlightUiRenderer {
+    @Composable
+    fun RenderFlightRows(rows: List<FlightRow>) {
+        if (rows.isEmpty()) {
+            return
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            rows.forEach { row ->
+                val airline = sanitize(row.airline)
+                val fare = sanitize(row.fare.orEmpty()).ifBlank { null }
+                val (fareValue, fareMeta) = NativeFlightSemantics.splitFareDisplay(fare)
+                val depart = sanitize(row.depart.orEmpty()).ifBlank { null }
+                val arrive = sanitize(row.arrive.orEmpty()).ifBlank { null }
+                val originCode = sanitize(row.originCode.orEmpty())
+                    .ifBlank { NativeFlightSemantics.extractAirportCode(depart.orEmpty()).orEmpty() }
+                    .ifBlank { null }
+                val destinationCode = sanitize(row.destinationCode.orEmpty())
+                    .ifBlank { NativeFlightSemantics.extractAirportCode(arrive.orEmpty()).orEmpty() }
+                    .ifBlank { null }
+                val departPoint = NativeFlightSemantics.parseFlightPoint(depart, originCode)
+                val arrivePoint = NativeFlightSemantics.parseFlightPoint(arrive, destinationCode)
+                val departDisplay = departPoint.time ?: departPoint.code ?: depart
+                val arriveDisplay = arrivePoint.time ?: arrivePoint.code ?: arrive
+                val duration = NativeFlightSemantics.normalizeDurationLabel(row.duration)
+                val stopLabel = NativeFlightSemantics.normalizeStopLabel(row.stops, row.status, depart, arrive)
+                val statusLabel = NativeFlightSemantics.normalizeFlightStatus(row.status, stopLabel)
+                val topStatus = statusLabel?.takeIf { NativeFlightSemantics.looksLikePunctualityStatus(it) }
+                val arrivalStatus = statusLabel?.takeUnless { NativeFlightSemantics.looksLikePunctualityStatus(it) }
+                val centerMeta = stopLabel ?: arrivalStatus?.takeIf { it.length <= 22 }
+                val promoMeta = arrivalStatus?.takeIf { it.length > 22 }
+                val hasTimeRow = departDisplay != null || arriveDisplay != null || duration != null
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                    colors = genUiCardColors(GenUiCardTone.Neutral),
+                    elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                AirlineBadge(airline = airline)
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text(
+                                        text = airline,
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    topStatus?.let { statusValue ->
+                                        Text(
+                                            text = statusValue,
+                                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                            if (fareValue != null) {
+                                Column(
+                                    modifier = Modifier.sizeIn(minWidth = 84.dp),
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = fareValue,
+                                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        textAlign = TextAlign.End
+                                    )
+                                    fareMeta?.let { fareSuffix ->
+                                        Text(
+                                            text = fareSuffix,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        if (hasTimeRow) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                FlightTimeCell(
+                                    title = departDisplay,
+                                    subtitle = departPoint.code,
+                                    align = TextAlign.Start,
+                                    modifier = Modifier.weight(1f),
+                                    emphasis = true
+                                )
+                                Column(
+                                    modifier = Modifier.weight(1.1f),
+                                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    duration?.let { durationValue ->
+                                        Text(
+                                            text = durationValue,
+                                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 2.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        HorizontalDivider(
+                                            modifier = Modifier.weight(1f),
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
+                                        )
+                                        Icon(
+                                            imageVector = Icons.Filled.FlightTakeoff,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        HorizontalDivider(
+                                            modifier = Modifier.weight(1f),
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
+                                        )
+                                    }
+                                    centerMeta?.let { meta ->
+                                        FlightMetaChip(meta)
+                                    }
+                                }
+                                FlightTimeCell(
+                                    title = arriveDisplay,
+                                    subtitle = arrivePoint.code,
+                                    align = TextAlign.End,
+                                    modifier = Modifier.weight(1f),
+                                    emphasis = true
+                                )
+                            }
+                            promoMeta?.let { promo ->
+                                Text(
+                                    text = promo,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        } else {
+                            val meta = listOfNotNull(stopLabel, arrivalStatus, fareValue, fareMeta)
+                            if (meta.isNotEmpty()) {
+                                Text(
+                                    text = meta.joinToString(" | "),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun AirlineBadge(airline: String) {
+        val accent = airlineAccentColor(airline)
+        val code = NativeFlightSemantics.airlineBadgeCode(airline)
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(accent.copy(alpha = 0.18f))
+                .border(
+                    width = GenUiTokens.BorderMd,
+                    color = accent.copy(alpha = 0.45f),
+                    shape = RoundedCornerShape(10.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.FlightTakeoff,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(15.dp)
+            )
+            if (code.isNotBlank()) {
+                Text(
+                    text = code,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = accent,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 1.dp)
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun FlightMetaChip(text: String) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+                .border(
+                    width = GenUiTokens.BorderMd,
+                    color = genUiCardBorderColor(),
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill)
+                )
+                .padding(horizontal = 8.dp, vertical = 3.dp)
+        )
+    }
+
+    @Composable
+    private fun FlightTimeCell(
+        title: String?,
+        subtitle: String?,
+        align: TextAlign,
+        modifier: Modifier = Modifier,
+        emphasis: Boolean = false
+    ) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalAlignment = when (align) {
+                TextAlign.End -> Alignment.End
+                TextAlign.Center -> Alignment.CenterHorizontally
+                else -> Alignment.Start
+            }
+        ) {
+            if (!title.isNullOrBlank()) {
+                Text(
+                    text = title,
+                    style = if (emphasis) {
+                        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    } else {
+                        MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold)
+                    },
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = align
+                )
+            }
+            if (!subtitle.isNullOrBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = align
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun airlineAccentColor(airline: String): Color {
+        val normalized = NativeFlightSemantics.normalizeMatchText(airline)
+        return when {
+            normalized.contains("indigo") -> Color(0xFF3F51B5)
+            normalized.contains("akasa") -> Color(0xFF6D1B7B)
+            normalized.contains("air india express") -> Color(0xFFE53935)
+            normalized == "air india" || normalized.startsWith("air india ") -> Color(0xFFD32F2F)
+            normalized.contains("vistara") -> Color(0xFF6A1B9A)
+            normalized.contains("spicejet") -> Color(0xFFD84315)
+            normalized.contains("emirates") -> Color(0xFFB71C1C)
+            else -> MaterialTheme.colorScheme.primary
+        }
+    }
+
+    private fun sanitize(value: String): String = NativeTextFormatter.sanitizeDisplayText(value)
+}

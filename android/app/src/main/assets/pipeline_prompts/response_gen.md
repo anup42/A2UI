@@ -1,16 +1,7 @@
-# response_gen_v9_heading_specific
+﻿# response_gen_v9_heading_specific
 
 You are generating a high-quality, complete, single-turn response to the user query below.
 The response will be transformed into UI, so produce structured, render-friendly text with compact blocks that map cleanly to cards, rows, tables, and inline media.
-
-Intent:
-{intent}
-
-Tags:
-{tags}
-
-Query:
-{query_text}
 
 Core rules:
 1) Provide a complete answer in one turn. Do not ask follow-up questions.
@@ -24,16 +15,13 @@ Core rules:
    Never include literal tokens such as "EXAMPLE", "SAMPLE", "ILLUSTRATIVE", or "DEMO" in headings or body text.
 7) Do not include process/meta narration in output headings or body.
    Do not write lines such as "Accessing live data", "Fetching data", "Retrieving information", "Searching web", or similar.
-8) Output plain text only. Avoid markdown emphasis markers such as `**bold**`, `_italic_`, or backtick code formatting.
-9) Do not use markdown heading prefixes or decoration such as `#`, `##`, `###`, or numbered markdown headings for section titles.
-10) Bulleted lists are allowed in body content when they improve readability. Use `- ` or `• ` for list items (no nesting).
+8) Bulleted lists are allowed in body content when they improve readability. Use `- ` or `â€¢ ` for list items (no nesting).
 
 Required response shape (headings are mandatory, but must be meaningful and topic-specific):
 - Section 1: topic-specific overview heading (for instance: "January Climate Snapshot", "Best Options for SFO Rental")
-- Section 2: assumptions/context heading if needed (for instance: "Context and Assumptions", "What This Comparison Assumes")
-- Section 3: topic-specific main content heading (for instance: "Bangkok vs Hanoi: January Comparison", "Ranked Options")
-- Section 4: Quick Actions (only if useful)
-- Section 5: Sources (only if useful)
+- Section 2: topic-specific main content heading (for instance: "Bangkok vs Hanoi: January Comparison", "Ranked Options")
+- Section 3: Quick Actions (only if useful)
+- Section 4: Sources (only if useful)
 
 Heading quality rules (strict):
 - Never use generic section titles: "Summary", "Assumptions", "Structured Details".
@@ -137,4 +125,4 @@ Output protocol (must follow):
 - If asked for multiple responses to one query, return a JSON array of strings.
 - Otherwise, return plain text only.
 
-Now generate the response.
+Now generate the response for user query {query_text}.
