@@ -36,6 +36,22 @@ object GenUiHtmlRenderer {
         val iconLike: Boolean
     )
 
+    private data class ChoiceOption(
+        val label: String,
+        val value: String
+    )
+
+    private enum class ComponentActionKind {
+        OpenUrl,
+        ShowMessage,
+        ShowSurface
+    }
+
+    private data class ComponentAction(
+        val kind: ComponentActionKind,
+        val value: String
+    )
+
     private data class BookingOption(
         val title: String,
         val details: String,
@@ -149,6 +165,13 @@ object GenUiHtmlRenderer {
         messages.forEach { element ->
             val message = element.asJsonObjectOrNull() ?: return@forEach
 
+            if (message.getAsJsonObjectOrNull("updateDataModel") != null) {
+                warnings += "Ignored updateDataModel message (render-only pipeline)."
+            }
+            if (message.getAsJsonObjectOrNull("deleteSurface") != null) {
+                warnings += "Ignored deleteSurface message (render-only pipeline)."
+            }
+
             message.getAsJsonObjectOrNull("createSurface")?.let { createSurface ->
                 val surfaceId = createSurface.getString("surfaceId")
                 if (surfaceId != null) {
@@ -250,20 +273,28 @@ object GenUiHtmlRenderer {
                 }
 
                 val action = payload?.getAsJsonObjectOrNull("action")
-                val name = action?.getString("name")
-                if (!name.isNullOrBlank()) {
-                    val fn = JsonObject()
-                    fn.addProperty("call", name)
-                    val args = JsonObject()
-                    action.getAsJsonArrayOrNull("context")?.forEach { ctx ->
-                        val ctxObj = ctx.asJsonObjectOrNull() ?: return@forEach
-                        val key = ctxObj.getString("key") ?: return@forEach
-                        ctxObj.get("value")?.let { args.add(key, it) }
+                if (action != null) {
+                    val hasModernAction = action.getAsJsonObjectOrNull("functionCall") != null ||
+                        action.get("event") != null
+                    if (hasModernAction) {
+                        out.add("action", action.deepCopy())
+                    } else {
+                        val name = action.getString("name")
+                        if (!name.isNullOrBlank()) {
+                            val fn = JsonObject()
+                            fn.addProperty("call", name)
+                            val args = JsonObject()
+                            action.getAsJsonArrayOrNull("context")?.forEach { ctx ->
+                                val ctxObj = ctx.asJsonObjectOrNull() ?: return@forEach
+                                val key = ctxObj.getString("key") ?: return@forEach
+                                ctxObj.get("value")?.let { args.add(key, it) }
+                            }
+                            fn.add("args", args)
+                            val actionOut = JsonObject()
+                            actionOut.add("functionCall", fn)
+                            out.add("action", actionOut)
+                        }
                     }
-                    fn.add("args", args)
-                    val actionOut = JsonObject()
-                    actionOut.add("functionCall", fn)
-                    out.add("action", actionOut)
                 }
             }
 
@@ -356,17 +387,31 @@ object GenUiHtmlRenderer {
             "Text" -> renderText(component, sourceDir)
             "Image" -> renderImage(component, sourceDir, className = "image")
             "Icon" -> renderImage(component, sourceDir, className = "icon")
+            "Video" -> renderVideo(component, sourceDir)
+            "AudioPlayer" -> renderAudioPlayer(component, sourceDir)
             "Divider" -> "<hr class=\"divider\" />"
             "Button" -> renderButton(component, index, sourceDir)
             "Tabs" -> renderTabs(component, index, sourceDir, activePath, warnings)
+            "Modal" -> renderModal(component, index, sourceDir, activePath, warnings)
+            "TextField" -> renderTextField(component)
+            "CheckBox" -> renderCheckBox(component)
+            "ChoicePicker" -> renderChoicePicker(component)
+            "Slider" -> renderSlider(component)
+            "DateTimeInput" -> renderDateTimeInput(component)
             else -> {
                 warnings += "Unsupported component type: $type"
                 "<div class=\"warning\">Unsupported component: ${escapeHtml(type)}</div>"
             }
         }
 
+        val withAction = applyComponentActionWrapper(
+            component = component,
+            renderedHtml = rendered,
+            sourceDir = sourceDir,
+            warnings = warnings
+        )
         activePath.remove(id)
-        return rendered
+        return withAction
     }
 
     private fun renderContainer(
@@ -1428,6 +1473,158 @@ object GenUiHtmlRenderer {
         return """<img class="$imageClass" src="${escapeAttr(resolved)}" alt="$className" />"""
     }
 
+    private fun renderVideo(component: JsonObject, sourceDir: File?): String {
+        val raw = readDynamicString(component.get("url")).trim()
+        if (raw.isBlank()) {
+            return "<div class=\"warning\">Missing video source</div>"
+        }
+        val resolved = resolveAssetUrl(raw, sourceDir)
+        return """
+            <div class="media-player-wrap">
+              <video class="media-player video-player" controls preload="metadata" src="${escapeAttr(resolved)}"></video>
+              <a class="inline-link" href="${escapeAttr(resolved)}" target="_blank" rel="noopener noreferrer">Open video</a>
+            </div>
+        """.trimIndent()
+    }
+
+    private fun renderAudioPlayer(component: JsonObject, sourceDir: File?): String {
+        val raw = readDynamicString(component.get("url")).trim()
+        if (raw.isBlank()) {
+            return "<div class=\"warning\">Missing audio source</div>"
+        }
+        val resolved = resolveAssetUrl(raw, sourceDir)
+        val description = escapeHtml(sanitizeDisplayText(readDynamicString(component.get("description"))))
+        val title = if (description.isBlank()) "" else "<p class=\"rich-paragraph\">$description</p>"
+        return """
+            <div class="media-player-wrap">
+              $title
+              <audio class="media-player audio-player" controls preload="metadata" src="${escapeAttr(resolved)}"></audio>
+              <a class="inline-link" href="${escapeAttr(resolved)}" target="_blank" rel="noopener noreferrer">Open audio</a>
+            </div>
+        """.trimIndent()
+    }
+
+    private fun renderModal(
+        component: JsonObject,
+        index: Map<String, JsonObject>,
+        sourceDir: File?,
+        activePath: MutableSet<String>,
+        warnings: MutableList<String>
+    ): String {
+        val triggerId = component.getString("trigger")
+        val contentId = component.getString("content")
+        val summary = escapeHtml(resolveComponentLabel(triggerId, index).ifBlank { "Open details" })
+        val contentHtml = if (contentId.isNullOrBlank()) {
+            "<div class=\"warning\">Missing modal content</div>"
+        } else {
+            renderComponent(contentId, index, sourceDir, activePath, warnings)
+        }
+        return """
+            <details class="modal-box">
+              <summary class="modal-trigger">$summary</summary>
+              <div class="modal-content">$contentHtml</div>
+            </details>
+        """.trimIndent()
+    }
+
+    private fun renderTextField(component: JsonObject): String {
+        val label = escapeHtml(sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Input" })
+        val value = escapeAttr(readDynamicString(component.get("value")))
+        val variant = (component.getString("variant") ?: "shortText").lowercase(Locale.US)
+        return when {
+            variant.contains("longtext") -> """
+                <label class="input-block">
+                  <span class="input-label">$label</span>
+                  <textarea class="text-area" rows="4">$value</textarea>
+                </label>
+            """.trimIndent()
+            else -> {
+                val inputType = when {
+                    variant.contains("number") -> "number"
+                    variant.contains("obscured") -> "password"
+                    else -> "text"
+                }
+                """
+                <label class="input-block">
+                  <span class="input-label">$label</span>
+                  <input class="text-input" type="$inputType" value="$value" />
+                </label>
+                """.trimIndent()
+            }
+        }
+    }
+
+    private fun renderCheckBox(component: JsonObject): String {
+        val label = escapeHtml(sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Option" })
+        val checked = component.get("value")?.asBooleanOrNull()
+            ?: parseBooleanLike(readDynamicString(component.get("value")))
+            ?: false
+        val checkedAttr = if (checked) " checked" else ""
+        return """<label class="check-row"><input type="checkbox"$checkedAttr /><span>$label</span></label>"""
+    }
+
+    private fun renderChoicePicker(component: JsonObject): String {
+        val componentId = component.getString("id").orEmpty()
+        val label = escapeHtml(sanitizeDisplayText(readDynamicString(component.get("label"))))
+        val options = readChoiceOptions(component)
+        if (options.isEmpty()) {
+            return "<div class=\"warning\">ChoicePicker has no options</div>"
+        }
+
+        val multiple = (component.getString("variant") ?: "mutuallyExclusive")
+            .lowercase(Locale.US)
+            .contains("multiple")
+        val selected = readDynamicStringList(component.get("value")).toSet()
+        val head = if (label.isBlank()) "" else "<p class=\"input-label\">$label</p>"
+        val body = if (multiple) {
+            options.joinToString("") { option ->
+                val checked = if (selected.contains(option.value)) " checked" else ""
+                """<label class="check-row"><input type="checkbox" value="${escapeAttr(option.value)}"$checked /><span>${escapeHtml(option.label)}</span></label>"""
+            }
+        } else {
+            val radioName = if (componentId.isBlank()) "choice_picker" else "choice_picker_${escapeAttr(componentId)}"
+            val selectedSingle = selected.firstOrNull() ?: options.first().value
+            options.joinToString("") { option ->
+                val checked = if (option.value == selectedSingle) " checked" else ""
+                """<label class="check-row"><input type="radio" name="$radioName" value="${escapeAttr(option.value)}"$checked /><span>${escapeHtml(option.label)}</span></label>"""
+            }
+        }
+        return """<div class="choice-picker">$head$body</div>"""
+    }
+
+    private fun renderSlider(component: JsonObject): String {
+        val label = escapeHtml(sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Value" })
+        val min = component.getAsNumberOrNull("min") ?: 0.0
+        val maxRaw = component.getAsNumberOrNull("max") ?: 100.0
+        val max = if (maxRaw <= min) min + 1.0 else maxRaw
+        val value = readDynamicNumber(component.get("value"))?.coerceIn(min, max) ?: min
+        return """
+            <label class="input-block">
+              <span class="input-label">$label: ${escapeHtml(formatNumber(value))}</span>
+              <input class="range-input" type="range" min="${escapeAttr(formatNumber(min))}" max="${escapeAttr(formatNumber(max))}" value="${escapeAttr(formatNumber(value))}" />
+            </label>
+        """.trimIndent()
+    }
+
+    private fun renderDateTimeInput(component: JsonObject): String {
+        val label = escapeHtml(sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Date/time" })
+        val value = escapeAttr(readDynamicString(component.get("value")))
+        val enableDate = component.get("enableDate")?.asBooleanOrNull() ?: true
+        val enableTime = component.get("enableTime")?.asBooleanOrNull() ?: false
+        val inputType = when {
+            enableDate && enableTime -> "datetime-local"
+            enableDate -> "date"
+            enableTime -> "time"
+            else -> "text"
+        }
+        return """
+            <label class="input-block">
+              <span class="input-label">$label</span>
+              <input class="text-input" type="$inputType" value="$value" />
+            </label>
+        """.trimIndent()
+    }
+
     private fun renderButton(
         component: JsonObject,
         index: Map<String, JsonObject>,
@@ -1482,6 +1679,79 @@ object GenUiHtmlRenderer {
         return """<div class="tabs">$content</div>"""
     }
 
+    private fun resolveComponentLabel(componentId: String?, index: Map<String, JsonObject>): String {
+        if (componentId.isNullOrBlank()) {
+            return ""
+        }
+        val component = index[componentId] ?: return ""
+        val type = component.getString("component") ?: return ""
+        if (type.equals("Text", ignoreCase = true)) {
+            return sanitizeDisplayText(readDynamicString(component.get("text")))
+        }
+        if (type.equals("Button", ignoreCase = true)) {
+            val childId = component.getString("child")
+            if (!childId.isNullOrBlank()) {
+                val child = index[childId]
+                if (child != null && child.getString("component").equals("Text", ignoreCase = true)) {
+                    return sanitizeDisplayText(readDynamicString(child.get("text")))
+                }
+            }
+        }
+        return ""
+    }
+
+    private fun readChoiceOptions(component: JsonObject): List<ChoiceOption> {
+        val options = component.getAsJsonArrayOrNull("options") ?: return emptyList()
+        return options.mapNotNull { option ->
+            val obj = option.asJsonObjectOrNull() ?: return@mapNotNull null
+            val value = sanitizeDisplayText(readDynamicString(obj.get("value"))).ifBlank {
+                sanitizeDisplayText(readDynamicString(obj.get("label")))
+            }
+            val label = sanitizeDisplayText(readDynamicString(obj.get("label"))).ifBlank { value }
+            if (value.isBlank()) {
+                null
+            } else {
+                ChoiceOption(label = label, value = value)
+            }
+        }
+    }
+
+    private fun readDynamicStringList(element: JsonElement?): List<String> {
+        if (element == null || element.isJsonNull) {
+            return emptyList()
+        }
+        if (element.isJsonArray) {
+            return element.asJsonArray.map { readDynamicString(it).trim() }.filter { it.isNotBlank() }
+        }
+        val token = readDynamicString(element).trim()
+        if (token.isBlank()) {
+            return emptyList()
+        }
+        return token
+            .split(',', ';', '|')
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+    }
+
+    private fun parseBooleanLike(value: String?): Boolean? {
+        return when (value?.trim()?.lowercase(Locale.US)) {
+            "true", "1", "yes", "on" -> true
+            "false", "0", "no", "off" -> false
+            else -> null
+        }
+    }
+
+    private fun readDynamicNumber(element: JsonElement?): Double? {
+        if (element == null || element.isJsonNull) {
+            return null
+        }
+        if (element.isJsonPrimitive && element.asJsonPrimitive.isNumber) {
+            return element.asDouble
+        }
+        val token = readDynamicString(element).trim().replace(",", "")
+        return token.toDoubleOrNull()
+    }
+
     private fun readChildren(component: JsonObject): List<String> {
         val element = component.get("children") ?: return emptyList()
         if (element.isJsonPrimitive && element.asJsonPrimitive.isString) {
@@ -1501,15 +1771,155 @@ object GenUiHtmlRenderer {
         return emptyList()
     }
 
-    private fun extractOpenUrl(component: JsonObject): String? {
-        val action = component.getAsJsonObjectOrNull("action") ?: return null
-        val functionCall = action.getAsJsonObjectOrNull("functionCall") ?: return null
-        val call = functionCall.getString("call") ?: return null
-        if (!call.equals("openUrl", ignoreCase = true)) {
+    private fun applyComponentActionWrapper(
+        component: JsonObject,
+        renderedHtml: String,
+        sourceDir: File?,
+        warnings: MutableList<String>
+    ): String {
+        if (component.getString("component").equals("Button", ignoreCase = true)) {
+            return renderedHtml
+        }
+        val action = extractComponentAction(component) ?: return renderedHtml
+        return when (action.kind) {
+            ComponentActionKind.OpenUrl -> {
+                if (renderedHtml.contains("<a ", ignoreCase = true)) {
+                    warnings += "Skipped wrapping nested link interaction for component with existing anchor."
+                    return renderedHtml
+                }
+                val resolved = resolveAssetUrl(action.value, sourceDir)
+                """<a class="component-action-link" href="${escapeAttr(resolved)}">$renderedHtml</a>"""
+            }
+
+            ComponentActionKind.ShowMessage,
+            ComponentActionKind.ShowSurface -> {
+                warnings += "Non-link interaction (${action.kind}) is supported in native renderer only."
+                renderedHtml
+            }
+        }
+    }
+
+    private fun extractOpenUrl(component: JsonObject): String? =
+        extractComponentAction(component)
+            ?.takeIf { it.kind == ComponentActionKind.OpenUrl }
+            ?.value
+
+    private fun extractComponentAction(component: JsonObject): ComponentAction? {
+        parseActionEnvelope(component.getAsJsonObjectOrNull("action"))?.let { return it }
+        parseActionEnvelope(component.getAsJsonObjectOrNull("onClick"))?.let { return it }
+        parseActionEvent(component.get("event"))?.let { return it }
+        return null
+    }
+
+    private fun parseActionEnvelope(actionObject: JsonObject?): ComponentAction? {
+        if (actionObject == null) {
             return null
         }
-        val args = functionCall.getAsJsonObjectOrNull("args") ?: return null
-        return readDynamicString(args.get("url")).ifBlank { null }
+        parseFunctionCallAction(actionObject.getAsJsonObjectOrNull("functionCall"))?.let { return it }
+        parseFunctionCallAction(actionObject)?.let { return it }
+        parseActionEvent(actionObject.get("event"))?.let { return it }
+
+        listOf("onClick", "click", "tap", "press", "onPress", "onSelect", "select").forEach { key ->
+            parseActionEnvelope(actionObject.getAsJsonObjectOrNull(key))?.let { return it }
+        }
+
+        actionObject.getAsJsonArrayOrNull("events")?.forEach { eventEntry ->
+            parseActionEvent(eventEntry)?.let { return it }
+        }
+        actionObject.getAsJsonArrayOrNull("handlers")?.forEach { eventEntry ->
+            parseActionEvent(eventEntry)?.let { return it }
+        }
+
+        val callName = actionObject.getString("name")
+            ?: actionObject.getString("call")
+            ?: return null
+        val args = actionObject.getAsJsonObjectOrNull("args")
+            ?: readLegacyActionContextArgs(actionObject)
+            ?: JsonObject()
+        return parseActionFromCall(callName, args)
+    }
+
+    private fun parseActionEvent(event: JsonElement?): ComponentAction? {
+        if (event == null || event.isJsonNull) {
+            return null
+        }
+        if (event.isJsonArray) {
+            event.asJsonArray.forEach { entry ->
+                parseActionEvent(entry)?.let { return it }
+            }
+            return null
+        }
+        if (!event.isJsonObject) {
+            return null
+        }
+        val eventObject = event.asJsonObject
+        parseActionEnvelope(eventObject)?.let { return it }
+        listOf("onClick", "click", "tap", "press", "onPress", "onSelect", "select").forEach { key ->
+            parseActionEnvelope(eventObject.getAsJsonObjectOrNull(key))?.let { return it }
+        }
+        return null
+    }
+
+    private fun parseFunctionCallAction(functionCall: JsonObject?): ComponentAction? {
+        if (functionCall == null) {
+            return null
+        }
+        val callName = functionCall.getString("call")
+            ?: functionCall.getString("name")
+            ?: return null
+        val args = functionCall.getAsJsonObjectOrNull("args")
+            ?: readLegacyActionContextArgs(functionCall)
+            ?: JsonObject()
+        return parseActionFromCall(callName, args)
+    }
+
+    private fun readLegacyActionContextArgs(actionObject: JsonObject): JsonObject? {
+        val contextEntries = actionObject.getAsJsonArrayOrNull("context") ?: return null
+        if (contextEntries.size() == 0) {
+            return null
+        }
+        val args = JsonObject()
+        contextEntries.forEach { contextElement ->
+            val contextObject = contextElement.asJsonObjectOrNull() ?: return@forEach
+            val key = contextObject.getString("key") ?: return@forEach
+            contextObject.get("value")?.let { args.add(key, it) }
+        }
+        return if (args.entrySet().isEmpty()) null else args
+    }
+
+    private fun parseActionFromCall(callName: String, args: JsonObject): ComponentAction? {
+        val canonicalCall = callName.trim().lowercase(Locale.US)
+            .replace("_", "")
+            .replace("-", "")
+            .replace(" ", "")
+        return when (canonicalCall) {
+            "openurl", "openlink", "launchurl", "browseurl" -> {
+                readActionArgument(args, "url", "href", "link", "targetUrl")
+                    ?.let { ComponentAction(ComponentActionKind.OpenUrl, it) }
+            }
+
+            "showmessage", "showtoast", "toast", "snackbar", "message" -> {
+                readActionArgument(args, "message", "text", "title")
+                    ?.let { ComponentAction(ComponentActionKind.ShowMessage, it) }
+            }
+
+            "showsurface", "opensurface", "navigatesurface", "switchsurface" -> {
+                readActionArgument(args, "surfaceId", "id", "surface", "targetSurfaceId", "target")
+                    ?.let { ComponentAction(ComponentActionKind.ShowSurface, it) }
+            }
+
+            else -> null
+        }
+    }
+
+    private fun readActionArgument(args: JsonObject, vararg keys: String): String? {
+        keys.forEach { key ->
+            val value = readDynamicString(args.get(key)).trim()
+            if (value.isNotBlank()) {
+                return value
+            }
+        }
+        return null
     }
 
     private fun readDynamicString(element: JsonElement?): String {
@@ -1530,7 +1940,7 @@ object GenUiHtmlRenderer {
         }
         val obj = element.asJsonObject
         obj.getString("literalString")?.let { return normalizeMojibakeText(it) }
-        obj.getString("path")?.let { return normalizeMojibakeText(it) }
+        obj.getString("path")?.let { return "" }
         obj.get("literalNumber")?.let { return normalizeMojibakeText(it.toString().trim('"')) }
         obj.get("literalBoolean")?.let { return normalizeMojibakeText(it.toString().trim('"')) }
         return normalizeMojibakeText(obj.toString())
@@ -1555,6 +1965,13 @@ object GenUiHtmlRenderer {
             .replace("Â₹", "₹")
             .replace("â‚¹", "₹")
             .replace("â€¢", "•")
+    }
+
+    private fun sanitizeDisplayText(value: String): String {
+        return value
+            .replace("\u00A0", " ")
+            .replace(Regex("""\s+"""), " ")
+            .trim()
     }
 
     private fun mojibakeScore(value: String): Int {
@@ -1979,6 +2396,85 @@ object GenUiHtmlRenderer {
                   border-bottom-style: solid;
                 }
 
+                .media-player-wrap {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 8px;
+                  padding: 10px;
+                  border: var(--sys-border-md) solid var(--sys-color-outline);
+                  border-radius: var(--sys-radius-lg);
+                  background: rgba(252, 252, 255, 0.62);
+                }
+
+                .media-player {
+                  width: 100%;
+                  min-height: 44px;
+                  border-radius: var(--sys-radius-md);
+                }
+
+                .modal-box {
+                  border: var(--sys-border-md) solid var(--sys-color-outline);
+                  border-radius: var(--sys-radius-lg);
+                  background: rgba(252, 252, 255, 0.58);
+                  padding: 8px 10px;
+                }
+
+                .modal-trigger {
+                  cursor: pointer;
+                  font-size: var(--type-body-md);
+                  font-weight: var(--font-semibold);
+                  color: var(--sys-color-primary);
+                  list-style: none;
+                }
+
+                .modal-content {
+                  margin-top: 8px;
+                }
+
+                .input-block {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 6px;
+                  width: 100%;
+                }
+
+                .input-label {
+                  font-size: var(--type-body-sm);
+                  font-weight: var(--font-semibold);
+                  color: var(--sys-color-on-surface-container-high);
+                }
+
+                .text-input,
+                .text-area,
+                .range-input {
+                  width: 100%;
+                  border: var(--sys-border-md) solid var(--sys-color-outline);
+                  border-radius: var(--sys-radius-md);
+                  background: rgba(252, 252, 255, 0.68);
+                  color: var(--sys-color-on-surface-container-highest);
+                  font: inherit;
+                  padding: 8px 10px;
+                }
+
+                .text-area {
+                  resize: vertical;
+                }
+
+                .check-row {
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  min-height: 28px;
+                  font-size: var(--type-body-sm);
+                  color: var(--sys-color-on-surface-container-high);
+                }
+
+                .choice-picker {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                }
+
                 .text-list {
                   margin: 0;
                   padding-left: 20px;
@@ -2227,6 +2723,12 @@ object GenUiHtmlRenderer {
                   padding: 14px;
                   background: var(--sys-color-surface-container-low);
                   box-shadow: var(--elevation-sm);
+                }
+
+                .component-action-link {
+                  display: block;
+                  text-decoration: none;
+                  color: inherit;
                 }
 
                 .image {

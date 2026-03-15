@@ -1,9 +1,11 @@
 ﻿package com.samsung.genuicraft
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -26,20 +28,29 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +64,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -106,6 +120,27 @@ object GenUiNativeRenderer {
         Weather
     }
 
+    private data class ChoiceOption(
+        val label: String,
+        val value: String
+    )
+
+    private enum class ComponentActionKind {
+        OpenUrl,
+        ShowMessage,
+        ShowSurface
+    }
+
+    private data class ComponentAction(
+        val kind: ComponentActionKind,
+        val value: String
+    )
+
+    private sealed interface RuntimeAction {
+        data class ShowMessage(val message: String) : RuntimeAction
+        data class ShowSurface(val surfaceId: String) : RuntimeAction
+    }
+
     fun render(rawInput: String, sourceDir: File?): RenderResult {
         val warnings = mutableListOf<String>()
         val parsed = try {
@@ -155,12 +190,24 @@ object GenUiNativeRenderer {
             return
         }
 
+        val (visibleSurfaces, runtimeMessage, onRuntimeAction) = rememberRuntimeState(result.surfaces)
+
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(items = result.surfaces, key = { it.surfaceId }) { surface ->
-                SurfaceCard(surface, sourceDir, onOpenExternalUrl)
+            if (!runtimeMessage.isNullOrBlank()) {
+                item("runtime_message") {
+                    RuntimeMessageBanner(runtimeMessage)
+                }
+            }
+            items(items = visibleSurfaces, key = { it.surfaceId }) { surface ->
+                SurfaceCard(
+                    surface = surface,
+                    sourceDir = sourceDir,
+                    onOpenExternalUrl = onOpenExternalUrl,
+                    onRuntimeAction = onRuntimeAction
+                )
             }
         }
     }
@@ -188,17 +235,90 @@ object GenUiNativeRenderer {
             return
         }
 
+        val (visibleSurfaces, runtimeMessage, onRuntimeAction) = rememberRuntimeState(result.surfaces)
+
         Column(
             modifier = modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            result.surfaces.forEach { surface ->
+            if (!runtimeMessage.isNullOrBlank()) {
+                RuntimeMessageBanner(runtimeMessage)
+            }
+            visibleSurfaces.forEach { surface ->
                 SurfaceCard(
                     surface = surface,
                     sourceDir = sourceDir,
-                    onOpenExternalUrl = onOpenExternalUrl
+                    onOpenExternalUrl = onOpenExternalUrl,
+                    onRuntimeAction = onRuntimeAction
                 )
             }
+        }
+    }
+
+    @Composable
+    private fun rememberRuntimeState(
+        surfaces: List<SurfaceState>
+    ): Triple<List<SurfaceState>, String?, (RuntimeAction) -> Unit> {
+        val context = LocalContext.current
+        val surfaceIds = remember(surfaces) { surfaces.map { it.surfaceId }.toSet() }
+        var focusedSurfaceId by remember(surfaces) { mutableStateOf<String?>(null) }
+        var runtimeMessage by remember(surfaces) { mutableStateOf<String?>(null) }
+
+        LaunchedEffect(surfaceIds, focusedSurfaceId) {
+            if (!focusedSurfaceId.isNullOrBlank() && focusedSurfaceId !in surfaceIds) {
+                focusedSurfaceId = null
+            }
+        }
+
+        val visibleSurfaces = if (focusedSurfaceId.isNullOrBlank()) {
+            surfaces
+        } else {
+            surfaces.filter { it.surfaceId == focusedSurfaceId }
+        }
+
+        val onRuntimeAction: (RuntimeAction) -> Unit = { action ->
+            when (action) {
+                is RuntimeAction.ShowMessage -> {
+                    val message = sanitizeDisplayText(action.message)
+                    if (message.isNotBlank()) {
+                        runtimeMessage = message
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                is RuntimeAction.ShowSurface -> {
+                    val targetSurface = action.surfaceId.trim()
+                    if (targetSurface.isNotBlank()) {
+                        if (targetSurface in surfaceIds) {
+                            focusedSurfaceId = targetSurface
+                            runtimeMessage = "Showing surface: $targetSurface"
+                        } else {
+                            val message = "Surface not found: $targetSurface"
+                            runtimeMessage = message
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
+
+        return Triple(visibleSurfaces, runtimeMessage, onRuntimeAction)
+    }
+
+    @Composable
+    private fun RuntimeMessageBanner(message: String) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+            colors = genUiCardColors(GenUiCardTone.Primary),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+        ) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+            )
         }
     }
 
@@ -206,7 +326,8 @@ object GenUiNativeRenderer {
     private fun SurfaceCard(
         surface: SurfaceState,
         sourceDir: File?,
-        onOpenExternalUrl: (String) -> Unit
+        onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit
     ) {
         Card(
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
@@ -227,6 +348,7 @@ object GenUiNativeRenderer {
                     index = surface.components,
                     sourceDir = sourceDir,
                     onOpenExternalUrl = onOpenExternalUrl,
+                    onRuntimeAction = onRuntimeAction,
                     activePath = emptySet()
                 )
             }
@@ -239,6 +361,7 @@ object GenUiNativeRenderer {
         index: Map<String, JsonObject>,
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit,
         activePath: Set<String>
     ) {
         val component = index[id]
@@ -253,21 +376,29 @@ object GenUiNativeRenderer {
 
         val nextPath = activePath + id
         when (component.getString("component")?.trim()) {
-            "Column" -> RenderContainer(component, index, sourceDir, onOpenExternalUrl, nextPath, false, false)
-            "Row" -> RenderContainer(component, index, sourceDir, onOpenExternalUrl, nextPath, true, false)
+            "Column" -> RenderContainer(component, index, sourceDir, onOpenExternalUrl, onRuntimeAction, nextPath, false, false)
+            "Row" -> RenderContainer(component, index, sourceDir, onOpenExternalUrl, onRuntimeAction, nextPath, true, false)
             "List" -> {
                 val isHorizontal = component.getString("direction")?.normalizeLayoutToken()?.contains("horizontal") == true
-                RenderContainer(component, index, sourceDir, onOpenExternalUrl, nextPath, isHorizontal, true)
+                RenderContainer(component, index, sourceDir, onOpenExternalUrl, onRuntimeAction, nextPath, isHorizontal, true)
             }
 
-            "Card" -> RenderCardComponent(component, index, sourceDir, onOpenExternalUrl, nextPath)
-            "Text" -> RenderTextComponent(component, sourceDir, onOpenExternalUrl)
-            "Image" -> RenderImageComponent(component, sourceDir)
-            "Icon" -> RenderIconComponent(component, sourceDir)
+            "Card" -> RenderCardComponent(component, index, sourceDir, onOpenExternalUrl, onRuntimeAction, nextPath)
+            "Text" -> RenderTextComponent(component, sourceDir, onOpenExternalUrl, onRuntimeAction)
+            "Image" -> RenderImageComponent(component, sourceDir, onOpenExternalUrl, onRuntimeAction)
+            "Icon" -> RenderIconComponent(component, sourceDir, onOpenExternalUrl, onRuntimeAction)
+            "Video" -> RenderVideoComponent(component, sourceDir, onOpenExternalUrl)
+            "AudioPlayer" -> RenderAudioPlayerComponent(component, sourceDir, onOpenExternalUrl)
             "Table" -> RenderTableComponent(component)
             "Divider" -> HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            "Button" -> RenderButtonComponent(component, index, sourceDir, onOpenExternalUrl)
-            "Tabs" -> RenderTabsComponent(component, index, sourceDir, onOpenExternalUrl, nextPath)
+            "Button" -> RenderButtonComponent(component, index, sourceDir, onOpenExternalUrl, onRuntimeAction)
+            "Tabs" -> RenderTabsComponent(component, index, sourceDir, onOpenExternalUrl, onRuntimeAction, nextPath)
+            "Modal" -> RenderModalComponent(component, index, sourceDir, onOpenExternalUrl, onRuntimeAction, nextPath)
+            "TextField" -> RenderTextFieldComponent(component)
+            "CheckBox" -> RenderCheckBoxComponent(component)
+            "ChoicePicker" -> RenderChoicePickerComponent(component)
+            "Slider" -> RenderSliderComponent(component)
+            "DateTimeInput" -> RenderDateTimeInputComponent(component)
             else -> Text(
                 text = "Unsupported component: ${component.getString("component") ?: "Unknown"}",
                 style = MaterialTheme.typography.bodySmall,
@@ -282,6 +413,7 @@ object GenUiNativeRenderer {
         index: Map<String, JsonObject>,
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit,
         activePath: Set<String>,
         rowLayout: Boolean,
         listComponent: Boolean
@@ -319,17 +451,27 @@ object GenUiNativeRenderer {
             }
         }
 
+        val componentAction = extractComponentAction(component)
+        val actionModifier = componentActionModifier(
+            action = componentAction,
+            sourceDir = sourceDir,
+            onOpenExternalUrl = onOpenExternalUrl,
+            onRuntimeAction = onRuntimeAction
+        )
         val alignToken = component.getString("align")?.normalizeLayoutToken()
         if (rowLayout) {
-            RenderRowChildren(
-                children = children,
-                index = index,
-                sourceDir = sourceDir,
-                onOpenExternalUrl = onOpenExternalUrl,
-                activePath = activePath,
-                alignToken = alignToken,
-                justifyToken = component.getString("justify")?.normalizeLayoutToken()
-            )
+            Box(modifier = actionModifier) {
+                RenderRowChildren(
+                    children = children,
+                    index = index,
+                    sourceDir = sourceDir,
+                    onOpenExternalUrl = onOpenExternalUrl,
+                    onRuntimeAction = onRuntimeAction,
+                    activePath = activePath,
+                    alignToken = alignToken,
+                    justifyToken = component.getString("justify")?.normalizeLayoutToken()
+                )
+            }
             return
         }
 
@@ -340,7 +482,13 @@ object GenUiNativeRenderer {
         }
 
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = componentActionModifier(
+                base = Modifier.fillMaxWidth(),
+                action = componentAction,
+                sourceDir = sourceDir,
+                onOpenExternalUrl = onOpenExternalUrl,
+                onRuntimeAction = onRuntimeAction
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = horizontalAlignment
         ) {
@@ -355,7 +503,7 @@ object GenUiNativeRenderer {
                 }
 
                 val childId = children[cursor]
-                RenderComponent(childId, index, sourceDir, onOpenExternalUrl, activePath)
+                RenderComponent(childId, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
                 cursor++
             }
         }
@@ -368,6 +516,7 @@ object GenUiNativeRenderer {
         index: Map<String, JsonObject>,
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit,
         activePath: Set<String>,
         alignToken: String?,
         justifyToken: String?
@@ -398,7 +547,7 @@ object GenUiNativeRenderer {
                 children.forEach { childId ->
                     val weight = (index[childId]?.getAsNumberOrNull("weight") ?: 0.0).toFloat().coerceAtLeast(0f)
                     Box(modifier = if (weight > 0f) Modifier.weight(weight) else Modifier) {
-                        RenderComponent(childId, index, sourceDir, onOpenExternalUrl, activePath)
+                        RenderComponent(childId, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
                     }
                 }
             }
@@ -426,7 +575,7 @@ object GenUiNativeRenderer {
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 children.forEach { childId ->
-                    RenderComponent(childId, index, sourceDir, onOpenExternalUrl, activePath)
+                    RenderComponent(childId, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
                 }
             }
             return
@@ -438,7 +587,7 @@ object GenUiNativeRenderer {
             verticalAlignment = verticalAlignment
         ) {
             children.forEachIndexed { childIndex, childId ->
-                RenderComponent(childId, index, sourceDir, onOpenExternalUrl, activePath)
+                RenderComponent(childId, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
                 if (childIndex != children.lastIndex && horizontalArrangement == Arrangement.Start) {
                     Box(modifier = Modifier.width(10.dp))
                 }
@@ -485,11 +634,21 @@ object GenUiNativeRenderer {
         index: Map<String, JsonObject>,
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit,
         activePath: Set<String>
     ) {
+        val componentAction = extractComponentAction(component)
         Card(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .then(
+                    componentActionModifier(
+                        action = componentAction,
+                        sourceDir = sourceDir,
+                        onOpenExternalUrl = onOpenExternalUrl,
+                        onRuntimeAction = onRuntimeAction
+                    )
+                ),
             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
             colors = genUiCardColors(GenUiCardTone.Neutral),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -503,10 +662,10 @@ object GenUiNativeRenderer {
             ) {
                 val childId = component.getString("child")
                 if (childId != null) {
-                    RenderComponent(childId, index, sourceDir, onOpenExternalUrl, activePath)
+                    RenderComponent(childId, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
                 } else {
                     readChildren(component).forEach { child ->
-                        RenderComponent(child, index, sourceDir, onOpenExternalUrl, activePath)
+                        RenderComponent(child, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
                     }
                 }
             }
@@ -517,28 +676,38 @@ object GenUiNativeRenderer {
     private fun RenderTextComponent(
         component: JsonObject,
         sourceDir: File?,
-        onOpenExternalUrl: (String) -> Unit
+        onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit
     ) {
         val variant = (component.getString("variant") ?: "body").lowercase(Locale.US)
         val rawText = readDynamicString(component.get("text"))
         val style = textStyleForVariant(variant)
         val color = textColorForVariant(variant)
+        val actionModifier = componentActionModifier(
+            action = extractComponentAction(component),
+            sourceDir = sourceDir,
+            onOpenExternalUrl = onOpenExternalUrl,
+            onRuntimeAction = onRuntimeAction
+        )
 
         if (rawText.isBlank()) {
-            Text("", style = style)
+            Text("", style = style, modifier = actionModifier)
             return
         }
 
         if (shouldUseStructuredBlocks(rawText, variant)) {
             val blocks = remember(rawText) { parseTextBlocks(rawText) }
-            RenderTextBlocks(blocks, sourceDir, onOpenExternalUrl, style, color)
+            Column(modifier = actionModifier) {
+                RenderTextBlocks(blocks, sourceDir, onOpenExternalUrl, style, color)
+            }
             return
         }
 
         MarkdownText(
             text = rawText,
             style = style,
-            color = color
+            color = color,
+            modifier = actionModifier
         )
     }
 
@@ -651,7 +820,10 @@ object GenUiNativeRenderer {
                 }
 
                 is TextBlock.MediaCards -> {
-                    RenderMediaCards(entries = block.entries, sourceDir = sourceDir)
+                    val renderableEntries = block.entries.filterNot(::isPlaceholderMediaEntry)
+                    if (renderableEntries.isNotEmpty()) {
+                        RenderMediaCards(entries = renderableEntries, sourceDir = sourceDir)
+                    }
                 }
             }
         }
@@ -705,8 +877,20 @@ object GenUiNativeRenderer {
                         else -> ""
                     }
                     val fallbackWeatherCondition = inferWeatherConditionFromSection(titleText, sectionBlocks)
+                    val titleNormalized = NativeWeatherSemantics.normalizeWeatherText(titleText)
+                    val titleHasCurrentMarker =
+                        titleNormalized.contains("current") ||
+                            titleNormalized.contains("currently") ||
+                            titleNormalized.contains("now")
+                    val sectionMissingTextBlocks = sectionBlocks.none {
+                        it is TextBlock.Paragraph || it is TextBlock.Bullets
+                    }
+                    val shouldCollectWeatherFollowUp =
+                        isCurrentWeatherHeading(titleText) ||
+                            (!fallbackWeatherCondition.isNullOrBlank() &&
+                                (titleHasCurrentMarker || sectionMissingTextBlocks))
                     val (followUpWeatherLines, followUpConsumed) =
-                        if (isCurrentWeatherHeading(titleText)) {
+                        if (shouldCollectWeatherFollowUp) {
                             collectCurrentWeatherFollowUpLines(blocks, cursor)
                         } else {
                             emptyList<String>() to 0
@@ -717,17 +901,32 @@ object GenUiNativeRenderer {
                         fallbackCondition = fallbackWeatherCondition,
                         additionalLines = followUpWeatherLines
                     )
+                    val resolvedCurrentWeatherDetails =
+                        currentWeatherDetails ?: buildRelaxedCurrentWeatherDetails(
+                            title = titleText,
+                            sectionBlocks = sectionBlocks,
+                            fallbackCondition = fallbackWeatherCondition,
+                            additionalLines = followUpWeatherLines
+                        ) ?: buildMinimalCurrentWeatherDetails(
+                            title = titleText,
+                            sectionBlocks = sectionBlocks,
+                            fallbackCondition = fallbackWeatherCondition,
+                            additionalLines = followUpWeatherLines
+                        )
                     val hasVisualMedia = sectionBlocks.any { section ->
-                        section is TextBlock.MediaCards && section.entries.any { entry -> !entry.iconLike }
+                        section is TextBlock.MediaCards &&
+                            section.entries.any { entry ->
+                                !entry.iconLike && !isPlaceholderMediaEntry(entry)
+                            }
                     }
                     val hasIconGallery = sectionBlocks.any { section ->
                         section is TextBlock.MediaCards &&
-                            section.entries.none { entry -> !entry.iconLike } &&
-                            section.entries.count { entry -> entry.iconLike } >= 4
+                            section.entries.none { entry -> !entry.iconLike && !isPlaceholderMediaEntry(entry) } &&
+                            section.entries.count { entry -> entry.iconLike && !isPlaceholderMediaEntry(entry) } >= 4
                     }
                     val shouldRenderSectionCard =
                         sectionBlocks.isNotEmpty() &&
-                            (currentWeatherDetails != null || hasVisualMedia || hasIconGallery)
+                            (resolvedCurrentWeatherDetails != null || hasVisualMedia || hasIconGallery)
                     if (shouldRenderSectionCard) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -747,11 +946,11 @@ object GenUiNativeRenderer {
                                 } else {
                                     MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
                                 }
-                                if (currentWeatherDetails != null) {
+                                if (resolvedCurrentWeatherDetails != null) {
                                     RenderCurrentWeatherDetails(
                                         titleText = titleText,
                                         titleStyle = titleStyle,
-                                        details = currentWeatherDetails,
+                                        details = resolvedCurrentWeatherDetails,
                                         sourceDir = sourceDir
                                     )
                                 } else {
@@ -782,22 +981,46 @@ object GenUiNativeRenderer {
                                     }
                                 }
                                 sectionBlocks.forEach { sectionBlock ->
-                                    if (currentWeatherDetails != null &&
+                                    if (sectionBlock is TextBlock.Paragraph &&
+                                        isPlaceholderInlineToken(sectionBlock.text)
+                                    ) {
+                                        return@forEach
+                                    }
+                                    if (resolvedCurrentWeatherDetails != null &&
                                         (sectionBlock is TextBlock.Paragraph || sectionBlock is TextBlock.Bullets)
                                     ) {
                                         return@forEach
                                     }
-                                    if (currentWeatherDetails != null &&
+                                    if (resolvedCurrentWeatherDetails != null &&
                                         sectionBlock is TextBlock.MediaCards &&
-                                        sectionBlock.entries.all { it.iconLike }
+                                        sectionBlock.entries.all { it.iconLike || isPlaceholderMediaEntry(it) }
+                                    ) {
+                                        return@forEach
+                                    }
+                                    if (isCurrentWeatherHeading(titleText) &&
+                                        sectionBlock is TextBlock.MediaCards &&
+                                        sectionBlock.entries.all { it.iconLike || isPlaceholderMediaEntry(it) }
                                     ) {
                                         return@forEach
                                     }
                                     when (sectionBlock) {
-                                        is TextBlock.MediaCards -> RenderMediaEntriesInline(
-                                            entries = sectionBlock.entries,
-                                            sourceDir = sourceDir
-                                        )
+                                        is TextBlock.Bullets -> {
+                                            val sanitizedItems =
+                                                sectionBlock.items.filterNot(::isPlaceholderInlineToken)
+                                            if (sanitizedItems.isNotEmpty()) {
+                                                RenderSingleBlock(TextBlock.Bullets(sanitizedItems))
+                                            }
+                                        }
+                                        is TextBlock.MediaCards -> {
+                                            val renderableEntries =
+                                                sectionBlock.entries.filterNot(::isPlaceholderMediaEntry)
+                                            if (renderableEntries.isNotEmpty()) {
+                                                RenderMediaEntriesInline(
+                                                    entries = renderableEntries,
+                                                    sourceDir = sourceDir
+                                                )
+                                            }
+                                        }
 
                                         else -> RenderSingleBlock(sectionBlock)
                                     }
@@ -1084,6 +1307,11 @@ object GenUiNativeRenderer {
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            MarkdownText(
+                text = "Sources",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
             links.forEach { link ->
                 val resolved = resolveExternalUrl(link.url, sourceDir)
                 OutlinedButton(
@@ -1486,7 +1714,12 @@ object GenUiNativeRenderer {
     }
 
     @Composable
-    private fun RenderImageComponent(component: JsonObject, sourceDir: File?) {
+    private fun RenderImageComponent(
+        component: JsonObject,
+        sourceDir: File?,
+        onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit
+    ) {
         val rawUrl = readDynamicString(component.get("url"))
         if (rawUrl.isBlank()) {
             Text("Missing image source", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
@@ -1511,27 +1744,35 @@ object GenUiNativeRenderer {
                     !variant.contains("feature") &&
                     !variant.contains("thumbnail"))
         val inlineIconLike = likelyIcon || (mediumFeature && !rasterImage)
-
-        MediaImage(
-            rawUrl = rawUrl,
+        val actionModifier = componentActionModifier(
+            action = extractComponentAction(component),
             sourceDir = sourceDir,
-            modifier = when {
-                inlineIconLike -> Modifier.size(28.dp)
-                likelyLogo -> Modifier
-                    .width(90.dp)
-                    .height(30.dp)
-                mediumFeature && rasterImage -> mediaFrameModifier()
-                variant.contains("feature") -> mediaFrameModifier()
-                variant.contains("thumbnail") -> mediaFrameModifier()
-                else -> mediaFrameModifier()
-            },
-            contentScale = defaultImageScale(
-                rawUrl = rawUrl,
-                fitValue = fit,
-                defaultCoverForRaster = rasterImage && !likelyLogo && !inlineIconLike
-            ),
-            asIcon = inlineIconLike
+            onOpenExternalUrl = onOpenExternalUrl,
+            onRuntimeAction = onRuntimeAction
         )
+
+        Box(modifier = actionModifier) {
+            MediaImage(
+                rawUrl = rawUrl,
+                sourceDir = sourceDir,
+                modifier = when {
+                    inlineIconLike -> Modifier.size(28.dp)
+                    likelyLogo -> Modifier
+                        .width(90.dp)
+                        .height(30.dp)
+                    mediumFeature && rasterImage -> mediaFrameModifier()
+                    variant.contains("feature") -> mediaFrameModifier()
+                    variant.contains("thumbnail") -> mediaFrameModifier()
+                    else -> mediaFrameModifier()
+                },
+                contentScale = defaultImageScale(
+                    rawUrl = rawUrl,
+                    fitValue = fit,
+                    defaultCoverForRaster = rasterImage && !likelyLogo && !inlineIconLike
+                ),
+                asIcon = inlineIconLike
+            )
+        }
     }
 
     @Composable
@@ -1549,20 +1790,354 @@ object GenUiNativeRenderer {
     }
 
     @Composable
-    private fun RenderIconComponent(component: JsonObject, sourceDir: File?) {
+    private fun RenderIconComponent(
+        component: JsonObject,
+        sourceDir: File?,
+        onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit
+    ) {
         val raw = readDynamicString(component.get("name"))
         if (raw.isBlank()) {
             Text("Missing icon source", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
             return
         }
-
-        MediaImage(
-            rawUrl = raw,
+        val actionModifier = componentActionModifier(
+            action = extractComponentAction(component),
             sourceDir = sourceDir,
-            modifier = Modifier.size(26.dp),
-            contentScale = ContentScale.Fit,
-            asIcon = true
+            onOpenExternalUrl = onOpenExternalUrl,
+            onRuntimeAction = onRuntimeAction
         )
+
+        Box(modifier = actionModifier) {
+            MediaImage(
+                rawUrl = raw,
+                sourceDir = sourceDir,
+                modifier = Modifier.size(26.dp),
+                contentScale = ContentScale.Fit,
+                asIcon = true
+            )
+        }
+    }
+
+    @Composable
+    private fun RenderVideoComponent(
+        component: JsonObject,
+        sourceDir: File?,
+        onOpenExternalUrl: (String) -> Unit
+    ) {
+        val rawUrl = readDynamicString(component.get("url")).trim()
+        if (rawUrl.isBlank()) {
+            Text("Missing video source", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            return
+        }
+        val externalUrl = resolveExternalUrl(rawUrl, sourceDir)
+        Card(
+            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+            colors = genUiCardColors(GenUiCardTone.Neutral),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Video",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                OutlinedButton(
+                    onClick = { externalUrl?.let(onOpenExternalUrl) },
+                    enabled = externalUrl != null,
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                ) {
+                    Text("Open video", style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun RenderAudioPlayerComponent(
+        component: JsonObject,
+        sourceDir: File?,
+        onOpenExternalUrl: (String) -> Unit
+    ) {
+        val rawUrl = readDynamicString(component.get("url")).trim()
+        if (rawUrl.isBlank()) {
+            Text("Missing audio source", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            return
+        }
+        val description = sanitizeDisplayText(readDynamicString(component.get("description"))).trim()
+        val externalUrl = resolveExternalUrl(rawUrl, sourceDir)
+        Card(
+            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+            colors = genUiCardColors(GenUiCardTone.Neutral),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = if (description.isNotBlank()) description else "Audio",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                OutlinedButton(
+                    onClick = { externalUrl?.let(onOpenExternalUrl) },
+                    enabled = externalUrl != null,
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                ) {
+                    Text("Play audio", style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun RenderModalComponent(
+        component: JsonObject,
+        index: Map<String, JsonObject>,
+        sourceDir: File?,
+        onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit,
+        activePath: Set<String>
+    ) {
+        val componentId = component.getString("id")
+        val triggerId = component.getString("trigger")
+        val contentId = component.getString("content")
+        var open by remember(componentId, triggerId, contentId) { mutableStateOf(false) }
+        val triggerLabel = resolveComponentLabel(triggerId, index).ifBlank { "Open details" }
+
+        OutlinedButton(
+            onClick = { open = true },
+            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+        ) {
+            Text(triggerLabel, style = MaterialTheme.typography.labelLarge)
+        }
+
+        if (!open) {
+            return
+        }
+
+        AlertDialog(
+            onDismissRequest = { open = false },
+            title = null,
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (contentId.isNullOrBlank()) {
+                        Text(
+                            "Missing modal content",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    } else {
+                        RenderComponent(
+                            id = contentId,
+                            index = index,
+                            sourceDir = sourceDir,
+                            onOpenExternalUrl = onOpenExternalUrl,
+                            onRuntimeAction = onRuntimeAction,
+                            activePath = activePath
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { open = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+
+    @Composable
+    private fun RenderTextFieldComponent(component: JsonObject) {
+        val componentId = component.getString("id")
+        val label = sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Input" }
+        val variant = (component.getString("variant") ?: "shortText").lowercase(Locale.US)
+        val initialValue = readDynamicString(component.get("value"))
+        var value by remember(componentId) { mutableStateOf(initialValue) }
+
+        val keyboardType = if (variant.contains("number")) KeyboardType.Number else KeyboardType.Text
+        val singleLine = !variant.contains("longtext")
+        val visualTransformation =
+            if (variant.contains("obscured")) PasswordVisualTransformation() else VisualTransformation.None
+
+        OutlinedTextField(
+            value = value,
+            onValueChange = { value = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(label) },
+            singleLine = singleLine,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            visualTransformation = visualTransformation
+        )
+    }
+
+    @Composable
+    private fun RenderCheckBoxComponent(component: JsonObject) {
+        val componentId = component.getString("id")
+        val label = sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Option" }
+        val initial = component.get("value")?.asBooleanOrNull()
+            ?: parseBooleanLike(readDynamicString(component.get("value")))
+            ?: false
+        var checked by remember(componentId) { mutableStateOf(initial) }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = { checked = it }
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+
+    @Composable
+    private fun RenderChoicePickerComponent(component: JsonObject) {
+        val componentId = component.getString("id")
+        val label = sanitizeDisplayText(readDynamicString(component.get("label")))
+        val variant = (component.getString("variant") ?: "mutuallyExclusive").lowercase(Locale.US)
+        val multiple = variant.contains("multiple")
+        val options = readChoiceOptions(component)
+
+        if (options.isEmpty()) {
+            Text("ChoicePicker has no options", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            return
+        }
+
+        val initialValues = readDynamicStringList(component.get("value")).toMutableSet()
+        if (multiple) {
+            val selected = remember(componentId) {
+                mutableStateListOf<String>().apply { addAll(initialValues) }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (label.isNotBlank()) {
+                    Text(label, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
+                }
+                options.forEach { option ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val isChecked = selected.contains(option.value)
+                        Checkbox(
+                            checked = isChecked,
+                            onCheckedChange = { checked ->
+                                if (checked) {
+                                    if (!selected.contains(option.value)) selected.add(option.value)
+                                } else {
+                                    selected.remove(option.value)
+                                }
+                            }
+                        )
+                        Text(option.label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+            }
+            return
+        }
+
+        val firstDefault = options.first().value
+        var selectedValue by remember(componentId) {
+            mutableStateOf(initialValues.firstOrNull()?.takeIf { candidate -> options.any { it.value == candidate } } ?: firstDefault)
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (label.isNotBlank()) {
+                Text(label, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
+            }
+            options.forEach { option ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = selectedValue == option.value,
+                        onClick = { selectedValue = option.value }
+                    )
+                    Text(option.label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun RenderSliderComponent(component: JsonObject) {
+        val componentId = component.getString("id")
+        val label = sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Value" }
+        val minValue = (component.getAsNumberOrNull("min") ?: 0.0).toFloat()
+        val maxValueRaw = (component.getAsNumberOrNull("max") ?: 100.0).toFloat()
+        val maxValue = if (maxValueRaw <= minValue) minValue + 1f else maxValueRaw
+        val initialValue = readDynamicNumber(component.get("value"))?.coerceIn(minValue, maxValue) ?: minValue
+        var sliderValue by remember(componentId) { mutableStateOf(initialValue) }
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = "$label: ${formatSliderValue(sliderValue)}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Slider(
+                value = sliderValue,
+                onValueChange = { sliderValue = it },
+                valueRange = minValue..maxValue
+            )
+        }
+    }
+
+    @Composable
+    private fun RenderDateTimeInputComponent(component: JsonObject) {
+        val componentId = component.getString("id")
+        val label = sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Date/time" }
+        val initialValue = readDynamicString(component.get("value"))
+        val enableDate = component.get("enableDate")?.asBooleanOrNull() ?: true
+        val enableTime = component.get("enableTime")?.asBooleanOrNull() ?: false
+        val modeHint = when {
+            enableDate && enableTime -> "Date + time (ISO 8601)"
+            enableDate -> "Date (ISO 8601)"
+            enableTime -> "Time (ISO 8601)"
+            else -> "Text"
+        }
+        var value by remember(componentId) { mutableStateOf(initialValue) }
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            OutlinedTextField(
+                value = value,
+                onValueChange = { value = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(label) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
+            Text(
+                text = modeHint,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 
     @Composable
@@ -1570,7 +2145,8 @@ object GenUiNativeRenderer {
         component: JsonObject,
         index: Map<String, JsonObject>,
         sourceDir: File?,
-        onOpenExternalUrl: (String) -> Unit
+        onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit
     ) {
         val variant = (component.getString("variant") ?: "primary").lowercase(Locale.US)
         val label = component.getString("child")
@@ -1582,15 +2158,20 @@ object GenUiNativeRenderer {
             ?.ifBlank { null }
             ?: "Open"
         val displayLabel = sanitizeDisplayText(label).ifBlank { "Open" }
-
-        val resolvedUrl = extractOpenUrl(component)
-            ?.let { resolveAssetUrl(it, sourceDir) }
-            ?.let { toExternalUrl(it) }
+        val componentAction = extractComponentAction(component)
+        val enabled = componentAction != null
 
         if (variant == "borderless") {
             OutlinedButton(
-                onClick = { resolvedUrl?.let(onOpenExternalUrl) },
-                enabled = resolvedUrl != null,
+                onClick = {
+                    executeComponentAction(
+                        action = componentAction,
+                        sourceDir = sourceDir,
+                        onOpenExternalUrl = onOpenExternalUrl,
+                        onRuntimeAction = onRuntimeAction
+                    )
+                },
+                enabled = enabled,
                 shape = RoundedCornerShape(GenUiTokens.RadiusPill),
                 border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
             ) {
@@ -1600,8 +2181,15 @@ object GenUiNativeRenderer {
         }
 
         Button(
-            onClick = { resolvedUrl?.let(onOpenExternalUrl) },
-            enabled = resolvedUrl != null,
+            onClick = {
+                executeComponentAction(
+                    action = componentAction,
+                    sourceDir = sourceDir,
+                    onOpenExternalUrl = onOpenExternalUrl,
+                    onRuntimeAction = onRuntimeAction
+                )
+            },
+            enabled = enabled,
             shape = RoundedCornerShape(GenUiTokens.RadiusPill)
         ) {
             Text(displayLabel, style = MaterialTheme.typography.labelLarge)
@@ -1614,6 +2202,7 @@ object GenUiNativeRenderer {
         index: Map<String, JsonObject>,
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit,
         activePath: Set<String>
     ) {
         val tabs = component.getAsJsonArrayOrNull("tabs") ?: component.getAsJsonArrayOrNull("items")
@@ -1644,7 +2233,7 @@ object GenUiNativeRenderer {
                         if (childId == null) {
                             Text("Missing tab child", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                         } else {
-                            RenderComponent(childId, index, sourceDir, onOpenExternalUrl, activePath)
+                            RenderComponent(childId, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
                         }
                     }
                 }
@@ -1944,6 +2533,50 @@ object GenUiNativeRenderer {
         return NativeFlightSemantics.extractAirportCode(headerText)
     }
 
+    private fun isPlaceholderMediaEntry(entry: ParsedMediaEntry): Boolean {
+        val candidate = (entry.url.ifBlank { entry.label }).trim().lowercase(Locale.US)
+        if (candidate.isBlank()) {
+            return true
+        }
+        return candidate in setOf(
+            "icon",
+            "image",
+            "url",
+            "image_url",
+            "icon_url",
+            "<icon_url>",
+            "<image_url>",
+            "<url>",
+            "na",
+            "n/a",
+            "none",
+            "null",
+            "--"
+        ) || candidate.contains("placeholder")
+    }
+
+    private fun isPlaceholderInlineToken(value: String): Boolean {
+        val normalized = value.trim().trim('\'', '"').lowercase(Locale.US)
+        if (normalized.isBlank()) {
+            return true
+        }
+        return normalized in setOf(
+            "icon",
+            "image",
+            "url",
+            "image_url",
+            "icon_url",
+            "<icon_url>",
+            "<image_url>",
+            "<url>",
+            "--",
+            "na",
+            "n/a",
+            "none",
+            "null"
+        ) || normalized.contains("placeholder")
+    }
+
     @Composable
     private fun WeatherConditionIcon(
         condition: String?,
@@ -1989,6 +2622,117 @@ object GenUiNativeRenderer {
             sectionBlocks = sectionBlocks,
             fallbackCondition = fallbackCondition,
             additionalLines = additionalLines
+        )
+    }
+
+    private fun buildRelaxedCurrentWeatherDetails(
+        title: String,
+        sectionBlocks: List<TextBlock>,
+        fallbackCondition: String?,
+        additionalLines: List<String> = emptyList()
+    ): WeatherCurrentDetails? {
+        if (!isCurrentWeatherHeading(title)) {
+            return null
+        }
+        val textLines = buildList {
+            sectionBlocks.forEach { block ->
+                when (block) {
+                    is TextBlock.Paragraph -> add(block.text)
+                    is TextBlock.Bullets -> addAll(block.items)
+                    else -> Unit
+                }
+            }
+            addAll(additionalLines)
+        }
+        val merged = textLines.joinToString(" ").replace(Regex("\\s+"), " ").trim()
+        if (merged.isBlank()) {
+            return null
+        }
+        val normalizedMerged = NativeWeatherSemantics.normalizeTemperatureText(merged)
+        val iconUrl = NativeWeatherSemantics.extractCurrentWeatherIconUrl(sectionBlocks)
+        val temperature = NativeWeatherSemantics.extractTemperatureValue(normalizedMerged)
+        val feelsLike = NativeWeatherSemantics.extractFeelsLikeValue(normalizedMerged)
+        val humidity = NativeWeatherSemantics.extractHumidityValue(normalizedMerged)
+        val wind = NativeWeatherSemantics.extractWindValue(normalizedMerged)
+        val rainChance = NativeWeatherSemantics.extractRainChanceValue(normalizedMerged)
+        val uvIndex = NativeWeatherSemantics.extractUvIndexValue(normalizedMerged)
+        val condition = NativeWeatherSemantics.inferWeatherConditionFromTextPool(normalizedMerged)
+            ?: fallbackCondition
+        val summary = normalizedMerged
+            .split(Regex("(?<=[.!?])\\s+"))
+            .filter { it.isNotBlank() }
+            .take(2)
+            .joinToString(" ")
+            .trim()
+            .takeIf { it.isNotBlank() }
+
+        val hasAnySignal = !iconUrl.isNullOrBlank() ||
+            !condition.isNullOrBlank() ||
+            !temperature.isNullOrBlank() ||
+            !feelsLike.isNullOrBlank() ||
+            !humidity.isNullOrBlank() ||
+            !wind.isNullOrBlank() ||
+            !rainChance.isNullOrBlank() ||
+            !uvIndex.isNullOrBlank()
+        if (!hasAnySignal) {
+            return null
+        }
+        return WeatherCurrentDetails(
+            iconUrl = iconUrl,
+            condition = condition,
+            temperature = temperature,
+            feelsLike = feelsLike,
+            humidity = humidity,
+            wind = wind,
+            rainChance = rainChance,
+            uvIndex = uvIndex,
+            summary = summary
+        )
+    }
+
+    private fun buildMinimalCurrentWeatherDetails(
+        title: String,
+        sectionBlocks: List<TextBlock>,
+        fallbackCondition: String?,
+        additionalLines: List<String> = emptyList()
+    ): WeatherCurrentDetails? {
+        if (!isCurrentWeatherHeading(title)) {
+            return null
+        }
+        val merged = buildString {
+            sectionBlocks.forEach { block ->
+                when (block) {
+                    is TextBlock.Paragraph -> append(' ').append(block.text)
+                    is TextBlock.Bullets -> block.items.forEach { append(' ').append(it) }
+                    else -> Unit
+                }
+            }
+            additionalLines.forEach { append(' ').append(it) }
+        }.replace(Regex("\\s+"), " ").trim()
+        if (merged.isBlank()) {
+            return null
+        }
+        val normalized = NativeWeatherSemantics.normalizeTemperatureText(merged)
+        val iconUrl = NativeWeatherSemantics.extractCurrentWeatherIconUrl(sectionBlocks)
+        val temperature = NativeWeatherSemantics.extractTemperatureValue(normalized)
+        val feelsLike = NativeWeatherSemantics.extractFeelsLikeValue(normalized)
+        val humidity = NativeWeatherSemantics.extractHumidityValue(normalized)
+        val wind = NativeWeatherSemantics.extractWindValue(normalized)
+        val rainChance = NativeWeatherSemantics.extractRainChanceValue(normalized)
+        val uvIndex = NativeWeatherSemantics.extractUvIndexValue(normalized)
+        val condition = NativeWeatherSemantics.inferWeatherConditionFromTextPool(normalized)
+            ?: fallbackCondition
+        val summary = normalized.takeIf { it.isNotBlank() }
+        return WeatherCurrentDetails(
+            iconUrl = iconUrl,
+            condition = condition,
+            temperature = temperature,
+            feelsLike = feelsLike,
+            humidity = humidity,
+            wind = wind,
+            rainChance = rainChance,
+            uvIndex = uvIndex,
+            summary = summary
         )
     }
 
@@ -2104,7 +2848,9 @@ object GenUiNativeRenderer {
             isTableLikeLine = ::isTableLikeLine,
             isBulletListLine = ::isBulletListLine,
             isInlineMediaLine = ::isInlineMediaLine,
-            isMediaMarkerHeading = ::isMediaMarkerHeading
+            isMediaMarkerHeading = ::isMediaMarkerHeading,
+            looksLikeStandaloneLinkLine = ::looksLikeStandaloneLinkLine,
+            isSourceHeadingLine = NativeSourceParsing::isSourceHeadingLine
         )
     }
 
@@ -2347,18 +3093,246 @@ object GenUiNativeRenderer {
         )
     }
 
+    private fun resolveComponentLabel(componentId: String?, index: Map<String, JsonObject>): String {
+        if (componentId.isNullOrBlank()) {
+            return ""
+        }
+        val component = index[componentId] ?: return ""
+        val type = component.getString("component") ?: return ""
+        if (type.equals("Text", ignoreCase = true)) {
+            return sanitizeDisplayText(readDynamicString(component.get("text")))
+        }
+        if (type.equals("Button", ignoreCase = true)) {
+            val childId = component.getString("child")
+            if (!childId.isNullOrBlank()) {
+                val child = index[childId]
+                if (child != null && child.getString("component").equals("Text", ignoreCase = true)) {
+                    return sanitizeDisplayText(readDynamicString(child.get("text")))
+                }
+            }
+        }
+        return ""
+    }
+
+    private fun readChoiceOptions(component: JsonObject): List<ChoiceOption> {
+        val options = component.getAsJsonArrayOrNull("options") ?: return emptyList()
+        return options.mapNotNull { option ->
+            val obj = option.asJsonObjectOrNull() ?: return@mapNotNull null
+            val value = sanitizeDisplayText(readDynamicString(obj.get("value"))).ifBlank {
+                sanitizeDisplayText(readDynamicString(obj.get("label")))
+            }
+            val label = sanitizeDisplayText(readDynamicString(obj.get("label"))).ifBlank { value }
+            if (value.isBlank()) {
+                null
+            } else {
+                ChoiceOption(label = label, value = value)
+            }
+        }
+    }
+
+    private fun readDynamicStringList(element: JsonElement?): List<String> {
+        if (element == null || element.isJsonNull) {
+            return emptyList()
+        }
+        if (element.isJsonArray) {
+            return element.asJsonArray.map { readDynamicString(it).trim() }.filter { it.isNotBlank() }
+        }
+        val token = readDynamicString(element).trim()
+        if (token.isBlank()) {
+            return emptyList()
+        }
+        return token
+            .split(',', ';', '|')
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+    }
+
+    private fun parseBooleanLike(value: String?): Boolean? {
+        return when (value?.trim()?.lowercase(Locale.US)) {
+            "true", "1", "yes", "on" -> true
+            "false", "0", "no", "off" -> false
+            else -> null
+        }
+    }
+
+    private fun readDynamicNumber(element: JsonElement?): Float? {
+        if (element == null || element.isJsonNull) {
+            return null
+        }
+        if (element.isJsonPrimitive && element.asJsonPrimitive.isNumber) {
+            return element.asFloat
+        }
+        val token = readDynamicString(element).trim().replace(",", "")
+        return token.toFloatOrNull()
+    }
+
+    private fun formatSliderValue(value: Float): String {
+        val rounded = value.toDouble()
+        val long = rounded.toLong()
+        return if (long.toDouble() == rounded) long.toString() else "%.2f".format(Locale.US, rounded)
+    }
+
     private fun resolveExternalUrl(raw: String, sourceDir: File?): String? =
         toExternalUrl(resolveAssetUrl(raw, sourceDir))
 
-    private fun extractOpenUrl(component: JsonObject): String? {
-        val action = component.getAsJsonObjectOrNull("action") ?: return null
-        val functionCall = action.getAsJsonObjectOrNull("functionCall") ?: return null
-        val call = functionCall.getString("call") ?: return null
-        if (!call.equals("openUrl", ignoreCase = true)) {
+    private fun componentActionModifier(
+        base: Modifier = Modifier,
+        action: ComponentAction?,
+        sourceDir: File?,
+        onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit
+    ): Modifier {
+        if (action == null) {
+            return base
+        }
+        return base.clickable {
+            executeComponentAction(
+                action = action,
+                sourceDir = sourceDir,
+                onOpenExternalUrl = onOpenExternalUrl,
+                onRuntimeAction = onRuntimeAction
+            )
+        }
+    }
+
+    private fun executeComponentAction(
+        action: ComponentAction?,
+        sourceDir: File?,
+        onOpenExternalUrl: (String) -> Unit,
+        onRuntimeAction: (RuntimeAction) -> Unit
+    ) {
+        if (action == null) {
+            return
+        }
+        when (action.kind) {
+            ComponentActionKind.OpenUrl -> {
+                resolveExternalUrl(action.value, sourceDir)?.let(onOpenExternalUrl)
+                    ?: onRuntimeAction(RuntimeAction.ShowMessage("Unable to open link."))
+            }
+
+            ComponentActionKind.ShowMessage -> onRuntimeAction(RuntimeAction.ShowMessage(action.value))
+            ComponentActionKind.ShowSurface -> onRuntimeAction(RuntimeAction.ShowSurface(action.value))
+        }
+    }
+
+    private fun extractComponentAction(component: JsonObject): ComponentAction? {
+        parseActionEnvelope(component.getAsJsonObjectOrNull("action"))?.let { return it }
+        parseActionEnvelope(component.getAsJsonObjectOrNull("onClick"))?.let { return it }
+        parseActionEvent(component.get("event"))?.let { return it }
+        return null
+    }
+
+    private fun parseActionEnvelope(actionObject: JsonObject?): ComponentAction? {
+        if (actionObject == null) {
             return null
         }
-        val args = functionCall.getAsJsonObjectOrNull("args") ?: return null
-        return readDynamicString(args.get("url")).ifBlank { null }
+
+        parseFunctionCallAction(actionObject.getAsJsonObjectOrNull("functionCall"))?.let { return it }
+        parseFunctionCallAction(actionObject)?.let { return it }
+        parseActionEvent(actionObject.get("event"))?.let { return it }
+
+        listOf("onClick", "click", "tap", "press", "onPress", "onSelect", "select").forEach { key ->
+            val nested = actionObject.getAsJsonObjectOrNull(key) ?: return@forEach
+            parseActionEnvelope(nested)?.let { return it }
+        }
+
+        actionObject.getAsJsonArrayOrNull("events")?.forEach { eventEntry ->
+            parseActionEvent(eventEntry)?.let { return it }
+        }
+        actionObject.getAsJsonArrayOrNull("handlers")?.forEach { eventEntry ->
+            parseActionEvent(eventEntry)?.let { return it }
+        }
+
+        val callName = actionObject.getString("name")
+            ?: actionObject.getString("call")
+            ?: return null
+        val args = actionObject.getAsJsonObjectOrNull("args")
+            ?: readLegacyActionContextArgs(actionObject)
+            ?: JsonObject()
+        return parseActionFromCall(callName, args)
+    }
+
+    private fun parseActionEvent(event: JsonElement?): ComponentAction? {
+        if (event == null || event.isJsonNull) {
+            return null
+        }
+        if (event.isJsonArray) {
+            event.asJsonArray.forEach { entry ->
+                parseActionEvent(entry)?.let { return it }
+            }
+            return null
+        }
+        if (!event.isJsonObject) {
+            return null
+        }
+        val eventObject = event.asJsonObject
+        parseActionEnvelope(eventObject)?.let { return it }
+        listOf("onClick", "click", "tap", "press", "onPress", "onSelect", "select").forEach { key ->
+            parseActionEnvelope(eventObject.getAsJsonObjectOrNull(key))?.let { return it }
+        }
+        return null
+    }
+
+    private fun parseFunctionCallAction(functionCall: JsonObject?): ComponentAction? {
+        if (functionCall == null) {
+            return null
+        }
+        val callName = functionCall.getString("call")
+            ?: functionCall.getString("name")
+            ?: return null
+        val args = functionCall.getAsJsonObjectOrNull("args")
+            ?: readLegacyActionContextArgs(functionCall)
+            ?: JsonObject()
+        return parseActionFromCall(callName, args)
+    }
+
+    private fun readLegacyActionContextArgs(actionObject: JsonObject): JsonObject? {
+        val contextEntries = actionObject.getAsJsonArrayOrNull("context") ?: return null
+        if (contextEntries.size() == 0) {
+            return null
+        }
+        val args = JsonObject()
+        contextEntries.forEach { contextElement ->
+            val contextObject = contextElement.asJsonObjectOrNull() ?: return@forEach
+            val key = contextObject.getString("key") ?: return@forEach
+            contextObject.get("value")?.let { args.add(key, it) }
+        }
+        return if (args.entrySet().isEmpty()) null else args
+    }
+
+    private fun parseActionFromCall(callName: String, args: JsonObject): ComponentAction? {
+        val canonicalCall = callName.trim().lowercase(Locale.US)
+            .replace("_", "")
+            .replace("-", "")
+            .replace(" ", "")
+        return when (canonicalCall) {
+            "openurl", "openlink", "launchurl", "browseurl" -> {
+                readActionArgument(args, "url", "href", "link", "targetUrl")
+                    ?.let { ComponentAction(ComponentActionKind.OpenUrl, it) }
+            }
+
+            "showmessage", "showtoast", "toast", "snackbar", "message" -> {
+                readActionArgument(args, "message", "text", "title")
+                    ?.let { ComponentAction(ComponentActionKind.ShowMessage, it) }
+            }
+
+            "showsurface", "opensurface", "navigatesurface", "switchsurface" -> {
+                readActionArgument(args, "surfaceId", "id", "surface", "targetSurfaceId", "target")
+                    ?.let { ComponentAction(ComponentActionKind.ShowSurface, it) }
+            }
+
+            else -> null
+        }
+    }
+
+    private fun readActionArgument(args: JsonObject, vararg keys: String): String? {
+        keys.forEach { key ->
+            val value = readDynamicString(args.get(key)).trim()
+            if (value.isNotBlank()) {
+                return value
+            }
+        }
+        return null
     }
 
     private fun resolveImageModel(raw: String, sourceDir: File?): String {

@@ -1,82 +1,94 @@
-import java.io.File
-import java.util.Properties
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+import java.util.Properties
+
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) {
-        file.inputStream().use { load(it) }
+        file.inputStream().use(::load)
     }
 }
 
-fun parseDotEnv(file: File): Map<String, String> {
-    val values = mutableMapOf<String, String>()
-    file.forEachLine { rawLine ->
-        val line = rawLine.trim()
+val dotEnvValues = linkedMapOf<String, String>().apply {
+    val candidates = listOf(
+        rootProject.file(".env"),
+        rootProject.file("../.env"),
+        rootProject.file("../dataset/.env")
+    )
+    candidates.firstOrNull { it.exists() }?.forEachLine { raw ->
+        val line = raw.trim()
         if (line.isEmpty() || line.startsWith("#")) {
             return@forEachLine
         }
-
         val normalized = if (line.startsWith("export ")) {
             line.removePrefix("export ").trim()
         } else {
             line
         }
-
         val delimiter = normalized.indexOf('=')
         if (delimiter <= 0) {
             return@forEachLine
         }
-
         val key = normalized.substring(0, delimiter).trim()
-        if (key.isEmpty()) {
+        if (key.isBlank()) {
             return@forEachLine
         }
-
         var value = normalized.substring(delimiter + 1).trim()
         if (
             (value.startsWith("\"") && value.endsWith("\"")) ||
-                (value.startsWith("'") && value.endsWith("'"))
+            (value.startsWith("'") && value.endsWith("'"))
         ) {
             value = value.substring(1, value.length - 1)
         }
-        values[key] = value
+        if (value.isNotBlank()) {
+            this[key] = value
+        }
     }
-    return values
+}
+
+fun resolveSecret(vararg keys: String): String {
+    for (key in keys) {
+        val gradleProp = (findProperty(key) as? String)?.trim()
+        if (!gradleProp.isNullOrBlank()) {
+            return gradleProp
+        }
+        val localProp = localProperties.getProperty(key)?.trim()
+        if (!localProp.isNullOrBlank()) {
+            return localProp
+        }
+        val dotEnvValue = dotEnvValues[key]?.trim()
+        if (!dotEnvValue.isNullOrBlank()) {
+            return dotEnvValue
+        }
+        val envVar = System.getenv(key)?.trim()
+        if (!envVar.isNullOrBlank()) {
+            return envVar
+        }
+    }
+    return ""
 }
 
 fun escapeForBuildConfig(value: String): String {
-    return value.replace("\\", "\\\\").replace("\"", "\\\"")
+    return value
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
 }
 
-val dotEnvCandidates = listOf(
-    rootProject.file(".env"),
-    rootProject.file("../.env"),
-    rootProject.file("../dataset/.env")
+val embeddedStage2ApiKey = resolveSecret(
+    "GEMINI_STAGE2_API_KEY",
+    "GEMINI_RESPONSE_API_KEY",
+    "GEMINI_API_KEY"
 )
-
-val geminiApiKey: String =
-    (
-        (project.findProperty("GEMINI_API_KEY") as? String)
-            ?.trim()
-            ?.takeIf { it.isNotBlank() }
-            ?: localProperties
-                .getProperty("GEMINI_API_KEY")
-                ?.trim()
-                ?.takeIf { it.isNotBlank() }
-            ?: dotEnvCandidates
-                .asSequence()
-                .filter { it.exists() }
-                .mapNotNull { parseDotEnv(it)["GEMINI_API_KEY"]?.takeIf { key -> key.isNotBlank() } }
-                .firstOrNull()
-            ?: System.getenv("GEMINI_API_KEY")?.takeIf { it.isNotBlank() }
-            ?: ""
-        )
+val embeddedStage3ApiKey = resolveSecret(
+    "GEMINI_STAGE3_API_KEY",
+    "GEMINI_IR_API_KEY",
+    "GEMINI_API_KEY_2",
+    "GEMINI_API_KEY"
+)
 
 android {
     namespace = "com.samsung.genuicraft"
@@ -89,7 +101,16 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "GEMINI_API_KEY", "\"${escapeForBuildConfig(geminiApiKey)}\"")
+        buildConfigField(
+            "String",
+            "GEMINI_STAGE2_API_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedStage2ApiKey)}\""
+        )
+        buildConfigField(
+            "String",
+            "GEMINI_STAGE3_API_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedStage3ApiKey)}\""
+        )
     }
 
     buildTypes {

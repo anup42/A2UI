@@ -69,6 +69,13 @@ internal object NativePayloadParser {
         messages.forEach { element ->
             val message = element.asJsonObjectOrNull() ?: return@forEach
 
+            if (message.getAsJsonObjectOrNull("updateDataModel") != null) {
+                warnings += "Ignored updateDataModel message (render-only pipeline)."
+            }
+            if (message.getAsJsonObjectOrNull("deleteSurface") != null) {
+                warnings += "Ignored deleteSurface message (render-only pipeline)."
+            }
+
             message.getAsJsonObjectOrNull("createSurface")?.let { create ->
                 create.getString("surfaceId")?.let { ensureSurface(it) }
             }
@@ -135,7 +142,7 @@ internal object NativePayloadParser {
 
         val obj = element.asJsonObject
         obj.getString("literalString")?.let { return normalizer(it) }
-        obj.getString("path")?.let { return normalizer(it) }
+        obj.getString("path")?.let { return "" }
         obj.get("literalNumber")?.let { return normalizer(it.toString().trim('"')) }
         obj.get("literalBoolean")?.let { return normalizer(it.toString().trim('"')) }
         return normalizer(obj.toString())
@@ -300,10 +307,18 @@ internal object NativePayloadParser {
                 "text" -> "Text"
                 "image" -> "Image"
                 "icon" -> "Icon"
+                "video" -> "Video"
+                "audioplayer", "audio", "audio-player" -> "AudioPlayer"
                 "table" -> "Table"
                 "button" -> "Button"
                 "tabs", "tab", "tabgroup" -> "Tabs"
+                "modal", "dialog" -> "Modal"
                 "divider" -> "Divider"
+                "textfield", "input", "text-field" -> "TextField"
+                "checkbox", "check-box" -> "CheckBox"
+                "choicepicker", "choice-picker", "select", "picker" -> "ChoicePicker"
+                "slider", "range" -> "Slider"
+                "datetimeinput", "date-time-input", "datetime", "dateinput", "timeinput" -> "DateTimeInput"
                 else -> rawType?.trim()
             }
         }
@@ -428,20 +443,28 @@ internal object NativePayloadParser {
                 }
 
                 val action = payload?.getAsJsonObjectOrNull("action")
-                val name = action?.getString("name")
-                if (!name.isNullOrBlank()) {
-                    val fn = JsonObject()
-                    fn.addProperty("call", name)
-                    val args = JsonObject()
-                    action.getAsJsonArrayOrNull("context")?.forEach { ctx ->
-                        val ctxObj = ctx.asJsonObjectOrNull() ?: return@forEach
-                        val key = ctxObj.getString("key") ?: return@forEach
-                        ctxObj.get("value")?.let { args.add(key, it) }
+                if (action != null) {
+                    val hasModernAction = action.getAsJsonObjectOrNull("functionCall") != null ||
+                        action.get("event") != null
+                    if (hasModernAction) {
+                        out.add("action", action.deepCopy())
+                    } else {
+                        val name = action.getString("name")
+                        if (!name.isNullOrBlank()) {
+                            val fn = JsonObject()
+                            fn.addProperty("call", name)
+                            val args = JsonObject()
+                            action.getAsJsonArrayOrNull("context")?.forEach { ctx ->
+                                val ctxObj = ctx.asJsonObjectOrNull() ?: return@forEach
+                                val key = ctxObj.getString("key") ?: return@forEach
+                                ctxObj.get("value")?.let { args.add(key, it) }
+                            }
+                            fn.add("args", args)
+                            val actionOut = JsonObject()
+                            actionOut.add("functionCall", fn)
+                            out.add("action", actionOut)
+                        }
                     }
-                    fn.add("args", args)
-                    val actionOut = JsonObject()
-                    actionOut.add("functionCall", fn)
-                    out.add("action", actionOut)
                 }
             }
 

@@ -41,6 +41,9 @@ Structured Details rules (critical):
   Use values like "Non-stop", "1 stop", "2 stops" for Stops.
   Also include a "Quick Actions" section with at least 2 action lines in this exact format:
   Action: [Button: <label>] <https://...>
+  For flights, do not add decorative/travel/weather photos.
+  If media is included, it must be airline-relevant only (airline logo/icon tied to that row/card).
+  Never include unrelated icons/images (for example clouds, city sightseeing photos, food, animals).
 - If table is not natural, provide 3-6 option cards in this strict pattern:
   Option 1: <title> | <one-line summary> | <key attribute>
   Action: [Button: <label>] <url>
@@ -95,6 +98,7 @@ Media placement policy (app-like layout, strict):
 - Keep media local to the related block; do not dump media links at the end.
 - Use at most 1 image and 0-1 icon per block to keep UI clean.
 - For weather/current-condition blocks, include at least one icon whenever the condition is known.
+- For flight blocks, prefer icon-only airline branding; avoid non-airline images unless they are clearly airline logos.
 - For travel/place/food blocks, include one image when a visual would help the user understand the block.
 
 Asset URL rules (strict):

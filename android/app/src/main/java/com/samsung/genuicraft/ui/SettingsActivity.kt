@@ -116,6 +116,7 @@ private fun SettingsScreen(
     }
 
     fun refreshModels() {
+        GeminiApiKeyProvider.refresh(context)
         if (!usesGeminiBackend()) {
             loading = false
             errorText = null
@@ -123,7 +124,7 @@ private fun SettingsScreen(
             return
         }
         if (loading) return
-        val apiKey = BuildConfig.GEMINI_API_KEY.trim()
+        val apiKey = GeminiApiKeyProvider.modelCatalogApiKey(context).trim()
         if (apiKey.isBlank()) {
             errorText = context.getString(R.string.settings_model_api_key_missing)
             availableModels = defaultModelOptions(selectedResponseModel, selectedIrModel)

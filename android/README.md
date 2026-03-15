@@ -29,6 +29,21 @@ $env:ANDROID_SDK_ROOT='C:\Users\anupk\AppData\Local\Android\Sdk'
 .\gradlew.bat testDebugUnitTest assembleDebug
 ```
 
+## Gemini Key Setup (No Keys In APK)
+
+- This app does not embed Gemini keys in `BuildConfig` or APK.
+- Runtime key file location on device:
+  - `/sdcard/Android/data/com.samsung.genuicraft/files/genuicraft_keys.env`
+- Required entries:
+  - Stage 2: `GEMINI_STAGE2_API_KEY` (or `GEMINI_RESPONSE_API_KEY` / `GEMINI_API_KEY`)
+  - Stage 3: `GEMINI_STAGE3_API_KEY` (or `GEMINI_IR_API_KEY` / `GEMINI_API_KEY_2`)
+
+Push keys from `../dataset/.env`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\push_gemini_keys.ps1
+```
+
 ## Output
 
 - APK: `app/build/outputs/apk/debug/app-debug.apk`

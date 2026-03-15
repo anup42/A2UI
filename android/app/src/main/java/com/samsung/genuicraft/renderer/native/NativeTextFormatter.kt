@@ -118,6 +118,15 @@ internal object NativeTextFormatter {
         val markdownParsed = buildAnnotatedString {
             var cursor = 0
             while (cursor < text.length) {
+                if (text[cursor] == '\\' && cursor + 1 < text.length) {
+                    val escaped = text[cursor + 1]
+                    if (escaped == '*' || escaped == '_' || escaped == '`' || escaped == '\\') {
+                        append(escaped)
+                        cursor += 2
+                        continue
+                    }
+                }
+
                 if (text.startsWith("**", cursor) || text.startsWith("__", cursor)) {
                     val marker = if (text.startsWith("**", cursor)) "**" else "__"
                     val close = findBalancedMarkerEnd(text, cursor, marker)
@@ -129,6 +138,7 @@ internal object NativeTextFormatter {
                         cursor = close + marker.length
                         continue
                     }
+                    append(marker)
                     cursor += marker.length
                     continue
                 }
@@ -148,6 +158,7 @@ internal object NativeTextFormatter {
                         cursor = close + 1
                         continue
                     }
+                    append('`')
                     cursor += 1
                     continue
                 }

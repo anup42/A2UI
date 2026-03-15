@@ -1,4 +1,4 @@
-package com.samsung.genuicraft.renderer.native.intents.weather
+﻿package com.samsung.genuicraft.renderer.native.intents.weather
 
 import com.samsung.genuicraft.renderer.native.TextBlock
 import com.samsung.genuicraft.renderer.native.WeatherCurrentDetails
@@ -43,11 +43,33 @@ internal object NativeWeatherSemantics {
                 metrics = metrics
             )
         }
-        return rows.takeIf { it.isNotEmpty() }
+        if (rows.isEmpty()) {
+            return null
+        }
+        val weatherLikeRows = rows.count(::isWeatherLikeRow)
+        if (weatherLikeRows == 0) {
+            return null
+        }
+        return rows
     }
 
     fun detectWeatherColumns(header: List<String>): WeatherTableColumns? {
         val normalized = header.map { normalizeWeatherHeader(it) }
+        val strictWeatherSignal = normalized.count { token ->
+            token.contains("weather") ||
+                token.contains("forecast") ||
+                token.contains("temp") ||
+                token.contains("high") ||
+                token.contains("low") ||
+                token.contains("precip") ||
+                token.contains("rain") ||
+                token.contains("humidity") ||
+                token.contains("wind") ||
+                token.contains("uv")
+        }
+        if (strictWeatherSignal == 0) {
+            return null
+        }
         val weatherSignal = normalized.count { token ->
             token.contains("weather") ||
                 token.contains("forecast") ||
@@ -112,37 +134,35 @@ internal object NativeWeatherSemantics {
         return high ?: low ?: ""
     }
 
+
     fun formatTemperatureCellValue(value: String?): String? {
         val raw = normalizeWeatherCell(value) ?: return null
-        var formatted = raw
-            .replace("º", "°")
-            .replace("℃", "°C")
-            .replace("℉", "°F")
+        var formatted = normalizeTemperatureText(raw)
             .replace(
-                Regex("""(?i)(-?\d{1,2}(?:\.\d+)?)\s*(?:°\s*)?([CF])\b""")
+                Regex("(?i)(-?\\d{1,2}(?:\\.\\d+)?)\\s*(?:\\u00B0\\s*)?([CF])\\b")
             ) { match ->
                 val number = match.groupValues[1]
                 val unit = match.groupValues[2].uppercase(Locale.US)
-                "$number°$unit"
+                "$number\u00B0$unit"
             }
-        if (formatted.contains('°')) {
+        if (formatted.contains("\u00B0")) {
             return formatted
         }
 
         val rangePattern = Regex(
-            """^\s*-?\d{1,2}(?:\.\d+)?\s*(?:/|–|-|to)\s*-?\d{1,2}(?:\.\d+)?\s*$""",
+            "^\\s*-?\\d{1,2}(?:\\.\\d+)?\\s*(?:/|\\u2013|\\u2014|-|to)\\s*-?\\d{1,2}(?:\\.\\d+)?\\s*$",
             RegexOption.IGNORE_CASE
         )
         if (rangePattern.matches(formatted)) {
-            formatted = formatted.replace(Regex("""-?\d{1,2}(?:\.\d+)?""")) { match ->
-                "${match.value}°"
+            formatted = formatted.replace(Regex("-?\\d{1,2}(?:\\.\\d+)?")) { match ->
+                "${match.value}\u00B0"
             }
             return formatted
         }
 
-        val single = Regex("""^\s*(-?\d{1,2}(?:\.\d+)?)\s*$""").matchEntire(formatted)
+        val single = Regex("^\\s*(-?\\d{1,2}(?:\\.\\d+)?)\\s*$").matchEntire(formatted)
         if (single != null) {
-            return "${single.groupValues[1]}°"
+            return "${single.groupValues[1]}\u00B0"
         }
         return formatted
     }
@@ -187,10 +207,23 @@ internal object NativeWeatherSemantics {
 
     fun isCurrentWeatherHeading(title: String): Boolean {
         val normalized = normalizeWeatherText(title)
+        if (normalized.isBlank()) {
+            return false
+        }
+        val hasCurrentMarker =
+            normalized.contains("current") ||
+                normalized.contains("currently") ||
+                normalized.contains("now")
+        val hasWeatherMarker =
+            normalized.contains("weather") ||
+                normalized.contains("condition") ||
+                normalized.contains("temperature")
         return normalized.contains("current condition") ||
             normalized.contains("current weather") ||
             normalized == "currently" ||
-            normalized.contains("now")
+            normalized == "weather now" ||
+            normalized == "weather currently" ||
+            (hasCurrentMarker && hasWeatherMarker)
     }
 
     fun collectCurrentWeatherFollowUpLines(
@@ -236,10 +269,14 @@ internal object NativeWeatherSemantics {
 
     fun isLikelyCurrentWeatherDetailLine(text: String): Boolean {
         val normalized = text.lowercase(Locale.US)
-        return Regex("""(?<!\d)-?\d{1,2}(?:\.\d+)?\s*°""").containsMatchIn(text) ||
+        val normalizedTempText = normalizeTemperatureText(text)
+        return Regex("(?<!\\d)-?\\d{1,2}(?:\\.\\d+)?\\s*\\u00B0").containsMatchIn(normalizedTempText) ||
+            Regex("(?i)(?<!\\d)-?\\d{1,2}(?:\\.\\d+)?\\s*(?:\\u00B0\\s*)?[CF]\\b").containsMatchIn(normalizedTempText) ||
             normalized.contains("feels like") ||
             normalized.contains("humidity") ||
             normalized.contains("wind") ||
+            normalized.contains("temperature") ||
+            normalized.contains("temp ") ||
             normalized.contains("uv index") ||
             normalized.contains("chance of rain") ||
             normalized.contains("precip") ||
@@ -318,18 +355,22 @@ internal object NativeWeatherSemantics {
     }
 
     fun inferWeatherConditionFromTextPool(textPool: String): String? {
+        val normalized = textPool.lowercase(Locale.US)
         return when {
-            textPool.contains("thunder") || textPool.contains("storm") || textPool.contains("lightning") -> "Thunderstorm"
-            textPool.contains("snow") || textPool.contains("sleet") || textPool.contains("blizzard") -> "Snow"
-            textPool.contains("rain") || textPool.contains("shower") || textPool.contains("drizzle") -> "Rain"
-            textPool.contains("fog") || textPool.contains("mist") || textPool.contains("haze") -> "Fog"
-            textPool.contains("cloud") || textPool.contains("overcast") || textPool.contains("partly cloudy") -> "Cloudy"
-            textPool.contains("clear") -> "Clear"
-            textPool.contains("sun") || textPool.contains("fair") -> "Sunny"
-            textPool.contains("wind") || textPool.contains("breeze") -> "Windy"
+            containsAnyWholeWord(normalized, setOf("thunder", "storm", "lightning", "thunderstorm")) -> "Thunderstorm"
+            containsAnyWholeWord(normalized, setOf("snow", "sleet", "blizzard", "flurries")) -> "Snow"
+            containsAnyWholeWord(normalized, setOf("rain", "rainy", "shower", "showers", "drizzle")) -> "Rain"
+            containsAnyWholeWord(normalized, setOf("fog", "foggy", "mist", "haze", "hazy")) -> "Fog"
+            normalized.contains("partly cloudy") ||
+                containsAnyWholeWord(normalized, setOf("cloud", "cloudy", "overcast")) -> "Cloudy"
+
+            containsWholeWord(normalized, "clear") -> "Clear"
+            containsAnyWholeWord(normalized, setOf("sun", "sunny", "fair")) -> "Sunny"
+            containsAnyWholeWord(normalized, setOf("wind", "windy", "breeze", "breezy")) -> "Windy"
             else -> null
         }
     }
+
 
     fun buildCurrentWeatherDetails(
         title: String,
@@ -337,10 +378,6 @@ internal object NativeWeatherSemantics {
         fallbackCondition: String?,
         additionalLines: List<String> = emptyList()
     ): WeatherCurrentDetails? {
-        if (!isCurrentWeatherHeading(title)) {
-            return null
-        }
-
         val rawLines = mutableListOf<String>()
         sectionBlocks.forEach { block ->
             when (block) {
@@ -355,30 +392,59 @@ internal object NativeWeatherSemantics {
         }
 
         val merged = rawLines.joinToString(" ")
-            .replace(Regex("""\s+"""), " ")
+            .replace(Regex("\\s+"), " ")
             .trim()
         if (merged.isBlank()) {
             return null
         }
+        val normalizedMerged = normalizeTemperatureText(merged)
 
         val iconUrl = extractCurrentWeatherIconUrl(sectionBlocks)
         val iconCondition = iconUrl?.let(::inferWeatherConditionFromIconUrl)
         val condition = iconCondition
-            ?: inferWeatherConditionFromTextPool(merged.lowercase(Locale.US))
+            ?: inferWeatherConditionFromTextPool(normalizedMerged.lowercase(Locale.US))
             ?: fallbackCondition
-        val temperature = extractTemperatureValue(merged)
-        val feelsLike = extractFeelsLikeValue(merged)
-        val humidity = extractHumidityValue(merged)
-        val wind = extractWindValue(merged)
-        val rainChance = extractRainChanceValue(merged)
-        val uvIndex = extractUvIndexValue(merged)
-        val summary = merged
-            .split(Regex("""(?<=[.!?])\s+"""))
+        val temperature = extractTemperatureValue(normalizedMerged)
+        val feelsLike = extractFeelsLikeValue(normalizedMerged)
+        val humidity = extractHumidityValue(normalizedMerged)
+        val wind = extractWindValue(normalizedMerged)
+        val rainChance = extractRainChanceValue(normalizedMerged)
+        val uvIndex = extractUvIndexValue(normalizedMerged)
+        val summary = normalizedMerged
+            .split(Regex("(?<=[.!?])\\s+"))
             .filter { it.isNotBlank() }
             .take(2)
             .joinToString(" ")
             .trim()
             .takeIf { it.isNotBlank() }
+        val hasMetricSignals =
+            !temperature.isNullOrBlank() ||
+                !feelsLike.isNullOrBlank() ||
+                !humidity.isNullOrBlank() ||
+                !wind.isNullOrBlank() ||
+                !rainChance.isNullOrBlank() ||
+                !uvIndex.isNullOrBlank()
+        val titleHasWeatherContext = normalizeWeatherText(title).contains("weather")
+        val titleNormalized = normalizeWeatherText(title)
+        val titleHasCurrentMarker =
+            titleNormalized.contains("current") ||
+                titleNormalized.contains("currently") ||
+                titleNormalized.contains("now")
+        val conditionIsWeatherLike = isWeatherConditionLabel(condition)
+        val hasStrongWeatherData =
+            !iconUrl.isNullOrBlank() ||
+                hasMetricSignals ||
+                (titleHasWeatherContext && conditionIsWeatherLike)
+        val looksLikeCurrentSection =
+            isCurrentWeatherHeading(title) ||
+                titleHasCurrentMarker ||
+                (titleHasWeatherContext && hasMetricSignals)
+        if (!looksLikeCurrentSection) {
+            return null
+        }
+        if (!hasStrongWeatherData && summary.isNullOrBlank()) {
+            return null
+        }
 
         return WeatherCurrentDetails(
             iconUrl = iconUrl,
@@ -390,21 +456,13 @@ internal object NativeWeatherSemantics {
             rainChance = rainChance,
             uvIndex = uvIndex,
             summary = summary
-        ).takeIf {
-            !it.iconUrl.isNullOrBlank() ||
-                !it.condition.isNullOrBlank() ||
-                !it.temperature.isNullOrBlank() ||
-                !it.feelsLike.isNullOrBlank() ||
-                !it.humidity.isNullOrBlank() ||
-                !it.wind.isNullOrBlank() ||
-                !it.rainChance.isNullOrBlank() ||
-                !it.uvIndex.isNullOrBlank()
-        }
+        )
     }
 
     fun extractTemperatureValue(text: String): String? {
-        Regex("""(?<!\d)(-?\d{1,2}(?:\.\d+)?)\s*(?:°\s*([CF])|([CF]))\b""", RegexOption.IGNORE_CASE)
-            .find(text)
+        val normalizedText = normalizeTemperatureText(text)
+        Regex("(?<!\\d)(-?\\d{1,2}(?:\\.\\d+)?)\\s*(?:\\u00B0\\s*([CF])|([CF]))\\b", RegexOption.IGNORE_CASE)
+            .find(normalizedText)
             ?.let { match ->
                 val value = match.groupValues[1]
                 val unit = match.groupValues.getOrNull(2).orEmpty().ifBlank {
@@ -413,14 +471,14 @@ internal object NativeWeatherSemantics {
                 return formatTemperatureReading(value, unit)
             }
 
-        Regex("""(?<!\d)(-?\d{1,2}(?:\.\d+)?)\s*°\b""")
-            .find(text)
+        Regex("(?<!\\d)(-?\\d{1,2}(?:\\.\\d+)?)\\s*\\u00B0\\b")
+            .find(normalizedText)
             ?.let { match ->
                 return formatTemperatureReading(match.groupValues[1], null)
             }
 
-        Regex("""(?i)\b(?:temperature|temp|currently|current)\b[^-\d]{0,16}(-?\d{1,2}(?:\.\d+)?)\s*(?:°\s*([CF])|([CF]))?""")
-            .find(text)
+        Regex("(?i)\\b(?:temperature|temp|currently|current)\\b[^-\\d]{0,16}(-?\\d{1,2}(?:\\.\\d+)?)\\s*(?:\\u00B0\\s*([CF])|([CF]))?")
+            .find(normalizedText)
             ?.let { match ->
                 val value = match.groupValues[1]
                 val unit = match.groupValues.getOrNull(2).orEmpty().ifBlank {
@@ -433,8 +491,9 @@ internal object NativeWeatherSemantics {
     }
 
     fun extractFeelsLikeValue(text: String): String? {
-        Regex("""(?i)\bfeels?\s+like\b[^-\d]{0,16}(-?\d{1,2}(?:\.\d+)?)\s*(?:°\s*([CF])|([CF]))?""")
-            .find(text)
+        val normalizedText = normalizeTemperatureText(text)
+        Regex("(?i)\\bfeels?\\s+like\\b[^-\\d]{0,16}(-?\\d{1,2}(?:\\.\\d+)?)\\s*(?:\\u00B0\\s*([CF])|([CF]))?")
+            .find(normalizedText)
             ?.let { match ->
                 val value = match.groupValues[1]
                 val unit = match.groupValues.getOrNull(2).orEmpty().ifBlank {
@@ -448,7 +507,26 @@ internal object NativeWeatherSemantics {
     fun formatTemperatureReading(value: String, unit: String?): String {
         val cleanValue = value.trim()
         val cleanUnit = unit.orEmpty().trim().uppercase(Locale.US)
-        return if (cleanUnit.isBlank()) "$cleanValue°" else "$cleanValue°$cleanUnit"
+        return if (cleanUnit.isBlank()) "$cleanValue\u00B0" else "$cleanValue\u00B0$cleanUnit"
+    }
+
+
+    fun normalizeTemperatureText(value: String): String {
+        val normalized = value
+            .replace("\u00C2\u00B0", "\u00B0")
+            .replace("\u00C2\u00BA", "\u00B0")
+            .replace("\u00C2", "")
+            .replace("º", "\u00B0")
+            .replace("Â°", "\u00B0")
+            .replace("Âº", "\u00B0")
+            .replace(Regex("(?<!\\d)-?\\d{1,2}(?:\\.\\d+)?\\s*[^\\r\\n\\w%]{1,3}\\s*([CF])\\b", RegexOption.IGNORE_CASE)) { match ->
+                val number = Regex("-?\\d{1,2}(?:\\.\\d+)?").find(match.value)?.value.orEmpty()
+                val unit = match.groupValues[1].uppercase(Locale.US)
+                if (number.isBlank()) match.value else "$number\u00B0$unit"
+            }
+        return normalized.replace(Regex("\u00B0\\s*([CF])", RegexOption.IGNORE_CASE)) { match ->
+            "\u00B0${match.groupValues[1].uppercase(Locale.US)}"
+        }
     }
 
     fun extractHumidityValue(text: String): String? =
@@ -615,6 +693,8 @@ internal object NativeWeatherSemantics {
             "<url>",
             "image_url",
             "icon_url",
+            "image",
+            "icon",
             "url",
             "n/a",
             "na",
@@ -637,4 +717,52 @@ internal object NativeWeatherSemantics {
             normalized.contains("/img/wn/") ||
             Regex("""/\d{2}[dn](?:@\dx)?\.(png|webp|jpg|jpeg)(?:[?#].*)?$""").containsMatchIn(normalized)
     }
+
+    private fun isWeatherLikeRow(row: WeatherRow): Boolean {
+        val hasTempOrMetrics =
+            !row.temp.isNullOrBlank() ||
+                !row.high.isNullOrBlank() ||
+                !row.low.isNullOrBlank() ||
+                row.metrics.isNotEmpty()
+        if (hasTempOrMetrics) {
+            return true
+        }
+        return isWeatherConditionLabel(row.condition)
+    }
+
+    private fun isWeatherConditionLabel(condition: String?): Boolean {
+        val normalized = normalizeWeatherText(condition.orEmpty())
+        if (normalized.isBlank()) {
+            return false
+        }
+        return containsAnyWholeWord(
+            normalized,
+            setOf(
+                "clear",
+                "sunny",
+                "cloudy",
+                "overcast",
+                "rain",
+                "rainy",
+                "drizzle",
+                "thunderstorm",
+                "storm",
+                "snow",
+                "fog",
+                "mist",
+                "haze",
+                "windy"
+            )
+        ) || normalized.contains("partly cloudy")
+    }
+
+    private fun containsAnyWholeWord(text: String, words: Set<String>): Boolean {
+        return words.any { containsWholeWord(text, it) }
+    }
+
+    private fun containsWholeWord(text: String, word: String): Boolean {
+        return Regex("""\b${Regex.escape(word)}\b""").containsMatchIn(text)
+    }
 }
+
+

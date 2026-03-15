@@ -109,13 +109,13 @@ internal object NativeWeatherUiRenderer {
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
-                                    Text(
+                                    MarkdownText(
                                         text = todayLabel,
                                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     todayDate?.let { dateValue ->
-                                        Text(
+                                        MarkdownText(
                                             text = dateValue,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -125,7 +125,7 @@ internal object NativeWeatherUiRenderer {
                             }
 
                             if (todayTemperature.isNotBlank()) {
-                                Text(
+                                MarkdownText(
                                     text = sanitizeDisplayText(todayTemperature),
                                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -135,7 +135,7 @@ internal object NativeWeatherUiRenderer {
                         }
 
                         if (todayCondition.isNotBlank()) {
-                            Text(
+                            MarkdownText(
                                 text = todayCondition,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -151,7 +151,7 @@ internal object NativeWeatherUiRenderer {
                                     val chipLabel = sanitizeDisplayText(label)
                                     val chipValue = sanitizeDisplayText(value)
                                     if (chipLabel.isNotBlank() && chipValue.isNotBlank()) {
-                                        Text(
+                                        MarkdownText(
                                             text = "$chipLabel $chipValue",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -204,13 +204,13 @@ internal object NativeWeatherUiRenderer {
                                     Column(
                                         verticalArrangement = Arrangement.spacedBy(2.dp)
                                     ) {
-                                        Text(
+                                        MarkdownText(
                                             text = periodText,
                                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         dateText?.let { dateValue ->
-                                            Text(
+                                            MarkdownText(
                                                 text = dateValue,
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -221,7 +221,7 @@ internal object NativeWeatherUiRenderer {
                                     }
                                 }
                                 if (temperature.isNotBlank()) {
-                                    Text(
+                                    MarkdownText(
                                         text = sanitizeDisplayText(temperature),
                                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                                         color = MaterialTheme.colorScheme.onSurface,
@@ -231,7 +231,7 @@ internal object NativeWeatherUiRenderer {
                             }
 
                             conditionText?.let { condition ->
-                                Text(
+                                MarkdownText(
                                     text = condition,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -247,7 +247,7 @@ internal object NativeWeatherUiRenderer {
                                         val chipLabel = sanitizeDisplayText(label)
                                         val chipValue = sanitizeDisplayText(value)
                                         if (chipLabel.isNotBlank() && chipValue.isNotBlank()) {
-                                            Text(
+                                            MarkdownText(
                                                 text = "$chipLabel $chipValue",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -310,21 +310,21 @@ internal object NativeWeatherUiRenderer {
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 if (temperatureText.isNotBlank()) {
-                    Text(
+                    MarkdownText(
                         text = temperatureText,
                         style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 if (conditionText.isNotBlank()) {
-                    Text(
+                    MarkdownText(
                         text = conditionText,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 if (feelsLikeText.isNotBlank()) {
-                    Text(
+                    MarkdownText(
                         text = "Feels like $feelsLikeText",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -347,7 +347,7 @@ internal object NativeWeatherUiRenderer {
                 chips.forEach { (label, value) ->
                     val chipValue = sanitizeDisplayText(value)
                     if (chipValue.isBlank()) return@forEach
-                    Text(
+                    MarkdownText(
                         text = "$label $chipValue",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -393,6 +393,54 @@ internal object NativeWeatherUiRenderer {
     }
 
     @Composable
+    private fun MarkdownText(
+        text: String,
+        style: TextStyle,
+        color: Color,
+        modifier: Modifier = Modifier,
+        textAlign: TextAlign? = null,
+        maxLines: Int = Int.MAX_VALUE,
+        overflow: TextOverflow = TextOverflow.Clip
+    ) {
+        val displayText = remember(text) { sanitizeDisplayText(text, preserveMarkdown = true) }
+        if (displayText.isBlank()) {
+            return
+        }
+        val hasMarkdownInline = remember(displayText) { containsMarkdownInlineFormatting(displayText) }
+        val hasMarkdownHeading = remember(displayText) { containsMarkdownHeading(displayText) }
+        val hasMarkdown = hasMarkdownInline || hasMarkdownHeading
+        val plainText = remember(displayText) { sanitizeDisplayText(displayText) }
+        if (!hasMarkdown) {
+            Text(
+                text = plainText,
+                style = style,
+                color = color,
+                modifier = modifier,
+                textAlign = textAlign,
+                maxLines = maxLines,
+                overflow = overflow
+            )
+            return
+        }
+        val parsedText = remember(displayText, style, hasMarkdownHeading) {
+            if (hasMarkdownHeading) {
+                parseMarkdownWithHeadings(displayText, style)
+            } else {
+                parseInlineMarkdown(displayText)
+            }
+        }
+        Text(
+            text = parsedText,
+            style = style.copy(fontWeight = FontWeight.Normal),
+            color = color,
+            modifier = modifier,
+            textAlign = textAlign,
+            maxLines = maxLines,
+            overflow = overflow
+        )
+    }
+
+    @Composable
     private fun weatherConditionIconSpec(condition: String?): Pair<ImageVector, Color> {
         val normalized = NativeWeatherSemantics.normalizeWeatherText(condition.orEmpty())
         return when {
@@ -420,4 +468,19 @@ internal object NativeWeatherUiRenderer {
             else -> Icons.Filled.Cloud to MaterialTheme.colorScheme.primary
         }
     }
+
+    private fun sanitizeDisplayText(text: String, preserveMarkdown: Boolean = false): String =
+        com.samsung.genuicraft.renderer.native.NativeTextFormatter.sanitizeDisplayText(text, preserveMarkdown)
+
+    private fun containsMarkdownInlineFormatting(text: String): Boolean =
+        com.samsung.genuicraft.renderer.native.NativeTextFormatter.containsMarkdownInlineFormatting(text)
+
+    private fun containsMarkdownHeading(text: String): Boolean =
+        com.samsung.genuicraft.renderer.native.NativeTextFormatter.containsMarkdownHeading(text)
+
+    private fun parseMarkdownWithHeadings(text: String, baseStyle: TextStyle) =
+        com.samsung.genuicraft.renderer.native.NativeTextFormatter.parseMarkdownWithHeadings(text, baseStyle)
+
+    private fun parseInlineMarkdown(text: String) =
+        com.samsung.genuicraft.renderer.native.NativeTextFormatter.parseInlineMarkdown(text)
 }

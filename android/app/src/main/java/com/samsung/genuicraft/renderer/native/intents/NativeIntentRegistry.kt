@@ -6,8 +6,8 @@ import com.samsung.genuicraft.renderer.native.intents.weather.NativeWeatherInten
 
 internal object NativeIntentRegistry {
     private val modules: List<NativeIntentModule> = listOf(
-        NativeWeatherIntentModule,
-        NativeFlightIntentModule
+        NativeFlightIntentModule,
+        NativeWeatherIntentModule
     )
 
     fun resolve(

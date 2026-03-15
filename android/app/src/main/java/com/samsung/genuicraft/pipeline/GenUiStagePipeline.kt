@@ -83,6 +83,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
+        GeminiApiKeyProvider.refresh(appContext)
+
         val responseProvider = InferenceBackendSettings.getResponseProvider(appContext)
         val irProvider = InferenceBackendSettings.getIrProvider(appContext)
         val responseModel = GeminiModelSettings.getResponseModel(appContext)
@@ -102,25 +104,25 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
 
         val responseApiKey = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
-            BuildConfig.GEMINI_API_KEY.trim()
+            GeminiApiKeyProvider.stage2ApiKey(appContext).trim()
         } else {
             ""
         }
         val irApiKey = if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
-            BuildConfig.GEMINI_API_KEY.trim()
+            GeminiApiKeyProvider.stage3ApiKey(appContext).trim()
         } else {
             ""
         }
         if (responseProvider == InferenceBackendSettings.Provider.GEMINI && responseApiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
-                message = "Gemini API key is missing. Set GEMINI_API_KEY before building the app."
+                message = "Gemini stage-2 key is missing. Add GEMINI_STAGE2_API_KEY (or GEMINI_RESPONSE_API_KEY / GEMINI_API_KEY) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
         if (irProvider == InferenceBackendSettings.Provider.GEMINI && irApiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
-                message = "Gemini API key is missing. Set GEMINI_API_KEY before building the app."
+                message = "Gemini stage-3 key is missing. Add GEMINI_IR_API_KEY (or GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
         if ((responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER ||
@@ -155,11 +157,22 @@ class GenUiStagePipeline(private val appContext: Context) {
                     message = "Could not load stage 2 prompt: ${it.message ?: it.javaClass.simpleName}"
                 )
             }
-
+        val stage2PromptContext = prepareStage2PromptContext(responseTemplate)
         val stage2Prompt = renderPrompt(
-            responseTemplate,
+            stage2PromptContext.userTemplate,
             "query_text" to normalizedQuery
         )
+        val stage2CacheDeferred = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
+            async(Dispatchers.IO) {
+                ensureStage2InstructionCache(
+                    apiKey = responseApiKey,
+                    model = responseModel,
+                    systemPrompt = stage2PromptContext.systemPrompt
+                )
+            }
+        } else {
+            null
+        }
 
         val genUiTemplate = runCatching { loadPromptAsset(STAGE3_PROMPT_ASSET) }
             .getOrElse {
@@ -182,6 +195,18 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         postUpdate(onStageUpdate, Stage.STAGE2, "Fetching response")
+        val stage2Cache = if (stage2CacheDeferred != null) {
+            runCatching { stage2CacheDeferred.await() }
+                .getOrElse {
+                    CacheSetupResult(
+                        name = null,
+                        created = false,
+                        error = it.message ?: it.javaClass.simpleName
+                    )
+                }
+        } else {
+            CacheSetupResult(name = null, created = false, error = null)
+        }
         val stage2StartedAtMs = System.currentTimeMillis()
         val stage2Call = generateWithRetry(
             provider = responseProvider,
@@ -190,17 +215,21 @@ class GenUiStagePipeline(private val appContext: Context) {
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
             prompt = stage2Prompt,
-            systemPrompt = null,
+            systemPrompt = if (stage2Cache.name != null) null else stage2PromptContext.systemPrompt,
             temperature = 0.3,
             maxOutputTokens = stage2MaxOutputTokens,
             jsonMode = false,
             enableGoogleSearch = responseProvider == InferenceBackendSettings.Provider.GEMINI,
-            allowCachedContent = false,
-            structuredOutput = false
+            cachedContentName = stage2Cache.name,
+            allowCachedContent = true,
+            structuredOutput = false,
+            geminiCacheFallbackSystemPrompt = stage2PromptContext.systemPrompt,
+            onGeminiCachedContentMissing = ::invalidateStage2InstructionCache
         )
         markStreamDuration(Stage.STAGE2, stage2Call.streamDurationMs)
         if (stage2Call.error != null) {
             markDuration(Stage.STAGE2, stage2StartedAtMs)
+            stage2CacheDeferred?.cancel()
             stage3CacheDeferred?.cancel()
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
@@ -212,6 +241,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage2ResponseRaw = stage2Call.text.trim()
         if (stage2ResponseRaw.isBlank()) {
             markDuration(Stage.STAGE2, stage2StartedAtMs)
+            stage2CacheDeferred?.cancel()
             stage3CacheDeferred?.cancel()
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
@@ -224,13 +254,18 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = stage2ResponseRaw,
             queryText = normalizedQuery
         )
-        val stage2WithTravelMedia = ensureTravelInlineMedia(
+        val stage2WithFlightMedia = sanitizeFlightInlineMedia(
             responseText = stage2WithActions,
+            queryText = normalizedQuery
+        )
+        val stage2WithTravelMedia = ensureTravelInlineMedia(
+            responseText = stage2WithFlightMedia,
             queryText = normalizedQuery
         )
         val stage2Response = normalizeUrlTokensForDisplay(stage2WithTravelMedia)
         val normalizedBareDomains = stage2Response != stage2WithTravelMedia
-        val injectedTravelMedia = stage2WithTravelMedia != stage2WithActions
+        val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
+        val injectedTravelMedia = stage2WithTravelMedia != stage2WithFlightMedia
         markDuration(Stage.STAGE2, stage2StartedAtMs)
         val stage3Prompt = buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
@@ -264,6 +299,15 @@ class GenUiStagePipeline(private val appContext: Context) {
         warnings += "IR backend: ${irProvider.rawValue}"
         if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini response model: $responseModel"
+            if (stage2Cache.name != null && !stage2Cache.created) {
+                warnings += "Stage 2 instruction cache hit."
+            }
+            if (stage2Cache.created) {
+                warnings += "Stage 2 instruction cache created."
+            }
+            stage2Cache.error?.let {
+                warnings += "Stage 2 instruction cache unavailable ($it). Using direct prompt."
+            }
         } else {
             warnings += "Local server (response): $localServerBaseUrl"
             warnings += "Local model path (response): $localModelPath"
@@ -281,6 +325,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         if (normalizedBareDomains) {
             warnings += "Normalized bare source/action domains to https URLs."
+        }
+        if (removedFlightMedia) {
+            warnings += "Removed unrelated media lines from flight response."
         }
         if (injectedTravelMedia) {
             warnings += "Added fallback inline media URLs for travel content."
@@ -364,7 +411,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             allowCachedContent = true,
             structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI,
             localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-            localSendSystemPrompt = localSendStage3SystemPrompt
+            localSendSystemPrompt = localSendStage3SystemPrompt,
+            geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
+            onGeminiCachedContentMissing = ::invalidateStage3InstructionCache
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -400,7 +449,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 allowCachedContent = true,
                 structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI,
                 localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-                localSendSystemPrompt = localSendStage3SystemPrompt
+                localSendSystemPrompt = localSendStage3SystemPrompt,
+                geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
+                onGeminiCachedContentMissing = ::invalidateStage3InstructionCache
             )
             markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
             if (repairCall.error == null) {
@@ -505,6 +556,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
+        GeminiApiKeyProvider.refresh(appContext)
+
         val provider = InferenceBackendSettings.getIrProvider(appContext)
         val irModel = GeminiModelSettings.getIrModel(appContext)
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
@@ -514,14 +567,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
 
         val apiKey = if (provider == InferenceBackendSettings.Provider.GEMINI) {
-            BuildConfig.GEMINI_API_KEY.trim()
+            GeminiApiKeyProvider.stage3ApiKey(appContext).trim()
         } else {
             ""
         }
         if (provider == InferenceBackendSettings.Provider.GEMINI && apiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
-                message = "Gemini API key is missing. Set GEMINI_API_KEY before building the app.",
+                message = "Gemini stage-3 key is missing. Add GEMINI_IR_API_KEY (or GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}",
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
@@ -573,13 +626,18 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = normalizedResponseRaw,
             queryText = normalizedQuery
         )
-        val stage2WithTravelMedia = ensureTravelInlineMedia(
+        val stage2WithFlightMedia = sanitizeFlightInlineMedia(
             responseText = stage2WithActions,
+            queryText = normalizedQuery
+        )
+        val stage2WithTravelMedia = ensureTravelInlineMedia(
+            responseText = stage2WithFlightMedia,
             queryText = normalizedQuery
         )
         val stage2Response = normalizeUrlTokensForDisplay(stage2WithTravelMedia)
         val normalizedBareDomains = stage2Response != stage2WithTravelMedia
-        val injectedTravelMedia = stage2WithTravelMedia != stage2WithActions
+        val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
+        val injectedTravelMedia = stage2WithTravelMedia != stage2WithFlightMedia
 
         val stage3Prompt = buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
@@ -607,6 +665,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         if (normalizedBareDomains) {
             warnings += "Normalized bare source/action domains to https URLs."
+        }
+        if (removedFlightMedia) {
+            warnings += "Removed unrelated media lines from flight response."
         }
         if (injectedTravelMedia) {
             warnings += "Added fallback inline media URLs for travel content."
@@ -690,7 +751,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             allowCachedContent = true,
             structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
             localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-            localSendSystemPrompt = localSendStage3SystemPrompt
+            localSendSystemPrompt = localSendStage3SystemPrompt,
+            geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
+            onGeminiCachedContentMissing = ::invalidateStage3InstructionCache
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -726,7 +789,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 allowCachedContent = true,
                 structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
                 localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-                localSendSystemPrompt = localSendStage3SystemPrompt
+                localSendSystemPrompt = localSendStage3SystemPrompt,
+                geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
+                onGeminiCachedContentMissing = ::invalidateStage3InstructionCache
             )
             markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
             if (repairCall.error == null) {
@@ -857,6 +922,191 @@ class GenUiStagePipeline(private val appContext: Context) {
             append(responseText.trimEnd())
             append("\n\nQuick Actions\n")
             append(actionLines.joinToString(separator = "\n"))
+        }
+    }
+
+    private fun sanitizeFlightInlineMedia(
+        responseText: String,
+        queryText: String
+    ): String {
+        if (!looksLikeFlightQuery(queryText) && !looksLikeFlightContent(responseText)) {
+            return responseText
+        }
+        val normalized = responseText.replace("\r\n", "\n")
+        if (normalized.isBlank()) {
+            return responseText
+        }
+        val lines = normalized.split('\n')
+        val output = mutableListOf<String>()
+        var removedAny = false
+
+        lines.forEach { rawLine ->
+            val trimmed = rawLine.trim()
+            if (trimmed.isBlank()) {
+                output += rawLine
+                return@forEach
+            }
+            if (!isFlightMediaCandidateLine(trimmed)) {
+                output += rawLine
+                return@forEach
+            }
+
+            val sanitizedLine = sanitizeFlightMediaCandidateLine(trimmed)
+            if (sanitizedLine.isNullOrBlank()) {
+                removedAny = true
+                return@forEach
+            }
+
+            val leadingWhitespace = rawLine.takeWhile { it.isWhitespace() }
+            output += leadingWhitespace + sanitizedLine
+            if (sanitizedLine != trimmed) {
+                removedAny = true
+            }
+        }
+
+        if (!removedAny) {
+            return responseText
+        }
+        return output.joinToString("\n")
+            .replace(Regex("""\n{3,}"""), "\n\n")
+            .trimEnd()
+    }
+
+    private fun isFlightMediaCandidateLine(line: String): Boolean {
+        val trimmed = line.trim()
+        val lower = trimmed.lowercase(Locale.US)
+        if (lower.startsWith("media:") ||
+            lower.startsWith("image:") ||
+            lower.startsWith("icon:") ||
+            lower.startsWith("images:") ||
+            lower.startsWith("icons:") ||
+            lower.startsWith("assets:") ||
+            lower.startsWith("asset:") ||
+            lower.startsWith("logo:") ||
+            lower.startsWith("logos:")
+        ) {
+            return true
+        }
+        return trimmed.contains("Image=", ignoreCase = true) ||
+            trimmed.contains("Icon=", ignoreCase = true) ||
+            Regex("""!\[[^\]]*]\((https?://\S+|/assets/\S+|assets/\S+)\)""").containsMatchIn(trimmed)
+    }
+
+    private fun sanitizeFlightMediaCandidateLine(line: String): String? {
+        val trimmed = line.trim()
+        val lower = trimmed.lowercase(Locale.US)
+        if (lower in setOf("media:", "images:", "image:", "icons:", "icon:", "assets:", "asset:", "logos:", "logo:")) {
+            return null
+        }
+
+        val imageUrl = Regex("""(?i)\bImage\s*=\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        val iconUrl = Regex("""(?i)\bIcon\s*=\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        if (imageUrl != null || iconUrl != null) {
+            val parts = mutableListOf<String>()
+            if (imageUrl != null && isAllowedFlightMediaUrl(imageUrl, mediaType = "image", line = trimmed)) {
+                parts += "Image=$imageUrl"
+            }
+            if (iconUrl != null && isAllowedFlightMediaUrl(iconUrl, mediaType = "icon", line = trimmed)) {
+                parts += "Icon=$iconUrl"
+            }
+            return if (parts.isEmpty()) null else "Media: " + parts.joinToString(" ")
+        }
+
+        val imageColon = Regex("""(?i)^\s*Image\s*:\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)\s*$""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        if (imageColon != null) {
+            return if (isAllowedFlightMediaUrl(imageColon, mediaType = "image", line = trimmed)) {
+                "Image: $imageColon"
+            } else {
+                null
+            }
+        }
+
+        val iconColon = Regex("""(?i)^\s*Icon\s*:\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)\s*$""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        if (iconColon != null) {
+            return if (isAllowedFlightMediaUrl(iconColon, mediaType = "icon", line = trimmed)) {
+                "Icon: $iconColon"
+            } else {
+                null
+            }
+        }
+
+        val markdownMatch = Regex("""!\[([^\]]*)]\((https?://\S+|/assets/\S+|assets/\S+)\)""")
+            .find(trimmed)
+        if (markdownMatch != null) {
+            val label = markdownMatch.groupValues.getOrNull(1).orEmpty()
+            val mediaUrl = sanitizeMediaUrlToken(markdownMatch.groupValues.getOrNull(2).orEmpty())
+            return if (isAllowedFlightMediaUrl(mediaUrl, mediaType = "image", line = "$label $trimmed")) {
+                trimmed
+            } else {
+                null
+            }
+        }
+
+        val labelUrlLine = Regex("""^\s*([^:]{1,80})\s*:\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)\s*$""")
+            .find(trimmed)
+        if (labelUrlLine != null) {
+            val label = labelUrlLine.groupValues.getOrNull(1).orEmpty().trim()
+            val mediaUrl = sanitizeMediaUrlToken(labelUrlLine.groupValues.getOrNull(2).orEmpty())
+            return if (isAllowedFlightMediaUrl(mediaUrl, mediaType = "image", line = "$label:")) {
+                "$label: $mediaUrl"
+            } else {
+                null
+            }
+        }
+        return null
+    }
+
+    private fun isAllowedFlightMediaUrl(url: String, mediaType: String, line: String): Boolean {
+        if (!looksLikeUsableInlineMediaUrl(url)) {
+            return false
+        }
+        val normalizedUrl = sanitizeMediaUrlToken(url).lowercase(Locale.US)
+        val normalizedLine = line.lowercase(Locale.US)
+        val blockedTokens = listOf(
+            "tokyo", "kyoto", "phuket", "weather", "cloud", "rain", "sun", "sunny",
+            "beach", "temple", "noodles", "restaurant", "food", "cat", "dog", "monkey"
+        )
+        if (blockedTokens.any { normalizedUrl.contains(it) || normalizedLine.contains(it) }) {
+            return false
+        }
+
+        val airlineTokens = listOf(
+            "airline", "airlines", "airindia", "air-india", "airindiaexpress",
+            "goindigo", "indigo", "akasa", "spicejet", "vistara", "emirates",
+            "qatarairways", "britishairways", "delta", "united", "lufthansa"
+        )
+        val hasAirlineHint = airlineTokens.any { normalizedUrl.contains(it) || normalizedLine.contains(it) }
+        val hasLogoHint = normalizedUrl.contains("logo") ||
+            normalizedLine.contains("logo") ||
+            normalizedLine.contains("airline") ||
+            normalizedLine.contains("carrier")
+
+        val isBootstrapFlightIcon = normalizedUrl.contains("bootstrap-icons") &&
+            (normalizedUrl.contains("airplane") ||
+                normalizedUrl.contains("ticket") ||
+                normalizedUrl.contains("clock") ||
+                normalizedUrl.contains("calendar"))
+
+        return when (mediaType.lowercase(Locale.US)) {
+            "icon" -> hasAirlineHint || hasLogoHint || isBootstrapFlightIcon
+            "image" -> hasAirlineHint || hasLogoHint
+            else -> hasAirlineHint || hasLogoHint
         }
     }
 
@@ -1378,13 +1628,14 @@ class GenUiStagePipeline(private val appContext: Context) {
     private fun buildFallbackGenUi(stage2Response: String): JsonArray {
         val textValue = stage2Response.trim().ifBlank { "No content generated." }
         val surfaceId = "surface_live"
+        val catalogId = resolveStage3CatalogId()
         return JsonArray().apply {
             add(
                 JsonObject().apply {
                     addProperty("version", "v0.9")
                     add("createSurface", JsonObject().apply {
                         addProperty("surfaceId", surfaceId)
-                        addProperty("catalogId", "https://genui.local/specification/v0_9/standard_catalog.json")
+                        addProperty("catalogId", catalogId)
                     })
                 }
             )
@@ -1414,26 +1665,57 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
     }
 
-    private fun prepareStage3PromptContext(template: String): Stage3PromptContext {
-        val placeholder = "{response_text}"
-        if (!template.contains(placeholder)) {
-            return Stage3PromptContext(
-                systemPrompt = template.trim(),
-                userTemplate =
-                    "Convert the response text into valid GenUICraft JSON.\n" +
-                        "Return ONLY the JSON message array.\n\n" +
-                        "Response:\n{response_text}"
+    private fun prepareStage2PromptContext(template: String): Stage2PromptContext {
+        return preparePromptContext(
+            template = template,
+            placeholder = "{query_text}",
+            sentinel = "[QUERY_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]",
+            fallbackUserTemplate =
+                "Answer the following user query with a complete, user-ready response:\n" +
+                    "{query_text}"
+        ).let { context ->
+            Stage2PromptContext(
+                systemPrompt = context.systemPrompt,
+                userTemplate = context.userTemplate
             )
         }
+    }
 
-        val split = template.split(placeholder, limit = 2)
-        val systemPrompt = "${split[0]}[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]${split[1]}".trim()
-        val userTemplate = (
-            "Convert the response text into valid GenUICraft JSON.\n" +
-                "Return ONLY the JSON message array.\n\n" +
-                "Response:\n{response_text}"
+    private fun prepareStage3PromptContext(template: String): Stage3PromptContext {
+        return preparePromptContext(
+            template = template,
+            placeholder = "{response_text}",
+            sentinel = "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]",
+            fallbackUserTemplate =
+                "Convert the response text into valid GenUICraft JSON.\n" +
+                    "Return ONLY the JSON message array.\n\n" +
+                    "Response:\n{response_text}"
+        ).let { context ->
+            Stage3PromptContext(
+                systemPrompt = context.systemPrompt,
+                userTemplate = context.userTemplate
             )
-        return Stage3PromptContext(systemPrompt = systemPrompt, userTemplate = userTemplate)
+        }
+    }
+
+    private fun preparePromptContext(
+        template: String,
+        placeholder: String,
+        sentinel: String,
+        fallbackUserTemplate: String
+    ): PromptContext {
+        if (!template.contains(placeholder)) {
+            return PromptContext(
+                systemPrompt = template.trim(),
+                userTemplate = fallbackUserTemplate
+            )
+        }
+        val split = template.split(placeholder, limit = 2)
+        val systemPrompt = "${split[0]}$sentinel${split[1]}".trim()
+        return PromptContext(
+            systemPrompt = systemPrompt,
+            userTemplate = fallbackUserTemplate
+        )
     }
 
     private fun buildStage3UserPrompt(
@@ -1441,6 +1723,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         stage2Response: String,
         assets: List<AssetMapping>
     ): String {
+        val catalogId = resolveStage3CatalogId()
         val assetPolicy = if (assets.isEmpty()) {
             "Asset URL policy for this request:\n" +
                 "- No local asset mapping is provided.\n" +
@@ -1460,7 +1743,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             "Assets (local copies of any URLs in the response; use ONLY these local paths):\n$rows"
         }
 
-        val responseWithPolicy = "${stage2Response.trim()}\n\n$assetPolicy"
+        val catalogPolicy = "Catalog policy for this request:\n" +
+            "- Use this catalogId in createSurface unless an explicit catalog is provided in context:\n" +
+            "  - $catalogId"
+        val responseWithPolicy = "${stage2Response.trim()}\n\n$catalogPolicy\n\n$assetPolicy"
         val responseText = if (assetContext.isBlank()) {
             responseWithPolicy
         } else {
@@ -1468,6 +1754,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         return renderPrompt(userTemplate, "response_text" to responseText)
+    }
+
+    private fun resolveStage3CatalogId(): String {
+        val override = appContext.getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(PREF_STAGE3_CATALOG_ID, null)
+            ?.trim()
+            .orEmpty()
+        return if (override.isNotBlank()) override else DEFAULT_STAGE3_CATALOG_ID
     }
 
     private fun renderPrompt(template: String, vararg args: Pair<String, String>): String {
@@ -1598,7 +1892,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         allowCachedContent: Boolean = true,
         structuredOutput: Boolean = false,
         localSystemPromptCacheKey: String? = null,
-        localSendSystemPrompt: Boolean = true
+        localSendSystemPrompt: Boolean = true,
+        geminiCacheFallbackSystemPrompt: String? = null,
+        onGeminiCachedContentMissing: ((String) -> Unit)? = null
     ): GeminiResponse {
         var attempt = 0
         var accumulatedStreamMs = 0L
@@ -1741,6 +2037,40 @@ class GenUiStagePipeline(private val appContext: Context) {
                     Log.i(LOG_TAG, "Local stage3 KV prefix cache recovery succeeded for key=$localSystemPromptCacheKey")
                 } else {
                     Log.w(LOG_TAG, "Local stage3 KV prefix cache recovery failed for key=$localSystemPromptCacheKey: ${cacheRecovery.error}")
+                }
+                return cacheRecovery.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+            }
+            if (
+                provider == InferenceBackendSettings.Provider.GEMINI &&
+                !effectiveCachedContentName.isNullOrBlank() &&
+                isGeminiCachedContentMissing(last.error)
+            ) {
+                val reason = "Gemini cached content became unavailable (${effectiveCachedContentName.take(64)})."
+                onGeminiCachedContentMissing?.invoke(reason)
+                Log.w(
+                    LOG_TAG,
+                    "Gemini cached content not found, retrying with inline system prompt and no cachedContent."
+                )
+                val cacheRecovery = generateOnce(
+                    provider = provider,
+                    apiKey = apiKey,
+                    model = model,
+                    localServerBaseUrl = localServerBaseUrl,
+                    localModelPath = localModelPath,
+                    prompt = prompt,
+                    systemPrompt = geminiCacheFallbackSystemPrompt ?: systemPrompt,
+                    temperature = temperature,
+                    maxOutputTokens = maxOutputTokens,
+                    jsonMode = jsonMode,
+                    enableGoogleSearch = enableGoogleSearch,
+                    cachedContentName = null,
+                    structuredOutput = structuredOutput,
+                    localSystemPromptCacheKey = localSystemPromptCacheKey,
+                    localSendSystemPrompt = localSendSystemPrompt
+                )
+                cacheRecovery.streamDurationMs?.let {
+                    accumulatedStreamMs += it
+                    hasStreamSample = true
                 }
                 return cacheRecovery.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
@@ -2248,6 +2578,48 @@ class GenUiStagePipeline(private val appContext: Context) {
         return normalized.contains("system prompt cache miss for key")
     }
 
+    private fun isGeminiCachedContentMissing(error: String): Boolean {
+        val normalized = error.lowercase(Locale.US)
+        val referencesCache = normalized.contains("cachedcontent") || normalized.contains("cached content")
+        if (!referencesCache) {
+            return false
+        }
+        return normalized.contains("not found") ||
+            normalized.contains("does not exist") ||
+            normalized.contains("http 404") ||
+            (normalized.contains("invalid_argument") && normalized.contains("cache"))
+    }
+
+    private fun invalidateStage2InstructionCache(reason: String?) {
+        synchronized(stage2CacheLock) {
+            stage2InstructionCache = null
+        }
+        appContext.getSharedPreferences(CACHE_PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .remove(CACHE_KEY_STAGE2_HASH)
+            .remove(CACHE_KEY_STAGE2_NAME)
+            .remove(CACHE_KEY_STAGE2_EXPIRES_AT_MS)
+            .apply()
+        if (!reason.isNullOrBlank()) {
+            Log.w(LOG_TAG, "Stage2 cache invalidated: $reason")
+        }
+    }
+
+    private fun invalidateStage3InstructionCache(reason: String?) {
+        synchronized(stage3CacheLock) {
+            stage3InstructionCache = null
+        }
+        appContext.getSharedPreferences(CACHE_PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .remove(CACHE_KEY_STAGE3_HASH)
+            .remove(CACHE_KEY_STAGE3_NAME)
+            .remove(CACHE_KEY_STAGE3_EXPIRES_AT_MS)
+            .apply()
+        if (!reason.isNullOrBlank()) {
+            Log.w(LOG_TAG, "Stage3 cache invalidated: $reason")
+        }
+    }
+
     private fun buildLocalSystemPromptCacheKey(systemPrompt: String?): String? {
         if (systemPrompt.isNullOrBlank()) {
             return null
@@ -2364,7 +2736,7 @@ class GenUiStagePipeline(private val appContext: Context) {
     }
 
     private fun buildStage3ResponseSchema(): JsonObject {
-        // Keep schema permissive to reduce rejection risk while still forcing structured JSON output.
+        // Restrict schema to the render-only message subset used by this app.
         return JsonObject().apply {
             addProperty("type", "ARRAY")
             add("items", JsonObject().apply {
@@ -2373,10 +2745,61 @@ class GenUiStagePipeline(private val appContext: Context) {
                     add("version", JsonObject().apply { addProperty("type", "STRING") })
                     add("createSurface", JsonObject().apply { addProperty("type", "OBJECT") })
                     add("updateComponents", JsonObject().apply { addProperty("type", "OBJECT") })
-                    add("clearSurface", JsonObject().apply { addProperty("type", "OBJECT") })
                 })
+                add("required", JsonArray().apply { add("version") })
             })
         }
+    }
+
+    private fun ensureStage2InstructionCache(
+        apiKey: String,
+        model: String,
+        systemPrompt: String?
+    ): CacheSetupResult {
+        if (systemPrompt.isNullOrBlank()) {
+            return CacheSetupResult(name = null, created = false, error = null)
+        }
+
+        val promptHash = sha256Hex("$model\n$systemPrompt")
+        val now = System.currentTimeMillis()
+
+        synchronized(stage2CacheLock) {
+            val inMemory = stage2InstructionCache
+            if (inMemory != null && inMemory.hash == promptHash && inMemory.expiresAtMs > now + CACHE_EXPIRY_SAFETY_MS) {
+                return CacheSetupResult(name = inMemory.name, created = false, error = null)
+            }
+        }
+
+        readPersistedStage2Cache()?.let { persisted ->
+            if (persisted.hash == promptHash && persisted.expiresAtMs > now + CACHE_EXPIRY_SAFETY_MS) {
+                synchronized(stage2CacheLock) {
+                    stage2InstructionCache = persisted
+                }
+                return CacheSetupResult(name = persisted.name, created = false, error = null)
+            }
+        }
+
+        val created = createCachedInstruction(
+            apiKey = apiKey,
+            model = model,
+            promptHash = promptHash,
+            systemPrompt = systemPrompt,
+            displayNamePrefix = "genuicraft_stage2"
+        )
+        if (created.name != null) {
+            val expiresAtMs = created.expiresAtMs ?: now + STAGE_INSTRUCTION_CACHE_TTL_SECONDS * 1000L
+            val entry = CachedInstructionEntry(
+                hash = promptHash,
+                name = created.name,
+                expiresAtMs = expiresAtMs
+            )
+            synchronized(stage2CacheLock) {
+                stage2InstructionCache = entry
+            }
+            persistStage2Cache(entry)
+            return CacheSetupResult(name = entry.name, created = true, error = null)
+        }
+        return CacheSetupResult(name = null, created = false, error = created.error)
     }
 
     private fun ensureStage3InstructionCache(
@@ -2411,10 +2834,11 @@ class GenUiStagePipeline(private val appContext: Context) {
             apiKey = apiKey,
             model = model,
             promptHash = promptHash,
-            systemPrompt = systemPrompt
+            systemPrompt = systemPrompt,
+            displayNamePrefix = "genuicraft_stage3"
         )
         if (created.name != null) {
-            val expiresAtMs = created.expiresAtMs ?: now + STAGE3_CACHE_TTL_SECONDS * 1000L
+            val expiresAtMs = created.expiresAtMs ?: now + STAGE_INSTRUCTION_CACHE_TTL_SECONDS * 1000L
             val entry = CachedInstructionEntry(
                 hash = promptHash,
                 name = created.name,
@@ -2433,7 +2857,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         apiKey: String,
         model: String,
         promptHash: String,
-        systemPrompt: String
+        systemPrompt: String,
+        displayNamePrefix: String
     ): CachedInstructionCreateResult {
         val encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8.name())
         val endpoint = URL("https://generativelanguage.googleapis.com/v1beta/cachedContents?key=$encodedKey")
@@ -2447,8 +2872,8 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val body = JsonObject().apply {
             addProperty("model", "models/$model")
-            addProperty("displayName", "genuicraft_stage3_${promptHash.take(12)}")
-            addProperty("ttl", "${STAGE3_CACHE_TTL_SECONDS}s")
+            addProperty("displayName", "${displayNamePrefix}_${promptHash.take(12)}")
+            addProperty("ttl", "${STAGE_INSTRUCTION_CACHE_TTL_SECONDS}s")
             add("systemInstruction", JsonObject().apply {
                 add("parts", JsonArray().apply {
                     add(JsonObject().apply {
@@ -2534,23 +2959,43 @@ class GenUiStagePipeline(private val appContext: Context) {
         return hex.toString()
     }
 
-    private fun readPersistedStage3Cache(): CachedInstructionEntry? {
+    private fun readPersistedStage2Cache(): CachedInstructionEntry? {
         val prefs = appContext.getSharedPreferences(CACHE_PREFS_NAME, Context.MODE_PRIVATE)
-        val hash = prefs.getString(CACHE_KEY_HASH, null)?.trim().orEmpty()
-        val name = prefs.getString(CACHE_KEY_NAME, null)?.trim().orEmpty()
-        val expiresAt = prefs.getLong(CACHE_KEY_EXPIRES_AT_MS, 0L)
+        val hash = prefs.getString(CACHE_KEY_STAGE2_HASH, null)?.trim().orEmpty()
+        val name = prefs.getString(CACHE_KEY_STAGE2_NAME, null)?.trim().orEmpty()
+        val expiresAt = prefs.getLong(CACHE_KEY_STAGE2_EXPIRES_AT_MS, 0L)
         if (hash.isBlank() || name.isBlank() || expiresAt <= 0L) {
             return null
         }
         return CachedInstructionEntry(hash = hash, name = name, expiresAtMs = expiresAt)
     }
 
+    private fun readPersistedStage3Cache(): CachedInstructionEntry? {
+        val prefs = appContext.getSharedPreferences(CACHE_PREFS_NAME, Context.MODE_PRIVATE)
+        val hash = prefs.getString(CACHE_KEY_STAGE3_HASH, null)?.trim().orEmpty()
+        val name = prefs.getString(CACHE_KEY_STAGE3_NAME, null)?.trim().orEmpty()
+        val expiresAt = prefs.getLong(CACHE_KEY_STAGE3_EXPIRES_AT_MS, 0L)
+        if (hash.isBlank() || name.isBlank() || expiresAt <= 0L) {
+            return null
+        }
+        return CachedInstructionEntry(hash = hash, name = name, expiresAtMs = expiresAt)
+    }
+
+    private fun persistStage2Cache(entry: CachedInstructionEntry) {
+        appContext.getSharedPreferences(CACHE_PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(CACHE_KEY_STAGE2_HASH, entry.hash)
+            .putString(CACHE_KEY_STAGE2_NAME, entry.name)
+            .putLong(CACHE_KEY_STAGE2_EXPIRES_AT_MS, entry.expiresAtMs)
+            .apply()
+    }
+
     private fun persistStage3Cache(entry: CachedInstructionEntry) {
         appContext.getSharedPreferences(CACHE_PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
-            .putString(CACHE_KEY_HASH, entry.hash)
-            .putString(CACHE_KEY_NAME, entry.name)
-            .putLong(CACHE_KEY_EXPIRES_AT_MS, entry.expiresAtMs)
+            .putString(CACHE_KEY_STAGE3_HASH, entry.hash)
+            .putString(CACHE_KEY_STAGE3_NAME, entry.name)
+            .putLong(CACHE_KEY_STAGE3_EXPIRES_AT_MS, entry.expiresAtMs)
             .apply()
     }
 
@@ -2594,6 +3039,16 @@ class GenUiStagePipeline(private val appContext: Context) {
         val diagnostics: String?
     )
 
+    private data class PromptContext(
+        val systemPrompt: String?,
+        val userTemplate: String
+    )
+
+    private data class Stage2PromptContext(
+        val systemPrompt: String?,
+        val userTemplate: String
+    )
+
     private data class Stage3PromptContext(
         val systemPrompt: String?,
         val userTemplate: String
@@ -2612,21 +3067,30 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val STAGE3_MAX_OUTPUT_TOKENS = 8192
         const val LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS = 1024
         const val LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS = 15000
-        const val STAGE3_CACHE_TTL_SECONDS = 21600
+        const val STAGE_INSTRUCTION_CACHE_TTL_SECONDS = 21600
         const val CACHE_PREFS_NAME = "genui_stage_pipeline_cache"
-        const val CACHE_KEY_HASH = "stage3_cache_hash"
-        const val CACHE_KEY_NAME = "stage3_cache_name"
-        const val CACHE_KEY_EXPIRES_AT_MS = "stage3_cache_expires_at_ms"
+        const val CACHE_KEY_STAGE2_HASH = "stage2_cache_hash"
+        const val CACHE_KEY_STAGE2_NAME = "stage2_cache_name"
+        const val CACHE_KEY_STAGE2_EXPIRES_AT_MS = "stage2_cache_expires_at_ms"
+        const val CACHE_KEY_STAGE3_HASH = "stage3_cache_hash"
+        const val CACHE_KEY_STAGE3_NAME = "stage3_cache_name"
+        const val CACHE_KEY_STAGE3_EXPIRES_AT_MS = "stage3_cache_expires_at_ms"
         const val CACHE_EXPIRY_SAFETY_MS = 60_000L
-        const val LOCAL_STAGE3_SYSTEM_PROMPT_CACHE_KEY = "stage3_ir_system_prompt_v1"
+        const val APP_PREFS_NAME = "genuicraft_prefs"
+        const val PREF_STAGE3_CATALOG_ID = "stage3_catalog_id"
+        const val DEFAULT_STAGE3_CATALOG_ID = "https://genui.local/specification/v0_9/standard_catalog.json"
+        const val LOCAL_STAGE3_SYSTEM_PROMPT_CACHE_KEY = "stage3_ir_system_prompt_v5"
         const val LOG_TAG = "GenUiStagePipeline"
         val HOST_LABEL_REGEX = Regex("""(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$""")
         val URL_TOKEN_REGEX = Regex(
             """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
         )
 
+        val stage2CacheLock = Any()
         val stage3CacheLock = Any()
         val localSystemPromptCacheLock = Any()
+        @Volatile
+        var stage2InstructionCache: CachedInstructionEntry? = null
         @Volatile
         var stage3InstructionCache: CachedInstructionEntry? = null
         val localReadySystemPromptCacheKeys = mutableSetOf<String>()

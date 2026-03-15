@@ -5,6 +5,10 @@ import com.samsung.genuicraft.renderer.native.ParsedButton
 import java.util.Locale
 
 internal object NativeSourceParsing {
+    private val SOURCE_HEADING_REGEX = Regex(
+        """^(?:sources?|references?|citations?|links?|source\s+links?|reference\s+links?|useful\s+links?|external\s+links?|related\s+links?)$""",
+        RegexOption.IGNORE_CASE
+    )
     private val MARKDOWN_SOURCE_LINK_REGEX =
         Regex(
             """\[(.+?)]\((https?://[^\s)]+|//[^\s)]+|www\.[^\s)]+|(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s)]*)?)\)""",
@@ -22,8 +26,7 @@ internal object NativeSourceParsing {
         parseSourceLinksFromLine: (String) -> List<ParsedButton>
     ): Pair<List<ParsedButton>, Int>? {
         val firstLine = lines[startIndex].trim()
-        val firstLower = firstLine.lowercase(Locale.US)
-        val sourcePrefixed = firstLower.startsWith("sources") || firstLower.startsWith("references")
+        val sourcePrefixed = isSourceHeadingLine(firstLine)
         if (!inSourcesSection && !sourcePrefixed) {
             return null
         }
@@ -43,6 +46,11 @@ internal object NativeSourceParsing {
 
             val parsed = parseSourceLinksFromLine(line)
             if (parsed.isEmpty()) {
+                if (sourcePrefixed && cursor == startIndex) {
+                    // Accept "Sources:" heading-only line and continue parsing next lines.
+                    cursor++
+                    continue
+                }
                 if (links.isNotEmpty()) {
                     break
                 }
@@ -67,7 +75,7 @@ internal object NativeSourceParsing {
         toExternalUrl: (String) -> String?,
         containsUrlLikeToken: (String) -> Boolean
     ): List<ParsedButton> {
-        val normalized = stripLeadingBulletMarker(line)
+        val normalized = normalizeSourceLineForParsing(stripLeadingBulletMarker(line))
         if (normalized.isBlank()) {
             return emptyList()
         }
@@ -75,7 +83,7 @@ internal object NativeSourceParsing {
         val markdownLinks = MARKDOWN_SOURCE_LINK_REGEX
             .findAll(normalized)
             .mapNotNull { match ->
-                val rawLabel = sanitizeDisplayText(match.groupValues[1]).trim()
+                val rawLabel = normalizeSourceLabel(sanitizeDisplayText(match.groupValues[1]).trim())
                 val normalizedUrl = toExternalUrl(sanitizeUrlToken(match.groupValues[2])) ?: return@mapNotNull null
                 val label = if (isUsefulSourceLabel(rawLabel, containsUrlLikeToken)) {
                     rawLabel
@@ -105,17 +113,26 @@ internal object NativeSourceParsing {
 
             var label = labelChunk.removeSuffix(":").trim().trim('|')
             if (index == 0) {
-                label = label.replace(Regex("""^(sources?|references?)\s*:?\s*""", RegexOption.IGNORE_CASE), "")
+                label = label.replace(
+                    Regex(
+                        """^(?:sources?|references?|citations?|source\s+links?|reference\s+links?|links?)\s*:?\s*""",
+                        RegexOption.IGNORE_CASE
+                    ),
+                    ""
+                )
             }
             label = label
-                .replace(Regex("""^\s*\d+\s*[\).:\-–—]?\s*"""), "")
-                .replace(Regex("""^\s*[-–—|:]\s*"""), "")
-                .trim(' ', '-', '–', '—', '|', ':')
+                .replace(Regex("""^\s*\d+\s*[\).:\-\u2013\u2014]?\s*"""), "")
+                .replace(Regex("""^\s*[\[\(]\s*\d+\s*[\]\)]\s*[:\-\u2013\u2014]?\s*"""), "")
+                .replace(Regex("""^\s*[-\u2013\u2014|:]\s*"""), "")
+                .trim(' ', '-', '\u2013', '\u2014', '|', ':')
+            label = normalizeSourceLabel(label)
 
             if (label.isBlank() && trailingChunk.isNotBlank() && !containsUrlLikeToken(trailingChunk)) {
                 label = trailingChunk
-                    .replace(Regex("""^\s*[-–—|:\u2022]\s*"""), "")
-                    .trim(' ', '-', '–', '—', '|', ':')
+                    .replace(Regex("""^\s*[-\u2013\u2014|:\u2022]\s*"""), "")
+                    .trim(' ', '-', '\u2013', '\u2014', '|', ':')
+                label = normalizeSourceLabel(label)
             }
 
             if (!isUsefulSourceLabel(label, containsUrlLikeToken)) {
@@ -129,6 +146,66 @@ internal object NativeSourceParsing {
             cursor = nextStart
         }
         return links
+    }
+
+    fun isSourceHeadingLine(line: String): Boolean {
+        if (line.isBlank()) {
+            return false
+        }
+        val cleaned = normalizeSourceHeadingToken(line)
+        if (cleaned.length > 44) {
+            return false
+        }
+        return SOURCE_HEADING_REGEX.matches(cleaned)
+    }
+
+    fun normalizeSourceHeadingToken(line: String): String {
+        var cleaned = line.trim()
+        cleaned = cleaned.trimStart('-', '\u2022', '*').trim()
+        cleaned = cleaned.replace(Regex("""^#{1,6}\s*"""), "")
+        cleaned = cleaned
+            .removeSurrounding("**")
+            .removeSurrounding("__")
+            .removeSurrounding("*")
+            .removeSurrounding("_")
+            .trim()
+        cleaned = cleaned
+            .removeSuffix(":")
+            .removeSuffix("-")
+            .removeSuffix("\u2013")
+            .removeSuffix("\u2014")
+            .trim()
+        return cleaned
+    }
+
+    private fun normalizeSourceLineForParsing(line: String): String {
+        if (line.isBlank()) {
+            return line
+        }
+        var normalized = line.trim()
+        normalized = normalized.replace(Regex("""^#{1,6}\s*"""), "")
+        if (isSourceHeadingLine(normalized)) {
+            return normalizeSourceHeadingToken(normalized) + ":"
+        }
+        return normalized
+    }
+
+    private fun normalizeSourceLabel(raw: String): String {
+        if (raw.isBlank()) {
+            return raw
+        }
+        return raw
+            .replace(Regex("""^\s*[\[\(]\s*\d+\s*[\]\)]\s*[:\-\u2013\u2014]?\s*"""), "")
+            .replace(
+                Regex(
+                    """^\s*(?:sources?|references?|citations?|source\s+links?|reference\s+links?|links?)\s*:?\s*""",
+                    RegexOption.IGNORE_CASE
+                ),
+                ""
+            )
+            .trim()
+            .trim('[', ']', '(', ')', '{', '}', '"', '\'', '-', '\u2013', '\u2014', '|', ':', ' ')
+            .replace(Regex("""\s{2,}"""), " ")
     }
 
     private fun isUsefulSourceLabel(
@@ -146,7 +223,7 @@ internal object NativeSourceParsing {
             return false
         }
         val lower = normalized.lowercase(Locale.US)
-        if (lower in setOf("source", "sources", "reference", "references", "link", "links")) {
+        if (lower in setOf("source", "sources", "reference", "references", "citation", "citations", "link", "links")) {
             return false
         }
         return normalized.any { it.isLetter() }

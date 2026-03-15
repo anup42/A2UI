@@ -22,9 +22,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -94,13 +96,13 @@ internal object NativeFlightUiRenderer {
                             ) {
                                 AirlineBadge(airline = airline)
                                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Text(
+                                    MarkdownText(
                                         text = airline,
                                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     topStatus?.let { statusValue ->
-                                        Text(
+                                        MarkdownText(
                                             text = statusValue,
                                             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -114,14 +116,14 @@ internal object NativeFlightUiRenderer {
                                     horizontalAlignment = Alignment.End,
                                     verticalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
-                                    Text(
+                                    MarkdownText(
                                         text = fareValue,
                                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                                         color = MaterialTheme.colorScheme.onSurface,
                                         textAlign = TextAlign.End
                                     )
                                     fareMeta?.let { fareSuffix ->
-                                        Text(
+                                        MarkdownText(
                                             text = fareSuffix,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -151,7 +153,7 @@ internal object NativeFlightUiRenderer {
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     duration?.let { durationValue ->
-                                        Text(
+                                        MarkdownText(
                                             text = durationValue,
                                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                                             color = MaterialTheme.colorScheme.onSurface,
@@ -193,7 +195,7 @@ internal object NativeFlightUiRenderer {
                                 )
                             }
                             promoMeta?.let { promo ->
-                                Text(
+                                MarkdownText(
                                     text = promo,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.primary,
@@ -203,7 +205,7 @@ internal object NativeFlightUiRenderer {
                         } else {
                             val meta = listOfNotNull(stopLabel, arrivalStatus, fareValue, fareMeta)
                             if (meta.isNotEmpty()) {
-                                Text(
+                                MarkdownText(
                                     text = meta.joinToString(" | "),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -253,7 +255,7 @@ internal object NativeFlightUiRenderer {
 
     @Composable
     private fun FlightMetaChip(text: String) {
-        Text(
+        MarkdownText(
             text = text,
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -287,7 +289,7 @@ internal object NativeFlightUiRenderer {
             }
         ) {
             if (!title.isNullOrBlank()) {
-                Text(
+                MarkdownText(
                     text = title,
                     style = if (emphasis) {
                         MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
@@ -299,7 +301,7 @@ internal object NativeFlightUiRenderer {
                 )
             }
             if (!subtitle.isNullOrBlank()) {
-                Text(
+                MarkdownText(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -307,6 +309,49 @@ internal object NativeFlightUiRenderer {
                 )
             }
         }
+    }
+
+    @Composable
+    private fun MarkdownText(
+        text: String,
+        style: TextStyle,
+        color: Color,
+        modifier: Modifier = Modifier,
+        textAlign: TextAlign? = null
+    ) {
+        val displayText = remember(text) { NativeTextFormatter.sanitizeDisplayText(text, preserveMarkdown = true) }
+        if (displayText.isBlank()) {
+            return
+        }
+        val hasMarkdownInline = remember(displayText) { NativeTextFormatter.containsMarkdownInlineFormatting(displayText) }
+        val hasMarkdownHeading = remember(displayText) { NativeTextFormatter.containsMarkdownHeading(displayText) }
+        val hasMarkdown = hasMarkdownInline || hasMarkdownHeading
+        val plainText = remember(displayText) { NativeTextFormatter.sanitizeDisplayText(displayText) }
+        if (!hasMarkdown) {
+            Text(
+                text = plainText,
+                style = style,
+                color = color,
+                modifier = modifier,
+                textAlign = textAlign
+            )
+            return
+        }
+        val parsedText = remember(displayText, style, hasMarkdownHeading) {
+            if (hasMarkdownHeading) {
+                NativeTextFormatter.parseMarkdownWithHeadings(displayText, style)
+            } else {
+                NativeTextFormatter.parseInlineMarkdown(displayText)
+            }
+        }
+        val effectiveStyle = style.copy(fontWeight = FontWeight.Normal)
+        Text(
+            text = parsedText,
+            style = effectiveStyle,
+            color = color,
+            modifier = modifier,
+            textAlign = textAlign
+        )
     }
 
     @Composable

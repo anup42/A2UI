@@ -12,6 +12,7 @@ class GenUiCraftApplication : Application() {
         // This is the Android-supported way for third-party apps to follow
         // wallpaper-driven system dynamic colors on compatible devices.
         DynamicColors.applyToActivitiesIfAvailable(this)
+        GeminiApiKeyProvider.refresh(this)
 
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {

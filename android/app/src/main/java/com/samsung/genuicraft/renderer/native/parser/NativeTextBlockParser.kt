@@ -5,7 +5,6 @@ import com.samsung.genuicraft.renderer.native.ParsedButton
 import com.samsung.genuicraft.renderer.native.ParsedMediaEntry
 import com.samsung.genuicraft.renderer.native.StepEntry
 import com.samsung.genuicraft.renderer.native.TextBlock
-import java.util.Locale
 
 internal object NativeTextBlockParser {
     fun shouldUseStructuredBlocks(
@@ -14,7 +13,9 @@ internal object NativeTextBlockParser {
         isTableLikeLine: (String) -> Boolean,
         isBulletListLine: (String) -> Boolean,
         isInlineMediaLine: (String) -> Boolean,
-        isMediaMarkerHeading: (String) -> Boolean
+        isMediaMarkerHeading: (String) -> Boolean,
+        looksLikeStandaloneLinkLine: (String) -> Boolean,
+        isSourceHeadingLine: (String) -> Boolean
     ): Boolean {
         if (variant in setOf("h1", "h2", "h3", "h4")) {
             return false
@@ -29,8 +30,17 @@ internal object NativeTextBlockParser {
         val hasTable = lines.count(isTableLikeLine) >= 2
         val hasBullets = lines.count(isBulletListLine) >= 2
         val hasMedia = lines.any { isInlineMediaLine(it) || isMediaMarkerHeading(it) }
+        val hasStandaloneLinks = lines.any(looksLikeStandaloneLinkLine)
+        val hasSourceHeading = lines.any(isSourceHeadingLine)
         val hasMultiLineLayout = lines.size >= 3
-        return hasButtons || hasTable || hasBullets || hasMedia || hasMultiLineLayout || normalized.contains("\n\n")
+        return hasButtons ||
+            hasTable ||
+            hasBullets ||
+            hasMedia ||
+            hasStandaloneLinks ||
+            hasSourceHeading ||
+            hasMultiLineLayout ||
+            normalized.contains("\n\n")
     }
 
     fun parseTextBlocks(
@@ -175,9 +185,7 @@ internal object NativeTextBlockParser {
 
             if (looksLikeSectionHeading(line)) {
                 blocks += TextBlock.Heading(line)
-                val normalizedHeading = line.lowercase(Locale.US).removeSuffix(":").trim()
-                inSourcesSection =
-                    normalizedHeading.startsWith("sources") || normalizedHeading.startsWith("references")
+                inSourcesSection = NativeSourceParsing.isSourceHeadingLine(line)
                 index++
                 continue
             }
