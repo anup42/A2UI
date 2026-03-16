@@ -273,15 +273,24 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = stage2WithActions,
             queryText = normalizedQuery
         )
-        val stage2WithTravelMedia = PipelineMediaSanitizer.ensureTravelInlineMedia(
+        val stage2WithTravelMediaSanitized = PipelineMediaSanitizer.sanitizeTravelInlineMedia(
             responseText = stage2WithFlightMedia,
             queryText = normalizedQuery
         )
-        val stage2Response = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithTravelMedia)
+        val stage2WithTravelMedia = PipelineMediaSanitizer.ensureTravelInlineMedia(
+            responseText = stage2WithTravelMediaSanitized,
+            queryText = normalizedQuery
+        )
+        val stage2WithGeneralMedia = PipelineMediaSanitizer.ensureGeneralInlineMedia(
+            responseText = stage2WithTravelMedia,
+            queryText = normalizedQuery
+        )
+        val stage2Response = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
         val injectedFlightList = stage2WithFlightList != stage2ResponseRaw
-        val normalizedBareDomains = stage2Response != stage2WithTravelMedia
+        val normalizedBareDomains = stage2Response != stage2WithGeneralMedia
         val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
-        val injectedTravelMedia = stage2WithTravelMedia != stage2WithFlightMedia
+        val sanitizedTravelMedia = stage2WithTravelMediaSanitized != stage2WithFlightMedia
+        val injectedTravelMedia = stage2WithTravelMedia != stage2WithTravelMediaSanitized
         markDuration(Stage.STAGE2, stage2StartedAtMs)
 
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
@@ -353,8 +362,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (removedFlightMedia) {
             warnings += "Removed unrelated media lines from flight response."
         }
+        if (sanitizedTravelMedia) {
+            warnings += "Sanitized travel media URLs to better match itinerary content."
+        }
         if (injectedTravelMedia) {
-            warnings += "Added fallback inline media URLs for travel content."
+            warnings += "Added fallback inline media for travel sections missing media."
         }
         val stage3Cache = if (stage3CacheDeferred != null) {
             runCatching { stage3CacheDeferred.await() }
@@ -485,9 +497,51 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
+        if (!usedFallback) {
+            val stage3WithInjectedImage = PipelineMediaSanitizer.ensureGenUiHasImageComponent(
+                jsonText = stage3Json,
+                stage2Response = stage2Response,
+                queryText = normalizedQuery
+            )
+            if (stage3WithInjectedImage != stage3Json) {
+                stage3Json = stage3WithInjectedImage
+                warnings += "Injected fallback image into IR output to preserve media."
+            }
+        }
+        if (!usedFallback) {
+            val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
+                jsonText = stage3Json,
+                queryText = normalizedQuery,
+                stage2Response = stage2Response
+            )
+            if (stage3WithFlightMediaNormalized != stage3Json) {
+                stage3Json = stage3WithFlightMediaNormalized
+                warnings += "Normalized flight media to airline/travel-safe icons."
+            }
+        }
+        if (!usedFallback) {
+            val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
+                jsonText = stage3Json,
+                queryText = normalizedQuery
+            )
+            if (stage3WithStableMediaUrls != stage3Json) {
+                stage3Json = stage3WithStableMediaUrls
+                warnings += "Rewrote unstable media URLs to deterministic topic icons."
+            }
+        }
+        if (!usedFallback && !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)) {
+            val stage3WithInlineTextMedia = PipelineMediaSanitizer.ensureGenUiHasInlineTextMedia(
+                jsonText = stage3Json,
+                queryText = normalizedQuery
+            )
+            if (stage3WithInlineTextMedia != stage3Json) {
+                stage3Json = stage3WithInlineTextMedia
+                warnings += "Injected fallback inline media text to preserve image rendering."
+            }
+        }
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(stage2Response)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
-        val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
+        var stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
         val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
@@ -662,15 +716,24 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = stage2WithActions,
             queryText = normalizedQuery
         )
-        val stage2WithTravelMedia = PipelineMediaSanitizer.ensureTravelInlineMedia(
+        val stage2WithTravelMediaSanitized = PipelineMediaSanitizer.sanitizeTravelInlineMedia(
             responseText = stage2WithFlightMedia,
             queryText = normalizedQuery
         )
-        val stage2Response = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithTravelMedia)
+        val stage2WithTravelMedia = PipelineMediaSanitizer.ensureTravelInlineMedia(
+            responseText = stage2WithTravelMediaSanitized,
+            queryText = normalizedQuery
+        )
+        val stage2WithGeneralMedia = PipelineMediaSanitizer.ensureGeneralInlineMedia(
+            responseText = stage2WithTravelMedia,
+            queryText = normalizedQuery
+        )
+        val stage2Response = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
         val injectedFlightList = stage2WithFlightList != normalizedResponseRaw
-        val normalizedBareDomains = stage2Response != stage2WithTravelMedia
+        val normalizedBareDomains = stage2Response != stage2WithGeneralMedia
         val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
-        val injectedTravelMedia = stage2WithTravelMedia != stage2WithFlightMedia
+        val sanitizedTravelMedia = stage2WithTravelMediaSanitized != stage2WithFlightMedia
+        val injectedTravelMedia = stage2WithTravelMedia != stage2WithTravelMediaSanitized
 
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
             appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, Context.MODE_PRIVATE)
@@ -709,8 +772,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (removedFlightMedia) {
             warnings += "Removed unrelated media lines from flight response."
         }
+        if (sanitizedTravelMedia) {
+            warnings += "Sanitized travel media URLs to better match itinerary content."
+        }
         if (injectedTravelMedia) {
-            warnings += "Added fallback inline media URLs for travel content."
+            warnings += "Added fallback inline media for travel sections missing media."
         }
         val stage3Cache = if (stage3CacheDeferred != null) {
             runCatching { stage3CacheDeferred.await() }
@@ -841,9 +907,51 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
+        if (!usedFallback) {
+            val stage3WithInjectedImage = PipelineMediaSanitizer.ensureGenUiHasImageComponent(
+                jsonText = stage3Json,
+                stage2Response = stage2Response,
+                queryText = normalizedQuery
+            )
+            if (stage3WithInjectedImage != stage3Json) {
+                stage3Json = stage3WithInjectedImage
+                warnings += "Injected fallback image into IR output to preserve media."
+            }
+        }
+        if (!usedFallback) {
+            val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
+                jsonText = stage3Json,
+                queryText = normalizedQuery,
+                stage2Response = stage2Response
+            )
+            if (stage3WithFlightMediaNormalized != stage3Json) {
+                stage3Json = stage3WithFlightMediaNormalized
+                warnings += "Normalized flight media to airline/travel-safe icons."
+            }
+        }
+        if (!usedFallback) {
+            val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
+                jsonText = stage3Json,
+                queryText = normalizedQuery
+            )
+            if (stage3WithStableMediaUrls != stage3Json) {
+                stage3Json = stage3WithStableMediaUrls
+                warnings += "Rewrote unstable media URLs to deterministic topic icons."
+            }
+        }
+        if (!usedFallback && !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)) {
+            val stage3WithInlineTextMedia = PipelineMediaSanitizer.ensureGenUiHasInlineTextMedia(
+                jsonText = stage3Json,
+                queryText = normalizedQuery
+            )
+            if (stage3WithInlineTextMedia != stage3Json) {
+                stage3Json = stage3WithInlineTextMedia
+                warnings += "Injected fallback inline media text to preserve image rendering."
+            }
+        }
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(stage2Response)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
-        val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
+        var stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
         val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon

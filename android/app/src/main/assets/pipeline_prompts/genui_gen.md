@@ -32,6 +32,10 @@ Layout and quality requirements:
 - Build app-like structured UI, not one giant text block.
 - Use headings + sections for medium/long responses.
 - Keep related title, media, body, and CTA together in same card/group.
+- Never leave `Media:` lines as plain `Text` nodes. Convert them into visual components.
+- For each `Media: Image=<url> ...` line in the response, emit an `Image` component with that URL.
+- For each `Media: Icon=<url> ...` line, emit an `Icon` or `Image` component (if icon URL is provided).
+- If the response contains any media URL, the final UI must include at least one visible `Image` component.
 - Convert comparisons/tables to structured rows/cells.
 - Convert links/CTAs to `Button` with `action.functionCall.call = "openUrl"` and `args.url`.
 - Convert source links to borderless buttons under `Sources` section when possible.

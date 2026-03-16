@@ -134,10 +134,14 @@ internal object NativeMediaParsing {
 
         val lowerLabel = label.lowercase(Locale.US)
         val lowerValue = value.lowercase(Locale.US)
-        val iconLike = lowerLabel.contains("icon") ||
-            looksLikeCompactIconUrl(lowerValue) ||
-            (lowerValue.endsWith(".svg") && !lowerLabel.contains("logo") && !lowerValue.contains("logo")) ||
-            (lowerValue.contains("/icon") && !lowerLabel.contains("logo") && !lowerValue.contains("logo"))
+        val iconLike = if (lowerLabel == "image") {
+            looksLikeCompactIconUrl(lowerValue)
+        } else {
+            lowerLabel.contains("icon") ||
+                looksLikeCompactIconUrl(lowerValue) ||
+                (lowerValue.endsWith(".svg") && !lowerLabel.contains("logo") && !lowerValue.contains("logo")) ||
+                (lowerValue.contains("/icon") && !lowerLabel.contains("logo") && !lowerValue.contains("logo"))
+        }
 
         return ParsedMediaEntry(
             label = label,
@@ -166,10 +170,14 @@ internal object NativeMediaParsing {
                 } else {
                     val normalizedType = mediaType.lowercase(Locale.US)
                     val normalizedUrl = rawValue.lowercase(Locale.US)
-                    val inlineIconLike = normalizedType.contains("icon") ||
-                        looksLikeCompactIconUrl(normalizedUrl) ||
-                        (normalizedUrl.endsWith(".svg") && !normalizedUrl.contains("logo")) ||
-                        (normalizedUrl.contains("/icon") && !normalizedUrl.contains("logo"))
+                    val inlineIconLike = if (normalizedType == "image") {
+                        looksLikeCompactIconUrl(normalizedUrl)
+                    } else {
+                        normalizedType.contains("icon") ||
+                            looksLikeCompactIconUrl(normalizedUrl) ||
+                            (normalizedUrl.endsWith(".svg") && !normalizedUrl.contains("logo")) ||
+                            (normalizedUrl.contains("/icon") && !normalizedUrl.contains("logo"))
+                    }
                     ParsedMediaEntry(
                         label = mediaType,
                         url = rawValue,

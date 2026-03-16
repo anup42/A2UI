@@ -844,7 +844,12 @@ object GenUiNativeRenderer {
                         is TextBlock.Heading -> block.text
                         else -> ""
                     }
-                    val fallbackWeatherCondition = NativeWeatherSemantics.inferWeatherConditionFromSection(titleText, sectionBlocks)
+                    val isFlightLikeSection = looksLikeFlightSection(titleText, sectionBlocks)
+                    val fallbackWeatherCondition = if (isFlightLikeSection) {
+                        null
+                    } else {
+                        NativeWeatherSemantics.inferWeatherConditionFromSection(titleText, sectionBlocks)
+                    }
                     val titleNormalized = NativeWeatherSemantics.normalizeWeatherText(titleText)
                     val titleHasCurrentMarker =
                         titleNormalized.contains("current") ||
@@ -854,33 +859,44 @@ object GenUiNativeRenderer {
                         it is TextBlock.Paragraph || it is TextBlock.Bullets
                     }
                     val shouldCollectWeatherFollowUp =
-                        NativeWeatherSemantics.isCurrentWeatherHeading(titleText) ||
+                        !isFlightLikeSection &&
+                            (
+                                NativeWeatherSemantics.isCurrentWeatherHeading(titleText) ||
                             (!fallbackWeatherCondition.isNullOrBlank() &&
                                 (titleHasCurrentMarker || sectionMissingTextBlocks))
+                                )
                     val (followUpWeatherLines, followUpConsumed) =
                         if (shouldCollectWeatherFollowUp) {
                             NativeWeatherSemantics.collectCurrentWeatherFollowUpLines(blocks, cursor)
                         } else {
                             emptyList<String>() to 0
                         }
-                    val currentWeatherDetails = NativeWeatherSemantics.buildCurrentWeatherDetails(
-                        title = titleText,
-                        sectionBlocks = sectionBlocks,
-                        fallbackCondition = fallbackWeatherCondition,
-                        additionalLines = followUpWeatherLines
-                    )
-                    val resolvedCurrentWeatherDetails =
-                        currentWeatherDetails ?: buildRelaxedCurrentWeatherDetails(
-                            title = titleText,
-                            sectionBlocks = sectionBlocks,
-                            fallbackCondition = fallbackWeatherCondition,
-                            additionalLines = followUpWeatherLines
-                        ) ?: buildMinimalCurrentWeatherDetails(
+                    val currentWeatherDetails = if (isFlightLikeSection) {
+                        null
+                    } else {
+                        NativeWeatherSemantics.buildCurrentWeatherDetails(
                             title = titleText,
                             sectionBlocks = sectionBlocks,
                             fallbackCondition = fallbackWeatherCondition,
                             additionalLines = followUpWeatherLines
                         )
+                    }
+                    val resolvedCurrentWeatherDetails =
+                        currentWeatherDetails ?: if (isFlightLikeSection) {
+                            null
+                        } else {
+                            buildRelaxedCurrentWeatherDetails(
+                                title = titleText,
+                                sectionBlocks = sectionBlocks,
+                                fallbackCondition = fallbackWeatherCondition,
+                                additionalLines = followUpWeatherLines
+                            ) ?: buildMinimalCurrentWeatherDetails(
+                                title = titleText,
+                                sectionBlocks = sectionBlocks,
+                                fallbackCondition = fallbackWeatherCondition,
+                                additionalLines = followUpWeatherLines
+                            )
+                        }
                     val hasVisualMedia = sectionBlocks.any { section ->
                         section is TextBlock.MediaCards &&
                             section.entries.any { entry ->
@@ -1082,11 +1098,15 @@ object GenUiNativeRenderer {
         val primary = entries.filterNot { it.iconLike }
         val icons = entries.filter { it.iconLike }
         if (primary.isEmpty()) {
+            val labeledIcons = icons.filter { shouldShowMediaLabel(it.label) }
+            if (labeledIcons.isEmpty()) {
+                return
+            }
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                icons.forEach { icon ->
+                labeledIcons.forEach { icon ->
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
@@ -1107,13 +1127,11 @@ object GenUiNativeRenderer {
                             contentScale = ContentScale.Fit,
                             asIcon = true
                         )
-                        if (shouldShowMediaLabel(icon.label)) {
-                            Text(
-                                text = sanitizeDisplayText(icon.label),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Text(
+                            text = sanitizeDisplayText(icon.label),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
@@ -1431,6 +1449,10 @@ object GenUiNativeRenderer {
         val icons = entries.filter { it.iconLike }
 
         if (primary.isEmpty()) {
+            val labeledIcons = icons.filter { shouldShowMediaLabel(it.label) }
+            if (labeledIcons.isEmpty()) {
+                return
+            }
             Card(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -1446,7 +1468,7 @@ object GenUiNativeRenderer {
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    icons.forEach { icon ->
+                    labeledIcons.forEach { icon ->
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
@@ -2249,6 +2271,60 @@ object GenUiNativeRenderer {
         ) || normalized.contains("placeholder")
     }
 
+    private fun looksLikeFlightSection(
+        title: String,
+        sectionBlocks: List<TextBlock>
+    ): Boolean {
+        val titleText = sanitizeDisplayText(title)
+        val textPool = buildString {
+            append(titleText)
+            sectionBlocks.forEach { block ->
+                when (block) {
+                    is TextBlock.Paragraph -> append(' ').append(block.text)
+                    is TextBlock.Bullets -> block.items.forEach { append(' ').append(it) }
+                    is TextBlock.MediaCards -> block.entries.forEach {
+                        append(' ').append(it.label).append(' ').append(it.url)
+                    }
+                    else -> Unit
+                }
+            }
+        }
+        val normalizedTitle = NativeFlightSemantics.normalizeMatchText(titleText)
+        val normalizedPool = NativeFlightSemantics.normalizeMatchText(textPool)
+        val flightTokens = listOf(
+            "flight",
+            "airline",
+            "fare",
+            "price",
+            "non stop",
+            "stop",
+            "departure",
+            "arrival",
+            "airport",
+            "terminal",
+            "boarding",
+            "layover",
+            "ticket",
+            "blr",
+            "lko"
+        )
+        val weatherTokens = listOf(
+            "weather",
+            "forecast",
+            "temperature",
+            "humidity",
+            "wind",
+            "cloud",
+            "rain",
+            "storm",
+            "uv"
+        )
+        val titleFlightSignals = flightTokens.count { normalizedTitle.contains(it) }
+        val bodyFlightSignals = flightTokens.count { normalizedPool.contains(it) }
+        val weatherSignals = weatherTokens.count { normalizedPool.contains(it) }
+        return (titleFlightSignals >= 1 || bodyFlightSignals >= 3) && weatherSignals <= 1
+    }
+
     @Composable
     private fun WeatherConditionIcon(
         condition: String?,
@@ -2478,6 +2554,7 @@ object GenUiNativeRenderer {
             parseButtonLine = ::parseButtonLine,
             looksLikeStandaloneLinkLine = ::looksLikeStandaloneLinkLine,
             parseSourceLinksFromLine = ::parseSourceLinksFromLine,
+            isSourcePrefixedLinkLine = NativeSourceParsing::isSourcePrefixedLinkLine,
             looksLikeSectionHeading = ::looksLikeSectionHeading,
             isStructuredBoundary = ::isStructuredBoundary
         )

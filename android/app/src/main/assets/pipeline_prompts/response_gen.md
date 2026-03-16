@@ -93,33 +93,52 @@ Quality constraints:
 - If a URL is provided, it must be a real-world, publicly reachable URL on a real domain.
 - Never invent fake domains or placeholder hosts (for instance: static.icons, icon.url, localhost).
 
-Media placement policy (app-like layout, strict):
+Media placement policy (MANDATORY — every response must include content-relevant images):
+- Every response MUST contain at least 2 Media lines with working, CONTENT-RELEVANT image URLs.
 - Do NOT output standalone `Images:` or `Icons:` sections.
 - Place media exactly where it is used in content blocks (option cards, day plans, sections, table rows).
-- Each media-enabled block should carry its own media line immediately under that block title.
-- Prefer this inline format:
-  Media: Image=<image_url> Icon=<icon_url>
-- If only one media type is available, include only that key:
-  Media: Image=<image_url>
-  Media: Icon=<icon_url>
+- Each major content heading or block title MUST be followed by a Media line on the very next line.
+- Use this inline format (MANDATORY):
+  Media: Image=<url> Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg
+- If only one media type is available, include at minimum the image:
+  Media: Image=<url>
 - Keep media local to the related block; do not dump media links at the end.
 - Use at most 1 image and 0-1 icon per block to keep UI clean.
-- For weather/current-condition blocks, include at least one icon whenever the condition is known.
-- For flight blocks, prefer icon-only airline branding; avoid non-airline images unless they are clearly airline logos.
-- For travel/place/food blocks, include one image when a visual would help the user understand the block.
+- For weather blocks, include a weather icon. For flight blocks, include an airplane icon.
+- For travel/place/food blocks, ALWAYS include both image and icon for every block.
+- For general/comparison/recommendation blocks, ALWAYS include at least one image per major section.
 
-Asset URL rules (strict):
-- Include media only when you can provide real sample URLs that are publicly accessible now.
-- Use direct asset URLs whenever possible (image file URLs for image/icon entries).
-- If exact place-specific media is uncertain, still provide representative real travel media URLs:
-  - image fallback: `https://loremflickr.com/1200/800/<location,keyword>`
-  - icon fallback: `https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg`
-- Do not output broken, fake, or placeholder asset URLs.
-- Avoid hosts that are frequently blocked in automated download (for instance: upload.wikimedia.org, images.unsplash.com, cdn.pixabay.com, deep images.pexels.com links).
-- Prefer direct image URLs sized for UI cards (roughly landscape, around 1200x800 or similar).
-- When uncertain, use keyword-based real photos via: https://loremflickr.com/1200/800/<keyword>
-- Prefer direct icon SVG URLs sized for UI use (roughly 64-256 px square), for instance:
-  https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg
+Asset URL rules (strict — images MUST be content-relevant and working):
+- Every Media image MUST visually relate to the content it accompanies. A beach section needs a beach photo, a city section needs a city photo.
+- NEVER invent or hallucinate image URLs. Only use URLs you are confident exist.
+- Do not output broken, fake, or placeholder asset URLs (no `<image_url>`, no made-up paths).
+- For images, use these sources (in priority order):
+  1. Wikimedia Commons thumbnail images (BEST — content-relevant and always available):
+     Format: `https://upload.wikimedia.org/wikipedia/commons/thumb/<path>/<filename>/<width>px-<filename>`
+     You know many Wikipedia image paths from your training data. Use them for places, landmarks, cities, animals, food, etc.
+     Example for Taj Mahal: `https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1200px-Taj_Mahal_%28Edited%29.jpeg`
+     Example for Paris: `https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg/1200px-La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg`
+     If you know the Commons filename for a topic, use it. Resize by changing the width prefix (use 1200px for cards).
+  2. Real image URLs found in your Google Search results that point to actual image files (.jpg, .png, .webp).
+     Prefer images from: government sites, news outlets, official tourism boards, established media.
+  3. Do NOT use picsum.photos (returns random unrelated photos).
+     Do NOT use loremflickr.com (unreliable).
+- For icons, use Bootstrap Icons via jsDelivr CDN (ALWAYS works):
+  `https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg`
+  Common icon names: `geo-alt`, `calendar`, `clock`, `sun`, `cloud`, `airplane`, `shop`, `star`, `map`, `building`, `cup-hot`, `tree`, `water`, `snow`, `wind`, `thermometer-half`, `currency-rupee`, `ticket-perforated`, `signpost-split`, `cloud-sun`, `moon-stars`, `house`, `car-front`, `phone`, `laptop`, `book`, `music-note`.
+- Avoid hosts that are unreliable: images.unsplash.com, cdn.pixabay.com, images.pexels.com, loremflickr.com, picsum.photos.
+- Prefer landscape image URLs sized for UI cards (roughly 1200x800 or similar).
+
+Example of correctly formatted blocks with content-relevant media:
+## Taj Mahal, Agra
+Media: Image=https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1200px-Taj_Mahal_%28Edited%29.jpeg Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg
+- One of the Seven Wonders of the World, built by Shah Jahan in 1632.
+- Best visited at sunrise for the most stunning views.
+
+## Street Food in Bangkok
+Media: Image=https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Bangkok_Khao_San_Road.jpg/1200px-Bangkok_Khao_San_Road.jpg Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cup-hot.svg
+- Pad Thai and mango sticky rice are must-try dishes.
+- Yaowarat Road (Chinatown) has the best night food stalls.
 
 Source rules:
 - If verifiable factual claims are included, add 1-3 stable links under Sources.

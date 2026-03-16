@@ -25,6 +25,25 @@ internal object PipelineMediaSanitizer {
     private val FLIGHT_AIRLINE_REGEX = Regex(
         """(?i)\b(indigo|air india express|air india|akasa air|spicejet|vistara|emirates|qatar airways|qatar|lufthansa|united|delta|british airways|alliance air|flydubai|etihad|go first|goair)\b"""
     )
+    private const val FLIGHT_FALLBACK_ICON_URL = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/airplane.svg"
+    private val FLIGHT_ALLOWED_BOOTSTRAP_ICONS = setOf(
+        "airplane",
+        "airplane-fill",
+        "ticket-perforated",
+        "ticket-perforated-fill",
+        "clock",
+        "calendar",
+        "calendar2-event",
+        "geo-alt",
+        "geo-alt-fill",
+        "map",
+        "signpost",
+        "signpost-split",
+        "building",
+        "shop",
+        "cash-stack",
+        "currency-rupee"
+    )
     private val FLIGHT_TIME_REGEX = Regex("""\b\d{1,2}:\d{2}(?:\s?(?:AM|PM))?\b""", RegexOption.IGNORE_CASE)
     private val FLIGHT_DURATION_REGEX = Regex("""(?i)\b\d+\s*h(?:\s*\d+\s*m)?\b|\b\d+\s*m\b""")
     private val FLIGHT_STOPS_REGEX = Regex("""(?i)\bnon[-\s]?stop\b|\bdirect\b|\b\d+\s*stop(?:s)?\b""")
@@ -342,8 +361,7 @@ internal object PipelineMediaSanitizer {
 
             val mediaLine = buildTravelMediaLine(
                 line = trimmed,
-                locationKeyword = locationKeyword,
-                baseText = normalized
+                locationKeyword = locationKeyword
             )
             output += mediaLine
             inserted += 1
@@ -352,8 +370,7 @@ internal object PipelineMediaSanitizer {
         if (inserted == 0) {
             val mediaLine = buildTravelMediaLine(
                 line = queryText,
-                locationKeyword = locationKeyword,
-                baseText = normalized
+                locationKeyword = locationKeyword
             )
             return buildString {
                 append(normalized)
@@ -363,6 +380,65 @@ internal object PipelineMediaSanitizer {
         }
 
         return output.joinToString(separator = "\n").trimEnd()
+    }
+
+    fun sanitizeTravelInlineMedia(
+        responseText: String,
+        queryText: String
+    ): String {
+        if (!looksLikeTravelQuery(queryText) && !looksLikeTravelContent(responseText)) {
+            return responseText
+        }
+        val normalized = responseText.replace("\r\n", "\n")
+        if (normalized.isBlank()) {
+            return responseText
+        }
+
+        val locationKeyword = extractTravelLocationKeyword(queryText)
+        val lines = normalized.split('\n')
+        val output = mutableListOf<String>()
+        var changed = false
+        var contextLine = queryText
+
+        lines.forEach { rawLine ->
+            val trimmed = rawLine.trim()
+            if (trimmed.isBlank()) {
+                output += rawLine
+                return@forEach
+            }
+            if (!isTravelMediaCandidateLine(trimmed)) {
+                if (!trimmed.startsWith("Action:", ignoreCase = true) &&
+                    !trimmed.startsWith("Source", ignoreCase = true) &&
+                    !trimmed.startsWith("Quick Actions", ignoreCase = true)
+                ) {
+                    contextLine = trimmed
+                }
+                output += rawLine
+                return@forEach
+            }
+
+            val sanitized = sanitizeTravelMediaCandidateLine(
+                line = trimmed,
+                contextLine = contextLine,
+                locationKeyword = locationKeyword
+            )
+            if (sanitized.isNullOrBlank()) {
+                changed = true
+                return@forEach
+            }
+            val leadingWhitespace = rawLine.takeWhile { it.isWhitespace() }
+            output += leadingWhitespace + sanitized
+            if (sanitized != trimmed) {
+                changed = true
+            }
+        }
+
+        if (!changed) {
+            return responseText
+        }
+        return output.joinToString("\n")
+            .replace(Regex("""\n{3,}"""), "\n\n")
+            .trimEnd()
     }
 
     fun looksLikeTravelQuery(queryText: String): Boolean {
@@ -384,6 +460,97 @@ internal object PipelineMediaSanitizer {
             normalized.contains("things to do") ||
             normalized.contains("attraction") ||
             normalized.contains("must-visit")
+    }
+
+    fun isTravelMediaCandidateLine(line: String): Boolean {
+        val trimmed = line.trim()
+        val lower = trimmed.lowercase(Locale.US)
+        if (lower.startsWith("media:") ||
+            lower.startsWith("image:") ||
+            lower.startsWith("icon:") ||
+            lower.startsWith("images:") ||
+            lower.startsWith("icons:") ||
+            lower.startsWith("assets:") ||
+            lower.startsWith("asset:")
+        ) {
+            return true
+        }
+        return trimmed.contains("Image=", ignoreCase = true) ||
+            trimmed.contains("Icon=", ignoreCase = true) ||
+            Regex("""!\[[^\]]*]\((https?://\S+|/assets/\S+|assets/\S+)\)""").containsMatchIn(trimmed)
+    }
+
+    fun sanitizeTravelMediaCandidateLine(
+        line: String,
+        contextLine: String,
+        locationKeyword: String
+    ): String? {
+        val trimmed = line.trim()
+        val lower = trimmed.lowercase(Locale.US)
+        if (lower in setOf("media:", "images:", "image:", "icons:", "icon:", "assets:", "asset:")) {
+            return null
+        }
+
+        val imageUrl = Regex("""(?i)\bImage\s*=\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        val iconUrl = Regex("""(?i)\bIcon\s*=\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        val imageColonUrl = Regex("""(?i)^\s*Image\s*:\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)\s*$""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        val iconColonUrl = Regex("""(?i)^\s*Icon\s*:\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)\s*$""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        val markdownUrl = Regex("""!\[[^\]]*]\((https?://\S+|/assets/\S+|assets/\S+)\)""")
+            .find(trimmed)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let(::sanitizeMediaUrlToken)
+        val labeledUrl = Regex("""^\s*([A-Za-z][A-Za-z\s_-]{1,30})\s*:\s*(https?://\S+|/assets/\S+|assets/\S+|\S+)\s*$""")
+            .find(trimmed)
+
+        val hasImageSignal = imageUrl != null ||
+            imageColonUrl != null ||
+            markdownUrl != null ||
+            (
+                labeledUrl != null &&
+                    labeledUrl.groupValues
+                        .getOrNull(1)
+                        .orEmpty()
+                        .lowercase(Locale.US)
+                        .contains(Regex("""(?i)\b(image|photo|pic|picture|cover|banner)\b"""))
+                )
+        val iconCandidate = iconUrl ?: iconColonUrl
+
+        val travelIconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/${pickTravelIconName(contextLine)}.svg"
+        val rewrittenImage = if (hasImageSignal) {
+            travelIconUrl
+        } else {
+            null
+        }
+        val rewrittenIcon = if (!iconCandidate.isNullOrBlank() && looksLikeUsableInlineMediaUrl(iconCandidate)) {
+            iconCandidate
+        } else {
+            travelIconUrl
+        }
+
+        if (rewrittenImage == null && rewrittenIcon.isBlank()) {
+            return null
+        }
+        return when {
+            rewrittenImage != null -> "Media: Image=$rewrittenImage Icon=$rewrittenIcon"
+            else -> "Media: Icon=$rewrittenIcon"
+        }
     }
 
     fun hasNearbyMediaLine(lines: List<String>, index: Int): Boolean {
@@ -450,23 +617,11 @@ internal object PipelineMediaSanitizer {
 
     fun buildTravelMediaLine(
         line: String,
-        locationKeyword: String,
-        baseText: String
+        locationKeyword: String
     ): String {
-        val imageKeyword = buildTravelImageKeyword(line, locationKeyword)
         val iconName = pickTravelIconName(line)
-        val hasImage = hasInlineImageUrl(baseText)
-        val hasIcon = hasInlineIconUrl(baseText)
-        return when {
-            !hasImage && !hasIcon ->
-                "Media: Image=https://loremflickr.com/1200/800/$imageKeyword Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
-            !hasImage ->
-                "Media: Image=https://loremflickr.com/1200/800/$imageKeyword"
-            !hasIcon ->
-                "Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
-            else ->
-                "Media: Image=https://loremflickr.com/1200/800/$imageKeyword Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
-        }
+        val iconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
+        return "Media: Image=$iconUrl Icon=$iconUrl"
     }
 
     fun buildTravelImageKeyword(line: String, locationKeyword: String): String {
@@ -545,6 +700,15 @@ internal object PipelineMediaSanitizer {
     }
 
     fun extractTravelLocationKeyword(queryText: String): String {
+        val itineraryPattern = Regex("""(?i)\b\d+\s*day\s+([a-z][a-z0-9-]{2,30})\b""")
+            .find(queryText)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.lowercase(Locale.US)
+        if (!itineraryPattern.isNullOrBlank()) {
+            return itineraryPattern
+        }
+
         val prepositionMatch = Regex("""(?i)\b(?:in|at|to|from|for)\s+([a-z][a-z0-9-]{2,30})\b""")
             .findAll(queryText)
             .lastOrNull()
@@ -557,12 +721,161 @@ internal object PipelineMediaSanitizer {
 
         val blocked = setOf(
             "show", "best", "top", "places", "visit", "travel", "trip", "itinerary",
-            "things", "todo", "to", "in", "for", "with"
+            "things", "todo", "to", "in", "for", "with", "day", "days", "family",
+            "activities", "activity", "quick", "action", "actions", "plan", "plans"
         )
         val token = queryText.lowercase(Locale.US)
             .split(Regex("""[^a-z0-9-]+"""))
             .firstOrNull { it.length >= 3 && it !in blocked }
         return token ?: "travel"
+    }
+
+    // ── General-purpose media injection ──────────────────────────────
+
+    /**
+     * Ensures every response has at least some inline media by injecting
+     * icon URLs after section headings that lack a nearby Media line.
+     * Icons are topic-matched via [pickGeneralIconName] so they are always
+     * content-relevant. Runs after travel/flight-specific sanitizers so it
+     * only fills remaining gaps.
+     */
+    fun ensureGeneralInlineMedia(
+        responseText: String,
+        queryText: String
+    ): String {
+        if (hasInlineImageUrl(responseText) || hasInlineIconUrl(responseText)) {
+            return responseText
+        }
+
+        val normalized = responseText.replace("\r\n", "\n").trim()
+        if (normalized.isBlank()) {
+            return responseText
+        }
+
+        val topicKeyword = extractTopicKeyword(queryText)
+        val lines = normalized.split('\n')
+        val output = mutableListOf<String>()
+        var inserted = 0
+        val maxInsertions = 3
+
+        lines.forEachIndexed { index, rawLine ->
+            val line = rawLine.trimEnd()
+            output += rawLine
+
+            if (inserted >= maxInsertions) {
+                return@forEachIndexed
+            }
+
+            val trimmed = line.trim()
+            if (!isContentHeadingLine(trimmed)) {
+                return@forEachIndexed
+            }
+            if (hasNearbyMediaLine(lines, index)) {
+                return@forEachIndexed
+            }
+
+            val iconName = pickGeneralIconName(trimmed, topicKeyword)
+            val iconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
+            output += "Media: Image=$iconUrl Icon=$iconUrl"
+            inserted += 1
+        }
+
+        if (inserted == 0) {
+            val iconName = pickGeneralIconName(queryText, topicKeyword)
+            val iconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
+            return buildString {
+                append(normalized)
+                append("\nMedia: Image=$iconUrl Icon=$iconUrl")
+            }
+        }
+
+        return output.joinToString(separator = "\n").trimEnd()
+    }
+
+    private fun isContentHeadingLine(line: String): Boolean {
+        if (line.isBlank()) return false
+        // Markdown heading
+        if (line.startsWith("#")) return true
+        // Numbered/named block headings like "Option 1:", "Day 1:", etc.
+        if (Regex("""(?i)^(option|day|place|stop|step|item|category|section)\s*\d+\s*[:\-]""")
+                .containsMatchIn(line)
+        ) return true
+        // Short title-like line (2-10 words, no trailing period, no URL, no bullet)
+        val stripped = line.replace(Regex("""^#+\s*"""), "").trim()
+        if (stripped.startsWith("-") || stripped.startsWith("•") || stripped.startsWith("|")) return false
+        if (containsUrlLikeToken(stripped)) return false
+        if (stripped.startsWith("Media:", ignoreCase = true) || stripped.startsWith("Action:", ignoreCase = true)) return false
+        if (stripped.startsWith("Source", ignoreCase = true) || stripped.startsWith("Quick Actions", ignoreCase = true)) return false
+        val wordCount = stripped.split(Regex("""\s+""")).count { it.isNotBlank() }
+        return wordCount in 2..10 && stripped.length <= 80 && !stripped.endsWith(".")
+    }
+
+    fun extractTopicKeyword(queryText: String): String {
+        val blocked = setOf(
+            "show", "me", "what", "is", "are", "the", "best", "top", "how", "why",
+            "tell", "about", "give", "find", "get", "list", "compare", "which",
+            "please", "can", "you", "some", "any", "good", "great", "between",
+            "and", "for", "with", "from", "this", "that", "should"
+        )
+        val tokens = queryText.lowercase(Locale.US)
+            .replace(Regex("""[^a-z0-9\s-]"""), " ")
+            .split(Regex("""\s+"""))
+            .filter { it.length >= 3 && it !in blocked }
+            .take(2)
+        return if (tokens.isNotEmpty()) {
+            tokens.joinToString("-")
+        } else {
+            "topic"
+        }
+    }
+
+    private fun buildGeneralImageKeyword(line: String, topicKeyword: String): String {
+        val stopwords = setOf(
+            "the", "and", "for", "with", "from", "into", "your", "this", "that",
+            "best", "top", "most", "key", "main", "overview", "summary", "comparison",
+            "to", "in", "of", "at", "on", "a", "an"
+        )
+        val words = line.lowercase(Locale.US)
+            .replace(Regex("""^#+\s*"""), "")
+            .replace(Regex("""[^a-z0-9\s-]"""), " ")
+            .split(Regex("""\s+"""))
+            .filter { it.length >= 3 && it !in stopwords }
+            .take(2)
+        val merged = buildList {
+            add(topicKeyword)
+            addAll(words)
+        }
+            .distinct()
+            .joinToString("-")
+            .ifBlank { topicKeyword }
+        return URLEncoder.encode(merged, StandardCharsets.UTF_8.name())
+            .replace("+", "%20")
+    }
+
+    private fun pickGeneralIconName(line: String, topicKeyword: String): String {
+        val normalized = (line + " " + topicKeyword).lowercase(Locale.US)
+        return when {
+            normalized.contains("weather") || normalized.contains("climate") || normalized.contains("temperature") -> "cloud-sun"
+            normalized.contains("flight") || normalized.contains("airline") || normalized.contains("airport") -> "airplane"
+            normalized.contains("hotel") || normalized.contains("stay") || normalized.contains("accommodation") -> "house"
+            normalized.contains("food") || normalized.contains("restaurant") || normalized.contains("cuisine") -> "cup-hot"
+            normalized.contains("shop") || normalized.contains("market") || normalized.contains("store") || normalized.contains("price") -> "shop"
+            normalized.contains("sport") || normalized.contains("fitness") || normalized.contains("game") -> "trophy"
+            normalized.contains("tech") || normalized.contains("computer") || normalized.contains("software") || normalized.contains("code") -> "laptop"
+            normalized.contains("music") || normalized.contains("song") || normalized.contains("concert") -> "music-note"
+            normalized.contains("book") || normalized.contains("read") || normalized.contains("study") || normalized.contains("learn") -> "book"
+            normalized.contains("health") || normalized.contains("medical") || normalized.contains("doctor") -> "heart-pulse"
+            normalized.contains("car") || normalized.contains("drive") || normalized.contains("vehicle") -> "car-front"
+            normalized.contains("train") || normalized.contains("rail") || normalized.contains("metro") -> "train-front"
+            normalized.contains("beach") || normalized.contains("sea") || normalized.contains("ocean") -> "water"
+            normalized.contains("mountain") || normalized.contains("hike") || normalized.contains("trek") -> "signpost-split"
+            normalized.contains("city") || normalized.contains("town") || normalized.contains("urban") -> "building"
+            normalized.contains("nature") || normalized.contains("park") || normalized.contains("garden") -> "tree"
+            normalized.contains("money") || normalized.contains("finance") || normalized.contains("invest") || normalized.contains("budget") -> "cash-stack"
+            normalized.contains("travel") || normalized.contains("trip") || normalized.contains("visit") || normalized.contains("tour") -> "geo-alt"
+            normalized.contains("time") || normalized.contains("schedule") || normalized.contains("plan") -> "calendar"
+            else -> "star"
+        }
     }
 
     fun looksLikeFlightQuery(queryText: String): Boolean {
@@ -862,7 +1175,8 @@ internal object PipelineMediaSanitizer {
             setOf(RegexOption.IGNORE_CASE)
         ).containsMatchIn(jsonText) ||
             Regex(
-                """(?i)Media:\s*Image=|(?:^|\\n)Image:\s*(?:https?://|/assets/|assets/)"""
+                """"component"\s*:\s*"Image"[\s\S]{0,420}"(?:url|src|source|image)"\s*:\s*\{\s*"literalString"\s*:\s*"(?:https?://|/assets/|assets/)"""",
+                setOf(RegexOption.IGNORE_CASE)
             ).containsMatchIn(jsonText)
     }
 
@@ -872,7 +1186,8 @@ internal object PipelineMediaSanitizer {
             setOf(RegexOption.IGNORE_CASE)
         ).containsMatchIn(jsonText) ||
             Regex(
-                """(?i)Media:\s*Icon=|(?:^|\\n)Icon:\s*(?:https?://|/assets/|assets/)"""
+                """"component"\s*:\s*"Icon"[\s\S]{0,320}"(?:url|icon|name|glyph|asset)"\s*:\s*\{\s*"literalString"\s*:\s*"[^"]+"""",
+                setOf(RegexOption.IGNORE_CASE)
             ).containsMatchIn(jsonText)
     }
 
@@ -889,6 +1204,273 @@ internal object PipelineMediaSanitizer {
                 Regex("""(?i)"component"\s*:\s*"Button"""").containsMatchIn(jsonText) &&
                     Regex("""(?i)"url"\s*:\s*"https?://""").containsMatchIn(jsonText)
                 )
+    }
+
+    private fun extractFirstInlineImageUrl(text: String): String? {
+        val candidates = mutableListOf<String>()
+        Regex("""(?im)\bImage\s*=\s*(https?://\S+|/assets/\S+|assets/\S+)""")
+            .findAll(text)
+            .forEach { candidates += sanitizeMediaUrlToken(it.groupValues[1]) }
+        Regex("""(?im)^\s*Image\s*:\s*(https?://\S+|/assets/\S+|assets/\S+)""")
+            .findAll(text)
+            .forEach { candidates += sanitizeMediaUrlToken(it.groupValues[1]) }
+        Regex("""!\[[^\]]*]\((https?://\S+|/assets/\S+|assets/\S+)\)""")
+            .findAll(text)
+            .forEach { candidates += sanitizeMediaUrlToken(it.groupValues[1]) }
+        return candidates.firstOrNull(::looksLikeUsableInlineMediaUrl)
+    }
+
+    private fun extractFirstInlineIconUrl(text: String): String? {
+        val candidates = mutableListOf<String>()
+        Regex("""(?im)\bIcon\s*=\s*(https?://\S+|/assets/\S+|assets/\S+)""")
+            .findAll(text)
+            .forEach { candidates += sanitizeMediaUrlToken(it.groupValues[1]) }
+        Regex("""(?im)^\s*Icon\s*:\s*(https?://\S+|/assets/\S+|assets/\S+)""")
+            .findAll(text)
+            .forEach { candidates += sanitizeMediaUrlToken(it.groupValues[1]) }
+        return candidates.firstOrNull(::looksLikeUsableInlineMediaUrl)
+    }
+
+    fun ensureGenUiHasImageComponent(
+        jsonText: String,
+        stage2Response: String,
+        queryText: String
+    ): String {
+        val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
+        val payload = normalizeGenUiPayload(parsed)
+        if (!payload.isJsonArray) {
+            return jsonText
+        }
+
+        val messages = payload.asJsonArray
+        var components: JsonArray? = null
+        messages.forEach { message ->
+            if (!message.isJsonObject) return@forEach
+            val update = message.asJsonObject.getAsJsonObject("updateComponents") ?: return@forEach
+            val candidate = update.get("components")
+            if (candidate != null && candidate.isJsonArray) {
+                components = candidate.asJsonArray
+            }
+        }
+        val componentList = components ?: return jsonText
+        val topicMediaUrl = buildTopicFallbackMediaUrl(queryText)
+        val isFlight = looksLikeFlightQuery(queryText) || looksLikeFlightContent(stage2Response)
+        var changed = false
+
+        componentList.forEach { component ->
+            if (!component.isJsonObject) return@forEach
+            val obj = component.asJsonObject
+            if (!jsonStringOrNull(obj.get("component")).equals("Image", ignoreCase = true)) {
+                return@forEach
+            }
+            val currentUrl = jsonStringOrNull(obj.get("url")).orEmpty()
+            if (isFlight) {
+                if (!currentUrl.equals(topicMediaUrl, ignoreCase = true)) {
+                    obj.addProperty("url", topicMediaUrl)
+                    changed = true
+                }
+            } else if (!looksLikeUsableInlineMediaUrl(currentUrl)) {
+                obj.addProperty("url", topicMediaUrl)
+                changed = true
+            }
+        }
+
+        val alreadyHasImage = componentList.any { component ->
+            component.isJsonObject &&
+                jsonStringOrNull(component.asJsonObject.get("component")).equals("Image", ignoreCase = true) &&
+                looksLikeUsableInlineMediaUrl(jsonStringOrNull(component.asJsonObject.get("url")).orEmpty())
+        }
+        if (alreadyHasImage) {
+            return if (changed) messages.toString() else jsonText
+        }
+
+        val mediaUrl = if (looksLikeTravelQuery(queryText) || looksLikeTravelContent(stage2Response)) {
+            extractFirstInlineImageUrl(stage2Response)
+                ?: extractFirstInlineIconUrl(stage2Response)
+                ?: topicMediaUrl
+        } else {
+            topicMediaUrl
+        }
+        if (!looksLikeUsableInlineMediaUrl(mediaUrl)) {
+            return jsonText
+        }
+
+        val rootComponent = componentList.firstOrNull { component ->
+            component.isJsonObject &&
+                jsonStringOrNull(component.asJsonObject.get("id")) == "root"
+        }?.asJsonObject ?: return jsonText
+
+        val mediaId = buildUniqueComponentId(componentList, base = "auto_media")
+        componentList.add(
+            JsonObject().apply {
+                addProperty("id", mediaId)
+                addProperty("component", "Image")
+                addProperty("url", mediaUrl)
+                addProperty("fit", "cover")
+            }
+        )
+        prependRootChildId(rootComponent, mediaId)
+        return messages.toString()
+    }
+
+    private fun buildUniqueComponentId(components: JsonArray, base: String): String {
+        val existing = components.mapNotNull { component ->
+            if (!component.isJsonObject) return@mapNotNull null
+            jsonStringOrNull(component.asJsonObject.get("id"))
+        }.toSet()
+        var index = 1
+        while (true) {
+            val candidate = "${base}_$index"
+            if (candidate !in existing) {
+                return candidate
+            }
+            index += 1
+        }
+    }
+
+    private fun prependRootChildId(root: JsonObject, childId: String) {
+        val existingChildren = root.get("children")
+        if (existingChildren != null && existingChildren.isJsonArray) {
+            val current = existingChildren.asJsonArray.mapNotNull { child ->
+                if (child.isJsonPrimitive && child.asJsonPrimitive.isString) child.asString else null
+            }
+            if (current.contains(childId)) {
+                return
+            }
+            val updated = JsonArray().apply {
+                add(childId)
+                current.forEach { add(it) }
+            }
+            root.add("children", updated)
+            return
+        }
+
+        val singleChild = root.get("child")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
+        if (!singleChild.isNullOrBlank()) {
+            root.remove("child")
+            root.add("children", JsonArray().apply {
+                add(childId)
+                add(singleChild)
+            })
+            return
+        }
+
+        root.add("children", JsonArray().apply { add(childId) })
+    }
+
+    private fun jsonStringOrNull(element: JsonElement?): String? {
+        if (element == null || element.isJsonNull) {
+            return null
+        }
+        if (element.isJsonPrimitive && element.asJsonPrimitive.isString) {
+            return element.asString
+        }
+        if (element.isJsonObject) {
+            val literal = element.asJsonObject.get("literalString")
+            if (literal != null && literal.isJsonPrimitive && literal.asJsonPrimitive.isString) {
+                return literal.asString
+            }
+        }
+        return null
+    }
+
+    private fun buildTopicFallbackMediaUrl(queryText: String): String {
+        if (looksLikeFlightQuery(queryText)) {
+            return FLIGHT_FALLBACK_ICON_URL
+        }
+        val topicKeyword = extractTopicKeyword(queryText)
+        val iconName = pickGeneralIconName(queryText, topicKeyword)
+        return "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
+    }
+
+    fun rewriteUnstableMediaHostsInGenUi(
+        jsonText: String,
+        queryText: String
+    ): String {
+        val replacement = buildTopicFallbackMediaUrl(queryText)
+        return Regex(
+            """https?://(?:www\.)?(?:loremflickr\.com|picsum\.photos|placehold\.co|dummyimage\.com)\S*""",
+            RegexOption.IGNORE_CASE
+        ).replace(jsonText, replacement)
+    }
+
+    fun normalizeFlightMediaInGenUi(
+        jsonText: String,
+        queryText: String,
+        stage2Response: String
+    ): String {
+        if (!looksLikeFlightQuery(queryText) && !looksLikeFlightContent(stage2Response)) {
+            return jsonText
+        }
+        val bootstrapPattern = Regex(
+            """https?://(?:cdn\.jsdelivr\.net/npm|unpkg\.com)/bootstrap-icons(?:@[^/]+)?/icons/([a-z0-9-]+)\.svg""",
+            RegexOption.IGNORE_CASE
+        )
+        var normalized = bootstrapPattern.replace(jsonText) { match ->
+            val iconName = match.groupValues.getOrNull(1).orEmpty().lowercase(Locale.US)
+            if (iconName in FLIGHT_ALLOWED_BOOTSTRAP_ICONS) {
+                match.value
+            } else {
+                FLIGHT_FALLBACK_ICON_URL
+            }
+        }
+        normalized = Regex(
+            """https?://[^\s"'\\]*(?:weatherapi\.com|openweathermap\.org|accuweather\.com|weather\.com)[^\s"'\\]*""",
+            RegexOption.IGNORE_CASE
+        ).replace(normalized, FLIGHT_FALLBACK_ICON_URL)
+        normalized = Regex(
+            """https?://[^\s"'\\]*(?:cloud|weather|rain|storm|snow|sunny|overcast)[^\s"'\\]*\.svg""",
+            RegexOption.IGNORE_CASE
+        ).replace(normalized, FLIGHT_FALLBACK_ICON_URL)
+        return normalized
+    }
+
+    fun ensureGenUiHasInlineTextMedia(
+        jsonText: String,
+        queryText: String
+    ): String {
+        val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
+        val payload = normalizeGenUiPayload(parsed)
+        if (!payload.isJsonArray) {
+            return jsonText
+        }
+
+        val components = payload.asJsonArray
+            .firstNotNullOfOrNull { message ->
+                if (!message.isJsonObject) return@firstNotNullOfOrNull null
+                val update = message.asJsonObject.getAsJsonObject("updateComponents") ?: return@firstNotNullOfOrNull null
+                val candidate = update.get("components")
+                if (candidate != null && candidate.isJsonArray) candidate.asJsonArray else null
+            } ?: return jsonText
+
+        val mediaUrl = buildTopicFallbackMediaUrl(queryText)
+        var changed = false
+        components.forEach { component ->
+            if (changed || !component.isJsonObject) return@forEach
+            val obj = component.asJsonObject
+            if (!jsonStringOrNull(obj.get("component")).equals("Text", ignoreCase = true)) {
+                return@forEach
+            }
+
+            val textElement = obj.get("text")
+            val textValue = jsonStringOrNull(textElement).orEmpty()
+            if (textValue.isBlank()) {
+                return@forEach
+            }
+            if (textValue.contains("Media:", ignoreCase = true) || textValue.contains("Image=", ignoreCase = true)) {
+                return@forEach
+            }
+
+            val injected = "Media: Image=$mediaUrl Icon=$mediaUrl\n$textValue"
+            if (textElement != null && textElement.isJsonObject && textElement.asJsonObject.has("literalString")) {
+                textElement.asJsonObject.addProperty("literalString", injected)
+            } else {
+                obj.addProperty("text", injected)
+            }
+            changed = true
+        }
+
+        return if (changed) payload.asJsonArray.toString() else jsonText
     }
 
     fun sanitizeMediaUrlToken(value: String): String =
@@ -994,6 +1576,8 @@ internal object PipelineMediaSanitizer {
 
     fun buildFallbackGenUi(stage2Response: String, catalogId: String): JsonArray {
         val textValue = stage2Response.trim().ifBlank { "No content generated." }
+        val fallbackMediaUrl = extractFirstInlineImageUrl(stage2Response)
+            ?: extractFirstInlineIconUrl(stage2Response)
         val surfaceId = "surface_live"
         return JsonArray().apply {
             add(
@@ -1015,9 +1599,20 @@ internal object PipelineMediaSanitizer {
                                 addProperty("id", "root")
                                 addProperty("component", "Column")
                                 add("children", JsonArray().apply {
+                                    if (!fallbackMediaUrl.isNullOrBlank()) {
+                                        add("media_1")
+                                    }
                                     add("text_1")
                                 })
                             })
+                            if (!fallbackMediaUrl.isNullOrBlank()) {
+                                add(JsonObject().apply {
+                                    addProperty("id", "media_1")
+                                    addProperty("component", "Image")
+                                    addProperty("url", fallbackMediaUrl)
+                                    addProperty("fit", "cover")
+                                })
+                            }
                             add(JsonObject().apply {
                                 addProperty("id", "text_1")
                                 addProperty("component", "Text")

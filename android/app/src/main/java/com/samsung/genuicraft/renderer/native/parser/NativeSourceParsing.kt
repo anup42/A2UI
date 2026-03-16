@@ -26,7 +26,7 @@ internal object NativeSourceParsing {
         parseSourceLinksFromLine: (String) -> List<ParsedButton>
     ): Pair<List<ParsedButton>, Int>? {
         val firstLine = lines[startIndex].trim()
-        val sourcePrefixed = isSourceHeadingLine(firstLine)
+        val sourcePrefixed = isSourceHeadingLine(firstLine) || isSourcePrefixedLinkLine(firstLine)
         if (!inSourcesSection && !sourcePrefixed) {
             return null
         }
@@ -157,6 +157,22 @@ internal object NativeSourceParsing {
             return false
         }
         return SOURCE_HEADING_REGEX.matches(cleaned)
+    }
+
+    fun isSourcePrefixedLinkLine(line: String): Boolean {
+        val normalized = normalizeSourceLineForParsing(line)
+        if (normalized.isBlank()) {
+            return false
+        }
+        val prefix = normalizeSourceHeadingToken(normalized.substringBefore(':'))
+        if (!SOURCE_HEADING_REGEX.matches(prefix)) {
+            return false
+        }
+        val afterColon = normalized.substringAfter(':', "").trim()
+        if (afterColon.isBlank()) {
+            return false
+        }
+        return MARKDOWN_SOURCE_LINK_REGEX.containsMatchIn(afterColon) || URL_REGEX.containsMatchIn(afterColon)
     }
 
     fun normalizeSourceHeadingToken(line: String): String {

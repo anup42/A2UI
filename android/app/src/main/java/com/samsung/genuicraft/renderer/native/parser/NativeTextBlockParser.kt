@@ -56,6 +56,7 @@ internal object NativeTextBlockParser {
         parseButtonLine: (String) -> ParsedButton?,
         looksLikeStandaloneLinkLine: (String) -> Boolean,
         parseSourceLinksFromLine: (String) -> List<ParsedButton>,
+        isSourcePrefixedLinkLine: (String) -> Boolean,
         looksLikeSectionHeading: (String) -> Boolean,
         isStructuredBoundary: (String) -> Boolean
     ): List<TextBlock> {
@@ -77,6 +78,7 @@ internal object NativeTextBlockParser {
                 val (links, nextIndex) = sourceLinks
                 if (links.isNotEmpty()) {
                     blocks += TextBlock.Sources(links)
+                    inSourcesSection = true
                     renderedAny = true
                     index = nextIndex
                     continue
@@ -166,10 +168,14 @@ internal object NativeTextBlockParser {
                     emptyList()
                 }
             if (inlineLinkButtons.isNotEmpty()) {
-                blocks += if (inSourcesSection) {
+                val treatAsSources = inSourcesSection || isSourcePrefixedLinkLine(line)
+                blocks += if (treatAsSources) {
                     TextBlock.Sources(inlineLinkButtons)
                 } else {
                     TextBlock.Actions(inlineLinkButtons)
+                }
+                if (treatAsSources) {
+                    inSourcesSection = true
                 }
                 renderedAny = true
                 index++
