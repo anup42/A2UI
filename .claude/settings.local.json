@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew compileDebugKotlin)",
+      "Bash(wc -c \"C:\\\\Users\\\\anupk\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-anupk-Documents-git-A2UI\\\\1f01a1cd-b5e0-4987-b298-c1d0e7db77f7\\\\tasks\\\\a1c299b8c06e26dc8.output\" \"C:\\\\Users\\\\anupk\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-anupk-Documents-git-A2UI\\\\1f01a1cd-b5e0-4987-b298-c1d0e7db77f7\\\\tasks\\\\abd56d59528f48924.output\")",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(./gradlew testDebugUnitTest)",
+      "Bash(./gradlew installDebug)",
+      "Bash(adb logcat:*)",
+      "Bash(adb shell:*)"
+    ]
+  }
+}

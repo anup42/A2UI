@@ -66,10 +66,18 @@ internal object NativeFlightSemantics {
         if (raw.isBlank()) {
             return null to null
         }
-        val compact = raw.replace(Regex("""\s+"""), " ")
+        val compact = raw
+            .replace(Regex("""\s+"""), " ")
+            .replace("â‚¹", "\u20B9")
+            .replace("Â₹", "\u20B9")
         val lower = compact.lowercase(Locale.US)
-        val amount = Regex("""([\u20B9$\u20AC\u00A3]\s?\d[\d,]*(?:\.\d+)?)""").find(compact)?.groupValues?.getOrNull(1)
-        val normalizedAmount = amount?.replace(Regex("""\s+"""), "")
+        val amount = Regex("""(?i)((?:[\u20B9$\u20AC\u00A3]|rs\.?|inr)\s?\d[\d,]*(?:\.\d+)?)""")
+            .find(compact)
+            ?.groupValues
+            ?.getOrNull(1)
+        val normalizedAmount = amount
+            ?.replace(Regex("""\s+"""), "")
+            ?.replace(Regex("""(?i)^(rs\.?|inr)"""), "\u20B9")
         val suffix = when {
             lower.contains("/adult") || lower.contains("per adult") -> "/adult"
             lower.contains("/person") || lower.contains("per person") -> "/person"
@@ -188,10 +196,15 @@ internal object NativeFlightSemantics {
 
     fun looksLikeFareValue(value: String): Boolean {
         val normalized = value.trim()
-        return normalized.contains("â‚¹") ||
-            normalized.contains("rs", ignoreCase = true) ||
-            Regex("""\bfrom\s*\d""", RegexOption.IGNORE_CASE).containsMatchIn(normalized) ||
-            Regex("""\d[\d,]+""").containsMatchIn(normalized)
+        if (normalized.isBlank()) {
+            return false
+        }
+        val withRupee = normalized
+            .replace("â‚¹", "\u20B9")
+            .replace("Â₹", "\u20B9")
+        return Regex("""(?i)(?:\u20B9|rs\.?|inr)\s*\d[\d,]*(?:\.\d+)?""").containsMatchIn(withRupee) ||
+            Regex("""(?i)\bfrom\s*(?:\u20B9|rs\.?|inr)?\s*\d""").containsMatchIn(withRupee) ||
+            Regex("""\b\d{4,}\b""").containsMatchIn(withRupee)
     }
 
     fun looksLikeAirlineValue(value: String): Boolean {
