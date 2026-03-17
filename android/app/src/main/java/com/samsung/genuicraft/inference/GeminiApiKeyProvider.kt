@@ -26,6 +26,13 @@ object GeminiApiKeyProvider {
                 "GEMINI_API_KEY"
             ),
             BuildConfig.GEMINI_STAGE2_API_KEY_DEFAULT,
+            // Fall back to Stage 3 key (runtime then compile-time) so a single key works for both stages
+            resolveKey(
+                context,
+                "GEMINI_STAGE3_API_KEY",
+                "GEMINI_IR_API_KEY",
+                "GEMINI_API_KEY_2"
+            ),
             BuildConfig.GEMINI_STAGE3_API_KEY_DEFAULT
         )
     }

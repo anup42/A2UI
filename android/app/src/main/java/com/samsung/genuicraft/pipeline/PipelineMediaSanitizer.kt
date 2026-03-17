@@ -533,8 +533,15 @@ internal object PipelineMediaSanitizer {
         val iconCandidate = iconUrl ?: iconColonUrl
 
         val travelIconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/${pickTravelIconName(contextLine)}.svg"
+        // Preserve real, usable API image URLs (e.g. MCP hotel thumbnails from googleusercontent.com);
+        // only rewrite to the travel icon when the original URL is hallucinated / unusable.
+        val candidateImageUrl = imageUrl ?: imageColonUrl ?: markdownUrl
         val rewrittenImage = if (hasImageSignal) {
-            travelIconUrl
+            if (candidateImageUrl != null && looksLikeUsableInlineMediaUrl(candidateImageUrl)) {
+                candidateImageUrl
+            } else {
+                travelIconUrl
+            }
         } else {
             null
         }
@@ -1531,6 +1538,7 @@ internal object PipelineMediaSanitizer {
             host.contains("imgur.com") ||
             host.contains("gstatic.com") ||
             host.contains("googleusercontent.com") ||
+            host.contains("places.googleapis.com") ||
             host.contains("twimg.com") ||
             host.contains("loremflickr.com") ||
             host.contains("picsum.photos")

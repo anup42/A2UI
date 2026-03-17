@@ -658,10 +658,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
         val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
-        if ((missingInlineImage || missingInlineIcon) && !usedFallback) {
+        if (missingInlineIcon && !usedFallback) {
             warnings += "Media content was adjusted for compatibility."
             stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId))
             usedFallback = true
+        } else if (missingInlineImage) {
+            warnings += "Stage 3 did not preserve inline image; layout retained."
         }
         if (PipelineMediaSanitizer.responseContainsActionButtons(stage2Response) && !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback) {
             warnings += "Quick actions were adjusted for compatibility."
@@ -1068,10 +1070,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
         val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
-        if ((missingInlineImage || missingInlineIcon) && !usedFallback) {
+        if (missingInlineIcon && !usedFallback) {
             warnings += "Media content was adjusted for compatibility."
             stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId))
             usedFallback = true
+        } else if (missingInlineImage) {
+            warnings += "Stage 3 did not preserve inline image; layout retained."
         }
         if (PipelineMediaSanitizer.responseContainsActionButtons(stage2Response) && !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback) {
             warnings += "Quick actions were adjusted for compatibility."
@@ -1343,10 +1347,15 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
         val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
-        if ((missingInlineImage || missingInlineIcon) && !usedFallback) {
+        // Only fall back to raw layout when icons are missing (not images alone).
+        // Replacing the entire card IR because Stage 3 didn't embed an image URL
+        // destroys structured layouts (hotel/restaurant cards) for minimal gain.
+        if (missingInlineIcon && !usedFallback) {
             warnings += "Media content was adjusted for compatibility."
             stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId))
             usedFallback = true
+        } else if (missingInlineImage) {
+            warnings += "Stage 3 did not preserve inline image; layout retained."
         }
         if (PipelineMediaSanitizer.responseContainsActionButtons(sanitizedResponse) &&
             !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback

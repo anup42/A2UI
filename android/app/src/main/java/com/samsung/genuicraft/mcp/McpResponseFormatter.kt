@@ -456,7 +456,11 @@ private fun buildFlightsFallback(data: JsonObject): String {
             val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else ""
             val reviewCount = hotel.safeInt("reviews") ?: 0
             val description = hotel.safeString("description")?.trim()
-            val thumbnail = hotel.safeString("thumbnail") ?: ""
+            // thumbnail is inside images[0].thumbnail, not at property level
+            val thumbnail = hotel.getAsJsonArray("images")
+                ?.firstOrNull()?.asJsonObject
+                ?.safeString("thumbnail")
+                ?: ""
             val link = hotel.safeString("link") ?: ""
             val checkIn = hotel.safeString("check_in_time") ?: ""
             val checkOut = hotel.safeString("check_out_time") ?: ""
