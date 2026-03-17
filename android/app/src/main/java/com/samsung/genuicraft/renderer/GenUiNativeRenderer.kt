@@ -1784,12 +1784,7 @@ object GenUiNativeRenderer {
         val fit = component.getString("fit")
         val urlLower = rawUrl.lowercase(Locale.US)
         val likelyLogo = variant.contains("logo") || urlLower.contains("logo")
-        val rasterImage =
-            urlLower.endsWith(".jpg") ||
-                urlLower.endsWith(".jpeg") ||
-                urlLower.endsWith(".png") ||
-                urlLower.endsWith(".webp") ||
-                (urlLower.contains("places.googleapis.com") && urlLower.contains("/media"))
+        val photoLikeImage = isPhotoLikeImageUrl(rawUrl)
         val mediumFeature = variant.contains("mediumfeature")
         val likelyIcon =
             variant.contains("icon") ||
@@ -1798,7 +1793,7 @@ object GenUiNativeRenderer {
                     urlLower.endsWith(".svg") &&
                     !variant.contains("feature") &&
                     !variant.contains("thumbnail"))
-        val inlineIconLike = likelyIcon || (mediumFeature && !rasterImage)
+        val inlineIconLike = likelyIcon || (mediumFeature && !photoLikeImage)
         val actionModifier = NativeActionParsing.componentActionModifier(
             action = NativeActionParsing.extractComponentAction(component),
             sourceDir = sourceDir,
@@ -1815,7 +1810,7 @@ object GenUiNativeRenderer {
                     likelyLogo -> Modifier
                         .width(90.dp)
                         .height(30.dp)
-                    mediumFeature && rasterImage -> mediaFrameModifier()
+                    mediumFeature && photoLikeImage -> mediaFrameModifier()
                     variant.contains("feature") -> mediaFrameModifier()
                     variant.contains("thumbnail") -> mediaFrameModifier()
                     else -> mediaFrameModifier()
@@ -1823,7 +1818,7 @@ object GenUiNativeRenderer {
                 contentScale = defaultImageScale(
                     rawUrl = rawUrl,
                     fitValue = fit,
-                    defaultCoverForRaster = rasterImage && !likelyLogo && !inlineIconLike
+                    defaultCoverForRaster = photoLikeImage && !likelyLogo && !inlineIconLike
                 ),
                 asIcon = inlineIconLike
             )
@@ -2817,6 +2812,10 @@ object GenUiNativeRenderer {
 
     private fun looksLikeCompactIconUrl(value: String): Boolean {
         return NativeMediaVisualUtils.looksLikeCompactIconUrl(value)
+    }
+
+    private fun isPhotoLikeImageUrl(value: String): Boolean {
+        return NativeMediaVisualUtils.isPhotoLikeImageUrl(value)
     }
 
     private fun shouldShowMediaLabel(label: String): Boolean {

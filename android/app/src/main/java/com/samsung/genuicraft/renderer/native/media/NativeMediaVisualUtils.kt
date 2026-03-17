@@ -84,16 +84,69 @@ internal object NativeMediaVisualUtils {
             .matches(normalized)
     }
 
-    fun isVectorImagePath(value: String): Boolean =
-        value.trim().lowercase(Locale.US).endsWith(".svg")
+    fun isVectorImagePath(value: String): Boolean {
+        val normalized = value.trim().lowercase(Locale.US)
+        val pathWithoutQuery = normalized.substringBefore('?').substringBefore('#')
+        return pathWithoutQuery.endsWith(".svg")
+    }
 
     fun isRasterImagePath(value: String): Boolean {
         val normalized = value.trim().lowercase(Locale.US)
-        return normalized.endsWith(".png") ||
-            normalized.endsWith(".jpg") ||
-            normalized.endsWith(".jpeg") ||
-            normalized.endsWith(".webp") ||
+        val pathWithoutQuery = normalized.substringBefore('?').substringBefore('#')
+        return pathWithoutQuery.endsWith(".png") ||
+            pathWithoutQuery.endsWith(".jpg") ||
+            pathWithoutQuery.endsWith(".jpeg") ||
+            pathWithoutQuery.endsWith(".webp") ||
             (normalized.contains("places.googleapis.com") && normalized.contains("/media"))
+    }
+
+    fun isPhotoLikeImageUrl(value: String): Boolean {
+        val normalized = value.trim()
+        if (normalized.isBlank()) {
+            return false
+        }
+        val lower = normalized.lowercase(Locale.US)
+        if (isVectorImagePath(lower) || looksLikeCompactIconUrl(lower)) {
+            return false
+        }
+        if (isRasterImagePath(lower)) {
+            return true
+        }
+
+        val uri = runCatching { Uri.parse(normalized) }.getOrNull() ?: return false
+        val scheme = uri.scheme?.lowercase(Locale.US)
+        if (scheme != "http" && scheme != "https") {
+            return false
+        }
+
+        val host = uri.host?.lowercase(Locale.US).orEmpty()
+        val path = uri.path?.lowercase(Locale.US).orEmpty()
+        if (host.isBlank()) {
+            return false
+        }
+
+        if (
+            host.contains("googleusercontent.com") ||
+            host.contains("gstatic.com") ||
+            host.contains("wikimedia.org") ||
+            host.contains("imgur.com") ||
+            host.contains("twimg.com") ||
+            host.contains("unsplash.com") ||
+            host.contains("pexels.com")
+        ) {
+            return true
+        }
+
+        return path.contains("/media") ||
+            path.contains("/image") ||
+            path.contains("/images/") ||
+            path.contains("/img/") ||
+            path.contains("/photo") ||
+            path.contains("/photos/") ||
+            path.contains("/thumbnail") ||
+            path.contains("/thumb/") ||
+            path.contains("/cover") ||
+            path.contains("/hero")
     }
 
     fun defaultImageScale(
@@ -107,7 +160,7 @@ internal object NativeMediaVisualUtils {
             "contain", "fit", "inside" -> ContentScale.Fit
             "cover", "crop", "fill", "fillbounds", "fillwidth", "fillheight" -> ContentScale.Crop
             else -> {
-                if (defaultCoverForRaster && isRasterImagePath(rawUrl) && !isVectorImagePath(rawUrl)) {
+                if (defaultCoverForRaster && isPhotoLikeImageUrl(rawUrl)) {
                     ContentScale.Crop
                 } else {
                     ContentScale.Fit

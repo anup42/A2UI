@@ -210,6 +210,55 @@ private fun GenUiAssistantScreen(
         }
     }
 
+    fun upsertLogCard(
+        title: String,
+        content: String,
+        monospace: Boolean = false,
+        append: Boolean = false
+    ) {
+        if (content.isBlank()) return
+        val index = logs.indexOfFirst { it.title == title }
+        if (index < 0) {
+            val newItem = AssistantLogItem(title = title, content = content, monospace = monospace)
+            if (title == "Debug log") {
+                logs.add(0, newItem)
+            } else {
+                logs.add(newItem)
+            }
+            return
+        }
+        val existing = logs[index]
+        val mergedContent = if (append) {
+            val normalizedLine = content.trim()
+            val hasLine = existing.content
+                .lineSequence()
+                .map { it.trim() }
+                .any { it.equals(normalizedLine, ignoreCase = false) }
+            if (hasLine) {
+                existing.content
+            } else {
+                "${existing.content}\n$normalizedLine".trim()
+            }
+        } else {
+            content
+        }
+        logs[index] = existing.copy(
+            content = mergedContent,
+            monospace = existing.monospace || monospace
+        )
+    }
+
+    fun appendDebugLogLine(line: String) {
+        val sanitized = sanitizeUiLogText(line)
+        if (sanitized.isBlank()) return
+        upsertLogCard(
+            title = "Debug log",
+            content = sanitized,
+            monospace = true,
+            append = true
+        )
+    }
+
     fun formatDurationLabel(durationMs: Long): String {
         val totalSeconds = (durationMs / 1000.0)
         return if (totalSeconds < 60.0) {
@@ -444,11 +493,35 @@ private fun GenUiAssistantScreen(
                                 logs.clear()
                                 resetSteps(GenUiStagePipeline.Stage.STAGE2)
                                 currentStatus = "Starting pipeline"
+                                appendDebugLogLine("Pipeline started for query: $query")
 
                                 coroutineScope.launch {
                                     val outcome = pipeline.execute(query) { update ->
                                         currentStatus = sanitizeUiLogText(update.message)
                                         updateSteps(update)
+                                        appendDebugLogLine(update.message)
+                                        update.debugLog?.let(::appendDebugLogLine)
+
+                                        if (!update.stage2Response.isNullOrBlank()) {
+                                            stage2Text = update.stage2Response
+                                            upsertLogCard(
+                                                title = "Response",
+                                                content = update.stage2Response
+                                            )
+                                        }
+                                        if (!update.stage3Json.isNullOrBlank()) {
+                                            stage3Json = update.stage3Json
+                                            upsertLogCard(
+                                                title = "GenUI JSON",
+                                                content = update.stage3Json,
+                                                monospace = true
+                                            )
+                                        }
+                                        update.renderResult?.let { partialRender ->
+                                            if (partialRender.errorMessage == null) {
+                                                renderResult = partialRender
+                                            }
+                                        }
                                     }
                                     when (outcome) {
                                         is GenUiStagePipeline.Outcome.Success -> {
@@ -458,16 +531,16 @@ private fun GenUiAssistantScreen(
                                             renderResult = result.renderResult
                                             warnings = ArrayList(result.warnings.map(::sanitizeUiLogText))
                                             usedFallback = result.usedFallback
-                                            logs.clear()
-                                            logs += AssistantLogItem(
+                                            upsertLogCard(
                                                 title = "Response",
                                                 content = result.stage2Response
                                             )
-                                            logs += AssistantLogItem(
+                                            upsertLogCard(
                                                 title = "GenUI JSON",
                                                 content = result.stage3Json,
                                                 monospace = true
                                             )
+                                            appendDebugLogLine("Pipeline completed successfully.")
                                             steps.indices.forEach { i ->
                                                 steps[i] = steps[i].copy(status = PipelineStepStatus.Done)
                                             }
@@ -481,16 +554,17 @@ private fun GenUiAssistantScreen(
 
                                         is GenUiStagePipeline.Outcome.Failure -> {
                                             errorText = sanitizeUiLogText(outcome.message)
+                                            appendDebugLogLine("Pipeline failed: ${outcome.message}")
                                             if (!outcome.stage2Response.isNullOrBlank()) {
                                                 stage2Text = outcome.stage2Response
-                                                logs += AssistantLogItem(
+                                                upsertLogCard(
                                                     title = "Response",
                                                     content = outcome.stage2Response
                                                 )
                                             }
                                             if (!outcome.stage3Json.isNullOrBlank()) {
                                                 stage3Json = outcome.stage3Json
-                                                logs += AssistantLogItem(
+                                                upsertLogCard(
                                                     title = "GenUI JSON",
                                                     content = outcome.stage3Json,
                                                     monospace = true

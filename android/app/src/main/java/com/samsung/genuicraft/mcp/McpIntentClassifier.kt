@@ -122,6 +122,10 @@ object McpIntentClassifier {
                 if (cityMatch != null) {
                     entities["location"] = cityMatch.groupValues[1].trim()
                 }
+                val dateMatch = Regex("""\b(?:on|for)\s+([a-z0-9 ,/-]+)$""", RegexOption.IGNORE_CASE).find(query)
+                if (dateMatch != null) {
+                    entities["date"] = dateMatch.groupValues[1].trim()
+                }
             }
             McpSettings.Domain.FLIGHTS -> {
                 // "flights from <origin> to <destination>"
@@ -131,6 +135,20 @@ object McpIntentClassifier {
                     entities["origin"] = routeMatch.groupValues[1].trim()
                     entities["destination"] = routeMatch.groupValues[2].trim()
                 }
+                Regex("""\bon\s+([a-z0-9 ,/-]+)""", RegexOption.IGNORE_CASE)
+                    .find(query)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["departure_date"] = it }
+                Regex("""\breturn(?:ing)?\s+(?:on\s+)?([a-z0-9 ,/-]+)""", RegexOption.IGNORE_CASE)
+                    .find(query)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["return_date"] = it }
             }
             McpSettings.Domain.RESTAURANTS -> {
                 // "restaurants in <location>"
@@ -146,6 +164,20 @@ object McpIntentClassifier {
                 if (locMatch != null) {
                     entities["location"] = locMatch.groupValues[1].trim()
                 }
+                Regex("""\bcheck[- ]?in\s+(?:on\s+)?([a-z0-9 ,/-]+)""", RegexOption.IGNORE_CASE)
+                    .find(query)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["check_in"] = it }
+                Regex("""\bcheck[- ]?out\s+(?:on\s+)?([a-z0-9 ,/-]+)""", RegexOption.IGNORE_CASE)
+                    .find(query)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["check_out"] = it }
             }
             McpSettings.Domain.PLACES -> {
                 val locMatch = Regex("(?:places|attractions|things to do|visit|explore|itinerary|travel|trip)\\s+(?:in|to|for|around|near)\\s+(.+?)(?:\\s+(?:for|with|this|next)\\s+.*)?$", RegexOption.IGNORE_CASE)
@@ -159,6 +191,11 @@ object McpIntentClassifier {
                     .find(query)
                 if (topicMatch != null) {
                     entities["topic"] = topicMatch.groupValues[1].trim()
+                }
+                val locationMatch = Regex("""(?:news|headlines|latest|breaking).*\b(?:in|from)\s+([a-z][a-z\s]+)$""", RegexOption.IGNORE_CASE)
+                    .find(query)
+                if (locationMatch != null) {
+                    entities["location"] = locationMatch.groupValues[1].trim()
                 }
             }
         }

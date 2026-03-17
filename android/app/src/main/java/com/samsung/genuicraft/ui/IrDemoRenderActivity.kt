@@ -242,6 +242,10 @@ class IrDemoRenderActivity : AppCompatActivity() {
                 stage2ResponseText = record.responseText
             ) { update ->
                 appendPipelineLog(update.message)
+                update.debugLog?.let(::appendPipelineLog)
+                if (!update.stage3Json.isNullOrBlank()) {
+                    generatedIrJson = update.stage3Json
+                }
                 val message = when (update.stage) {
                     GenUiStagePipeline.Stage.STAGE3 -> getString(R.string.ir_demo_status_stage3)
                     GenUiStagePipeline.Stage.STAGE4 -> getString(R.string.ir_demo_status_stage4)

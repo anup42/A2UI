@@ -27,7 +27,11 @@ class GenUiStagePipeline(private val appContext: Context) {
 
     data class StageUpdate(
         val stage: Stage,
-        val message: String
+        val message: String,
+        val debugLog: String? = null,
+        val stage2Response: String? = null,
+        val stage3Json: String? = null,
+        val renderResult: GenUiNativeRenderer.RenderResult? = null
     )
 
     data class PipelineResult(
@@ -114,7 +118,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (responseProvider == InferenceBackendSettings.Provider.GEMINI && responseApiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
-                message = "Gemini stage-2 key is missing. Add GEMINI_STAGE2_API_KEY (or GEMINI_RESPONSE_API_KEY / GEMINI_API_KEY) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
+                message = "Gemini key is missing. Stage 2 now uses Stage 3 key; add GEMINI_STAGE3_API_KEY (or GEMINI_IR_API_KEY / GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
         if (irProvider == InferenceBackendSettings.Provider.GEMINI && irApiKey.isBlank()) {
@@ -188,12 +192,24 @@ class GenUiStagePipeline(private val appContext: Context) {
                 routerResult.error != null -> {
                     // Router call failed entirely — fall through to normal Stage 2
                     Log.w(LOG_TAG, "MCP router failed: ${routerResult.error}; falling back to normal Stage 2")
+                    postUpdate(
+                        onStageUpdate,
+                        Stage.STAGE2,
+                        "MCP router fallback to standard response generation",
+                        debugLog = "MCP router error: ${routerResult.error}"
+                    )
                     markDuration(Stage.STAGE2, stage2StartedAtMs)
                 }
 
                 routerResult.domain != null && McpSettings.isDomainReady(appContext, routerResult.domain) -> {
                     // LLM identified a live-data domain → fetch MCP data
                     Log.i(LOG_TAG, "MCP router: domain=${routerResult.domain.key} entities=${routerResult.entities}")
+                    postUpdate(
+                        onStageUpdate,
+                        Stage.STAGE2,
+                        "MCP domain selected: ${routerResult.domain.displayName}",
+                        debugLog = "MCP entities (${routerResult.domain.key}): ${formatDebugEntities(routerResult.entities)}"
+                    )
                     postUpdate(onStageUpdate, Stage.STAGE2, "Fetching live ${routerResult.domain.displayName} data")
                     val mcpApiKey = McpSettings.getApiKey(appContext, routerResult.domain)
                     val mcpResult = McpClient.fetch(
@@ -202,10 +218,32 @@ class GenUiStagePipeline(private val appContext: Context) {
                         apiKey = mcpApiKey,
                         queryText = normalizedQuery
                     )
+                    mcpResult.requestDebug?.let { requestDebug ->
+                        postUpdate(
+                            onStageUpdate,
+                            Stage.STAGE2,
+                            "MCP API call completed",
+                            debugLog = "MCP API call (${routerResult.domain.key}): $requestDebug"
+                        )
+                    }
+                    if (!mcpResult.success && !mcpResult.error.isNullOrBlank()) {
+                        postUpdate(
+                            onStageUpdate,
+                            Stage.STAGE2,
+                            "MCP API returned an error",
+                            debugLog = "MCP API error (${routerResult.domain.key}): ${mcpResult.error}"
+                        )
+                    }
                     val mcpDataSection = McpResponseFormatter.buildDataSection(mcpResult, normalizedQuery)
                     if (mcpDataSection.isBlank()) {
                         // MCP returned empty data — fall through to normal Stage 2 LLM
                         Log.w(LOG_TAG, "MCP ${routerResult.domain.key} returned no data; falling back to Stage 2")
+                        postUpdate(
+                            onStageUpdate,
+                            Stage.STAGE2,
+                            "MCP data empty, using standard Stage 2 response",
+                            debugLog = "MCP ${routerResult.domain.key}: data section empty after API call."
+                        )
                         markDuration(Stage.STAGE2, stage2StartedAtMs)
                         // (falls through to normal Stage 2 below)
                     } else {
@@ -242,6 +280,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                 !routerResult.fullResponse.isNullOrBlank() -> {
                     // LLM said no MCP needed and already wrote the full response
                     Log.i(LOG_TAG, "MCP router: domain=none, using LLM full_response")
+                    postUpdate(
+                        onStageUpdate,
+                        Stage.STAGE2,
+                        "MCP routing skipped live API call",
+                        debugLog = "MCP entities (none route): ${formatDebugEntities(routerResult.entities)}"
+                    )
                     markDuration(Stage.STAGE2, stage2StartedAtMs)
                     val mcpWarnings = mutableListOf<String>()
                     mcpWarnings += "MCP: LLM routing decided no live data needed — using LLM response"
@@ -267,6 +311,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                     // Router returned domain but API key not ready — fall through
                     val domainName = routerResult.domain?.key ?: "unknown"
                     Log.w(LOG_TAG, "MCP domain $domainName identified but API key not configured; falling back to normal Stage 2")
+                    postUpdate(
+                        onStageUpdate,
+                        Stage.STAGE2,
+                        "MCP key missing, using standard Stage 2 response",
+                        debugLog = "MCP domain=$domainName entities=${formatDebugEntities(routerResult.entities)}"
+                    )
                     markDuration(Stage.STAGE2, stage2StartedAtMs)
                 }
             }
@@ -405,6 +455,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         val sanitizedTravelMedia = stage2WithTravelMediaSanitized != stage2WithFlightMedia
         val injectedTravelMedia = stage2WithTravelMedia != stage2WithTravelMediaSanitized
         markDuration(Stage.STAGE2, stage2StartedAtMs)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE2,
+            "Rich response ready",
+            stage2Response = stage2Response
+        )
 
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
             appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, Context.MODE_PRIVATE)
@@ -652,6 +708,12 @@ class GenUiStagePipeline(private val appContext: Context) {
             usedFallback = true
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE3,
+            "GenUI JSON ready",
+            stage3Json = stage3Json
+        )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
@@ -677,6 +739,12 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
         markDuration(Stage.STAGE4, stage4StartedAtMs)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE4,
+            "Native render ready",
+            renderResult = renderResult
+        )
 
         return@withContext Outcome.Success(
             result = PipelineResult(
@@ -830,6 +898,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
         val sanitizedTravelMedia = stage2WithTravelMediaSanitized != stage2WithFlightMedia
         val injectedTravelMedia = stage2WithTravelMedia != stage2WithTravelMediaSanitized
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE2,
+            "Rich response ready",
+            stage2Response = stage2Response
+        )
 
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
             appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, Context.MODE_PRIVATE)
@@ -1045,6 +1119,12 @@ class GenUiStagePipeline(private val appContext: Context) {
             usedFallback = true
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE3,
+            "GenUI JSON ready",
+            stage3Json = stage3Json
+        )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
@@ -1070,6 +1150,12 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
         markDuration(Stage.STAGE4, stage4StartedAtMs)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE4,
+            "Native render ready",
+            renderResult = renderResult
+        )
 
         return@withContext Outcome.Success(
             result = PipelineResult(
@@ -1131,10 +1217,24 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage2WithTravelMedia = PipelineMediaSanitizer.ensureTravelInlineMedia(
             responseText = stage2WithTravelMediaSanitized, queryText = normalizedQuery
         )
-        val stage2WithGeneralMedia = PipelineMediaSanitizer.ensureGeneralInlineMedia(
-            responseText = stage2WithTravelMedia, queryText = normalizedQuery
-        )
+        val isMcpLiveRoute = !stage2Prompt.startsWith("[MCP-routed:none]", ignoreCase = true)
+        val stage2WithGeneralMedia = if (isMcpLiveRoute) {
+            // MCP live-data responses already carry domain-specific structure/media.
+            // Do not inject synthetic generic media lines that create duplicate top images.
+            stage2WithTravelMedia
+        } else {
+            PipelineMediaSanitizer.ensureGeneralInlineMedia(
+                responseText = stage2WithTravelMedia,
+                queryText = normalizedQuery
+            )
+        }
         val sanitizedResponse = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE2,
+            "Rich response ready",
+            stage2Response = sanitizedResponse
+        )
 
         // Shorten long URLs to compact tokens before sending to Stage 3 LLM
         val urlShortenResult = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(sanitizedResponse)
@@ -1286,7 +1386,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Rewrote unstable media URLs to deterministic topic icons."
             }
         }
-        if (!usedFallback && !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)) {
+        val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(sanitizedResponse)
+        if (!usedFallback &&
+            stage2HasInlineImage &&
+            !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
+        ) {
             val stage3WithInlineTextMedia = PipelineMediaSanitizer.ensureGenUiHasInlineTextMedia(
                 jsonText = stage3Json, queryText = normalizedQuery
             )
@@ -1295,7 +1399,6 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Injected fallback inline media text to preserve image rendering."
             }
         }
-        val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(sanitizedResponse)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(sanitizedResponse)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -1327,6 +1430,12 @@ class GenUiStagePipeline(private val appContext: Context) {
             usedFallback = true
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE3,
+            "GenUI JSON ready",
+            stage3Json = stage3Json
+        )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
@@ -1352,6 +1461,12 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
         markDuration(Stage.STAGE4, stage4StartedAtMs)
+        postUpdate(
+            onStageUpdate,
+            Stage.STAGE4,
+            "Native render ready",
+            renderResult = renderResult
+        )
 
         return Outcome.Success(
             result = PipelineResult(
@@ -1373,11 +1488,34 @@ class GenUiStagePipeline(private val appContext: Context) {
     private suspend fun postUpdate(
         callback: (StageUpdate) -> Unit,
         stage: Stage,
-        message: String
+        message: String,
+        debugLog: String? = null,
+        stage2Response: String? = null,
+        stage3Json: String? = null,
+        renderResult: GenUiNativeRenderer.RenderResult? = null
     ) {
         withContext(Dispatchers.Main) {
-            callback(StageUpdate(stage = stage, message = message))
+            callback(
+                StageUpdate(
+                    stage = stage,
+                    message = message,
+                    debugLog = debugLog,
+                    stage2Response = stage2Response,
+                    stage3Json = stage3Json,
+                    renderResult = renderResult
+                )
+            )
         }
+    }
+
+    private fun formatDebugEntities(entities: Map<String, String>): String {
+        if (entities.isEmpty()) {
+            return "none"
+        }
+        return entities
+            .toSortedMap()
+            .entries
+            .joinToString(", ") { (key, value) -> "$key=${value.trim()}" }
     }
 
     private fun generateWithRetry(
@@ -1533,7 +1671,16 @@ class GenUiStagePipeline(private val appContext: Context) {
             if (
                 provider == InferenceBackendSettings.Provider.GEMINI &&
                 !effectiveCachedContentName.isNullOrBlank() &&
-                errorClass == InferenceBackend.ErrorClass.CACHED_CONTENT_MISSING
+                (
+                    errorClass == InferenceBackend.ErrorClass.CACHED_CONTENT_MISSING ||
+                        (
+                            last.error!!.contains("HTTP 403", ignoreCase = true) &&
+                                (
+                                    last.error!!.contains("cached", ignoreCase = true) ||
+                                        last.error!!.contains("PERMISSION_DENIED", ignoreCase = true)
+                                    )
+                            )
+                    )
             ) {
                 val reason = "Gemini cached content became unavailable (${effectiveCachedContentName.take(64)})."
                 onGeminiCachedContentMissing?.invoke(reason)

@@ -9,6 +9,13 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoField
+import java.time.temporal.TemporalAdjusters
+import java.util.Locale
 
 /**
  * MCP client that fetches real-time data from domain-specific APIs.
@@ -32,7 +39,8 @@ object McpClient {
         val success: Boolean,
         val data: JsonObject?,
         val rawJson: String?,
-        val error: String?
+        val error: String?,
+        val requestDebug: String? = null
     )
 
     /**
@@ -70,14 +78,45 @@ object McpClient {
 
     private fun fetchWeather(entities: Map<String, String>, queryText: String): McpResult {
         val location = entities["location"] ?: extractLocationFallback(queryText) ?: "New York"
+        val language = normalizeLanguageCode(entities["language"], fallback = "en")
+        val singleDate = normalizeIsoDate(entities["date"])
+        val explicitStart = normalizeIsoDate(entities["start_date"])
+        val explicitEnd = normalizeIsoDate(entities["end_date"])
+        val (startDate, endDate) = normalizeDateRange(explicitStart, explicitEnd, singleDate)
+        val forecastDays = parseIntInRange(entities["days"], min = 1, max = 16)
+        val temperatureUnit = normalizeTemperatureUnit(entities["temperature_unit"])
+        val windSpeedUnit = normalizeWindSpeedUnit(entities["wind_speed_unit"])
+        val precipitationUnit = normalizePrecipitationUnit(entities["precipitation_unit"])
+        val requestDebug = buildRequestDebug(
+            domain = "weather",
+            endpoint = "open-meteo",
+            pairs = listOf(
+                "location" to location,
+                "language" to language,
+                "start_date" to startDate,
+                "end_date" to endDate,
+                "days" to (forecastDays ?: 7).toString(),
+                "temperature_unit" to temperatureUnit,
+                "wind_speed_unit" to windSpeedUnit,
+                "precipitation_unit" to precipitationUnit
+            )
+        )
 
         // Step 1: Geocode the location
-        val geocodeUrl = "https://geocoding-api.open-meteo.com/v1/search?name=${enc(location)}&count=1&language=en&format=json"
+        val geocodeUrl =
+            "https://geocoding-api.open-meteo.com/v1/search?name=${enc(location)}&count=1&language=${enc(language)}&format=json"
         val geocodeResponse = httpGet(geocodeUrl)
         val geocodeJson = JsonParser.parseString(geocodeResponse).asJsonObject
         val results = geocodeJson.getAsJsonArray("results")
         if (results == null || results.size() == 0) {
-            return McpResult(McpSettings.Domain.WEATHER, false, null, null, "Location not found: $location")
+            return McpResult(
+                domain = McpSettings.Domain.WEATHER,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "Location not found: $location",
+                requestDebug = requestDebug
+            )
         }
         val place = results[0].asJsonObject
         val lat = place.get("latitude").asDouble
@@ -85,12 +124,30 @@ object McpClient {
         val resolvedName = place.get("name")?.asString ?: location
         val country = place.get("country")?.asString ?: ""
 
-        // Step 2: Fetch weather
-        val weatherUrl = "https://api.open-meteo.com/v1/forecast?" +
-            "latitude=$lat&longitude=$lon" +
-            "&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index" +
-            "&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,sunrise,sunset" +
-            "&timezone=auto&forecast_days=7"
+        // Step 2: Fetch weather with optional date range/units supported by Open-Meteo
+        val params = mutableListOf(
+            "latitude=$lat",
+            "longitude=$lon",
+            "timezone=auto",
+            "current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index",
+            "daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,sunrise,sunset"
+        )
+        if (!startDate.isNullOrBlank() && !endDate.isNullOrBlank()) {
+            params += "start_date=$startDate"
+            params += "end_date=$endDate"
+        } else {
+            params += "forecast_days=${forecastDays ?: 7}"
+        }
+        if (!temperatureUnit.isNullOrBlank()) {
+            params += "temperature_unit=$temperatureUnit"
+        }
+        if (!windSpeedUnit.isNullOrBlank()) {
+            params += "wind_speed_unit=$windSpeedUnit"
+        }
+        if (!precipitationUnit.isNullOrBlank()) {
+            params += "precipitation_unit=$precipitationUnit"
+        }
+        val weatherUrl = "https://api.open-meteo.com/v1/forecast?${params.joinToString("&")}"
         val weatherResponse = httpGet(weatherUrl)
         val weatherJson = JsonParser.parseString(weatherResponse).asJsonObject
 
@@ -104,53 +161,181 @@ object McpClient {
             add("current_units", weatherJson.getAsJsonObject("current_units"))
             add("daily", weatherJson.getAsJsonObject("daily"))
             add("daily_units", weatherJson.getAsJsonObject("daily_units"))
+            addProperty("requested_start_date", startDate ?: "")
+            addProperty("requested_end_date", endDate ?: "")
+            addProperty("requested_forecast_days", forecastDays ?: 7)
+            addProperty("requested_temperature_unit", temperatureUnit ?: "")
+            addProperty("requested_wind_speed_unit", windSpeedUnit ?: "")
+            addProperty("requested_precipitation_unit", precipitationUnit ?: "")
         }
 
-        return McpResult(McpSettings.Domain.WEATHER, true, result, weatherResponse, null)
+        return McpResult(
+            domain = McpSettings.Domain.WEATHER,
+            success = true,
+            data = result,
+            rawJson = weatherResponse,
+            error = null,
+            requestDebug = requestDebug
+        )
     }
 
     // ── Flights: Google Flights (via Serpapi) ─────────────────────────────────────
 
     private fun fetchFlights(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
-            return McpResult(McpSettings.Domain.FLIGHTS, false, null, null, "SerpApi key not configured. Set it in Settings > MCP API Keys.")
+            return McpResult(
+                domain = McpSettings.Domain.FLIGHTS,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "SerpApi key not configured. Set it in Settings > MCP API Keys.",
+                requestDebug = null
+            )
         }
 
-        val origin = entities["origin"]?.take(3)?.uppercase() ?: "JFK"
-        val destination = entities["destination"]?.take(3)?.uppercase() ?: "LAX"
-        val dateOutStr = getFormattedDateOffset(7, "yyyy-MM-dd")
-        val dateRetStr = getFormattedDateOffset(9, "yyyy-MM-dd")
+        val fallbackRoute = extractFlightRouteFallback(queryText)
+        val origin = normalizeAirportOrCity(entities["origin"])
+            ?: fallbackRoute?.first
+            ?: "JFK"
+        val destination = normalizeAirportOrCity(entities["destination"])
+            ?: fallbackRoute?.second
+            ?: "LAX"
+        val outboundDate = normalizeIsoDate(entities["departure_date"] ?: entities["date"])
+            ?: getDateOffset(7)
+        val returnDateFromEntity = normalizeIsoDate(entities["return_date"])
+        val tripType = normalizeFlightType(entities["type"], queryText, hasReturnDate = !returnDateFromEntity.isNullOrBlank())
+        val adults = parseIntInRange(entities["adults"], min = 1, max = 9) ?: 1
+        val children = parseIntInRange(entities["children"], min = 0, max = 6)
+        val travelClass = normalizeFlightTravelClass(entities["travel_class"])
+        val currency = normalizeCurrencyCode(entities["currency"], fallback = "USD")
+        val country = normalizeCountryCode(entities["country"]) ?: "us"
+        val language = normalizeLanguageCode(entities["language"], fallback = "en")
+        val shouldSendReturnDate = tripType != "2"
+        val effectiveReturnDate = if (shouldSendReturnDate) {
+            returnDateFromEntity ?: normalizeIsoDate(
+                parseRelativeOrFormattedDate(outboundDate)?.plusDays(2)?.toString()
+            ) ?: getDateOffset(9)
+        } else {
+            null
+        }
+        val requestDebug = buildRequestDebug(
+            domain = "flights",
+            endpoint = "serpapi/google_flights",
+            pairs = listOf(
+                "origin" to origin,
+                "destination" to destination,
+                "outbound_date" to outboundDate,
+                "return_date" to effectiveReturnDate,
+                "trip_type" to tripType,
+                "travel_class" to travelClass,
+                "adults" to adults.toString(),
+                "children" to (children ?: 0).toString(),
+                "currency" to currency,
+                "country" to country,
+                "language" to language
+            )
+        )
 
         // SerpApi Google Flights search
-        val searchUrl = "https://serpapi.com/search.json?engine=google_flights" +
-            "&departure_id=$origin&arrival_id=$destination" +
-            "&outbound_date=$dateOutStr&return_date=$dateRetStr&currency=USD&api_key=${enc(apiKey)}"
+        val params = mutableListOf(
+            "engine=google_flights",
+            "departure_id=${enc(origin)}",
+            "arrival_id=${enc(destination)}",
+            "outbound_date=$outboundDate",
+            "currency=${enc(currency)}",
+            "adults=$adults",
+            "hl=${enc(language)}",
+            "gl=${enc(country)}",
+            "api_key=${enc(apiKey)}"
+        )
+        if (!effectiveReturnDate.isNullOrBlank()) {
+            params += "return_date=$effectiveReturnDate"
+        }
+        if (!tripType.isNullOrBlank()) {
+            params += "type=$tripType"
+        }
+        if (children != null && children > 0) {
+            params += "children=$children"
+        }
+        if (!travelClass.isNullOrBlank()) {
+            params += "travel_class=$travelClass"
+        }
+        val searchUrl = "https://serpapi.com/search.json?${params.joinToString("&")}"
             
         val flightResponse = httpGet(searchUrl)
         val flightJson = JsonParser.parseString(flightResponse).asJsonObject
+        val apiError = flightJson.get("error")?.takeIf { !it.isJsonNull }?.asString
+        if (apiError != null) {
+            return McpResult(
+                domain = McpSettings.Domain.FLIGHTS,
+                success = false,
+                data = null,
+                rawJson = flightResponse,
+                error = apiError,
+                requestDebug = requestDebug
+            )
+        }
 
         val result = JsonObject().apply {
             addProperty("origin", origin)
             addProperty("destination", destination)
+            addProperty("outbound_date", outboundDate)
+            addProperty("return_date", effectiveReturnDate ?: "")
+            addProperty("trip_type", tripType ?: "")
+            addProperty("travel_class", travelClass ?: "")
+            addProperty("currency", currency)
+            addProperty("adults", adults)
+            addProperty("children", children ?: 0)
             addProperty("query", queryText)
             add("flights", flightJson.get("best_flights") ?: JsonArray())
+            add("other_flights", flightJson.get("other_flights") ?: JsonArray())
         }
 
-        return McpResult(McpSettings.Domain.FLIGHTS, true, result, flightResponse, null)
+        return McpResult(
+            domain = McpSettings.Domain.FLIGHTS,
+            success = true,
+            data = result,
+            rawJson = flightResponse,
+            error = null,
+            requestDebug = requestDebug
+        )
     }
 
     // ── Restaurants: Google Places API (New) ────────────────────────────
 
     private fun fetchRestaurants(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
-            return McpResult(McpSettings.Domain.RESTAURANTS, false, null, null, "Google Places API key not configured. Set it in Settings > MCP API Keys.")
+            return McpResult(
+                domain = McpSettings.Domain.RESTAURANTS,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "Google Places API key not configured. Set it in Settings > MCP API Keys.",
+                requestDebug = null
+            )
         }
 
         val location = entities["location"] ?: extractLocationFallback(queryText) ?: "New York"
+        val language = normalizeLanguageCode(entities["language"], fallback = "en")
+        val country = normalizeCountryCode(entities["country"])
+        val requestDebug = buildRequestDebug(
+            domain = "restaurants",
+            endpoint = "google_places/searchText",
+            pairs = listOf(
+                "location" to location,
+                "language" to language,
+                "country" to country,
+                "max_results" to "8"
+            )
+        )
         val url = "https://places.googleapis.com/v1/places:searchText"
         val body = JsonObject().apply {
             addProperty("textQuery", "restaurants in $location")
             addProperty("maxResultCount", 8)
+            addProperty("languageCode", language)
+            if (!country.isNullOrBlank()) {
+                addProperty("regionCode", country.uppercase(Locale.US))
+            }
         }.toString()
         val headers = mapOf(
             "X-Goog-Api-Key" to apiKey,
@@ -176,29 +361,82 @@ object McpClient {
 
         val result = JsonObject().apply {
             addProperty("location", location)
+            addProperty("country", country ?: "")
+            addProperty("language", language)
             addProperty("query", queryText)
             add("results", places)
         }
 
-        return McpResult(McpSettings.Domain.RESTAURANTS, true, result, response, null)
+        return McpResult(
+            domain = McpSettings.Domain.RESTAURANTS,
+            success = true,
+            data = result,
+            rawJson = response,
+            error = null,
+            requestDebug = requestDebug
+        )
     }
 
     // ── Hotels: SerpApi (Google Hotels) ─────────────────────────────────
 
     private fun fetchHotels(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
-            return McpResult(McpSettings.Domain.HOTELS, false, null, null, "SerpApi key not configured. Set it in Settings > MCP API Keys.")
+            return McpResult(
+                domain = McpSettings.Domain.HOTELS,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "SerpApi key not configured. Set it in Settings > MCP API Keys.",
+                requestDebug = null
+            )
         }
 
         val location = entities["location"] ?: extractLocationFallback(queryText) ?: "New York"
+        val checkInDate = normalizeIsoDate(entities["check_in"] ?: entities["date"]) ?: getDateOffset(7)
+        val checkoutCandidate = normalizeIsoDate(entities["check_out"])
+        val checkOutDate = normalizeCheckoutDate(checkInDate, checkoutCandidate)
+        val adults = parseIntInRange(entities["adults"], min = 1, max = 8) ?: 2
+        val children = parseIntInRange(entities["children"], min = 0, max = 6)
+        val currency = normalizeCurrencyCode(entities["currency"], fallback = "INR")
+        val country = normalizeCountryCode(entities["country"])
+        val language = normalizeLanguageCode(entities["language"], fallback = "en")
+
         // Use the original query so qualifiers like "5 star", "budget", "near beach" are preserved.
         // Fall back to "hotels in <location>" only when the query doesn't already contain them.
-        val searchQuery = if (queryText.lowercase(java.util.Locale.US).contains("hotel"))
+        val searchQuery = if (queryText.lowercase(Locale.US).contains("hotel"))
             queryText else "hotels in $location"
-        val url = "https://serpapi.com/search.json?" +
-            "engine=google_hotels&q=${enc(searchQuery)}" +
-            "&check_in_date=${getDateOffset(7)}&check_out_date=${getDateOffset(9)}" +
-            "&adults=2&currency=INR&api_key=${enc(apiKey)}"
+        val requestDebug = buildRequestDebug(
+            domain = "hotels",
+            endpoint = "serpapi/google_hotels",
+            pairs = listOf(
+                "query" to searchQuery,
+                "location" to location,
+                "check_in_date" to checkInDate,
+                "check_out_date" to checkOutDate,
+                "adults" to adults.toString(),
+                "children" to (children ?: 0).toString(),
+                "currency" to currency,
+                "country" to country,
+                "language" to language
+            )
+        )
+        val params = mutableListOf(
+            "engine=google_hotels",
+            "q=${enc(searchQuery)}",
+            "check_in_date=$checkInDate",
+            "check_out_date=$checkOutDate",
+            "adults=$adults",
+            "currency=${enc(currency)}",
+            "hl=${enc(language)}",
+            "api_key=${enc(apiKey)}"
+        )
+        if (children != null && children > 0) {
+            params += "children=$children"
+        }
+        if (!country.isNullOrBlank()) {
+            params += "gl=${enc(country)}"
+        }
+        val url = "https://serpapi.com/search.json?${params.joinToString("&")}"
         val response = httpGet(url)
         val json = JsonParser.parseString(response).asJsonObject
 
@@ -206,7 +444,14 @@ object McpClient {
         val apiError = json.get("error")?.takeIf { !it.isJsonNull }?.asString
         if (apiError != null) {
             Log.w(LOG_TAG, "SerpApi hotels error for '$searchQuery': $apiError")
-            return McpResult(McpSettings.Domain.HOTELS, false, null, response, apiError)
+            return McpResult(
+                domain = McpSettings.Domain.HOTELS,
+                success = false,
+                data = null,
+                rawJson = response,
+                error = apiError,
+                requestDebug = requestDebug
+            )
         }
 
         val properties = json.getAsJsonArray("properties") ?: JsonArray()
@@ -215,24 +460,61 @@ object McpClient {
         val result = JsonObject().apply {
             addProperty("location", location)
             addProperty("query", queryText)
+            addProperty("check_in_date", checkInDate)
+            addProperty("check_out_date", checkOutDate)
+            addProperty("adults", adults)
+            addProperty("children", children ?: 0)
+            addProperty("currency", currency)
+            addProperty("country", country ?: "")
+            addProperty("language", language)
             add("properties", properties)
         }
 
-        return McpResult(McpSettings.Domain.HOTELS, true, result, response, null)
+        return McpResult(
+            domain = McpSettings.Domain.HOTELS,
+            success = true,
+            data = result,
+            rawJson = response,
+            error = null,
+            requestDebug = requestDebug
+        )
     }
 
     // ── Places: Google Places API (New) ─────────────────────────────────
 
     private fun fetchPlaces(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
-            return McpResult(McpSettings.Domain.PLACES, false, null, null, "Google Places API key not configured. Set it in Settings > MCP API Keys.")
+            return McpResult(
+                domain = McpSettings.Domain.PLACES,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "Google Places API key not configured. Set it in Settings > MCP API Keys.",
+                requestDebug = null
+            )
         }
 
         val location = entities["location"] ?: extractLocationFallback(queryText) ?: "New York"
+        val language = normalizeLanguageCode(entities["language"], fallback = "en")
+        val country = normalizeCountryCode(entities["country"])
+        val requestDebug = buildRequestDebug(
+            domain = "places",
+            endpoint = "google_places/searchText",
+            pairs = listOf(
+                "location" to location,
+                "language" to language,
+                "country" to country,
+                "max_results" to "8"
+            )
+        )
         val url = "https://places.googleapis.com/v1/places:searchText"
         val body = JsonObject().apply {
             addProperty("textQuery", "top attractions in $location")
             addProperty("maxResultCount", 8)
+            addProperty("languageCode", language)
+            if (!country.isNullOrBlank()) {
+                addProperty("regionCode", country.uppercase(Locale.US))
+            }
         }.toString()
         val headers = mapOf(
             "X-Goog-Api-Key" to apiKey,
@@ -258,39 +540,102 @@ object McpClient {
 
         val result = JsonObject().apply {
             addProperty("location", location)
+            addProperty("country", country ?: "")
+            addProperty("language", language)
             addProperty("query", queryText)
             add("results", places)
         }
 
-        return McpResult(McpSettings.Domain.PLACES, true, result, response, null)
+        return McpResult(
+            domain = McpSettings.Domain.PLACES,
+            success = true,
+            data = result,
+            rawJson = response,
+            error = null,
+            requestDebug = requestDebug
+        )
     }
 
     // ── News: NewsData.io ───────────────────────────────────────────────
 
     private fun fetchNews(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
-            return McpResult(McpSettings.Domain.NEWS, false, null, null, "NewsData.io key not configured. Set it in Settings > MCP API Keys.")
+            return McpResult(
+                domain = McpSettings.Domain.NEWS,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "NewsData.io key not configured. Set it in Settings > MCP API Keys.",
+                requestDebug = null
+            )
         }
 
-        val topic = entities["topic"]
-        val url = if (!topic.isNullOrBlank()) {
-            "https://newsdata.io/api/1/news?" +
-                "apikey=${enc(apiKey)}&q=${enc(topic)}&country=in&language=en"
-        } else {
-            "https://newsdata.io/api/1/news?" +
-                "apikey=${enc(apiKey)}&country=in&language=en"
+        val topic = entities["topic"]?.trim().orEmpty()
+        val location = entities["location"]?.trim().orEmpty()
+        val country = normalizeCountryCode(entities["country"])
+            ?: normalizeCountryFromLocation(location)
+            ?: "in"
+        val language = normalizeLanguageCode(entities["language"], fallback = "en")
+        val startDateEntity = normalizeIsoDate(entities["start_date"] ?: entities["date"])
+        val endDateEntity = normalizeIsoDate(entities["end_date"])
+        val (startDate, endDate) = normalizeDateRange(startDateEntity, endDateEntity)
+        val requestDebug = buildRequestDebug(
+            domain = "news",
+            endpoint = "newsdata.io/news",
+            pairs = listOf(
+                "topic" to topic,
+                "location" to location,
+                "country" to country,
+                "language" to language,
+                "from_date" to startDate,
+                "to_date" to endDate
+            )
+        )
+
+        val effectiveQuery = listOf(topic, location)
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+
+        val params = mutableListOf(
+            "apikey=${enc(apiKey)}",
+            "country=${enc(country)}",
+            "language=${enc(language)}"
+        )
+        if (effectiveQuery.isNotBlank()) {
+            params += "q=${enc(effectiveQuery)}"
         }
+        if (!startDate.isNullOrBlank()) {
+            params += "from_date=$startDate"
+        }
+        if (!endDate.isNullOrBlank()) {
+            params += "to_date=$endDate"
+        }
+
+        val url = "https://newsdata.io/api/1/news?${params.joinToString("&")}"
         val response = httpGet(url)
         val json = JsonParser.parseString(response).asJsonObject
 
         val result = JsonObject().apply {
-            addProperty("topic", topic ?: "top headlines")
+            addProperty("topic", if (topic.isNotBlank()) topic else "top headlines")
+            addProperty("location", location)
+            addProperty("country", country)
+            addProperty("language", language)
+            addProperty("from_date", startDate ?: "")
+            addProperty("to_date", endDate ?: "")
             addProperty("query", queryText)
             add("results", json.get("results") ?: JsonArray())
             addProperty("totalResults", json.get("totalResults")?.asInt ?: 0)
         }
 
-        return McpResult(McpSettings.Domain.NEWS, true, result, response, null)
+        return McpResult(
+            domain = McpSettings.Domain.NEWS,
+            success = true,
+            data = result,
+            rawJson = response,
+            error = null,
+            requestDebug = requestDebug
+        )
     }
 
     // ── HTTP helpers ────────────────────────────────────────────────────
@@ -357,12 +702,222 @@ object McpClient {
     private fun getDateOffset(daysFromNow: Int): String {
         return getFormattedDateOffset(daysFromNow, "yyyy-MM-dd")
     }
-    
+
     private fun getFormattedDateOffset(daysFromNow: Int, format: String): String {
-        val cal = java.util.Calendar.getInstance()
-        cal.add(java.util.Calendar.DAY_OF_YEAR, daysFromNow)
-        val sdf = java.text.SimpleDateFormat(format, java.util.Locale.US)
-        return sdf.format(cal.time)
+        val formatter = DateTimeFormatter.ofPattern(format, Locale.US)
+        return LocalDate.now().plusDays(daysFromNow.toLong()).format(formatter)
+    }
+
+    private fun parseIntInRange(raw: String?, min: Int, max: Int): Int? {
+        val digits = raw
+            ?.trim()
+            ?.let { Regex("""\d{1,3}""").find(it)?.value }
+            ?: return null
+        val value = digits.toIntOrNull() ?: return null
+        return value.coerceIn(min, max)
+    }
+
+    private fun normalizeCurrencyCode(raw: String?, fallback: String): String {
+        val token = raw
+            ?.trim()
+            ?.uppercase(Locale.US)
+            ?.replace(Regex("""[^A-Z]"""), "")
+            .orEmpty()
+        return if (token.length == 3) token else fallback
+    }
+
+    private fun normalizeLanguageCode(raw: String?, fallback: String = "en"): String {
+        val token = raw
+            ?.trim()
+            ?.lowercase(Locale.US)
+            ?.replace('_', '-')
+            .orEmpty()
+        val primary = token.substringBefore('-').replace(Regex("""[^a-z]"""), "")
+        return if (primary.length == 2) primary else fallback
+    }
+
+    private fun normalizeCountryCode(raw: String?): String? {
+        val token = raw?.trim().orEmpty()
+        if (token.isBlank()) {
+            return null
+        }
+        val plain = token.lowercase(Locale.US).replace(Regex("""[^a-z]"""), "")
+        if (plain.length == 2) {
+            return plain
+        }
+        return COUNTRY_NAME_TO_CODE[plain]
+    }
+
+    private fun normalizeCountryFromLocation(location: String?): String? {
+        val plain = location
+            ?.trim()
+            ?.lowercase(Locale.US)
+            ?.replace(Regex("""[^a-z]"""), "")
+            .orEmpty()
+        if (plain.isBlank()) {
+            return null
+        }
+        if (plain.length == 2) {
+            return plain
+        }
+        return COUNTRY_NAME_TO_CODE[plain]
+    }
+
+    private fun normalizeTemperatureUnit(raw: String?): String? {
+        return when (raw?.trim()?.lowercase(Locale.US)) {
+            "c", "celsius", "centigrade", "metric" -> "celsius"
+            "f", "fahrenheit", "imperial" -> "fahrenheit"
+            else -> null
+        }
+    }
+
+    private fun normalizeWindSpeedUnit(raw: String?): String? {
+        return when (raw?.trim()?.lowercase(Locale.US)) {
+            "kmh", "km/h", "kph" -> "kmh"
+            "mph" -> "mph"
+            "ms", "m/s" -> "ms"
+            "kn", "knot", "knots" -> "kn"
+            else -> null
+        }
+    }
+
+    private fun normalizePrecipitationUnit(raw: String?): String? {
+        return when (raw?.trim()?.lowercase(Locale.US)) {
+            "mm", "millimeter", "millimeters" -> "mm"
+            "inch", "inches", "in" -> "inch"
+            else -> null
+        }
+    }
+
+    private fun normalizeAirportOrCity(raw: String?): String? {
+        val value = raw?.trim().orEmpty()
+        if (value.isBlank()) {
+            return null
+        }
+        val iata = Regex("""\b([A-Za-z]{3})\b""").find(value)?.groupValues?.getOrNull(1)
+        if (!iata.isNullOrBlank() && value.length <= 5) {
+            return iata.uppercase(Locale.US)
+        }
+        if (value.length == 3 && value.all { it.isLetter() }) {
+            return value.uppercase(Locale.US)
+        }
+        return value
+    }
+
+    private fun normalizeFlightType(raw: String?, queryText: String, hasReturnDate: Boolean): String? {
+        val haystack = listOfNotNull(raw, queryText).joinToString(" ").lowercase(Locale.US)
+        return when {
+            hasReturnDate || haystack.contains("round trip") || haystack.contains("roundtrip") -> "1"
+            haystack.contains("one way") || haystack.contains("one-way") -> "2"
+            haystack.contains("multi city") || haystack.contains("multi-city") -> "3"
+            else -> null
+        }
+    }
+
+    private fun normalizeFlightTravelClass(raw: String?): String? {
+        val value = raw?.trim()?.lowercase(Locale.US).orEmpty()
+        if (value.isBlank()) {
+            return null
+        }
+        return when {
+            value == "1" || value.contains("economy") -> "1"
+            value == "2" || value.contains("premium economy") || value.contains("premium") -> "2"
+            value == "3" || value.contains("business") -> "3"
+            value == "4" || value.contains("first") -> "4"
+            else -> null
+        }
+    }
+
+    private fun normalizeCheckoutDate(checkInDate: String, checkOutCandidate: String?): String {
+        val checkIn = parseRelativeOrFormattedDate(checkInDate) ?: LocalDate.now().plusDays(7)
+        val candidate = parseRelativeOrFormattedDate(checkOutCandidate)
+        if (candidate != null && candidate.isAfter(checkIn)) {
+            return candidate.toString()
+        }
+        return checkIn.plusDays(1).toString()
+    }
+
+    private fun normalizeDateRange(
+        start: String?,
+        end: String?,
+        singleDate: String? = null
+    ): Pair<String?, String?> {
+        if (!start.isNullOrBlank() || !end.isNullOrBlank()) {
+            val parsedStart = parseRelativeOrFormattedDate(start)
+            val parsedEnd = parseRelativeOrFormattedDate(end)
+            if (parsedStart != null && parsedEnd != null) {
+                return if (parsedStart <= parsedEnd) {
+                    parsedStart.toString() to parsedEnd.toString()
+                } else {
+                    parsedEnd.toString() to parsedStart.toString()
+                }
+            }
+            if (parsedStart != null) {
+                return parsedStart.toString() to parsedStart.toString()
+            }
+            if (parsedEnd != null) {
+                return parsedEnd.toString() to parsedEnd.toString()
+            }
+        }
+        if (!singleDate.isNullOrBlank()) {
+            val parsed = parseRelativeOrFormattedDate(singleDate) ?: return null to null
+            return parsed.toString() to parsed.toString()
+        }
+        return null to null
+    }
+
+    private fun normalizeIsoDate(raw: String?): String? {
+        return parseRelativeOrFormattedDate(raw)?.toString()
+    }
+
+    private fun parseRelativeOrFormattedDate(raw: String?): LocalDate? {
+        val value = raw?.trim().orEmpty()
+        if (value.isBlank()) {
+            return null
+        }
+
+        val now = LocalDate.now()
+        val lower = value.lowercase(Locale.US)
+
+        if (lower == "today") return now
+        if (lower == "tomorrow") return now.plusDays(1)
+        if (lower.contains("day after tomorrow")) return now.plusDays(2)
+        Regex("""\bin\s+(\d{1,2})\s+days?\b""").find(lower)?.groupValues?.getOrNull(1)?.toIntOrNull()?.let {
+            return now.plusDays(it.toLong())
+        }
+
+        WEEKDAY_MAP.entries.firstOrNull { lower.contains(it.key) }?.let { (_, dow) ->
+            val forceNext = lower.contains("next ")
+            val adjuster = if (forceNext) TemporalAdjusters.next(dow) else TemporalAdjusters.nextOrSame(dow)
+            return now.with(adjuster)
+        }
+
+        val cleaned = lower
+            .replace(Regex("""\b(\d{1,2})(st|nd|rd|th)\b"""), "$1")
+            .replace(",", " ")
+            .replace(Regex("""\s+"""), " ")
+            .trim()
+
+        val exactIso = runCatching { LocalDate.parse(cleaned) }.getOrNull()
+        if (exactIso != null) {
+            return exactIso
+        }
+
+        DATE_PATTERNS.forEach { (pattern, hasYear) ->
+            val formatter = DateTimeFormatterBuilder()
+                .parseCaseInsensitive()
+                .appendPattern(pattern)
+                .parseDefaulting(ChronoField.YEAR, now.year.toLong())
+                .toFormatter(Locale.US)
+            val parsed = runCatching { LocalDate.parse(cleaned, formatter) }.getOrNull()
+            if (parsed != null) {
+                if (!hasYear && parsed.isBefore(now.minusDays(1))) {
+                    return parsed.plusYears(1)
+                }
+                return parsed
+            }
+        }
+        return null
     }
 
     private fun extractLocationFallback(query: String): String? {
@@ -370,4 +925,83 @@ object McpClient {
             .find(query)
         return match?.groupValues?.get(1)?.trim()?.takeIf { it.length in 2..60 }
     }
+
+    private fun extractFlightRouteFallback(query: String): Pair<String, String>? {
+        val match = Regex("""\bfrom\s+(.+?)\s+to\s+(.+?)(?:\s+(?:on|for|in|at)\b|$)""", RegexOption.IGNORE_CASE)
+            .find(query)
+            ?: return null
+        val origin = normalizeAirportOrCity(match.groupValues.getOrNull(1)) ?: return null
+        val destination = normalizeAirportOrCity(match.groupValues.getOrNull(2)) ?: return null
+        return origin to destination
+    }
+
+    private fun buildRequestDebug(
+        domain: String,
+        endpoint: String,
+        pairs: List<Pair<String, String?>>
+    ): String {
+        val args = pairs
+            .mapNotNull { (key, value) ->
+                val normalized = value?.trim().orEmpty()
+                if (normalized.isBlank()) null else "$key=$normalized"
+            }
+            .joinToString(", ")
+        return if (args.isBlank()) {
+            "domain=$domain, endpoint=$endpoint"
+        } else {
+            "domain=$domain, endpoint=$endpoint, $args"
+        }
+    }
+
+    private val DATE_PATTERNS = listOf(
+        "d MMM uuuu" to true,
+        "d MMMM uuuu" to true,
+        "MMM d uuuu" to true,
+        "MMMM d uuuu" to true,
+        "uuuu/MM/dd" to true,
+        "dd/MM/uuuu" to true,
+        "MM/dd/uuuu" to true,
+        "dd-MM-uuuu" to true,
+        "MM-dd-uuuu" to true,
+        "d/M/uuuu" to true,
+        "d-M-uuuu" to true,
+        "d MMM" to false,
+        "d MMMM" to false,
+        "MMM d" to false,
+        "MMMM d" to false,
+        "d/M" to false,
+        "d-M" to false
+    )
+
+    private val WEEKDAY_MAP = linkedMapOf(
+        "monday" to DayOfWeek.MONDAY,
+        "tuesday" to DayOfWeek.TUESDAY,
+        "wednesday" to DayOfWeek.WEDNESDAY,
+        "thursday" to DayOfWeek.THURSDAY,
+        "friday" to DayOfWeek.FRIDAY,
+        "saturday" to DayOfWeek.SATURDAY,
+        "sunday" to DayOfWeek.SUNDAY
+    )
+
+    private val COUNTRY_NAME_TO_CODE = mapOf(
+        "india" to "in",
+        "indian" to "in",
+        "usa" to "us",
+        "unitedstates" to "us",
+        "unitedstatesofamerica" to "us",
+        "america" to "us",
+        "uk" to "gb",
+        "unitedkingdom" to "gb",
+        "england" to "gb",
+        "canada" to "ca",
+        "australia" to "au",
+        "singapore" to "sg",
+        "uae" to "ae",
+        "unitedarabemirates" to "ae",
+        "germany" to "de",
+        "france" to "fr",
+        "spain" to "es",
+        "italy" to "it",
+        "japan" to "jp"
+    )
 }

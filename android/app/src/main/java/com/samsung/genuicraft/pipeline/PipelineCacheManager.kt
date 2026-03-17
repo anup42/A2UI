@@ -79,7 +79,8 @@ internal class PipelineCacheManager(private val appContext: Context) {
             return CacheSetupResult(name = null, created = false, error = null)
         }
 
-        val promptHash = sha256Hex("$model\n$systemPrompt")
+        val cacheScope = buildGeminiCacheScope(apiKey = apiKey, model = model)
+        val promptHash = sha256Hex("$cacheScope\n$systemPrompt")
         val now = System.currentTimeMillis()
 
         synchronized(stage2CacheLock) {
@@ -130,7 +131,8 @@ internal class PipelineCacheManager(private val appContext: Context) {
             return CacheSetupResult(name = null, created = false, error = null)
         }
 
-        val promptHash = sha256Hex("$model\n$systemPrompt")
+        val cacheScope = buildGeminiCacheScope(apiKey = apiKey, model = model)
+        val promptHash = sha256Hex("$cacheScope\n$systemPrompt")
         val now = System.currentTimeMillis()
 
         synchronized(stage3CacheLock) {
@@ -410,6 +412,13 @@ internal class PipelineCacheManager(private val appContext: Context) {
             return null
         }
         return runCatching { Instant.parse(value).toEpochMilli() }.getOrNull()
+    }
+
+    private fun buildGeminiCacheScope(apiKey: String, model: String): String {
+        // Keep cache identity tied to API key as well as model.
+        // Cached content created under one key can return 403/permission errors under another key.
+        val keyFingerprint = sha256Hex(apiKey.trim()).take(16)
+        return "$model|key:$keyFingerprint"
     }
 
     private fun sha256Hex(value: String): String {

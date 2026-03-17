@@ -1585,8 +1585,6 @@ internal object PipelineMediaSanitizer {
 
     fun buildFallbackGenUi(stage2Response: String, catalogId: String): JsonArray {
         val textValue = stage2Response.trim().ifBlank { "No content generated." }
-        val fallbackMediaUrl = extractFirstInlineImageUrl(stage2Response)
-            ?: extractFirstInlineIconUrl(stage2Response)
         val surfaceId = "surface_live"
         return JsonArray().apply {
             add(
@@ -1608,20 +1606,9 @@ internal object PipelineMediaSanitizer {
                                 addProperty("id", "root")
                                 addProperty("component", "Column")
                                 add("children", JsonArray().apply {
-                                    if (!fallbackMediaUrl.isNullOrBlank()) {
-                                        add("media_1")
-                                    }
                                     add("text_1")
                                 })
                             })
-                            if (!fallbackMediaUrl.isNullOrBlank()) {
-                                add(JsonObject().apply {
-                                    addProperty("id", "media_1")
-                                    addProperty("component", "Image")
-                                    addProperty("url", fallbackMediaUrl)
-                                    addProperty("fit", "cover")
-                                })
-                            }
                             add(JsonObject().apply {
                                 addProperty("id", "text_1")
                                 addProperty("component", "Text")

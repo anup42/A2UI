@@ -286,13 +286,21 @@ class GeminiBackend(
     }
 
     private fun isGeminiCachedContentMissing(lower: String): Boolean {
-        val referencesCache = lower.contains("cachedcontent") || lower.contains("cached content")
+        val referencesCache =
+            lower.contains("cachedcontent") ||
+                lower.contains("cachedcontents") ||
+                lower.contains("cached content")
         if (!referencesCache) {
             return false
         }
         return lower.contains("not found") ||
+            lower.contains("notfound") ||
             lower.contains("does not exist") ||
             lower.contains("http 404") ||
+            (lower.contains("http 403") &&
+                (lower.contains("permission denied") ||
+                    lower.contains("permission_denied") ||
+                    lower.contains("forbidden"))) ||
             (lower.contains("invalid_argument") && lower.contains("cache"))
     }
 
