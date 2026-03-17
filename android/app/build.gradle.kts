@@ -89,6 +89,8 @@ val embeddedStage3ApiKey = resolveSecret(
     "GEMINI_API_KEY_2",
     "GEMINI_API_KEY"
 )
+val embeddedNewsApiKey = resolveSecret("NEWS_API_KEY")
+val embeddedSerpApiKey = resolveSecret("SERPAPI_KEY")
 
 android {
     namespace = "com.samsung.genuicraft"
@@ -110,6 +112,16 @@ android {
             "String",
             "GEMINI_STAGE3_API_KEY_DEFAULT",
             "\"${escapeForBuildConfig(embeddedStage3ApiKey)}\""
+        )
+        buildConfigField(
+            "String",
+            "NEWS_API_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedNewsApiKey)}\""
+        )
+        buildConfigField(
+            "String",
+            "SERPAPI_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedSerpApiKey)}\""
         )
     }
 

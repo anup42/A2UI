@@ -80,4 +80,18 @@
     <string name="ir_demo_error_load">Could not load default IR demo dataset: %1$s</string>
     <string name="ir_demo_error_failed">Failed at %1$s: %2$s</string>
     <string name="ir_demo_delete_item_content_desc">Delete IR demo item</string>
+
+    <string name="settings_mcp_title">MCP Integration</string>
+    <string name="settings_mcp_description">Use real-time API data for supported queries. Stage 2 LLM routes the query and provides context; live data is fetched from the matching source.</string>
+    <string name="settings_mcp_enable">Enable MCP</string>
+    <string name="settings_mcp_api_keys_title">MCP API Keys</string>
+    <string name="settings_mcp_api_keys_description">API keys for each live-data domain. Leave blank to skip that domain. Weather (Open-Meteo) is always free and needs no key.</string>
+    <string name="settings_mcp_key_flights">SerpApi key (Flights)</string>
+    <string name="settings_mcp_key_restaurants">Google Places API key (Restaurants)</string>
+    <string name="settings_mcp_key_hotels">SerpApi key (Hotels)</string>
+    <string name="settings_mcp_key_places">Google Places API key (Places)</string>
+    <string name="settings_mcp_key_news">NewsData.io API key (News)</string>
+    <string name="settings_mcp_key_hint_serpapi">Get a free key at serpapi.com</string>
+    <string name="settings_mcp_key_hint_places">Enable Places API at console.cloud.google.com</string>
+    <string name="settings_mcp_key_hint_news">Get a free key at newsdata.io</string>
 </resources>

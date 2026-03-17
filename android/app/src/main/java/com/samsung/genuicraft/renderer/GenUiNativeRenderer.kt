@@ -1,4 +1,4 @@
-﻿package com.samsung.genuicraft
+package com.samsung.genuicraft
 
 import android.net.Uri
 import android.widget.Toast
@@ -375,6 +375,7 @@ object GenUiNativeRenderer {
         }
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun RenderContainer(
         component: JsonObject,
@@ -427,6 +428,47 @@ object GenUiNativeRenderer {
             onRuntimeAction = onRuntimeAction
         )
         val alignToken = component.getString("align")?.normalizeLayoutToken()
+
+        // Chip row heuristic: a Row whose children are ALL short Text components → render as chip tags
+        if (rowLayout) {
+            val childObjs = children.mapNotNull { index[it] }
+            val allShortTexts = childObjs.size in 1..8 &&
+                childObjs.all { child ->
+                    child.getString("component") == "Text" &&
+                        child.getString("variant") == "chip" ||
+                        (child.getString("component") == "Text" &&
+                            (readDynamicString(child.get("text")).let { t ->
+                                t.isNotBlank() && t.length <= 40 && !t.contains("http") &&
+                                    !t.contains("://") && !t.contains("•")
+                            }))
+                }
+            if (allShortTexts) {
+                FlowRow(
+                    modifier = actionModifier,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    childObjs.forEach { child ->
+                        val tagText = readDynamicString(child.get("text")).trim()
+                        if (tagText.isNotBlank()) {
+                            Surface(
+                                shape = RoundedCornerShape(50),
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ) {
+                                Text(
+                                    text = tagText,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                return
+            }
+        }
+
         if (rowLayout) {
             Box(modifier = actionModifier) {
                 RenderRowChildren(
@@ -663,6 +705,23 @@ object GenUiNativeRenderer {
             return
         }
 
+        // Chip variant: render as a pill-shaped tag
+        if (variant == "chip") {
+            Surface(
+                shape = RoundedCornerShape(50),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = actionModifier
+            ) {
+                Text(
+                    text = rawText,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
+            return
+        }
+
         if (shouldUseStructuredBlocks(rawText, variant)) {
             val blocks = remember(rawText) { parseTextBlocks(rawText) }
             Column(modifier = actionModifier) {
@@ -793,6 +852,27 @@ object GenUiNativeRenderer {
                         RenderMediaCards(entries = renderableEntries, sourceDir = sourceDir)
                     }
                 }
+
+                is TextBlock.TagRow -> {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        block.tags.forEach { tag ->
+                            Surface(
+                                shape = RoundedCornerShape(50),
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ) {
+                                Text(
+                                    text = tag,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -801,7 +881,8 @@ object GenUiNativeRenderer {
             is TextBlock.Bullets,
             is TextBlock.Actions,
             is TextBlock.Sources,
-            is TextBlock.MediaCards -> true
+            is TextBlock.MediaCards,
+            is TextBlock.TagRow -> true
             else -> false
         }
 
@@ -1707,7 +1788,8 @@ object GenUiNativeRenderer {
             urlLower.endsWith(".jpg") ||
                 urlLower.endsWith(".jpeg") ||
                 urlLower.endsWith(".png") ||
-                urlLower.endsWith(".webp")
+                urlLower.endsWith(".webp") ||
+                (urlLower.contains("places.googleapis.com") && urlLower.contains("/media"))
         val mediumFeature = variant.contains("mediumfeature")
         val likelyIcon =
             variant.contains("icon") ||

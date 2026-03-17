@@ -35,6 +35,9 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import com.samsung.genuicraft.mcp.McpSettings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -104,6 +107,18 @@ private fun SettingsScreen(
     }
     var loading by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
+    
+    var mcpEnabled by remember {
+        mutableStateOf(McpSettings.isEnabled(context))
+    }
+    
+    val mcpApiKeys = remember {
+        val map = androidx.compose.runtime.mutableStateMapOf<McpSettings.Domain, String>()
+        McpSettings.Domain.entries.forEach { domain ->
+            map[domain] = McpSettings.getApiKey(context, domain)
+        }
+        map
+    }
 
     fun usesGeminiBackend(): Boolean {
         return selectedResponseProvider == InferenceBackendSettings.Provider.GEMINI ||
@@ -564,6 +579,113 @@ private fun SettingsScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                    }
+                }
+
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                        colors = genUiCardColors(GenUiCardTone.Neutral),
+                        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(id = R.string.settings_mcp_title),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = stringResource(id = R.string.settings_mcp_description),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Switch(
+                                    checked = mcpEnabled,
+                                    onCheckedChange = {
+                                        mcpEnabled = it
+                                        McpSettings.setEnabled(context, it)
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                )
+                            }
+                            
+                            if (mcpEnabled) {
+                                Text(
+                                    text = stringResource(id = R.string.settings_mcp_api_keys_title),
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.settings_mcp_api_keys_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                // Weather uses Open-Meteo — no key needed
+                                Text(
+                                    text = "Weather: Open-Meteo (free, no key required)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                // Show API key fields for all other domains
+                                val keyedDomains = listOf(
+                                    McpSettings.Domain.FLIGHTS to stringResource(id = R.string.settings_mcp_key_flights),
+                                    McpSettings.Domain.RESTAURANTS to stringResource(id = R.string.settings_mcp_key_restaurants),
+                                    McpSettings.Domain.HOTELS to stringResource(id = R.string.settings_mcp_key_hotels),
+                                    McpSettings.Domain.PLACES to stringResource(id = R.string.settings_mcp_key_places),
+                                    McpSettings.Domain.NEWS to stringResource(id = R.string.settings_mcp_key_news)
+                                )
+                                keyedDomains.forEach { (domain, label) ->
+                                    OutlinedTextField(
+                                        value = mcpApiKeys[domain] ?: "",
+                                        onValueChange = { newVal ->
+                                            mcpApiKeys[domain] = newVal
+                                            McpSettings.setApiKey(context, domain, newVal)
+                                        },
+                                        label = { Text(label) },
+                                        placeholder = { Text("Paste API key here") },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    // Hint for the key source
+                                    val hintRes = when (domain) {
+                                        McpSettings.Domain.FLIGHTS, McpSettings.Domain.HOTELS ->
+                                            R.string.settings_mcp_key_hint_serpapi
+                                        McpSettings.Domain.RESTAURANTS, McpSettings.Domain.PLACES ->
+                                            R.string.settings_mcp_key_hint_places
+                                        McpSettings.Domain.NEWS ->
+                                            R.string.settings_mcp_key_hint_news
+                                        else -> null
+                                    }
+                                    if (hintRes != null) {
+                                        Text(
+                                            text = stringResource(id = hintRes),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }

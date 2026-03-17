@@ -125,4 +125,5 @@ internal sealed interface TextBlock {
     data class Actions(val actions: List<ParsedButton>) : TextBlock
     data class BookingCards(val options: List<BookingOption>) : TextBlock
     data class MediaCards(val entries: List<ParsedMediaEntry>) : TextBlock
+    data class TagRow(val tags: List<String>) : TextBlock
 }

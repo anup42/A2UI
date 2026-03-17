@@ -1530,6 +1530,7 @@ internal object PipelineMediaSanitizer {
             host.contains("upload.wikimedia.org") ||
             host.contains("imgur.com") ||
             host.contains("gstatic.com") ||
+            host.contains("googleusercontent.com") ||
             host.contains("twimg.com") ||
             host.contains("loremflickr.com") ||
             host.contains("picsum.photos")

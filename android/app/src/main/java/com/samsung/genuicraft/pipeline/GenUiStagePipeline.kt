@@ -6,6 +6,10 @@ import com.google.gson.GsonBuilder
 import com.samsung.genuicraft.inference.InferenceBackend
 import com.samsung.genuicraft.inference.InferenceBackendFactory
 import com.samsung.genuicraft.inference.LocalServerBackend
+import com.samsung.genuicraft.mcp.McpClient
+import com.samsung.genuicraft.mcp.McpLlmRouter
+import com.samsung.genuicraft.mcp.McpResponseFormatter
+import com.samsung.genuicraft.mcp.McpSettings
 import com.samsung.genuicraft.pipeline.PipelineCacheManager
 import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
 import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
@@ -158,6 +162,115 @@ class GenUiStagePipeline(private val appContext: Context) {
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath
         )
+
+        // ── MCP path: LLM routes query → optional live data fetch ──────────
+        // When MCP is enabled, Stage 2 uses a special routing prompt.
+        // The LLM decides which domain (if any) to call and provides:
+        //   - intro text (2-3 sentences) to show before live data, OR
+        //   - full_response when no MCP domain is needed (treated as normal Stage 2 output).
+        val mcpEnabled = McpSettings.isEnabled(appContext)
+        if (mcpEnabled) {
+            postUpdate(onStageUpdate, Stage.STAGE2, "Fetching data")
+            val stage2StartedAtMs = System.currentTimeMillis()
+            val routerResult = McpLlmRouter.route(
+                query = normalizedQuery,
+                backend = responseBackend,
+                assets = appContext.assets,
+                maxOutputTokens = if (responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+                    LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS
+                } else {
+                    STAGE2_MAX_OUTPUT_TOKENS
+                }
+            )
+            markStreamDuration(Stage.STAGE2, routerResult.streamDurationMs)
+
+            when {
+                routerResult.error != null -> {
+                    // Router call failed entirely — fall through to normal Stage 2
+                    Log.w(LOG_TAG, "MCP router failed: ${routerResult.error}; falling back to normal Stage 2")
+                    markDuration(Stage.STAGE2, stage2StartedAtMs)
+                }
+
+                routerResult.domain != null && McpSettings.isDomainReady(appContext, routerResult.domain) -> {
+                    // LLM identified a live-data domain → fetch MCP data
+                    Log.i(LOG_TAG, "MCP router: domain=${routerResult.domain.key} entities=${routerResult.entities}")
+                    postUpdate(onStageUpdate, Stage.STAGE2, "Fetching live ${routerResult.domain.displayName} data")
+                    val mcpApiKey = McpSettings.getApiKey(appContext, routerResult.domain)
+                    val mcpResult = McpClient.fetch(
+                        domain = routerResult.domain,
+                        entities = routerResult.entities,
+                        apiKey = mcpApiKey,
+                        queryText = normalizedQuery
+                    )
+                    val mcpDataSection = McpResponseFormatter.buildDataSection(mcpResult, normalizedQuery)
+                    if (mcpDataSection.isBlank()) {
+                        // MCP returned empty data — fall through to normal Stage 2 LLM
+                        Log.w(LOG_TAG, "MCP ${routerResult.domain.key} returned no data; falling back to Stage 2")
+                        markDuration(Stage.STAGE2, stage2StartedAtMs)
+                        // (falls through to normal Stage 2 below)
+                    } else {
+                        // Combine: LLM intro (context) + live MCP data section
+                        val combinedResponse = buildString {
+                            if (!routerResult.introText.isNullOrBlank()) {
+                                appendLine(routerResult.introText)
+                                appendLine()
+                            }
+                            append(mcpDataSection)
+                        }
+                        markDuration(Stage.STAGE2, stage2StartedAtMs)
+                        val mcpWarnings = mutableListOf<String>()
+                        mcpWarnings += "MCP: ${routerResult.domain.displayName} (LLM-routed + live data)"
+                        mcpWarnings += "Response backend: ${responseProvider.rawValue}"
+                        mcpWarnings += "IR backend: ${irProvider.rawValue}"
+                        return@withContext executeStage3WithResponse(
+                            normalizedQuery = normalizedQuery,
+                            stage2Response = combinedResponse,
+                            stage2Prompt = "[MCP-routed:${routerResult.domain.key}] $normalizedQuery",
+                            irBackend = irBackend,
+                            irProvider = irProvider,
+                            irModel = irModel,
+                            localServerBaseUrl = localServerBaseUrl,
+                            localModelPath = localModelPath,
+                            stageDurationsMs = stageDurationsMs,
+                            stageStreamDurationsMs = stageStreamDurationsMs,
+                            extraWarnings = mcpWarnings,
+                            onStageUpdate = onStageUpdate
+                        )
+                    }
+                }
+
+                !routerResult.fullResponse.isNullOrBlank() -> {
+                    // LLM said no MCP needed and already wrote the full response
+                    Log.i(LOG_TAG, "MCP router: domain=none, using LLM full_response")
+                    markDuration(Stage.STAGE2, stage2StartedAtMs)
+                    val mcpWarnings = mutableListOf<String>()
+                    mcpWarnings += "MCP: LLM routing decided no live data needed — using LLM response"
+                    mcpWarnings += "Response backend: ${responseProvider.rawValue}"
+                    mcpWarnings += "IR backend: ${irProvider.rawValue}"
+                    return@withContext executeStage3WithResponse(
+                        normalizedQuery = normalizedQuery,
+                        stage2Response = routerResult.fullResponse,
+                        stage2Prompt = "[MCP-routed:none] $normalizedQuery",
+                        irBackend = irBackend,
+                        irProvider = irProvider,
+                        irModel = irModel,
+                        localServerBaseUrl = localServerBaseUrl,
+                        localModelPath = localModelPath,
+                        stageDurationsMs = stageDurationsMs,
+                        stageStreamDurationsMs = stageStreamDurationsMs,
+                        extraWarnings = mcpWarnings,
+                        onStageUpdate = onStageUpdate
+                    )
+                }
+
+                else -> {
+                    // Router returned domain but API key not ready — fall through
+                    val domainName = routerResult.domain?.key ?: "unknown"
+                    Log.w(LOG_TAG, "MCP domain $domainName identified but API key not configured; falling back to normal Stage 2")
+                    markDuration(Stage.STAGE2, stage2StartedAtMs)
+                }
+            }
+        }
 
         val responseTemplate = runCatching {
             PipelinePromptBuilder.loadPromptAsset(appContext.assets, PipelinePromptBuilder.STAGE2_PROMPT_ASSET)
@@ -997,6 +1110,291 @@ class GenUiStagePipeline(private val appContext: Context) {
                 queryText = normalizedQuery,
                 stage2Prompt = "IR demo preloaded response (stage 2 skipped).",
                 stage2Response = stage2Response,
+                stage3Prompt = stage3Prompt,
+                stage3SystemPrompt = promptContext.systemPrompt,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
+                usedFallback = usedFallback,
+                warnings = warnings,
+                renderResult = renderResult
+            )
+        )
+    }
+
+    /**
+     * Runs Stage 3 + Stage 4 on a pre-formatted Stage 2 response (e.g. from MCP).
+     * Shares the same media sanitization, IR generation, and rendering logic as execute().
+     */
+    private suspend fun kotlinx.coroutines.CoroutineScope.executeStage3WithResponse(
+        normalizedQuery: String,
+        stage2Response: String,
+        stage2Prompt: String,
+        irBackend: InferenceBackend,
+        irProvider: InferenceBackendSettings.Provider,
+        irModel: String,
+        localServerBaseUrl: String,
+        localModelPath: String,
+        stageDurationsMs: LinkedHashMap<Stage, Long>,
+        stageStreamDurationsMs: LinkedHashMap<Stage, Long>,
+        extraWarnings: List<String>,
+        onStageUpdate: (StageUpdate) -> Unit
+    ): Outcome {
+        fun markDuration(stage: Stage, startMs: Long) {
+            if (startMs <= 0L) return
+            stageDurationsMs[stage] = (System.currentTimeMillis() - startMs).coerceAtLeast(0L)
+        }
+        fun markStreamDuration(stage: Stage, durationMs: Long?) {
+            val duration = durationMs ?: return
+            stageStreamDurationsMs[stage] = (stageStreamDurationsMs[stage] ?: 0L) + duration.coerceAtLeast(0L)
+        }
+
+        // Media sanitization chain (same as main execute path)
+        val stage2WithFlightList = PipelineMediaSanitizer.ensureFlightListContent(
+            responseText = stage2Response, queryText = normalizedQuery
+        )
+        val stage2WithActions = PipelineMediaSanitizer.ensureFlightQuickActions(
+            responseText = stage2WithFlightList, queryText = normalizedQuery
+        )
+        val stage2WithFlightMedia = PipelineMediaSanitizer.sanitizeFlightInlineMedia(
+            responseText = stage2WithActions, queryText = normalizedQuery
+        )
+        val stage2WithTravelMediaSanitized = PipelineMediaSanitizer.sanitizeTravelInlineMedia(
+            responseText = stage2WithFlightMedia, queryText = normalizedQuery
+        )
+        val stage2WithTravelMedia = PipelineMediaSanitizer.ensureTravelInlineMedia(
+            responseText = stage2WithTravelMediaSanitized, queryText = normalizedQuery
+        )
+        val stage2WithGeneralMedia = PipelineMediaSanitizer.ensureGeneralInlineMedia(
+            responseText = stage2WithTravelMedia, queryText = normalizedQuery
+        )
+        val sanitizedResponse = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
+
+        // Shorten long URLs to compact tokens before sending to Stage 3 LLM
+        val urlShortenResult = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(sanitizedResponse)
+        val stage3InputResponse = urlShortenResult.shortenedText
+        val urlMap = urlShortenResult.urlMap
+
+        val warnings = extraWarnings.toMutableList()
+
+        val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
+            appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        )
+
+        val genUiTemplate = runCatching {
+            PipelinePromptBuilder.loadPromptAsset(appContext.assets, PipelinePromptBuilder.STAGE3_PROMPT_ASSET)
+        }.getOrElse {
+            return Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Could not load stage 3 prompt: ${it.message ?: it.javaClass.simpleName}",
+                stage2Response = sanitizedResponse,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(genUiTemplate)
+        val stage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
+            userTemplate = promptContext.userTemplate,
+            stage2Response = stage3InputResponse,
+            catalogId = catalogId,
+            assets = emptyList()
+        )
+
+        val stage3CacheDeferred = if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
+            async(Dispatchers.IO) {
+                cacheManager.ensureStage3InstructionCache(
+                    apiKey = when (irBackend) {
+                        is com.samsung.genuicraft.inference.GeminiBackend -> "" // key already in backend
+                        else -> ""
+                    },
+                    model = irModel,
+                    systemPrompt = promptContext.systemPrompt
+                )
+            }
+        } else {
+            null
+        }
+
+        val irApiKey = if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
+            GeminiApiKeyProvider.stage3ApiKey(appContext).trim()
+        } else {
+            ""
+        }
+        val stage3Cache = if (stage3CacheDeferred != null) {
+            runCatching { stage3CacheDeferred }
+                .getOrElse {
+                    PipelineCacheManager.CacheSetupResult(name = null, created = false, error = it.message ?: it.javaClass.simpleName)
+                }
+        } else {
+            PipelineCacheManager.CacheSetupResult(name = null, created = false, error = null)
+        }
+        // For MCP path, skip cache complexity — use direct prompt
+        val stage3CacheResult = PipelineCacheManager.CacheSetupResult(name = null, created = false, error = null)
+
+        val localStage3SystemPromptCacheKey: String? = null
+        val localSendStage3SystemPrompt = true
+
+        val stage3MaxOutputTokens = if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
+            LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS
+        } else {
+            STAGE3_MAX_OUTPUT_TOKENS
+        }
+
+        postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
+        val stage3StartedAtMs = System.currentTimeMillis()
+        val stage3Call = generateWithRetry(
+            backend = irBackend,
+            provider = irProvider,
+            prompt = stage3Prompt,
+            systemPrompt = promptContext.systemPrompt,
+            temperature = 0.2,
+            maxOutputTokens = stage3MaxOutputTokens,
+            jsonMode = true,
+            enableGoogleSearch = false,
+            cachedContentName = null,
+            allowCachedContent = false,
+            structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI
+        )
+        markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
+
+        if (stage3Call.error != null) {
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
+            return Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = stage3Call.error,
+                stage2Response = sanitizedResponse,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+
+        var stage3JsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        var usedFallback = false
+
+        if (stage3JsonElement == null) {
+            warnings += "Stage 3 JSON parse failed; running repair pass."
+            val repairCall = generateWithRetry(
+                backend = irBackend,
+                provider = irProvider,
+                prompt = PipelineJsonExtractor.buildRepairPrompt(stage3Call.text),
+                systemPrompt = promptContext.systemPrompt,
+                temperature = 0.2,
+                maxOutputTokens = stage3MaxOutputTokens,
+                jsonMode = true,
+                enableGoogleSearch = false,
+                cachedContentName = null,
+                allowCachedContent = false,
+                structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI
+            )
+            markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
+            if (repairCall.error == null) {
+                stage3JsonElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
+            }
+        }
+
+        if (stage3JsonElement == null) {
+            warnings += "Stage 3 fallback JSON was used."
+            stage3JsonElement = PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId)
+            usedFallback = true
+        }
+
+        val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
+        // Restore shortened URL placeholders back to real URLs
+        var stage3Json = com.samsung.genuicraft.mcp.McpUrlShortener.restore(gson.toJson(normalizedGenUi), urlMap)
+        if (!usedFallback) {
+            val stage3WithInjectedImage = PipelineMediaSanitizer.ensureGenUiHasImageComponent(
+                jsonText = stage3Json, stage2Response = sanitizedResponse, queryText = normalizedQuery
+            )
+            if (stage3WithInjectedImage != stage3Json) {
+                stage3Json = stage3WithInjectedImage
+                warnings += "Injected fallback image into IR output to preserve media."
+            }
+        }
+        if (!usedFallback) {
+            val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
+                jsonText = stage3Json, queryText = normalizedQuery, stage2Response = sanitizedResponse
+            )
+            if (stage3WithFlightMediaNormalized != stage3Json) {
+                stage3Json = stage3WithFlightMediaNormalized
+                warnings += "Normalized flight media to airline/travel-safe icons."
+            }
+        }
+        if (!usedFallback) {
+            val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
+                jsonText = stage3Json, queryText = normalizedQuery
+            )
+            if (stage3WithStableMediaUrls != stage3Json) {
+                stage3Json = stage3WithStableMediaUrls
+                warnings += "Rewrote unstable media URLs to deterministic topic icons."
+            }
+        }
+        if (!usedFallback && !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)) {
+            val stage3WithInlineTextMedia = PipelineMediaSanitizer.ensureGenUiHasInlineTextMedia(
+                jsonText = stage3Json, queryText = normalizedQuery
+            )
+            if (stage3WithInlineTextMedia != stage3Json) {
+                stage3Json = stage3WithInlineTextMedia
+                warnings += "Injected fallback inline media text to preserve image rendering."
+            }
+        }
+        val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(sanitizedResponse)
+        val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(sanitizedResponse)
+        val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
+        val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
+        val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
+        val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
+        if ((missingInlineImage || missingInlineIcon) && !usedFallback) {
+            warnings += "Media content was adjusted for compatibility."
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId))
+            usedFallback = true
+        }
+        if (PipelineMediaSanitizer.responseContainsActionButtons(sanitizedResponse) &&
+            !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback
+        ) {
+            warnings += "Quick actions were adjusted for compatibility."
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId))
+            usedFallback = true
+        }
+        // Ensure Tags: lines are preserved as chip rows
+        val hasTags = sanitizedResponse.lines().any { it.trim().startsWith("Tags:", ignoreCase = true) }
+        val stage3HasChips = stage3Json.contains("\"chip\"", ignoreCase = true)
+        if (hasTags && !stage3HasChips && !usedFallback) {
+            warnings += "Tags were adjusted for chip rendering compatibility."
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId))
+            usedFallback = true
+        }
+        markDuration(Stage.STAGE3, stage3StartedAtMs)
+
+        postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
+        val stage4StartedAtMs = System.currentTimeMillis()
+        var renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
+
+        if (renderResult.errorMessage != null && !usedFallback) {
+            warnings += "Native rendering failed for stage 3 output; using fallback UI."
+            val fallback = PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId)
+            stage3Json = gson.toJson(fallback)
+            renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
+            usedFallback = true
+        }
+
+        if (renderResult.errorMessage != null) {
+            markDuration(Stage.STAGE4, stage4StartedAtMs)
+            return Outcome.Failure(
+                stage = Stage.STAGE4,
+                message = renderResult.errorMessage,
+                stage2Response = sanitizedResponse,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        markDuration(Stage.STAGE4, stage4StartedAtMs)
+
+        return Outcome.Success(
+            result = PipelineResult(
+                queryText = normalizedQuery,
+                stage2Prompt = stage2Prompt,
+                stage2Response = sanitizedResponse,
                 stage3Prompt = stage3Prompt,
                 stage3SystemPrompt = promptContext.systemPrompt,
                 stage3Json = stage3Json,

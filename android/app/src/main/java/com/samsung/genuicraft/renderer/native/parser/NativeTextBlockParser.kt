@@ -32,6 +32,7 @@ internal object NativeTextBlockParser {
         val hasMedia = lines.any { isInlineMediaLine(it) || isMediaMarkerHeading(it) }
         val hasStandaloneLinks = lines.any(looksLikeStandaloneLinkLine)
         val hasSourceHeading = lines.any(isSourceHeadingLine)
+        val hasTagLine = lines.any { it.startsWith("Tags:", ignoreCase = true) }
         val hasMultiLineLayout = lines.size >= 3
         return hasButtons ||
             hasTable ||
@@ -39,6 +40,7 @@ internal object NativeTextBlockParser {
             hasMedia ||
             hasStandaloneLinks ||
             hasSourceHeading ||
+            hasTagLine ||
             hasMultiLineLayout ||
             normalized.contains("\n\n")
     }
@@ -125,6 +127,18 @@ internal object NativeTextBlockParser {
                     index = nextIndex
                     continue
                 }
+            }
+
+            // Tags: A | B | C → chip row
+            if (line.startsWith("Tags:", ignoreCase = true)) {
+                val tagPart = line.substringAfter(":").trim()
+                val tags = tagPart.split("|").map { it.trim() }.filter { it.isNotBlank() }
+                if (tags.isNotEmpty()) {
+                    blocks += TextBlock.TagRow(tags)
+                    renderedAny = true
+                }
+                index++
+                continue
             }
 
             if (isBulletListLine(line)) {

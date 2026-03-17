@@ -40,7 +40,8 @@ internal object NativeMediaVisualUtils {
                 host.contains("upload.wikimedia.org") ||
                 host.contains("imgur.com") ||
                 host.contains("gstatic.com") ||
-                host.contains("twimg.com")
+                host.contains("twimg.com") ||
+                host.contains("places.googleapis.com")
             ) {
                 return true
             }
@@ -48,7 +49,8 @@ internal object NativeMediaVisualUtils {
                 path.contains("/icon") ||
                 path.contains("/icons/") ||
                 path.contains("/image") ||
-                path.contains("/images/")
+                path.contains("/images/") ||
+                path.contains("/media")
             ) {
                 return true
             }
@@ -90,7 +92,8 @@ internal object NativeMediaVisualUtils {
         return normalized.endsWith(".png") ||
             normalized.endsWith(".jpg") ||
             normalized.endsWith(".jpeg") ||
-            normalized.endsWith(".webp")
+            normalized.endsWith(".webp") ||
+            (normalized.contains("places.googleapis.com") && normalized.contains("/media"))
     }
 
     fun defaultImageScale(
