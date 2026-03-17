@@ -279,7 +279,6 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
         val sb = StringBuilder()
         sb.appendLine("## Flights from $origin to $destination")
-        sb.appendLine("Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/airplane.svg")
 
         if (flights == null || flights.size() == 0) {
             sb.appendLine("No flights found for this route.")
@@ -318,7 +317,6 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
         val sb = StringBuilder()
         sb.appendLine("## Top Restaurants in $location")
-        sb.appendLine("Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cup-hot.svg")
 
         if (results == null || results.size() == 0) {
             sb.appendLine("No restaurants found in $location.")
@@ -507,7 +505,6 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
         val sb = StringBuilder()
         sb.appendLine("## Top Attractions in $location")
-        sb.appendLine("Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/map.svg")
 
         if (results == null || results.size() == 0) {
             sb.appendLine("No places found in $location.")
@@ -604,7 +601,6 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
         val sb = StringBuilder()
         sb.appendLine("## $topic")
-        sb.appendLine("Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/newspaper.svg")
 
         if (articles == null || articles.size() == 0) {
             sb.appendLine("No articles found.")
