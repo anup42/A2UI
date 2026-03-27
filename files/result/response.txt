@@ -1,0 +1,30 @@
+### Flights from Bengaluru to Lucknow: May 15
+Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/airplane-engines.svg
+This overview provides available flights from Kempegowda International Airport (BLR) to Chaudhary Charan Singh International Airport (LKO) for Wednesday, May 15, 2024. Both non-stop and one-stop options are available throughout the day.
+
+### Flight Options for Wednesday, May 15
+Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/ticket-perforated.svg
+Below are some of the best-value flights available. Fares are estimates and subject to change based on availability.
+
+| Airline | Departure | Arrival | Duration | Stops | Fare |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| IndiGo | 05:50 AM | 08:20 AM | 2h 30m | Non-stop | ₹5,488 |
+| Air India Express | 02:30 PM | 05:00 PM | 2h 30m | Non-stop | ₹5,488 |
+| Akasa Air | 07:00 PM | 09:25 PM | 2h 25m | Non-stop | ₹5,799 |
+| Vistara | 08:00 AM | 10:30 AM | 2h 30m | Non-stop | ₹6,120 |
+| IndiGo | 07:20 AM | 12:15 PM | 4h 55m | 1 stop | ₹7,154 |
+| Vistara | 01:00 PM | 07:45 PM | 6h 45m | 1 stop | ₹7,580 |
+| Air India | 08:00 AM | 02:10 PM | 6h 10m | 1 stop | ₹8,210 |
+
+### Travel & Fare Information
+- **Airports:** Kempegowda International Airport (BLR) to Chaudhary Charan Singh International Airport (LKO).
+- **Date:** Wednesday, May 15, 2024.
+- **Fare Note:** Prices are estimates for one adult in economy class and were last updated at the time of this search. They are subject to change and may vary.
+
+### Quick Actions
+Action: [Button: Compare All Flights on Google] https://www.google.com/flights?q=flights+from+BLR+to+LKO+on+2024-05-15
+Action: [Button: View Lucknow Travel Guide] https://en.wikivoyage.org/wiki/Lucknow
+
+### Sources
+- Flight Data: Google Flights, Skyscanner
+- Airline Information: Official airline websites (IndiGo, Vistara, Air India Express, Akasa Air)

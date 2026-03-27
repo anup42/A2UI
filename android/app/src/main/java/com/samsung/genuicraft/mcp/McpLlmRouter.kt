@@ -6,6 +6,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.inference.InferenceBackend
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.util.Locale
 import kotlin.math.min
 
@@ -145,6 +147,28 @@ object McpLlmRouter {
         "precipitation_unit"
     )
 
+    private val COUNTRY_NAME_TO_CODE = mapOf(
+        "india" to "in",
+        "indian" to "in",
+        "united states" to "us",
+        "united states of america" to "us",
+        "usa" to "us",
+        "us" to "us",
+        "united kingdom" to "gb",
+        "uk" to "gb",
+        "england" to "gb",
+        "canada" to "ca",
+        "australia" to "au",
+        "singapore" to "sg",
+        "uae" to "ae",
+        "united arab emirates" to "ae",
+        "germany" to "de",
+        "france" to "fr",
+        "italy" to "it",
+        "spain" to "es",
+        "japan" to "jp"
+    )
+
     /**
      * Calls the Stage 2 backend with the MCP routing prompt and parses the result.
      * Runs on the calling thread — must be called from an IO context.
@@ -195,7 +219,11 @@ object McpLlmRouter {
 
         var totalStreamDurationMs = routeResponse.streamDurationMs
         var mergedEntities = parsedRoute.entities
+        val heuristicIntent = McpIntentClassifier.classify(query)
         val domain = parsedRoute.domain
+            ?: heuristicIntent
+                ?.takeIf { it.confidence >= 0.02f }
+                ?.domain
 
         if (domain != null) {
             val required = requiredEntityKeys(domain)
@@ -213,17 +241,28 @@ object McpLlmRouter {
                 Log.w(LOG_TAG, "MCP entity extraction call failed; using fallback entities. ${extracted.error}")
             }
 
-            val heuristicEntities = McpIntentClassifier.classify(query)
+            val heuristicEntities = heuristicIntent
                 ?.takeIf { it.domain == domain }
                 ?.extractedEntities
                 .orEmpty()
 
+            val queryEntities = extractQueryEntitiesByDomain(query, domain)
             mergedEntities = mergeEntityMaps(
                 extracted.entities,
                 parsedRoute.entities,
-                heuristicEntities
+                heuristicEntities,
+                queryEntities
             )
             mergedEntities = restrictToAllowedEntities(mergedEntities, domain)
+            mergedEntities = enforceQueryEntityOverrides(
+                merged = mergedEntities,
+                queryDerived = queryEntities,
+                domain = domain
+            )
+            mergedEntities = normalizeEntitiesForDomain(
+                entities = mergedEntities,
+                domain = domain
+            )
 
             val missingRequired = required.filter { mergedEntities[it].isNullOrBlank() }.distinct()
             if (missingRequired.isNotEmpty()) {
@@ -240,7 +279,7 @@ object McpLlmRouter {
             domain = domain,
             entities = mergedEntities,
             introText = parsedRoute.introText,
-            fullResponse = parsedRoute.fullResponse,
+            fullResponse = if (domain == null) parsedRoute.fullResponse else null,
             error = null,
             streamDurationMs = totalStreamDurationMs
         )
@@ -454,7 +493,8 @@ object McpLlmRouter {
     }
 
     private fun sanitizeEntityValue(raw: String?): String? {
-        val trimmed = raw?.trim()?.trim('"', '\'').orEmpty()
+        val decoded = decodeQueryToken(raw)
+        val trimmed = decoded.trim().trim('"', '\'')
         if (trimmed.isBlank()) {
             return null
         }
@@ -463,6 +503,275 @@ object McpLlmRouter {
             return null
         }
         return trimmed
+    }
+
+    private fun decodeQueryToken(raw: String?): String {
+        val value = raw?.trim().orEmpty()
+        if (value.isBlank()) {
+            return ""
+        }
+        val plusDecoded = value.replace('+', ' ')
+        return runCatching {
+            URLDecoder.decode(plusDecoded, StandardCharsets.UTF_8.name())
+        }.getOrDefault(plusDecoded)
+    }
+
+    private fun normalizeEntitiesForDomain(
+        entities: Map<String, String>,
+        domain: McpSettings.Domain
+    ): Map<String, String> {
+        val normalized = linkedMapOf<String, String>()
+        entities.forEach { (key, valueRaw) ->
+            val value = sanitizeEntityValue(valueRaw) ?: return@forEach
+            val converted = when (key) {
+                "origin", "destination" -> normalizeAirportLikeValue(value)
+                "currency" -> normalizeCurrencyCode(value) ?: value
+                "country" -> normalizeCountryCode(value) ?: value
+                "language" -> normalizeLanguageCode(value) ?: value
+                "adults", "children", "days" -> extractDigits(value) ?: value
+                "type" -> normalizeTripType(value) ?: value
+                "travel_class" -> normalizeTravelClass(value) ?: value
+                else -> value
+            }
+            val sanitizedConverted = sanitizeEntityValue(converted) ?: return@forEach
+            normalized[key] = sanitizedConverted
+        }
+
+        if (domain == McpSettings.Domain.FLIGHTS) {
+            val origin = normalized["origin"]
+            val destination = normalized["destination"]
+            if (!origin.isNullOrBlank() && !destination.isNullOrBlank() &&
+                origin.equals(destination, ignoreCase = true)
+            ) {
+                normalized.remove("destination")
+            }
+        }
+        return normalized
+    }
+
+    private fun enforceQueryEntityOverrides(
+        merged: Map<String, String>,
+        queryDerived: Map<String, String>,
+        domain: McpSettings.Domain
+    ): Map<String, String> {
+        val allowed = allowedEntityKeys(domain).toSet()
+        val result = merged.toMutableMap()
+        queryDerived.forEach { (key, rawValue) ->
+            if (key !in allowed) return@forEach
+            val value = sanitizeEntityValue(rawValue) ?: return@forEach
+            result[key] = value
+        }
+        return result
+    }
+
+    private fun extractQueryEntitiesByDomain(
+        query: String,
+        domain: McpSettings.Domain
+    ): Map<String, String> {
+        val lower = decodeQueryToken(query).lowercase(Locale.US)
+        val entities = linkedMapOf<String, String>()
+        when (domain) {
+            McpSettings.Domain.FLIGHTS -> {
+                val route = Regex("""\bfrom\s+(.+?)\s+to\s+(.+?)(?:\s+\b(on|for|in|at)\b|$)""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                if (route != null) {
+                    val origin = route.groupValues.getOrNull(1).orEmpty().trim()
+                    val destination = route.groupValues.getOrNull(2).orEmpty().trim()
+                    if (origin.isNotBlank()) entities["origin"] = origin
+                    if (destination.isNotBlank()) entities["destination"] = destination
+                }
+                Regex("""\bon\s+([a-z0-9 ,/\-]+)""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["departure_date"] = it }
+                Regex("""\breturn(?:ing)?\s+(?:on\s+)?([a-z0-9 ,/\-]+)""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["return_date"] = it }
+                if (lower.contains("one way") || lower.contains("one-way")) {
+                    entities["type"] = "one_way"
+                } else if (lower.contains("round trip") || lower.contains("round-trip") || lower.contains("return")) {
+                    entities["type"] = "round_trip"
+                }
+                if (lower.contains("premium economy")) {
+                    entities["travel_class"] = "premium_economy"
+                } else if (lower.contains("business")) {
+                    entities["travel_class"] = "business"
+                } else if (lower.contains("first class") || lower.contains("first")) {
+                    entities["travel_class"] = "first"
+                } else if (lower.contains("economy")) {
+                    entities["travel_class"] = "economy"
+                }
+                Regex("""\b(\d{1,2})\s+adults?\b""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.let { entities["adults"] = it }
+                Regex("""\b(\d{1,2})\s+children\b""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.let { entities["children"] = it }
+            }
+
+            McpSettings.Domain.HOTELS -> {
+                Regex("""\b(?:hotels?|stay|accommodation)\s+(?:in|at|near)\s+(.+?)(?:\s+\b(on|for|check)\b|$)""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["location"] = it }
+                Regex("""\bcheck[- ]?in\s+(?:on\s+)?([a-z0-9 ,/\-]+)""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["check_in"] = it }
+                Regex("""\bcheck[- ]?out\s+(?:on\s+)?([a-z0-9 ,/\-]+)""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["check_out"] = it }
+                Regex("""\b(\d{1,2})\s+adults?\b""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.let { entities["adults"] = it }
+                Regex("""\b(\d{1,2})\s+children\b""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.let { entities["children"] = it }
+            }
+
+            McpSettings.Domain.NEWS -> {
+                Regex("""\bnews\s+(?:about|on|for)\s+(.+)""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["topic"] = it }
+                Regex("""\b(?:in|from)\s+([a-z][a-z\s]+)$""", RegexOption.IGNORE_CASE)
+                    .find(lower)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { entities["location"] = it }
+            }
+
+            else -> Unit
+        }
+
+        Regex("""\b(?:inr|usd|eur|gbp|aed|sgd|jpy)\b""", RegexOption.IGNORE_CASE)
+            .find(lower)
+            ?.value
+            ?.uppercase(Locale.US)
+            ?.let { entities["currency"] = it }
+        Regex("""\b(?:english|hindi|french|german|japanese)\b""", RegexOption.IGNORE_CASE)
+            .find(lower)
+            ?.value
+            ?.let { entities["language"] = it }
+        Regex("""\b(?:india|usa|united states|uk|united kingdom|canada|australia|japan|singapore|uae)\b""", RegexOption.IGNORE_CASE)
+            .find(lower)
+            ?.value
+            ?.let { entities["country"] = it }
+
+        return entities
+    }
+
+    private fun normalizeAirportLikeValue(raw: String): String {
+        var cleaned = decodeQueryToken(raw)
+            .trim()
+            .replace(Regex("""\b(airport|intl|international)\b""", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("""\s+"""), " ")
+            .trim(',', '.', ';', ':', '-', ' ')
+        if (cleaned.length == 3 && cleaned.all { it.isLetter() }) {
+            return cleaned.uppercase(Locale.US)
+        }
+        Regex("""\b([a-z]{3})\b""", RegexOption.IGNORE_CASE)
+            .find(cleaned)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.takeIf { cleaned.length <= 8 }
+            ?.let { return it.uppercase(Locale.US) }
+        return cleaned
+    }
+
+    private fun normalizeCurrencyCode(raw: String?): String? {
+        val token = raw
+            ?.trim()
+            ?.uppercase(Locale.US)
+            ?.replace(Regex("""[^A-Z]"""), "")
+            .orEmpty()
+        return token.takeIf { it.length == 3 }
+    }
+
+    private fun normalizeCountryCode(raw: String?): String? {
+        val plain = raw
+            ?.trim()
+            ?.lowercase(Locale.US)
+            ?.replace(Regex("""[^a-z\s]"""), " ")
+            ?.replace(Regex("""\s+"""), " ")
+            ?.trim()
+            .orEmpty()
+        if (plain.length == 2 && plain.all { it.isLetter() }) {
+            return plain
+        }
+        return COUNTRY_NAME_TO_CODE[plain]
+    }
+
+    private fun normalizeLanguageCode(raw: String?): String? {
+        val value = raw?.trim()?.lowercase(Locale.US).orEmpty()
+        if (value.isBlank()) return null
+        val token = value.substringBefore('-').substringBefore('_')
+        return when {
+            token.length == 2 -> token
+            token == "english" -> "en"
+            token == "hindi" -> "hi"
+            token == "french" -> "fr"
+            token == "german" -> "de"
+            token == "japanese" -> "ja"
+            else -> null
+        }
+    }
+
+    private fun extractDigits(raw: String?): String? {
+        return Regex("""\d{1,3}""").find(raw.orEmpty())?.value
+    }
+
+    private fun normalizeTripType(raw: String?): String? {
+        val value = raw?.trim()?.lowercase(Locale.US).orEmpty()
+        if (value.isBlank()) return null
+        return when {
+            value in setOf("1", "round_trip", "roundtrip", "round trip", "return") -> "round_trip"
+            value in setOf("2", "one_way", "one-way", "one way") -> "one_way"
+            value in setOf("3", "multi_city", "multi-city", "multi city") -> "multi_city"
+            else -> null
+        }
+    }
+
+    private fun normalizeTravelClass(raw: String?): String? {
+        val value = raw?.trim()?.lowercase(Locale.US).orEmpty()
+        if (value.isBlank()) return null
+        return when {
+            value in setOf("1", "economy") -> "economy"
+            value in setOf("2", "premium_economy", "premium economy") -> "premium_economy"
+            value in setOf("3", "business", "business_class", "business class") -> "business"
+            value in setOf("4", "first", "first_class", "first class") -> "first"
+            else -> null
+        }
     }
 
     private fun stripMarkdownFences(raw: String): String {

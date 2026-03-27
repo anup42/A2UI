@@ -101,7 +101,7 @@ $dataStr
 ```
 
 Format this real-time data into a complete, polished response following the formatting rules in your system prompt.
-The data above is LIVE and REAL — present it as authoritative current information, not as examples or samples.
+The data above is LIVE and REAL â€” present it as authoritative current information, not as examples or samples.
 Do not add disclaimers about data accuracy. Present the data directly as the answer."""
     }
 
@@ -118,7 +118,7 @@ Rules:
    ### <restaurant/place name>
    Media: Image=<photoUri from data> Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg
    *<cuisine/type tags>*
-   **Rating:** <rating> ★★★★ (<reviewCount> reviews)
+   **Rating:** <rating> â˜…â˜…â˜…â˜… (<reviewCount> reviews)
    **Address:** <address>
    **Review:** "<first review text snippet>"
    Action: [Button: View on Maps] <googleMapsUri>
@@ -129,11 +129,11 @@ Rules:
    - If "reviews" array exists, include the first review text (truncated to 120 chars)
    - If "googleMapsUri" exists, include Action: [Button: View on Maps] <url>
    - If "websiteUri" exists, include Action: [Button: Visit Website] <url>
-   - Show rating as numeric value plus ★ star characters
-   - Do NOT use a table for restaurants/places — use individual card blocks
+   - Show rating as numeric value plus â˜… star characters
+   - Do NOT use a table for restaurants/places â€” use individual card blocks
 6) For hotels, use option cards with rating, price, and book button.
 7) Include a Sources section with real URLs when applicable.
-8) Keep sections concise — prefer cards, tables, and bullets over long paragraphs.
+8) Keep sections concise â€” prefer cards, tables, and bullets over long paragraphs.
 9) For weather: start with current conditions block, then forecast table.
 10) For flights: include Airline | Departure | Arrival | Duration | Stops | Fare table.
 11) For news: include title, source, and publication time for each article.
@@ -209,7 +209,7 @@ Rules:
         val minTemps = daily?.getAsJsonArray("temperature_2m_min")
         val precip = daily?.getAsJsonArray("precipitation_probability_max")
         val codes = daily?.getAsJsonArray("weather_code")
-        // Unified weather table — triggers NativeWeatherIntentModule for weather-app style rendering
+        // Unified weather table â€” triggers NativeWeatherIntentModule for weather-app style rendering
         sb.appendLine("| Day | Condition | Temp | High | Low | Rain % | Wind | Humidity | UV |")
         sb.appendLine("|-----|-----------|------|------|-----|--------|------|----------|-----|")
 
@@ -217,13 +217,13 @@ Rules:
         run {
             val weatherCode = current?.safeInt("weather_code") ?: codes?.get(0)?.safeInt() ?: -1
             val condition = wmoCodeToCondition(weatherCode)
-            val currentTemp = current?.safeString("temperature_2m")?.let { "${it}°C" } ?: "—"
-            val todayHigh = maxTemps?.get(0)?.safeString()?.let { "${it}°C" } ?: "—"
-            val todayLow = minTemps?.get(0)?.safeString()?.let { "${it}°C" } ?: "—"
-            val todayRain = precip?.get(0)?.safeString()?.let { "${it}%" } ?: "—"
-            val wind = current?.safeString("wind_speed_10m")?.let { "${it} km/h" } ?: "—"
-            val humidity = current?.safeString("relative_humidity_2m")?.let { "${it}%" } ?: "—"
-            val uv = current?.safeDouble("uv_index")?.let { "${"%.0f".format(it)}" } ?: "—"
+            val currentTemp = current?.safeString("temperature_2m")?.let { "${it}Â°C" } ?: "â€”"
+            val todayHigh = maxTemps?.get(0)?.safeString()?.let { "${it}Â°C" } ?: "â€”"
+            val todayLow = minTemps?.get(0)?.safeString()?.let { "${it}Â°C" } ?: "â€”"
+            val todayRain = precip?.get(0)?.safeString()?.let { "${it}%" } ?: "â€”"
+            val wind = current?.safeString("wind_speed_10m")?.let { "${it} km/h" } ?: "â€”"
+            val humidity = current?.safeString("relative_humidity_2m")?.let { "${it}%" } ?: "â€”"
+            val uv = current?.safeDouble("uv_index")?.let { "${"%.0f".format(it)}" } ?: "â€”"
             sb.appendLine("| Today | $condition | $currentTemp | $todayHigh | $todayLow | $todayRain | $wind | $humidity | $uv |")
         }
 
@@ -232,16 +232,16 @@ Rules:
             val count = minOf(dates.size(), maxTemps.size(), minTemps.size(), 7)
             for (i in 1 until count) {
                 val date = dates[i].safeString() ?: continue
-                val high = maxTemps[i].safeString()?.let { "${it}°C" } ?: "—"
-                val low = minTemps[i].safeString()?.let { "${it}°C" } ?: "—"
-                val rain = precip?.get(i)?.safeString()?.let { "${it}%" } ?: "—"
+                val high = maxTemps[i].safeString()?.let { "${it}Â°C" } ?: "â€”"
+                val low = minTemps[i].safeString()?.let { "${it}Â°C" } ?: "â€”"
+                val rain = precip?.get(i)?.safeString()?.let { "${it}%" } ?: "â€”"
                 val dayCode = codes?.get(i)?.safeInt() ?: -1
                 val dayCondition = wmoCodeToCondition(dayCode)
                 val dayLabel = try {
                     val parsed = java.time.LocalDate.parse(date)
                     parsed.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
                 } catch (_: Exception) { date }
-                sb.appendLine("| $dayLabel | $dayCondition | — | $high | $low | $rain | — | — | — |")
+                sb.appendLine("| $dayLabel | $dayCondition | â€” | $high | $low | $rain | â€” | â€” | â€” |")
             }
         }
 
@@ -291,15 +291,15 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     val currency = "USD"
                     val route = flightObj.getAsJsonArray("flights")
                     val duration = route?.get(0)?.asJsonObject?.safeString("duration") ?: "N/A"
-                    val airlines = route?.get(0)?.asJsonObject?.safeString("airline") ?: "—"
+                    val airlines = route?.get(0)?.asJsonObject?.safeString("airline") ?: "â€”"
                     val stops = if (route != null) route.size() - 1 else 0
                     val stopsStr = if (stops <= 0) "Non-stop" else "$stops stop${if (stops > 1) "s" else ""}"
                     val firstLeg = route?.get(0)?.asJsonObject
                     val lastLeg = route?.get(route.size() - 1)?.asJsonObject
                     val depObj = firstLeg?.getAsJsonObject("departure_airport")
                     val arrObj = lastLeg?.getAsJsonObject("arrival_airport")
-                    val dep = depObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "—"
-                    val arr = arrObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "—"
+                    val dep = depObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "â€”"
+                    val arr = arrObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "â€”"
                     sb.appendLine("| $airlines | $dep | $arr | $duration mins | $stopsStr | $currency $price |")
             }
         }
@@ -329,17 +329,17 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else "N/A"
                 val fullStars = ratingRaw.toInt().coerceIn(0, 5)
                 val emptyStars = 5 - fullStars
-                val starsDisplay = if (ratingRaw > 0) "★".repeat(fullStars) + "☆".repeat(emptyStars) else ""
+                val starsDisplay = if (ratingRaw > 0) "â˜…".repeat(fullStars) + "â˜†".repeat(emptyStars) else ""
                 val reviewCount = biz.safeInt("userRatingCount") ?: 0
                 val mapsUri = biz.safeString("googleMapsUri") ?: ""
                 val websiteUri = biz.safeString("websiteUri") ?: ""
                 val address = biz.safeString("formattedAddress") ?: ""
                 val photoUri = biz.safeString("photoUri") ?: ""
                 val priceLevel = when (biz.safeString("priceLevel")) {
-                    "PRICE_LEVEL_INEXPENSIVE" -> "₹"
-                    "PRICE_LEVEL_MODERATE" -> "₹₹"
-                    "PRICE_LEVEL_EXPENSIVE" -> "₹₹₹"
-                    "PRICE_LEVEL_VERY_EXPENSIVE" -> "₹₹₹₹"
+                    "PRICE_LEVEL_INEXPENSIVE" -> "â‚¹"
+                    "PRICE_LEVEL_MODERATE" -> "â‚¹â‚¹"
+                    "PRICE_LEVEL_EXPENSIVE" -> "â‚¹â‚¹â‚¹"
+                    "PRICE_LEVEL_VERY_EXPENSIVE" -> "â‚¹â‚¹â‚¹â‚¹"
                     else -> ""
                 }
 
@@ -368,7 +368,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val todayHours = openingHours?.getAsJsonArray("weekdayDescriptions")
                     ?.let { arr ->
                         val dayIndex = (java.util.Calendar.getInstance()
-                            .get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7  // 0=Mon…6=Sun
+                            .get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7  // 0=Monâ€¦6=Sun
                         if (dayIndex < arr.size()) arr[dayIndex].asString?.substringAfter(":")?.trim() else null
                     }
 
@@ -380,7 +380,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     ?.takeIf { it.isNotBlank() && it != "null" }
                     ?.take(140)
 
-                // ── Card block ──────────────────────────────────────────
+                // â”€â”€ Card block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 sb.appendLine()
                 sb.appendLine("## ${i + 1}. $name")
                 if (photoUri.isNotBlank()) {
@@ -398,7 +398,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingLine = buildString {
                     if (ratingRaw > 0) append("$starsDisplay $ratingStr ($reviewCount reviews)")
                     if (priceLevel.isNotBlank()) {
-                        if (isNotEmpty()) append("  ·  ")
+                        if (isNotEmpty()) append("  Â·  ")
                         append(priceLevel)
                     }
                 }
@@ -408,13 +408,13 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val hoursLine = buildString {
                     if (openStatus != null) append(openStatus)
                     if (todayHours != null) {
-                        if (isNotEmpty()) append(" · ")
+                        if (isNotEmpty()) append(" Â· ")
                         append("Today: $todayHours")
                     }
                 }
                 if (hoursLine.isNotBlank()) sb.appendLine(hoursLine)
 
-                // Editorial summary — concise description from Google
+                // Editorial summary â€” concise description from Google
                 if (editorial != null) sb.appendLine("- $editorial")
 
                 // Action buttons
@@ -449,15 +449,30 @@ private fun buildFlightsFallback(data: JsonObject): String {
         for (i in 0 until minOf(properties.size(), 8)) {
             val hotel = properties[i].asJsonObject
             val name = hotel.safeString("name") ?: continue
-            val hotelClass = hotel.safeString("hotel_class") ?: ""     // e.g. "5-star hotel"
+            val hotelClass = hotel.safeString("hotel_class") ?: ""
             val ratingRaw = hotel.safeDouble("overall_rating") ?: 0.0
             val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else ""
             val reviewCount = hotel.safeInt("reviews") ?: 0
             val description = hotel.safeString("description")?.trim()
-            // thumbnail is inside images[0].thumbnail, not at property level
-            val thumbnail = hotel.getAsJsonArray("images")
-                ?.firstOrNull()?.asJsonObject
-                ?.safeString("thumbnail")
+            val thumbnail = hotel.safeString("thumbnail")
+                ?: hotel.safeString("image")
+                ?: hotel.safeString("image_url")
+                ?: hotel.safeString("photo")
+                ?: hotel.safeString("photo_url")
+                ?: hotel.getAsJsonArray("images")
+                    ?.firstOrNull()
+                    ?.let { imageEntry ->
+                        if (imageEntry.isJsonObject) {
+                            val imageObj = imageEntry.asJsonObject
+                            imageObj.safeString("thumbnail")
+                                ?: imageObj.safeString("original_image")
+                                ?: imageObj.safeString("url")
+                                ?: imageObj.safeString("image")
+                                ?: imageObj.safeString("photo")
+                        } else {
+                            imageEntry.safeString()
+                        }
+                    }
                 ?: ""
             val link = hotel.safeString("link") ?: ""
             val checkIn = hotel.safeString("check_in_time") ?: ""
@@ -471,12 +486,11 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 ?.take(5) ?: emptyList()
 
             sb.appendLine("## ${i + 1}. $name")
-            // Image first so it renders as the card hero image
             if (thumbnail.isNotBlank()) sb.appendLine("Media: Image=$thumbnail")
             if (hotelClass.isNotBlank()) sb.appendLine("**$hotelClass**")
             if (ratingStr.isNotBlank()) {
                 val reviewPart = if (reviewCount > 0) " ($reviewCount reviews)" else ""
-                sb.appendLine("⭐ $ratingStr$reviewPart")
+                sb.appendLine("$ratingStr stars$reviewPart")
             }
             if (price.isNotBlank()) sb.appendLine("**Price:** From $price / night")
             if (!description.isNullOrBlank()) sb.appendLine(description)
@@ -517,7 +531,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else "N/A"
                 val fullStars = ratingRaw.toInt().coerceIn(0, 5)
                 val emptyStars = 5 - fullStars
-                val starsDisplay = if (ratingRaw > 0) "★".repeat(fullStars) + "☆".repeat(emptyStars) else ""
+                val starsDisplay = if (ratingRaw > 0) "â˜…".repeat(fullStars) + "â˜†".repeat(emptyStars) else ""
                 val reviewCount = place.safeInt("userRatingCount") ?: 0
                 val mapsUri = place.safeString("googleMapsUri") ?: ""
                 val websiteUri = place.safeString("websiteUri") ?: ""
@@ -575,7 +589,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val hoursLine = buildString {
                     if (openStatus != null) append(openStatus)
                     if (todayHours != null) {
-                        if (isNotEmpty()) append(" · ")
+                        if (isNotEmpty()) append(" Â· ")
                         append("Today: $todayHours")
                     }
                 }
@@ -609,8 +623,10 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val article = articles[i].asJsonObject
                 val title = article.safeString("title") ?: "Article"
                 val source = article.safeString("source_name")
-                    ?: article.safeString("source_id") ?: ""
-                val publishedAt = article.safeString("pubDate")?.take(16) ?: ""
+                    ?: article.safeString("source_id")
+                    ?: ""
+                val sourceLabel = source.ifBlank { "Unknown source" }
+                val publishedAt = formatNewsPublishedDate(article.safeString("pubDate"))
                 val description = article.safeString("description")?.take(150) ?: ""
                 val url = article.safeString("link") ?: ""
                 val imageUrl = article.safeString("image_url")
@@ -630,7 +646,14 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 if (categories.isNotEmpty()) {
                     sb.appendLine("Tags: ${categories.joinToString(" | ")}")
                 }
-                sb.appendLine("- $source · $publishedAt")
+                val sourceAndTime = buildString {
+                    append("- **$sourceLabel**")
+                    if (publishedAt.isNotBlank()) {
+                        append(" · ")
+                        append(publishedAt)
+                    }
+                }
+                sb.appendLine(sourceAndTime)
                 if (description.isNotBlank() && description != "null") {
                     sb.appendLine("- $description")
                 }
@@ -646,4 +669,44 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
         return sb.toString()
     }
+
+    private fun formatNewsPublishedDate(raw: String?): String {
+        val value = raw?.trim().orEmpty()
+        if (value.isBlank()) {
+            return ""
+        }
+
+        val formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a")
+        val zoned = runCatching { java.time.ZonedDateTime.parse(value) }.getOrNull()
+            ?: runCatching { java.time.OffsetDateTime.parse(value).toZonedDateTime() }.getOrNull()
+        if (zoned != null) {
+            return zoned.format(formatter)
+        }
+
+        val local = runCatching { java.time.LocalDateTime.parse(value) }.getOrNull()
+        if (local != null) {
+            return local.format(formatter)
+        }
+
+        val customPatterns = listOf(
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm",
+            "yyyy/MM/dd HH:mm:ss",
+            "yyyy/MM/dd HH:mm"
+        )
+        customPatterns.forEach { pattern ->
+            val parsed = runCatching {
+                java.time.LocalDateTime.parse(
+                    value,
+                    java.time.format.DateTimeFormatter.ofPattern(pattern)
+                )
+            }.getOrNull()
+            if (parsed != null) {
+                return parsed.format(formatter)
+            }
+        }
+
+        return if (value.length > 24) value.take(24) else value
+    }
 }
+

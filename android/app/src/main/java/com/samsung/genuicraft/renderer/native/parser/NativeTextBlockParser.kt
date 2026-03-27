@@ -7,6 +7,8 @@ import com.samsung.genuicraft.renderer.native.StepEntry
 import com.samsung.genuicraft.renderer.native.TextBlock
 
 internal object NativeTextBlockParser {
+    private val BOLD_HEADING_REGEX = Regex("""^\s*(?:\*\*|__)\s*(.+?)\s*(?:\*\*|__)\s*$""")
+
     fun shouldUseStructuredBlocks(
         rawText: String,
         variant: String,
@@ -71,6 +73,19 @@ internal object NativeTextBlockParser {
         while (index < lines.size) {
             val line = lines[index].trim()
             if (line.isEmpty()) {
+                index++
+                continue
+            }
+
+            val markdownHeading = extractMarkdownBoldHeading(line)
+            if (markdownHeading != null) {
+                if (!renderedAny) {
+                    blocks += TextBlock.Title(markdownHeading)
+                } else {
+                    blocks += TextBlock.Heading(markdownHeading)
+                }
+                inSourcesSection = NativeSourceParsing.isSourceHeadingLine(markdownHeading)
+                renderedAny = true
                 index++
                 continue
             }
@@ -230,5 +245,17 @@ internal object NativeTextBlockParser {
         }
 
         return blocks
+    }
+
+    private fun extractMarkdownBoldHeading(line: String): String? {
+        val match = BOLD_HEADING_REGEX.matchEntire(line) ?: return null
+        val heading = match.groupValues.getOrNull(1)?.trim().orEmpty()
+        if (heading.length !in 2..100) {
+            return null
+        }
+        if (!heading.any { it.isLetter() }) {
+            return null
+        }
+        return heading
     }
 }

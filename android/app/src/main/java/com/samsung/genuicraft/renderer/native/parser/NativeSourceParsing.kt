@@ -63,7 +63,7 @@ internal object NativeSourceParsing {
         if (links.isEmpty()) {
             return null
         }
-        val distinct = links.distinctBy { it.url.lowercase(Locale.US) }
+        val distinct = links.distinctBy { canonicalSourceUrl(it.url) }
         return distinct to cursor
     }
 
@@ -94,7 +94,7 @@ internal object NativeSourceParsing {
             }
             .toList()
         if (markdownLinks.isNotEmpty()) {
-            return markdownLinks.distinctBy { it.url.lowercase(Locale.US) }
+            return markdownLinks.distinctBy { canonicalSourceUrl(it.url) }
         }
 
         val urlMatches = URL_REGEX.findAll(normalized).toList()
@@ -145,7 +145,7 @@ internal object NativeSourceParsing {
             )
             cursor = nextStart
         }
-        return links
+        return links.distinctBy { canonicalSourceUrl(it.url) }
     }
 
     fun isSourceHeadingLine(line: String): Boolean {
@@ -278,5 +278,29 @@ internal object NativeSourceParsing {
             ?.takeIf { it.isNotBlank() && !hostLabel.contains(it, ignoreCase = true) }
 
         return if (pathHint != null) "$hostLabel $pathHint" else hostLabel
+    }
+
+    private fun canonicalSourceUrl(url: String): String {
+        val raw = url.trim()
+        val uri = runCatching { Uri.parse(raw) }.getOrNull() ?: return raw.lowercase(Locale.US)
+        val scheme = (uri.scheme ?: "https").lowercase(Locale.US)
+        val host = uri.host?.lowercase(Locale.US)?.removePrefix("www.").orEmpty()
+        if (host.isBlank()) {
+            return raw.lowercase(Locale.US)
+        }
+        val path = uri.path.orEmpty().trimEnd('/')
+        val query = uri.query.orEmpty().trim()
+        return buildString {
+            append(scheme)
+            append("://")
+            append(host)
+            if (path.isNotBlank()) {
+                append(path)
+            }
+            if (query.isNotBlank()) {
+                append('?')
+                append(query)
+            }
+        }
     }
 }

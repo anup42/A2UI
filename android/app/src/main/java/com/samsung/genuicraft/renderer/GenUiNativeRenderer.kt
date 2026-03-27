@@ -1372,6 +1372,7 @@ object GenUiNativeRenderer {
         if (links.isEmpty()) {
             return
         }
+        val dedupedLinks = links.distinctBy { canonicalSourceUrlToken(it.url) }
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             MarkdownText(
@@ -1379,7 +1380,7 @@ object GenUiNativeRenderer {
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurface
             )
-            links.forEach { link ->
+            dedupedLinks.forEach { link ->
                 val resolved = resolveExternalUrl(link.url, sourceDir)
                 OutlinedButton(
                     onClick = { resolved?.let(onOpenExternalUrl) },
@@ -2837,6 +2838,28 @@ object GenUiNativeRenderer {
 
     private fun resolveExternalUrl(raw: String, sourceDir: File?): String? =
         toExternalUrl(NativePayloadParser.resolveAssetUrl(raw, sourceDir))
+
+    private fun canonicalSourceUrlToken(raw: String): String {
+        val normalized = raw.trim()
+        val uri = runCatching { Uri.parse(normalized) }.getOrNull() ?: return normalized.lowercase(Locale.US)
+        val scheme = (uri.scheme ?: "https").lowercase(Locale.US)
+        val host = uri.host?.lowercase(Locale.US)?.removePrefix("www.").orEmpty()
+        if (host.isBlank()) {
+            return normalized.lowercase(Locale.US)
+        }
+        val path = uri.path.orEmpty().trimEnd('/')
+        val query = uri.query.orEmpty().trim()
+        return buildString {
+            append(scheme)
+            append("://")
+            append(host)
+            if (path.isNotBlank()) append(path)
+            if (query.isNotBlank()) {
+                append('?')
+                append(query)
+            }
+        }
+    }
 
     private fun resolveImageModel(raw: String, sourceDir: File?): String {
         val resolved = NativePayloadParser.resolveAssetUrl(raw, sourceDir).replace("\\", "/")

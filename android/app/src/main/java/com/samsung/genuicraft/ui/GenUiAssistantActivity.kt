@@ -1,10 +1,14 @@
 package com.samsung.genuicraft
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.core.app.ActivityCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -98,6 +102,7 @@ private object GenUiAssistantSessionCache {
 class GenUiAssistantActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestNotificationPermissionIfNeeded()
         applyOneUiWindowBlur()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         setContent {
@@ -114,6 +119,23 @@ class GenUiAssistantActivity : AppCompatActivity() {
         val scheme = uri.scheme?.lowercase()
         if (scheme == "http" || scheme == "https") {
             startActivity(Intent(Intent.ACTION_VIEW, uri))
+        }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+        val granted = ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                2041
+            )
         }
     }
 }
@@ -494,6 +516,10 @@ private fun GenUiAssistantScreen(
                                 resetSteps(GenUiStagePipeline.Stage.STAGE2)
                                 currentStatus = "Starting pipeline"
                                 appendDebugLogLine("Pipeline started for query: $query")
+                                PipelineRunNotifier.showRunning(
+                                    context.applicationContext,
+                                    status = "Starting pipeline"
+                                )
 
                                 coroutineScope.launch {
                                     val outcome = pipeline.execute(query) { update ->
@@ -501,6 +527,10 @@ private fun GenUiAssistantScreen(
                                         updateSteps(update)
                                         appendDebugLogLine(update.message)
                                         update.debugLog?.let(::appendDebugLogLine)
+                                        PipelineRunNotifier.showRunning(
+                                            context.applicationContext,
+                                            status = currentStatus
+                                        )
 
                                         if (!update.stage2Response.isNullOrBlank()) {
                                             stage2Text = update.stage2Response
@@ -549,6 +579,10 @@ private fun GenUiAssistantScreen(
                                                 streamDurations = result.stageStreamDurationsMs
                                             )
                                             currentStatus = "Pipeline completed"
+                                            PipelineRunNotifier.showCompleted(
+                                                context.applicationContext,
+                                                status = "Rendered output is ready."
+                                            )
                                             inputText = ""
                                         }
 
@@ -585,6 +619,10 @@ private fun GenUiAssistantScreen(
                                                 failedStage = outcome.stage
                                             )
                                             currentStatus = "Pipeline failed"
+                                            PipelineRunNotifier.showFailed(
+                                                context.applicationContext,
+                                                message = errorText.orEmpty()
+                                            )
                                         }
                                     }
                                     isRunning = false

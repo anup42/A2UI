@@ -40,6 +40,8 @@ internal object NativeMediaVisualUtils {
                 host.contains("upload.wikimedia.org") ||
                 host.contains("imgur.com") ||
                 host.contains("gstatic.com") ||
+                host.contains("googleusercontent.com") ||
+                host.contains("googleapis.com") ||
                 host.contains("twimg.com") ||
                 host.contains("places.googleapis.com")
             ) {

@@ -8,6 +8,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -193,17 +194,36 @@ object McpClient {
             )
         }
 
-        val fallbackRoute = extractFlightRouteFallback(queryText)
+        val decodedQuery = decodeQueryToken(queryText)
+        val fallbackRoute = extractFlightRouteFallback(decodedQuery)
         val origin = normalizeAirportOrCity(entities["origin"])
             ?: fallbackRoute?.first
-            ?: "JFK"
         val destination = normalizeAirportOrCity(entities["destination"])
             ?: fallbackRoute?.second
-            ?: "LAX"
+        if (origin.isNullOrBlank() || destination.isNullOrBlank()) {
+            return McpResult(
+                domain = McpSettings.Domain.FLIGHTS,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "Missing route. Please provide both origin and destination (for example: flights from BLR to LKO).",
+                requestDebug = null
+            )
+        }
+        if (origin.equals(destination, ignoreCase = true)) {
+            return McpResult(
+                domain = McpSettings.Domain.FLIGHTS,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "Origin and destination are the same. Please provide a valid route.",
+                requestDebug = null
+            )
+        }
         val outboundDate = normalizeIsoDate(entities["departure_date"] ?: entities["date"])
             ?: getDateOffset(7)
         val returnDateFromEntity = normalizeIsoDate(entities["return_date"])
-        val tripType = normalizeFlightType(entities["type"], queryText, hasReturnDate = !returnDateFromEntity.isNullOrBlank())
+        val tripType = normalizeFlightType(entities["type"], decodedQuery, hasReturnDate = !returnDateFromEntity.isNullOrBlank())
         val adults = parseIntInRange(entities["adults"], min = 1, max = 9) ?: 1
         val children = parseIntInRange(entities["children"], min = 0, max = 6)
         val travelClass = normalizeFlightTravelClass(entities["travel_class"])
@@ -790,18 +810,26 @@ object McpClient {
     }
 
     private fun normalizeAirportOrCity(raw: String?): String? {
-        val value = raw?.trim().orEmpty()
+        val value = decodeQueryToken(raw).trim()
         if (value.isBlank()) {
             return null
         }
-        val iata = Regex("""\b([A-Za-z]{3})\b""").find(value)?.groupValues?.getOrNull(1)
-        if (!iata.isNullOrBlank() && value.length <= 5) {
+        val cleaned = value
+            .replace(Regex("""\b(airport|intl|international)\b""", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("""\s+"""), " ")
+            .trim(' ', ',', '.', ';', ':', '-', '_')
+
+        val normalizedLower = cleaned.lowercase(Locale.US)
+        CITY_NAME_TO_IATA[normalizedLower]?.let { return it }
+
+        val iata = Regex("""\b([A-Za-z]{3})\b""").find(cleaned)?.groupValues?.getOrNull(1)
+        if (!iata.isNullOrBlank() && cleaned.length <= 8) {
             return iata.uppercase(Locale.US)
         }
-        if (value.length == 3 && value.all { it.isLetter() }) {
-            return value.uppercase(Locale.US)
+        if (cleaned.length == 3 && cleaned.all { it.isLetter() }) {
+            return cleaned.uppercase(Locale.US)
         }
-        return value
+        return cleaned
     }
 
     private fun normalizeFlightType(raw: String?, queryText: String, hasReturnDate: Boolean): String? {
@@ -927,12 +955,24 @@ object McpClient {
     }
 
     private fun extractFlightRouteFallback(query: String): Pair<String, String>? {
+        val normalizedQuery = decodeQueryToken(query)
         val match = Regex("""\bfrom\s+(.+?)\s+to\s+(.+?)(?:\s+(?:on|for|in|at)\b|$)""", RegexOption.IGNORE_CASE)
-            .find(query)
+            .find(normalizedQuery)
             ?: return null
         val origin = normalizeAirportOrCity(match.groupValues.getOrNull(1)) ?: return null
         val destination = normalizeAirportOrCity(match.groupValues.getOrNull(2)) ?: return null
         return origin to destination
+    }
+
+    private fun decodeQueryToken(raw: String?): String {
+        val value = raw?.trim().orEmpty()
+        if (value.isBlank()) {
+            return ""
+        }
+        val plusDecoded = value.replace('+', ' ')
+        return runCatching {
+            URLDecoder.decode(plusDecoded, StandardCharsets.UTF_8.name())
+        }.getOrDefault(plusDecoded)
     }
 
     private fun buildRequestDebug(
@@ -1003,5 +1043,29 @@ object McpClient {
         "spain" to "es",
         "italy" to "it",
         "japan" to "jp"
+    )
+
+    private val CITY_NAME_TO_IATA = mapOf(
+        "bengaluru" to "BLR",
+        "bangalore" to "BLR",
+        "lucknow" to "LKO",
+        "delhi" to "DEL",
+        "new delhi" to "DEL",
+        "mumbai" to "BOM",
+        "hyderabad" to "HYD",
+        "chennai" to "MAA",
+        "kolkata" to "CCU",
+        "pune" to "PNQ",
+        "ahmedabad" to "AMD",
+        "kochi" to "COK",
+        "goa" to "GOI",
+        "dubai" to "DXB",
+        "singapore" to "SIN",
+        "tokyo" to "HND",
+        "london" to "LHR",
+        "new york" to "JFK",
+        "san francisco" to "SFO",
+        "los angeles" to "LAX",
+        "seattle" to "SEA"
     )
 }
