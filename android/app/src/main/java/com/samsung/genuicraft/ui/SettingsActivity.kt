@@ -96,6 +96,18 @@ private fun SettingsScreen(
     var selectedIrModel by remember {
         mutableStateOf(GeminiModelSettings.getIrModel(context))
     }
+    var selectedGeminiApiMode by remember {
+        mutableStateOf(InferenceBackendSettings.getGeminiApiMode(context))
+    }
+    var vertexProjectId by remember {
+        mutableStateOf(InferenceBackendSettings.getVertexProjectId(context))
+    }
+    var vertexLocation by remember {
+        mutableStateOf(InferenceBackendSettings.getVertexLocation(context))
+    }
+    var vertexAccessToken by remember {
+        mutableStateOf(InferenceBackendSettings.getVertexAccessToken(context))
+    }
     var localServerBaseUrl by remember {
         mutableStateOf(InferenceBackendSettings.getLocalServerBaseUrl(context))
     }
@@ -138,6 +150,12 @@ private fun SettingsScreen(
             availableModels = defaultModelOptions(selectedResponseModel, selectedIrModel)
             return
         }
+        if (selectedGeminiApiMode != InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
+            loading = false
+            errorText = context.getString(R.string.settings_model_vertex_catalog_note)
+            availableModels = defaultModelOptions(selectedResponseModel, selectedIrModel)
+            return
+        }
         if (loading) return
         val apiKey = GeminiApiKeyProvider.modelCatalogApiKey(context).trim()
         if (apiKey.isBlank()) {
@@ -163,7 +181,7 @@ private fun SettingsScreen(
         }
     }
 
-    LaunchedEffect(selectedResponseProvider, selectedIrProvider) {
+    LaunchedEffect(selectedResponseProvider, selectedIrProvider, selectedGeminiApiMode) {
         refreshModels()
     }
 
@@ -191,7 +209,9 @@ private fun SettingsScreen(
                 actions = {
                     IconButton(
                         onClick = ::refreshModels,
-                        enabled = !loading && usesGeminiBackend()
+                        enabled = !loading &&
+                            usesGeminiBackend() &&
+                            selectedGeminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Refresh,
@@ -313,6 +333,101 @@ private fun SettingsScreen(
                                     )
                                 }
                             }
+                            if (usesGeminiBackend()) {
+                                Text(
+                                    text = stringResource(id = R.string.settings_gemini_api_mode_title),
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.settings_gemini_api_mode_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                val geminiApiModeRows = listOf(
+                                    InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT to stringResource(id = R.string.settings_gemini_api_mode_direct),
+                                    InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH to stringResource(id = R.string.settings_gemini_api_mode_vertex_oauth),
+                                    InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY to stringResource(id = R.string.settings_gemini_api_mode_vertex_express)
+                                )
+                                geminiApiModeRows.forEach { (mode, label) ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                selectedGeminiApiMode = mode
+                                                InferenceBackendSettings.setGeminiApiMode(context, mode)
+                                            }
+                                            .padding(vertical = 2.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        RadioButton(
+                                            selected = selectedGeminiApiMode == mode,
+                                            onClick = {
+                                                selectedGeminiApiMode = mode
+                                                InferenceBackendSettings.setGeminiApiMode(context, mode)
+                                            }
+                                        )
+                                        Text(
+                                            text = label,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                                if (selectedGeminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH) {
+                                    Text(
+                                        text = stringResource(id = R.string.settings_vertex_auth_title),
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                    Text(
+                                        text = stringResource(id = R.string.settings_vertex_auth_description),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    OutlinedTextField(
+                                        value = vertexProjectId,
+                                        onValueChange = {
+                                            vertexProjectId = it
+                                            InferenceBackendSettings.setVertexProjectId(context, it)
+                                        },
+                                        label = { Text(stringResource(id = R.string.settings_vertex_project_id_label)) },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    OutlinedTextField(
+                                        value = vertexLocation,
+                                        onValueChange = {
+                                            vertexLocation = it
+                                            InferenceBackendSettings.setVertexLocation(context, it)
+                                        },
+                                        label = { Text(stringResource(id = R.string.settings_vertex_location_label)) },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    OutlinedTextField(
+                                        value = vertexAccessToken,
+                                        onValueChange = {
+                                            vertexAccessToken = it
+                                            InferenceBackendSettings.setVertexAccessToken(context, it)
+                                        },
+                                        label = { Text(stringResource(id = R.string.settings_vertex_access_token_label)) },
+                                        placeholder = { Text(stringResource(id = R.string.settings_vertex_access_token_placeholder)) },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                                if (selectedGeminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY) {
+                                    Text(
+                                        text = stringResource(id = R.string.settings_vertex_express_key_description),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -387,6 +502,24 @@ private fun SettingsScreen(
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
+                                Text(
+                                    text = if (selectedGeminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
+                                        stringResource(id = R.string.settings_gemini_api_mode_direct)
+                                    } else if (selectedGeminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH) {
+                                        stringResource(id = R.string.settings_gemini_api_mode_vertex_oauth)
+                                    } else {
+                                        stringResource(id = R.string.settings_gemini_api_mode_vertex_express)
+                                    },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                if (selectedGeminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH) {
+                                    Text(
+                                        text = "Project: $vertexProjectId  Location: $vertexLocation",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                                 Text(
                                     text = if (selectedResponseProvider == InferenceBackendSettings.Provider.GEMINI) {
                                         "${stringResource(id = R.string.settings_model_response_title)}: $selectedResponseModel"

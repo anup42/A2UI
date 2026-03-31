@@ -91,6 +91,15 @@ val embeddedStage3ApiKey = resolveSecret(
 )
 val embeddedNewsApiKey = resolveSecret("NEWS_API_KEY")
 val embeddedSerpApiKey = resolveSecret("SERPAPI_KEY")
+val embeddedVertexProjectId = resolveSecret(
+    "VERTEX_PROJECT_ID",
+    "GOOGLE_CLOUD_PROJECT",
+    "GCP_PROJECT_ID"
+)
+val embeddedVertexOauthAccessToken = resolveSecret(
+    "VERTEX_OAUTH_ACCESS_TOKEN",
+    "GOOGLE_OAUTH_ACCESS_TOKEN"
+)
 
 android {
     namespace = "com.samsung.genuicraft"
@@ -122,6 +131,16 @@ android {
             "String",
             "SERPAPI_KEY_DEFAULT",
             "\"${escapeForBuildConfig(embeddedSerpApiKey)}\""
+        )
+        buildConfigField(
+            "String",
+            "VERTEX_OAUTH_ACCESS_TOKEN_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedVertexOauthAccessToken)}\""
+        )
+        buildConfigField(
+            "String",
+            "VERTEX_PROJECT_ID_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedVertexProjectId)}\""
         )
     }
 

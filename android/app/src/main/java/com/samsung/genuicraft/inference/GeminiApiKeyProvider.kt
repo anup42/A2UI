@@ -39,6 +39,49 @@ object GeminiApiKeyProvider {
         return firstNonBlank(stage2ApiKey(context), stage3ApiKey(context))
     }
 
+    fun vertexExpressApiKey(context: Context): String {
+        return firstNonBlank(
+            resolveKey(
+                context,
+                "VERTEX_EXPRESS_API_KEY",
+                "GEMINI_VERTEX_EXPRESS_API_KEY"
+            ),
+            BuildConfig.GEMINI_STAGE3_API_KEY_DEFAULT,
+            BuildConfig.GEMINI_STAGE2_API_KEY_DEFAULT
+        )
+    }
+
+    fun runtimeVertexOauthAccessToken(context: Context): String {
+        return resolveKey(
+            context,
+            "VERTEX_OAUTH_ACCESS_TOKEN",
+            "GOOGLE_OAUTH_ACCESS_TOKEN"
+        )
+    }
+
+    fun vertexOauthAccessToken(context: Context): String {
+        return firstNonBlank(
+            runtimeVertexOauthAccessToken(context),
+            BuildConfig.VERTEX_OAUTH_ACCESS_TOKEN_DEFAULT
+        )
+    }
+
+    fun runtimeVertexProjectId(context: Context): String {
+        return resolveKey(
+            context,
+            "VERTEX_PROJECT_ID",
+            "GOOGLE_CLOUD_PROJECT",
+            "GCP_PROJECT_ID"
+        )
+    }
+
+    fun vertexProjectId(context: Context): String {
+        return firstNonBlank(
+            runtimeVertexProjectId(context),
+            BuildConfig.VERTEX_PROJECT_ID_DEFAULT
+        )
+    }
+
     fun setupHintPath(context: Context): String {
         return "/sdcard/Android/data/${context.packageName}/files/$EXTERNAL_KEYS_FILE"
     }

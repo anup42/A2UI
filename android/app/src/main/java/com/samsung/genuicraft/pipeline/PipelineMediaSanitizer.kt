@@ -1,4 +1,4 @@
-package com.samsung.genuicraft.pipeline
+﻿package com.samsung.genuicraft.pipeline
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -58,7 +58,7 @@ internal object PipelineMediaSanitizer {
         val fare: String?
     )
 
-    // ── Flight functions ───────────────────────────────────────────────
+    // -- Flight functions ---------------------------------------------------
 
     fun ensureFlightQuickActions(
         responseText: String,
@@ -319,7 +319,7 @@ internal object PipelineMediaSanitizer {
         }
     }
 
-    // ── Travel functions ───────────────────────────────────────────────
+    // -- Travel functions ---------------------------------------------------
 
     fun ensureTravelInlineMedia(
         responseText: String,
@@ -737,7 +737,7 @@ internal object PipelineMediaSanitizer {
         return token ?: "travel"
     }
 
-    // ── General-purpose media injection ──────────────────────────────
+    // -- General-purpose media injection ------------------------------------
 
     /**
      * Ensures every response has at least some inline media by injecting
@@ -809,7 +809,7 @@ internal object PipelineMediaSanitizer {
         ) return true
         // Short title-like line (2-10 words, no trailing period, no URL, no bullet)
         val stripped = line.replace(Regex("""^#+\s*"""), "").trim()
-        if (stripped.startsWith("-") || stripped.startsWith("•") || stripped.startsWith("|")) return false
+        if (stripped.startsWith("-") || stripped.startsWith("*") || stripped.startsWith("|")) return false
         if (containsUrlLikeToken(stripped)) return false
         if (stripped.startsWith("Media:", ignoreCase = true) || stripped.startsWith("Action:", ignoreCase = true)) return false
         if (stripped.startsWith("Source", ignoreCase = true) || stripped.startsWith("Quick Actions", ignoreCase = true)) return false
@@ -942,7 +942,7 @@ internal object PipelineMediaSanitizer {
         return optionCount >= 2
     }
 
-    // ── URL functions ──────────────────────────────────────────────────
+    // -- URL functions ------------------------------------------------------
 
     fun extractUrlsForQuickActions(text: String): List<String> {
         return URL_TOKEN_REGEX.findAll(text)
@@ -1153,7 +1153,7 @@ internal object PipelineMediaSanitizer {
         }.trimEnd()
     }
 
-    // ── GenUI validation ───────────────────────────────────────────────
+    // -- GenUI validation ---------------------------------------------------
 
     fun responseContainsInlineMedia(text: String): Boolean {
         val assignmentRegex = Regex(
@@ -1177,6 +1177,13 @@ internal object PipelineMediaSanitizer {
     }
 
     fun genUiPreservesInlineImages(jsonText: String): Boolean {
+        // Phase 2+ flat spec: "type":"Image" with "url" in props
+        if (Regex(""""type"\s*:\s*"Image"[\s\S]{0,320}"url"\s*:\s*"(?:https?://|/assets/|assets/)""",
+                setOf(RegexOption.IGNORE_CASE)).containsMatchIn(jsonText)) return true
+        // Phase 2+ flat spec: "$item" image reference inside elements
+        if (Regex(""""type"\s*:\s*"Image"[\s\S]{0,320}"\${"$"}item"\s*:\s*"[^"]+"""",
+                setOf(RegexOption.IGNORE_CASE)).containsMatchIn(jsonText)) return true
+        // Legacy format: "component":"Image"
         return Regex(
             """"component"\s*:\s*"Image"[\s\S]{0,320}"(?:url|src|source|image)"\s*:\s*"(?:https?://|/assets/|assets/)"""",
             setOf(RegexOption.IGNORE_CASE)
@@ -1188,6 +1195,10 @@ internal object PipelineMediaSanitizer {
     }
 
     fun genUiPreservesInlineIcons(jsonText: String): Boolean {
+        // Phase 2+ flat spec: "type":"Icon" with "name" prop
+        if (Regex(""""type"\s*:\s*"Icon"[\s\S]{0,240}"name"\s*:\s*"[^"]+"""",
+                setOf(RegexOption.IGNORE_CASE)).containsMatchIn(jsonText)) return true
+        // Legacy format: "component":"Icon"
         return Regex(
             """"component"\s*:\s*"Icon"[\s\S]{0,240}"(?:url|icon|name|glyph|asset)"\s*:\s*"[^"]+"""",
             setOf(RegexOption.IGNORE_CASE)
@@ -1206,6 +1217,12 @@ internal object PipelineMediaSanitizer {
     }
 
     fun genUiPreservesActionButtons(jsonText: String): Boolean {
+        // Phase 2+ flat spec: "call":"openUrl" or "call":"setState"
+        if (Regex("""(?i)"call"\s*:\s*"(?:openUrl|setState)"""").containsMatchIn(jsonText)) return true
+        // Phase 2+ flat spec: Button type with action
+        if (Regex("""(?i)"type"\s*:\s*"Button"""").containsMatchIn(jsonText) &&
+            Regex("""(?i)"action"\s*:\s*\{""").containsMatchIn(jsonText)) return true
+        // Legacy format
         return Regex("""(?i)"call"\s*:\s*"openUrl"""").containsMatchIn(jsonText) ||
             (
                 Regex("""(?i)"component"\s*:\s*"Button"""").containsMatchIn(jsonText) &&
@@ -1245,6 +1262,14 @@ internal object PipelineMediaSanitizer {
     ): String {
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
         val payload = normalizeGenUiPayload(parsed)
+        if (payload.isJsonObject && FlatSpecContract.looksLikeFlatSpec(payload)) {
+            val changed = ensureFlatSpecHasImageComponent(
+                payload = payload.asJsonObject,
+                stage2Response = stage2Response,
+                queryText = queryText
+            )
+            return if (changed) payload.toString() else jsonText
+        }
         if (!payload.isJsonArray) {
             return jsonText
         }
@@ -1318,6 +1343,74 @@ internal object PipelineMediaSanitizer {
         )
         prependRootChildId(rootComponent, mediaId)
         return messages.toString()
+    }
+
+    private fun ensureFlatSpecHasImageComponent(
+        payload: JsonObject,
+        stage2Response: String,
+        queryText: String
+    ): Boolean {
+        val elements = payload.getAsJsonObject("elements") ?: return false
+        val topicMediaUrl = buildTopicFallbackMediaUrl(queryText)
+        val isFlight = looksLikeFlightQuery(queryText) || looksLikeFlightContent(stage2Response)
+        var changed = false
+        var hasImage = false
+
+        elements.entrySet().forEach { (_, node) ->
+            if (!node.isJsonObject) return@forEach
+            val element = node.asJsonObject
+            val type = jsonStringOrNull(element.get("type")).orEmpty()
+            if (!type.equals("Image", ignoreCase = true)) {
+                return@forEach
+            }
+            val props = element.getAsJsonObject("props") ?: JsonObject().also {
+                element.add("props", it)
+                changed = true
+            }
+            val currentUrl = jsonStringOrNull(props.get("url")).orEmpty()
+            if (isFlight) {
+                if (!currentUrl.equals(topicMediaUrl, ignoreCase = true)) {
+                    props.addProperty("url", topicMediaUrl)
+                    changed = true
+                }
+            } else if (!looksLikeUsableInlineMediaUrl(currentUrl)) {
+                props.addProperty("url", topicMediaUrl)
+                changed = true
+            }
+            if (looksLikeUsableInlineMediaUrl(jsonStringOrNull(props.get("url")).orEmpty())) {
+                hasImage = true
+            }
+        }
+
+        if (hasImage) {
+            return changed
+        }
+
+        val mediaUrl = if (looksLikeTravelQuery(queryText) || looksLikeTravelContent(stage2Response)) {
+            extractFirstInlineImageUrl(stage2Response)
+                ?: extractFirstInlineIconUrl(stage2Response)
+                ?: topicMediaUrl
+        } else {
+            topicMediaUrl
+        }
+        if (!looksLikeUsableInlineMediaUrl(mediaUrl)) {
+            return changed
+        }
+
+        val mediaId = buildUniqueFlatElementId(elements, base = "auto_media")
+        elements.add(
+            mediaId,
+            JsonObject().apply {
+                addProperty("type", "Image")
+                add("props", JsonObject().apply {
+                    addProperty("url", mediaUrl)
+                    addProperty("fit", "cover")
+                })
+                add("children", JsonArray())
+            }
+        )
+        prependRootFlatChildId(payload, mediaId)
+        return true
     }
 
     private fun buildUniqueComponentId(components: JsonArray, base: String): String {
@@ -1438,6 +1531,10 @@ internal object PipelineMediaSanitizer {
     ): String {
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
         val payload = normalizeGenUiPayload(parsed)
+        if (payload.isJsonObject && FlatSpecContract.looksLikeFlatSpec(payload)) {
+            val changed = ensureFlatSpecHasInlineTextMedia(payload.asJsonObject, queryText)
+            return if (changed) payload.toString() else jsonText
+        }
         if (!payload.isJsonArray) {
             return jsonText
         }
@@ -1478,6 +1575,31 @@ internal object PipelineMediaSanitizer {
         }
 
         return if (changed) payload.asJsonArray.toString() else jsonText
+    }
+
+    private fun ensureFlatSpecHasInlineTextMedia(
+        payload: JsonObject,
+        queryText: String
+    ): Boolean {
+        val elements = payload.getAsJsonObject("elements") ?: return false
+        val mediaUrl = buildTopicFallbackMediaUrl(queryText)
+        elements.entrySet().forEach { (_, node) ->
+            if (!node.isJsonObject) return@forEach
+            val element = node.asJsonObject
+            val type = jsonStringOrNull(element.get("type")).orEmpty()
+            if (!type.equals("Text", ignoreCase = true)) return@forEach
+
+            val props = element.getAsJsonObject("props") ?: return@forEach
+            val textValue = jsonStringOrNull(props.get("text")).orEmpty()
+            if (textValue.isBlank()) return@forEach
+            if (textValue.contains("Media:", ignoreCase = true) || textValue.contains("Image=", ignoreCase = true)) {
+                return@forEach
+            }
+
+            props.addProperty("text", "Media: Image=$mediaUrl Icon=$mediaUrl\n$textValue")
+            return true
+        }
+        return false
     }
 
     fun sanitizeMediaUrlToken(value: String): String =
@@ -1548,39 +1670,15 @@ internal object PipelineMediaSanitizer {
         return path.contains("/icon") || path.contains("/icons/") || path.contains("/image") || path.contains("/images/")
     }
 
-    // ── Payload ────────────────────────────────────────────────────────
+    // -- Payload ------------------------------------------------------------
 
     fun normalizeGenUiPayload(json: JsonElement): JsonElement {
-        if (json.isJsonArray) {
-            return json
-        }
-        if (!json.isJsonObject) {
-            return json
-        }
-
-        val obj = json.asJsonObject
-        val directArray = obj.get("genui_json")
-        if (directArray != null && directArray.isJsonArray) {
-            return directArray
-        }
-        val messages = obj.get("messages")
-        if (messages != null && messages.isJsonArray) {
-            return messages
-        }
-        val payload = obj.get("payload")
-        if (payload != null) {
-            if (payload.isJsonArray) {
-                return payload
-            }
-            if (payload.isJsonObject) {
-                val payloadObj = payload.asJsonObject
-                val payloadMessages = payloadObj.get("messages")
-                if (payloadMessages != null && payloadMessages.isJsonArray) {
-                    return payloadMessages
-                }
-            }
-        }
+        FlatSpecContract.normalizeToFlatSpec(json).spec?.let { return it }
         return json
+    }
+
+    fun buildFallbackFlatSpec(stage2Response: String, catalogId: String): JsonObject {
+        return FlatSpecContract.buildFallbackFlatSpec(stage2Response)
     }
 
     fun buildFallbackGenUi(stage2Response: String, catalogId: String): JsonArray {
@@ -1620,6 +1718,39 @@ internal object PipelineMediaSanitizer {
                 }
             )
         }
+    }
+
+    private fun buildUniqueFlatElementId(elements: JsonObject, base: String): String {
+        var index = 1
+        while (true) {
+            val candidate = "${base}_$index"
+            if (!elements.has(candidate)) {
+                return candidate
+            }
+            index += 1
+        }
+    }
+
+    private fun prependRootFlatChildId(payload: JsonObject, childId: String) {
+        val rootId = payload.get("root")
+            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            ?.asString
+            ?: return
+        val rootElement = payload.getAsJsonObject("elements")?.getAsJsonObject(rootId) ?: return
+        val children = rootElement.get("children")
+            ?.takeIf { it.isJsonArray }
+            ?.asJsonArray
+            ?: JsonArray().also { rootElement.add("children", it) }
+        val existing = children.mapNotNull { child ->
+            if (child.isJsonPrimitive && child.asJsonPrimitive.isString) child.asString else null
+        }
+        if (existing.contains(childId)) return
+
+        val updated = JsonArray().apply {
+            add(childId)
+            existing.forEach { add(it) }
+        }
+        rootElement.add("children", updated)
     }
 
     fun resolveStage3CatalogId(prefs: SharedPreferences): String {

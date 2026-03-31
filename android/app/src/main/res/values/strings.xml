@@ -14,6 +14,18 @@
     <string name="settings_provider_ir_title">IR generation backend</string>
     <string name="settings_provider_gemini">Gemini API</string>
     <string name="settings_provider_local_server">Local Server</string>
+    <string name="settings_gemini_api_mode_title">Google Gemini Route</string>
+    <string name="settings_gemini_api_mode_description">Choose how Gemini requests are sent when Gemini backend is enabled. Vertex route may require OAuth credentials on your Google Cloud setup.</string>
+    <string name="settings_gemini_api_mode_direct">Google AI Studio (Direct)</string>
+    <string name="settings_gemini_api_mode_vertex_oauth">Vertex AI (OAuth)</string>
+    <string name="settings_gemini_api_mode_vertex_express">Vertex AI (Express API Key)</string>
+    <string name="settings_vertex_auth_title">Vertex OAuth Settings</string>
+    <string name="settings_vertex_auth_description">Use OAuth token auth for Vertex requests. Tokens usually expire in about 1 hour.</string>
+    <string name="settings_vertex_express_key_description">Vertex Express mode uses VERTEX_EXPRESS_API_KEY from runtime keys (.env via push script).</string>
+    <string name="settings_vertex_project_id_label">Vertex project id</string>
+    <string name="settings_vertex_location_label">Vertex location</string>
+    <string name="settings_vertex_access_token_label">OAuth access token</string>
+    <string name="settings_vertex_access_token_placeholder">Paste token from gcloud auth print-access-token</string>
     <string name="settings_local_server_title">Local Server Settings</string>
     <string name="settings_local_server_url_label">Server URL</string>
     <string name="settings_local_model_path_label">Model path</string>
@@ -26,6 +38,7 @@
     <string name="settings_model_loading">Fetching available Gemini models...</string>
     <string name="settings_model_fetch_failed">Could not fetch Gemini models.</string>
     <string name="settings_model_api_key_missing">Gemini API key is missing. Showing default model options.</string>
+    <string name="settings_model_vertex_catalog_note">Vertex AI mode is active. Using default model list.</string>
     <string name="settings_model_not_used_local">Local Server is selected for this stage. Gemini model selection is not used.</string>
     <string name="settings_refresh_models">Refresh model list</string>
 

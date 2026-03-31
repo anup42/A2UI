@@ -6,29 +6,32 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.gson.JsonParser
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 
 @RunWith(AndroidJUnit4::class)
-class PipelineArtifactCaptureTest {
+class PipelineWeatherSelfTest {
 
     @Test
-    fun runFlightQueryAndCaptureArtifacts() = runBlocking {
+    fun runWeatherQueryAndVerifyRenderedUi() = runBlocking {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
-        val resultDir = File(context.getExternalFilesDir(null) ?: context.filesDir, "result")
+        val resultDir = File(context.getExternalFilesDir(null) ?: context.filesDir, "result_weather")
+
+        InferenceBackendSettings.setResponseProvider(context, InferenceBackendSettings.Provider.GEMINI)
+        InferenceBackendSettings.setIrProvider(context, InferenceBackendSettings.Provider.GEMINI)
 
         if (resultDir.exists()) {
             resultDir.listFiles()?.forEach { it.delete() }
         }
         resultDir.mkdirs()
 
-        val query = "Show flights from bengaluru to lucknow on 15th may"
+        val query = "show weather in bengaluru"
         File(resultDir, "query.txt").writeText(query)
 
         val pipeline = GenUiStagePipeline(context.applicationContext)
@@ -40,17 +43,7 @@ class PipelineArtifactCaptureTest {
                 File(resultDir, "response.txt").writeText(result.stage2Response)
                 File(resultDir, "ir.json").writeText(result.stage3Json)
                 File(resultDir, "ir.txt").writeText(result.stage3Json)
-                val irElement = JsonParser.parseString(result.stage3Json)
-                assertTrue("IR must be a JSON object", irElement.isJsonObject)
-                assertFalse("IR must not be a legacy message array", irElement.isJsonArray)
-                val irObject = irElement.asJsonObject
-                assertNotNull("IR root is required", irObject.get("root"))
-                assertNotNull("IR elements is required", irObject.get("elements"))
-                assertTrue(
-                    "IR elements must include root id",
-                    irObject.getAsJsonObject("elements").has(irObject.get("root").asString)
-                )
-                File(resultDir, "prompt_respose.txt").writeText(result.stage2Prompt)
+                File(resultDir, "prompt_response.txt").writeText(result.stage2Prompt)
                 File(resultDir, "prompt_ir.txt").writeText(
                     buildString {
                         if (!result.stage3SystemPrompt.isNullOrBlank()) {
@@ -63,12 +56,25 @@ class PipelineArtifactCaptureTest {
                     }
                 )
 
+                val irElement = JsonParser.parseString(result.stage3Json)
+                assertTrue("IR must be a JSON object", irElement.isJsonObject)
+                assertFalse("IR must not be a legacy message array", irElement.isJsonArray)
+                val irObject = irElement.asJsonObject
+                assertNotNull("IR root is required", irObject.get("root"))
+                assertNotNull("IR elements is required", irObject.get("elements"))
+                val rootId = irObject.get("root")?.asString.orEmpty()
+                assertTrue("IR root id must be non-empty", rootId.isNotBlank())
+                assertTrue(
+                    "IR elements must include root id",
+                    irObject.getAsJsonObject("elements").has(rootId)
+                )
+
                 val record = GenUiRecord(
-                    title = "flight_test",
+                    title = "weather_test",
                     rawJson = result.stage3Json,
                     sourceDir = null,
                     sourceLabel = "instrumentation",
-                    uiId = "flight_test",
+                    uiId = "weather_test",
                     summary = null,
                     queryId = null,
                     responseId = null
@@ -96,7 +102,7 @@ class PipelineArtifactCaptureTest {
                 File(resultDir, "response.txt").writeText(outcome.stage2Response.orEmpty())
                 File(resultDir, "ir.json").writeText(outcome.stage3Json.orEmpty())
                 File(resultDir, "ir.txt").writeText(outcome.stage3Json.orEmpty())
-                File(resultDir, "prompt_respose.txt").writeText("Stage 2 prompt unavailable due to failure.")
+                File(resultDir, "prompt_response.txt").writeText("Stage 2 prompt unavailable due to failure.")
                 File(resultDir, "prompt_ir.txt").writeText("Pipeline failure: ${outcome.message}")
                 throw AssertionError("Pipeline failed at ${outcome.stage}: ${outcome.message}")
             }

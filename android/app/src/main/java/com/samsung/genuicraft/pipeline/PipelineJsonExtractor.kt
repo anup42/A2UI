@@ -105,11 +105,22 @@ internal object PipelineJsonExtractor {
         return null
     }
 
-    fun buildRepairPrompt(rawText: String): String {
+    fun buildFlatSpecRepairPrompt(rawText: String, failureReason: String? = null): String {
+        val reasonLine = failureReason?.trim()?.takeIf { it.isNotEmpty() }?.let {
+            "Failure reason: $it\n"
+        }.orEmpty()
         return (
-            "The previous output was not valid JSON or failed schema validation. " +
-                "Fix the output to be valid JSON that satisfies the schema requirements. " +
-                "Return ONLY the corrected JSON.\n\nOriginal:\n${rawText.trim()}"
+            "The previous output does not satisfy the required flat-spec contract.\n" +
+                reasonLine +
+                "Return ONLY one valid JSON object with this shape:\n" +
+                "{\"root\":\"<id>\",\"state\":{...},\"elements\":{...}}\n\n" +
+                "Rules:\n" +
+                "- Do NOT emit legacy v0.9 message arrays (`createSurface` / `updateComponents`).\n" +
+                "- `root` must reference an existing key in `elements`.\n" +
+                "- Every element must contain `type`, `props`, and `children`.\n" +
+                "- Every id in `children` must exist in `elements`.\n" +
+                "- Return JSON only, no markdown.\n\n" +
+                "Original output:\n${rawText.trim()}"
             )
     }
 }

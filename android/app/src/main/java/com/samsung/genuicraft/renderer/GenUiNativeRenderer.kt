@@ -64,6 +64,9 @@ import coil.request.ImageRequest
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.samsung.genuicraft.renderer.FlatSpec
+import com.samsung.genuicraft.renderer.FlatSpecContent
+import com.samsung.genuicraft.renderer.FlatSpecParser
 import com.samsung.genuicraft.renderer.native.NativeActionParsing
 import com.samsung.genuicraft.renderer.native.NativeFormComponents
 import com.samsung.genuicraft.renderer.native.NativePayloadParser
@@ -99,7 +102,9 @@ object GenUiNativeRenderer {
     data class SurfaceState(
         val surfaceId: String,
         val rootId: String,
-        val components: Map<String, JsonObject>
+        val components: Map<String, JsonObject>,
+        /** Non-null when this surface uses the Phase 2+ flat-spec format. */
+        val flatSpec: FlatSpec? = null
     )
 
     private enum class IconFallbackKind {
@@ -113,6 +118,19 @@ object GenUiNativeRenderer {
             NativePayloadParser.parseJsonOrJsonl(rawInput, warnings)
         } catch (exc: Exception) {
             return RenderResult(emptyList(), warnings, "Invalid payload: ${exc.message ?: exc.javaClass.simpleName}")
+        }
+
+        // Phase 2+: detect flat spec format {"root":..., "elements":{...}}
+        if (FlatSpecParser.isFlatSpec(parsed)) {
+            val flatSpec = FlatSpecParser.parse(parsed)
+                ?: return RenderResult(emptyList(), warnings, "Invalid flat spec payload.")
+            val surface = SurfaceState(
+                surfaceId = "flat_surface",
+                rootId = flatSpec.root,
+                components = emptyMap(),
+                flatSpec = flatSpec
+            )
+            return RenderResult(listOf(surface), warnings)
         }
 
         val messages = NativePayloadParser.extractMessages(parsed)
@@ -295,6 +313,26 @@ object GenUiNativeRenderer {
         onOpenExternalUrl: (String) -> Unit,
         onRuntimeAction: (NativeActionParsing.RuntimeAction) -> Unit
     ) {
+        // Phase 2+: flat spec format — use new renderer
+        if (surface.flatSpec != null) {
+            Card(
+                shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                colors = genUiCardColors(GenUiCardTone.Neutral),
+                elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationMd),
+                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                FlatSpecContent(
+                    spec = surface.flatSpec,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+            }
+            return
+        }
+
+        // Legacy format
         Card(
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
             colors = genUiCardColors(GenUiCardTone.Neutral),

@@ -54,8 +54,8 @@ internal object PipelinePromptBuilder {
             placeholder = "{response_text}",
             sentinel = "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]",
             fallbackUserTemplate =
-                "Convert the response text into valid GenUICraft JSON.\n" +
-                    "Return ONLY the JSON message array.\n\n" +
+                "Convert the response text into a GenUICraft flat-spec JSON object.\n" +
+                    "Return ONLY the JSON object (no prose, no fences).\n\n" +
                     "Response:\n{response_text}"
         ).let { context ->
             Stage3PromptContext(
@@ -85,6 +85,7 @@ internal object PipelinePromptBuilder {
         )
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun buildStage3UserPrompt(
         userTemplate: String,
         stage2Response: String,
@@ -110,10 +111,11 @@ internal object PipelinePromptBuilder {
             "Assets (local copies of any URLs in the response; use ONLY these local paths):\n$rows"
         }
 
-        val catalogPolicy = "Catalog policy for this request:\n" +
-            "- Use this catalogId in createSurface unless an explicit catalog is provided in context:\n" +
-            "  - $catalogId"
-        val responseWithPolicy = "${stage2Response.trim()}\n\n$catalogPolicy\n\n$assetPolicy"
+        val formatPolicy = "Flat-spec policy for this request:\n" +
+            "- Return ONE JSON object with keys: root, elements, and optional state.\n" +
+            "- Do not emit legacy v0.9 message arrays (createSurface/updateComponents).\n" +
+            "- Use only component types from the prompt catalog."
+        val responseWithPolicy = "${stage2Response.trim()}\n\n$formatPolicy\n\n$assetPolicy"
         val responseText = if (assetContext.isBlank()) {
             responseWithPolicy
         } else {

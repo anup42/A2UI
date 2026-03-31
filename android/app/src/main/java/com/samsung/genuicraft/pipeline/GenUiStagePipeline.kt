@@ -1,8 +1,9 @@
-package com.samsung.genuicraft
+﻿package com.samsung.genuicraft
 
 import android.content.Context
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
 import com.samsung.genuicraft.inference.InferenceBackend
 import com.samsung.genuicraft.inference.InferenceBackendFactory
 import com.samsung.genuicraft.inference.LocalServerBackend
@@ -11,6 +12,7 @@ import com.samsung.genuicraft.mcp.McpLlmRouter
 import com.samsung.genuicraft.mcp.McpResponseFormatter
 import com.samsung.genuicraft.mcp.McpSettings
 import com.samsung.genuicraft.pipeline.PipelineCacheManager
+import com.samsung.genuicraft.pipeline.FlatSpecContract
 import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
 import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
 import com.samsung.genuicraft.pipeline.PipelinePromptBuilder
@@ -89,6 +91,11 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val responseProvider = InferenceBackendSettings.getResponseProvider(appContext)
         val irProvider = InferenceBackendSettings.getIrProvider(appContext)
+        val geminiApiMode = InferenceBackendSettings.getGeminiApiMode(appContext)
+        val vertexProjectId = InferenceBackendSettings.getVertexProjectId(appContext)
+        val vertexLocation = InferenceBackendSettings.getVertexLocation(appContext)
+        val vertexAccessToken = InferenceBackendSettings.getVertexAccessToken(appContext)
+        val vertexExpressApiKey = GeminiApiKeyProvider.vertexExpressApiKey(appContext).trim()
         val responseModel = GeminiModelSettings.getResponseModel(appContext)
         val irModel = GeminiModelSettings.getIrModel(appContext)
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
@@ -115,16 +122,50 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             ""
         }
-        if (responseProvider == InferenceBackendSettings.Provider.GEMINI && responseApiKey.isBlank()) {
+        if (responseProvider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT &&
+            responseApiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
                 message = "Gemini key is missing. Stage 2 now uses Stage 3 key; add GEMINI_STAGE3_API_KEY (or GEMINI_IR_API_KEY / GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
-        if (irProvider == InferenceBackendSettings.Provider.GEMINI && irApiKey.isBlank()) {
+        if (irProvider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT &&
+            irApiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
                 message = "Gemini stage-3 key is missing. Add GEMINI_IR_API_KEY (or GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
+            )
+        }
+        if ((responseProvider == InferenceBackendSettings.Provider.GEMINI ||
+                irProvider == InferenceBackendSettings.Provider.GEMINI) &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH &&
+            vertexProjectId.isBlank()
+        ) {
+            return@withContext Outcome.Failure(
+                stage = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) Stage.STAGE2 else Stage.STAGE3,
+                message = "Vertex project id is missing. Open Settings and set Vertex project id (e.g. gen-lang-client-0741138863)."
+            )
+        }
+        if ((responseProvider == InferenceBackendSettings.Provider.GEMINI ||
+                irProvider == InferenceBackendSettings.Provider.GEMINI) &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH &&
+            vertexAccessToken.isBlank()
+        ) {
+            return@withContext Outcome.Failure(
+                stage = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) Stage.STAGE2 else Stage.STAGE3,
+                message = "Vertex OAuth access token is missing. Open Settings and paste a valid OAuth token."
+            )
+        }
+        if ((responseProvider == InferenceBackendSettings.Provider.GEMINI ||
+                irProvider == InferenceBackendSettings.Provider.GEMINI) &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY &&
+            vertexExpressApiKey.isBlank()
+        ) {
+            return@withContext Outcome.Failure(
+                stage = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) Stage.STAGE2 else Stage.STAGE3,
+                message = "Vertex Express API key is missing. Add VERTEX_EXPRESS_API_KEY at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
         if ((responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER ||
@@ -156,6 +197,11 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = responseProvider,
             apiKey = responseApiKey,
             model = responseModel,
+            geminiApiMode = geminiApiMode,
+            vertexProjectId = vertexProjectId,
+            vertexLocation = vertexLocation,
+            vertexAccessToken = vertexAccessToken,
+            vertexExpressApiKey = vertexExpressApiKey,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath
         )
@@ -163,11 +209,16 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = irProvider,
             apiKey = irApiKey,
             model = irModel,
+            geminiApiMode = geminiApiMode,
+            vertexProjectId = vertexProjectId,
+            vertexLocation = vertexLocation,
+            vertexAccessToken = vertexAccessToken,
+            vertexExpressApiKey = vertexExpressApiKey,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath
         )
 
-        // ── MCP path: LLM routes query → optional live data fetch ──────────
+        // -- MCP path: LLM routes query -> optional live data fetch ----------
         // When MCP is enabled, Stage 2 uses a special routing prompt.
         // The LLM decides which domain (if any) to call and provides:
         //   - intro text (2-3 sentences) to show before live data, OR
@@ -190,7 +241,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
             when {
                 routerResult.error != null -> {
-                    // Router call failed entirely — fall through to normal Stage 2
+                    // Router call failed entirely - fall through to normal Stage 2
                     Log.w(LOG_TAG, "MCP router failed: ${routerResult.error}; falling back to normal Stage 2")
                     postUpdate(
                         onStageUpdate,
@@ -202,7 +253,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 }
 
                 routerResult.domain != null && McpSettings.isDomainReady(appContext, routerResult.domain) -> {
-                    // LLM identified a live-data domain → fetch MCP data
+                    // LLM identified a live-data domain -> fetch MCP data
                     Log.i(LOG_TAG, "MCP router: domain=${routerResult.domain.key} entities=${routerResult.entities}")
                     postUpdate(
                         onStageUpdate,
@@ -236,7 +287,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                     }
                     val mcpDataSection = McpResponseFormatter.buildDataSection(mcpResult, normalizedQuery)
                     if (mcpDataSection.isBlank()) {
-                        // MCP returned empty data — fall through to normal Stage 2 LLM
+                        // MCP returned empty data - fall through to normal Stage 2 LLM
                         Log.w(LOG_TAG, "MCP ${routerResult.domain.key} returned no data; falling back to Stage 2")
                         postUpdate(
                             onStageUpdate,
@@ -260,6 +311,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                         mcpWarnings += "MCP: ${routerResult.domain.displayName} (LLM-routed + live data)"
                         mcpWarnings += "Response backend: ${responseProvider.rawValue}"
                         mcpWarnings += "IR backend: ${irProvider.rawValue}"
+                        if (responseProvider == InferenceBackendSettings.Provider.GEMINI ||
+                            irProvider == InferenceBackendSettings.Provider.GEMINI) {
+                            mcpWarnings += "Gemini route: ${geminiApiMode.rawValue}"
+                        }
                         return@withContext executeStage3WithResponse(
                             normalizedQuery = normalizedQuery,
                             stage2Response = combinedResponse,
@@ -288,9 +343,13 @@ class GenUiStagePipeline(private val appContext: Context) {
                     )
                     markDuration(Stage.STAGE2, stage2StartedAtMs)
                     val mcpWarnings = mutableListOf<String>()
-                    mcpWarnings += "MCP: LLM routing decided no live data needed — using LLM response"
+                    mcpWarnings += "MCP: LLM routing decided no live data needed - using LLM response"
                     mcpWarnings += "Response backend: ${responseProvider.rawValue}"
                     mcpWarnings += "IR backend: ${irProvider.rawValue}"
+                    if (responseProvider == InferenceBackendSettings.Provider.GEMINI ||
+                        irProvider == InferenceBackendSettings.Provider.GEMINI) {
+                        mcpWarnings += "Gemini route: ${geminiApiMode.rawValue}"
+                    }
                     return@withContext executeStage3WithResponse(
                         normalizedQuery = normalizedQuery,
                         stage2Response = routerResult.fullResponse,
@@ -308,7 +367,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 }
 
                 else -> {
-                    // Router returned domain but API key not ready — fall through
+                    // Router returned domain but API key not ready - fall through
                     val domainName = routerResult.domain?.key ?: "unknown"
                     Log.w(LOG_TAG, "MCP domain $domainName identified but API key not configured; falling back to normal Stage 2")
                     postUpdate(
@@ -336,7 +395,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2PromptContext.userTemplate,
             mapOf("query_text" to normalizedQuery)
         )
-        val stage2CacheDeferred = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
+        val stage2CacheDeferred = if (responseProvider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
             async(Dispatchers.IO) {
                 cacheManager.ensureStage2InstructionCache(
                     apiKey = responseApiKey,
@@ -358,7 +418,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(genUiTemplate)
-        val stage3CacheDeferred = if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
+        val stage3CacheDeferred = if (irProvider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
             async(Dispatchers.IO) {
                 cacheManager.ensureStage3InstructionCache(
                     apiKey = irApiKey,
@@ -496,6 +557,10 @@ class GenUiStagePipeline(private val appContext: Context) {
         val warnings = mutableListOf<String>()
         warnings += "Response backend: ${responseProvider.rawValue}"
         warnings += "IR backend: ${irProvider.rawValue}"
+        if (responseProvider == InferenceBackendSettings.Provider.GEMINI ||
+            irProvider == InferenceBackendSettings.Provider.GEMINI) {
+            warnings += "Gemini route: ${geminiApiMode.rawValue}"
+        }
         if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini response model: $responseModel"
             if (stage2Cache.name != null && !stage2Cache.created) {
@@ -630,43 +695,33 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        var stage3JsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        var stage3JsonElement = repairAndValidateFlatSpec(
+            stage3RawText = stage3Call.text,
+            initialJsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text),
+            backend = irBackend,
+            provider = irProvider,
+            systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
+            stage3RepairMaxOutputTokens = stage3RepairMaxOutputTokens,
+            cachedContentName = stage3Cache.name,
+            allowCachedContent = true,
+            localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
+            localSendSystemPrompt = localSendStage3SystemPrompt,
+            geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
+            onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) },
+            onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
+            warnings = warnings
+        )
         var usedFallback = false
 
         if (stage3JsonElement == null) {
-            warnings += "Stage 3 JSON parse failed; running repair pass."
-            val repairCall = generateWithRetry(
-                backend = irBackend,
-                provider = irProvider,
-                prompt = PipelineJsonExtractor.buildRepairPrompt(stage3Call.text),
-                systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
-                temperature = 0.2,
-                maxOutputTokens = stage3RepairMaxOutputTokens,
-                jsonMode = true,
-                enableGoogleSearch = false,
-                cachedContentName = stage3Cache.name,
-                allowCachedContent = true,
-                structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI,
-                localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-                localSendSystemPrompt = localSendStage3SystemPrompt,
-                geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
-                onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) }
-            )
-            markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
-            if (repairCall.error == null) {
-                stage3JsonElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
-            }
-        }
-
-        if (stage3JsonElement == null) {
             warnings += "Stage 3 fallback JSON was used."
-            stage3JsonElement = PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId)
+            stage3JsonElement = PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId)
             usedFallback = true
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
-        // Image injection into root removed — cards handle their own inline images.
+        // Image injection into root removed - cards handle their own inline images.
         if (!usedFallback) {
             val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
                 jsonText = stage3Json,
@@ -688,7 +743,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Rewrote unstable media URLs to deterministic topic icons."
             }
         }
-        // Inline text media injection removed — cards handle their own images.
+        // Inline text media injection removed - cards handle their own images.
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(stage2Response)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
         var stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
@@ -697,14 +752,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
         if (missingInlineIcon && !usedFallback) {
             warnings += "Media content was adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId))
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId))
             usedFallback = true
         } else if (missingInlineImage) {
             warnings += "Stage 3 did not preserve inline image; layout retained."
         }
         if (PipelineMediaSanitizer.responseContainsActionButtons(stage2Response) && !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback) {
             warnings += "Quick actions were adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId))
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId))
             usedFallback = true
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
@@ -721,7 +776,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         if (renderResult.errorMessage != null && !usedFallback) {
             warnings += "Native rendering failed for stage 3 output; using fallback UI."
-            val fallback = PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId)
+            val fallback = PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId)
             stage3Json = gson.toJson(fallback)
             renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
             usedFallback = true
@@ -795,6 +850,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         GeminiApiKeyProvider.refresh(appContext)
 
         val provider = InferenceBackendSettings.getIrProvider(appContext)
+        val geminiApiMode = InferenceBackendSettings.getGeminiApiMode(appContext)
+        val vertexProjectId = InferenceBackendSettings.getVertexProjectId(appContext)
+        val vertexLocation = InferenceBackendSettings.getVertexLocation(appContext)
+        val vertexAccessToken = InferenceBackendSettings.getVertexAccessToken(appContext)
+        val vertexExpressApiKey = GeminiApiKeyProvider.vertexExpressApiKey(appContext).trim()
         val irModel = GeminiModelSettings.getIrModel(appContext)
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
@@ -807,10 +867,45 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             ""
         }
-        if (provider == InferenceBackendSettings.Provider.GEMINI && apiKey.isBlank()) {
+        if (provider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT &&
+            apiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
                 message = "Gemini stage-3 key is missing. Add GEMINI_IR_API_KEY (or GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}",
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        if (provider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH &&
+            vertexProjectId.isBlank()
+        ) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Vertex project id is missing. Open Settings and set Vertex project id (e.g. gen-lang-client-0741138863).",
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        if (provider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH &&
+            vertexAccessToken.isBlank()
+        ) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Vertex OAuth access token is missing. Open Settings and paste a valid OAuth token.",
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        if (provider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY &&
+            vertexExpressApiKey.isBlank()
+        ) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Vertex Express API key is missing. Add VERTEX_EXPRESS_API_KEY at ${GeminiApiKeyProvider.setupHintPath(appContext)}",
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
@@ -840,6 +935,11 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = provider,
             apiKey = apiKey,
             model = irModel,
+            geminiApiMode = geminiApiMode,
+            vertexProjectId = vertexProjectId,
+            vertexLocation = vertexLocation,
+            vertexAccessToken = vertexAccessToken,
+            vertexExpressApiKey = vertexExpressApiKey,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath
         )
@@ -856,7 +956,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(genUiTemplate)
-        val stage3CacheDeferred = if (provider == InferenceBackendSettings.Provider.GEMINI) {
+        val stage3CacheDeferred = if (provider == InferenceBackendSettings.Provider.GEMINI &&
+            geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
             async(Dispatchers.IO) {
                 cacheManager.ensureStage3InstructionCache(
                     apiKey = apiKey,
@@ -924,6 +1025,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val warnings = mutableListOf<String>()
         warnings += "Using preloaded IR demo response (stage 2 skipped)."
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
+            warnings += "Gemini route: ${geminiApiMode.rawValue}"
             warnings += "Gemini IR model: $irModel"
         } else {
             warnings += "Using local server: $localServerBaseUrl"
@@ -1041,43 +1143,33 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        var stage3JsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        var stage3JsonElement = repairAndValidateFlatSpec(
+            stage3RawText = stage3Call.text,
+            initialJsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text),
+            backend = backend,
+            provider = provider,
+            systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
+            stage3RepairMaxOutputTokens = stage3RepairMaxOutputTokens,
+            cachedContentName = stage3Cache.name,
+            allowCachedContent = true,
+            localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
+            localSendSystemPrompt = localSendStage3SystemPrompt,
+            geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
+            onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) },
+            onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
+            warnings = warnings
+        )
         var usedFallback = false
 
         if (stage3JsonElement == null) {
-            warnings += "Stage 3 JSON parse failed; running repair pass."
-            val repairCall = generateWithRetry(
-                backend = backend,
-                provider = provider,
-                prompt = PipelineJsonExtractor.buildRepairPrompt(stage3Call.text),
-                systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
-                temperature = 0.2,
-                maxOutputTokens = stage3RepairMaxOutputTokens,
-                jsonMode = true,
-                enableGoogleSearch = false,
-                cachedContentName = stage3Cache.name,
-                allowCachedContent = true,
-                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
-                localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
-                localSendSystemPrompt = localSendStage3SystemPrompt,
-                geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
-                onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) }
-            )
-            markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
-            if (repairCall.error == null) {
-                stage3JsonElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
-            }
-        }
-
-        if (stage3JsonElement == null) {
             warnings += "Stage 3 fallback JSON was used."
-            stage3JsonElement = PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId)
+            stage3JsonElement = PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId)
             usedFallback = true
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
-        // Image injection into root removed — cards handle their own inline images.
+        // Image injection into root removed - cards handle their own inline images.
         if (!usedFallback) {
             val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
                 jsonText = stage3Json,
@@ -1099,7 +1191,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Rewrote unstable media URLs to deterministic topic icons."
             }
         }
-        // Inline text media injection removed — cards handle their own images.
+        // Inline text media injection removed - cards handle their own images.
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(stage2Response)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
         var stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
@@ -1108,14 +1200,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
         if (missingInlineIcon && !usedFallback) {
             warnings += "Media content was adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId))
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId))
             usedFallback = true
         } else if (missingInlineImage) {
             warnings += "Stage 3 did not preserve inline image; layout retained."
         }
         if (PipelineMediaSanitizer.responseContainsActionButtons(stage2Response) && !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback) {
             warnings += "Quick actions were adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId))
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId))
             usedFallback = true
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
@@ -1132,7 +1224,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         if (renderResult.errorMessage != null && !usedFallback) {
             warnings += "Native rendering failed for stage 3 output; using fallback UI."
-            val fallback = PipelineMediaSanitizer.buildFallbackGenUi(stage2Response, catalogId)
+            val fallback = PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId)
             stage3Json = gson.toJson(fallback)
             renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
             usedFallback = true
@@ -1294,7 +1386,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             PipelineCacheManager.CacheSetupResult(name = null, created = false, error = null)
         }
-        // For MCP path, skip cache complexity — use direct prompt
+        // For MCP path, skip cache complexity - use direct prompt
         val stage3CacheResult = PipelineCacheManager.CacheSetupResult(name = null, created = false, error = null)
 
         val localStage3SystemPromptCacheKey: String? = null
@@ -1334,40 +1426,34 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        var stage3JsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        var stage3JsonElement = repairAndValidateFlatSpec(
+            stage3RawText = stage3Call.text,
+            initialJsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text),
+            backend = irBackend,
+            provider = irProvider,
+            systemPrompt = promptContext.systemPrompt,
+            stage3RepairMaxOutputTokens = stage3MaxOutputTokens,
+            cachedContentName = null,
+            allowCachedContent = false,
+            localSystemPromptCacheKey = null,
+            localSendSystemPrompt = true,
+            geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
+            onGeminiCachedContentMissing = null,
+            onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
+            warnings = warnings
+        )
         var usedFallback = false
 
         if (stage3JsonElement == null) {
-            warnings += "Stage 3 JSON parse failed; running repair pass."
-            val repairCall = generateWithRetry(
-                backend = irBackend,
-                provider = irProvider,
-                prompt = PipelineJsonExtractor.buildRepairPrompt(stage3Call.text),
-                systemPrompt = promptContext.systemPrompt,
-                temperature = 0.2,
-                maxOutputTokens = stage3MaxOutputTokens,
-                jsonMode = true,
-                enableGoogleSearch = false,
-                cachedContentName = null,
-                allowCachedContent = false,
-                structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI
-            )
-            markStreamDuration(Stage.STAGE3, repairCall.streamDurationMs)
-            if (repairCall.error == null) {
-                stage3JsonElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
-            }
-        }
-
-        if (stage3JsonElement == null) {
             warnings += "Stage 3 fallback JSON was used."
-            stage3JsonElement = PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId)
+            stage3JsonElement = PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId)
             usedFallback = true
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         // Restore shortened URL placeholders back to real URLs
         var stage3Json = com.samsung.genuicraft.mcp.McpUrlShortener.restore(gson.toJson(normalizedGenUi), urlMap)
-        // Image injection into root removed — cards handle their own inline images.
+        // Image injection into root removed - cards handle their own inline images.
         if (!usedFallback) {
             val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
                 jsonText = stage3Json, queryText = normalizedQuery, stage2Response = sanitizedResponse
@@ -1409,7 +1495,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         // destroys structured layouts (hotel/restaurant cards) for minimal gain.
         if (missingInlineIcon && !usedFallback) {
             warnings += "Media content was adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId))
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId))
             usedFallback = true
         } else if (missingInlineImage) {
             warnings += "Stage 3 did not preserve inline image; layout retained."
@@ -1418,7 +1504,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback
         ) {
             warnings += "Quick actions were adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId))
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId))
             usedFallback = true
         }
         // Ensure Tags: lines are preserved as chip rows
@@ -1426,7 +1512,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3HasChips = stage3Json.contains("\"chip\"", ignoreCase = true)
         if (hasTags && !stage3HasChips && !usedFallback) {
             warnings += "Tags were adjusted for chip rendering compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId))
+            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId))
             usedFallback = true
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
@@ -1443,7 +1529,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         if (renderResult.errorMessage != null && !usedFallback) {
             warnings += "Native rendering failed for stage 3 output; using fallback UI."
-            val fallback = PipelineMediaSanitizer.buildFallbackGenUi(sanitizedResponse, catalogId)
+            val fallback = PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId)
             stage3Json = gson.toJson(fallback)
             renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
             usedFallback = true
@@ -1483,6 +1569,74 @@ class GenUiStagePipeline(private val appContext: Context) {
                 renderResult = renderResult
             )
         )
+    }
+
+    private suspend fun repairAndValidateFlatSpec(
+        stage3RawText: String,
+        initialJsonElement: JsonElement?,
+        backend: InferenceBackend,
+        provider: InferenceBackendSettings.Provider,
+        systemPrompt: String?,
+        stage3RepairMaxOutputTokens: Int,
+        cachedContentName: String?,
+        allowCachedContent: Boolean,
+        localSystemPromptCacheKey: String?,
+        localSendSystemPrompt: Boolean,
+        geminiCacheFallbackSystemPrompt: String?,
+        onGeminiCachedContentMissing: ((String) -> Unit)?,
+        onMarkStreamDuration: (Long?) -> Unit,
+        warnings: MutableList<String>
+    ): JsonElement? {
+        val initialCoerce = FlatSpecContract.coerceAndValidate(initialJsonElement)
+        if (initialCoerce.isValid) {
+            if (initialCoerce.convertedFromLegacy) {
+                warnings += "Stage 3 returned legacy format; converted to flat spec."
+            }
+            return initialCoerce.spec
+        }
+
+        if (initialJsonElement == null) {
+            warnings += "Stage 3 JSON parse failed; running flat-spec repair pass."
+        } else {
+            warnings += "Stage 3 flat-spec validation failed (${initialCoerce.error}); running repair pass."
+        }
+
+        val repairCall = generateWithRetry(
+            backend = backend,
+            provider = provider,
+            prompt = PipelineJsonExtractor.buildFlatSpecRepairPrompt(
+                rawText = stage3RawText,
+                failureReason = initialCoerce.error
+            ),
+            systemPrompt = systemPrompt,
+            temperature = 0.2,
+            maxOutputTokens = stage3RepairMaxOutputTokens,
+            jsonMode = true,
+            enableGoogleSearch = false,
+            cachedContentName = cachedContentName,
+            allowCachedContent = allowCachedContent,
+            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+            localSystemPromptCacheKey = localSystemPromptCacheKey,
+            localSendSystemPrompt = localSendSystemPrompt,
+            geminiCacheFallbackSystemPrompt = geminiCacheFallbackSystemPrompt,
+            onGeminiCachedContentMissing = onGeminiCachedContentMissing
+        )
+        onMarkStreamDuration(repairCall.streamDurationMs)
+        if (repairCall.error != null) {
+            return null
+        }
+
+        val repairedElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
+        val repairedCoerce = FlatSpecContract.coerceAndValidate(repairedElement)
+        if (repairedCoerce.isValid) {
+            if (repairedCoerce.convertedFromLegacy) {
+                warnings += "Stage 3 repair returned legacy format; converted to flat spec."
+            }
+            return repairedCoerce.spec
+        }
+
+        warnings += "Stage 3 repaired output is still invalid (${repairedCoerce.error})."
+        return null
     }
 
     private suspend fun postUpdate(

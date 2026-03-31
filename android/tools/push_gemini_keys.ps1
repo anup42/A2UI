@@ -49,6 +49,29 @@ $stage3Key = if ($envMap.ContainsKey("GEMINI_IR_API_KEY")) {
 } else {
     $null
 }
+$vertexExpressKey = if ($envMap.ContainsKey("VERTEX_EXPRESS_API_KEY")) {
+    $envMap["VERTEX_EXPRESS_API_KEY"]
+} elseif ($envMap.ContainsKey("GEMINI_VERTEX_EXPRESS_API_KEY")) {
+    $envMap["GEMINI_VERTEX_EXPRESS_API_KEY"]
+} else {
+    $stage3Key
+}
+$vertexOauthToken = if ($envMap.ContainsKey("VERTEX_OAUTH_ACCESS_TOKEN")) {
+    $envMap["VERTEX_OAUTH_ACCESS_TOKEN"]
+} elseif ($envMap.ContainsKey("GOOGLE_OAUTH_ACCESS_TOKEN")) {
+    $envMap["GOOGLE_OAUTH_ACCESS_TOKEN"]
+} else {
+    $null
+}
+$vertexProjectId = if ($envMap.ContainsKey("VERTEX_PROJECT_ID")) {
+    $envMap["VERTEX_PROJECT_ID"]
+} elseif ($envMap.ContainsKey("GOOGLE_CLOUD_PROJECT")) {
+    $envMap["GOOGLE_CLOUD_PROJECT"]
+} elseif ($envMap.ContainsKey("GCP_PROJECT_ID")) {
+    $envMap["GCP_PROJECT_ID"]
+} else {
+    $null
+}
 
 if ([string]::IsNullOrWhiteSpace($stage2Key)) {
     throw "GEMINI_API_KEY is missing in $DatasetEnvPath"
@@ -56,16 +79,31 @@ if ([string]::IsNullOrWhiteSpace($stage2Key)) {
 if ([string]::IsNullOrWhiteSpace($stage3Key)) {
     throw "GEMINI_IR_API_KEY or GEMINI_API_KEY_2 is missing in $DatasetEnvPath"
 }
+if ([string]::IsNullOrWhiteSpace($vertexExpressKey)) {
+    throw "VERTEX_EXPRESS_API_KEY (or GEMINI_VERTEX_EXPRESS_API_KEY) is missing in $DatasetEnvPath"
+}
 
 $tmpFile = Join-Path $env:TEMP $OutputName
-@(
+$lines = @(
     "GEMINI_STAGE2_API_KEY=$stage2Key"
     "GEMINI_RESPONSE_API_KEY=$stage2Key"
     "GEMINI_API_KEY=$stage2Key"
     "GEMINI_STAGE3_API_KEY=$stage3Key"
     "GEMINI_IR_API_KEY=$stage3Key"
     "GEMINI_API_KEY_2=$stage3Key"
-) | Set-Content -Path $tmpFile -NoNewline:$false -Encoding ascii
+    "VERTEX_EXPRESS_API_KEY=$vertexExpressKey"
+    "GEMINI_VERTEX_EXPRESS_API_KEY=$vertexExpressKey"
+)
+if (-not [string]::IsNullOrWhiteSpace($vertexOauthToken)) {
+    $lines += "VERTEX_OAUTH_ACCESS_TOKEN=$vertexOauthToken"
+    $lines += "GOOGLE_OAUTH_ACCESS_TOKEN=$vertexOauthToken"
+}
+if (-not [string]::IsNullOrWhiteSpace($vertexProjectId)) {
+    $lines += "VERTEX_PROJECT_ID=$vertexProjectId"
+    $lines += "GOOGLE_CLOUD_PROJECT=$vertexProjectId"
+    $lines += "GCP_PROJECT_ID=$vertexProjectId"
+}
+$lines | Set-Content -Path $tmpFile -NoNewline:$false -Encoding ascii
 
 $devicePath = "/sdcard/Android/data/$PackageName/files/$OutputName"
 adb push "$tmpFile" "$devicePath" | Out-Null
