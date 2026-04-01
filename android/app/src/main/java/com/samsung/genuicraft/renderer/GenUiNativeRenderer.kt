@@ -36,11 +36,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -2058,32 +2061,74 @@ object GenUiNativeRenderer {
         if (tabs == null || tabs.size() == 0) {
             return
         }
+        val activeTabId = component.getString("activeTabId")
+
+        data class TabItem(
+            val title: String,
+            val childId: String?
+        )
+
+        val tabItems = tabs.mapIndexed { tabIndex, tabElement ->
+            val tab = tabElement.asJsonObjectOrNull()
+            TabItem(
+                title = sanitizeDisplayText(readDynamicString(tab?.get("title")))
+                    .ifBlank { "Tab ${tabIndex + 1}" },
+                childId = tab?.getString("child")
+            )
+        }
+        if (tabItems.isEmpty()) {
+            return
+        }
+
+        val initialIndex = tabItems.indexOfFirst { item -> item.childId == activeTabId }
+            .takeIf { it >= 0 }
+            ?: 0
+        var selectedIndex by remember(component.getString("id"), activeTabId) {
+            mutableIntStateOf(initialIndex)
+        }
+        if (selectedIndex !in tabItems.indices) {
+            selectedIndex = initialIndex.coerceIn(tabItems.indices)
+        }
+        val selectedTab = tabItems[selectedIndex]
 
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            tabs.forEachIndexed { tabIndex, tabElement ->
-                val tab = tabElement.asJsonObjectOrNull()
-                val title = sanitizeDisplayText(readDynamicString(tab?.get("title"))).ifBlank { "Tab ${tabIndex + 1}" }
-                val childId = tab?.getString("child")
+            ScrollableTabRow(selectedTabIndex = selectedIndex) {
+                tabItems.forEachIndexed { index, item ->
+                    Tab(
+                        selected = selectedIndex == index,
+                        onClick = { selectedIndex = index },
+                        text = { Text(item.title) }
+                    )
+                }
+            }
 
-                Card(
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                colors = genUiCardColors(GenUiCardTone.Primary),
+                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+            ) {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-                    colors = genUiCardColors(GenUiCardTone.Primary),
-                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
-                        if (childId == null) {
-                            Text("Missing tab child", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                        } else {
-                            RenderComponent(childId, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
-                        }
+                    Text(
+                        selectedTab.title,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    val childId = selectedTab.childId
+                    if (childId == null) {
+                        Text(
+                            "Missing tab child",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    } else {
+                        RenderComponent(childId, index, sourceDir, onOpenExternalUrl, onRuntimeAction, activePath)
                     }
                 }
             }

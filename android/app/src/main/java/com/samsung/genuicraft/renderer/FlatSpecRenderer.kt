@@ -386,17 +386,22 @@ private fun RenderElement(
                 is Map<*, *> -> rawItem.entries.associate { (k, v) -> k.toString() to v }
                 else -> mapOf("value" to rawItem)
             }
-            element.children.forEach { childId ->
-                RenderElement(
-                    elementId = childId,
-                    elements = elements,
-                    state = state,
-                    itemContext = mapped,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    activePath = activePath + elementId
-                )
+            val resolvedProps = element.props.mapValues { (_, value) ->
+                FlatExprResolver.resolve(value, state, mapped)
             }
+            RenderByType(
+                type = element.type,
+                props = resolvedProps,
+                children = element.children,
+                onMap = element.on,
+                elements = elements,
+                state = state,
+                itemContext = mapped,
+                onOpenUrl = onOpenUrl,
+                onSetState = onSetState,
+                activePath = activePath + elementId,
+                modifier = modifier
+            )
         }
         return
     }
@@ -741,31 +746,36 @@ private fun resolveActionHandler(
 ): () -> Unit {
     val action = toStringKeyMap(actionCandidate) ?: return {}
 
-    val functionCall = when {
-        action["functionCall"] is Map<*, *> -> toStringKeyMap(action["functionCall"])
-        action["action"] is String -> action
-        else -> null
-    } ?: return {}
+    val functionCall = extractFunctionCall(action) ?: return {}
 
-    val call = (functionCall["call"] ?: functionCall["action"])?.toString().orEmpty()
-    val args = when {
-        functionCall["args"] is Map<*, *> -> toStringKeyMap(functionCall["args"]).orEmpty()
-        functionCall["params"] is Map<*, *> -> toStringKeyMap(functionCall["params"]).orEmpty()
-        else -> emptyMap()
-    }
+    val call = (functionCall["call"] ?: functionCall["action"] ?: functionCall["name"])
+        ?.toString()
+        .orEmpty()
+        .trim()
+        .lowercase()
+    val args = extractActionArgs(functionCall)
 
     return when (call) {
-        "openUrl" -> {
-            val raw = FlatExprResolver.resolve(args["url"], state, itemContext)?.toString().orEmpty()
+        "openurl" -> {
+            val raw = resolveFirstArg(args, state, itemContext, "url", "href", "link", "targetUrl")
             if (raw.isNotBlank()) ({ onOpenUrl(raw) }) else ({})
         }
-        "setState" -> {
-            val path = args["path"]?.toString().orEmpty().ifBlank {
-                args["statePath"]?.toString().orEmpty()
-            }
+
+        "setstate" -> {
+            val path = resolveFirstArg(
+                args,
+                state,
+                itemContext,
+                "path",
+                "statePath",
+                "\$state",
+                "bindState",
+                "\$bindState"
+            )
             val value = FlatExprResolver.resolve(args["value"], state, itemContext)
             if (path.isNotBlank()) ({ onSetState(path, value) }) else ({})
         }
+
         else -> ({})
     }
 }
@@ -773,6 +783,63 @@ private fun resolveActionHandler(
 private fun toStringKeyMap(value: Any?): Map<String, Any?>? {
     val map = value as? Map<*, *> ?: return null
     return map.entries.associate { (k, v) -> k.toString() to v }
+}
+
+private fun extractFunctionCall(action: Map<String, Any?>): Map<String, Any?>? {
+    if (action["functionCall"] is Map<*, *>) {
+        return toStringKeyMap(action["functionCall"])
+    }
+    if (action["call"] is String || action["action"] is String || action["name"] is String) {
+        return action
+    }
+    val event = toStringKeyMap(action["event"])
+    if (event != null) {
+        return extractFunctionCall(event)
+    }
+    listOf("onClick", "click", "tap", "press", "onPress", "onSelect", "select").forEach { key ->
+        val nested = toStringKeyMap(action[key]) ?: return@forEach
+        extractFunctionCall(nested)?.let { return it }
+    }
+    return null
+}
+
+private fun extractActionArgs(functionCall: Map<String, Any?>): Map<String, Any?> {
+    val args = toStringKeyMap(functionCall["args"])
+    if (args != null) {
+        return args
+    }
+    val params = toStringKeyMap(functionCall["params"])
+    if (params != null) {
+        return params
+    }
+    val contextEntries = functionCall["context"] as? List<*> ?: return emptyMap()
+    val out = linkedMapOf<String, Any?>()
+    contextEntries.forEach { entry ->
+        val context = toStringKeyMap(entry) ?: return@forEach
+        val key = context["key"]?.toString().orEmpty()
+        if (key.isNotBlank()) {
+            out[key] = context["value"]
+        }
+    }
+    return out
+}
+
+private fun resolveFirstArg(
+    args: Map<String, Any?>,
+    state: Map<String, Any?>,
+    itemContext: Map<String, Any?>?,
+    vararg keys: String
+): String {
+    keys.forEach { key ->
+        val resolved = FlatExprResolver.resolve(args[key], state, itemContext)
+            ?.toString()
+            .orEmpty()
+            .trim()
+        if (resolved.isNotBlank()) {
+            return resolved
+        }
+    }
+    return ""
 }
 
 @Composable
@@ -882,7 +949,11 @@ private fun RenderModal(
 
 private fun bindPathFromValueExpression(value: Any?): String? {
     if (value !is Map<*, *>) return null
-    return value["\$bindState"]?.toString()?.takeIf { it.isNotBlank() }
+    val bindState = value["\$bindState"]?.toString()?.takeIf { it.isNotBlank() }
+    if (bindState != null) {
+        return bindState
+    }
+    return value["\$state"]?.toString()?.takeIf { it.isNotBlank() }
 }
 
 @Composable

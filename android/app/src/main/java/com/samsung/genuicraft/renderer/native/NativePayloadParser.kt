@@ -37,10 +37,22 @@ internal object NativePayloadParser {
         }
 
         val obj = root.asJsonObject
+        if (looksLikeMessageObject(obj)) {
+            return JsonArray().apply { add(obj.deepCopy()) }
+        }
+
         val keys = listOf("genui_json", "messages", "payload", "a2ui_json")
         for (key in keys) {
-            val arr = obj.getAsJsonArrayOrNull(key)
-            if (arr != null) return arr
+            val value = obj.get(key) ?: continue
+            if (value.isJsonArray) {
+                return value.asJsonArray
+            }
+            if (value.isJsonObject) {
+                val nested = value.asJsonObject
+                if (looksLikeMessageObject(nested)) {
+                    return JsonArray().apply { add(nested.deepCopy()) }
+                }
+            }
         }
         return null
     }
@@ -525,4 +537,13 @@ internal object NativePayloadParser {
     }
 
     private fun JsonObject.hasString(key: String): Boolean = getString(key) != null
+
+    private fun looksLikeMessageObject(obj: JsonObject): Boolean {
+        return obj.has("createSurface") ||
+            obj.has("beginRendering") ||
+            obj.has("updateComponents") ||
+            obj.has("surfaceUpdate") ||
+            obj.has("updateDataModel") ||
+            obj.has("deleteSurface")
+    }
 }

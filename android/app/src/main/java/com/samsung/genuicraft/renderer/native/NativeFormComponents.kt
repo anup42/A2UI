@@ -75,6 +75,14 @@ internal object NativeFormComponents {
                 NativePayloadParser.readDynamicString(it, NativeTextFormatter::normalizeMojibakeText).trim()
             }.filter { it.isNotBlank() }
         }
+        if (element.isJsonObject) {
+            val literalList = element.asJsonObject.getAsJsonArrayOrNull("literalStringList")
+            if (literalList != null) {
+                return literalList.map {
+                    NativePayloadParser.readDynamicString(it, NativeTextFormatter::normalizeMojibakeText).trim()
+                }.filter { it.isNotBlank() }
+            }
+        }
         val token = NativePayloadParser.readDynamicString(element, NativeTextFormatter::normalizeMojibakeText).trim()
         if (token.isBlank()) {
             return emptyList()
@@ -99,6 +107,12 @@ internal object NativeFormComponents {
         }
         if (element.isJsonPrimitive && element.asJsonPrimitive.isNumber) {
             return element.asFloat
+        }
+        if (element.isJsonObject) {
+            val literal = element.asJsonObject.get("literalNumber")
+            if (literal != null && literal.isJsonPrimitive && literal.asJsonPrimitive.isNumber) {
+                return literal.asFloat
+            }
         }
         val token = NativePayloadParser.readDynamicString(element, NativeTextFormatter::normalizeMojibakeText)
             .trim().replace(",", "")
@@ -368,8 +382,12 @@ internal object NativeFormComponents {
         val componentId = component.getString("id")
         val label = sanitizeDisplayText(readDynamicString(component.get("label"))).ifBlank { "Date/time" }
         val initialValue = readDynamicString(component.get("value"))
-        val enableDate = component.get("enableDate")?.asBooleanOrNull() ?: true
-        val enableTime = component.get("enableTime")?.asBooleanOrNull() ?: false
+        val enableDate = component.get("enableDate")?.asBooleanOrNull()
+            ?: parseBooleanLike(readDynamicString(component.get("enableDate")))
+            ?: true
+        val enableTime = component.get("enableTime")?.asBooleanOrNull()
+            ?: parseBooleanLike(readDynamicString(component.get("enableTime")))
+            ?: false
         val modeHint = when {
             enableDate && enableTime -> "Date + time (ISO 8601)"
             enableDate -> "Date (ISO 8601)"
