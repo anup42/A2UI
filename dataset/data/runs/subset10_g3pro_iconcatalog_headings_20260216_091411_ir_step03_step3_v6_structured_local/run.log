@@ -1,0 +1,40 @@
+2026-03-31 19:20:34 INFO dataset: Generating stage3 for step=step3_v6_structured_local prompt=C:\Users\anupk\Documents\git\A2UI\dataset\prompts\genui_gen_v6_structured_backup_20260302.md
+2026-03-31 19:20:34 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=4967 user_template_tokens=16
+2026-03-31 19:21:22 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-03-31 19:22:21 INFO dataset: Stage3 created ui_id=u_000264_01 schema_ok=True
+2026-03-31 19:23:22 INFO dataset: Stage3 created ui_id=u_000701_01 schema_ok=True
+2026-03-31 19:24:19 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-03-31 19:25:08 INFO dataset: Stage3 created ui_id=u_000090_01 schema_ok=True
+2026-03-31 19:25:57 INFO dataset: Stage3 created ui_id=u_001047_01 schema_ok=True
+2026-03-31 19:26:55 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-03-31 19:27:55 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-03-31 19:28:44 INFO dataset: Stage3 created ui_id=u_001502_01 schema_ok=True
+2026-03-31 19:29:27 INFO dataset: Stage3 created ui_id=u_001590_01 schema_ok=True
+2026-03-31 19:29:27 INFO dataset: Stage3 completed created=10
+2026-03-31 19:29:27 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step03_step3_v6_structured_local\aggregates.json
+2026-03-31 19:52:15 INFO dataset: Reusing existing stage3 output for step=step3_v6_structured_local (C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step03_step3_v6_structured_local\genui.jsonl)
+2026-03-31 19:52:15 INFO dataset: Rendering step=step3_v6_structured_local viewport={'width': 412, 'height': 915} emulate_mobile=True workers=1
+2026-03-31 19:52:15 INFO dataset: Stage4 HTTP server started on port 61889
+2026-03-31 21:29:23 INFO dataset: Generating stage3 for step=step3_v6_structured_local prompt=C:\Users\anupk\Documents\git\A2UI\dataset\prompts\genui_gen_v6_structured_backup_20260302.md
+2026-03-31 21:37:17 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 21:37:17 ERROR dataset: Stage3 generation error response_id=r_001374_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 21:45:10 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 21:45:10 ERROR dataset: Stage3 generation error response_id=r_000264_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 21:53:03 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 21:53:03 ERROR dataset: Stage3 generation error response_id=r_000701_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:00:59 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:00:59 ERROR dataset: Stage3 generation error response_id=r_000175_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:08:51 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:08:51 ERROR dataset: Stage3 generation error response_id=r_000090_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:16:43 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:16:43 ERROR dataset: Stage3 generation error response_id=r_001047_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:24:37 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:24:37 ERROR dataset: Stage3 generation error response_id=r_000784_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:32:30 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:32:30 ERROR dataset: Stage3 generation error response_id=r_000351_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:40:23 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:40:23 ERROR dataset: Stage3 generation error response_id=r_001502_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:48:17 ERROR dataset: Stage3 rate limit info: limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:48:17 ERROR dataset: Stage3 generation error response_id=r_001590_01: rate limit hit provider=openai model=gpt-4o-mini limits={'rpm': None, 'tpm': None, 'rpd': None, 'note': 'set per your OpenAI account tier'} headers=none
+2026-03-31 22:48:17 WARNING dataset: Stage3 completed with generation failures=10 created=0
+2026-03-31 22:48:17 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step03_step3_v6_structured_local\aggregates.json

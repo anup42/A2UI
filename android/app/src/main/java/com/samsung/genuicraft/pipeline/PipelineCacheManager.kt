@@ -182,7 +182,7 @@ internal class PipelineCacheManager(private val appContext: Context) {
         displayNamePrefix: String
     ): CachedInstructionCreateResult {
         val encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8.name())
-        val endpoint = URL("https://generativelanguage.googleapis.com/v1beta/cachedContents?key=$encodedKey")
+        val endpoint = URL("https://aiplatform.googleapis.com/v1/cachedContents?key=$encodedKey")
         val connection = (endpoint.openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
             connectTimeout = 20000
@@ -190,9 +190,13 @@ internal class PipelineCacheManager(private val appContext: Context) {
             doOutput = true
             setRequestProperty("Content-Type", "application/json")
         }
+        val normalizedModel = model
+            .removePrefix("publishers/google/models/")
+            .removePrefix("models/")
+            .trim()
 
         val body = JsonObject().apply {
-            addProperty("model", "models/$model")
+            addProperty("model", "publishers/google/models/$normalizedModel")
             addProperty("displayName", "${displayNamePrefix}_${promptHash.take(12)}")
             addProperty("ttl", "${STAGE_INSTRUCTION_CACHE_TTL_SECONDS}s")
             add("systemInstruction", JsonObject().apply {

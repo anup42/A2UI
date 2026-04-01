@@ -1,5 +1,6 @@
 package com.samsung.genuicraft.pipeline
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
 
@@ -27,6 +28,14 @@ internal object PipelinePromptBuilder {
         val url: String,
         val localPath: String
     )
+
+    fun resolveStage3PromptAssetPath(context: Context): String {
+        return IrPromptVersionSettings.stage3PromptAssetPath(context)
+    }
+
+    fun selectedStage3PromptOption(context: Context): IrPromptVersionSettings.Option {
+        return IrPromptVersionSettings.getSelectedOption(context)
+    }
 
     fun loadPromptAsset(assets: AssetManager, path: String): String {
         return assets.open(path).bufferedReader(Charsets.UTF_8).use { it.readText() }

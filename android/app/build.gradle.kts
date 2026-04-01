@@ -78,16 +78,9 @@ fun escapeForBuildConfig(value: String): String {
         .replace("\"", "\\\"")
 }
 
-val embeddedStage2ApiKey = resolveSecret(
-    "GEMINI_STAGE2_API_KEY",
-    "GEMINI_RESPONSE_API_KEY",
-    "GEMINI_API_KEY"
-)
-val embeddedStage3ApiKey = resolveSecret(
-    "GEMINI_STAGE3_API_KEY",
-    "GEMINI_IR_API_KEY",
-    "GEMINI_API_KEY_2",
-    "GEMINI_API_KEY"
+val embeddedVertexExpressApiKey = resolveSecret(
+    "GEMINI_VERTEX_EXPRESS_API_KEY",
+    "VERTEX_EXPRESS_API_KEY"
 )
 val embeddedNewsApiKey = resolveSecret("NEWS_API_KEY")
 val embeddedSerpApiKey = resolveSecret("SERPAPI_KEY")
@@ -105,13 +98,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(
             "String",
-            "GEMINI_STAGE2_API_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedStage2ApiKey)}\""
-        )
-        buildConfigField(
-            "String",
-            "GEMINI_STAGE3_API_KEY_DEFAULT",
-            "\"${escapeForBuildConfig(embeddedStage3ApiKey)}\""
+            "GEMINI_VERTEX_EXPRESS_API_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedVertexExpressApiKey)}\""
         )
         buildConfigField(
             "String",

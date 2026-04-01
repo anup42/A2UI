@@ -18,20 +18,21 @@ object GeminiApiKeyProvider {
     private var cacheReady: Boolean = false
 
     fun stage2ApiKey(context: Context): String {
-        // Stage 2 intentionally reuses Stage 3 key resolution so one active key serves both stages.
-        return stage3ApiKey(context)
+        return vertexExpressApiKey(context)
     }
 
     fun stage3ApiKey(context: Context): String {
+        return vertexExpressApiKey(context)
+    }
+
+    fun vertexExpressApiKey(context: Context): String {
         return firstNonBlank(
             resolveKey(
                 context,
-                "GEMINI_STAGE3_API_KEY",
-                "GEMINI_IR_API_KEY",
-                "GEMINI_API_KEY_2"
+                "GEMINI_VERTEX_EXPRESS_API_KEY",
+                "VERTEX_EXPRESS_API_KEY"
             ),
-            BuildConfig.GEMINI_STAGE3_API_KEY_DEFAULT,
-            BuildConfig.GEMINI_STAGE2_API_KEY_DEFAULT
+            BuildConfig.GEMINI_VERTEX_EXPRESS_API_KEY_DEFAULT
         )
     }
 

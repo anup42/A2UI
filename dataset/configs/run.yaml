@@ -32,15 +32,28 @@
   stage1_max_failures_per_intent: 3
   stage1_fill_missing_with_fallback: false
   max_attempts: 6
+  ir_prompt_versions_file: versions/ir_prompt_versions.yaml
+  default_ir_prompt_version: step5_v7_essential
 render:
   output_dir: rendered
   assets_dir: renderer/lit
   render_images: true
   image_format: png
   use_http_server: true
+  default_viewport_preset: mobile
+  viewport_presets:
+    desktop:
+      width: 1280
+      height: 720
+      emulate_mobile: false
+    mobile:
+      width: 412
+      height: 915
+      emulate_mobile: true
   viewport:
-    width: 1280
-    height: 720
+    width: 412
+    height: 915
+  emulate_mobile: true
   timeout_ms: 15000
   wait_ms: 200
   parallel_workers: 1
@@ -50,8 +63,9 @@ stage5:
   image_format: png
   use_http_server: true
   viewport:
-    width: 1280
-    height: 720
+    width: 412
+    height: 915
+  emulate_mobile: true
   timeout_ms: 15000
   wait_ms: 200
 benchmark:

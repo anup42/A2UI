@@ -118,13 +118,13 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (responseProvider == InferenceBackendSettings.Provider.GEMINI && responseApiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE2,
-                message = "Gemini key is missing. Stage 2 now uses Stage 3 key; add GEMINI_STAGE3_API_KEY (or GEMINI_IR_API_KEY / GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
+                message = "Vertex Express key is missing. Add GEMINI_VERTEX_EXPRESS_API_KEY (or VERTEX_EXPRESS_API_KEY) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
         if (irProvider == InferenceBackendSettings.Provider.GEMINI && irApiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
-                message = "Gemini stage-3 key is missing. Add GEMINI_IR_API_KEY (or GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
+                message = "Vertex Express key is missing. Add GEMINI_VERTEX_EXPRESS_API_KEY (or VERTEX_EXPRESS_API_KEY) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
         if ((responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER ||
@@ -348,13 +348,17 @@ class GenUiStagePipeline(private val appContext: Context) {
             null
         }
 
+        val stage3PromptOption = PipelinePromptBuilder.selectedStage3PromptOption(appContext)
         val genUiTemplate = runCatching {
-            PipelinePromptBuilder.loadPromptAsset(appContext.assets, PipelinePromptBuilder.STAGE3_PROMPT_ASSET)
+            PipelinePromptBuilder.loadPromptAsset(
+                appContext.assets,
+                stage3PromptOption.stage3PromptAssetPath
+            )
         }
             .getOrElse {
                 return@withContext Outcome.Failure(
                     stage = Stage.STAGE3,
-                    message = "Could not load stage 3 prompt: ${it.message ?: it.javaClass.simpleName}"
+                    message = "Could not load stage 3 prompt (${stage3PromptOption.stage3PromptAssetPath}): ${it.message ?: it.javaClass.simpleName}"
                 )
             }
         val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(genUiTemplate)
@@ -514,10 +518,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini IR model: $irModel"
+            warnings += "IR prompt version: ${stage3PromptOption.title} (${stage3PromptOption.id})"
         } else {
             warnings += "Local server (IR): $localServerBaseUrl"
             warnings += "Local model path (IR): $localModelPath"
             warnings += "Local token cap (IR): stage3=$stage3MaxOutputTokens"
+            warnings += "IR prompt version: ${stage3PromptOption.title} (${stage3PromptOption.id})"
             if (!localStage3SystemPromptCacheKey.isNullOrBlank()) {
                 warnings += "Local stage3 prompt cache key: ${localStage3SystemPromptCacheKey.take(16)}..."
             }
@@ -810,7 +816,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (provider == InferenceBackendSettings.Provider.GEMINI && apiKey.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
-                message = "Gemini stage-3 key is missing. Add GEMINI_IR_API_KEY (or GEMINI_API_KEY_2) at ${GeminiApiKeyProvider.setupHintPath(appContext)}",
+                message = "Vertex Express key is missing. Add GEMINI_VERTEX_EXPRESS_API_KEY (or VERTEX_EXPRESS_API_KEY) at ${GeminiApiKeyProvider.setupHintPath(appContext)}",
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
@@ -844,13 +850,17 @@ class GenUiStagePipeline(private val appContext: Context) {
             localModelPath = localModelPath
         )
 
+        val stage3PromptOption = PipelinePromptBuilder.selectedStage3PromptOption(appContext)
         val genUiTemplate = runCatching {
-            PipelinePromptBuilder.loadPromptAsset(appContext.assets, PipelinePromptBuilder.STAGE3_PROMPT_ASSET)
+            PipelinePromptBuilder.loadPromptAsset(
+                appContext.assets,
+                stage3PromptOption.stage3PromptAssetPath
+            )
         }
             .getOrElse {
                 return@withContext Outcome.Failure(
                     stage = Stage.STAGE3,
-                    message = "Could not load stage 3 prompt: ${it.message ?: it.javaClass.simpleName}",
+                    message = "Could not load stage 3 prompt (${stage3PromptOption.stage3PromptAssetPath}): ${it.message ?: it.javaClass.simpleName}",
                     stageDurationsMs = stageDurationsMs.toMap(),
                     stageStreamDurationsMs = stageStreamDurationsMs.toMap()
                 )
@@ -933,6 +943,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 warnings += "Local stage3 prompt cache key: ${localStage3SystemPromptCacheKey.take(16)}..."
             }
         }
+        warnings += "IR prompt version: ${stage3PromptOption.title} (${stage3PromptOption.id})"
         if (normalizedBareDomains) {
             warnings += "Normalized bare source/action domains to https URLs."
         }
@@ -1242,17 +1253,22 @@ class GenUiStagePipeline(private val appContext: Context) {
         val urlMap = urlShortenResult.urlMap
 
         val warnings = extraWarnings.toMutableList()
+        val stage3PromptOption = PipelinePromptBuilder.selectedStage3PromptOption(appContext)
+        warnings += "IR prompt version: ${stage3PromptOption.title} (${stage3PromptOption.id})"
 
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
             appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, android.content.Context.MODE_PRIVATE)
         )
 
         val genUiTemplate = runCatching {
-            PipelinePromptBuilder.loadPromptAsset(appContext.assets, PipelinePromptBuilder.STAGE3_PROMPT_ASSET)
+            PipelinePromptBuilder.loadPromptAsset(
+                appContext.assets,
+                stage3PromptOption.stage3PromptAssetPath
+            )
         }.getOrElse {
             return Outcome.Failure(
                 stage = Stage.STAGE3,
-                message = "Could not load stage 3 prompt: ${it.message ?: it.javaClass.simpleName}",
+                message = "Could not load stage 3 prompt (${stage3PromptOption.stage3PromptAssetPath}): ${it.message ?: it.javaClass.simpleName}",
                 stage2Response = sanitizedResponse,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()

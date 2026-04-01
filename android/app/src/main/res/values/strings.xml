@@ -12,7 +12,7 @@
     <string name="settings_provider_description">Choose backend separately for response generation and GenUI IR conversion.</string>
     <string name="settings_provider_response_title">Response backend</string>
     <string name="settings_provider_ir_title">IR generation backend</string>
-    <string name="settings_provider_gemini">Gemini API</string>
+    <string name="settings_provider_gemini">Gemini (Vertex AI)</string>
     <string name="settings_provider_local_server">Local Server</string>
     <string name="settings_local_server_title">Local Server Settings</string>
     <string name="settings_local_server_url_label">Server URL</string>
@@ -23,11 +23,14 @@
     <string name="settings_model_response_title">Response model</string>
     <string name="settings_model_ir_title">IR generation model</string>
     <string name="settings_model_available">Available models</string>
-    <string name="settings_model_loading">Fetching available Gemini models...</string>
-    <string name="settings_model_fetch_failed">Could not fetch Gemini models.</string>
-    <string name="settings_model_api_key_missing">Gemini API key is missing. Showing default model options.</string>
+    <string name="settings_model_loading">Fetching available Vertex Gemini models...</string>
+    <string name="settings_model_fetch_failed">Could not fetch Vertex Gemini models.</string>
+    <string name="settings_model_api_key_missing">Vertex Express API key is missing. Showing default model options.</string>
     <string name="settings_model_not_used_local">Local Server is selected for this stage. Gemini model selection is not used.</string>
     <string name="settings_refresh_models">Refresh model list</string>
+    <string name="settings_ir_prompt_title">IR Prompt Version</string>
+    <string name="settings_ir_prompt_description">Choose which Stage 3 IR prompt version to use for conversion and rendering.</string>
+    <string name="settings_ir_prompt_selected">Selected: %1$s</string>
 
     <string name="home_title">GenUICraft</string>
     <string name="home_subtitle">Load a GenUI JSON or JSONL file and render each entry in native Compose or WebView mode.</string>

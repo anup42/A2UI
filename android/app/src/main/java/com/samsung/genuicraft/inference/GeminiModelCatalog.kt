@@ -25,7 +25,7 @@ object GeminiModelCatalog {
             do {
                 pageCount += 1
                 val endpointUrl = buildString {
-                    append("https://generativelanguage.googleapis.com/v1beta/models?key=")
+                    append("https://aiplatform.googleapis.com/v1/publishers/google/models?key=")
                     append(encodedKey)
                     if (!pageToken.isNullOrBlank()) {
                         append("&pageToken=")
@@ -54,18 +54,22 @@ object GeminiModelCatalog {
                     models?.forEach { element ->
                         val obj = runCatching { element.asJsonObject }.getOrNull() ?: return@forEach
                         val name = obj.get("name")?.takeIf { it.isJsonPrimitive }?.asString?.trim().orEmpty()
-                        if (!name.startsWith("models/gemini")) {
+                        val modelId = name
+                            .removePrefix("publishers/google/models/")
+                            .removePrefix("models/")
+                            .trim()
+                        if (!modelId.startsWith("gemini")) {
                             return@forEach
                         }
                         val supports = obj.getAsJsonArray("supportedGenerationMethods")
-                        val canGenerate = supports?.any { item ->
+                        val canGenerate = supports == null || supports.any { item ->
                             item.isJsonPrimitive && item.asString.equals("generateContent", ignoreCase = true)
-                        } == true
+                        }
                         if (!canGenerate) {
                             return@forEach
                         }
 
-                        val normalized = GeminiModelSettings.normalizeModelName(name)
+                        val normalized = GeminiModelSettings.normalizeModelName(modelId)
                         val lower = normalized.lowercase()
                         if (excludedModelKeywords.any { keyword -> lower.contains(keyword) }) {
                             return@forEach

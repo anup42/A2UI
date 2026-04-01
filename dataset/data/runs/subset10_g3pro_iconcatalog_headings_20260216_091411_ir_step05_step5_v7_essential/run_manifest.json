@@ -1,0 +1,59 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-03-31T14:19:41Z",
+  "run_id": "subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential",
+  "stage": 4,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.2.0",
+      "ir_prompt_versions": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "2e23160a29bdb1fe57ebe3e079bf9e1cb761059a",
+    "git_branch": "main",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "openai_gpt4o",
+    "provider": "openai",
+    "model": "gpt-4o"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "1f686c20e64d09c7f211be21d4937c1cf285a88c764e52731549b010a627bf7d",
+      "configs\\models.yaml": "55f33e13327bfdc8281b4638c0e8cb97e83f5ced68a73f1cae3365560e62a51d"
+    },
+    "combined_sha256": "d9d4d89452f1cf60b360aa35bb17b9337ae72b902a77c2346ba9ceb8507f7da3"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential",
+    "queries_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential\\queries.jsonl",
+    "responses_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential\\responses.jsonl",
+    "genui_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential\\genui.jsonl",
+    "metrics_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential\\aggregates.json",
+    "artifacts_dir": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential\\artifacts",
+    "manifest_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "dataset/src/main.py",
+      "--stage",
+      "4",
+      "--run_id",
+      "subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step05_step5_v7_essential",
+      "--render_viewport_preset",
+      "mobile"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI"
+  }
+}

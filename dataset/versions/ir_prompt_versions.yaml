@@ -1,0 +1,28 @@
+ir_prompt_versions:
+  default: step5_v7_essential
+  steps:
+    - id: step1_v3_baseline
+      label: Step 1 - v3 baseline
+      prompt_path: prompts/genui_gen_v3.md
+      app_asset_path: pipeline_prompts/genui_gen_v3.md
+      change_summary: "Baseline schema-compliant conversion with local-asset-only policy and limited structural guidance."
+    - id: step2_v5_tuned
+      label: Step 2 - v5 tuned
+      prompt_path: prompts/genui_gen_v5_tuned.md
+      app_asset_path: pipeline_prompts/genui_gen_v5_tuned.md
+      change_summary: "Adds stronger UI decomposition requirements for sections, CTAs, and explicit table/list mapping."
+    - id: step3_v6_structured_local
+      label: Step 3 - v6 structured local
+      prompt_path: prompts/genui_gen_v6_structured_backup_20260302.md
+      app_asset_path: pipeline_prompts/genui_gen_v6_structured_local.md
+      change_summary: "Adds strict validation checklist and richer structured-layout constraints while still preferring local assets."
+    - id: step4_v6_structured_remote_policy
+      label: Step 4 - v6 structured remote-aware
+      prompt_path: prompts/genui_gen.md
+      app_asset_path: pipeline_prompts/genui_gen_v6_structured_remote.md
+      change_summary: "Introduces explicit asset-policy branching (local mappings vs preserved remote URLs) and stronger media colocation rules."
+    - id: step5_v7_essential
+      label: Step 5 - v7 essential
+      prompt_path: prompts/genui_gen_v7_essential.md
+      app_asset_path: pipeline_prompts/genui_gen.md
+      change_summary: "Tightens message contract for app runtime with explicit interaction constraints and production-oriented rendering rules."

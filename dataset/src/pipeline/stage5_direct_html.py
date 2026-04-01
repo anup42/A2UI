@@ -19,10 +19,17 @@ _OPTION_LINE_RE = re.compile(r"^Option\s+(?P<num>\d+)\s*:\s*(?P<body>.+)$", re.I
 
 
 class _Stage5HtmlRenderer:
-    def __init__(self, viewport: dict[str, int], timeout_ms: int, wait_ms: int) -> None:
+    def __init__(
+        self,
+        viewport: dict[str, int],
+        timeout_ms: int,
+        wait_ms: int,
+        emulate_mobile: bool = False,
+    ) -> None:
         self.viewport = viewport
         self.timeout_ms = timeout_ms
         self.wait_ms = wait_ms
+        self.emulate_mobile = emulate_mobile
         self._playwright = None
         self._browser = None
 
@@ -46,7 +53,12 @@ class _Stage5HtmlRenderer:
     def render(self, url: str, image_path: Path) -> Optional[str]:
         if not self._browser:
             return "renderer_not_initialized"
-        page = self._browser.new_page(viewport=self.viewport)
+        new_page_args: dict[str, Any] = {"viewport": self.viewport}
+        if self.emulate_mobile:
+            new_page_args["is_mobile"] = True
+            new_page_args["has_touch"] = True
+            new_page_args["device_scale_factor"] = 2
+        page = self._browser.new_page(**new_page_args)
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=self.timeout_ms)
             try:
@@ -937,6 +949,7 @@ def run_stage5(
     timeout_ms: int = 15000,
     wait_ms: int = 200,
     use_http_server: bool = True,
+    emulate_mobile: bool = False,
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     render_log_path = run_dir / "stage5_render.jsonl"
@@ -951,7 +964,12 @@ def run_stage5(
         logger.info("Stage5 HTTP server started on port %s", server.port)
 
     viewport = viewport or {"width": 1280, "height": 720}
-    renderer = _Stage5HtmlRenderer(viewport=viewport, timeout_ms=timeout_ms, wait_ms=wait_ms)
+    renderer = _Stage5HtmlRenderer(
+        viewport=viewport,
+        timeout_ms=timeout_ms,
+        wait_ms=wait_ms,
+        emulate_mobile=emulate_mobile,
+    )
     renderer_error = None
     if render_images:
         renderer_error = renderer.start()

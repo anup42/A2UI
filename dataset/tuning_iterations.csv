@@ -1,0 +1,5 @@
+iteration,prompt_file,run_id,overall_score,delta_vs_previous_iteration,delta_vs_step2_baseline,changes_done
+1,dataset/prompts/genui_gen_v8_score_tuned_round1.md,subset10_g3pro_iconcatalog_headings_20260216_091411_tune_iter1,62.1126,,-7.7243,"Added strict table-detection structure (List->Row->Text), heading promotion rules, URL-in-text prohibition, markdown cleanup, and explicit validation checklist."
+2,dataset/prompts/genui_gen_v9_score_tuned_round2.md,subset10_g3pro_iconcatalog_headings_20260216_091411_tune_iter2,67.8036,+5.6910,-2.0333,"Kept iteration-1 table/heading rules and added richness controls: target 32-55 components, split long paragraphs, preserve Option cards, and stronger [Button] URL capture."
+3,dataset/prompts/genui_gen_v11_score_tuned_round3.md,subset10_g3pro_iconcatalog_headings_20260216_091411_tune_iter3c_20260331_2103,100.0000,+32.1964,+30.1631,"Added intent-contract heading enforcement: detect section-title cues, emit dedicated h3 heading nodes, enforce section-title placement rules, and require structural headings for Quick Actions/Sources/Comparison Table when present."
+

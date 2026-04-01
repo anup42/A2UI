@@ -41,30 +41,22 @@ if (-not (Test-Path $DatasetEnvPath)) {
 }
 
 $envMap = Parse-DotEnv -path $DatasetEnvPath
-$stage2Key = $envMap["GEMINI_API_KEY"]
-$stage3Key = if ($envMap.ContainsKey("GEMINI_IR_API_KEY")) {
-    $envMap["GEMINI_IR_API_KEY"]
-} elseif ($envMap.ContainsKey("GEMINI_API_KEY_2")) {
-    $envMap["GEMINI_API_KEY_2"]
+$vertexKey = if ($envMap.ContainsKey("GEMINI_VERTEX_EXPRESS_API_KEY")) {
+    $envMap["GEMINI_VERTEX_EXPRESS_API_KEY"]
+} elseif ($envMap.ContainsKey("VERTEX_EXPRESS_API_KEY")) {
+    $envMap["VERTEX_EXPRESS_API_KEY"]
 } else {
     $null
 }
 
-if ([string]::IsNullOrWhiteSpace($stage2Key)) {
-    throw "GEMINI_API_KEY is missing in $DatasetEnvPath"
-}
-if ([string]::IsNullOrWhiteSpace($stage3Key)) {
-    throw "GEMINI_IR_API_KEY or GEMINI_API_KEY_2 is missing in $DatasetEnvPath"
+if ([string]::IsNullOrWhiteSpace($vertexKey)) {
+    throw "GEMINI_VERTEX_EXPRESS_API_KEY or VERTEX_EXPRESS_API_KEY is missing in $DatasetEnvPath"
 }
 
 $tmpFile = Join-Path $env:TEMP $OutputName
 @(
-    "GEMINI_STAGE2_API_KEY=$stage2Key"
-    "GEMINI_RESPONSE_API_KEY=$stage2Key"
-    "GEMINI_API_KEY=$stage2Key"
-    "GEMINI_STAGE3_API_KEY=$stage3Key"
-    "GEMINI_IR_API_KEY=$stage3Key"
-    "GEMINI_API_KEY_2=$stage3Key"
+    "GEMINI_VERTEX_EXPRESS_API_KEY=$vertexKey"
+    "VERTEX_EXPRESS_API_KEY=$vertexKey"
 ) | Set-Content -Path $tmpFile -NoNewline:$false -Encoding ascii
 
 $devicePath = "/sdcard/Android/data/$PackageName/files/$OutputName"

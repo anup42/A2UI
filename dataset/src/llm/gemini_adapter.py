@@ -18,8 +18,30 @@ class GeminiAdapter(BaseLLMAdapter):
     _rate_lock = threading.Lock()
     _last_request_at: dict[str, float] = {}
 
+    def _is_vertex_mode(self) -> bool:
+        mode = (os.getenv("GEMINI_API_MODE") or "vertex").strip().lower()
+        return mode not in {"legacy", "generativelanguage", "studio"}
+
+    def _normalize_model_name(self) -> str:
+        model = (self.spec.model or "").strip()
+        model = model.replace("publishers/google/models/", "")
+        model = model.replace("models/", "")
+        return model
+
+    def _generate_endpoint(self) -> str:
+        normalized_model = self._normalize_model_name()
+        if self._is_vertex_mode():
+            return (
+                "https://aiplatform.googleapis.com/v1/"
+                f"publishers/google/models/{normalized_model}:generateContent"
+            )
+        return f"https://generativelanguage.googleapis.com/v1beta/models/{normalized_model}:generateContent"
+
     def _load_keys(self) -> list[str]:
         keys = []
+        vertex_single = os.getenv("GEMINI_VERTEX_EXPRESS_API_KEY") or os.getenv("VERTEX_EXPRESS_API_KEY")
+        if vertex_single:
+            keys.append(vertex_single.strip())
         multi = os.getenv("GEMINI_API_KEYS")
         if multi:
             # Support comma-separated and newline-separated keys (e.g., "key1,\nkey2,\nkey3,")
@@ -28,7 +50,11 @@ class GeminiAdapter(BaseLLMAdapter):
         single = os.getenv("GEMINI_API_KEY")
         if single and single not in keys:
             keys.append(single.strip())
-        return keys
+        deduped: list[str] = []
+        for key in keys:
+            if key and key not in deduped:
+                deduped.append(key)
+        return deduped
 
     def _read_http_error_body(self, exc: urllib.error.HTTPError) -> str:
         try:
@@ -154,10 +180,13 @@ class GeminiAdapter(BaseLLMAdapter):
                 cost_usd=None,
                 model=self.spec.model,
                 provider=self.spec.provider,
-                error="GEMINI_API_KEY or GEMINI_API_KEYS not set",
+                error=(
+                    "Gemini API key is missing. Set GEMINI_VERTEX_EXPRESS_API_KEY "
+                    "(or VERTEX_EXPRESS_API_KEY), GEMINI_API_KEY, or GEMINI_API_KEYS."
+                ),
             )
 
-        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{self.spec.model}:generateContent"
+        endpoint = self._generate_endpoint()
 
         max_cap_env = os.getenv("GEMINI_MAX_OUTPUT_TOKENS")
         if max_cap_env:
@@ -379,6 +408,22 @@ class GeminiAdapter(BaseLLMAdapter):
         if not prompts:
             return []
 
+        if self._is_vertex_mode():
+            seed_list = seeds if seeds and len(seeds) == len(prompts) else [None] * len(prompts)
+            results: list[LLMResult] = []
+            for prompt, seed_value in zip(prompts, seed_list):
+                results.append(
+                    self.generate(
+                        prompt=prompt,
+                        system=system,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        seed=seed_value,
+                        json_mode=json_mode,
+                    )
+                )
+            return results
+
         keys = self._load_keys()
         if not keys:
             return [
@@ -391,12 +436,15 @@ class GeminiAdapter(BaseLLMAdapter):
                     cost_usd=None,
                     model=self.spec.model,
                     provider=self.spec.provider,
-                    error="GEMINI_API_KEY or GEMINI_API_KEYS not set",
+                    error=(
+                        "Gemini API key is missing. Set GEMINI_VERTEX_EXPRESS_API_KEY "
+                        "(or VERTEX_EXPRESS_API_KEY), GEMINI_API_KEY, or GEMINI_API_KEYS."
+                    ),
                 )
                 for _ in prompts
             ]
 
-        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{self.spec.model}:batchGenerateContent"
+        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{self._normalize_model_name()}:batchGenerateContent"
 
         max_cap_env = os.getenv("GEMINI_MAX_OUTPUT_TOKENS")
         if max_cap_env:

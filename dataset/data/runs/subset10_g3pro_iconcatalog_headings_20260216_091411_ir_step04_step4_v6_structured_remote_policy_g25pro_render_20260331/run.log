@@ -1,0 +1,15 @@
+2026-03-31 21:51:07 INFO dataset: Stage3 prompt selected: path=C:\Users\anupk\Documents\git\A2UI\dataset\prompts\genui_gen.md version_id=default
+2026-03-31 21:51:08 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=5392 user_template_tokens=16
+2026-03-31 21:52:12 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-03-31 21:53:39 INFO dataset: Stage3 created ui_id=u_000264_01 schema_ok=True
+2026-03-31 21:54:58 INFO dataset: Stage3 created ui_id=u_000701_01 schema_ok=True
+2026-03-31 21:56:19 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-03-31 21:57:29 INFO dataset: Stage3 created ui_id=u_000090_01 schema_ok=True
+2026-03-31 21:58:56 INFO dataset: Stage3 created ui_id=u_001047_01 schema_ok=True
+2026-03-31 22:00:19 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-03-31 22:01:37 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-03-31 22:02:47 INFO dataset: Stage3 created ui_id=u_001502_01 schema_ok=True
+2026-03-31 22:03:51 INFO dataset: Stage3 created ui_id=u_001590_01 schema_ok=True
+2026-03-31 22:03:51 INFO dataset: Stage3 completed created=10
+2026-03-31 22:03:51 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_ir_step04_step4_v6_structured_remote_policy_g25pro_render_20260331\aggregates.json
+2026-03-31 22:03:51 INFO dataset: Stage3 complete.

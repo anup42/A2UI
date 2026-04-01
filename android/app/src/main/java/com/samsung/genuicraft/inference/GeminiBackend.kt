@@ -20,7 +20,10 @@ class GeminiBackend(
 
     override fun generate(request: InferenceBackend.GenerateRequest): InferenceBackend.GenerateResponse {
         val encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8.name())
-        val endpoint = URL("$GEMINI_BASE_URL/v1beta/models/$model:generateContent?key=$encodedKey")
+        val normalizedModel = model.removePrefix("models/").trim()
+        val endpoint = URL(
+            "$VERTEX_EXPRESS_BASE_URL/publishers/google/models/$normalizedModel:generateContent?key=$encodedKey"
+        )
         val connection = (endpoint.openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
             connectTimeout = 20000
@@ -313,7 +316,7 @@ class GeminiBackend(
     }
 
     private companion object {
-        const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+        const val VERTEX_EXPRESS_BASE_URL = "https://aiplatform.googleapis.com/v1"
         val gson = GsonBuilder().disableHtmlEscaping().create()
     }
 }

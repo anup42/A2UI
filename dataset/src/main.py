@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 import subprocess
@@ -154,6 +155,152 @@ def _is_stage3_complete(responses_path: Path, genui_path: Path, candidates_per_r
     existing = {str(row.get("ui_id") or "").strip() for row in iter_jsonl(genui_path)}
     existing.discard("")
     return expected.issubset(existing)
+
+
+def _extract_stage3_prompt_version(genui_path: Path) -> str | None:
+    if not genui_path.exists():
+        return None
+    for row in iter_jsonl(genui_path):
+        gen_info = row.get("gen")
+        if not isinstance(gen_info, dict):
+            continue
+        prompt_version = gen_info.get("prompt_version")
+        if isinstance(prompt_version, str) and prompt_version.strip():
+            return prompt_version.strip()
+    return None
+
+
+def _extract_prompt_heading_version(prompt_path: Path) -> str | None:
+    if not prompt_path.exists():
+        return None
+    try:
+        first_line = prompt_path.read_text(encoding="utf-8").splitlines()[0].lstrip("\ufeff").strip()
+    except Exception:
+        return None
+    match = re.match(r"^#\s*([A-Za-z0-9_.-]+)", first_line)
+    if match:
+        return match.group(1)
+    return None
+
+
+def _resolve_path(root: Path, candidate: str) -> Path:
+    path = Path(candidate)
+    if path.is_absolute():
+        return path
+    root_joined = root / path
+    if root_joined.exists():
+        return root_joined
+    return path
+
+
+def _load_ir_prompt_versions(root: Path, versions_file: Path) -> tuple[str | None, dict[str, dict]]:
+    if not versions_file.is_absolute():
+        versions_file = root / versions_file
+    if not versions_file.exists():
+        return None, {}
+    data = load_yaml(versions_file)
+    section = data.get("ir_prompt_versions") if isinstance(data, dict) else None
+    if not isinstance(section, dict):
+        return None, {}
+    default_version = section.get("default")
+    default_value = str(default_version).strip() if default_version is not None else None
+    steps_raw = section.get("steps")
+    if not isinstance(steps_raw, list):
+        return default_value, {}
+    by_id: dict[str, dict] = {}
+    for item in steps_raw:
+        if not isinstance(item, dict):
+            continue
+        key = str(item.get("id") or "").strip()
+        if not key:
+            continue
+        by_id[key] = item
+    return default_value, by_id
+
+
+def _resolve_stage3_prompt_path(
+    *,
+    root: Path,
+    prompts_dir: Path,
+    run_cfg: dict,
+    args,
+    logger,
+) -> tuple[Path, str | None]:
+    if args.stage3_prompt_path:
+        prompt_path = _resolve_path(root, args.stage3_prompt_path)
+        if not prompt_path.exists():
+            raise SystemExit(f"Stage3 prompt path not found: {prompt_path}")
+        return prompt_path, None
+
+    versions_file_raw = (
+        args.stage3_prompt_versions_file
+        or run_cfg.get("ir_prompt_versions_file")
+        or "versions/ir_prompt_versions.yaml"
+    )
+    versions_file = _resolve_path(root, str(versions_file_raw))
+    default_version, versions_by_id = _load_ir_prompt_versions(root, versions_file)
+    selected_version = (
+        args.stage3_prompt_version
+        or run_cfg.get("default_ir_prompt_version")
+        or default_version
+    )
+    if selected_version:
+        version_item = versions_by_id.get(str(selected_version))
+        if version_item is None:
+            available = ", ".join(sorted(versions_by_id.keys()))
+            raise SystemExit(
+                f"Unknown --stage3_prompt_version '{selected_version}'. Available: {available}"
+            )
+        prompt_raw = str(version_item.get("prompt_path") or "").strip()
+        if not prompt_raw:
+            raise SystemExit(f"Prompt version '{selected_version}' is missing prompt_path")
+        prompt_path = _resolve_path(root, prompt_raw)
+        if not prompt_path.exists():
+            raise SystemExit(f"Prompt file for version '{selected_version}' not found: {prompt_path}")
+        return prompt_path, str(selected_version)
+
+    prompt_path = prompts_dir / "genui_gen.md"
+    if not prompt_path.exists():
+        raise SystemExit(f"Stage3 prompt file not found: {prompt_path}")
+    return prompt_path, None
+
+
+def _coerce_viewport(raw: dict | None, fallback: dict[str, int]) -> dict[str, int]:
+    if not isinstance(raw, dict):
+        return dict(fallback)
+    width = raw.get("width")
+    height = raw.get("height")
+    try:
+        width_int = int(width)
+        height_int = int(height)
+    except Exception:
+        return dict(fallback)
+    if width_int <= 0 or height_int <= 0:
+        return dict(fallback)
+    return {"width": width_int, "height": height_int}
+
+
+def _resolve_render_viewport_and_mode(
+    *,
+    render_cfg: dict,
+    preset_override: str | None,
+    logger,
+) -> tuple[dict[str, int], bool, str]:
+    default_viewport = {"width": 1280, "height": 720}
+    default_preset = render_cfg.get("default_viewport_preset")
+    preset_name = preset_override or (str(default_preset).strip() if default_preset else None)
+    presets = render_cfg.get("viewport_presets")
+    if preset_name and isinstance(presets, dict):
+        preset_cfg = presets.get(preset_name)
+        if isinstance(preset_cfg, dict):
+            viewport = _coerce_viewport(preset_cfg, default_viewport)
+            emulate_mobile = bool(preset_cfg.get("emulate_mobile", False))
+            return viewport, emulate_mobile, str(preset_name)
+        logger.warning("Unknown render viewport preset '%s'; falling back to render.viewport", preset_name)
+    viewport = _coerce_viewport(render_cfg.get("viewport"), default_viewport)
+    emulate_mobile = bool(render_cfg.get("emulate_mobile", False))
+    selected_name = str(preset_name) if preset_name else "custom"
+    return viewport, emulate_mobile, selected_name
 
 
 def _ensure_list(value):
@@ -400,6 +547,30 @@ def main() -> None:
         help="Override Stage4 render worker count (default from run.yaml render.parallel_workers or 1).",
     )
     parser.add_argument(
+        "--render_viewport_preset",
+        type=str,
+        default=None,
+        help="Viewport preset from run.yaml render.viewport_presets (for example: mobile or desktop).",
+    )
+    parser.add_argument(
+        "--stage3_prompt_path",
+        type=str,
+        default=None,
+        help="Override Stage3 prompt file path (absolute or relative to dataset root).",
+    )
+    parser.add_argument(
+        "--stage3_prompt_version",
+        type=str,
+        default=None,
+        help="Stage3 prompt version id from versions/ir_prompt_versions.yaml.",
+    )
+    parser.add_argument(
+        "--stage3_prompt_versions_file",
+        type=str,
+        default=None,
+        help="YAML file containing ir_prompt_versions definitions.",
+    )
+    parser.add_argument(
         "--rate_limit_qps",
         type=float,
         default=None,
@@ -453,6 +624,8 @@ def main() -> None:
 
     all_run_cfg = load_yaml(run_cfg_path)
     run_cfg = all_run_cfg.get("run", {})
+    render_cfg_global = all_run_cfg.get("render", {})
+    stage5_cfg_global = all_run_cfg.get("stage5", {})
     eval_cfg = all_run_cfg.get("evaluation", {})
     benchmark_cfg = all_run_cfg.get("benchmark", {})
     effective_rate_limit_qps = float(run_cfg.get("rate_limit_qps", 2))
@@ -472,6 +645,18 @@ def main() -> None:
     run_id = args.run_id or _resolve_run_id(run_cfg)
     run_paths = get_run_paths(output_dir, run_id, run_cfg.get("artifact_dir", "artifacts"))
     logger = setup_logger(run_paths.run_dir)
+    stage3_prompt_path, stage3_prompt_version_id = _resolve_stage3_prompt_path(
+        root=root,
+        prompts_dir=prompts_dir,
+        run_cfg=run_cfg,
+        args=args,
+        logger=logger,
+    )
+    logger.info(
+        "Stage3 prompt selected: path=%s version_id=%s",
+        stage3_prompt_path,
+        stage3_prompt_version_id or "default",
+    )
 
     specs = load_model_specs(models_cfg)
     if not specs:
@@ -588,7 +773,7 @@ def main() -> None:
             run_stage3(
                 queries_path=model_paths.queries_path,
                 responses_path=model_paths.responses_path,
-                prompt_path=prompts_dir / "genui_gen.md",
+                prompt_path=stage3_prompt_path,
                 adapter=adapter,
                 genui_path=model_paths.genui_path,
                 schema_path=schema_dir / "genui.schema.json",
@@ -636,11 +821,24 @@ def main() -> None:
     # skip adapter initialization/API calls and refresh aggregates.json directly.
     if args.stage == 3:
         stage3_candidates = int(run_cfg.get("genui_candidates_per_response", 1))
+        selected_prompt_version = _extract_prompt_heading_version(stage3_prompt_path)
+        existing_prompt_version = _extract_stage3_prompt_version(run_paths.genui_path)
+        prompt_version_matches = (
+            selected_prompt_version is None
+            or existing_prompt_version is None
+            or existing_prompt_version == selected_prompt_version
+        )
+        if not prompt_version_matches:
+            logger.info(
+                "Stage3 output prompt_version mismatch (existing=%s, selected=%s). Regenerating Stage3.",
+                existing_prompt_version,
+                selected_prompt_version,
+            )
         if _is_stage3_complete(
             run_paths.responses_path,
             run_paths.genui_path,
             stage3_candidates,
-        ):
+        ) and prompt_version_matches:
             if not run_paths.genui_path.exists():
                 raise SystemExit(f"Missing genui file: {run_paths.genui_path}")
             aggregates = _compute_aggregates_with_backfill(
@@ -737,7 +935,7 @@ def main() -> None:
             run_stage3(
                 queries_path=run_paths.queries_path,
                 responses_path=run_paths.responses_path,
-                prompt_path=prompts_dir / "genui_gen.md",
+                prompt_path=stage3_prompt_path,
                 adapter=adapter,
                 genui_path=run_paths.genui_path,
                 schema_path=schema_dir / "genui.schema.json",
@@ -760,10 +958,22 @@ def main() -> None:
             return
 
         if args.stage == 4:
-            render_cfg = run_cfg.get("render", {})
+            render_cfg = render_cfg_global
+            if not isinstance(render_cfg, dict):
+                render_cfg = {}
             output_dir = run_paths.run_dir / render_cfg.get("output_dir", "rendered")
             assets_dir = root / render_cfg.get("assets_dir", "renderer/lit")
-            viewport = render_cfg.get("viewport", {"width": 1280, "height": 720})
+            viewport, emulate_mobile, viewport_name = _resolve_render_viewport_and_mode(
+                render_cfg=render_cfg if isinstance(render_cfg, dict) else {},
+                preset_override=args.render_viewport_preset,
+                logger=logger,
+            )
+            logger.info(
+                "Stage4 viewport preset=%s viewport=%s emulate_mobile=%s",
+                viewport_name,
+                viewport,
+                emulate_mobile,
+            )
             run_stage4(
                 genui_path=run_paths.genui_path,
                 output_dir=output_dir,
@@ -773,20 +983,36 @@ def main() -> None:
                 max_total=render_cfg.get("max_total"),
                 render_images=bool(render_cfg.get("render_images", True)),
                 image_format=str(render_cfg.get("image_format", "png")),
-                viewport=viewport if isinstance(viewport, dict) else {"width": 1280, "height": 720},
+                viewport=viewport,
                 timeout_ms=int(render_cfg.get("timeout_ms", 15000)),
                 wait_ms=int(render_cfg.get("wait_ms", 200)),
                 use_http_server=bool(render_cfg.get("use_http_server", True)),
                 parallel_workers=int(args.render_workers) if args.render_workers is not None else int(render_cfg.get("parallel_workers", 1)),
+                emulate_mobile=emulate_mobile,
             )
             logger.info("Stage4 complete. Rendered outputs stored at %s", output_dir)
             return
 
         if args.stage == 5:
-            render_cfg = run_cfg.get("render", {})
-            stage5_cfg = run_cfg.get("stage5", {}) if isinstance(run_cfg.get("stage5"), dict) else {}
+            render_cfg = render_cfg_global
+            if not isinstance(render_cfg, dict):
+                render_cfg = {}
+            stage5_cfg = stage5_cfg_global if isinstance(stage5_cfg_global, dict) else {}
             output_dir = run_paths.run_dir / stage5_cfg.get("output_dir", "stage5_rendered")
-            viewport = stage5_cfg.get("viewport", render_cfg.get("viewport", {"width": 1280, "height": 720}))
+            stage5_render_cfg: dict = dict(render_cfg) if isinstance(render_cfg, dict) else {}
+            if isinstance(stage5_cfg, dict):
+                stage5_render_cfg.update(stage5_cfg)
+            viewport, emulate_mobile, viewport_name = _resolve_render_viewport_and_mode(
+                render_cfg=stage5_render_cfg,
+                preset_override=args.render_viewport_preset,
+                logger=logger,
+            )
+            logger.info(
+                "Stage5 viewport preset=%s viewport=%s emulate_mobile=%s",
+                viewport_name,
+                viewport,
+                emulate_mobile,
+            )
             run_stage5(
                 responses_path=run_paths.responses_path,
                 output_dir=output_dir,
@@ -795,10 +1021,11 @@ def main() -> None:
                 logger=logger,
                 render_images=bool(stage5_cfg.get("render_images", render_cfg.get("render_images", True))),
                 image_format=str(stage5_cfg.get("image_format", render_cfg.get("image_format", "png"))),
-                viewport=viewport if isinstance(viewport, dict) else {"width": 1280, "height": 720},
+                viewport=viewport,
                 timeout_ms=int(stage5_cfg.get("timeout_ms", render_cfg.get("timeout_ms", 15000))),
                 wait_ms=int(stage5_cfg.get("wait_ms", render_cfg.get("wait_ms", 200))),
                 use_http_server=bool(stage5_cfg.get("use_http_server", render_cfg.get("use_http_server", True))),
+                emulate_mobile=bool(stage5_cfg.get("emulate_mobile", emulate_mobile)),
             )
             logger.info("Stage5 complete. Direct HTML outputs stored at %s", output_dir)
             return

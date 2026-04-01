@@ -1285,10 +1285,17 @@ def _ensure_trailing_slash(uri: str) -> str:
 
 
 class HtmlRenderer:
-    def __init__(self, viewport: dict[str, int], timeout_ms: int, wait_ms: int) -> None:
+    def __init__(
+        self,
+        viewport: dict[str, int],
+        timeout_ms: int,
+        wait_ms: int,
+        emulate_mobile: bool = False,
+    ) -> None:
         self.viewport = viewport
         self.timeout_ms = timeout_ms
         self.wait_ms = wait_ms
+        self.emulate_mobile = emulate_mobile
         self._playwright = None
         self._browser = None
 
@@ -1312,7 +1319,12 @@ class HtmlRenderer:
     def render(self, url: str, image_path: Path) -> Optional[str]:
         if not self._browser:
             return "renderer_not_initialized"
-        page = self._browser.new_page(viewport=self.viewport)
+        new_page_args: dict[str, Any] = {"viewport": self.viewport}
+        if self.emulate_mobile:
+            new_page_args["is_mobile"] = True
+            new_page_args["has_touch"] = True
+            new_page_args["device_scale_factor"] = 2
+        page = self._browser.new_page(**new_page_args)
         console_logs: list[str] = []
         page.on("console", lambda msg: console_logs.append(f"{msg.type}: {msg.text}"))
         page.on("pageerror", lambda err: console_logs.append(f"pageerror: {err}"))
@@ -1376,8 +1388,14 @@ def _render_chunk(
     viewport: dict[str, int],
     timeout_ms: int,
     wait_ms: int,
+    emulate_mobile: bool,
 ) -> list[tuple[str, Optional[str]]]:
-    renderer = HtmlRenderer(viewport=viewport, timeout_ms=timeout_ms, wait_ms=wait_ms)
+    renderer = HtmlRenderer(
+        viewport=viewport,
+        timeout_ms=timeout_ms,
+        wait_ms=wait_ms,
+        emulate_mobile=emulate_mobile,
+    )
     start_error = renderer.start()
     if start_error:
         return [(item["ui_id"], start_error) for item in chunk]
@@ -1403,6 +1421,7 @@ def _render_parallel(
     viewport: dict[str, int],
     timeout_ms: int,
     wait_ms: int,
+    emulate_mobile: bool,
 ) -> dict[str, Optional[str]]:
     workers = max(1, min(int(workers), len(tasks)))
     chunks = [tasks[i::workers] for i in range(workers)]
@@ -1410,7 +1429,14 @@ def _render_parallel(
     errors_by_ui: dict[str, Optional[str]] = {}
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = [
-            executor.submit(_render_chunk, chunk, viewport, timeout_ms, wait_ms)
+            executor.submit(
+                _render_chunk,
+                chunk,
+                viewport,
+                timeout_ms,
+                wait_ms,
+                emulate_mobile,
+            )
             for chunk in chunks
             if chunk
         ]
@@ -1434,6 +1460,7 @@ def run_stage4(
     wait_ms: int = 200,
     use_http_server: bool = True,
     parallel_workers: int = 1,
+    emulate_mobile: bool = False,
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     template_path = assets_dir / "template.html"
@@ -1459,7 +1486,12 @@ def run_stage4(
     viewport = viewport or {"width": 1280, "height": 720}
     parallel_workers = max(1, int(parallel_workers))
 
-    renderer = HtmlRenderer(viewport=viewport, timeout_ms=timeout_ms, wait_ms=wait_ms)
+    renderer = HtmlRenderer(
+        viewport=viewport,
+        timeout_ms=timeout_ms,
+        wait_ms=wait_ms,
+        emulate_mobile=emulate_mobile,
+    )
     renderer_error = None
     if render_images and parallel_workers == 1:
         renderer_error = renderer.start()
@@ -1570,6 +1602,7 @@ def run_stage4(
             viewport=viewport,
             timeout_ms=timeout_ms,
             wait_ms=wait_ms,
+            emulate_mobile=emulate_mobile,
         )
         for record in pending_records:
             ui_id = record["ui_id"]

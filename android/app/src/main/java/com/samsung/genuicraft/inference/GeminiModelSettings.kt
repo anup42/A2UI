@@ -69,10 +69,9 @@ object GeminiModelSettings {
 
     fun normalizeModelName(value: String): String {
         val trimmed = value.trim()
-        return if (trimmed.startsWith("models/")) {
-            trimmed.removePrefix("models/").trim()
-        } else {
-            trimmed
-        }
+        return trimmed
+            .removePrefix("publishers/google/models/")
+            .removePrefix("models/")
+            .trim()
     }
 }

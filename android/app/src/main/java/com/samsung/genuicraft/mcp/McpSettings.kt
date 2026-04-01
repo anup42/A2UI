@@ -76,7 +76,10 @@ object McpSettings {
 
     fun getApiKey(context: Context, domain: Domain): String {
         return when (domain) {
-            Domain.RESTAURANTS, Domain.PLACES -> com.samsung.genuicraft.GeminiApiKeyProvider.stage3ApiKey(context)
+            Domain.RESTAURANTS, Domain.PLACES -> context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(domain.apiKeyPrefKey, "")
+                .orEmpty()
+                .trim()
             Domain.NEWS -> {
                 val prefKey = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     .getString(domain.apiKeyPrefKey, "")
