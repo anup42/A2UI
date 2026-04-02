@@ -25,48 +25,24 @@ class GeminiBackend(
 ) : InferenceBackend {
 
     override fun generate(request: InferenceBackend.GenerateRequest): InferenceBackend.GenerateResponse {
-        if (apiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH) {
-            if (vertexProjectId.trim().isBlank()) {
-                return InferenceBackend.GenerateResponse(
-                    text = "",
-                    rawResponse = null,
-                    error = "Vertex project id is missing. Set it in Settings.",
-                    streamDurationMs = null
-                )
-            }
-            if (cleanVertexAccessToken().isBlank()) {
-                return InferenceBackend.GenerateResponse(
-                    text = "",
-                    rawResponse = null,
-                    error = "Vertex OAuth access token is missing. Set it in Settings.",
-                    streamDurationMs = null
-                )
-            }
-        }
-        if (apiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY) {
-            if (cleanVertexExpressApiKey().isBlank()) {
-                return InferenceBackend.GenerateResponse(
-                    text = "",
-                    rawResponse = null,
-                    error = "Vertex Express API key is missing. Add VERTEX_EXPRESS_API_KEY in runtime keys.",
-                    streamDurationMs = null
-                )
-            }
+        if (cleanVertexExpressApiKey().isBlank()) {
+            return InferenceBackend.GenerateResponse(
+                text = "",
+                rawResponse = null,
+                error = "Vertex Express API key is missing. Add VERTEX_EXPRESS_API_KEY in runtime keys.",
+                streamDurationMs = null
+            )
         }
 
         val endpoint = buildGenerateEndpoint()
+        val endpointLabel = "${endpoint.protocol}://${endpoint.host}${endpoint.path}"
         val connection = (endpoint.openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
             connectTimeout = 20000
             readTimeout = 180000
             doOutput = true
             setRequestProperty("Content-Type", "application/json")
-            if (apiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH) {
-                setRequestProperty("Authorization", "Bearer ${cleanVertexAccessToken()}")
-            }
-            if (apiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY) {
-                setRequestProperty("x-goog-api-key", cleanVertexExpressApiKey())
-            }
+            setRequestProperty("x-goog-api-key", cleanVertexExpressApiKey())
         }
 
         val body = buildRequestPayload(request)
@@ -84,44 +60,21 @@ class GeminiBackend(
             if (code !in 200..299) {
                 val short = raw.trim().ifBlank { "HTTP $code" }
                 val lower = short.lowercase(Locale.US)
-                if (shouldFallbackToAiStudioDirect(code, lower)) {
-                    val fallback = GeminiBackend(
-                        apiKey = apiKey,
-                        model = model,
-                        apiMode = InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT,
-                        vertexProjectId = vertexProjectId,
-                        vertexLocation = vertexLocation,
-                        vertexAccessToken = vertexAccessToken,
-                        vertexExpressApiKey = vertexExpressApiKey
-                    ).generate(request)
-                    if (fallback.error == null || fallback.error?.contains("HTTP 401") != true) {
-                        return fallback
-                    }
-                }
                 val authHint = if (
-                    apiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH &&
                     code == 401 &&
                     (lower.contains("api keys are not supported") ||
                         lower.contains("access_token_type_unsupported") ||
                         lower.contains("unauthenticated") ||
                         lower.contains("invalid authentication credentials"))
                 ) {
-                    " Vertex OAuth token is missing/expired/invalid (or unsupported token type). Refresh token and retry, or switch Gemini API mode to AI Studio Direct."
-                } else if (
-                    apiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY &&
-                    code == 401 &&
-                    (lower.contains("api keys are not supported") ||
-                        lower.contains("access_token_type_unsupported") ||
-                        lower.contains("invalid authentication credentials"))
-                ) {
-                    " This Vertex endpoint rejected API-key auth for current credentials. Switch Gemini API mode to AI Studio Direct, or configure valid Vertex OAuth credentials."
+                    " Vertex Express rejected this credential. Use a valid Vertex AI Express API key for aiplatform.googleapis.com."
                 } else {
                     ""
                 }
                 return InferenceBackend.GenerateResponse(
                     text = "",
                     rawResponse = raw,
-                    error = "HTTP $code: ${short.take(320)}$authHint",
+                    error = "HTTP $code: ${short.take(320)}$authHint [mode=vertex_ai_express_api_key endpoint=$endpointLabel model=${normalizeModelName(model)}]",
                     streamDurationMs = streamRead.streamDurationMs
                 )
             }
@@ -157,57 +110,12 @@ class GeminiBackend(
 
     private fun buildGenerateEndpoint(): URL {
         val normalizedModel = normalizeModelName(model)
-        return when (apiMode) {
-            InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT -> {
-                val encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8.name())
-                URL("$GEMINI_BASE_URL/v1beta/models/$normalizedModel:generateContent?key=$encodedKey")
-            }
-            InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH -> {
-                val location = normalizeVertexLocation(vertexLocation)
-                URL(
-                    "https://$location-aiplatform.googleapis.com/v1/projects/" +
-                        "${vertexProjectId.trim()}/locations/$location/publishers/google/models/" +
-                        "$normalizedModel:generateContent"
-                )
-            }
-            InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY -> {
-                val encodedKey = URLEncoder.encode(cleanVertexExpressApiKey(), StandardCharsets.UTF_8.name())
-                URL("https://aiplatform.googleapis.com/v1/publishers/google/models/$normalizedModel:generateContent?key=$encodedKey")
-            }
-        }
-    }
-
-    private fun cleanVertexAccessToken(): String {
-        val token = vertexAccessToken.trim()
-        return if (token.startsWith("Bearer ", ignoreCase = true)) {
-            token.substringAfter(' ').trim()
-        } else {
-            token
-        }
-    }
-
-    private fun normalizeVertexLocation(rawLocation: String): String {
-        return rawLocation.trim().ifBlank { "us-central1" }
+        val encodedKey = URLEncoder.encode(cleanVertexExpressApiKey(), StandardCharsets.UTF_8.name())
+        return URL("https://aiplatform.googleapis.com/v1/publishers/google/models/$normalizedModel:generateContent?key=$encodedKey")
     }
 
     private fun cleanVertexExpressApiKey(): String {
         return vertexExpressApiKey.trim()
-    }
-
-    private fun shouldFallbackToAiStudioDirect(code: Int, lower: String): Boolean {
-        if (apiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
-            return false
-        }
-        if (apiKey.isBlank()) {
-            return false
-        }
-        if (code != 401) {
-            return false
-        }
-        return lower.contains("api keys are not supported") ||
-            lower.contains("access_token_type_unsupported") ||
-            lower.contains("invalid authentication credentials") ||
-            lower.contains("unauthenticated")
     }
 
     private fun normalizeModelName(rawModel: String): String {
@@ -287,15 +195,24 @@ class GeminiBackend(
 
     internal fun buildStage3ResponseSchema(): JsonObject {
         return JsonObject().apply {
-            addProperty("type", "ARRAY")
-            add("items", JsonObject().apply {
-                addProperty("type", "OBJECT")
-                add("properties", JsonObject().apply {
-                    add("version", JsonObject().apply { addProperty("type", "STRING") })
-                    add("createSurface", JsonObject().apply { addProperty("type", "OBJECT") })
-                    add("updateComponents", JsonObject().apply { addProperty("type", "OBJECT") })
+            // Stage-3 contract now expects flat-spec JSON object:
+            // {"root":"<id>","state":{...},"elements":{...}}
+            // Keep the schema intentionally lightweight for broad Vertex Express compatibility.
+            addProperty("type", "OBJECT")
+            add("properties", JsonObject().apply {
+                add("root", JsonObject().apply {
+                    addProperty("type", "STRING")
                 })
-                add("required", JsonArray().apply { add("version") })
+                add("state", JsonObject().apply {
+                    addProperty("type", "OBJECT")
+                })
+                add("elements", JsonObject().apply {
+                    addProperty("type", "OBJECT")
+                })
+            })
+            add("required", JsonArray().apply {
+                add("root")
+                add("elements")
             })
         }
     }
@@ -454,7 +371,6 @@ class GeminiBackend(
     }
 
     private companion object {
-        const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
         val gson = GsonBuilder().disableHtmlEscaping().create()
     }
 }

@@ -11,35 +11,22 @@ internal object PipelineJsonExtractor {
             return null
         }
 
-        extractFencedBlock(cleaned)?.let { fenced ->
-            try {
-                return JsonParser.parseString(fenced)
-            } catch (_: Exception) {
-            }
-        }
-
+        val candidates = linkedSetOf<String>()
+        extractFencedBlock(cleaned)?.let { candidates += it }
         if (cleaned.startsWith("[") || cleaned.startsWith("{")) {
-            try {
-                return JsonParser.parseString(cleaned)
-            } catch (_: Exception) {
-            }
+            candidates += cleaned
+        }
+        candidates += collectBalancedCandidates(cleaned, '[', ']')
+        candidates += collectBalancedCandidates(cleaned, '{', '}')
+
+        val parsedCandidates = candidates.mapNotNull { candidate ->
+            runCatching { JsonParser.parseString(candidate) }.getOrNull()
+        }
+        if (parsedCandidates.isEmpty()) {
+            return null
         }
 
-        findFirstBalanced(cleaned, '[', ']')?.let { arrayCandidate ->
-            try {
-                return JsonParser.parseString(arrayCandidate)
-            } catch (_: Exception) {
-            }
-        }
-
-        findFirstBalanced(cleaned, '{', '}')?.let { objectCandidate ->
-            try {
-                return JsonParser.parseString(objectCandidate)
-            } catch (_: Exception) {
-            }
-        }
-
-        return null
+        return parsedCandidates.maxByOrNull(::scoreJsonCandidate)
     }
 
     fun extractFencedBlock(text: String): String? {
@@ -105,6 +92,53 @@ internal object PipelineJsonExtractor {
         return null
     }
 
+    private fun collectBalancedCandidates(text: String, open: Char, close: Char): List<String> {
+        val out = mutableListOf<String>()
+        var index = text.indexOf(open)
+        while (index >= 0) {
+            balancedSubstring(text, index, open, close)?.let { out += it }
+            index = text.indexOf(open, startIndex = index + 1)
+        }
+        return out
+    }
+
+    private fun scoreJsonCandidate(element: JsonElement): Int {
+        var score = 0
+        val coerce = FlatSpecContract.coerceAndValidate(element)
+        if (coerce.isValid) {
+            val spec = coerce.spec
+            val elements = spec?.getAsJsonObject("elements")
+            val size = elements?.size() ?: 0
+            score += 400
+            score += size.coerceAtMost(80)
+            val rootId = spec?.get("root")
+                ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                ?.asString
+                .orEmpty()
+            if (rootId.isNotBlank() && elements?.has(rootId) == true) {
+                score += 60
+            }
+        } else {
+            val normalized = FlatSpecContract.normalizeToFlatSpec(element)
+            if (normalized.spec != null) {
+                score += 160
+            } else if (element.isJsonArray) {
+                score += 80
+            } else if (element.isJsonObject) {
+                score += 40
+            }
+        }
+
+        if (element.isJsonObject) {
+            val obj = element.asJsonObject
+            if (obj.has("genui_json") || obj.has("messages") || obj.has("payload")) {
+                score += 50
+            }
+        }
+        score += element.toString().length.coerceAtMost(4000) / 200
+        return score
+    }
+
     fun buildFlatSpecRepairPrompt(rawText: String, failureReason: String? = null): String {
         val reasonLine = failureReason?.trim()?.takeIf { it.isNotEmpty() }?.let {
             "Failure reason: $it\n"
@@ -117,6 +151,7 @@ internal object PipelineJsonExtractor {
                 "Rules:\n" +
                 "- Do NOT emit legacy v0.9 message arrays (`createSurface` / `updateComponents`).\n" +
                 "- `root` must reference an existing key in `elements`.\n" +
+                "- `elements` must contain at least 2 entries (a root container and one content element).\n" +
                 "- Every element must contain `type`, `props`, and `children`.\n" +
                 "- Every id in `children` must exist in `elements`.\n" +
                 "- Return JSON only, no markdown.\n\n" +

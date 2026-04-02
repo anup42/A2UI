@@ -7,7 +7,7 @@ object GeminiModelSettings {
     private const val KEY_SELECTED_MODEL = "selected_model"
     private const val KEY_RESPONSE_MODEL = "selected_response_model"
     private const val KEY_IR_MODEL = "selected_ir_model"
-    const val DEFAULT_MODEL = "gemini-2.5-pro"
+    const val DEFAULT_MODEL = "gemini-2.5-flash"
 
     fun getSelectedModel(context: Context): String {
         return getResponseModel(context)

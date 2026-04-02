@@ -73,27 +73,25 @@ $vertexProjectId = if ($envMap.ContainsKey("VERTEX_PROJECT_ID")) {
     $null
 }
 
-if ([string]::IsNullOrWhiteSpace($stage2Key)) {
-    throw "GEMINI_API_KEY is missing in $DatasetEnvPath"
-}
-if ([string]::IsNullOrWhiteSpace($stage3Key)) {
-    throw "GEMINI_IR_API_KEY or GEMINI_API_KEY_2 is missing in $DatasetEnvPath"
-}
 if ([string]::IsNullOrWhiteSpace($vertexExpressKey)) {
     throw "VERTEX_EXPRESS_API_KEY (or GEMINI_VERTEX_EXPRESS_API_KEY) is missing in $DatasetEnvPath"
 }
 
 $tmpFile = Join-Path $env:TEMP $OutputName
 $lines = @(
-    "GEMINI_STAGE2_API_KEY=$stage2Key"
-    "GEMINI_RESPONSE_API_KEY=$stage2Key"
-    "GEMINI_API_KEY=$stage2Key"
-    "GEMINI_STAGE3_API_KEY=$stage3Key"
-    "GEMINI_IR_API_KEY=$stage3Key"
-    "GEMINI_API_KEY_2=$stage3Key"
     "VERTEX_EXPRESS_API_KEY=$vertexExpressKey"
     "GEMINI_VERTEX_EXPRESS_API_KEY=$vertexExpressKey"
 )
+if (-not [string]::IsNullOrWhiteSpace($stage2Key)) {
+    $lines += "GEMINI_STAGE2_API_KEY=$stage2Key"
+    $lines += "GEMINI_RESPONSE_API_KEY=$stage2Key"
+    $lines += "GEMINI_API_KEY=$stage2Key"
+}
+if (-not [string]::IsNullOrWhiteSpace($stage3Key)) {
+    $lines += "GEMINI_STAGE3_API_KEY=$stage3Key"
+    $lines += "GEMINI_IR_API_KEY=$stage3Key"
+    $lines += "GEMINI_API_KEY_2=$stage3Key"
+}
 if (-not [string]::IsNullOrWhiteSpace($vertexOauthToken)) {
     $lines += "VERTEX_OAUTH_ACCESS_TOKEN=$vertexOauthToken"
     $lines += "GOOGLE_OAUTH_ACCESS_TOKEN=$vertexOauthToken"

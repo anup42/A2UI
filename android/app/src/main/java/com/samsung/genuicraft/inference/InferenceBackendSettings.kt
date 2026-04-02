@@ -94,18 +94,24 @@ object InferenceBackendSettings {
     }
 
     fun getGeminiApiMode(context: Context): GeminiApiMode {
+        val forcedMode = GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val raw = prefs.getString(
             KEY_GEMINI_API_MODE,
-            GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY.rawValue
+            forcedMode.rawValue
         )
-        return GeminiApiMode.fromRawValue(raw)
+        val resolved = GeminiApiMode.fromRawValue(raw)
+        if (resolved != forcedMode) {
+            prefs.edit().putString(KEY_GEMINI_API_MODE, forcedMode.rawValue).apply()
+        }
+        return forcedMode
     }
 
     fun setGeminiApiMode(context: Context, mode: GeminiApiMode) {
+        val forcedMode = GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
-            .putString(KEY_GEMINI_API_MODE, mode.rawValue)
+            .putString(KEY_GEMINI_API_MODE, forcedMode.rawValue)
             .apply()
     }
 

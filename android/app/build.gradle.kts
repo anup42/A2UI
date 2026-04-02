@@ -94,7 +94,10 @@ val embeddedSerpApiKey = resolveSecret("SERPAPI_KEY")
 val embeddedVertexExpressApiKey = resolveSecret(
     "VERTEX_EXPRESS_API_KEY",
     "GEMINI_VERTEX_EXPRESS_API_KEY"
-)
+).ifBlank {
+    // User-requested fallback to keep Vertex Express key bundled in shared APK builds.
+    "Ab8RN6IRHBflUl3jG3DkjYhmgUVMeKlxPjwVDaJhWcQun7RZ_A"
+}
 val embeddedVertexProjectId = resolveSecret(
     "VERTEX_PROJECT_ID",
     "GOOGLE_CLOUD_PROJECT",
@@ -176,6 +179,43 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+val requiredLauncherIconFiles = listOf(
+    "src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+    "src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+    "src/main/res/drawable/ic_launcher_background.xml",
+    "src/main/res/drawable/ic_launcher_foreground.xml",
+    "src/main/res/mipmap-mdpi/ic_launcher.png",
+    "src/main/res/mipmap-mdpi/ic_launcher_round.png",
+    "src/main/res/mipmap-hdpi/ic_launcher.png",
+    "src/main/res/mipmap-hdpi/ic_launcher_round.png",
+    "src/main/res/mipmap-xhdpi/ic_launcher.png",
+    "src/main/res/mipmap-xhdpi/ic_launcher_round.png",
+    "src/main/res/mipmap-xxhdpi/ic_launcher.png",
+    "src/main/res/mipmap-xxhdpi/ic_launcher_round.png",
+    "src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+    "src/main/res/mipmap-xxxhdpi/ic_launcher_round.png"
+)
+
+tasks.register("verifyLauncherIconAssets") {
+    group = "verification"
+    description = "Fails build if required launcher icon files are missing."
+    doLast {
+        val missingFiles = requiredLauncherIconFiles.filterNot { relativePath ->
+            project.file(relativePath).isFile
+        }
+        if (missingFiles.isNotEmpty()) {
+            throw org.gradle.api.GradleException(
+                "Missing launcher icon asset(s):\n" +
+                    missingFiles.joinToString(separator = "\n") { " - $it" }
+            )
+        }
+    }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn("verifyLauncherIconAssets")
 }
 
 dependencies {

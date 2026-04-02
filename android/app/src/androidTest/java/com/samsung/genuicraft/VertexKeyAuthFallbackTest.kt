@@ -4,6 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.samsung.genuicraft.inference.InferenceBackend
 import com.samsung.genuicraft.inference.InferenceBackendFactory
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -13,24 +14,31 @@ import org.junit.runner.RunWith
 class VertexKeyAuthFallbackTest {
 
     @Test
-    fun vertexMode_doesNotFailWith401() {
+    fun geminiApiMode_isAlwaysExpress() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        GeminiApiKeyProvider.refresh(context)
+        InferenceBackendSettings.setGeminiApiMode(
+            context,
+            InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT
+        )
+        assertEquals(
+            InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY,
+            InferenceBackendSettings.getGeminiApiMode(context)
+        )
+    }
 
-        val geminiApiKey = GeminiApiKeyProvider.stage3ApiKey(context).trim()
-        val vertexExpressApiKey = GeminiApiKeyProvider.vertexExpressApiKey(context).trim()
-        assertTrue("Gemini API key must be configured", geminiApiKey.isNotBlank())
-        assertTrue("Vertex Express API key must be configured", vertexExpressApiKey.isNotBlank())
+    @Test
+    fun expressMode_requiresVertexExpressApiKey() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         val backend = InferenceBackendFactory.create(
             provider = InferenceBackendSettings.Provider.GEMINI,
-            apiKey = geminiApiKey,
+            apiKey = "",
             model = "gemini-2.5-flash",
-            geminiApiMode = InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY,
+            geminiApiMode = InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT,
             vertexProjectId = InferenceBackendSettings.getVertexProjectId(context),
             vertexLocation = InferenceBackendSettings.getVertexLocation(context),
             vertexAccessToken = InferenceBackendSettings.getVertexAccessToken(context),
-            vertexExpressApiKey = vertexExpressApiKey,
+            vertexExpressApiKey = "",
             localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(context),
             localModelPath = InferenceBackendSettings.getLocalModelPath(context)
         )
@@ -46,10 +54,8 @@ class VertexKeyAuthFallbackTest {
         )
 
         val error = response.error.orEmpty()
-        assertFalse(
-            "Vertex-mode request should not fail with HTTP 401 after fallback fix. error=$error",
-            error.contains("HTTP 401", ignoreCase = true)
-        )
+        assertTrue(error.contains("Vertex Express API key is missing", ignoreCase = true))
+        assertFalse(error.contains("AI Studio", ignoreCase = true))
     }
 }
 

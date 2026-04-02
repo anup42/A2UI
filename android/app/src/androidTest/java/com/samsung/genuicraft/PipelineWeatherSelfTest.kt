@@ -1,6 +1,7 @@
 package com.samsung.genuicraft
 
 import android.content.Intent
+import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -16,6 +17,9 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class PipelineWeatherSelfTest {
+    private companion object {
+        const val TAG = "PipelineWeatherSelfTest"
+    }
 
     @Test
     fun runWeatherQueryAndVerifyRenderedUi() = runBlocking {
@@ -64,9 +68,41 @@ class PipelineWeatherSelfTest {
                 assertNotNull("IR elements is required", irObject.get("elements"))
                 val rootId = irObject.get("root")?.asString.orEmpty()
                 assertTrue("IR root id must be non-empty", rootId.isNotBlank())
+                val elementsObject = irObject.getAsJsonObject("elements")
                 assertTrue(
                     "IR elements must include root id",
-                    irObject.getAsJsonObject("elements").has(rootId)
+                    elementsObject.has(rootId)
+                )
+                val elementTypes = elementsObject.entrySet()
+                    .mapNotNull { (_, value) ->
+                        value.takeIf { it.isJsonObject }
+                            ?.asJsonObject
+                            ?.get("type")
+                            ?.takeIf { it.isJsonPrimitive }
+                            ?.asString
+                            ?.trim()
+                    }
+                    .filter { it.isNotBlank() }
+                    .map { it.lowercase() }
+                val textHeavyFallbackShape = elementTypes.count { it == "text" } == 1 &&
+                    elementTypes.all { it == "text" || it == "column" || it == "row" || it == "list" || it == "card" }
+                Log.i(
+                    TAG,
+                    "stage3 elements=${elementsObject.size()} types=${elementTypes.distinct()} " +
+                        "usedFallback=${result.usedFallback} textHeavyFallbackShape=$textHeavyFallbackShape"
+                )
+                Log.i(TAG, "stage3 warnings=${result.warnings.joinToString(" | ")}")
+                Log.i(TAG, "stage3 preview=${result.stage3Json.take(1200)}")
+                val renderSurface = result.renderResult.surfaces.firstOrNull()
+                Log.i(
+                    TAG,
+                    "render surfaceCount=${result.renderResult.surfaces.size} " +
+                        "flatSpecSurface=${renderSurface?.flatSpec != null} " +
+                        "legacyComponentCount=${renderSurface?.components?.size ?: 0}"
+                )
+                assertFalse(
+                    "Text-heavy fallback should use legacy structured rendering path.",
+                    textHeavyFallbackShape && renderSurface?.flatSpec != null
                 )
 
                 val record = GenUiRecord(
