@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
@@ -67,6 +69,7 @@ import coil.request.ImageRequest
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.samsung.genuicraft.renderer.FlatSpec
 import com.samsung.genuicraft.renderer.FlatSpecContent
 import com.samsung.genuicraft.renderer.FlatSpecParser
@@ -96,6 +99,19 @@ import java.util.Locale
 import kotlin.math.abs
 
 object GenUiNativeRenderer {
+    private val flatSpecWrapperKeys = listOf(
+        "genui_json",
+        "payload",
+        "messages",
+        "a2ui_json",
+        "stage3_json",
+        "stage3Json",
+        "ir_json",
+        "irJson",
+        "flat_spec",
+        "flatSpec"
+    )
+
     data class RenderResult(
         val surfaces: List<SurfaceState>,
         val warnings: List<String>,
@@ -123,16 +139,7 @@ object GenUiNativeRenderer {
             return RenderResult(emptyList(), warnings, "Invalid payload: ${exc.message ?: exc.javaClass.simpleName}")
         }
 
-        // Phase 2+: detect flat spec format {"root":..., "elements":{...}}
-        if (FlatSpecParser.isFlatSpec(parsed)) {
-            val flatSpec = FlatSpecParser.parse(parsed)
-                ?: return RenderResult(emptyList(), warnings, "Invalid flat spec payload.")
-            val surface = SurfaceState(
-                surfaceId = "flat_surface",
-                rootId = flatSpec.root,
-                components = emptyMap(),
-                flatSpec = flatSpec
-            )
+        parseFlatSpecSurface(parsed, warnings)?.let { surface ->
             return RenderResult(listOf(surface), warnings)
         }
 
@@ -152,6 +159,72 @@ object GenUiNativeRenderer {
             )
         }
         return RenderResult(surfaces, warnings)
+    }
+
+    private fun parseFlatSpecSurface(
+        parsed: JsonElement,
+        warnings: MutableList<String>
+    ): SurfaceState? {
+        if (FlatSpecParser.isFlatSpec(parsed)) {
+            return buildFlatSpecSurface(parsed)
+        }
+
+        val embedded = findEmbeddedFlatSpec(parsed) ?: return null
+        warnings += "Detected flat-spec IR inside record metadata and rendered the embedded payload."
+        return buildFlatSpecSurface(embedded)
+    }
+
+    private fun buildFlatSpecSurface(parsed: JsonElement): SurfaceState? {
+        val flatSpec = FlatSpecParser.parse(parsed) ?: return null
+        return SurfaceState(
+            surfaceId = "flat_surface",
+            rootId = flatSpec.root,
+            components = emptyMap(),
+            flatSpec = flatSpec
+        )
+    }
+
+    private fun findEmbeddedFlatSpec(
+        element: JsonElement?,
+        depth: Int = 0
+    ): JsonElement? {
+        if (element == null || element.isJsonNull || depth > 4) {
+            return null
+        }
+        if (FlatSpecParser.isFlatSpec(element)) {
+            return element
+        }
+
+        if (element.isJsonArray) {
+            element.asJsonArray.forEach { child ->
+                findEmbeddedFlatSpec(coerceEmbeddedJsonElement(child), depth + 1)?.let { return it }
+            }
+            return null
+        }
+
+        if (!element.isJsonObject) {
+            return null
+        }
+
+        val obj = element.asJsonObject
+        flatSpecWrapperKeys.forEach { key ->
+            findEmbeddedFlatSpec(coerceEmbeddedJsonElement(obj.get(key)), depth + 1)?.let { return it }
+        }
+        return null
+    }
+
+    private fun coerceEmbeddedJsonElement(element: JsonElement?): JsonElement? {
+        if (element == null || element.isJsonNull) {
+            return null
+        }
+        if (!element.isJsonPrimitive || !element.asJsonPrimitive.isString) {
+            return element
+        }
+        val raw = element.asString.trim()
+        if (raw.isEmpty() || (!raw.startsWith("{") && !raw.startsWith("["))) {
+            return null
+        }
+        return runCatching { JsonParser.parseString(raw) }.getOrNull()
     }
 
     @Composable
@@ -180,8 +253,11 @@ object GenUiNativeRenderer {
         val (visibleSurfaces, runtimeMessage, onRuntimeAction) = rememberRuntimeState(result.surfaces)
 
         LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = modifier
+                .fillMaxSize()
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 20.dp)
         ) {
             if (!runtimeMessage.isNullOrBlank()) {
                 item("runtime_message") {
@@ -225,7 +301,9 @@ object GenUiNativeRenderer {
         val (visibleSurfaces, runtimeMessage, onRuntimeAction) = rememberRuntimeState(result.surfaces)
 
         Column(
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxWidth()
+                .imePadding(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (!runtimeMessage.isNullOrBlank()) {
@@ -327,6 +405,7 @@ object GenUiNativeRenderer {
             ) {
                 FlatSpecContent(
                     spec = surface.flatSpec,
+                    resolveAssetUrl = { raw -> NativePayloadParser.resolveAssetUrl(raw, sourceDir) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)

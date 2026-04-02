@@ -104,7 +104,7 @@ class GenUiAssistantActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         requestNotificationPermissionIfNeeded()
         applyOneUiWindowBlur()
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContent {
             GenUiCraftTheme {
                 GenUiAssistantScreen(

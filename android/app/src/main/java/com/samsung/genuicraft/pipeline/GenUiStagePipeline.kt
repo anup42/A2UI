@@ -1866,7 +1866,11 @@ class GenUiStagePipeline(private val appContext: Context) {
             if (!retryable || attempt >= 3) {
                 return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
             }
-            Thread.sleep(1000L * attempt)
+            Log.w(
+                LOG_TAG,
+                "Transient backend error (attempt $attempt/3). Retrying immediately. " +
+                    "error=${last.error.orEmpty().take(180)}"
+            )
         }
         return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
     }

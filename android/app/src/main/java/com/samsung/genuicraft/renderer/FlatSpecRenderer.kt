@@ -3,7 +3,10 @@ package com.samsung.genuicraft.renderer
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -31,15 +34,19 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +57,7 @@ import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 data class FlatSpec(
@@ -71,6 +79,8 @@ data class RepeatConfig(
     val statePath: String,
     val key: String? = null
 )
+
+private val LocalFlatSpecAssetResolver = staticCompositionLocalOf<(String) -> String> { { raw -> raw } }
 
 object FlatSpecParser {
 
@@ -337,6 +347,7 @@ object FlatExprResolver {
 @Composable
 fun FlatSpecContent(
     spec: FlatSpec,
+    resolveAssetUrl: (String) -> String = { raw -> raw },
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -351,16 +362,18 @@ fun FlatSpecContent(
         FlatSpecParser.setAtPath(stateStore, path, value)
     }
 
-    RenderElement(
-        elementId = spec.root,
-        elements = spec.elements,
-        state = stateStore,
-        itemContext = null,
-        onOpenUrl = onOpenUrl,
-        onSetState = onSetState,
-        activePath = emptySet(),
-        modifier = modifier
-    )
+    CompositionLocalProvider(LocalFlatSpecAssetResolver provides resolveAssetUrl) {
+        RenderElement(
+            elementId = spec.root,
+            elements = spec.elements,
+            state = stateStore,
+            itemContext = null,
+            onOpenUrl = onOpenUrl,
+            onSetState = onSetState,
+            activePath = emptySet(),
+            modifier = modifier
+        )
+    }
 }
 
 @Composable
@@ -654,7 +667,8 @@ private fun RenderImage(
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val url = props["url"]?.toString()?.trim().orEmpty()
+    val resolveAssetUrl = LocalFlatSpecAssetResolver.current
+    val url = resolveAssetUrl(props["url"]?.toString()?.trim().orEmpty())
     if (url.isBlank()) return
     val fit = props["fit"]?.toString()?.lowercase().orEmpty()
     val isCover = fit == "cover"
@@ -678,7 +692,8 @@ private fun RenderImage(
     AsyncImage(
         model = ImageRequest.Builder(context).data(url).crossfade(true).build(),
         imageLoader = imageLoader,
-        contentDescription = props["alt"]?.toString(),
+        contentDescription = props["alt"]?.toString()
+            ?: (props["accessibility"] as? Map<*, *>)?.get("label")?.toString(),
         contentScale = if (isCover) ContentScale.Crop else ContentScale.Fit,
         modifier = clickableModifier
     )
@@ -689,7 +704,8 @@ private fun RenderIcon(
     props: Map<String, Any?>,
     modifier: Modifier = Modifier
 ) {
-    val url = props["name"]?.toString()?.trim().orEmpty()
+    val resolveAssetUrl = LocalFlatSpecAssetResolver.current
+    val url = resolveAssetUrl(props["name"]?.toString()?.trim().orEmpty())
     if (url.isBlank()) return
     val context = LocalContext.current
     val imageLoader = remember(context) {
@@ -956,6 +972,7 @@ private fun bindPathFromValueExpression(value: Any?): String? {
     return value["\$state"]?.toString()?.takeIf { it.isNotBlank() }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RenderTextField(
     props: Map<String, Any?>,
@@ -969,6 +986,8 @@ private fun RenderTextField(
     val value = FlatExprResolver.resolveString(props["value"], state, itemContext)
     var localValue by remember(label) { mutableStateOf(value) }
     val textValue = if (!bindPath.isNullOrBlank()) value else localValue
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     OutlinedTextField(
         value = textValue,
@@ -983,6 +1002,14 @@ private fun RenderTextField(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    coroutineScope.launch {
+                        bringIntoViewRequester.bringIntoView()
+                    }
+                }
+            }
     )
 }
 

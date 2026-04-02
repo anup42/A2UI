@@ -54,7 +54,7 @@ $vertexExpressKey = if ($envMap.ContainsKey("VERTEX_EXPRESS_API_KEY")) {
 } elseif ($envMap.ContainsKey("GEMINI_VERTEX_EXPRESS_API_KEY")) {
     $envMap["GEMINI_VERTEX_EXPRESS_API_KEY"]
 } else {
-    $stage3Key
+    $null
 }
 $vertexOauthToken = if ($envMap.ContainsKey("VERTEX_OAUTH_ACCESS_TOKEN")) {
     $envMap["VERTEX_OAUTH_ACCESS_TOKEN"]

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
@@ -377,6 +378,7 @@ private fun IrDemoRenderScreen(
                 LazyColumn(
                     modifier = backgroundModifier
                         .fillMaxSize()
+                        .imePadding()
                         .padding(horizontal = horizontalPadding, vertical = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     contentPadding = PaddingValues(bottom = 20.dp)
@@ -461,6 +463,7 @@ private fun IrDemoRenderScreen(
             } else {
                 Column(
                     modifier = backgroundModifier
+                        .imePadding()
                         .padding(horizontal = horizontalPadding, vertical = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {

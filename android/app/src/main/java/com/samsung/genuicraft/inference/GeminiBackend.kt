@@ -84,20 +84,37 @@ class GeminiBackend(
             if (code !in 200..299) {
                 val short = raw.trim().ifBlank { "HTTP $code" }
                 val lower = short.lowercase(Locale.US)
+                if (shouldFallbackToAiStudioDirect(code, lower)) {
+                    val fallback = GeminiBackend(
+                        apiKey = apiKey,
+                        model = model,
+                        apiMode = InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT,
+                        vertexProjectId = vertexProjectId,
+                        vertexLocation = vertexLocation,
+                        vertexAccessToken = vertexAccessToken,
+                        vertexExpressApiKey = vertexExpressApiKey
+                    ).generate(request)
+                    if (fallback.error == null || fallback.error?.contains("HTTP 401") != true) {
+                        return fallback
+                    }
+                }
                 val authHint = if (
                     apiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_OAUTH &&
                     code == 401 &&
                     (lower.contains("api keys are not supported") ||
+                        lower.contains("access_token_type_unsupported") ||
                         lower.contains("unauthenticated") ||
                         lower.contains("invalid authentication credentials"))
                 ) {
-                    " Vertex OAuth token is missing/expired/invalid. Refresh token and retry."
+                    " Vertex OAuth token is missing/expired/invalid (or unsupported token type). Refresh token and retry, or switch Gemini API mode to AI Studio Direct."
                 } else if (
                     apiMode == InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY &&
                     code == 401 &&
-                    lower.contains("api keys are not supported")
+                    (lower.contains("api keys are not supported") ||
+                        lower.contains("access_token_type_unsupported") ||
+                        lower.contains("invalid authentication credentials"))
                 ) {
-                    " This Vertex endpoint rejected API-key auth; switch to Vertex OAuth mode."
+                    " This Vertex endpoint rejected API-key auth for current credentials. Switch Gemini API mode to AI Studio Direct, or configure valid Vertex OAuth credentials."
                 } else {
                     ""
                 }
@@ -175,6 +192,22 @@ class GeminiBackend(
 
     private fun cleanVertexExpressApiKey(): String {
         return vertexExpressApiKey.trim()
+    }
+
+    private fun shouldFallbackToAiStudioDirect(code: Int, lower: String): Boolean {
+        if (apiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
+            return false
+        }
+        if (apiKey.isBlank()) {
+            return false
+        }
+        if (code != 401) {
+            return false
+        }
+        return lower.contains("api keys are not supported") ||
+            lower.contains("access_token_type_unsupported") ||
+            lower.contains("invalid authentication credentials") ||
+            lower.contains("unauthenticated")
     }
 
     private fun normalizeModelName(rawModel: String): String {

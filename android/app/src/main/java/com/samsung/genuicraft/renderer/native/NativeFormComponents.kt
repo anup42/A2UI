@@ -1,5 +1,8 @@
 package com.samsung.genuicraft.renderer.native
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,9 +24,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -34,6 +39,7 @@ import com.samsung.genuicraft.GenUiTokens
 import com.samsung.genuicraft.genUiCardBorderColor
 import java.io.File
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 internal object NativeFormComponents {
 
@@ -233,6 +239,7 @@ internal object NativeFormComponents {
         )
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun RenderTextFieldComponent(component: JsonObject) {
         val componentId = component.getString("id")
@@ -240,6 +247,8 @@ internal object NativeFormComponents {
         val variant = (component.getString("variant") ?: "shortText").lowercase(Locale.US)
         val initialValue = readDynamicString(component.get("value"))
         var value by remember(componentId) { mutableStateOf(initialValue) }
+        val bringIntoViewRequester = remember { BringIntoViewRequester() }
+        val coroutineScope = rememberCoroutineScope()
 
         val keyboardType = if (variant.contains("number")) KeyboardType.Number else KeyboardType.Text
         val singleLine = !variant.contains("longtext")
@@ -249,7 +258,16 @@ internal object NativeFormComponents {
         OutlinedTextField(
             value = value,
             onValueChange = { value = it },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .bringIntoViewRequester(bringIntoViewRequester)
+                .onFocusChanged { state ->
+                    if (state.isFocused) {
+                        coroutineScope.launch {
+                            bringIntoViewRequester.bringIntoView()
+                        }
+                    }
+                },
             label = { Text(label) },
             singleLine = singleLine,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),

@@ -91,6 +91,10 @@ val embeddedStage3ApiKey = resolveSecret(
 )
 val embeddedNewsApiKey = resolveSecret("NEWS_API_KEY")
 val embeddedSerpApiKey = resolveSecret("SERPAPI_KEY")
+val embeddedVertexExpressApiKey = resolveSecret(
+    "VERTEX_EXPRESS_API_KEY",
+    "GEMINI_VERTEX_EXPRESS_API_KEY"
+)
 val embeddedVertexProjectId = resolveSecret(
     "VERTEX_PROJECT_ID",
     "GOOGLE_CLOUD_PROJECT",
@@ -131,6 +135,11 @@ android {
             "String",
             "SERPAPI_KEY_DEFAULT",
             "\"${escapeForBuildConfig(embeddedSerpApiKey)}\""
+        )
+        buildConfigField(
+            "String",
+            "VERTEX_EXPRESS_API_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedVertexExpressApiKey)}\""
         )
         buildConfigField(
             "String",

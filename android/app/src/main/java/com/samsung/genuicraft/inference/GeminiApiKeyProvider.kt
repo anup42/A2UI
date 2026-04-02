@@ -46,8 +46,7 @@ object GeminiApiKeyProvider {
                 "VERTEX_EXPRESS_API_KEY",
                 "GEMINI_VERTEX_EXPRESS_API_KEY"
             ),
-            BuildConfig.GEMINI_STAGE3_API_KEY_DEFAULT,
-            BuildConfig.GEMINI_STAGE2_API_KEY_DEFAULT
+            BuildConfig.VERTEX_EXPRESS_API_KEY_DEFAULT
         )
     }
 
