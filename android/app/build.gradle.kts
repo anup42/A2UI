@@ -218,6 +218,14 @@ tasks.named("preBuild").configure {
     dependsOn("verifyLauncherIconAssets")
 }
 
+// UTP connected instrumentation runs can leave the target debug package uninstalled
+// after tests complete. Reinstall debug so launcher icon/app stay visible.
+tasks.matching { task ->
+    task.name.startsWith("connected") && task.name.endsWith("AndroidTest")
+}.configureEach {
+    finalizedBy("installDebug")
+}
+
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
 
