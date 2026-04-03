@@ -1,1 +1,516 @@
-{"ui_id":"u_001374_01","response_id":"r_001374_01","query_id":"q_001374","intent":"calculation","tags":["career","salary","conversion"],"intent_bucket":"calculation","genui_json":[{"createSurface":{"surfaceId":"salary_conversion_view","catalogId":"https://genui.local/specification/v0_9/standard_catalog.json","theme":{"primaryColor":"#2E7D32"}},"version":"v0.9"},{"updateComponents":{"surfaceId":"salary_conversion_view","components":[{"id":"root","component":"Column","children":["header_row","summary_text","divider_1","context_section","divider_2","breakdown_section","divider_3","actions_section"]},{"id":"header_row","component":"Row","align":"center","children":["header_icon","header_title"]},{"id":"header_icon","component":"Image","url":"/assets/r_001374_01_1_calculator.svg","variant":"icon","fit":"contain"},{"id":"header_title","component":"Text","text":"Salary Conversion Overview","variant":"h2"},{"id":"summary_text","component":"Text","text":"Based on an annual salary of $75,000, your pre-tax hourly wage is approximately $36.06. This calculation assumes a standard full-time schedule without unpaid time off.","variant":"body"},{"id":"divider_1","component":"Divider"},{"id":"context_section","component":"Column","children":["context_title","context_intro","context_list"]},{"id":"context_title","component":"Text","text":"Calculation Context","variant":"h3"},{"id":"context_intro","component":"Text","text":"The conversion uses the specific figures provided in your query to determine the gross hourly rate.","variant":"body"},{"id":"context_list","component":"Column","children":["context_item_1","context_item_2"]},{"id":"context_item_1","component":"Row","align":"start","children":["bullet_1","text_1"]},{"id":"bullet_1","component":"Text","text":"â€¢ ","variant":"body"},{"id":"text_1","component":"Text","text":"Total Work Hours: 2,080 hours per year (40 hours x 52 weeks)","variant":"body"},{"id":"context_item_2","component":"Row","align":"start","children":["bullet_2","text_2"]},{"id":"bullet_2","component":"Text","text":"â€¢ ","variant":"body"},{"id":"text_2","component":"Text","text":"Pay Frequency: The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied.","variant":"body"},{"id":"divider_2","component":"Divider"},{"id":"breakdown_section","component":"Column","children":["breakdown_header_row","breakdown_table"]},{"id":"breakdown_header_row","component":"Row","align":"center","children":["breakdown_icon","breakdown_title"]},{"id":"breakdown_icon","component":"Image","url":"/assets/r_001374_01_2_cash-coin.svg","variant":"icon","fit":"contain"},{"id":"breakdown_title","component":"Text","text":"Gross Income Breakdown","variant":"h3"},{"id":"breakdown_table","component":"Column","children":["table_header","table_row_1","table_row_2","table_row_3","table_row_4","table_row_5"]},{"id":"table_header","component":"Row","children":["th_freq","th_amount","th_details"]},{"id":"th_freq","component":"Text","text":"Frequency","variant":"h4","weight":1},{"id":"th_amount","component":"Text","text":"Gross Amount","variant":"h4","weight":1},{"id":"th_details","component":"Text","text":"Calculation Details","variant":"h4","weight":2},{"id":"table_row_1","component":"Row","children":["td_1_freq","td_1_amount","td_1_details"]},{"id":"td_1_freq","component":"Text","text":"Hourly","variant":"body","weight":1},{"id":"td_1_amount","component":"Text","text":"$36.06","variant":"body","weight":1},{"id":"td_1_details","component":"Text","text":"Annual Salary / 2,080 Hours","variant":"caption","weight":2},{"id":"table_row_2","component":"Row","children":["td_2_freq","td_2_amount","td_2_details"]},{"id":"td_2_freq","component":"Text","text":"Weekly","variant":"body","weight":1},{"id":"td_2_amount","component":"Text","text":"$1,442.31","variant":"body","weight":1},{"id":"td_2_details","component":"Text","text":"Annual Salary / 52 Weeks","variant":"caption","weight":2},{"id":"table_row_3","component":"Row","children":["td_3_freq","td_3_amount","td_3_details"]},{"id":"td_3_freq","component":"Text","text":"Bi-Weekly","variant":"body","weight":1},{"id":"td_3_amount","component":"Text","text":"$2,884.62","variant":"body","weight":1},{"id":"td_3_details","component":"Text","text":"Annual Salary / 26 Pay Periods","variant":"caption","weight":2},{"id":"table_row_4","component":"Row","children":["td_4_freq","td_4_amount","td_4_details"]},{"id":"td_4_freq","component":"Text","text":"Semi-Monthly","variant":"body","weight":1},{"id":"td_4_amount","component":"Text","text":"$3,125.00","variant":"body","weight":1},{"id":"td_4_details","component":"Text","text":"Annual Salary / 24 Pay Periods","variant":"caption","weight":2},{"id":"table_row_5","component":"Row","children":["td_5_freq","td_5_amount","td_5_details"]},{"id":"td_5_freq","component":"Text","text":"Monthly","variant":"body","weight":1},{"id":"td_5_amount","component":"Text","text":"$6,250.00","variant":"body","weight":1},{"id":"td_5_details","component":"Text","text":"Annual Salary / 12 Months","variant":"caption","weight":2},{"id":"divider_3","component":"Divider"},{"id":"actions_section","component":"Column","children":["actions_title","actions_row"]},{"id":"actions_title","component":"Text","text":"Quick Actions","variant":"h3"},{"id":"actions_row","component":"Row","children":["btn_calc","btn_bls"]},{"id":"btn_calc","component":"Button","variant":"primary","child":"btn_calc_text","action":{"functionCall":{"call":"openUrl","args":{"url":"https://www.paycheckcity.com/calculator/salary"}}}},{"id":"btn_calc_text","component":"Text","text":"Calculate Take-Home Pay"},{"id":"btn_bls","component":"Button","variant":"borderless","child":"btn_bls_text","action":{"functionCall":{"call":"openUrl","args":{"url":"https://www.bls.gov/bls/blswage.htm"}}}},{"id":"btn_bls_text","component":"Text","text":"Bureau of Labor Statistics Wage Data"}]},"version":"v0.9"}],"assets":[{"url":"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calculator.svg","path":"assets\\r_001374_01_1_calculator.svg","sha256":"0f4f3a1f74ea2c7a29b1bd47ba25892a546b743ce860a7ee0deedf84fd3e9821","bytes":1006},{"url":"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cash-coin.svg","path":"assets\\r_001374_01_2_cash-coin.svg","sha256":"7ae10dea9e0f55d2f6dc87d5591675ba28a697e2f232f527648e7ecb52e0e94c","bytes":948}],"toon":"[2]:\n  - version: v0.9\n    createSurface:\n      catalogId: \"https://genui.local/specification/v0_9/standard_catalog.json\"\n      surfaceId: salary_conversion_view\n      theme:\n        primaryColor: #2E7D32\n  - version: v0.9\n    updateComponents:\n      surfaceId: salary_conversion_view\n      components[54]:\n        - component: Column\n          id: root\n          children[8]: header_row,summary_text,divider_1,context_section,divider_2,breakdown_section,divider_3,actions_section\n        - align: center\n          component: Row\n          id: header_row\n          children[2]: header_icon,header_title\n        - component: Image\n          fit: contain\n          id: header_icon\n          url: /assets/r_001374_01_1_calculator.svg\n          variant: icon\n        - component: Text\n          id: header_title\n          text: Salary Conversion Overview\n          variant: h2\n        - component: Text\n          id: summary_text\n          text: \"Based on an annual salary of $75,000, your pre-tax hourly wage is approximately $36.06. This calculation assumes a standard full-time schedule without unpaid time off.\"\n          variant: body\n        - component: Divider\n          id: divider_1\n        - component: Column\n          id: context_section\n          children[3]: context_title,context_intro,context_list\n        - component: Text\n          id: context_title\n          text: Calculation Context\n          variant: h3\n        - component: Text\n          id: context_intro\n          text: The conversion uses the specific figures provided in your query to determine the gross hourly rate.\n          variant: body\n        - component: Column\n          id: context_list\n          children[2]: context_item_1,context_item_2\n        - align: start\n          component: Row\n          id: context_item_1\n          children[2]: bullet_1,text_1\n        - component: Text\n          id: bullet_1\n          text: \"â€¢ \"\n          variant: body\n        - component: Text\n          id: text_1\n          text: \"Total Work Hours: 2,080 hours per year (40 hours x 52 weeks)\"\n          variant: body\n        - align: start\n          component: Row\n          id: context_item_2\n          children[2]: bullet_2,text_2\n        - component: Text\n          id: bullet_2\n          text: \"â€¢ \"\n          variant: body\n        - component: Text\n          id: text_2\n          text: \"Pay Frequency: The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied.\"\n          variant: body\n        - component: Divider\n          id: divider_2\n        - component: Column\n          id: breakdown_section\n          children[2]: breakdown_header_row,breakdown_table\n        - align: center\n          component: Row\n          id: breakdown_header_row\n          children[2]: breakdown_icon,breakdown_title\n        - component: Image\n          fit: contain\n          id: breakdown_icon\n          url: /assets/r_001374_01_2_cash-coin.svg\n          variant: icon\n        - component: Text\n          id: breakdown_title\n          text: Gross Income Breakdown\n          variant: h3\n        - component: Column\n          id: breakdown_table\n          children[6]: table_header,table_row_1,table_row_2,table_row_3,table_row_4,table_row_5\n        - component: Row\n          id: table_header\n          children[3]: th_freq,th_amount,th_details\n        - component: Text\n          id: th_freq\n          text: Frequency\n          variant: h4\n          weight: 1\n        - component: Text\n          id: th_amount\n          text: Gross Amount\n          variant: h4\n          weight: 1\n        - component: Text\n          id: th_details\n          text: Calculation Details\n          variant: h4\n          weight: 2\n        - component: Row\n          id: table_row_1\n          children[3]: td_1_freq,td_1_amount,td_1_details\n        - component: Text\n          id: td_1_freq\n          text: Hourly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_1_amount\n          text: $36.06\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_1_details\n          text: \"Annual Salary / 2,080 Hours\"\n          variant: caption\n          weight: 2\n        - component: Row\n          id: table_row_2\n          children[3]: td_2_freq,td_2_amount,td_2_details\n        - component: Text\n          id: td_2_freq\n          text: Weekly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_2_amount\n          text: \"$1,442.31\"\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_2_details\n          text: Annual Salary / 52 Weeks\n          variant: caption\n          weight: 2\n        - component: Row\n          id: table_row_3\n          children[3]: td_3_freq,td_3_amount,td_3_details\n        - component: Text\n          id: td_3_freq\n          text: Bi-Weekly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_3_amount\n          text: \"$2,884.62\"\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_3_details\n          text: Annual Salary / 26 Pay Periods\n          variant: caption\n          weight: 2\n        - component: Row\n          id: table_row_4\n          children[3]: td_4_freq,td_4_amount,td_4_details\n        - component: Text\n          id: td_4_freq\n          text: Semi-Monthly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_4_amount\n          text: \"$3,125.00\"\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_4_details\n          text: Annual Salary / 24 Pay Periods\n          variant: caption\n          weight: 2\n        - component: Row\n          id: table_row_5\n          children[3]: td_5_freq,td_5_amount,td_5_details\n        - component: Text\n          id: td_5_freq\n          text: Monthly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_5_amount\n          text: \"$6,250.00\"\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_5_details\n          text: Annual Salary / 12 Months\n          variant: caption\n          weight: 2\n        - component: Divider\n          id: divider_3\n        - component: Column\n          id: actions_section\n          children[2]: actions_title,actions_row\n        - component: Text\n          id: actions_title\n          text: Quick Actions\n          variant: h3\n        - component: Row\n          id: actions_row\n          children[2]: btn_calc,btn_bls\n        - child: btn_calc_text\n          component: Button\n          id: btn_calc\n          variant: primary\n          action:\n            functionCall:\n              call: openUrl\n              args:\n                url: \"https://www.paycheckcity.com/calculator/salary\"\n        - component: Text\n          id: btn_calc_text\n          text: Calculate Take-Home Pay\n        - child: btn_bls_text\n          component: Button\n          id: btn_bls\n          variant: borderless\n          action:\n            functionCall:\n              call: openUrl\n              args:\n                url: \"https://www.bls.gov/bls/blswage.htm\"\n        - component: Text\n          id: btn_bls_text\n          text: Bureau of Labor Statistics Wage Data","validation":{"json_parse_ok":true,"schema_valid_strict":true,"schema_valid_lenient":true,"toon_roundtrip_ok":true,"errors":[],"repair_attempts":0,"repair_needed":false},"metrics":{"content_coverage":0.9345794392523364,"dup_rate":0.3445692883895131,"lint_score":1.0,"output_tokens_toon":4451,"output_tokens_json":5654,"output_chars_toon":4451,"output_chars_json":5654,"component_count":54.0,"component_count_norm":0.9,"component_count_capped":54.0,"unique_component_types":6.0,"max_tree_depth":5.0,"avg_tree_depth":1.5740740740740742,"container_to_text_ratio":0.5666666666666667,"information_chunking_score":0.807825086306099,"ui_modularity_score":0.2037037037037037,"ui_decomposition_score":0.49471316540936794,"actionable_elements":2.0,"action_coverage":1.0,"url_as_text_rate":0.0,"table_pattern_detected":1.0,"table_cell_coverage":1.0,"section_heading_coverage":0.5,"markdown_leakage_rate":0.0,"image_presence":0.0,"icon_presence":1.0,"missing_ids":0.0,"missing_ids_rate":0.0,"dangling_components":0.0,"dangling_components_rate":0.0,"intent_require_table":1.0,"intent_require_actions":1.0,"intent_require_sections":1.0,"intent_table_ok":1.0,"intent_actions_ok":1.0,"intent_sections_ok":0.0,"intent_expectation_pass":0.0,"intent_score":0.6666666666666666},"gen":{"provider":"gemini","model":"gemini-3-pro-preview","prompt_version":"genui_gen_v6_structured","latency_ms":39608.580112457275,"input_tokens":14731,"output_tokens":3115,"cost_usd":null,"error":null},"created_at":"2026-02-16T03:50:07.681367Z"}
+{
+    "ui_id":  "u_001374_01",
+    "response_id":  "r_001374_01",
+    "query_id":  "q_001374",
+    "intent":  "calculation",
+    "tags":  [
+                 "career",
+                 "salary",
+                 "conversion"
+             ],
+    "intent_bucket":  "calculation",
+    "genui_json":  [
+                       {
+                           "createSurface":  {
+                                                 "surfaceId":  "salary_conversion_view",
+                                                 "catalogId":  "https://genui.local/specification/v0_9/standard_catalog.json",
+                                                 "theme":  {
+                                                               "primaryColor":  "#2E7D32"
+                                                           }
+                                             },
+                           "version":  "v0.9"
+                       },
+                       {
+                           "updateComponents":  {
+                                                    "surfaceId":  "salary_conversion_view",
+                                                    "components":  [
+                                                                       {
+                                                                           "id":  "root",
+                                                                           "component":  "Column",
+                                                                           "children":  [
+                                                                                            "header_row",
+                                                                                            "summary_text",
+                                                                                            "divider_1",
+                                                                                            "context_section",
+                                                                                            "divider_2",
+                                                                                            "breakdown_section",
+                                                                                            "divider_3",
+                                                                                            "actions_section"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "header_row",
+                                                                           "component":  "Row",
+                                                                           "align":  "center",
+                                                                           "children":  [
+                                                                                            "header_icon",
+                                                                                            "header_title"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "header_icon",
+                                                                           "component":  "Image",
+                                                                           "url":  "/assets/r_001374_01_1_calculator.svg",
+                                                                           "variant":  "icon",
+                                                                           "fit":  "contain"
+                                                                       },
+                                                                       {
+                                                                           "id":  "header_title",
+                                                                           "component":  "Text",
+                                                                           "text":  "Salary Conversion Overview",
+                                                                           "variant":  "h2"
+                                                                       },
+                                                                       {
+                                                                           "id":  "summary_text",
+                                                                           "component":  "Text",
+                                                                           "text":  "Based on an annual salary of $75,000, your pre-tax hourly wage is approximately $36.06. This calculation assumes a standard full-time schedule without unpaid time off.",
+                                                                           "variant":  "body"
+                                                                       },
+                                                                       {
+                                                                           "id":  "divider_1",
+                                                                           "component":  "Divider"
+                                                                       },
+                                                                       {
+                                                                           "id":  "context_section",
+                                                                           "component":  "Column",
+                                                                           "children":  [
+                                                                                            "context_title",
+                                                                                            "context_intro",
+                                                                                            "context_list"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "context_title",
+                                                                           "component":  "Text",
+                                                                           "text":  "Calculation Context",
+                                                                           "variant":  "h3"
+                                                                       },
+                                                                       {
+                                                                           "id":  "context_intro",
+                                                                           "component":  "Text",
+                                                                           "text":  "The conversion uses the specific figures provided in your query to determine the gross hourly rate.",
+                                                                           "variant":  "body"
+                                                                       },
+                                                                       {
+                                                                           "id":  "context_list",
+                                                                           "component":  "Column",
+                                                                           "children":  [
+                                                                                            "context_item_1",
+                                                                                            "context_item_2"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "context_item_1",
+                                                                           "component":  "Row",
+                                                                           "align":  "start",
+                                                                           "children":  [
+                                                                                            "bullet_1",
+                                                                                            "text_1"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "bullet_1",
+                                                                           "component":  "Text",
+                                                                           "text":  "â€¢ ",
+                                                                           "variant":  "body"
+                                                                       },
+                                                                       {
+                                                                           "id":  "text_1",
+                                                                           "component":  "Text",
+                                                                           "text":  "Total Work Hours: 2,080 hours per year (40 hours x 52 weeks)",
+                                                                           "variant":  "body"
+                                                                       },
+                                                                       {
+                                                                           "id":  "context_item_2",
+                                                                           "component":  "Row",
+                                                                           "align":  "start",
+                                                                           "children":  [
+                                                                                            "bullet_2",
+                                                                                            "text_2"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "bullet_2",
+                                                                           "component":  "Text",
+                                                                           "text":  "â€¢ ",
+                                                                           "variant":  "body"
+                                                                       },
+                                                                       {
+                                                                           "id":  "text_2",
+                                                                           "component":  "Text",
+                                                                           "text":  "Pay Frequency: The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied.",
+                                                                           "variant":  "body"
+                                                                       },
+                                                                       {
+                                                                           "id":  "divider_2",
+                                                                           "component":  "Divider"
+                                                                       },
+                                                                       {
+                                                                           "id":  "breakdown_section",
+                                                                           "component":  "Column",
+                                                                           "children":  [
+                                                                                            "breakdown_header_row",
+                                                                                            "breakdown_table"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "breakdown_header_row",
+                                                                           "component":  "Row",
+                                                                           "align":  "center",
+                                                                           "children":  [
+                                                                                            "breakdown_icon",
+                                                                                            "breakdown_title"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "breakdown_icon",
+                                                                           "component":  "Image",
+                                                                           "url":  "/assets/r_001374_01_2_cash-coin.svg",
+                                                                           "variant":  "icon",
+                                                                           "fit":  "contain"
+                                                                       },
+                                                                       {
+                                                                           "id":  "breakdown_title",
+                                                                           "component":  "Text",
+                                                                           "text":  "Gross Income Breakdown",
+                                                                           "variant":  "h3"
+                                                                       },
+                                                                       {
+                                                                           "id":  "breakdown_table",
+                                                                           "component":  "Column",
+                                                                           "children":  [
+                                                                                            "table_header",
+                                                                                            "table_row_1",
+                                                                                            "table_row_2",
+                                                                                            "table_row_3",
+                                                                                            "table_row_4",
+                                                                                            "table_row_5"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "table_header",
+                                                                           "component":  "Row",
+                                                                           "children":  [
+                                                                                            "th_freq",
+                                                                                            "th_amount",
+                                                                                            "th_details"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "th_freq",
+                                                                           "component":  "Text",
+                                                                           "text":  "Frequency",
+                                                                           "variant":  "h4",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "th_amount",
+                                                                           "component":  "Text",
+                                                                           "text":  "Gross Amount",
+                                                                           "variant":  "h4",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "th_details",
+                                                                           "component":  "Text",
+                                                                           "text":  "Calculation Details",
+                                                                           "variant":  "h4",
+                                                                           "weight":  2
+                                                                       },
+                                                                       {
+                                                                           "id":  "table_row_1",
+                                                                           "component":  "Row",
+                                                                           "children":  [
+                                                                                            "td_1_freq",
+                                                                                            "td_1_amount",
+                                                                                            "td_1_details"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_1_freq",
+                                                                           "component":  "Text",
+                                                                           "text":  "Hourly",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_1_amount",
+                                                                           "component":  "Text",
+                                                                           "text":  "$36.06",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_1_details",
+                                                                           "component":  "Text",
+                                                                           "text":  "Annual Salary / 2,080 Hours",
+                                                                           "variant":  "caption",
+                                                                           "weight":  2
+                                                                       },
+                                                                       {
+                                                                           "id":  "table_row_2",
+                                                                           "component":  "Row",
+                                                                           "children":  [
+                                                                                            "td_2_freq",
+                                                                                            "td_2_amount",
+                                                                                            "td_2_details"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_2_freq",
+                                                                           "component":  "Text",
+                                                                           "text":  "Weekly",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_2_amount",
+                                                                           "component":  "Text",
+                                                                           "text":  "$1,442.31",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_2_details",
+                                                                           "component":  "Text",
+                                                                           "text":  "Annual Salary / 52 Weeks",
+                                                                           "variant":  "caption",
+                                                                           "weight":  2
+                                                                       },
+                                                                       {
+                                                                           "id":  "table_row_3",
+                                                                           "component":  "Row",
+                                                                           "children":  [
+                                                                                            "td_3_freq",
+                                                                                            "td_3_amount",
+                                                                                            "td_3_details"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_3_freq",
+                                                                           "component":  "Text",
+                                                                           "text":  "Bi-Weekly",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_3_amount",
+                                                                           "component":  "Text",
+                                                                           "text":  "$2,884.62",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_3_details",
+                                                                           "component":  "Text",
+                                                                           "text":  "Annual Salary / 26 Pay Periods",
+                                                                           "variant":  "caption",
+                                                                           "weight":  2
+                                                                       },
+                                                                       {
+                                                                           "id":  "table_row_4",
+                                                                           "component":  "Row",
+                                                                           "children":  [
+                                                                                            "td_4_freq",
+                                                                                            "td_4_amount",
+                                                                                            "td_4_details"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_4_freq",
+                                                                           "component":  "Text",
+                                                                           "text":  "Semi-Monthly",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_4_amount",
+                                                                           "component":  "Text",
+                                                                           "text":  "$3,125.00",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_4_details",
+                                                                           "component":  "Text",
+                                                                           "text":  "Annual Salary / 24 Pay Periods",
+                                                                           "variant":  "caption",
+                                                                           "weight":  2
+                                                                       },
+                                                                       {
+                                                                           "id":  "table_row_5",
+                                                                           "component":  "Row",
+                                                                           "children":  [
+                                                                                            "td_5_freq",
+                                                                                            "td_5_amount",
+                                                                                            "td_5_details"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_5_freq",
+                                                                           "component":  "Text",
+                                                                           "text":  "Monthly",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_5_amount",
+                                                                           "component":  "Text",
+                                                                           "text":  "$6,250.00",
+                                                                           "variant":  "body",
+                                                                           "weight":  1
+                                                                       },
+                                                                       {
+                                                                           "id":  "td_5_details",
+                                                                           "component":  "Text",
+                                                                           "text":  "Annual Salary / 12 Months",
+                                                                           "variant":  "caption",
+                                                                           "weight":  2
+                                                                       },
+                                                                       {
+                                                                           "id":  "divider_3",
+                                                                           "component":  "Divider"
+                                                                       },
+                                                                       {
+                                                                           "id":  "actions_section",
+                                                                           "component":  "Column",
+                                                                           "children":  [
+                                                                                            "actions_title",
+                                                                                            "actions_row"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "actions_title",
+                                                                           "component":  "Text",
+                                                                           "text":  "Quick Actions",
+                                                                           "variant":  "h3"
+                                                                       },
+                                                                       {
+                                                                           "id":  "actions_row",
+                                                                           "component":  "Row",
+                                                                           "children":  [
+                                                                                            "btn_calc",
+                                                                                            "btn_bls"
+                                                                                        ]
+                                                                       },
+                                                                       {
+                                                                           "id":  "btn_calc",
+                                                                           "component":  "Button",
+                                                                           "variant":  "primary",
+                                                                           "child":  "btn_calc_text",
+                                                                           "action":  {
+                                                                                          "functionCall":  {
+                                                                                                               "call":  "openUrl",
+                                                                                                               "args":  {
+                                                                                                                            "url":  "https://www.paycheckcity.com/calculator/salary"
+                                                                                                                        }
+                                                                                                           }
+                                                                                      }
+                                                                       },
+                                                                       {
+                                                                           "id":  "btn_calc_text",
+                                                                           "component":  "Text",
+                                                                           "text":  "Calculate Take-Home Pay"
+                                                                       },
+                                                                       {
+                                                                           "id":  "btn_bls",
+                                                                           "component":  "Button",
+                                                                           "variant":  "borderless",
+                                                                           "child":  "btn_bls_text",
+                                                                           "action":  {
+                                                                                          "functionCall":  {
+                                                                                                               "call":  "openUrl",
+                                                                                                               "args":  {
+                                                                                                                            "url":  "https://www.bls.gov/bls/blswage.htm"
+                                                                                                                        }
+                                                                                                           }
+                                                                                      }
+                                                                       },
+                                                                       {
+                                                                           "id":  "btn_bls_text",
+                                                                           "component":  "Text",
+                                                                           "text":  "Bureau of Labor Statistics Wage Data"
+                                                                       }
+                                                                   ]
+                                                },
+                           "version":  "v0.9"
+                       }
+                   ],
+    "assets":  [
+                   {
+                       "url":  "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calculator.svg",
+                       "path":  "assets\\r_001374_01_1_calculator.svg",
+                       "sha256":  "0f4f3a1f74ea2c7a29b1bd47ba25892a546b743ce860a7ee0deedf84fd3e9821",
+                       "bytes":  1006
+                   },
+                   {
+                       "url":  "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cash-coin.svg",
+                       "path":  "assets\\r_001374_01_2_cash-coin.svg",
+                       "sha256":  "7ae10dea9e0f55d2f6dc87d5591675ba28a697e2f232f527648e7ecb52e0e94c",
+                       "bytes":  948
+                   }
+               ],
+    "toon":  "[2]:\n  - version: v0.9\n    createSurface:\n      catalogId: \"https://genui.local/specification/v0_9/standard_catalog.json\"\n      surfaceId: salary_conversion_view\n      theme:\n        primaryColor: #2E7D32\n  - version: v0.9\n    updateComponents:\n      surfaceId: salary_conversion_view\n      components[54]:\n        - component: Column\n          id: root\n          children[8]: header_row,summary_text,divider_1,context_section,divider_2,breakdown_section,divider_3,actions_section\n        - align: center\n          component: Row\n          id: header_row\n          children[2]: header_icon,header_title\n        - component: Image\n          fit: contain\n          id: header_icon\n          url: /assets/r_001374_01_1_calculator.svg\n          variant: icon\n        - component: Text\n          id: header_title\n          text: Salary Conversion Overview\n          variant: h2\n        - component: Text\n          id: summary_text\n          text: \"Based on an annual salary of $75,000, your pre-tax hourly wage is approximately $36.06. This calculation assumes a standard full-time schedule without unpaid time off.\"\n          variant: body\n        - component: Divider\n          id: divider_1\n        - component: Column\n          id: context_section\n          children[3]: context_title,context_intro,context_list\n        - component: Text\n          id: context_title\n          text: Calculation Context\n          variant: h3\n        - component: Text\n          id: context_intro\n          text: The conversion uses the specific figures provided in your query to determine the gross hourly rate.\n          variant: body\n        - component: Column\n          id: context_list\n          children[2]: context_item_1,context_item_2\n        - align: start\n          component: Row\n          id: context_item_1\n          children[2]: bullet_1,text_1\n        - component: Text\n          id: bullet_1\n          text: \"â€¢ \"\n          variant: body\n        - component: Text\n          id: text_1\n          text: \"Total Work Hours: 2,080 hours per year (40 hours x 52 weeks)\"\n          variant: body\n        - align: start\n          component: Row\n          id: context_item_2\n          children[2]: bullet_2,text_2\n        - component: Text\n          id: bullet_2\n          text: \"â€¢ \"\n          variant: body\n        - component: Text\n          id: text_2\n          text: \"Pay Frequency: The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied.\"\n          variant: body\n        - component: Divider\n          id: divider_2\n        - component: Column\n          id: breakdown_section\n          children[2]: breakdown_header_row,breakdown_table\n        - align: center\n          component: Row\n          id: breakdown_header_row\n          children[2]: breakdown_icon,breakdown_title\n        - component: Image\n          fit: contain\n          id: breakdown_icon\n          url: /assets/r_001374_01_2_cash-coin.svg\n          variant: icon\n        - component: Text\n          id: breakdown_title\n          text: Gross Income Breakdown\n          variant: h3\n        - component: Column\n          id: breakdown_table\n          children[6]: table_header,table_row_1,table_row_2,table_row_3,table_row_4,table_row_5\n        - component: Row\n          id: table_header\n          children[3]: th_freq,th_amount,th_details\n        - component: Text\n          id: th_freq\n          text: Frequency\n          variant: h4\n          weight: 1\n        - component: Text\n          id: th_amount\n          text: Gross Amount\n          variant: h4\n          weight: 1\n        - component: Text\n          id: th_details\n          text: Calculation Details\n          variant: h4\n          weight: 2\n        - component: Row\n          id: table_row_1\n          children[3]: td_1_freq,td_1_amount,td_1_details\n        - component: Text\n          id: td_1_freq\n          text: Hourly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_1_amount\n          text: $36.06\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_1_details\n          text: \"Annual Salary / 2,080 Hours\"\n          variant: caption\n          weight: 2\n        - component: Row\n          id: table_row_2\n          children[3]: td_2_freq,td_2_amount,td_2_details\n        - component: Text\n          id: td_2_freq\n          text: Weekly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_2_amount\n          text: \"$1,442.31\"\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_2_details\n          text: Annual Salary / 52 Weeks\n          variant: caption\n          weight: 2\n        - component: Row\n          id: table_row_3\n          children[3]: td_3_freq,td_3_amount,td_3_details\n        - component: Text\n          id: td_3_freq\n          text: Bi-Weekly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_3_amount\n          text: \"$2,884.62\"\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_3_details\n          text: Annual Salary / 26 Pay Periods\n          variant: caption\n          weight: 2\n        - component: Row\n          id: table_row_4\n          children[3]: td_4_freq,td_4_amount,td_4_details\n        - component: Text\n          id: td_4_freq\n          text: Semi-Monthly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_4_amount\n          text: \"$3,125.00\"\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_4_details\n          text: Annual Salary / 24 Pay Periods\n          variant: caption\n          weight: 2\n        - component: Row\n          id: table_row_5\n          children[3]: td_5_freq,td_5_amount,td_5_details\n        - component: Text\n          id: td_5_freq\n          text: Monthly\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_5_amount\n          text: \"$6,250.00\"\n          variant: body\n          weight: 1\n        - component: Text\n          id: td_5_details\n          text: Annual Salary / 12 Months\n          variant: caption\n          weight: 2\n        - component: Divider\n          id: divider_3\n        - component: Column\n          id: actions_section\n          children[2]: actions_title,actions_row\n        - component: Text\n          id: actions_title\n          text: Quick Actions\n          variant: h3\n        - component: Row\n          id: actions_row\n          children[2]: btn_calc,btn_bls\n        - child: btn_calc_text\n          component: Button\n          id: btn_calc\n          variant: primary\n          action:\n            functionCall:\n              call: openUrl\n              args:\n                url: \"https://www.paycheckcity.com/calculator/salary\"\n        - component: Text\n          id: btn_calc_text\n          text: Calculate Take-Home Pay\n        - child: btn_bls_text\n          component: Button\n          id: btn_bls\n          variant: borderless\n          action:\n            functionCall:\n              call: openUrl\n              args:\n                url: \"https://www.bls.gov/bls/blswage.htm\"\n        - component: Text\n          id: btn_bls_text\n          text: Bureau of Labor Statistics Wage Data",
+    "validation":  {
+                       "json_parse_ok":  true,
+                       "schema_valid_strict":  true,
+                       "schema_valid_lenient":  true,
+                       "toon_roundtrip_ok":  true,
+                       "errors":  [
+
+                                  ],
+                       "repair_attempts":  0,
+                       "repair_needed":  false
+                   },
+    "metrics":  {
+                    "content_coverage":  0.9345794392523364,
+                    "dup_rate":  0.3445692883895131,
+                    "lint_score":  1.0,
+                    "output_tokens_toon":  4451,
+                    "output_tokens_json":  5654,
+                    "output_chars_toon":  4451,
+                    "output_chars_json":  5654,
+                    "component_count":  54.0,
+                    "component_count_norm":  0.9,
+                    "component_count_capped":  54.0,
+                    "unique_component_types":  6.0,
+                    "max_tree_depth":  5.0,
+                    "avg_tree_depth":  1.5740740740740742,
+                    "container_to_text_ratio":  0.5666666666666667,
+                    "information_chunking_score":  0.807825086306099,
+                    "ui_modularity_score":  0.2037037037037037,
+                    "ui_decomposition_score":  0.49471316540936794,
+                    "actionable_elements":  2.0,
+                    "action_coverage":  1.0,
+                    "url_as_text_rate":  0.0,
+                    "table_pattern_detected":  1.0,
+                    "table_cell_coverage":  1.0,
+                    "section_heading_coverage":  0.5,
+                    "markdown_leakage_rate":  0.0,
+                    "image_presence":  0.0,
+                    "icon_presence":  1.0,
+                    "missing_ids":  0.0,
+                    "missing_ids_rate":  0.0,
+                    "dangling_components":  0.0,
+                    "dangling_components_rate":  0.0,
+                    "intent_require_table":  1.0,
+                    "intent_require_actions":  1.0,
+                    "intent_require_sections":  1.0,
+                    "intent_table_ok":  1.0,
+                    "intent_actions_ok":  1.0,
+                    "intent_sections_ok":  0.0,
+                    "intent_expectation_pass":  0.0,
+                    "intent_score":  0.6666666666666666
+                },
+    "gen":  {
+                "provider":  "gemini",
+                "model":  "gemini-3-pro-preview",
+                "prompt_version":  "genui_gen_v6_structured",
+                "latency_ms":  39608.580112457275,
+                "input_tokens":  14731,
+                "output_tokens":  3115,
+                "cost_usd":  null,
+                "error":  null
+            },
+    "created_at":  "2026-02-16T03:50:07.681367Z"
+}

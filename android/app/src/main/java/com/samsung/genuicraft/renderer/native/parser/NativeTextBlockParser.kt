@@ -156,6 +156,20 @@ internal object NativeTextBlockParser {
                 continue
             }
 
+            val actions = mutableListOf<ParsedButton>()
+            var actionCursor = index
+            while (actionCursor < lines.size) {
+                val parsed = parseButtonLine(lines[actionCursor].trim()) ?: break
+                actions += parsed
+                actionCursor++
+            }
+            if (actions.isNotEmpty()) {
+                blocks += TextBlock.Actions(actions)
+                renderedAny = true
+                index = actionCursor
+                continue
+            }
+
             if (isBulletListLine(line)) {
                 val items = mutableListOf<String>()
                 var cursor = index
@@ -173,20 +187,6 @@ internal object NativeTextBlockParser {
                     renderedAny = true
                 }
                 index = cursor
-                continue
-            }
-
-            val actions = mutableListOf<ParsedButton>()
-            var actionCursor = index
-            while (actionCursor < lines.size) {
-                val parsed = parseButtonLine(lines[actionCursor].trim()) ?: break
-                actions += parsed
-                actionCursor++
-            }
-            if (actions.isNotEmpty()) {
-                blocks += TextBlock.Actions(actions)
-                renderedAny = true
-                index = actionCursor
                 continue
             }
 

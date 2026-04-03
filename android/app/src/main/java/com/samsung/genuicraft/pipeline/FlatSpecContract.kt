@@ -171,6 +171,13 @@ internal object FlatSpecContract {
             if (props == null || !props.isJsonObject) {
                 return ValidationResult(false, "Element '$id' must define props as an object.")
             }
+            val propsObject = props.asJsonObject
+            if (propsObject.has("action")) {
+                return ValidationResult(
+                    false,
+                    "Element '$id' uses legacy props.action. Use on.<event> action bindings instead."
+                )
+            }
 
             val children = element.get("children")
             if (children == null || !children.isJsonArray) {
@@ -196,8 +203,88 @@ internal object FlatSpecContract {
                     return ValidationResult(false, "Element '$id' repeat.statePath is required.")
                 }
             }
+
+            val on = element.get("on")
+            if (on != null && !on.isJsonNull) {
+                if (!on.isJsonObject) {
+                    return ValidationResult(false, "Element '$id' on must be an object.")
+                }
+                on.asJsonObject.entrySet().forEach { (eventName, actionValue) ->
+                    val actionError = validateActionCandidate(
+                        actionValue,
+                        "Element '$id' on.$eventName"
+                    )
+                    if (actionError != null) {
+                        return ValidationResult(false, actionError)
+                    }
+                }
+            }
+
+            val watch = element.get("watch")
+            if (watch != null && !watch.isJsonNull) {
+                if (!watch.isJsonObject) {
+                    return ValidationResult(false, "Element '$id' watch must be an object.")
+                }
+                watch.asJsonObject.entrySet().forEach { (statePath, actionValue) ->
+                    if (statePath.isBlank() || !statePath.startsWith("/")) {
+                        return ValidationResult(
+                            false,
+                            "Element '$id' watch key '$statePath' must be a non-empty JSON pointer path."
+                        )
+                    }
+                    val actionError = validateActionCandidate(
+                        actionValue,
+                        "Element '$id' watch.$statePath"
+                    )
+                    if (actionError != null) {
+                        return ValidationResult(false, actionError)
+                    }
+                }
+            }
         }
         return ValidationResult(true)
+    }
+
+    private fun validateActionCandidate(candidate: JsonElement, context: String): String? {
+        if (candidate.isJsonNull) {
+            return "$context cannot be null."
+        }
+        if (candidate.isJsonArray) {
+            val array = candidate.asJsonArray
+            if (array.size() == 0) {
+                return "$context action array cannot be empty."
+            }
+            array.forEachIndexed { index, action ->
+                val actionError = validateSingleActionBinding(
+                    action,
+                    "$context[$index]"
+                )
+                if (actionError != null) {
+                    return actionError
+                }
+            }
+            return null
+        }
+        return validateSingleActionBinding(candidate, context)
+    }
+
+    private fun validateSingleActionBinding(binding: JsonElement, context: String): String? {
+        if (!binding.isJsonObject) {
+            return "$context must be an object action binding."
+        }
+        val obj = binding.asJsonObject
+        if (obj.has("functionCall")) {
+            return "$context uses legacy functionCall. Use {\"action\":\"...\",\"params\":{...}}."
+        }
+        val action = obj.get("action")
+        if (action == null || !action.isJsonPrimitive || !action.asJsonPrimitive.isString || action.asString.isBlank()) {
+            return "$context action must be a non-empty string."
+        }
+        val params = obj.get("params")
+        if (params != null && !params.isJsonNull && !params.isJsonObject) {
+            return "$context params must be an object when present."
+        }
+        return null
     }
 
     fun buildFallbackFlatSpec(stage2Response: String): JsonObject {

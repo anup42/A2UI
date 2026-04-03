@@ -11,6 +11,13 @@ import java.util.Locale
 
 internal object NativeWeatherSemantics {
     private val TABLE_PLACEHOLDER_CELL_REGEX = Regex("""^[:\-\u2013\u2014]+$""")
+    private val TEMPERATURE_WITH_UNIT_REGEX =
+        Regex("""(?i)(-?\d{1,3}(?:\.\d+)?)\s*(?:\u00B0\s*)?([CF])\b""")
+
+    private data class TemperatureReading(
+        val value: String,
+        val unit: String?
+    )
 
     fun buildWeatherRows(
         header: List<String>,
@@ -122,16 +129,16 @@ internal object NativeWeatherSemantics {
     }
 
     fun weatherTemperatureText(row: WeatherRow): String {
-        val temp = formatTemperatureCellValue(row.temp)
+        val temp = collapseCompositeTemperature(formatTemperatureCellValue(row.temp))
         if (!temp.isNullOrBlank()) {
             return temp
         }
         val high = formatTemperatureCellValue(row.high)
         val low = formatTemperatureCellValue(row.low)
         if (!high.isNullOrBlank() && !low.isNullOrBlank()) {
-            return "$high / $low"
+            return formatHighLowTemperature(high, low)
         }
-        return high ?: low ?: ""
+        return collapseCompositeTemperature(high ?: low).orEmpty()
     }
 
 
@@ -165,6 +172,77 @@ internal object NativeWeatherSemantics {
             return "${single.groupValues[1]}\u00B0"
         }
         return formatted
+    }
+
+    private fun formatHighLowTemperature(
+        high: String,
+        low: String
+    ): String {
+        val highReadings = extractTemperatureReadings(high)
+        val lowReadings = extractTemperatureReadings(low)
+        val preferredUnit = when {
+            highReadings.any { it.unit == "C" } && lowReadings.any { it.unit == "C" } -> "C"
+            highReadings.any { it.unit == "F" } && lowReadings.any { it.unit == "F" } -> "F"
+            else -> null
+        }
+
+        if (preferredUnit != null) {
+            val highPreferred = highReadings.firstOrNull { it.unit == preferredUnit }
+            val lowPreferred = lowReadings.firstOrNull { it.unit == preferredUnit }
+            if (highPreferred != null && lowPreferred != null) {
+                return "${formatTemperatureReading(highPreferred.value, preferredUnit)} / " +
+                    formatTemperatureReading(lowPreferred.value, preferredUnit)
+            }
+        }
+
+        return "$high / $low"
+    }
+
+    private fun collapseCompositeTemperature(value: String?): String? {
+        val formatted = value?.trim().orEmpty()
+        if (formatted.isBlank()) {
+            return null
+        }
+
+        val readings = extractTemperatureReadings(formatted)
+        if (readings.size < 4) {
+            return formatted
+        }
+
+        val preferredUnit = when {
+            readings.count { it.unit == "C" } >= 2 -> "C"
+            readings.count { it.unit == "F" } >= 2 -> "F"
+            else -> null
+        }
+        if (preferredUnit != null) {
+            val unitMatches = readings.filter { it.unit == preferredUnit }
+            if (unitMatches.size >= 4) {
+                return "${formatTemperatureReading(unitMatches[0].value, preferredUnit)} / " +
+                    formatTemperatureReading(unitMatches[2].value, preferredUnit)
+            }
+            if (unitMatches.size >= 2) {
+                return "${formatTemperatureReading(unitMatches[0].value, preferredUnit)} / " +
+                    formatTemperatureReading(unitMatches[1].value, preferredUnit)
+            }
+        }
+
+        val distinctReadings = readings
+            .map { reading -> formatTemperatureReading(reading.value, reading.unit) }
+            .distinct()
+        if (distinctReadings.size >= 2) {
+            return "${distinctReadings[0]} / ${distinctReadings[1]}"
+        }
+        return formatted
+    }
+
+    private fun extractTemperatureReadings(text: String): List<TemperatureReading> {
+        val normalizedText = normalizeTemperatureText(text)
+        return TEMPERATURE_WITH_UNIT_REGEX.findAll(normalizedText).map { match ->
+            TemperatureReading(
+                value = match.groupValues[1].trim(),
+                unit = match.groupValues[2].trim().uppercase(Locale.US)
+            )
+        }.toList()
     }
 
     fun orderWeatherRows(rows: List<WeatherRow>): List<WeatherRow> {

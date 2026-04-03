@@ -44,6 +44,19 @@ Push keys from `../dataset/.env`:
 powershell -ExecutionPolicy Bypass -File .\tools\push_gemini_keys.ps1
 ```
 
+## UI Automation Method (Agent Reuse)
+
+- Canonical testing method is documented in:
+  - `android/tools/TESTING_METHODS.md`
+- Reusable 10-scenario audit script:
+  - `android/tools/run_quickactions_audit.ps1`
+
+Run from repo root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\android\tools\run_quickactions_audit.ps1
+```
+
 ## Output
 
 - APK: `app/build/outputs/apk/debug/app-debug.apk`

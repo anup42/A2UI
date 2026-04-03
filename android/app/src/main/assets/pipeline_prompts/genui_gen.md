@@ -16,7 +16,9 @@ Response:
   - `children` (array of element ids, can be empty)
 - Every id in `children` must exist in `elements`.
 - Use only component types listed in CATALOG.
-- Supported actions: `openUrl`, `setState`.
+- Supported actions: `openUrl`, `setState`, `pushState`, `removeState`, `validateForm`.
+- Interaction bindings must use element-level `on` objects.
+- Do NOT use legacy `props.action` or `functionCall`.
 
 ## Hard rule: no legacy message array
 - DO NOT emit legacy v0.9 message arrays:
@@ -53,16 +55,25 @@ Invalid (legacy, DO NOT OUTPUT):
 Allowed dynamic value expressions in props:
 - `{ "$item": "fieldName" }`
 - `{ "$state": "/path/to/value" }`
+- `{ "$bindItem": "fieldName" }`
+- `{ "$index": true }`
 - `{ "$cond": <condition>, "$then": <value>, "$else": <value> }`
 - `{ "$template": "Hello ${/user/name}!" }`
+- `{ "$computed": "<name>", "args": { ... } }`
 
 ## Repeat and visibility
-- Use `repeat` (top-level field on an element) for list templating:
+- Use `repeat` (top-level field on an element) for list templating.
+- Strict semantics: repeat renders the parent element once, and repeats the parent element's `children` for each item.
+- Use `repeat` with:
   - `"repeat": { "statePath": "/hotels", "key": "id" }`
 - Use `visible` (top-level field on an element) for conditional rendering:
   - `{"$state":"/tab","eq":"hotels"}`
   - `{"$and":[...]}`
   - `{"$or":[...]}`
+
+## Watch bindings
+- You may use element-level `watch` to react to state changes:
+  - `"watch": { "/form/submit": { "action": "validateForm", "params": { "statePath": "/formValidation" } } }`
 
 ## Layout rules
 - Build structured app-like UI, not one giant text block.
@@ -93,7 +104,8 @@ Content:
 - `Divider`
 
 Interactive:
-- `Button` props: `label`, `action` (required), `variant` optional (`primary|borderless`)
+- `Button` props: `label`, `variant` optional (`primary|borderless`)
+- Use element-level `on.press` for button actions.
 - `Tabs` props: `tabs` (required list of `{ "title": "...", "child": "<id>" }`)
 - `Modal` props: `trigger` optional, `content` optional
 
@@ -130,8 +142,10 @@ Form:
     "cta": {
       "type": "Button",
       "props": {
-        "label": "Open",
-        "action": { "functionCall": { "call": "openUrl", "args": { "url": { "$item": "url" } } } }
+        "label": "Open"
+      },
+      "on": {
+        "press": { "action": "openUrl", "params": { "url": { "$item": "url" } } }
       },
       "children": []
     }

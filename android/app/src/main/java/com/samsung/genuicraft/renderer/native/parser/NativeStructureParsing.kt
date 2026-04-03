@@ -7,8 +7,13 @@ import com.samsung.genuicraft.renderer.native.StepEntry
 internal object NativeStructureParsing {
     private val OPTION_LINE_REGEX =
         Regex("""^Option\s+\d+\s*:\s*(.+?)\s*\|\s*(.+)$""", RegexOption.IGNORE_CASE)
+    private val BULLET_PREFIX_REGEX = Regex("""^\s*[\-\*\u2022]\s+""")
     private val BUTTON_LINE_REGEX =
         Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(.+)$""", RegexOption.IGNORE_CASE)
+    private val ACTION_BRACKET_LABEL_REGEX =
+        Regex("""^Action:\s*\[(.+?)\]\s*:?\s*(.+)$""", RegexOption.IGNORE_CASE)
+    private val BUTTON_MARKDOWN_LINK_REGEX =
+        Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*\(\s*(.+?)\s*\)\s*$""", RegexOption.IGNORE_CASE)
     private val NUMBERED_STEP_REGEX = Regex("""^(\d+)\.\s+(.+)$""")
     private val BULLET_LINE_REGEX = Regex("""^\s*([\-*\u2022])\s+(.+)$""")
     private val URL_REGEX = Regex(
@@ -107,9 +112,21 @@ internal object NativeStructureParsing {
     }
 
     fun parseButtonLine(line: String, sanitizeUrlToken: (String) -> String): ParsedButton? {
-        val match = BUTTON_LINE_REGEX.find(line) ?: return null
-        val label = match.groupValues[1].trim()
-        val trailing = match.groupValues[2].trim()
+        val normalized = BULLET_PREFIX_REGEX.replace(line.trim(), "")
+        val markdownLink = BUTTON_MARKDOWN_LINK_REGEX.find(normalized)
+        val (label, trailing) = if (markdownLink != null) {
+            markdownLink.groupValues[1].trim() to markdownLink.groupValues[2].trim()
+        } else {
+            val buttonMatch = BUTTON_LINE_REGEX.find(normalized)
+            val actionMatch = ACTION_BRACKET_LABEL_REGEX.find(normalized)
+            when {
+                buttonMatch != null ->
+                    buttonMatch.groupValues[1].trim() to buttonMatch.groupValues[2].trim()
+                actionMatch != null ->
+                    actionMatch.groupValues[1].trim() to actionMatch.groupValues[2].trim()
+                else -> return null
+            }
+        }
         val rawUrlToken = URL_REGEX.find(trailing)?.value ?: trailing
         val url = NativePayloadParser.canonicalizeNetworkUrlToken(sanitizeUrlToken(rawUrlToken))
         if (label.isBlank() || url.isBlank()) {

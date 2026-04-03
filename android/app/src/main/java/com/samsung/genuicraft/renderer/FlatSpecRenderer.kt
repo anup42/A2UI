@@ -35,6 +35,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -42,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +61,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import java.util.UUID
 
 data class FlatSpec(
     val root: String,
@@ -72,7 +75,8 @@ data class FlatElement(
     val children: List<String>,
     val repeat: RepeatConfig? = null,
     val visible: Any? = null,
-    val on: Map<String, Any?>? = null
+    val on: Map<String, Any?>? = null,
+    val watch: Map<String, Any?>? = null
 )
 
 data class RepeatConfig(
@@ -80,7 +84,23 @@ data class RepeatConfig(
     val key: String? = null
 )
 
+data class RepeatScope(
+    val item: Any? = null,
+    val index: Int? = null,
+    val basePath: String? = null
+)
+
+private data class WatchEntry(
+    val key: String,
+    val statePath: String,
+    val actionBinding: Any?
+)
+
+typealias FlatComputedFunction = (Map<String, Any?>) -> Any?
+
 private val LocalFlatSpecAssetResolver = staticCompositionLocalOf<(String) -> String> { { raw -> raw } }
+private val LocalFlatSpecComputedFunctions = staticCompositionLocalOf<Map<String, FlatComputedFunction>> { emptyMap() }
+private const val WATCH_ACTION_BUDGET = 32
 
 object FlatSpecParser {
 
@@ -137,6 +157,9 @@ object FlatSpecParser {
         val on = obj.getAsJsonObject("on")
             ?.entrySet()
             ?.associate { (key, value) -> key to toKotlin(value) }
+        val watch = obj.getAsJsonObject("watch")
+            ?.entrySet()
+            ?.associate { (key, value) -> key to toKotlin(value) }
 
         return FlatElement(
             type = type,
@@ -144,7 +167,8 @@ object FlatSpecParser {
             children = children,
             repeat = repeat,
             visible = visible,
-            on = on
+            on = on,
+            watch = watch
         )
     }
 
@@ -241,34 +265,142 @@ object FlatSpecParser {
     }
 }
 
+private val DefaultComputedFunctions: Map<String, FlatComputedFunction> = mapOf(
+    "concat" to { args -> args.values.joinToString(separator = "") { it?.toString().orEmpty() } },
+    "uppercase" to { args -> args["value"]?.toString()?.uppercase().orEmpty() },
+    "lowercase" to { args -> args["value"]?.toString()?.lowercase().orEmpty() },
+    "coalesce" to { args ->
+        (args["values"] as? List<*>)?.firstOrNull { candidate ->
+            when (candidate) {
+                null -> false
+                is String -> candidate.isNotBlank()
+                else -> true
+            }
+        }
+    },
+    "sum" to { args ->
+        (args["values"] as? List<*>)?.sumOf { (it as? Number)?.toDouble() ?: 0.0 } ?: 0.0
+    }
+)
+
+private fun toStringKeyMap(value: Any?): Map<String, Any?>? {
+    val map = value as? Map<*, *> ?: return null
+    return map.entries.associate { (k, v) -> k.toString() to v }
+}
+
+private fun normalizePointer(path: String): String {
+    val trimmed = path.trim()
+    if (trimmed.isBlank()) return ""
+    return if (trimmed.startsWith('/')) trimmed else "/$trimmed"
+}
+
+private fun encodePointerToken(token: String): String {
+    return token.replace("~", "~0").replace("/", "~1")
+}
+
+private fun combinePointerPath(basePath: String?, token: String): String? {
+    val normalizedBase = basePath?.trim()?.takeIf { it.isNotBlank() } ?: return null
+    val pointerBase = normalizePointer(normalizedBase)
+    return "${pointerBase.trimEnd('/')}/${encodePointerToken(token)}"
+}
+
+private fun resolveItemValue(item: Any?, path: String): Any? {
+    if (item == null) return null
+    val normalized = path.trim()
+    if (normalized.isBlank()) return item
+    val fromPointer = FlatSpecParser.getAtPath(item, normalized)
+    if (fromPointer != null) return fromPointer
+    return if (normalized == "value") item else null
+}
+
+private fun resolveBindItemPath(rawPath: String?, scope: RepeatScope?): String? {
+    val basePath = scope?.basePath?.takeIf { it.isNotBlank() } ?: return null
+    val requested = rawPath?.trim().orEmpty()
+    if (requested.isBlank()) return normalizePointer(basePath)
+    return combinePointerPath(basePath, requested)
+}
+
+private fun deepCopyValue(value: Any?): Any? {
+    return when (value) {
+        is Map<*, *> -> value.entries.associate { (k, v) -> k.toString() to deepCopyValue(v) }
+        is List<*> -> value.map { deepCopyValue(it) }
+        else -> value
+    }
+}
+
+private fun deepEquals(left: Any?, right: Any?): Boolean {
+    if (left === right) return true
+    if (left == null || right == null) return false
+    if (left is Map<*, *> && right is Map<*, *>) {
+        if (left.size != right.size) return false
+        return left.keys.all { key -> deepEquals(left[key], right[key]) }
+    }
+    if (left is List<*> && right is List<*>) {
+        if (left.size != right.size) return false
+        return left.indices.all { index -> deepEquals(left[index], right[index]) }
+    }
+    return left == right
+}
+
 object FlatExprResolver {
 
+    private val expressionKeys = setOf(
+        "\$item",
+        "\$state",
+        "\$bindState",
+        "\$bindItem",
+        "\$index",
+        "\$cond",
+        "\$template",
+        "\$computed",
+        "literalString",
+        "literalNumber",
+        "literalBoolean"
+    )
+
     fun resolve(value: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): Any? {
-        if (value !is Map<*, *>) return value
-        @Suppress("UNCHECKED_CAST")
-        val expr = value as Map<String, Any?>
-        return when {
-            expr.containsKey("\$item") -> item?.get(expr["\$item"]?.toString().orEmpty())
-            expr.containsKey("\$state") -> FlatSpecParser.getAtPath(state, expr["\$state"]?.toString().orEmpty())
-            expr.containsKey("\$bindState") -> FlatSpecParser.getAtPath(state, expr["\$bindState"]?.toString().orEmpty())
-            expr.containsKey("\$cond") -> {
-                val condition = evaluateCondition(expr["\$cond"], state, item)
-                if (condition) resolve(expr["\$then"], state, item) else resolve(expr["\$else"], state, item)
+        return resolve(value, state, RepeatScope(item = item), emptyMap())
+    }
+
+    fun resolve(
+        value: Any?,
+        state: Map<String, Any?>,
+        repeatScope: RepeatScope?,
+        computedFunctions: Map<String, FlatComputedFunction>
+    ): Any? {
+        return when (value) {
+            is Map<*, *> -> resolveMap(value, state, repeatScope, computedFunctions)
+            is List<*> -> value.map { child ->
+                resolve(child, state, repeatScope, computedFunctions)
             }
-            expr.containsKey("\$template") -> interpolate(expr["\$template"]?.toString().orEmpty(), state)
-            expr.containsKey("literalString") -> expr["literalString"]
-            expr.containsKey("literalNumber") -> expr["literalNumber"]
-            expr.containsKey("literalBoolean") -> expr["literalBoolean"]
             else -> value
         }
     }
 
     fun resolveString(value: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): String {
-        return resolve(value, state, item)?.toString().orEmpty()
+        return resolve(value, state, RepeatScope(item = item), emptyMap())?.toString().orEmpty()
+    }
+
+    fun resolveString(
+        value: Any?,
+        state: Map<String, Any?>,
+        repeatScope: RepeatScope?,
+        computedFunctions: Map<String, FlatComputedFunction>
+    ): String {
+        return resolve(value, state, repeatScope, computedFunctions)?.toString().orEmpty()
     }
 
     fun resolveBoolean(value: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): Boolean {
-        return when (val resolved = resolve(value, state, item)) {
+        return resolveBoolean(value, state, RepeatScope(item = item), emptyMap())
+    }
+
+    fun resolveBoolean(
+        value: Any?,
+        state: Map<String, Any?>,
+        repeatScope: RepeatScope?,
+        computedFunctions: Map<String, FlatComputedFunction>
+    ): Boolean {
+        return when (val resolved = resolve(value, state, repeatScope, computedFunctions)) {
             is Boolean -> resolved
             is Number -> resolved.toInt() != 0
             is String -> resolved.equals("true", ignoreCase = true)
@@ -277,41 +409,131 @@ object FlatExprResolver {
     }
 
     fun evaluateVisible(visible: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): Boolean {
-        if (visible == null) return true
-        return evaluateCondition(visible, state, item)
+        return evaluateVisible(visible, state, RepeatScope(item = item), emptyMap())
     }
 
-    private fun evaluateCondition(condition: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): Boolean {
+    fun evaluateVisible(
+        visible: Any?,
+        state: Map<String, Any?>,
+        repeatScope: RepeatScope?,
+        computedFunctions: Map<String, FlatComputedFunction>
+    ): Boolean {
+        if (visible == null) return true
+        return evaluateCondition(visible, state, repeatScope, computedFunctions)
+    }
+
+    private fun resolveMap(
+        map: Map<*, *>,
+        state: Map<String, Any?>,
+        repeatScope: RepeatScope?,
+        computedFunctions: Map<String, FlatComputedFunction>
+    ): Any? {
+        val stringMap = toStringKeyMap(map) ?: return map
+        val hasExpressionKey = stringMap.keys.any { key -> key in expressionKeys }
+        if (!hasExpressionKey) {
+            return stringMap.mapValues { (_, value) ->
+                resolve(value, state, repeatScope, computedFunctions)
+            }
+        }
+
+        return when {
+            stringMap.containsKey("\$item") -> {
+                val itemPath = stringMap["\$item"]?.toString().orEmpty()
+                resolveItemValue(repeatScope?.item, itemPath)
+            }
+
+            stringMap.containsKey("\$state") ->
+                FlatSpecParser.getAtPath(state, stringMap["\$state"]?.toString().orEmpty())
+
+            stringMap.containsKey("\$bindState") ->
+                FlatSpecParser.getAtPath(state, stringMap["\$bindState"]?.toString().orEmpty())
+
+            stringMap.containsKey("\$bindItem") -> {
+                val itemPath = stringMap["\$bindItem"]?.toString()
+                val resolvedPath = resolveBindItemPath(itemPath, repeatScope)
+                if (resolvedPath.isNullOrBlank()) null else FlatSpecParser.getAtPath(state, resolvedPath)
+            }
+
+            stringMap.containsKey("\$index") -> repeatScope?.index
+
+            stringMap.containsKey("\$cond") -> {
+                val condition = evaluateCondition(stringMap["\$cond"], state, repeatScope, computedFunctions)
+                if (condition) {
+                    resolve(stringMap["\$then"], state, repeatScope, computedFunctions)
+                } else {
+                    resolve(stringMap["\$else"], state, repeatScope, computedFunctions)
+                }
+            }
+
+            stringMap.containsKey("\$template") -> interpolate(
+                template = stringMap["\$template"]?.toString().orEmpty(),
+                state = state
+            )
+
+            stringMap.containsKey("\$computed") -> {
+                val functionName = stringMap["\$computed"]?.toString()?.trim().orEmpty()
+                val args = toStringKeyMap(stringMap["args"])
+                    ?.mapValues { (_, argValue) ->
+                        resolve(argValue, state, repeatScope, computedFunctions)
+                    }
+                    ?: emptyMap()
+                computedFunctions[functionName]?.invoke(args)
+            }
+
+            stringMap.containsKey("literalString") -> stringMap["literalString"]
+            stringMap.containsKey("literalNumber") -> stringMap["literalNumber"]
+            stringMap.containsKey("literalBoolean") -> stringMap["literalBoolean"]
+            else -> stringMap.mapValues { (_, value) ->
+                resolve(value, state, repeatScope, computedFunctions)
+            }
+        }
+    }
+
+    private fun evaluateCondition(
+        condition: Any?,
+        state: Map<String, Any?>,
+        repeatScope: RepeatScope?,
+        computedFunctions: Map<String, FlatComputedFunction>
+    ): Boolean {
         if (condition == null) return true
         if (condition is Boolean) return condition
-        if (condition is List<*>) return condition.all { evaluateCondition(it, state, item) }
+        if (condition is List<*>) {
+            return condition.all { child -> evaluateCondition(child, state, repeatScope, computedFunctions) }
+        }
         if (condition !is Map<*, *>) return true
-        @Suppress("UNCHECKED_CAST")
-        val expr = condition as Map<String, Any?>
+        val expr = toStringKeyMap(condition) ?: return true
 
         if (expr.containsKey("\$and")) {
             val list = expr["\$and"] as? List<*> ?: return true
-            return list.all { evaluateCondition(it, state, item) }
+            return list.all { child -> evaluateCondition(child, state, repeatScope, computedFunctions) }
         }
         if (expr.containsKey("\$or")) {
             val list = expr["\$or"] as? List<*> ?: return false
-            return list.any { evaluateCondition(it, state, item) }
+            return list.any { child -> evaluateCondition(child, state, repeatScope, computedFunctions) }
         }
 
         val rawValue: Any? = when {
             expr.containsKey("\$state") -> FlatSpecParser.getAtPath(state, expr["\$state"]?.toString().orEmpty())
-            expr.containsKey("\$item") -> item?.get(expr["\$item"]?.toString().orEmpty())
-            expr.containsKey("value") -> resolve(expr["value"], state, item)
+            expr.containsKey("\$item") -> resolveItemValue(repeatScope?.item, expr["\$item"]?.toString().orEmpty())
+            expr.containsKey("\$index") -> repeatScope?.index
+            expr.containsKey("value") -> resolve(expr["value"], state, repeatScope, computedFunctions)
             else -> null
         }
 
+        val eqValue = resolve(expr["eq"], state, repeatScope, computedFunctions)
+        val neqValue = resolve(expr["neq"], state, repeatScope, computedFunctions)
+        val gtValue = resolve(expr["gt"], state, repeatScope, computedFunctions)
+        val gteValue = resolve(expr["gte"], state, repeatScope, computedFunctions)
+        val ltValue = resolve(expr["lt"], state, repeatScope, computedFunctions)
+        val lteValue = resolve(expr["lte"], state, repeatScope, computedFunctions)
+
         val result = when {
-            expr.containsKey("eq") -> rawValue?.toString() == expr["eq"]?.toString()
-            expr.containsKey("neq") -> rawValue?.toString() != expr["neq"]?.toString()
-            expr.containsKey("gt") -> toDouble(rawValue) > toDouble(expr["gt"])
-            expr.containsKey("gte") -> toDouble(rawValue) >= toDouble(expr["gte"])
-            expr.containsKey("lt") -> toDouble(rawValue) < toDouble(expr["lt"])
-            expr.containsKey("lte") -> toDouble(rawValue) <= toDouble(expr["lte"])
+            expr.containsKey("eq") -> deepEquals(rawValue, eqValue)
+            expr.containsKey("neq") -> !deepEquals(rawValue, neqValue)
+            expr.containsKey("gt") -> toDouble(rawValue) > toDouble(gtValue)
+            expr.containsKey("gte") -> toDouble(rawValue) >= toDouble(gteValue)
+            expr.containsKey("lt") -> toDouble(rawValue) < toDouble(ltValue)
+            expr.containsKey("lte") -> toDouble(rawValue) <= toDouble(lteValue)
             else -> truthy(rawValue)
         }
         val invert = expr["not"] == true
@@ -337,10 +559,224 @@ object FlatExprResolver {
     }
 
     private fun interpolate(template: String, state: Map<String, Any?>): String {
-        return Regex("""\$\{(/[^}]+)}""").replace(template) { match ->
-            val path = match.groupValues.getOrNull(1).orEmpty()
+        return Regex("""\$\{([^}]+)}""").replace(template) { match ->
+            val rawPath = match.groupValues.getOrNull(1).orEmpty()
+            val path = normalizePointer(rawPath)
             FlatSpecParser.getAtPath(state, path)?.toString().orEmpty()
         }
+    }
+}
+
+internal object FlatActionRuntime {
+
+    fun execute(
+        actionCandidate: Any?,
+        stateStore: MutableMap<String, Any?>,
+        repeatScope: RepeatScope?,
+        computedFunctions: Map<String, FlatComputedFunction>,
+        onOpenUrl: (String) -> Unit
+    ): Int {
+        val bindings = toActionBindings(actionCandidate)
+        var executed = 0
+        bindings.forEach { binding ->
+            val actionName = binding["action"]?.toString()?.trim()?.lowercase().orEmpty()
+            if (actionName.isBlank()) return@forEach
+
+            val rawParams = toStringKeyMap(binding["params"]) ?: emptyMap()
+            val resolvedParams = rawParams.mapValues { (_, value) ->
+                FlatExprResolver.resolve(value, stateStore, repeatScope, computedFunctions)
+            }
+
+            when (actionName) {
+                "openurl" -> {
+                    val url = firstNonBlankString(resolvedParams, "url", "href", "link", "targetUrl")
+                    if (url.isNotBlank()) {
+                        onOpenUrl(url)
+                    }
+                }
+
+                "setstate" -> {
+                    val path = resolveStatePathParam(
+                        rawParams,
+                        stateStore,
+                        repeatScope,
+                        computedFunctions,
+                        "statePath",
+                        "path"
+                    )
+                    if (path.isNotBlank()) {
+                        FlatSpecParser.setAtPath(stateStore, path, resolvedParams["value"])
+                    }
+                }
+
+                "pushstate" -> {
+                    val path = resolveStatePathParam(
+                        rawParams,
+                        stateStore,
+                        repeatScope,
+                        computedFunctions,
+                        "statePath",
+                        "path"
+                    )
+                    if (path.isNotBlank()) {
+                        val current = (FlatSpecParser.getAtPath(stateStore, path) as? List<*>)?.toMutableList()
+                            ?: mutableListOf()
+                        val generatedId = UUID.randomUUID().toString()
+                        val value = replaceGeneratedIdToken(resolvedParams["value"], generatedId)
+                        current.add(value)
+                        FlatSpecParser.setAtPath(stateStore, path, current.toList())
+                        val clearStatePath = resolveStatePathParam(
+                            rawParams,
+                            stateStore,
+                            repeatScope,
+                            computedFunctions,
+                            "clearStatePath"
+                        )
+                        if (clearStatePath.isNotBlank()) {
+                            FlatSpecParser.setAtPath(stateStore, clearStatePath, null)
+                        }
+                    }
+                }
+
+                "removestate" -> {
+                    val path = resolveStatePathParam(
+                        rawParams,
+                        stateStore,
+                        repeatScope,
+                        computedFunctions,
+                        "statePath",
+                        "path"
+                    )
+                    val index = toInt(resolvedParams["index"])
+                    if (path.isNotBlank() && index != null) {
+                        val current = (FlatSpecParser.getAtPath(stateStore, path) as? List<*>)?.toMutableList()
+                        if (current != null && index in current.indices) {
+                            current.removeAt(index)
+                            FlatSpecParser.setAtPath(stateStore, path, current.toList())
+                        }
+                    }
+                }
+
+                "validateform" -> {
+                    val targetPath = resolveStatePathParam(
+                        rawParams,
+                        stateStore,
+                        repeatScope,
+                        computedFunctions,
+                        "resultStatePath",
+                        "statePath",
+                        "path"
+                    )
+                        .ifBlank { "/formValidation" }
+                    val validationResult = mapOf(
+                        "valid" to true,
+                        "errors" to emptyMap<String, String>()
+                    )
+                    FlatSpecParser.setAtPath(stateStore, targetPath, validationResult)
+                }
+            }
+            executed += 1
+        }
+        return executed
+    }
+
+    private fun toActionBindings(actionCandidate: Any?): List<Map<String, Any?>> {
+        return when (actionCandidate) {
+            is List<*> -> actionCandidate.mapNotNull { entry ->
+                val binding = toStringKeyMap(entry) ?: return@mapNotNull null
+                binding.takeIf { it["action"] is String }
+            }
+
+            else -> {
+                val binding = toStringKeyMap(actionCandidate)
+                if (binding != null && binding["action"] is String) listOf(binding) else emptyList()
+            }
+        }
+    }
+
+    private fun resolveStatePathParam(
+        rawParams: Map<String, Any?>,
+        state: Map<String, Any?>,
+        repeatScope: RepeatScope?,
+        computedFunctions: Map<String, FlatComputedFunction>,
+        vararg keys: String
+    ): String {
+        keys.forEach { key ->
+            val rawValue = rawParams[key] ?: return@forEach
+            val rawMap = toStringKeyMap(rawValue)
+            val resolved = if (rawMap != null && rawMap.containsKey("\$item")) {
+                resolveBindItemPath(rawMap["\$item"]?.toString(), repeatScope)
+            } else {
+                FlatExprResolver.resolve(rawValue, state, repeatScope, computedFunctions)?.toString()
+            }
+            val normalized = resolved?.trim().orEmpty()
+            if (normalized.isNotBlank()) {
+                return normalized
+            }
+        }
+        return ""
+    }
+
+    private fun firstNonBlankString(map: Map<String, Any?>, vararg keys: String): String {
+        keys.forEach { key ->
+            val value = map[key]?.toString()?.trim().orEmpty()
+            if (value.isNotBlank()) {
+                return value
+            }
+        }
+        return ""
+    }
+
+    private fun toInt(value: Any?): Int? {
+        return when (value) {
+            is Number -> value.toInt()
+            is String -> value.toIntOrNull()
+            else -> null
+        }
+    }
+
+    private fun replaceGeneratedIdToken(value: Any?, generatedId: String): Any? {
+        return when (value) {
+            "\$id" -> generatedId
+            is Map<*, *> -> value.entries.associate { (k, v) ->
+                k.toString() to replaceGeneratedIdToken(v, generatedId)
+            }
+
+            is List<*> -> value.map { replaceGeneratedIdToken(it, generatedId) }
+            else -> value
+        }
+    }
+}
+
+internal class FlatWatchRuntime(elements: Map<String, FlatElement>) {
+
+    private val entries: List<WatchEntry> = elements.flatMap { (elementId, element) ->
+        element.watch.orEmpty().map { (statePath, binding) ->
+            WatchEntry(
+                key = "$elementId::$statePath",
+                statePath = normalizePointer(statePath),
+                actionBinding = binding
+            )
+        }
+    }
+    private val lastValues = mutableMapOf<String, Any?>()
+    private var initialized = false
+
+    fun collectTriggered(state: Map<String, Any?>): List<Any?> {
+        if (entries.isEmpty()) return emptyList()
+        val triggered = mutableListOf<Any?>()
+        entries.forEach { entry ->
+            val currentValue = deepCopyValue(FlatSpecParser.getAtPath(state, entry.statePath))
+            val previousValue = lastValues[entry.key]
+            if (initialized && !deepEquals(previousValue, currentValue)) {
+                triggered += entry.actionBinding
+            }
+            lastValues[entry.key] = currentValue
+        }
+        if (!initialized) {
+            initialized = true
+        }
+        return triggered
     }
 }
 
@@ -348,28 +784,61 @@ object FlatExprResolver {
 fun FlatSpecContent(
     spec: FlatSpec,
     resolveAssetUrl: (String) -> String = { raw -> raw },
+    computedFunctions: Map<String, FlatComputedFunction> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val stateStore = remember(spec) {
         mutableStateMapOf<String, Any?>().apply { putAll(spec.state) }
     }
+    val combinedComputedFunctions = remember(computedFunctions) {
+        DefaultComputedFunctions + computedFunctions
+    }
+    val watchRuntime = remember(spec) { FlatWatchRuntime(spec.elements) }
 
     val onOpenUrl: (String) -> Unit = { url ->
         runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
     }
     val onSetState: (String, Any?) -> Unit = { path, value ->
-        FlatSpecParser.setAtPath(stateStore, path, value)
+        val normalizedPath = normalizePointer(path)
+        if (normalizedPath.isNotBlank()) {
+            FlatSpecParser.setAtPath(stateStore, normalizedPath, value)
+        }
+    }
+    val onAction: (Any?, RepeatScope?) -> Int = { actionCandidate, repeatScope ->
+        FlatActionRuntime.execute(
+            actionCandidate = actionCandidate,
+            stateStore = stateStore,
+            repeatScope = repeatScope,
+            computedFunctions = combinedComputedFunctions,
+            onOpenUrl = onOpenUrl
+        )
     }
 
-    CompositionLocalProvider(LocalFlatSpecAssetResolver provides resolveAssetUrl) {
+    LaunchedEffect(spec) {
+        snapshotFlow { stateStore.toMap() }.collect { snapshot ->
+            val triggered = watchRuntime.collectTriggered(snapshot)
+            var remainingBudget = WATCH_ACTION_BUDGET
+            triggered.forEach { candidate ->
+                if (remainingBudget <= 0) return@forEach
+                val executed = onAction(candidate, null)
+                remainingBudget -= executed.coerceAtLeast(1)
+            }
+        }
+    }
+
+    CompositionLocalProvider(
+        LocalFlatSpecAssetResolver provides resolveAssetUrl,
+        LocalFlatSpecComputedFunctions provides combinedComputedFunctions
+    ) {
         RenderElement(
             elementId = spec.root,
             elements = spec.elements,
             state = stateStore,
-            itemContext = null,
+            repeatScope = null,
             onOpenUrl = onOpenUrl,
             onSetState = onSetState,
+            onAction = onAction,
             activePath = emptySet(),
             modifier = modifier
         )
@@ -381,46 +850,31 @@ private fun RenderElement(
     elementId: String,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
     onOpenUrl: (String) -> Unit,
     onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
     if (elementId in activePath) return
     val element = elements[elementId] ?: return
-    if (!FlatExprResolver.evaluateVisible(element.visible, state, itemContext)) return
+    val computedFunctions = LocalFlatSpecComputedFunctions.current
+    if (!FlatExprResolver.evaluateVisible(element.visible, state, repeatScope, computedFunctions)) return
 
-    if (element.repeat != null) {
-        val rawItems = FlatSpecParser.getAtPath(state, element.repeat.statePath)
-        val items = rawItems as? List<*> ?: emptyList<Any?>()
-        items.forEach { rawItem ->
-            val mapped = when (rawItem) {
-                is Map<*, *> -> rawItem.entries.associate { (k, v) -> k.toString() to v }
-                else -> mapOf("value" to rawItem)
-            }
-            val resolvedProps = element.props.mapValues { (_, value) ->
-                FlatExprResolver.resolve(value, state, mapped)
-            }
-            RenderByType(
-                type = element.type,
-                props = resolvedProps,
-                children = element.children,
-                onMap = element.on,
-                elements = elements,
-                state = state,
-                itemContext = mapped,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                activePath = activePath + elementId,
-                modifier = modifier
+    val repeatedChildScopes: List<RepeatScope>? = element.repeat?.let { repeat ->
+        val items = (FlatSpecParser.getAtPath(state, repeat.statePath) as? List<*>).orEmpty()
+        items.mapIndexed { index, item ->
+            RepeatScope(
+                item = item,
+                index = index,
+                basePath = combinePointerPath(repeat.statePath, index.toString())
             )
         }
-        return
     }
 
     val resolvedProps = element.props.mapValues { (_, value) ->
-        FlatExprResolver.resolve(value, state, itemContext)
+        FlatExprResolver.resolve(value, state, repeatScope, computedFunctions)
     }
 
     RenderByType(
@@ -430,9 +884,11 @@ private fun RenderElement(
         onMap = element.on,
         elements = elements,
         state = state,
-        itemContext = itemContext,
+        repeatScope = repeatScope,
+        repeatedChildScopes = repeatedChildScopes,
         onOpenUrl = onOpenUrl,
         onSetState = onSetState,
+        onAction = onAction,
         activePath = activePath + elementId,
         modifier = modifier
     )
@@ -446,33 +902,83 @@ private fun RenderByType(
     onMap: Map<String, Any?>?,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
+    repeatedChildScopes: List<RepeatScope>?,
     onOpenUrl: (String) -> Unit,
     onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
     when (type.lowercase()) {
-        "column" -> RenderColumn(children, elements, state, itemContext, onOpenUrl, onSetState, activePath, modifier)
-        "row" -> RenderRow(props, children, elements, state, itemContext, onOpenUrl, onSetState, activePath, modifier)
-        "list" -> RenderList(children, elements, state, itemContext, onOpenUrl, onSetState, activePath, modifier)
-        "card" -> RenderCard(props, children, elements, state, itemContext, onOpenUrl, onSetState, activePath, modifier)
+        "column" -> RenderColumn(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
+        "row" -> RenderRow(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
+        "list" -> RenderList(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
+        "card" -> RenderCard(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "text" -> RenderText(props, modifier)
         "image" -> RenderImage(props, onOpenUrl, modifier)
         "icon" -> RenderIcon(props, modifier)
-        "button" -> RenderButton(props, onMap, onOpenUrl, onSetState, state, itemContext, modifier)
+        "button" -> RenderButton(props, onMap, repeatScope, onAction, modifier)
         "divider" -> RenderDivider(modifier)
-        "tabs" -> RenderTabs(props, elements, state, itemContext, onOpenUrl, onSetState, activePath, modifier)
-        "modal" -> RenderModal(props, children, elements, state, itemContext, onOpenUrl, onSetState, activePath, modifier)
-        "textfield" -> RenderTextField(props, onSetState, state, itemContext, modifier)
-        "checkbox" -> RenderCheckBox(props, onSetState, state, itemContext, modifier)
-        "choicepicker" -> RenderChoicePicker(props, onSetState, state, itemContext, modifier)
-        "slider" -> RenderSlider(props, onSetState, state, itemContext, modifier)
-        "datetimeinput" -> RenderDateTimeInput(props, onSetState, state, itemContext, modifier)
+        "tabs" -> RenderTabs(props, elements, state, repeatScope, onOpenUrl, onSetState, onAction, activePath, modifier)
+        "modal" -> RenderModal(props, children, elements, state, repeatScope, onOpenUrl, onSetState, onAction, activePath, modifier)
+        "textfield" -> RenderTextField(props, onSetState, state, repeatScope, modifier)
+        "checkbox" -> RenderCheckBox(props, onSetState, state, repeatScope, modifier)
+        "choicepicker" -> RenderChoicePicker(props, onSetState, state, repeatScope, modifier)
+        "slider" -> RenderSlider(props, onSetState, state, repeatScope, modifier)
+        "datetimeinput" -> RenderDateTimeInput(props, onSetState, state, repeatScope, modifier)
         "video" -> RenderVideo(props, onOpenUrl, modifier)
         "audioplayer" -> RenderAudioPlayer(props, onOpenUrl, modifier)
         else -> if (children.isNotEmpty()) {
-            RenderColumn(children, elements, state, itemContext, onOpenUrl, onSetState, activePath, modifier)
+            RenderColumn(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
+        }
+    }
+}
+
+@Composable
+private fun RenderChildren(
+    children: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    repeatedChildScopes: List<RepeatScope>?,
+    onOpenUrl: (String) -> Unit,
+    onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
+    activePath: Set<String>
+) {
+    if (repeatedChildScopes == null) {
+        children.forEach { childId ->
+            RenderElement(
+                elementId = childId,
+                elements = elements,
+                state = state,
+                repeatScope = repeatScope,
+                onOpenUrl = onOpenUrl,
+                onSetState = onSetState,
+                onAction = onAction,
+                activePath = activePath
+            )
+        }
+        return
+    }
+
+    if (repeatedChildScopes.isEmpty()) {
+        return
+    }
+
+    repeatedChildScopes.forEach { scopedRepeat ->
+        children.forEach { childId ->
+            RenderElement(
+                elementId = childId,
+                elements = elements,
+                state = state,
+                repeatScope = scopedRepeat,
+                onOpenUrl = onOpenUrl,
+                onSetState = onSetState,
+                onAction = onAction,
+                activePath = activePath
+            )
         }
     }
 }
@@ -482,9 +988,11 @@ private fun RenderColumn(
     children: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
+    repeatedChildScopes: List<RepeatScope>?,
     onOpenUrl: (String) -> Unit,
     onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
@@ -492,17 +1000,17 @@ private fun RenderColumn(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        children.forEach { childId ->
-            RenderElement(
-                elementId = childId,
-                elements = elements,
-                state = state,
-                itemContext = itemContext,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                activePath = activePath
-            )
-        }
+        RenderChildren(
+            children = children,
+            elements = elements,
+            state = state,
+            repeatScope = repeatScope,
+            repeatedChildScopes = repeatedChildScopes,
+            onOpenUrl = onOpenUrl,
+            onSetState = onSetState,
+            onAction = onAction,
+            activePath = activePath
+        )
     }
 }
 
@@ -512,9 +1020,11 @@ private fun RenderRow(
     children: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
+    repeatedChildScopes: List<RepeatScope>?,
     onOpenUrl: (String) -> Unit,
     onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
@@ -530,17 +1040,17 @@ private fun RenderRow(
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = arrangement
     ) {
-        children.forEach { childId ->
-            RenderElement(
-                elementId = childId,
-                elements = elements,
-                state = state,
-                itemContext = itemContext,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                activePath = activePath
-            )
-        }
+        RenderChildren(
+            children = children,
+            elements = elements,
+            state = state,
+            repeatScope = repeatScope,
+            repeatedChildScopes = repeatedChildScopes,
+            onOpenUrl = onOpenUrl,
+            onSetState = onSetState,
+            onAction = onAction,
+            activePath = activePath
+        )
     }
 }
 
@@ -549,9 +1059,11 @@ private fun RenderList(
     children: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
+    repeatedChildScopes: List<RepeatScope>?,
     onOpenUrl: (String) -> Unit,
     onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
@@ -559,17 +1071,17 @@ private fun RenderList(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        children.forEach { childId ->
-            RenderElement(
-                elementId = childId,
-                elements = elements,
-                state = state,
-                itemContext = itemContext,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                activePath = activePath
-            )
-        }
+        RenderChildren(
+            children = children,
+            elements = elements,
+            state = state,
+            repeatScope = repeatScope,
+            repeatedChildScopes = repeatedChildScopes,
+            onOpenUrl = onOpenUrl,
+            onSetState = onSetState,
+            onAction = onAction,
+            activePath = activePath
+        )
     }
 }
 
@@ -579,9 +1091,11 @@ private fun RenderCard(
     children: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
+    repeatedChildScopes: List<RepeatScope>?,
     onOpenUrl: (String) -> Unit,
     onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
@@ -596,17 +1110,17 @@ private fun RenderCard(
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            allChildren.forEach { childId ->
-                RenderElement(
-                    elementId = childId,
-                    elements = elements,
-                    state = state,
-                    itemContext = itemContext,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    activePath = activePath
-                )
-            }
+            RenderChildren(
+                children = allChildren,
+                elements = elements,
+                state = state,
+                repeatScope = repeatScope,
+                repeatedChildScopes = repeatedChildScopes,
+                onOpenUrl = onOpenUrl,
+                onSetState = onSetState,
+                onAction = onAction,
+                activePath = activePath
+            )
         }
     }
 }
@@ -726,21 +1240,18 @@ private fun RenderIcon(
 private fun RenderButton(
     props: Map<String, Any?>,
     onMap: Map<String, Any?>?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit,
-    state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
+    onAction: (Any?, RepeatScope?) -> Int,
     modifier: Modifier = Modifier
 ) {
     val label = props["label"]?.toString().orEmpty().ifBlank { "Open" }
     val variant = props["variant"]?.toString()?.lowercase().orEmpty()
-    val onClick = resolveActionHandler(
-        actionCandidate = props["action"] ?: onMap?.get("press"),
-        state = state,
-        itemContext = itemContext,
-        onOpenUrl = onOpenUrl,
-        onSetState = onSetState
-    )
+    val actionCandidate = onMap?.get("press") ?: onMap?.get("click") ?: onMap?.get("tap")
+    val onClick: () -> Unit = if (actionCandidate == null) {
+        {}
+    } else {
+        { onAction(actionCandidate, repeatScope) }
+    }
     val buttonModifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp)
     if (variant == "borderless" || variant == "text" || variant == "outlined") {
         OutlinedButton(onClick = onClick, modifier = buttonModifier) {
@@ -751,111 +1262,6 @@ private fun RenderButton(
             Text(text = label)
         }
     }
-}
-
-private fun resolveActionHandler(
-    actionCandidate: Any?,
-    state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit
-): () -> Unit {
-    val action = toStringKeyMap(actionCandidate) ?: return {}
-
-    val functionCall = extractFunctionCall(action) ?: return {}
-
-    val call = (functionCall["call"] ?: functionCall["action"] ?: functionCall["name"])
-        ?.toString()
-        .orEmpty()
-        .trim()
-        .lowercase()
-    val args = extractActionArgs(functionCall)
-
-    return when (call) {
-        "openurl" -> {
-            val raw = resolveFirstArg(args, state, itemContext, "url", "href", "link", "targetUrl")
-            if (raw.isNotBlank()) ({ onOpenUrl(raw) }) else ({})
-        }
-
-        "setstate" -> {
-            val path = resolveFirstArg(
-                args,
-                state,
-                itemContext,
-                "path",
-                "statePath",
-                "\$state",
-                "bindState",
-                "\$bindState"
-            )
-            val value = FlatExprResolver.resolve(args["value"], state, itemContext)
-            if (path.isNotBlank()) ({ onSetState(path, value) }) else ({})
-        }
-
-        else -> ({})
-    }
-}
-
-private fun toStringKeyMap(value: Any?): Map<String, Any?>? {
-    val map = value as? Map<*, *> ?: return null
-    return map.entries.associate { (k, v) -> k.toString() to v }
-}
-
-private fun extractFunctionCall(action: Map<String, Any?>): Map<String, Any?>? {
-    if (action["functionCall"] is Map<*, *>) {
-        return toStringKeyMap(action["functionCall"])
-    }
-    if (action["call"] is String || action["action"] is String || action["name"] is String) {
-        return action
-    }
-    val event = toStringKeyMap(action["event"])
-    if (event != null) {
-        return extractFunctionCall(event)
-    }
-    listOf("onClick", "click", "tap", "press", "onPress", "onSelect", "select").forEach { key ->
-        val nested = toStringKeyMap(action[key]) ?: return@forEach
-        extractFunctionCall(nested)?.let { return it }
-    }
-    return null
-}
-
-private fun extractActionArgs(functionCall: Map<String, Any?>): Map<String, Any?> {
-    val args = toStringKeyMap(functionCall["args"])
-    if (args != null) {
-        return args
-    }
-    val params = toStringKeyMap(functionCall["params"])
-    if (params != null) {
-        return params
-    }
-    val contextEntries = functionCall["context"] as? List<*> ?: return emptyMap()
-    val out = linkedMapOf<String, Any?>()
-    contextEntries.forEach { entry ->
-        val context = toStringKeyMap(entry) ?: return@forEach
-        val key = context["key"]?.toString().orEmpty()
-        if (key.isNotBlank()) {
-            out[key] = context["value"]
-        }
-    }
-    return out
-}
-
-private fun resolveFirstArg(
-    args: Map<String, Any?>,
-    state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
-    vararg keys: String
-): String {
-    keys.forEach { key ->
-        val resolved = FlatExprResolver.resolve(args[key], state, itemContext)
-            ?.toString()
-            .orEmpty()
-            .trim()
-        if (resolved.isNotBlank()) {
-            return resolved
-        }
-    }
-    return ""
 }
 
 @Composable
@@ -873,9 +1279,10 @@ private fun RenderTabs(
     props: Map<String, Any?>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
     onOpenUrl: (String) -> Unit,
     onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
@@ -909,9 +1316,10 @@ private fun RenderTabs(
                 elementId = childId,
                 elements = elements,
                 state = state,
-                itemContext = itemContext,
+                repeatScope = repeatScope,
                 onOpenUrl = onOpenUrl,
                 onSetState = onSetState,
+                onAction = onAction,
                 activePath = activePath
             )
         }
@@ -924,9 +1332,10 @@ private fun RenderModal(
     children: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
     onOpenUrl: (String) -> Unit,
     onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
@@ -953,9 +1362,10 @@ private fun RenderModal(
                     elementId = childId,
                     elements = elements,
                     state = state,
-                    itemContext = itemContext,
+                    repeatScope = repeatScope,
                     onOpenUrl = onOpenUrl,
                     onSetState = onSetState,
+                    onAction = onAction,
                     activePath = activePath
                 )
             }
@@ -963,13 +1373,18 @@ private fun RenderModal(
     }
 }
 
-private fun bindPathFromValueExpression(value: Any?): String? {
-    if (value !is Map<*, *>) return null
-    val bindState = value["\$bindState"]?.toString()?.takeIf { it.isNotBlank() }
+private fun bindPathFromValueExpression(value: Any?, repeatScope: RepeatScope?): String? {
+    val valueMap = toStringKeyMap(value) ?: return null
+    val bindState = valueMap["\$bindState"]?.toString()?.takeIf { it.isNotBlank() }
     if (bindState != null) {
         return bindState
     }
-    return value["\$state"]?.toString()?.takeIf { it.isNotBlank() }
+    val bindItem = valueMap["\$bindItem"]?.toString()
+    val bindItemPath = resolveBindItemPath(bindItem, repeatScope)
+    if (!bindItemPath.isNullOrBlank()) {
+        return bindItemPath
+    }
+    return valueMap["\$state"]?.toString()?.takeIf { it.isNotBlank() }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -978,12 +1393,13 @@ private fun RenderTextField(
     props: Map<String, Any?>,
     onSetState: (String, Any?) -> Unit,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
     modifier: Modifier = Modifier
 ) {
+    val computedFunctions = LocalFlatSpecComputedFunctions.current
     val label = props["label"]?.toString().orEmpty().ifBlank { "Input" }
-    val bindPath = bindPathFromValueExpression(props["value"]) ?: props["statePath"]?.toString()
-    val value = FlatExprResolver.resolveString(props["value"], state, itemContext)
+    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
+    val value = FlatExprResolver.resolveString(props["value"], state, repeatScope, computedFunctions)
     var localValue by remember(label) { mutableStateOf(value) }
     val textValue = if (!bindPath.isNullOrBlank()) value else localValue
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -1018,12 +1434,13 @@ private fun RenderCheckBox(
     props: Map<String, Any?>,
     onSetState: (String, Any?) -> Unit,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
     modifier: Modifier = Modifier
 ) {
+    val computedFunctions = LocalFlatSpecComputedFunctions.current
     val label = props["label"]?.toString().orEmpty().ifBlank { "Option" }
-    val bindPath = bindPathFromValueExpression(props["value"]) ?: props["statePath"]?.toString()
-    val checked = FlatExprResolver.resolveBoolean(props["value"], state, itemContext)
+    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
+    val checked = FlatExprResolver.resolveBoolean(props["value"], state, repeatScope, computedFunctions)
     var localChecked by remember(label) { mutableStateOf(checked) }
     val isChecked = if (!bindPath.isNullOrBlank()) checked else localChecked
 
@@ -1053,12 +1470,13 @@ private fun RenderChoicePicker(
     props: Map<String, Any?>,
     onSetState: (String, Any?) -> Unit,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
     modifier: Modifier = Modifier
 ) {
+    val computedFunctions = LocalFlatSpecComputedFunctions.current
     val label = props["label"]?.toString().orEmpty().ifBlank { "Choose" }
-    val bindPath = bindPathFromValueExpression(props["value"]) ?: props["statePath"]?.toString()
-    val resolvedValue = FlatExprResolver.resolve(props["value"], state, itemContext)
+    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
+    val resolvedValue = FlatExprResolver.resolve(props["value"], state, repeatScope, computedFunctions)
     val selected = when (resolvedValue) {
         is List<*> -> resolvedValue.mapNotNull { it?.toString() }.toSet()
         is String -> setOf(resolvedValue)
@@ -1101,14 +1519,15 @@ private fun RenderSlider(
     props: Map<String, Any?>,
     onSetState: (String, Any?) -> Unit,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
     modifier: Modifier = Modifier
 ) {
+    val computedFunctions = LocalFlatSpecComputedFunctions.current
     val label = props["label"]?.toString().orEmpty()
-    val bindPath = bindPathFromValueExpression(props["value"]) ?: props["statePath"]?.toString()
+    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
     val min = (props["min"] as? Number)?.toFloat() ?: 0f
     val max = (props["max"] as? Number)?.toFloat() ?: 100f
-    val resolved = FlatExprResolver.resolve(props["value"], state, itemContext)
+    val resolved = FlatExprResolver.resolve(props["value"], state, repeatScope, computedFunctions)
     val initial = (resolved as? Number)?.toFloat() ?: min
     var localValue by remember(label) { mutableStateOf(initial.coerceIn(min, max)) }
     val current = if (!bindPath.isNullOrBlank()) {
@@ -1145,12 +1564,13 @@ private fun RenderDateTimeInput(
     props: Map<String, Any?>,
     onSetState: (String, Any?) -> Unit,
     state: Map<String, Any?>,
-    itemContext: Map<String, Any?>?,
+    repeatScope: RepeatScope?,
     modifier: Modifier = Modifier
 ) {
+    val computedFunctions = LocalFlatSpecComputedFunctions.current
     val label = props["label"]?.toString().orEmpty().ifBlank { "Date/Time" }
-    val bindPath = bindPathFromValueExpression(props["value"]) ?: props["statePath"]?.toString()
-    val resolvedValue = FlatExprResolver.resolveString(props["value"], state, itemContext)
+    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
+    val resolvedValue = FlatExprResolver.resolveString(props["value"], state, repeatScope, computedFunctions)
     var localValue by remember(label) { mutableStateOf(resolvedValue) }
     val value = if (!bindPath.isNullOrBlank()) resolvedValue else localValue
 

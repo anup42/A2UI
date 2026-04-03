@@ -107,4 +107,111 @@ class FlatSpecContractTest {
         assertNotNull(elements.getAsJsonObject("root"))
         assertTrue(elements.has("text_1"))
     }
+
+    @Test
+    fun coerceAndValidate_acceptsJsonRenderOnBindings() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "elements": {
+                "main": {
+                  "type": "Column",
+                  "props": {},
+                  "children": ["cta"]
+                },
+                "cta": {
+                  "type": "Button",
+                  "props": { "label": "Open" },
+                  "on": {
+                    "press": { "action": "openUrl", "params": { "url": "https://example.com" } }
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertTrue(result.isValid)
+    }
+
+    @Test
+    fun coerceAndValidate_rejectsLegacyPropsAction() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "elements": {
+                "main": {
+                  "type": "Button",
+                  "props": {
+                    "label": "Open",
+                    "action": { "functionCall": { "call": "openUrl", "args": { "url": "https://example.com" } } }
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertFalse(result.isValid)
+        assertTrue(result.error?.contains("legacy props.action", ignoreCase = true) == true)
+    }
+
+    @Test
+    fun coerceAndValidate_rejectsLegacyFunctionCallInOnBinding() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "elements": {
+                "main": {
+                  "type": "Button",
+                  "props": { "label": "Open" },
+                  "on": {
+                    "press": { "functionCall": { "call": "openUrl", "args": { "url": "https://example.com" } } }
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertFalse(result.isValid)
+        assertTrue(result.error?.contains("functionCall", ignoreCase = true) == true)
+    }
+
+    @Test
+    fun coerceAndValidate_acceptsWatchBindings() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "elements": {
+                "main": {
+                  "type": "Column",
+                  "props": {},
+                  "watch": {
+                    "/form/submit": {
+                      "action": "validateForm",
+                      "params": { "statePath": "/formValidation" }
+                    }
+                  },
+                  "children": ["text"]
+                },
+                "text": { "type": "Text", "props": { "text": "ok" }, "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertTrue(result.isValid)
+    }
 }

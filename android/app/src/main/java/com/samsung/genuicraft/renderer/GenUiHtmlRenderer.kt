@@ -69,8 +69,11 @@ object GenUiHtmlRenderer {
     private val OPTION_LINE_REGEX =
         Regex("""^Option\s+\d+\s*:\s*(.+?)\s*\|\s*(.+)$""", RegexOption.IGNORE_CASE)
 
+    private val BULLET_PREFIX_REGEX = Regex("""^\s*[\-\*\u2022]\s+""")
     private val BUTTON_LINE_REGEX =
-        Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(\S+)\s*$""", RegexOption.IGNORE_CASE)
+        Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*(.+)$""", RegexOption.IGNORE_CASE)
+    private val BUTTON_MARKDOWN_LINK_REGEX =
+        Regex("""^(?:Action:\s*)?\[Button:\s*(.+?)\]\s*\(\s*(.+?)\s*\)\s*$""", RegexOption.IGNORE_CASE)
 
     private val URL_REGEX = Regex("""https?://[^\s<>()]+""", RegexOption.IGNORE_CASE)
     private val TABLE_PLACEHOLDER_CELL_REGEX = Regex("""^[:\-\u2013\u2014]+$""")
@@ -1190,9 +1193,16 @@ object GenUiHtmlRenderer {
     }
 
     private fun parseButtonLine(line: String): ParsedButton? {
-        val match = BUTTON_LINE_REGEX.find(line) ?: return null
-        val label = match.groupValues[1].trim()
-        val url = sanitizeUrlToken(match.groupValues[2])
+        val normalized = BULLET_PREFIX_REGEX.replace(line.trim(), "")
+        val markdownLink = BUTTON_MARKDOWN_LINK_REGEX.find(normalized)
+        val (label, trailing) = if (markdownLink != null) {
+            markdownLink.groupValues[1].trim() to markdownLink.groupValues[2].trim()
+        } else {
+            val match = BUTTON_LINE_REGEX.find(normalized) ?: return null
+            match.groupValues[1].trim() to match.groupValues[2].trim()
+        }
+        val rawUrlToken = URL_REGEX.find(trailing)?.value ?: trailing
+        val url = sanitizeUrlToken(rawUrlToken)
         if (label.isEmpty() || url.isEmpty()) {
             return null
         }
@@ -1207,7 +1217,7 @@ object GenUiHtmlRenderer {
     }
 
     private fun sanitizeUrlToken(value: String): String =
-        value.trim().trimEnd('.', ',', ';')
+        value.trim().trim('"', '\'', '<', '>', '`').trimEnd('.', ',', ';', ')', ']', '}')
 
     private fun isTableLikeLine(line: String): Boolean {
         if (line.contains("http://", ignoreCase = true) || line.contains("https://", ignoreCase = true)) {
