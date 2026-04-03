@@ -21,8 +21,6 @@ Response:
 - Do NOT use legacy `props.action` or `functionCall`.
 
 ## Hard rule: no legacy message array
-- DO NOT emit legacy v0.9 message arrays:
-  `[{"createSurface":...},{"updateComponents":...}]`
 - Correct output is a single flat object with `root/state/elements`.
 
 ## Positive and negative format examples
