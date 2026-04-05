@@ -164,6 +164,14 @@ def _ensure_list(value):
     return [value]
 
 
+def _resolve_cfg_path(root: Path, configured: str | None, fallback: str) -> Path:
+    raw = (configured or fallback).strip()
+    path = Path(raw)
+    if not path.is_absolute():
+        path = root / path
+    return path
+
+
 def _print_limits(specs) -> None:
     for spec in specs:
         limits = spec.limits or {}
@@ -177,7 +185,13 @@ def _print_limits(specs) -> None:
 
 
 def _load_env(root: Path) -> None:
-    multiline_keys = {"GEMINI_API_KEYS", "GAUSS_OPENAPI_TOKEN", "GAUSS_CLIENT_KEY"}
+    multiline_keys = {
+        "GEMINI_API_KEYS",
+        "GEMINI_VERTEX_EXPRESS_API_KEYS",
+        "VERTEX_EXPRESS_API_KEYS",
+        "GAUSS_OPENAPI_TOKEN",
+        "GAUSS_CLIENT_KEY",
+    }
     for env_path in [
         root / ".env",
         root / ".env.example",
@@ -455,6 +469,22 @@ def main() -> None:
     run_cfg = all_run_cfg.get("run", {})
     eval_cfg = all_run_cfg.get("evaluation", {})
     benchmark_cfg = all_run_cfg.get("benchmark", {})
+    render_cfg_root = all_run_cfg.get("render", {})
+    stage5_cfg_root = all_run_cfg.get("stage5", {})
+    stage3_prompt_path = _resolve_cfg_path(
+        root,
+        run_cfg.get("stage3_prompt_file"),
+        "prompts/genui_gen.md",
+    )
+    stage3_schema_path = _resolve_cfg_path(
+        root,
+        run_cfg.get("stage3_schema_file"),
+        "schema/genui.schema.json",
+    )
+    if not stage3_prompt_path.exists():
+        raise SystemExit(f"Missing Stage3 prompt file: {stage3_prompt_path}")
+    if not stage3_schema_path.exists():
+        raise SystemExit(f"Missing Stage3 schema file: {stage3_schema_path}")
     effective_rate_limit_qps = float(run_cfg.get("rate_limit_qps", 2))
     if args.rate_limit_qps is not None:
         effective_rate_limit_qps = float(args.rate_limit_qps)
@@ -588,10 +618,10 @@ def main() -> None:
             run_stage3(
                 queries_path=model_paths.queries_path,
                 responses_path=model_paths.responses_path,
-                prompt_path=prompts_dir / "genui_gen.md",
+                prompt_path=stage3_prompt_path,
                 adapter=adapter,
                 genui_path=model_paths.genui_path,
-                schema_path=schema_dir / "genui.schema.json",
+                schema_path=stage3_schema_path,
                 artifacts_dir=model_paths.artifacts_dir,
                 candidates_per_response=int(run_cfg.get("genui_candidates_per_response", 1)),
                 max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
@@ -737,10 +767,10 @@ def main() -> None:
             run_stage3(
                 queries_path=run_paths.queries_path,
                 responses_path=run_paths.responses_path,
-                prompt_path=prompts_dir / "genui_gen.md",
+                prompt_path=stage3_prompt_path,
                 adapter=adapter,
                 genui_path=run_paths.genui_path,
-                schema_path=schema_dir / "genui.schema.json",
+                schema_path=stage3_schema_path,
                 artifacts_dir=run_paths.artifacts_dir,
                 candidates_per_response=int(run_cfg.get("genui_candidates_per_response", 1)),
                 max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
@@ -760,31 +790,100 @@ def main() -> None:
             return
 
         if args.stage == 4:
-            render_cfg = run_cfg.get("render", {})
-            output_dir = run_paths.run_dir / render_cfg.get("output_dir", "rendered")
-            assets_dir = root / render_cfg.get("assets_dir", "renderer/lit")
+            render_cfg = render_cfg_root if isinstance(render_cfg_root, dict) else {}
             viewport = render_cfg.get("viewport", {"width": 1280, "height": 720})
-            run_stage4(
-                genui_path=run_paths.genui_path,
-                output_dir=output_dir,
-                assets_dir=assets_dir,
-                server_root=root,
-                logger=logger,
-                max_total=render_cfg.get("max_total"),
-                render_images=bool(render_cfg.get("render_images", True)),
-                image_format=str(render_cfg.get("image_format", "png")),
-                viewport=viewport if isinstance(viewport, dict) else {"width": 1280, "height": 720},
-                timeout_ms=int(render_cfg.get("timeout_ms", 15000)),
-                wait_ms=int(render_cfg.get("wait_ms", 200)),
-                use_http_server=bool(render_cfg.get("use_http_server", True)),
-                parallel_workers=int(args.render_workers) if args.render_workers is not None else int(render_cfg.get("parallel_workers", 1)),
+            base_viewport = viewport if isinstance(viewport, dict) else {"width": 1280, "height": 720}
+            renderers_cfg = render_cfg.get("renderers")
+            max_total = render_cfg.get("max_total")
+            render_images = bool(render_cfg.get("render_images", True))
+            image_format = str(render_cfg.get("image_format", "png"))
+            timeout_ms = int(render_cfg.get("timeout_ms", 15000))
+            wait_ms = int(render_cfg.get("wait_ms", 200))
+            use_http_server = bool(render_cfg.get("use_http_server", True))
+            parallel_workers = (
+                int(args.render_workers)
+                if args.render_workers is not None
+                else int(render_cfg.get("parallel_workers", 1))
             )
-            logger.info("Stage4 complete. Rendered outputs stored at %s", output_dir)
+
+            if isinstance(renderers_cfg, dict) and renderers_cfg:
+                primary_renderer = str(
+                    render_cfg.get("primary_renderer") or next(iter(renderers_cfg.keys()))
+                )
+                comparison_renderers = [
+                    str(item)
+                    for item in _ensure_list(render_cfg.get("comparison_renderers", []))
+                    if str(item).strip()
+                ]
+                ordered_renderers: list[str] = []
+                if primary_renderer in renderers_cfg:
+                    ordered_renderers.append(primary_renderer)
+                for name in comparison_renderers:
+                    if name in renderers_cfg and name not in ordered_renderers:
+                        ordered_renderers.append(name)
+                for name in renderers_cfg.keys():
+                    if name not in ordered_renderers:
+                        ordered_renderers.append(name)
+
+                for index, renderer_name in enumerate(ordered_renderers):
+                    renderer_conf = renderers_cfg.get(renderer_name)
+                    if not isinstance(renderer_conf, dict):
+                        continue
+                    default_output = "rendered" if index == 0 else f"rendered_{renderer_name}"
+                    default_log = "render.jsonl" if index == 0 else f"render_{renderer_name}.jsonl"
+                    output_dir = run_paths.run_dir / str(renderer_conf.get("output_dir", default_output))
+                    assets_dir = _resolve_cfg_path(root, renderer_conf.get("assets_dir"), "renderer/lit")
+                    renderer_viewport = renderer_conf.get("viewport", base_viewport)
+                    run_stage4(
+                        genui_path=run_paths.genui_path,
+                        output_dir=output_dir,
+                        assets_dir=assets_dir,
+                        server_root=root,
+                        logger=logger,
+                        max_total=max_total,
+                        render_images=render_images,
+                        image_format=image_format,
+                        viewport=renderer_viewport if isinstance(renderer_viewport, dict) else base_viewport,
+                        timeout_ms=timeout_ms,
+                        wait_ms=wait_ms,
+                        use_http_server=use_http_server,
+                        parallel_workers=parallel_workers,
+                        renderer_name=renderer_name,
+                        payload_format=str(renderer_conf.get("payload_format", "messages")),
+                        render_log_filename=str(renderer_conf.get("render_log", default_log)),
+                    )
+                    logger.info(
+                        "Stage4 renderer=%s complete. Outputs stored at %s",
+                        renderer_name,
+                        output_dir,
+                    )
+            else:
+                output_dir = run_paths.run_dir / render_cfg.get("output_dir", "rendered")
+                assets_dir = _resolve_cfg_path(root, render_cfg.get("assets_dir"), "renderer/lit")
+                run_stage4(
+                    genui_path=run_paths.genui_path,
+                    output_dir=output_dir,
+                    assets_dir=assets_dir,
+                    server_root=root,
+                    logger=logger,
+                    max_total=max_total,
+                    render_images=render_images,
+                    image_format=image_format,
+                    viewport=base_viewport,
+                    timeout_ms=timeout_ms,
+                    wait_ms=wait_ms,
+                    use_http_server=use_http_server,
+                    parallel_workers=parallel_workers,
+                    renderer_name="lit",
+                    payload_format="messages",
+                    render_log_filename="render.jsonl",
+                )
+                logger.info("Stage4 complete. Rendered outputs stored at %s", output_dir)
             return
 
         if args.stage == 5:
-            render_cfg = run_cfg.get("render", {})
-            stage5_cfg = run_cfg.get("stage5", {}) if isinstance(run_cfg.get("stage5"), dict) else {}
+            render_cfg = render_cfg_root if isinstance(render_cfg_root, dict) else {}
+            stage5_cfg = stage5_cfg_root if isinstance(stage5_cfg_root, dict) else {}
             output_dir = run_paths.run_dir / stage5_cfg.get("output_dir", "stage5_rendered")
             viewport = stage5_cfg.get("viewport", render_cfg.get("viewport", {"width": 1280, "height": 720}))
             run_stage5(

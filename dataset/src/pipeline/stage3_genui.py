@@ -15,6 +15,12 @@ from urllib.request import Request, urlopen
 
 from pipeline.cache import PromptCache
 from pipeline.common import extract_json, load_prompt, render_prompt
+from pipeline.flat_spec_contract import (
+    build_fallback_flat_spec,
+    build_flat_spec_repair_prompt,
+    coerce_and_validate,
+    extract_json_element,
+)
 from pipeline.metrics import (
     content_coverage,
     dup_rate,
@@ -79,6 +85,17 @@ def _validate_schema(schema: dict[str, Any], data: Any, schema_dir: Path) -> tup
             return True, [], True
         except Exception as exc:
             return False, [str(exc)], True
+
+
+def _is_flat_spec_schema(schema: dict[str, Any]) -> bool:
+    if not isinstance(schema, dict):
+        return False
+    if schema.get("type") != "object":
+        return False
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        return False
+    return "root" in properties and "elements" in properties
 
 
 def _make_ui_id(query_id: str, n_idx: int, candidate_idx: int) -> str:
@@ -364,15 +381,26 @@ def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logge
     marker = "\nSchema ("
     if marker in template:
         compact = template.split(marker, 1)[0].rstrip()
-    compact = (
-        f"{compact}\n\n"
-        "Additional strict requirements:\n"
-        "- Use message types: createSurface, updateComponents, updateDataModel, deleteSurface.\n"
-        "- Set version to v0.9.\n"
-        "- Include createSurface before updates.\n"
-        "- In updateComponents, include exactly one root component with id 'root'.\n"
-        "- Output ONLY a JSON array of messages.\n"
-    )
+    if "flat-spec" in template.lower() or "\"root\"" in template:
+        compact = (
+            f"{compact}\n\n"
+            "Additional strict requirements:\n"
+            "- Output MUST be one JSON object with top-level root/state/elements.\n"
+            "- Do not output legacy message arrays.\n"
+            "- root must reference an existing id in elements.\n"
+            "- Every element must contain type, props, and children.\n"
+            "- Output ONLY JSON.\n"
+        )
+    else:
+        compact = (
+            f"{compact}\n\n"
+            "Additional strict requirements:\n"
+            "- Use message types: createSurface, updateComponents, updateDataModel, deleteSurface.\n"
+            "- Set version to v0.9.\n"
+            "- Include createSurface before updates.\n"
+            "- In updateComponents, include exactly one root component with id 'root'.\n"
+            "- Output ONLY a JSON array of messages.\n"
+        )
     before = count_tokens(template)
     after = count_tokens(compact)
     logger.info(
@@ -419,7 +447,7 @@ def _prepare_prompt_context(
     )
     user_template = (
         "Convert the response text into valid GenUICraft JSON.\n"
-        "Return ONLY the JSON message array.\n\n"
+        "Return ONLY JSON.\n\n"
         "Response:\n{response_text}"
     )
     logger.info(
@@ -456,6 +484,8 @@ def run_stage3(
     prompt_version = _extract_prompt_version(prompt_template, prompt_path)
     system_prompt, user_prompt_template = _prepare_prompt_context(prompt_template, adapter, logger)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    flat_spec_mode = _is_flat_spec_schema(schema)
+    logger.info("Stage3 schema mode: %s", "flat_spec" if flat_spec_mode else "legacy_messages")
     artifacts_dir.mkdir(parents=True, exist_ok=True)
 
     intent_lookup: dict[str, dict[str, Any]] = {}
@@ -601,8 +631,20 @@ def run_stage3(
 
         parsed_ok = True
         errors: list[str] = []
+        converted_from_legacy = False
         try:
-            genui_json = extract_json(raw_text)
+            parsed_json = extract_json_element(raw_text) if flat_spec_mode else extract_json(raw_text)
+            if flat_spec_mode:
+                coerce_result = coerce_and_validate(parsed_json)
+                if not coerce_result.is_valid:
+                    genui_json = None
+                    parsed_ok = False
+                    errors.append(f"flat_spec_error: {coerce_result.error}")
+                else:
+                    genui_json = coerce_result.spec
+                    converted_from_legacy = bool(coerce_result.converted_from_legacy)
+            else:
+                genui_json = parsed_json
         except Exception as exc:
             parsed_ok = False
             genui_json = None
@@ -627,13 +669,17 @@ def run_stage3(
         while (not parsed_ok or not schema_valid_strict) and repair_attempts < max_repair_attempts:
             repair_attempts += 1
             repair_needed = True
-            repair_prompt = (
-                "The previous output was not valid JSON or failed schema validation. "
-                "Fix the output to be valid JSON that satisfies the schema. "
-                f"Errors: {errors}.\n"
-                "Return ONLY the corrected JSON."
-            )
-            repaired_text = f"{repair_prompt}\n\nOriginal:\n{raw_text}"
+            if flat_spec_mode:
+                failure_reason = "; ".join(errors[-5:]) if errors else None
+                repaired_text = build_flat_spec_repair_prompt(raw_text, failure_reason=failure_reason)
+            else:
+                repair_prompt = (
+                    "The previous output was not valid JSON or failed schema validation. "
+                    "Fix the output to be valid JSON that satisfies the schema. "
+                    f"Errors: {errors}.\n"
+                    "Return ONLY the corrected JSON."
+                )
+                repaired_text = f"{repair_prompt}\n\nOriginal:\n{raw_text}"
 
             def _repair_call():
                 rate_limiter.acquire()
@@ -674,7 +720,18 @@ def run_stage3(
                 break
             raw_text = result.text
             try:
-                genui_json = extract_json(raw_text)
+                parsed_json = extract_json_element(raw_text) if flat_spec_mode else extract_json(raw_text)
+                if flat_spec_mode:
+                    coerce_result = coerce_and_validate(parsed_json)
+                    if not coerce_result.is_valid:
+                        parsed_ok = False
+                        genui_json = None
+                        errors.append(f"repair_flat_spec_error: {coerce_result.error}")
+                        continue
+                    genui_json = coerce_result.spec
+                    converted_from_legacy = bool(coerce_result.converted_from_legacy)
+                else:
+                    genui_json = parsed_json
                 parsed_ok = True
             except Exception as exc:
                 parsed_ok = False
@@ -692,38 +749,41 @@ def run_stage3(
                     schema_valid_lenient = True
 
         if not parsed_ok or genui_json is None or not schema_valid_strict:
-            # Final fallback: build a minimal valid GenUICraft message list.
+            # Final fallback: build a minimal valid output matching the configured schema mode.
             fallback_text = _apply_asset_replacements(response_text, assets_list)
-            surface_id = f"surface_{query_id}"
-            catalog_id = "https://genui.local/specification/v0_9/standard_catalog.json"
-            genui_json = [
-                {
-                    "version": "v0.9",
-                    "createSurface": {
-                        "surfaceId": surface_id,
-                        "catalogId": catalog_id,
+            if flat_spec_mode:
+                genui_json = build_fallback_flat_spec(fallback_text)
+            else:
+                surface_id = f"surface_{query_id}"
+                catalog_id = "https://genui.local/specification/v0_9/standard_catalog.json"
+                genui_json = [
+                    {
+                        "version": "v0.9",
+                        "createSurface": {
+                            "surfaceId": surface_id,
+                            "catalogId": catalog_id,
+                        },
                     },
-                },
-                {
-                    "version": "v0.9",
-                    "updateComponents": {
-                        "surfaceId": surface_id,
-                        "components": [
-                            {
-                                "id": "root",
-                                "component": "Column",
-                                "children": ["text_1"],
-                            },
-                            {
-                                "id": "text_1",
-                                "component": "Text",
-                                "text": fallback_text,
-                                "variant": "body",
-                            },
-                        ],
+                    {
+                        "version": "v0.9",
+                        "updateComponents": {
+                            "surfaceId": surface_id,
+                            "components": [
+                                {
+                                    "id": "root",
+                                    "component": "Column",
+                                    "children": ["text_1"],
+                                },
+                                {
+                                    "id": "text_1",
+                                    "component": "Text",
+                                    "text": fallback_text,
+                                    "variant": "body",
+                                },
+                            ],
+                        },
                     },
-                },
-            ]
+                ]
             # Re-validate schema for fallback.
             parsed_ok = True
             errors = ["fallback_generated"]
@@ -774,6 +834,7 @@ def run_stage3(
                 "schema_valid_strict": schema_valid_strict,
                 "schema_valid_lenient": schema_valid_lenient,
                 "toon_roundtrip_ok": toon_ok,
+                "converted_from_legacy": converted_from_legacy,
                 "errors": short_errors,
                 "repair_attempts": repair_attempts,
                 "repair_needed": repair_needed,

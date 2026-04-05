@@ -13,6 +13,10 @@ from pathlib import Path
 from typing import Any, Optional
 import re
 
+from pipeline.flat_spec_contract import (
+    build_fallback_flat_spec,
+    coerce_and_validate,
+)
 from pipeline.storage import JsonlWriter, iter_jsonl, load_existing_ids, load_jsonl_by_key
 
 
@@ -1239,6 +1243,63 @@ def _normalize_messages(value: Any) -> list[Any]:
     return [value]
 
 
+def _flat_spec_to_legacy_messages(spec: dict[str, Any]) -> list[dict[str, Any]]:
+    elements = spec.get("elements")
+    if not isinstance(elements, dict):
+        return _fallback_messages("Flat spec has no elements.")
+
+    components: list[dict[str, Any]] = []
+    for element_id, element in elements.items():
+        if not isinstance(element_id, str) or not isinstance(element, dict):
+            continue
+        element_type = element.get("type")
+        if not isinstance(element_type, str):
+            continue
+        props = element.get("props") if isinstance(element.get("props"), dict) else {}
+        children = element.get("children") if isinstance(element.get("children"), list) else []
+        comp: dict[str, Any] = {
+            "id": element_id,
+            "component": element_type,
+            "children": [item for item in children if isinstance(item, str)],
+        }
+        for key, value in props.items():
+            comp[key] = deepcopy(value)
+
+        # Best-effort mapping of new action bindings to legacy action object
+        # so Lit comparison renderer can still open links.
+        on_map = element.get("on")
+        if isinstance(on_map, dict):
+            press = on_map.get("press")
+            if isinstance(press, list) and press:
+                press = press[0]
+            if isinstance(press, dict):
+                action_name = press.get("action")
+                params = press.get("params") if isinstance(press.get("params"), dict) else {}
+                if isinstance(action_name, str):
+                    comp["action"] = {
+                        "functionCall": {
+                            "call": action_name,
+                            "args": deepcopy(params),
+                        }
+                    }
+        components.append(comp)
+
+    if not components:
+        return _fallback_messages("Flat spec produced no components.")
+
+    return _wrap_components_as_messages(components)
+
+
+def _normalize_flat_spec(value: Any, fallback_text: str) -> tuple[dict[str, Any], bool, str | None]:
+    coerce_result = coerce_and_validate(value)
+    if coerce_result.is_valid and isinstance(coerce_result.spec, dict):
+        return coerce_result.spec, bool(coerce_result.converted_from_legacy), None
+
+    fallback = build_fallback_flat_spec(fallback_text)
+    reason = coerce_result.error or "invalid flat spec"
+    return fallback, False, reason
+
+
 def _rewrite_local_asset_urls(value: Any) -> Any:
     def _rewrite(s: str) -> str:
         if s.startswith("../assets/"):
@@ -1265,17 +1326,17 @@ def _safe_json_dumps(value: Any) -> str:
 
 def _compute_renderer_assets_hash(assets_dir: Path, template_text: str) -> str:
     """
-    Hash template + OneUI overlay assets so Stage4 can re-render automatically
-    when styling changes, even if render.jsonl already has successful entries.
+    Hash template + renderer assets so Stage4 can re-render automatically
+    when renderer files change, even if render logs already have successful entries.
     """
     hasher = hashlib.sha256()
     hasher.update(template_text.encode("utf-8"))
 
-    themes_dir = assets_dir / "themes"
-    if themes_dir.exists():
-        for path in sorted(p for p in themes_dir.rglob("*") if p.is_file()):
-            hasher.update(path.relative_to(assets_dir).as_posix().encode("utf-8"))
-            hasher.update(path.read_bytes())
+    for path in sorted(p for p in assets_dir.rglob("*") if p.is_file()):
+        if path.name == "template.html":
+            continue
+        hasher.update(path.relative_to(assets_dir).as_posix().encode("utf-8"))
+        hasher.update(path.read_bytes())
 
     return hasher.hexdigest()
 
@@ -1434,6 +1495,9 @@ def run_stage4(
     wait_ms: int = 200,
     use_http_server: bool = True,
     parallel_workers: int = 1,
+    renderer_name: str = "lit",
+    payload_format: str = "messages",
+    render_log_filename: str = "render.jsonl",
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     template_path = assets_dir / "template.html"
@@ -1442,7 +1506,7 @@ def run_stage4(
     template = template_path.read_text(encoding="utf-8")
     renderer_assets_hash = _compute_renderer_assets_hash(assets_dir, template)
 
-    render_log_path = output_dir.parent / "render.jsonl"
+    render_log_path = output_dir.parent / render_log_filename
     existing_rows = load_jsonl_by_key(render_log_path, "ui_id")
     existing = set(existing_rows.keys())
     writer = JsonlWriter(render_log_path)
@@ -1494,21 +1558,44 @@ def run_stage4(
         genui_json = row.get("genui_json")
         if genui_json is None:
             genui_json = row.get("a2ui_json")
-        messages = _normalize_messages(genui_json)
-        messages = _rewrite_local_asset_urls(messages)
-        if not messages or not _has_message_content(messages):
-            err_text = "No renderable GenUICraft messages."
-            validation = row.get("validation") if isinstance(row, dict) else None
-            errors = validation.get("errors") if isinstance(validation, dict) else None
-            if isinstance(errors, list) and errors:
-                err_text = f"No renderable GenUICraft messages. First error: {errors[0][:160]}"
-            messages = _fallback_messages(err_text)
-        messages_json = _safe_json_dumps(messages)
-        html_text = (
-            template.replace("__GenUICraft_MESSAGES_JSON__", messages_json)
-            .replace("__GenUICraft_RESET_VALUE__", "true")
-            .replace("__ASSET_BASE__", asset_base)
-        )
+
+        validation = row.get("validation") if isinstance(row, dict) else None
+        validation_errors = validation.get("errors") if isinstance(validation, dict) else None
+        fallback_reason = "No renderable GenUICraft content."
+        if isinstance(validation_errors, list) and validation_errors:
+            fallback_reason = f"No renderable GenUICraft content. First error: {validation_errors[0][:160]}"
+
+        payload_mode = str(payload_format or "messages").strip().lower()
+        if payload_mode == "flat_spec":
+            spec, _, flat_error = _normalize_flat_spec(genui_json, fallback_reason)
+            spec = _rewrite_local_asset_urls(spec)
+            spec_json = _safe_json_dumps(spec)
+            html_text = (
+                template.replace("__GenUICraft_FLATSPEC_JSON__", spec_json)
+                .replace("__GenUICraft_RESET_VALUE__", "true")
+                .replace("__ASSET_BASE__", asset_base)
+            )
+            if flat_error:
+                logger.warning(
+                    "Stage4 renderer=%s used fallback flat-spec ui_id=%s reason=%s",
+                    renderer_name,
+                    ui_id,
+                    flat_error,
+                )
+        else:
+            if isinstance(genui_json, dict) and isinstance(genui_json.get("elements"), dict):
+                messages = _flat_spec_to_legacy_messages(genui_json)
+            else:
+                messages = _normalize_messages(genui_json)
+            messages = _rewrite_local_asset_urls(messages)
+            if not messages or not _has_message_content(messages):
+                messages = _fallback_messages(fallback_reason)
+            messages_json = _safe_json_dumps(messages)
+            html_text = (
+                template.replace("__GenUICraft_MESSAGES_JSON__", messages_json)
+                .replace("__GenUICraft_RESET_VALUE__", "true")
+                .replace("__ASSET_BASE__", asset_base)
+            )
 
         html_path = output_dir / f"{ui_id}.html"
         html_path.write_text(html_text, encoding="utf-8")
@@ -1531,6 +1618,7 @@ def run_stage4(
                         "ui_id": ui_id,
                         "response_id": row.get("response_id"),
                         "query_id": row.get("query_id"),
+                        "renderer": renderer_name,
                         "html_path": str(html_path.relative_to(output_dir.parent)),
                         "image_path": str(image_path.relative_to(output_dir.parent)),
                     }
@@ -1545,6 +1633,7 @@ def run_stage4(
                 "ui_id": ui_id,
                 "response_id": row.get("response_id"),
                 "query_id": row.get("query_id"),
+                "renderer": renderer_name,
                 "html_path": str(html_path.relative_to(output_dir.parent)),
                 "image_path": str(image_path.relative_to(output_dir.parent)) if image_path else None,
                 "created_at": datetime.utcnow().isoformat() + "Z",
@@ -1552,6 +1641,7 @@ def run_stage4(
                     "image_ok": render_error is None and image_path is not None,
                     "error": render_error or renderer_error,
                     "renderer_assets_hash": renderer_assets_hash,
+                    "renderer_name": renderer_name,
                 },
             }
             writer.append(record)
@@ -1584,6 +1674,7 @@ def run_stage4(
                         "image_ok": render_error is None and record.get("image_path") is not None,
                         "error": render_error or renderer_error,
                         "renderer_assets_hash": renderer_assets_hash,
+                        "renderer_name": renderer_name,
                     },
                 }
             )

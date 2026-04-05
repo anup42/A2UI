@@ -71,6 +71,72 @@ def _resolve_genui_jsonl(run_dir: Path) -> Path:
     return legacy
 
 
+def _resolve_renderer_output_dir_from_log(run_dir: Path, log_name: str, default_dir: str) -> str:
+    log_path = run_dir / log_name
+    if not log_path.exists():
+        return default_dir
+    for row in _iter_jsonl(log_path):
+        if not isinstance(row, dict):
+            continue
+        html_path = row.get("html_path")
+        if not isinstance(html_path, str) or not html_path.strip():
+            continue
+        parts = Path(html_path).parts
+        if parts:
+            return parts[0]
+    return default_dir
+
+
+def _resolve_renderer_id_from_log(run_dir: Path, log_name: str, default_id: str) -> str:
+    log_path = run_dir / log_name
+    if not log_path.exists():
+        return default_id
+    for row in _iter_jsonl(log_path):
+        if not isinstance(row, dict):
+            continue
+        renderer_id = row.get("renderer")
+        if isinstance(renderer_id, str) and renderer_id.strip():
+            return renderer_id.strip()
+    return default_id
+
+
+def _detect_renderers(run_dir: Path) -> list[dict]:
+    renderers: list[dict] = []
+    seen_ids: set[str] = set()
+
+    def add_renderer(default_id: str, default_output_dir: str, log_name: str) -> None:
+        nonlocal renderers
+        output_dir = _resolve_renderer_output_dir_from_log(run_dir, log_name, default_output_dir)
+        log_path = run_dir / log_name
+        output_path = run_dir / output_dir
+        if not log_path.exists() and not output_path.exists():
+            return
+        renderer_id = _resolve_renderer_id_from_log(run_dir, log_name, default_id)
+        if renderer_id in seen_ids:
+            return
+        seen_ids.add(renderer_id)
+        renderers.append(
+            {
+                "id": renderer_id,
+                "output_dir": output_dir,
+                "log_file": log_name,
+                "rows": _count_lines(log_path),
+                "has_output_dir": output_path.exists(),
+            }
+        )
+
+    add_renderer("json_render", "rendered", "render.jsonl")
+    add_renderer("lit", "rendered_lit", "render_lit.jsonl")
+
+    for log_path in sorted(run_dir.glob("render_*.jsonl")):
+        if log_path.name in {"render_lit.jsonl"}:
+            continue
+        default_id = log_path.stem.replace("render_", "", 1) or "renderer"
+        add_renderer(default_id, f"rendered_{default_id}", log_path.name)
+
+    return renderers
+
+
 def _slice_jsonl(path: Path, offset: int, limit: int, search: str | None, field: str | None):
     results = []
     if not path.exists():
@@ -139,6 +205,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
                 aggregates = run_dir / "aggregates.json"
                 render = run_dir / "render.jsonl"
                 stage5 = run_dir / "stage5_render.jsonl"
+                renderers = _detect_renderers(run_dir)
                 runs.append(
                     {
                         "run_id": run_dir.name,
@@ -147,6 +214,7 @@ class DatasetHandler(BaseHTTPRequestHandler):
                         "genui": _count_lines(genui),
                         "has_aggregates": aggregates.exists(),
                         "has_render": render.exists(),
+                        "renderers": renderers,
                         "stage5": _count_lines(stage5),
                         "updated_at": datetime.utcfromtimestamp(run_dir.stat().st_mtime).isoformat() + "Z",
                     }
@@ -154,12 +222,14 @@ class DatasetHandler(BaseHTTPRequestHandler):
         self._send_json({"runs": runs})
 
     def _handle_api_summary(self, run_dir: Path) -> None:
+        renderers = _detect_renderers(run_dir)
         payload = {
             "run_id": run_dir.name,
             "queries": _count_lines(run_dir / "queries.jsonl"),
             "responses": _count_lines(run_dir / "responses.jsonl"),
             "genui": _count_lines(_resolve_genui_jsonl(run_dir)),
             "stage5": _count_lines(run_dir / "stage5_render.jsonl"),
+            "renderers": renderers,
         }
         aggregates = run_dir / "aggregates.json"
         if aggregates.exists():

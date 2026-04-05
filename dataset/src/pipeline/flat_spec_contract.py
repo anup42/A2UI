@@ -1,0 +1,860 @@
+from __future__ import annotations
+
+from copy import deepcopy
+from dataclasses import dataclass
+import json
+from typing import Any
+
+_ALLOWED_TYPES = {
+    "column",
+    "row",
+    "list",
+    "card",
+    "text",
+    "image",
+    "icon",
+    "video",
+    "audioplayer",
+    "divider",
+    "button",
+    "tabs",
+    "modal",
+    "textfield",
+    "checkbox",
+    "choicepicker",
+    "slider",
+    "datetimeinput",
+}
+
+_ALLOWED_ACTIONS = {
+    "openUrl",
+    "setState",
+    "pushState",
+    "removeState",
+    "validateForm",
+}
+
+_TYPE_CANONICAL_MAP = {
+    "column": "Column",
+    "row": "Row",
+    "list": "List",
+    "card": "Card",
+    "text": "Text",
+    "image": "Image",
+    "icon": "Icon",
+    "video": "Video",
+    "audioplayer": "AudioPlayer",
+    "audio": "AudioPlayer",
+    "divider": "Divider",
+    "button": "Button",
+    "tabs": "Tabs",
+    "tab": "Tabs",
+    "modal": "Modal",
+    "textfield": "TextField",
+    "textinput": "TextField",
+    "textbox": "TextField",
+    "input": "TextField",
+    "checkbox": "CheckBox",
+    "check": "CheckBox",
+    "choicepicker": "ChoicePicker",
+    "picker": "ChoicePicker",
+    "dropdown": "ChoicePicker",
+    "select": "ChoicePicker",
+    "slider": "Slider",
+    "datetimeinput": "DateTimeInput",
+    "datetimepicker": "DateTimeInput",
+    "dateinput": "DateTimeInput",
+    "datepicker": "DateTimeInput",
+}
+
+_EVENT_ALIASES = {
+    "click": "press",
+    "tap": "press",
+    "onclick": "press",
+    "onpress": "press",
+    "onsubmit": "submit",
+    "input": "change",
+    "onchange": "change",
+}
+
+_ACTION_ALIASES = {
+    "openurl": "openUrl",
+    "url": "openUrl",
+    "open": "openUrl",
+    "link": "openUrl",
+    "setstate": "setState",
+    "updatestate": "setState",
+    "pushstate": "pushState",
+    "navigate": "pushState",
+    "route": "pushState",
+    "removestate": "removeState",
+    "deletestate": "removeState",
+    "validate": "validateForm",
+    "validateform": "validateForm",
+}
+
+
+@dataclass(frozen=True)
+class NormalizeResult:
+    spec: dict[str, Any] | None
+    converted_from_legacy: bool
+    error: str | None = None
+
+
+@dataclass(frozen=True)
+class ValidationResult:
+    is_valid: bool
+    error: str | None = None
+
+
+@dataclass(frozen=True)
+class CoerceResult:
+    spec: dict[str, Any] | None
+    converted_from_legacy: bool
+    error: str | None = None
+
+    @property
+    def is_valid(self) -> bool:
+        return self.spec is not None and self.error is None
+
+
+def looks_like_flat_spec(value: Any) -> bool:
+    return isinstance(value, dict) and "root" in value and "elements" in value
+
+
+def coerce_and_validate(value: Any) -> CoerceResult:
+    if value is None:
+        return CoerceResult(spec=None, converted_from_legacy=False, error="Stage 3 output is null.")
+
+    normalized = normalize_to_flat_spec(value)
+    if normalized.spec is None:
+        return CoerceResult(
+            spec=None,
+            converted_from_legacy=normalized.converted_from_legacy,
+            error=normalized.error or "Could not normalize Stage 3 output to flat spec.",
+        )
+
+    validation = validate_flat_spec(normalized.spec)
+    if not validation.is_valid:
+        return CoerceResult(
+            spec=None,
+            converted_from_legacy=normalized.converted_from_legacy,
+            error=validation.error or "Flat spec validation failed.",
+        )
+
+    return CoerceResult(
+        spec=normalized.spec,
+        converted_from_legacy=normalized.converted_from_legacy,
+        error=None,
+    )
+
+
+def normalize_to_flat_spec(value: Any) -> NormalizeResult:
+    if looks_like_flat_spec(value):
+        return NormalizeResult(spec=canonicalize_flat_spec(value), converted_from_legacy=False)
+
+    unwrapped = unwrap_known_containers(value)
+    if unwrapped is not None:
+        if looks_like_flat_spec(unwrapped):
+            return NormalizeResult(spec=canonicalize_flat_spec(unwrapped), converted_from_legacy=True)
+        if isinstance(unwrapped, list):
+            converted = convert_legacy_messages(unwrapped)
+            if converted is not None:
+                return NormalizeResult(spec=converted, converted_from_legacy=True)
+            return NormalizeResult(
+                spec=None,
+                converted_from_legacy=True,
+                error="Wrapped legacy payload could not be converted.",
+            )
+        if isinstance(unwrapped, dict):
+            converted = convert_legacy_messages([unwrapped])
+            if converted is not None:
+                return NormalizeResult(spec=converted, converted_from_legacy=True)
+
+    if isinstance(value, list):
+        converted = convert_legacy_messages(value)
+        if converted is not None:
+            return NormalizeResult(spec=converted, converted_from_legacy=True)
+        return NormalizeResult(
+            spec=None,
+            converted_from_legacy=True,
+            error="Legacy message array could not be converted.",
+        )
+
+    if isinstance(value, dict):
+        converted = convert_legacy_messages([value])
+        if converted is not None:
+            return NormalizeResult(spec=converted, converted_from_legacy=True)
+
+    return NormalizeResult(
+        spec=None,
+        converted_from_legacy=False,
+        error="Unsupported JSON shape for flat spec.",
+    )
+
+
+def validate_flat_spec(spec: dict[str, Any]) -> ValidationResult:
+    root = spec.get("root")
+    if not isinstance(root, str) or not root.strip():
+        return ValidationResult(False, "Missing or invalid root id.")
+
+    elements_node = spec.get("elements")
+    if not isinstance(elements_node, dict):
+        return ValidationResult(False, "Missing or invalid elements object.")
+
+    if not elements_node:
+        return ValidationResult(False, "Elements map is empty.")
+
+    if root not in elements_node:
+        return ValidationResult(False, f"Root id '{root}' does not exist in elements.")
+
+    ids = set(elements_node.keys())
+    for element_id, raw_element in elements_node.items():
+        if not isinstance(raw_element, dict):
+            return ValidationResult(False, f"Element '{element_id}' must be an object.")
+
+        element_type = raw_element.get("type")
+        if not isinstance(element_type, str) or not element_type.strip():
+            return ValidationResult(False, f"Element '{element_id}' is missing a valid type.")
+        if element_type.lower() not in _ALLOWED_TYPES:
+            return ValidationResult(False, f"Element '{element_id}' has unsupported type '{element_type}'.")
+
+        props = raw_element.get("props")
+        if not isinstance(props, dict):
+            return ValidationResult(False, f"Element '{element_id}' must define props as an object.")
+        if "action" in props:
+            return ValidationResult(
+                False,
+                f"Element '{element_id}' uses legacy props.action. Use on.<event> action bindings instead.",
+            )
+
+        children = raw_element.get("children")
+        if not isinstance(children, list):
+            return ValidationResult(False, f"Element '{element_id}' must define children as an array.")
+        for child in children:
+            if not isinstance(child, str):
+                return ValidationResult(False, f"Element '{element_id}' contains a non-string child reference.")
+            if child not in ids:
+                return ValidationResult(False, f"Element '{element_id}' references missing child '{child}'.")
+
+        repeat = raw_element.get("repeat")
+        if repeat is not None:
+            if not isinstance(repeat, dict):
+                return ValidationResult(False, f"Element '{element_id}' repeat must be an object.")
+            state_path = repeat.get("statePath")
+            if not isinstance(state_path, str) or not state_path.strip():
+                return ValidationResult(False, f"Element '{element_id}' repeat.statePath is required.")
+
+        on = raw_element.get("on")
+        if on is not None:
+            if not isinstance(on, dict):
+                return ValidationResult(False, f"Element '{element_id}' on must be an object.")
+            for event_name, action_value in on.items():
+                action_error = _validate_action_candidate(action_value, f"Element '{element_id}' on.{event_name}")
+                if action_error:
+                    return ValidationResult(False, action_error)
+
+        watch = raw_element.get("watch")
+        if watch is not None:
+            if not isinstance(watch, dict):
+                return ValidationResult(False, f"Element '{element_id}' watch must be an object.")
+            for state_path, action_value in watch.items():
+                if not isinstance(state_path, str) or not state_path.strip() or not state_path.startswith("/"):
+                    return ValidationResult(
+                        False,
+                        f"Element '{element_id}' watch key '{state_path}' must be a non-empty JSON pointer path.",
+                    )
+                action_error = _validate_action_candidate(action_value, f"Element '{element_id}' watch.{state_path}")
+                if action_error:
+                    return ValidationResult(False, action_error)
+
+    return ValidationResult(True)
+
+
+def canonicalize_flat_spec(raw: dict[str, Any]) -> dict[str, Any]:
+    source_elements = raw.get("elements") if isinstance(raw.get("elements"), dict) else {}
+    canonical_elements: dict[str, Any] = {}
+
+    for element_id, element_value in source_elements.items():
+        if not isinstance(element_value, dict):
+            continue
+
+        element_type = element_value.get("type")
+        if not isinstance(element_type, str) or not element_type.strip():
+            legacy_type = element_value.get("component")
+            if isinstance(legacy_type, str) and legacy_type.strip():
+                element_type = legacy_type
+            else:
+                continue
+        canonical_type = _canonicalize_type_name(element_type)
+        if canonical_type is None:
+            canonical_type = element_type
+
+        props = element_value.get("props") if isinstance(element_value.get("props"), dict) else {}
+        props = deepcopy(props)
+
+        for key, val in element_value.items():
+            if key in {"type", "component", "props", "children", "on", "repeat", "visible", "watch"}:
+                continue
+            props.setdefault(key, deepcopy(val))
+
+        children: list[str] = []
+        raw_children = element_value.get("children")
+        if isinstance(raw_children, list):
+            children.extend([item for item in raw_children if isinstance(item, str)])
+        raw_child = element_value.get("child")
+        if isinstance(raw_child, str) and raw_child not in children:
+            children.append(raw_child)
+
+        on_bindings: dict[str, Any] = {}
+        if isinstance(element_value.get("on"), dict):
+            on_bindings = _normalize_event_bindings(element_value.get("on"))
+        elif isinstance(element_value.get("action"), (dict, list)):
+            normalized_action = _normalize_action_candidate(element_value.get("action"))
+            if normalized_action is not None:
+                on_bindings["press"] = normalized_action
+
+        if "action" in props and not on_bindings:
+            normalized_action = _normalize_action_candidate(props.get("action"))
+            if normalized_action is not None:
+                on_bindings["press"] = normalized_action
+            props.pop("action", None)
+
+        watch_bindings: dict[str, Any] = {}
+        if isinstance(element_value.get("watch"), dict):
+            raw_watch = element_value.get("watch")
+            assert isinstance(raw_watch, dict)
+            for watch_key, watch_action in raw_watch.items():
+                normalized_watch_key = _normalize_watch_key(watch_key)
+                if normalized_watch_key is None:
+                    continue
+                normalized_watch_action = _normalize_action_candidate(watch_action)
+                if normalized_watch_action is None:
+                    continue
+                watch_bindings[normalized_watch_key] = normalized_watch_action
+
+        repeat = element_value.get("repeat")
+        normalized_repeat = _normalize_repeat(repeat)
+
+        canonical_element: dict[str, Any] = {
+            "type": canonical_type,
+            "props": props,
+            "children": children,
+        }
+        if normalized_repeat is not None:
+            canonical_element["repeat"] = normalized_repeat
+        if "visible" in element_value:
+            canonical_element["visible"] = deepcopy(element_value["visible"])
+        if on_bindings:
+            canonical_element["on"] = on_bindings
+        if watch_bindings:
+            canonical_element["watch"] = watch_bindings
+
+        canonical_elements[str(element_id)] = canonical_element
+
+    root = raw.get("root") if isinstance(raw.get("root"), str) else ""
+    if isinstance(root, str):
+        root = root.strip().lstrip("#")
+    if not root or root not in canonical_elements:
+        if "root" in canonical_elements:
+            root = "root"
+        elif canonical_elements:
+            root = next(iter(canonical_elements.keys()))
+        else:
+            root = "root"
+
+    state = raw.get("state") if isinstance(raw.get("state"), dict) else {}
+
+    return {
+        "root": root,
+        "state": deepcopy(state),
+        "elements": canonical_elements,
+    }
+
+
+def _canonicalize_type_name(element_type: str) -> str | None:
+    if not isinstance(element_type, str):
+        return None
+    normalized = "".join(ch for ch in element_type.strip() if ch.isalnum()).lower()
+    if not normalized:
+        return None
+    return _TYPE_CANONICAL_MAP.get(normalized)
+
+
+def _normalize_event_name(event_name: Any) -> str | None:
+    if not isinstance(event_name, str):
+        return None
+    key = "".join(ch for ch in event_name.strip() if ch.isalnum()).lower()
+    if not key:
+        return None
+    return _EVENT_ALIASES.get(key, key)
+
+
+def _normalize_action_name(action_name: Any) -> str | None:
+    if not isinstance(action_name, str):
+        return None
+    compact = "".join(ch for ch in action_name.strip() if ch.isalnum())
+    if not compact:
+        return None
+    if compact in _ALLOWED_ACTIONS:
+        return compact
+    lowered = compact.lower()
+    if lowered in _ACTION_ALIASES:
+        return _ACTION_ALIASES[lowered]
+    for allowed in _ALLOWED_ACTIONS:
+        if allowed.lower() == lowered:
+            return allowed
+    return None
+
+
+def _normalize_action_candidate(candidate: Any) -> dict[str, Any] | list[dict[str, Any]] | None:
+    if candidate is None:
+        return None
+
+    if isinstance(candidate, list):
+        out: list[dict[str, Any]] = []
+        for item in candidate:
+            normalized = _normalize_action_candidate(item)
+            if isinstance(normalized, dict):
+                out.append(normalized)
+            elif isinstance(normalized, list):
+                out.extend([x for x in normalized if isinstance(x, dict)])
+        if not out:
+            return None
+        return out
+
+    if not isinstance(candidate, dict):
+        return None
+
+    if "functionCall" in candidate and isinstance(candidate.get("functionCall"), dict):
+        function_call = candidate.get("functionCall")
+        assert isinstance(function_call, dict)
+        action_name = _normalize_action_name(function_call.get("call"))
+        if action_name is None:
+            return None
+        params = function_call.get("args") if isinstance(function_call.get("args"), dict) else {}
+        normalized: dict[str, Any] = {"action": action_name}
+        if params:
+            normalized["params"] = deepcopy(params)
+        return normalized
+
+    action_name = _normalize_action_name(candidate.get("action"))
+    if action_name is None:
+        return None
+
+    params = candidate.get("params") if isinstance(candidate.get("params"), dict) else {}
+    params = deepcopy(params)
+    for key, value in candidate.items():
+        if key in {"action", "params", "preventDefault", "confirm"}:
+            continue
+        params[key] = deepcopy(value)
+
+    normalized = {"action": action_name}
+    if params:
+        normalized["params"] = params
+    if isinstance(candidate.get("preventDefault"), bool):
+        normalized["preventDefault"] = bool(candidate.get("preventDefault"))
+    if isinstance(candidate.get("confirm"), dict):
+        normalized["confirm"] = deepcopy(candidate.get("confirm"))
+    return normalized
+
+
+def _normalize_event_bindings(on_value: Any) -> dict[str, Any]:
+    if not isinstance(on_value, dict):
+        return {}
+    out: dict[str, Any] = {}
+    for raw_event_name, action_candidate in on_value.items():
+        event_name = _normalize_event_name(raw_event_name)
+        if event_name is None:
+            continue
+        action_binding = _normalize_action_candidate(action_candidate)
+        if action_binding is None:
+            continue
+        out[event_name] = action_binding
+    return out
+
+
+def _normalize_watch_key(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    key = value.strip()
+    if not key:
+        return None
+    if key.startswith("/"):
+        return key
+    if key.startswith("$."):
+        key = key[2:]
+    if key.startswith("state."):
+        key = key[len("state.") :]
+    parts = [part for part in key.split(".") if part]
+    if not parts:
+        return None
+    return "/" + "/".join(parts)
+
+
+def _normalize_repeat(value: Any) -> dict[str, Any] | None:
+    if not isinstance(value, dict):
+        return None
+    state_path = value.get("statePath")
+    if not isinstance(state_path, str) or not state_path.strip():
+        state_path = value.get("path")
+    normalized_state_path = _normalize_watch_key(state_path)
+    if normalized_state_path is None:
+        return None
+    normalized = {"statePath": normalized_state_path}
+    key_value = value.get("key")
+    if isinstance(key_value, str) and key_value.strip():
+        normalized["key"] = key_value.strip()
+    for raw_key, raw_val in value.items():
+        if raw_key in {"statePath", "path", "key"}:
+            continue
+        normalized[raw_key] = deepcopy(raw_val)
+    return normalized
+
+
+def unwrap_known_containers(value: Any) -> Any:
+    if not isinstance(value, dict):
+        return None
+
+    for key in ("genui_json", "flat_spec", "messages"):
+        if key in value:
+            return value.get(key)
+
+    payload = value.get("payload")
+    if isinstance(payload, (list, dict)):
+        if isinstance(payload, dict):
+            for nested_key in ("messages", "genui_json", "flat_spec"):
+                if nested_key in payload:
+                    return payload.get(nested_key)
+        return payload
+
+    return None
+
+
+def convert_legacy_messages(messages: list[Any]) -> dict[str, Any] | None:
+    components = _extract_legacy_components(messages)
+    if components is None:
+        return None
+
+    elements: dict[str, Any] = {}
+    root_id: str | None = None
+
+    for component in components:
+        if not isinstance(component, dict):
+            continue
+        element_id = component.get("id")
+        if not isinstance(element_id, str) or not element_id:
+            continue
+
+        component_type = component.get("component")
+        if not isinstance(component_type, str) or not component_type:
+            component_type = component.get("type")
+        if not isinstance(component_type, str) or not component_type:
+            continue
+
+        if root_id is None and element_id == "root":
+            root_id = element_id
+
+        props: dict[str, Any] = {}
+        children: list[str] = []
+        on_bindings: dict[str, Any] = {}
+
+        for key, val in component.items():
+            if key in {"id", "component", "type", "children"}:
+                continue
+            if key == "child":
+                props[key] = deepcopy(val)
+                if isinstance(val, str) and val not in children:
+                    children.append(val)
+                continue
+            if key == "action":
+                action_binding = _legacy_action_to_binding(val)
+                if action_binding is not None:
+                    on_bindings["press"] = action_binding
+                continue
+            props[key] = deepcopy(val)
+
+        raw_children = component.get("children")
+        if isinstance(raw_children, list):
+            for child in raw_children:
+                if isinstance(child, str) and child not in children:
+                    children.append(child)
+
+        element_payload: dict[str, Any] = {
+            "type": component_type,
+            "props": props,
+            "children": children,
+        }
+        if on_bindings:
+            element_payload["on"] = on_bindings
+
+        elements[element_id] = element_payload
+
+    if not elements:
+        return None
+
+    resolved_root = (
+        root_id
+        if root_id and root_id in elements
+        else "root"
+        if "root" in elements
+        else next(iter(elements.keys()))
+    )
+
+    return {
+        "root": resolved_root,
+        "state": {},
+        "elements": elements,
+    }
+
+
+def _extract_legacy_components(messages: list[Any]) -> list[dict[str, Any]] | None:
+    for message in messages:
+        if not isinstance(message, dict):
+            continue
+        update = message.get("updateComponents")
+        if isinstance(update, dict):
+            components = update.get("components")
+            if isinstance(components, list):
+                return [item for item in components if isinstance(item, dict)]
+
+        direct = message.get("components")
+        if isinstance(direct, list):
+            return [item for item in direct if isinstance(item, dict)]
+
+    looks_like_component_array = True
+    filtered: list[dict[str, Any]] = []
+    for item in messages:
+        if not isinstance(item, dict):
+            looks_like_component_array = False
+            break
+        item_id = item.get("id")
+        item_component = item.get("component")
+        item_type = item.get("type")
+        if not isinstance(item_id, str):
+            looks_like_component_array = False
+            break
+        if not (isinstance(item_component, str) or isinstance(item_type, str)):
+            looks_like_component_array = False
+            break
+        filtered.append(item)
+
+    if looks_like_component_array and filtered:
+        return filtered
+    return None
+
+
+def _legacy_action_to_binding(action: Any) -> dict[str, Any] | list[dict[str, Any]] | None:
+    normalized = _normalize_action_candidate(action)
+    if isinstance(normalized, dict):
+        return normalized
+    if isinstance(normalized, list):
+        return [item for item in normalized if isinstance(item, dict)] or None
+    return None
+
+
+def _validate_action_candidate(candidate: Any, context: str) -> str | None:
+    if candidate is None:
+        return f"{context} cannot be null."
+
+    if isinstance(candidate, list):
+        if not candidate:
+            return f"{context} action array cannot be empty."
+        for index, item in enumerate(candidate):
+            error = _validate_single_action_binding(item, f"{context}[{index}]")
+            if error:
+                return error
+        return None
+
+    return _validate_single_action_binding(candidate, context)
+
+
+def _validate_single_action_binding(binding: Any, context: str) -> str | None:
+    if not isinstance(binding, dict):
+        return f"{context} must be an object action binding."
+
+    if "functionCall" in binding:
+        return f"{context} uses legacy functionCall. Use {{\"action\":\"...\",\"params\":{{...}}}}."
+
+    action = binding.get("action")
+    if not isinstance(action, str) or not action.strip():
+        return f"{context} action must be a non-empty string."
+    if action not in _ALLOWED_ACTIONS:
+        return f"{context} action '{action}' is not allowed."
+
+    params = binding.get("params")
+    if params is not None and not isinstance(params, dict):
+        return f"{context} params must be an object when present."
+
+    return None
+
+
+def build_fallback_flat_spec(stage2_response: str) -> dict[str, Any]:
+    text_value = stage2_response.strip() if isinstance(stage2_response, str) else ""
+    if not text_value:
+        text_value = "No content generated."
+    root_id = "root"
+    text_id = "text_1"
+    return {
+        "root": root_id,
+        "state": {},
+        "elements": {
+            root_id: {
+                "type": "Column",
+                "props": {},
+                "children": [text_id],
+            },
+            text_id: {
+                "type": "Text",
+                "props": {
+                    "variant": "body",
+                    "text": text_value,
+                },
+                "children": [],
+            },
+        },
+    }
+
+
+def extract_json_element(text: str) -> Any:
+    cleaned = (text or "").strip()
+    if not cleaned:
+        raise ValueError("Empty text")
+
+    candidates: list[str] = []
+
+    fenced = extract_fenced_block(cleaned)
+    if fenced:
+        candidates.append(fenced)
+
+    if cleaned.startswith("[") or cleaned.startswith("{"):
+        candidates.append(cleaned)
+
+    candidates.extend(_collect_balanced_candidates(cleaned, "[", "]"))
+    candidates.extend(_collect_balanced_candidates(cleaned, "{", "}"))
+
+    parsed_candidates: list[Any] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        try:
+            parsed_candidates.append(json.loads(candidate))
+        except Exception:
+            continue
+
+    if not parsed_candidates:
+        raise ValueError("No JSON found")
+
+    parsed_candidates.sort(key=_score_json_candidate, reverse=True)
+    return parsed_candidates[0]
+
+
+def extract_fenced_block(text: str) -> str | None:
+    start = text.find("```")
+    if start < 0:
+        return None
+    end = text.find("```", start + 3)
+    if end <= start:
+        return None
+    block = text[start + 3 : end].strip()
+    if block.lower().startswith("json"):
+        return block[4:].strip()
+    return block
+
+
+def build_flat_spec_repair_prompt(raw_text: str, failure_reason: str | None = None) -> str:
+    reason_line = ""
+    if isinstance(failure_reason, str) and failure_reason.strip():
+        reason_line = f"Failure reason: {failure_reason.strip()}\n"
+
+    return (
+        "The previous output does not satisfy the required flat-spec contract.\n"
+        f"{reason_line}"
+        "Return ONLY one valid JSON object with this shape:\n"
+        '{"root":"<id>","state":{...},"elements":{...}}\n\n'
+        "Rules:\n"
+        "- Do NOT emit legacy v0.9 message arrays (`createSurface` / `updateComponents`).\n"
+        "- `root` must reference an existing key in `elements`.\n"
+        "- `elements` must contain at least 2 entries (a root container and one content element).\n"
+        "- Every element must contain `type`, `props`, and `children`.\n"
+        "- Every id in `children` must exist in `elements`.\n"
+        "- Return JSON only, no markdown.\n\n"
+        f"Original output:\n{(raw_text or '').strip()}"
+    )
+
+
+def _collect_balanced_candidates(text: str, open_char: str, close_char: str) -> list[str]:
+    out: list[str] = []
+    index = text.find(open_char)
+    while index >= 0:
+        candidate = balanced_substring(text, index, open_char, close_char)
+        if candidate:
+            out.append(candidate)
+        index = text.find(open_char, index + 1)
+    return out
+
+
+def balanced_substring(text: str, start: int, open_char: str, close_char: str) -> str | None:
+    depth = 0
+    in_string = False
+    escape = False
+
+    for idx in range(start, len(text)):
+        ch = text[idx]
+        if escape:
+            escape = False
+            continue
+
+        if ch == "\\" and in_string:
+            escape = True
+            continue
+
+        if ch == '"':
+            in_string = not in_string
+            continue
+
+        if in_string:
+            continue
+
+        if ch == open_char:
+            depth += 1
+        elif ch == close_char:
+            depth -= 1
+            if depth == 0:
+                return text[start : idx + 1]
+
+    return None
+
+
+def _score_json_candidate(candidate: Any) -> int:
+    score = 0
+
+    coerce_result = coerce_and_validate(candidate)
+    if coerce_result.is_valid and isinstance(coerce_result.spec, dict):
+        elements = coerce_result.spec.get("elements")
+        element_count = len(elements) if isinstance(elements, dict) else 0
+        score += 400
+        score += min(element_count, 80)
+        root_id = coerce_result.spec.get("root")
+        if isinstance(root_id, str) and isinstance(elements, dict) and root_id in elements:
+            score += 60
+    else:
+        normalized = normalize_to_flat_spec(candidate)
+        if normalized.spec is not None:
+            score += 160
+        elif isinstance(candidate, list):
+            score += 80
+        elif isinstance(candidate, dict):
+            score += 40
+
+    if isinstance(candidate, dict) and any(k in candidate for k in ("genui_json", "messages", "payload")):
+        score += 50
+
+    try:
+        serialized = json.dumps(candidate, ensure_ascii=False)
+    except Exception:
+        serialized = str(candidate)
+    score += min(len(serialized), 4000) // 200
+    return score

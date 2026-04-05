@@ -4,10 +4,13 @@
   offset: 0,
   limit: 50,
   search: "",
-  field: ""
+  field: "",
+  rendererId: "",
+  rendererOutputDir: "rendered"
 };
 
 const runSelect = document.getElementById("runSelect");
+const rendererSelect = document.getElementById("rendererSelect");
 const refreshBtn = document.getElementById("refreshBtn");
 const summaryEl = document.getElementById("summary");
 const metricsWrap = document.getElementById("metricsWrap");
@@ -69,6 +72,28 @@ function setSummary(payload) {
       <div class="value">${overall ?? "-"}</div>
     </div>
   `;
+}
+
+function setRendererOptions(renderers) {
+  if (!rendererSelect) return;
+  const variants = Array.isArray(renderers) && renderers.length > 0
+    ? renderers
+    : [{ id: "json_render", output_dir: "rendered" }];
+  rendererSelect.innerHTML = "";
+  variants.forEach((renderer) => {
+    const opt = document.createElement("option");
+    opt.value = renderer.id;
+    const outDir = renderer.output_dir || "rendered";
+    opt.dataset.outputDir = outDir;
+    opt.textContent = `${renderer.id} (${outDir})`;
+    rendererSelect.appendChild(opt);
+  });
+
+  const existing = variants.find((item) => item.id === state.rendererId);
+  const selected = existing || variants[0];
+  state.rendererId = selected.id;
+  state.rendererOutputDir = selected.output_dir || "rendered";
+  rendererSelect.value = selected.id;
 }
 
 function formatValue(value, digits = 3) {
@@ -499,11 +524,11 @@ function renderA2ui(items) {
       ? irPayload
       : JSON.stringify(irPayload, null, 2);
     const renderLink = document.createElement("a");
-    renderLink.href = `/runs/${state.runId}/rendered/${item.ui_id}.html`;
+    renderLink.href = `/runs/${state.runId}/${state.rendererOutputDir}/${item.ui_id}.html`;
     renderLink.textContent = "html";
     renderLink.target = "_blank";
     const pngLink = document.createElement("a");
-    pngLink.href = `/runs/${state.runId}/rendered/${item.ui_id}.png`;
+    pngLink.href = `/runs/${state.runId}/${state.rendererOutputDir}/${item.ui_id}.png`;
     pngLink.textContent = "png";
     pngLink.target = "_blank";
     const container = document.createElement("span");
@@ -560,6 +585,7 @@ async function loadSummary() {
   if (!state.runId) return;
   const payload = await fetchJson(`/api/run/${state.runId}/summary`);
   setSummary(payload);
+  setRendererOptions(payload.renderers || []);
   setMetrics(payload);
 }
 
@@ -594,6 +620,17 @@ runSelect.addEventListener("change", async () => {
   await loadSummary();
   await loadTab();
 });
+
+if (rendererSelect) {
+  rendererSelect.addEventListener("change", async () => {
+    const selected = rendererSelect.options[rendererSelect.selectedIndex];
+    state.rendererId = rendererSelect.value;
+    state.rendererOutputDir = (selected && selected.dataset.outputDir) || "rendered";
+    if (state.tab === "genui") {
+      await loadTab();
+    }
+  });
+}
 
 refreshBtn.addEventListener("click", async () => {
   await loadRuns();
@@ -648,6 +685,7 @@ nextBtn.addEventListener("click", async () => {
     showMessage(`Failed to load data: ${err}`);
   }
 })();
+
 
 
 

@@ -1,11 +1,15 @@
-﻿run:
+run:
   run_id: test_sample_1000
   intents_file: intents.info
   output_dir: data/runs
+  stage3_prompt_file: prompts/genui_gen_mobile_flatspec_v10.md
+  stage3_schema_file: schema/genui_flatspec.schema.json
+  stage3_legacy_prompt_file: prompts/genui_gen.md
+  stage3_legacy_schema_file: schema/genui.schema.json
   k_queries_per_intent: 87
   n_responses_per_query: 1
   genui_candidates_per_response: 1
-  max_repair_attempts: 0
+  max_repair_attempts: 1
   parallelism: 2
   rate_limit_qps: 1.0
   seed: 42
@@ -33,14 +37,26 @@
   stage1_fill_missing_with_fallback: false
   max_attempts: 6
 render:
-  output_dir: rendered
-  assets_dir: renderer/lit
+  primary_renderer: json_render
+  comparison_renderers:
+  - lit
+  renderers:
+    json_render:
+      output_dir: rendered
+      assets_dir: renderer/json_render
+      payload_format: flat_spec
+      render_log: render.jsonl
+    lit:
+      output_dir: rendered_lit
+      assets_dir: renderer/lit
+      payload_format: messages
+      render_log: render_lit.jsonl
   render_images: true
   image_format: png
   use_http_server: true
   viewport:
-    width: 1280
-    height: 720
+    width: 412
+    height: 915
   timeout_ms: 15000
   wait_ms: 200
   parallel_workers: 1

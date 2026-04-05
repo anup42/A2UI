@@ -29,6 +29,17 @@ _CONTAINER_COMPONENTS = {
 }
 
 _HEADING_VARIANTS = {"h1", "h2", "h3", "headline", "title", "subtitle"}
+_HEADING_STYLE_TOKENS = {
+    "headline",
+    "title",
+    "subtitle",
+    "display",
+    "header",
+    "large",
+    "xlarge",
+    "xl",
+}
+_URL_FIELD_CANDIDATES = {"url", "href", "link", "bookingUrl", "buttonUrl", "sourceUrl"}
 
 _INTENT_TABLE_REQUIRED = {
     "comparison",
@@ -139,6 +150,38 @@ def _iter_components(genui_json: Any) -> list[dict[str, Any]]:
                 if isinstance(comps, list):
                     components.extend([c for c in comps if isinstance(c, dict)])
     elif isinstance(genui_json, dict):
+        # Flat-spec path: {"root","state","elements"}.
+        elements = genui_json.get("elements")
+        if isinstance(elements, dict):
+            for element_id, element in elements.items():
+                if not isinstance(element_id, str) or not isinstance(element, dict):
+                    continue
+                element_type = element.get("type")
+                if not isinstance(element_type, str):
+                    continue
+                props = element.get("props") if isinstance(element.get("props"), dict) else {}
+                children = element.get("children") if isinstance(element.get("children"), list) else []
+                converted: dict[str, Any] = {
+                    "id": element_id,
+                    "component": element_type,
+                    "children": [c for c in children if isinstance(c, str)],
+                }
+                for key, value in props.items():
+                    converted[key] = value
+                if isinstance(element.get("on"), dict):
+                    converted["on"] = element.get("on")
+                if isinstance(element.get("watch"), dict):
+                    converted["watch"] = element.get("watch")
+                if isinstance(element.get("repeat"), dict):
+                    converted["repeat"] = element.get("repeat")
+                elif isinstance(props.get("repeat"), dict):
+                    # Some generators place repeat metadata inside props.
+                    converted["repeat"] = props.get("repeat")
+                if "visible" in element:
+                    converted["visible"] = element.get("visible")
+                components.append(converted)
+            return components
+
         update = genui_json.get("updateComponents") or genui_json.get("surfaceUpdate")
         if isinstance(update, dict):
             comps = update.get("components")
@@ -166,6 +209,12 @@ def _component_children(comp: dict[str, Any]) -> list[str]:
         for item in comp_children:
             if isinstance(item, str):
                 children.append(item)
+    template = comp.get("template")
+    if isinstance(template, str) and template not in children:
+        children.append(template)
+    item_template = comp.get("itemTemplate")
+    if isinstance(item_template, str) and item_template not in children:
+        children.append(item_template)
     return children
 
 
@@ -265,10 +314,16 @@ def _extract_expected_headings(response_text: str) -> list[str]:
     if not response_text:
         return headings
     lines = response_text.splitlines()
+    first_non_empty_added = False
     for line in lines:
         stripped = line.strip()
         if not stripped:
             continue
+        if not first_non_empty_added:
+            first_non_empty_added = True
+            if len(stripped.split()) <= 10 and not re.search(r"[.!?]\s*$", stripped):
+                headings.append(stripped)
+                continue
         md_match = re.match(r"^#{1,3}\s+(.*)", stripped)
         if md_match:
             headings.append(md_match.group(1).strip())
@@ -279,6 +334,12 @@ def _extract_expected_headings(response_text: str) -> list[str]:
         if stripped.isupper() and len(stripped.split()) <= 6:
             headings.append(stripped.title())
             continue
+        words = [w for w in re.findall(r"[A-Za-z][A-Za-z0-9'-]*", stripped)]
+        if 1 <= len(words) <= 8:
+            titled = sum(1 for w in words if w[:1].isupper())
+            if titled >= max(1, math.ceil(len(words) * 0.6)) and not re.search(r"[.!?]\s*$", stripped):
+                headings.append(stripped)
+                continue
         if stripped.lower() in {
             "summary",
             "assumptions",
@@ -299,25 +360,136 @@ def _extract_text_nodes(components: list[dict[str, Any]]) -> list[dict[str, Any]
     return [c for c in components if c.get("component") == "Text"]
 
 
-def _extract_button_actions(components: list[dict[str, Any]]) -> list[str]:
+def _extract_button_actions(components: list[dict[str, Any]], genui_json: Any = None) -> list[str]:
+    def _collect_urls(binding: Any) -> list[str]:
+        urls: list[str] = []
+        if isinstance(binding, list):
+            for item in binding:
+                urls.extend(_collect_urls(item))
+            return urls
+
+        if not isinstance(binding, dict):
+            return urls
+
+        # Flat-spec action binding.
+        action_name = binding.get("action")
+        if action_name == "openUrl":
+            params = binding.get("params")
+            if isinstance(params, dict):
+                url = params.get("url")
+                if isinstance(url, str):
+                    urls.append(url)
+                elif isinstance(url, dict):
+                    dynamic_key = _extract_dynamic_url_key(url)
+                    if dynamic_key:
+                        urls.extend(_resolve_state_urls(genui_json, dynamic_key))
+            # Some model outputs still place url at top-level.
+            top_url = binding.get("url")
+            if isinstance(top_url, str):
+                urls.append(top_url)
+            elif isinstance(top_url, dict):
+                dynamic_key = _extract_dynamic_url_key(top_url)
+                if dynamic_key:
+                    urls.extend(_resolve_state_urls(genui_json, dynamic_key))
+
+        # Legacy functionCall action binding.
+        func = binding.get("functionCall")
+        if isinstance(func, dict) and func.get("call") == "openUrl":
+            args = func.get("args")
+            if isinstance(args, dict):
+                url = args.get("url")
+                if isinstance(url, str):
+                    urls.append(url)
+
+        return urls
+
     urls: list[str] = []
     for comp in components:
-        if comp.get("component") != "Button":
-            continue
+        # Flat-spec may attach navigational actions on cards/rows too.
+        # Flat-spec event map.
+        on_map = comp.get("on")
+        if isinstance(on_map, dict):
+            for event_binding in on_map.values():
+                urls.extend(_collect_urls(event_binding))
+
+        # Legacy action object.
         action = comp.get("action")
-        if not isinstance(action, dict):
-            continue
-        func = action.get("functionCall")
-        if not isinstance(func, dict):
-            continue
-        if func.get("call") != "openUrl":
-            continue
-        args = func.get("args")
-        if isinstance(args, dict):
-            url = args.get("url")
-            if isinstance(url, str):
-                urls.append(url)
+        urls.extend(_collect_urls(action))
+    if not urls and genui_json is not None:
+        # Fallback: dynamic URL bindings can hide concrete values inside state.
+        urls.extend(_extract_urls(json.dumps(genui_json, ensure_ascii=False)))
+    return list(dict.fromkeys(urls))
+
+
+def _extract_dynamic_url_key(value: dict[str, Any]) -> str | None:
+    bind_item = value.get("$bindItem")
+    if isinstance(bind_item, str) and bind_item.strip():
+        return bind_item.strip()
+    item = value.get("$item")
+    if isinstance(item, str) and item.strip():
+        return item.strip()
+    state_path = value.get("$state")
+    if isinstance(state_path, str) and state_path.strip():
+        return state_path.strip().split("/")[-1] or None
+    return None
+
+
+def _iter_state_urls(value: Any, preferred_key: str | None = None) -> list[str]:
+    urls: list[str] = []
+    if isinstance(value, str):
+        urls.extend(_extract_urls(value))
+        return urls
+    if isinstance(value, list):
+        for item in value:
+            urls.extend(_iter_state_urls(item, preferred_key))
+        return urls
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if preferred_key and key != preferred_key:
+                urls.extend(_iter_state_urls(item, preferred_key))
+                continue
+            if key in _URL_FIELD_CANDIDATES and isinstance(item, str):
+                urls.extend(_extract_urls(item))
+            else:
+                urls.extend(_iter_state_urls(item, preferred_key))
     return urls
+
+
+def _resolve_state_urls(genui_json: Any, dynamic_key: str | None = None) -> list[str]:
+    if not isinstance(genui_json, dict):
+        return []
+    state = genui_json.get("state")
+    if not isinstance(state, dict):
+        return []
+    urls = _iter_state_urls(state, dynamic_key)
+    if urls:
+        return list(dict.fromkeys(urls))
+    return list(dict.fromkeys(_iter_state_urls(state, None)))
+
+
+def _find_first_text_descendant(
+    component_id: str,
+    index: dict[str, dict[str, Any]],
+    max_depth: int = 3,
+) -> str | None:
+    if component_id not in index:
+        return None
+    queue: list[tuple[str, int]] = [(component_id, 0)]
+    visited: set[str] = set()
+    while queue:
+        node_id, depth = queue.pop(0)
+        if node_id in visited or depth > max_depth:
+            continue
+        visited.add(node_id)
+        node = index.get(node_id)
+        if not isinstance(node, dict):
+            continue
+        if node.get("component") == "Text":
+            return node_id
+        for child_id in _component_children(node):
+            if child_id in index:
+                queue.append((child_id, depth + 1))
+    return None
 
 
 def _row_text_cell_ids(row_comp: dict[str, Any], index: dict[str, dict[str, Any]]) -> list[str]:
@@ -326,8 +498,14 @@ def _row_text_cell_ids(row_comp: dict[str, Any], index: dict[str, dict[str, Any]
     cells: list[str] = []
     for child_id in _component_children(row_comp):
         child = index.get(child_id)
-        if child and child.get("component") == "Text":
+        if not child:
+            continue
+        if child.get("component") == "Text":
             cells.append(child_id)
+            continue
+        descendant = _find_first_text_descendant(child_id, index)
+        if descendant:
+            cells.append(descendant)
     return cells
 
 
@@ -364,7 +542,11 @@ def _find_table_rows(components: list[dict[str, Any]]) -> list[list[str]]:
             row_cells = _row_text_cell_ids(child, index)
             if row_cells:
                 row_nodes.append(row_cells)
-        _append_if_table_like(rows, row_nodes, min_rows=2)
+        if isinstance(comp.get("repeat"), dict) and len(row_nodes) == 1 and len(row_nodes[0]) >= 2:
+            # Flat-spec repeat lists often contain one row template.
+            _append_if_table_like(rows, row_nodes * 3, min_rows=2)
+        else:
+            _append_if_table_like(rows, row_nodes, min_rows=2)
 
     # Pattern B: Column with divider-separated Row children
     for comp in components:
@@ -376,7 +558,7 @@ def _find_table_rows(components: list[dict[str, Any]]) -> list[list[str]]:
             child = index.get(child_id)
             if not child:
                 # Unknown refs break sequence.
-                _append_if_table_like(rows, seq, min_rows=3)
+                _append_if_table_like(rows, seq, min_rows=2)
                 seq = []
                 continue
             child_type = child.get("component")
@@ -385,15 +567,15 @@ def _find_table_rows(components: list[dict[str, Any]]) -> list[list[str]]:
                 if row_cells:
                     seq.append(row_cells)
                 else:
-                    _append_if_table_like(rows, seq, min_rows=3)
+                    _append_if_table_like(rows, seq, min_rows=2)
                     seq = []
             elif child_type == "Divider":
                 # Allow divider separators within a table block.
                 continue
             else:
-                _append_if_table_like(rows, seq, min_rows=3)
+                _append_if_table_like(rows, seq, min_rows=2)
                 seq = []
-        _append_if_table_like(rows, seq, min_rows=3)
+        _append_if_table_like(rows, seq, min_rows=2)
 
     return rows
 
@@ -453,6 +635,115 @@ def _extract_table_cells_from_ir(table_rows: list[list[str]], index: dict[str, d
                 text = comp.get("text")
                 if isinstance(text, str):
                     cells.append(text)
+                elif isinstance(text, dict):
+                    bind_item = text.get("$bindItem")
+                    if isinstance(bind_item, str) and bind_item.strip():
+                        cells.append(bind_item.strip())
+                    item_key = text.get("$item")
+                    if isinstance(item_key, str) and item_key.strip():
+                        cells.append(item_key.strip())
+                    template_text = text.get("$template")
+                    if isinstance(template_text, str) and template_text.strip():
+                        cells.append(template_text.strip())
+    return cells
+
+
+def _has_strong_table_signal(response_text: str) -> bool:
+    if not response_text:
+        return False
+    lines = [line.strip() for line in response_text.splitlines() if line.strip()]
+    pipe_rows = 0
+    kv_rows = 0
+    for line in lines:
+        if "|" in line:
+            pipe_rows += 1
+        cleaned = re.sub(r"^\s*(?:[-*]|\d+[.)])\s*", "", line).strip()
+        if re.match(r"^([^:|]{1,80}):\s+(.+)$", cleaned):
+            kv_rows += 1
+    if pipe_rows >= 2:
+        return True
+    lower = response_text.lower()
+    if re.search(r"\b(table|comparison|matrix)\b", lower) and kv_rows >= 3:
+        return True
+    if re.search(r"\b(breakdown|metrics)\b", lower) and kv_rows >= 6:
+        return True
+    return False
+
+
+def _resolve_state_pointer(state: dict[str, Any], pointer: str) -> Any:
+    if not isinstance(pointer, str):
+        return None
+    path = pointer.strip()
+    if not path:
+        return None
+    if path.startswith("/"):
+        current: Any = state
+        for segment in path.split("/")[1:]:
+            if segment == "":
+                continue
+            if isinstance(current, dict) and segment in current:
+                current = current[segment]
+                continue
+            if isinstance(current, list):
+                try:
+                    idx = int(segment)
+                except Exception:
+                    return None
+                if idx < 0 or idx >= len(current):
+                    return None
+                current = current[idx]
+                continue
+            return None
+        return current
+    if path.startswith("$."):
+        path = path[2:]
+    if path.startswith("state."):
+        path = path[len("state.") :]
+    current = state
+    for segment in [p for p in path.split(".") if p]:
+        if isinstance(current, dict) and segment in current:
+            current = current[segment]
+        else:
+            return None
+    return current
+
+
+def _flatten_scalar_values(value: Any) -> list[str]:
+    out: list[str] = []
+    if isinstance(value, dict):
+        for v in value.values():
+            out.extend(_flatten_scalar_values(v))
+        return out
+    if isinstance(value, list):
+        for v in value:
+            out.extend(_flatten_scalar_values(v))
+        return out
+    if isinstance(value, (str, int, float, bool)):
+        out.append(str(value))
+    return out
+
+
+def _extract_repeat_state_cells(genui_json: Any) -> list[str]:
+    if not isinstance(genui_json, dict):
+        return []
+    state = genui_json.get("state")
+    elements = genui_json.get("elements")
+    if not isinstance(state, dict) or not isinstance(elements, dict):
+        return []
+    cells: list[str] = []
+    for element in elements.values():
+        if not isinstance(element, dict):
+            continue
+        repeat = element.get("repeat")
+        if not isinstance(repeat, dict):
+            continue
+        state_path = repeat.get("statePath")
+        if not isinstance(state_path, str) or not state_path.strip():
+            continue
+        repeat_value = _resolve_state_pointer(state, state_path)
+        if repeat_value is None:
+            continue
+        cells.extend(_flatten_scalar_values(repeat_value))
     return cells
 
 
@@ -487,7 +778,7 @@ def compute_intent_metrics(
 
     has_urls = bool(_extract_urls(response_text))
     has_button_marker = "quick actions" in response_lower or "[button" in response_lower
-    table_like = bool(_extract_table_cells_from_response(response_text))
+    table_like = _has_strong_table_signal(response_text)
     expected_headings = _extract_expected_headings(response_text)
 
     table_expected = (
@@ -571,7 +862,7 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
         )
         ui_modularity_score = modular / component_count
 
-    button_urls = _extract_button_actions(components)
+    button_urls = _extract_button_actions(components, genui_json=genui_json)
     expected_action_urls = []
     for line in response_text.splitlines():
         if "button" in line.lower():
@@ -596,6 +887,7 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
     table_pattern_detected = 1.0 if table_rows else 0.0
     expected_cells = _extract_table_cells_from_response(response_text)
     ir_cells = _extract_table_cells_from_ir(table_rows, index)
+    ir_cells.extend(_extract_repeat_state_cells(genui_json))
     expected_norm = {_normalize_text(c) for c in expected_cells if c}
     ir_norm = {_normalize_text(c) for c in ir_cells if c}
     table_cell_coverage = 0.0
@@ -610,10 +902,30 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
     heading_texts = []
     for node in text_nodes:
         variant = node.get("variant")
+        typography = node.get("typography")
+        font_size = node.get("fontSize")
+        font_weight = str(node.get("fontWeight") or "").strip().lower()
+        comp_id = str(node.get("id") or "").strip().lower()
+        is_heading = False
         if isinstance(variant, str) and variant.lower() in _HEADING_VARIANTS:
-            text = node.get("text")
-            if isinstance(text, str):
-                heading_texts.append(text)
+            is_heading = True
+        if not is_heading and isinstance(typography, str):
+            t = typography.lower()
+            if any(token in t for token in _HEADING_STYLE_TOKENS):
+                is_heading = True
+        if not is_heading and isinstance(font_size, str):
+            f = font_size.lower().replace("-", "")
+            if any(token in f for token in _HEADING_STYLE_TOKENS):
+                is_heading = True
+        if not is_heading and any(token in comp_id for token in ("title", "header", "heading")):
+            is_heading = True
+        text = node.get("text")
+        if not is_heading and isinstance(text, str):
+            words = len(text.split())
+            if words <= 8 and font_weight in {"bold", "semibold", "medium"}:
+                is_heading = True
+        if is_heading and isinstance(text, str):
+            heading_texts.append(text)
     expected_heading_norm = {_normalize_text(h) for h in expected_headings if h}
     heading_norm = {_normalize_text(h) for h in heading_texts if h}
     section_heading_coverage = 1.0
@@ -718,14 +1030,13 @@ def lint_score(genui_json: Any) -> float:
         nonlocal penalties
         if isinstance(obj, dict):
             for k, v in obj.items():
-                if k in {"children", "child", "components"} and not v:
+                # Empty children arrays are valid for leaf nodes in flat-spec IR.
+                if k in {"child", "components"} and not v:
                     penalties += 0.1
                 if k in {"text", "label"} and v in (None, ""):
                     penalties += 0.05
                 walk(v)
         elif isinstance(obj, list):
-            if len(obj) == 0:
-                penalties += 0.1
             for item in obj:
                 walk(item)
 

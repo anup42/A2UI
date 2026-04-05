@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genui.local/specification/flatspec/v1/genui_flatspec.schema.json",
+  "title": "GenUICraft Flat Spec",
+  "type": "object",
+  "required": ["root", "elements"],
+  "additionalProperties": false,
+  "properties": {
+    "root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "elements": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/element"
+      }
+    }
+  },
+  "$defs": {
+    "action": {
+      "type": "object",
+      "required": ["action"],
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": ["openUrl", "setState", "pushState", "removeState", "validateForm"]
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "preventDefault": {
+          "type": "boolean"
+        },
+        "confirm": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "actionOrList": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/action"
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/action"
+          }
+        }
+      ]
+    },
+    "repeat": {
+      "type": "object",
+      "required": ["statePath"],
+      "additionalProperties": true,
+      "properties": {
+        "statePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "key": {
+          "type": "string"
+        }
+      }
+    },
+    "element": {
+      "type": "object",
+      "required": ["type", "props", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Column",
+            "Row",
+            "List",
+            "Card",
+            "Text",
+            "Image",
+            "Icon",
+            "Video",
+            "AudioPlayer",
+            "Divider",
+            "Button",
+            "Tabs",
+            "Modal",
+            "TextField",
+            "CheckBox",
+            "ChoicePicker",
+            "Slider",
+            "DateTimeInput"
+          ]
+        },
+        "props": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "repeat": {
+          "$ref": "#/$defs/repeat"
+        },
+        "visible": {
+          "description": "Visibility expression",
+          "type": ["object", "boolean", "string", "number", "array", "null"]
+        },
+        "on": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/actionOrList"
+          }
+        },
+        "watch": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/actionOrList"
+          }
+        }
+      }
+    }
+  }
+}
