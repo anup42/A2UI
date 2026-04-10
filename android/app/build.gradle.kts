@@ -214,8 +214,34 @@ tasks.register("verifyLauncherIconAssets") {
     }
 }
 
+tasks.register("verifyGenUiPromptMirror") {
+    group = "verification"
+    description = "Fails build if app GenUI prompt and dataset mirror prompt drift."
+    doLast {
+        val appPrompt = project.file("src/main/assets/pipeline_prompts/genui_gen.md")
+        val datasetPrompt = rootProject.file("../dataset/prompts/genui_gen.md")
+        if (!appPrompt.isFile) {
+            throw org.gradle.api.GradleException("Missing app prompt file: ${appPrompt.path}")
+        }
+        if (!datasetPrompt.isFile) {
+            throw org.gradle.api.GradleException("Missing dataset mirror prompt file: ${datasetPrompt.path}")
+        }
+        val appText = appPrompt.readText(Charsets.UTF_8).replace("\r\n", "\n").trim()
+        val datasetText = datasetPrompt.readText(Charsets.UTF_8).replace("\r\n", "\n").trim()
+        if (appText != datasetText) {
+            throw org.gradle.api.GradleException(
+                "Prompt drift detected between app and dataset mirror.\n" +
+                    "Canonical: ${appPrompt.path}\n" +
+                    "Mirror: ${datasetPrompt.path}\n" +
+                    "Sync flow: update app prompt first, then mirror in same change."
+            )
+        }
+    }
+}
+
 tasks.named("preBuild").configure {
     dependsOn("verifyLauncherIconAssets")
+    dependsOn("verifyGenUiPromptMirror")
 }
 
 // UTP connected instrumentation runs can leave the target debug package uninstalled

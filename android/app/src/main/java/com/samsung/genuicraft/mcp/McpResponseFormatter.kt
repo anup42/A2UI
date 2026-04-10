@@ -1,4 +1,4 @@
-package com.samsung.genuicraft.mcp
+﻿package com.samsung.genuicraft.mcp
 
 import android.util.Log
 import com.google.gson.JsonArray
@@ -18,6 +18,29 @@ object McpResponseFormatter {
         val error: String?,
         val streamDurationMs: Long?
     )
+
+    private val mojibakeFixups = linkedMapOf(
+        "Ã¢â‚¬â€" to "—",
+        "â€”" to "—",
+        "Ã‚Â°C" to "°C",
+        "Ã¢Ëœâ€¦" to "★",
+        "Ã¢Ëœâ€ " to "☆",
+        "Ã¢â€šÂ¹" to "₹",
+        "MonÃ¢â‚¬Â¦6=Sun" to "Mon…6=Sun",
+        "Ã‚Â·" to "·",
+        "Â·" to "·"
+    )
+
+    fun normalizeForStage3(text: String): String {
+        if (text.isBlank()) {
+            return text
+        }
+        var normalized = text
+        mojibakeFixups.forEach { (from, to) ->
+            normalized = normalized.replace(from, to)
+        }
+        return normalized
+    }
 
     /**
      * Uses the configured LLM backend to format raw MCP data into a structured
@@ -43,7 +66,7 @@ object McpResponseFormatter {
         if (mcpResult.domain == McpSettings.Domain.RESTAURANTS || mcpResult.domain == McpSettings.Domain.PLACES) {
             val fallback = buildFallbackResponse(mcpResult.domain, mcpResult.data, queryText)
             return FormatResult(
-                formattedResponse = fallback,
+                formattedResponse = normalizeForStage3(fallback),
                 error = null,
                 streamDurationMs = null
             )
@@ -67,7 +90,7 @@ object McpResponseFormatter {
             // Fallback: generate a simple structured response from the raw data
             val fallback = buildFallbackResponse(mcpResult.domain, mcpResult.data, queryText)
             return FormatResult(
-                formattedResponse = fallback,
+                formattedResponse = normalizeForStage3(fallback),
                 error = null,
                 streamDurationMs = response.streamDurationMs
             )
@@ -77,14 +100,14 @@ object McpResponseFormatter {
         if (text.isBlank()) {
             val fallback = buildFallbackResponse(mcpResult.domain, mcpResult.data, queryText)
             return FormatResult(
-                formattedResponse = fallback,
+                formattedResponse = normalizeForStage3(fallback),
                 error = null,
                 streamDurationMs = response.streamDurationMs
             )
         }
 
         return FormatResult(
-            formattedResponse = text,
+            formattedResponse = normalizeForStage3(text),
             error = null,
             streamDurationMs = response.streamDurationMs
         )
@@ -101,7 +124,7 @@ $dataStr
 ```
 
 Format this real-time data into a complete, polished response following the formatting rules in your system prompt.
-The data above is LIVE and REAL â€” present it as authoritative current information, not as examples or samples.
+The data above is LIVE and REAL — present it as authoritative current information, not as examples or samples.
 Do not add disclaimers about data accuracy. Present the data directly as the answer."""
     }
 
@@ -118,7 +141,7 @@ Rules:
    ### <restaurant/place name>
    Media: Image=<photoUri from data> Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg
    *<cuisine/type tags>*
-   **Rating:** <rating> â˜…â˜…â˜…â˜… (<reviewCount> reviews)
+   **Rating:** <rating> ★★★★ (<reviewCount> reviews)
    **Address:** <address>
    **Review:** "<first review text snippet>"
    Action: [Button: View on Maps] <googleMapsUri>
@@ -129,11 +152,11 @@ Rules:
    - If "reviews" array exists, include the first review text (truncated to 120 chars)
    - If "googleMapsUri" exists, include Action: [Button: View on Maps] <url>
    - If "websiteUri" exists, include Action: [Button: Visit Website] <url>
-   - Show rating as numeric value plus â˜… star characters
-   - Do NOT use a table for restaurants/places â€” use individual card blocks
+   - Show rating as numeric value plus ★ star characters
+   - Do NOT use a table for restaurants/places — use individual card blocks
 6) For hotels, use option cards with rating, price, and book button.
 7) Include a Sources section with real URLs when applicable.
-8) Keep sections concise â€” prefer cards, tables, and bullets over long paragraphs.
+8) Keep sections concise — prefer cards, tables, and bullets over long paragraphs.
 9) For weather: start with current conditions block, then forecast table.
 10) For flights: include Airline | Departure | Arrival | Duration | Stops | Fare table.
 11) For news: include title, source, and publication time for each article.
@@ -153,7 +176,7 @@ Rules:
             Log.w(LOG_TAG, "MCP ${mcpResult.domain.key} returned empty results for query: $queryText")
             return ""
         }
-        return buildFallbackResponse(mcpResult.domain, mcpResult.data, queryText)
+        return normalizeForStage3(buildFallbackResponse(mcpResult.domain, mcpResult.data, queryText))
     }
 
     private fun isMcpDataEmpty(domain: McpSettings.Domain, data: JsonObject): Boolean = when (domain) {
@@ -209,7 +232,7 @@ Rules:
         val minTemps = daily?.getAsJsonArray("temperature_2m_min")
         val precip = daily?.getAsJsonArray("precipitation_probability_max")
         val codes = daily?.getAsJsonArray("weather_code")
-        // Unified weather table â€” triggers NativeWeatherIntentModule for weather-app style rendering
+        // Unified weather table — triggers NativeWeatherIntentModule for weather-app style rendering
         sb.appendLine("| Day | Condition | Temp | High | Low | Rain % | Wind | Humidity | UV |")
         sb.appendLine("|-----|-----------|------|------|-----|--------|------|----------|-----|")
 
@@ -217,13 +240,13 @@ Rules:
         run {
             val weatherCode = current?.safeInt("weather_code") ?: codes?.get(0)?.safeInt() ?: -1
             val condition = wmoCodeToCondition(weatherCode)
-            val currentTemp = current?.safeString("temperature_2m")?.let { "${it}Â°C" } ?: "â€”"
-            val todayHigh = maxTemps?.get(0)?.safeString()?.let { "${it}Â°C" } ?: "â€”"
-            val todayLow = minTemps?.get(0)?.safeString()?.let { "${it}Â°C" } ?: "â€”"
-            val todayRain = precip?.get(0)?.safeString()?.let { "${it}%" } ?: "â€”"
-            val wind = current?.safeString("wind_speed_10m")?.let { "${it} km/h" } ?: "â€”"
-            val humidity = current?.safeString("relative_humidity_2m")?.let { "${it}%" } ?: "â€”"
-            val uv = current?.safeDouble("uv_index")?.let { "${"%.0f".format(it)}" } ?: "â€”"
+            val currentTemp = current?.safeString("temperature_2m")?.let { "${it}°C" } ?: "—"
+            val todayHigh = maxTemps?.get(0)?.safeString()?.let { "${it}°C" } ?: "—"
+            val todayLow = minTemps?.get(0)?.safeString()?.let { "${it}°C" } ?: "—"
+            val todayRain = precip?.get(0)?.safeString()?.let { "${it}%" } ?: "—"
+            val wind = current?.safeString("wind_speed_10m")?.let { "${it} km/h" } ?: "—"
+            val humidity = current?.safeString("relative_humidity_2m")?.let { "${it}%" } ?: "—"
+            val uv = current?.safeDouble("uv_index")?.let { "${"%.0f".format(it)}" } ?: "—"
             sb.appendLine("| Today | $condition | $currentTemp | $todayHigh | $todayLow | $todayRain | $wind | $humidity | $uv |")
         }
 
@@ -232,16 +255,16 @@ Rules:
             val count = minOf(dates.size(), maxTemps.size(), minTemps.size(), 7)
             for (i in 1 until count) {
                 val date = dates[i].safeString() ?: continue
-                val high = maxTemps[i].safeString()?.let { "${it}Â°C" } ?: "â€”"
-                val low = minTemps[i].safeString()?.let { "${it}Â°C" } ?: "â€”"
-                val rain = precip?.get(i)?.safeString()?.let { "${it}%" } ?: "â€”"
+                val high = maxTemps[i].safeString()?.let { "${it}°C" } ?: "—"
+                val low = minTemps[i].safeString()?.let { "${it}°C" } ?: "—"
+                val rain = precip?.get(i)?.safeString()?.let { "${it}%" } ?: "—"
                 val dayCode = codes?.get(i)?.safeInt() ?: -1
                 val dayCondition = wmoCodeToCondition(dayCode)
                 val dayLabel = try {
                     val parsed = java.time.LocalDate.parse(date)
                     parsed.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
                 } catch (_: Exception) { date }
-                sb.appendLine("| $dayLabel | $dayCondition | â€” | $high | $low | $rain | â€” | â€” | â€” |")
+                sb.appendLine("| $dayLabel | $dayCondition | — | $high | $low | $rain | — | — | — |")
             }
         }
 
@@ -291,15 +314,15 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     val currency = "USD"
                     val route = flightObj.getAsJsonArray("flights")
                     val duration = route?.get(0)?.asJsonObject?.safeString("duration") ?: "N/A"
-                    val airlines = route?.get(0)?.asJsonObject?.safeString("airline") ?: "â€”"
+                    val airlines = route?.get(0)?.asJsonObject?.safeString("airline") ?: "—"
                     val stops = if (route != null) route.size() - 1 else 0
                     val stopsStr = if (stops <= 0) "Non-stop" else "$stops stop${if (stops > 1) "s" else ""}"
                     val firstLeg = route?.get(0)?.asJsonObject
                     val lastLeg = route?.get(route.size() - 1)?.asJsonObject
                     val depObj = firstLeg?.getAsJsonObject("departure_airport")
                     val arrObj = lastLeg?.getAsJsonObject("arrival_airport")
-                    val dep = depObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "â€”"
-                    val arr = arrObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "â€”"
+                    val dep = depObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "—"
+                    val arr = arrObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "—"
                     sb.appendLine("| $airlines | $dep | $arr | $duration mins | $stopsStr | $currency $price |")
             }
         }
@@ -329,17 +352,17 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else "N/A"
                 val fullStars = ratingRaw.toInt().coerceIn(0, 5)
                 val emptyStars = 5 - fullStars
-                val starsDisplay = if (ratingRaw > 0) "â˜…".repeat(fullStars) + "â˜†".repeat(emptyStars) else ""
+                val starsDisplay = if (ratingRaw > 0) "★".repeat(fullStars) + "☆".repeat(emptyStars) else ""
                 val reviewCount = biz.safeInt("userRatingCount") ?: 0
                 val mapsUri = biz.safeString("googleMapsUri") ?: ""
                 val websiteUri = biz.safeString("websiteUri") ?: ""
                 val address = biz.safeString("formattedAddress") ?: ""
                 val photoUri = biz.safeString("photoUri") ?: ""
                 val priceLevel = when (biz.safeString("priceLevel")) {
-                    "PRICE_LEVEL_INEXPENSIVE" -> "â‚¹"
-                    "PRICE_LEVEL_MODERATE" -> "â‚¹â‚¹"
-                    "PRICE_LEVEL_EXPENSIVE" -> "â‚¹â‚¹â‚¹"
-                    "PRICE_LEVEL_VERY_EXPENSIVE" -> "â‚¹â‚¹â‚¹â‚¹"
+                    "PRICE_LEVEL_INEXPENSIVE" -> "₹"
+                    "PRICE_LEVEL_MODERATE" -> "₹₹"
+                    "PRICE_LEVEL_EXPENSIVE" -> "₹₹₹"
+                    "PRICE_LEVEL_VERY_EXPENSIVE" -> "₹₹₹₹"
                     else -> ""
                 }
 
@@ -368,7 +391,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val todayHours = openingHours?.getAsJsonArray("weekdayDescriptions")
                     ?.let { arr ->
                         val dayIndex = (java.util.Calendar.getInstance()
-                            .get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7  // 0=Monâ€¦6=Sun
+                            .get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7  // 0=Mon…6=Sun
                         if (dayIndex < arr.size()) arr[dayIndex].asString?.substringAfter(":")?.trim() else null
                     }
 
@@ -380,7 +403,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     ?.takeIf { it.isNotBlank() && it != "null" }
                     ?.take(140)
 
-                // â”€â”€ Card block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                // Card block
                 sb.appendLine()
                 sb.appendLine("## ${i + 1}. $name")
                 if (photoUri.isNotBlank()) {
@@ -398,7 +421,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingLine = buildString {
                     if (ratingRaw > 0) append("$starsDisplay $ratingStr ($reviewCount reviews)")
                     if (priceLevel.isNotBlank()) {
-                        if (isNotEmpty()) append("  Â·  ")
+                        if (isNotEmpty()) append("  ·  ")
                         append(priceLevel)
                     }
                 }
@@ -408,13 +431,13 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val hoursLine = buildString {
                     if (openStatus != null) append(openStatus)
                     if (todayHours != null) {
-                        if (isNotEmpty()) append(" Â· ")
+                        if (isNotEmpty()) append(" · ")
                         append("Today: $todayHours")
                     }
                 }
                 if (hoursLine.isNotBlank()) sb.appendLine(hoursLine)
 
-                // Editorial summary â€” concise description from Google
+                // Editorial summary — concise description from Google
                 if (editorial != null) sb.appendLine("- $editorial")
 
                 // Action buttons
@@ -531,7 +554,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else "N/A"
                 val fullStars = ratingRaw.toInt().coerceIn(0, 5)
                 val emptyStars = 5 - fullStars
-                val starsDisplay = if (ratingRaw > 0) "â˜…".repeat(fullStars) + "â˜†".repeat(emptyStars) else ""
+                val starsDisplay = if (ratingRaw > 0) "★".repeat(fullStars) + "☆".repeat(emptyStars) else ""
                 val reviewCount = place.safeInt("userRatingCount") ?: 0
                 val mapsUri = place.safeString("googleMapsUri") ?: ""
                 val websiteUri = place.safeString("websiteUri") ?: ""
@@ -589,7 +612,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val hoursLine = buildString {
                     if (openStatus != null) append(openStatus)
                     if (todayHours != null) {
-                        if (isNotEmpty()) append(" Â· ")
+                        if (isNotEmpty()) append(" · ")
                         append("Today: $todayHours")
                     }
                 }

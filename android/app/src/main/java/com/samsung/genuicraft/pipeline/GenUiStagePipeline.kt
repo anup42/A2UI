@@ -19,6 +19,7 @@ import com.samsung.genuicraft.pipeline.PipelinePromptBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class GenUiStagePipeline(private val appContext: Context) {
     enum class Stage {
@@ -48,6 +49,15 @@ class GenUiStagePipeline(private val appContext: Context) {
         val usedFallback: Boolean,
         val warnings: List<String>,
         val renderResult: GenUiNativeRenderer.RenderResult
+    )
+
+    private data class Stage3RepairDiagnostics(
+        val rawStage3Text: String,
+        val selectedJsonCandidateText: String?,
+        var initialValidationError: String? = null,
+        val repairValidationErrors: MutableList<String> = mutableListOf(),
+        val repairOutputTexts: MutableList<String> = mutableListOf(),
+        val repairSelectedCandidateTexts: MutableList<String?> = mutableListOf()
     )
 
     sealed interface Outcome {
@@ -509,7 +519,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = stage2WithTravelMedia,
             queryText = normalizedQuery
         )
-        val stage2Response = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
+        val stage2Response = McpResponseFormatter.normalizeForStage3(
+            PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
+        )
         val injectedFlightList = stage2WithFlightList != stage2ResponseRaw
         val normalizedBareDomains = stage2Response != stage2WithGeneralMedia
         val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
@@ -695,9 +707,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        var stage3JsonElement = repairAndValidateFlatSpec(
+        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        val stage3Diagnostics = Stage3RepairDiagnostics(
+            rawStage3Text = stage3Call.text,
+            selectedJsonCandidateText = stage3InitialCandidate?.toString()
+        )
+        val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3Call.text,
-            initialJsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text),
+            initialJsonElement = stage3InitialCandidate,
             backend = irBackend,
             provider = irProvider,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
@@ -709,58 +726,66 @@ class GenUiStagePipeline(private val appContext: Context) {
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
             onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) },
             onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
-            warnings = warnings
+            warnings = warnings,
+            diagnostics = stage3Diagnostics
         )
-        var usedFallback = false
-
         if (stage3JsonElement == null) {
-            warnings += "Stage 3 fallback JSON was used."
-            stage3JsonElement = PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId)
-            usedFallback = true
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
+            val strictMessage = buildStrictStage3FailureMessage(stage3Diagnostics)
+            val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
+            persistStage3DiagnosticsArtifacts(stage3Diagnostics)
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE3,
+                "Stage 3 failed: invalid IR output",
+                debugLog = strictDebug,
+                stage2Response = stage2Response
+            )
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = strictMessage,
+                stage2Response = stage2Response,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
         // Image injection into root removed - cards handle their own inline images.
-        if (!usedFallback) {
-            val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
-                jsonText = stage3Json,
-                queryText = normalizedQuery,
-                stage2Response = stage2Response
-            )
-            if (stage3WithFlightMediaNormalized != stage3Json) {
-                stage3Json = stage3WithFlightMediaNormalized
-                warnings += "Normalized flight media to airline/travel-safe icons."
-            }
+        val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
+            jsonText = stage3Json,
+            queryText = normalizedQuery,
+            stage2Response = stage2Response
+        )
+        if (stage3WithFlightMediaNormalized != stage3Json) {
+            stage3Json = stage3WithFlightMediaNormalized
+            warnings += "Normalized flight media to airline/travel-safe icons."
         }
-        if (!usedFallback) {
-            val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
-                jsonText = stage3Json,
-                queryText = normalizedQuery
-            )
-            if (stage3WithStableMediaUrls != stage3Json) {
-                stage3Json = stage3WithStableMediaUrls
-                warnings += "Rewrote unstable media URLs to deterministic topic icons."
-            }
+        val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
+            jsonText = stage3Json,
+            queryText = normalizedQuery
+        )
+        if (stage3WithStableMediaUrls != stage3Json) {
+            stage3Json = stage3WithStableMediaUrls
+            warnings += "Rewrote unstable media URLs to deterministic topic icons."
         }
         // Inline text media injection removed - cards handle their own images.
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(stage2Response)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
-        var stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
+        val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
         val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
-        if (missingInlineIcon && !usedFallback) {
-            warnings += "Media content was adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId))
-            usedFallback = true
+        if (missingInlineIcon) {
+            warnings += "Stage 3 did not preserve inline icon content."
         } else if (missingInlineImage) {
             warnings += "Stage 3 did not preserve inline image; layout retained."
         }
-        if (PipelineMediaSanitizer.responseContainsActionButtons(stage2Response) && !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback) {
-            warnings += "Quick actions were adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId))
-            usedFallback = true
+        if (PipelineMediaSanitizer.responseContainsActionButtons(stage2Response) &&
+            !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json)
+        ) {
+            warnings += "Stage 3 output omitted one or more quick actions."
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
         postUpdate(
@@ -772,15 +797,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
-        var renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
-
-        if (renderResult.errorMessage != null && !usedFallback) {
-            warnings += "Native rendering failed for stage 3 output; using fallback UI."
-            val fallback = PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId)
-            stage3Json = gson.toJson(fallback)
-            renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
-            usedFallback = true
-        }
+        val renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
 
         if (renderResult.errorMessage != null) {
             markDuration(Stage.STAGE4, stage4StartedAtMs)
@@ -811,7 +828,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3Json = stage3Json,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
-                usedFallback = usedFallback,
+                usedFallback = false,
                 warnings = warnings,
                 renderResult = renderResult
             )
@@ -993,7 +1010,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = stage2WithTravelMedia,
             queryText = normalizedQuery
         )
-        val stage2Response = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
+        val stage2Response = McpResponseFormatter.normalizeForStage3(
+            PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
+        )
         val injectedFlightList = stage2WithFlightList != normalizedResponseRaw
         val normalizedBareDomains = stage2Response != stage2WithGeneralMedia
         val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
@@ -1143,9 +1162,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        var stage3JsonElement = repairAndValidateFlatSpec(
+        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        val stage3Diagnostics = Stage3RepairDiagnostics(
+            rawStage3Text = stage3Call.text,
+            selectedJsonCandidateText = stage3InitialCandidate?.toString()
+        )
+        val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3Call.text,
-            initialJsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text),
+            initialJsonElement = stage3InitialCandidate,
             backend = backend,
             provider = provider,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
@@ -1157,58 +1181,66 @@ class GenUiStagePipeline(private val appContext: Context) {
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
             onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) },
             onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
-            warnings = warnings
+            warnings = warnings,
+            diagnostics = stage3Diagnostics
         )
-        var usedFallback = false
-
         if (stage3JsonElement == null) {
-            warnings += "Stage 3 fallback JSON was used."
-            stage3JsonElement = PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId)
-            usedFallback = true
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
+            val strictMessage = buildStrictStage3FailureMessage(stage3Diagnostics)
+            val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
+            persistStage3DiagnosticsArtifacts(stage3Diagnostics)
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE3,
+                "Stage 3 failed: invalid IR output",
+                debugLog = strictDebug,
+                stage2Response = stage2Response
+            )
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = strictMessage,
+                stage2Response = stage2Response,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
         // Image injection into root removed - cards handle their own inline images.
-        if (!usedFallback) {
-            val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
-                jsonText = stage3Json,
-                queryText = normalizedQuery,
-                stage2Response = stage2Response
-            )
-            if (stage3WithFlightMediaNormalized != stage3Json) {
-                stage3Json = stage3WithFlightMediaNormalized
-                warnings += "Normalized flight media to airline/travel-safe icons."
-            }
+        val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
+            jsonText = stage3Json,
+            queryText = normalizedQuery,
+            stage2Response = stage2Response
+        )
+        if (stage3WithFlightMediaNormalized != stage3Json) {
+            stage3Json = stage3WithFlightMediaNormalized
+            warnings += "Normalized flight media to airline/travel-safe icons."
         }
-        if (!usedFallback) {
-            val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
-                jsonText = stage3Json,
-                queryText = normalizedQuery
-            )
-            if (stage3WithStableMediaUrls != stage3Json) {
-                stage3Json = stage3WithStableMediaUrls
-                warnings += "Rewrote unstable media URLs to deterministic topic icons."
-            }
+        val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
+            jsonText = stage3Json,
+            queryText = normalizedQuery
+        )
+        if (stage3WithStableMediaUrls != stage3Json) {
+            stage3Json = stage3WithStableMediaUrls
+            warnings += "Rewrote unstable media URLs to deterministic topic icons."
         }
         // Inline text media injection removed - cards handle their own images.
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(stage2Response)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
-        var stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
+        val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
         val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
-        if (missingInlineIcon && !usedFallback) {
-            warnings += "Media content was adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId))
-            usedFallback = true
+        if (missingInlineIcon) {
+            warnings += "Stage 3 did not preserve inline icon content."
         } else if (missingInlineImage) {
             warnings += "Stage 3 did not preserve inline image; layout retained."
         }
-        if (PipelineMediaSanitizer.responseContainsActionButtons(stage2Response) && !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback) {
-            warnings += "Quick actions were adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId))
-            usedFallback = true
+        if (PipelineMediaSanitizer.responseContainsActionButtons(stage2Response) &&
+            !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json)
+        ) {
+            warnings += "Stage 3 output omitted one or more quick actions."
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
         postUpdate(
@@ -1220,15 +1252,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
-        var renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
-
-        if (renderResult.errorMessage != null && !usedFallback) {
-            warnings += "Native rendering failed for stage 3 output; using fallback UI."
-            val fallback = PipelineMediaSanitizer.buildFallbackFlatSpec(stage2Response, catalogId)
-            stage3Json = gson.toJson(fallback)
-            renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
-            usedFallback = true
-        }
+        val renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
 
         if (renderResult.errorMessage != null) {
             markDuration(Stage.STAGE4, stage4StartedAtMs)
@@ -1259,7 +1283,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3Json = stage3Json,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
-                usedFallback = usedFallback,
+                usedFallback = false,
                 warnings = warnings,
                 renderResult = renderResult
             )
@@ -1320,7 +1344,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 queryText = normalizedQuery
             )
         }
-        val sanitizedResponse = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
+        val sanitizedResponse = McpResponseFormatter.normalizeForStage3(
+            PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
+        )
         postUpdate(
             onStageUpdate,
             Stage.STAGE2,
@@ -1426,9 +1452,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        var stage3JsonElement = repairAndValidateFlatSpec(
+        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        val stage3Diagnostics = Stage3RepairDiagnostics(
+            rawStage3Text = stage3Call.text,
+            selectedJsonCandidateText = stage3InitialCandidate?.toString()
+        )
+        val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3Call.text,
-            initialJsonElement = PipelineJsonExtractor.extractJsonElement(stage3Call.text),
+            initialJsonElement = stage3InitialCandidate,
             backend = irBackend,
             provider = irProvider,
             systemPrompt = promptContext.systemPrompt,
@@ -1440,41 +1471,50 @@ class GenUiStagePipeline(private val appContext: Context) {
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
             onGeminiCachedContentMissing = null,
             onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
-            warnings = warnings
+            warnings = warnings,
+            diagnostics = stage3Diagnostics
         )
-        var usedFallback = false
-
         if (stage3JsonElement == null) {
-            warnings += "Stage 3 fallback JSON was used."
-            stage3JsonElement = PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId)
-            usedFallback = true
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
+            val strictMessage = buildStrictStage3FailureMessage(stage3Diagnostics)
+            val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
+            persistStage3DiagnosticsArtifacts(stage3Diagnostics)
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE3,
+                "Stage 3 failed: invalid IR output",
+                debugLog = strictDebug,
+                stage2Response = sanitizedResponse
+            )
+            return Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = strictMessage,
+                stage2Response = sanitizedResponse,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         // Restore shortened URL placeholders back to real URLs
         var stage3Json = com.samsung.genuicraft.mcp.McpUrlShortener.restore(gson.toJson(normalizedGenUi), urlMap)
         // Image injection into root removed - cards handle their own inline images.
-        if (!usedFallback) {
-            val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
-                jsonText = stage3Json, queryText = normalizedQuery, stage2Response = sanitizedResponse
-            )
-            if (stage3WithFlightMediaNormalized != stage3Json) {
-                stage3Json = stage3WithFlightMediaNormalized
-                warnings += "Normalized flight media to airline/travel-safe icons."
-            }
+        val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
+            jsonText = stage3Json, queryText = normalizedQuery, stage2Response = sanitizedResponse
+        )
+        if (stage3WithFlightMediaNormalized != stage3Json) {
+            stage3Json = stage3WithFlightMediaNormalized
+            warnings += "Normalized flight media to airline/travel-safe icons."
         }
-        if (!usedFallback) {
-            val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
-                jsonText = stage3Json, queryText = normalizedQuery
-            )
-            if (stage3WithStableMediaUrls != stage3Json) {
-                stage3Json = stage3WithStableMediaUrls
-                warnings += "Rewrote unstable media URLs to deterministic topic icons."
-            }
+        val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
+            jsonText = stage3Json, queryText = normalizedQuery
+        )
+        if (stage3WithStableMediaUrls != stage3Json) {
+            stage3Json = stage3WithStableMediaUrls
+            warnings += "Rewrote unstable media URLs to deterministic topic icons."
         }
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(sanitizedResponse)
-        if (!usedFallback &&
-            stage2HasInlineImage &&
+        if (stage2HasInlineImage &&
             !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         ) {
             val stage3WithInlineTextMedia = PipelineMediaSanitizer.ensureGenUiHasInlineTextMedia(
@@ -1490,30 +1530,21 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
         val missingInlineImage = stage2HasInlineImage && !stage3HasInlineImage
         val missingInlineIcon = stage2HasInlineIcon && !stage3HasInlineIcon
-        // Only fall back to raw layout when icons are missing (not images alone).
-        // Replacing the entire card IR because Stage 3 didn't embed an image URL
-        // destroys structured layouts (hotel/restaurant cards) for minimal gain.
-        if (missingInlineIcon && !usedFallback) {
-            warnings += "Media content was adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId))
-            usedFallback = true
+        if (missingInlineIcon) {
+            warnings += "Stage 3 did not preserve inline icon content."
         } else if (missingInlineImage) {
             warnings += "Stage 3 did not preserve inline image; layout retained."
         }
         if (PipelineMediaSanitizer.responseContainsActionButtons(sanitizedResponse) &&
-            !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json) && !usedFallback
+            !PipelineMediaSanitizer.genUiPreservesActionButtons(stage3Json)
         ) {
-            warnings += "Quick actions were adjusted for compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId))
-            usedFallback = true
+            warnings += "Stage 3 output omitted one or more quick actions."
         }
         // Ensure Tags: lines are preserved as chip rows
         val hasTags = sanitizedResponse.lines().any { it.trim().startsWith("Tags:", ignoreCase = true) }
         val stage3HasChips = stage3Json.contains("\"chip\"", ignoreCase = true)
-        if (hasTags && !stage3HasChips && !usedFallback) {
-            warnings += "Tags were adjusted for chip rendering compatibility."
-            stage3Json = gson.toJson(PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId))
-            usedFallback = true
+        if (hasTags && !stage3HasChips) {
+            warnings += "Stage 3 output omitted expected chip-style tags."
         }
         markDuration(Stage.STAGE3, stage3StartedAtMs)
         postUpdate(
@@ -1525,15 +1556,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
-        var renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
-
-        if (renderResult.errorMessage != null && !usedFallback) {
-            warnings += "Native rendering failed for stage 3 output; using fallback UI."
-            val fallback = PipelineMediaSanitizer.buildFallbackFlatSpec(sanitizedResponse, catalogId)
-            stage3Json = gson.toJson(fallback)
-            renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
-            usedFallback = true
-        }
+        val renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
 
         if (renderResult.errorMessage != null) {
             markDuration(Stage.STAGE4, stage4StartedAtMs)
@@ -1564,7 +1587,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3Json = stage3Json,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
-                usedFallback = usedFallback,
+                usedFallback = false,
                 warnings = warnings,
                 renderResult = renderResult
             )
@@ -1585,7 +1608,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         geminiCacheFallbackSystemPrompt: String?,
         onGeminiCachedContentMissing: ((String) -> Unit)?,
         onMarkStreamDuration: (Long?) -> Unit,
-        warnings: MutableList<String>
+        warnings: MutableList<String>,
+        diagnostics: Stage3RepairDiagnostics
     ): JsonElement? {
         val initialCoerce = FlatSpecContract.coerceAndValidate(initialJsonElement)
         if (initialCoerce.isValid) {
@@ -1595,48 +1619,160 @@ class GenUiStagePipeline(private val appContext: Context) {
             return initialCoerce.spec
         }
 
-        if (initialJsonElement == null) {
-            warnings += "Stage 3 JSON parse failed; running flat-spec repair pass."
+        val initialReason = if (initialJsonElement == null) {
+            "Stage 3 JSON parse failed."
         } else {
-            warnings += "Stage 3 flat-spec validation failed (${initialCoerce.error}); running repair pass."
+            initialCoerce.error ?: "Stage 3 flat-spec validation failed."
         }
+        diagnostics.initialValidationError = initialReason
+        warnings += "$initialReason Running strict flat-spec repair."
 
-        val repairCall = generateWithRetry(
-            backend = backend,
-            provider = provider,
-            prompt = PipelineJsonExtractor.buildFlatSpecRepairPrompt(
-                rawText = stage3RawText,
-                failureReason = initialCoerce.error
-            ),
-            systemPrompt = systemPrompt,
-            temperature = 0.2,
-            maxOutputTokens = stage3RepairMaxOutputTokens,
-            jsonMode = true,
-            enableGoogleSearch = false,
-            cachedContentName = cachedContentName,
-            allowCachedContent = allowCachedContent,
-            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
-            localSystemPromptCacheKey = localSystemPromptCacheKey,
-            localSendSystemPrompt = localSendSystemPrompt,
-            geminiCacheFallbackSystemPrompt = geminiCacheFallbackSystemPrompt,
-            onGeminiCachedContentMissing = onGeminiCachedContentMissing
-        )
-        onMarkStreamDuration(repairCall.streamDurationMs)
-        if (repairCall.error != null) {
-            return null
-        }
+        var rawForRepair = stage3RawText
+        var reasonForRepair = initialReason
+        val repairAttempts = 3
 
-        val repairedElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
-        val repairedCoerce = FlatSpecContract.coerceAndValidate(repairedElement)
-        if (repairedCoerce.isValid) {
-            if (repairedCoerce.convertedFromLegacy) {
-                warnings += "Stage 3 repair returned legacy format; converted to flat spec."
+        for (attempt in 1..repairAttempts) {
+            val escalatedReason = if (attempt == 1) {
+                reasonForRepair
+            } else {
+                "$reasonForRepair (strict attempt $attempt/$repairAttempts: enforce non-empty elements and valid root reference)."
             }
-            return repairedCoerce.spec
+            val repairCall = generateWithRetry(
+                backend = backend,
+                provider = provider,
+                prompt = PipelineJsonExtractor.buildFlatSpecRepairPrompt(
+                    rawText = rawForRepair,
+                    failureReason = escalatedReason
+                ),
+                systemPrompt = systemPrompt,
+                temperature = 0.2,
+                maxOutputTokens = stage3RepairMaxOutputTokens,
+                jsonMode = true,
+                enableGoogleSearch = false,
+                cachedContentName = cachedContentName,
+                allowCachedContent = allowCachedContent,
+                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+                localSystemPromptCacheKey = localSystemPromptCacheKey,
+                localSendSystemPrompt = localSendSystemPrompt,
+                geminiCacheFallbackSystemPrompt = geminiCacheFallbackSystemPrompt,
+                onGeminiCachedContentMissing = onGeminiCachedContentMissing
+            )
+            onMarkStreamDuration(repairCall.streamDurationMs)
+            if (repairCall.error != null) {
+                val error = "Repair attempt $attempt failed with backend error: ${repairCall.error}"
+                diagnostics.repairValidationErrors += error
+                warnings += error
+                continue
+            }
+
+            diagnostics.repairOutputTexts += repairCall.text
+            val repairedElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
+            diagnostics.repairSelectedCandidateTexts += repairedElement?.toString()
+            val repairedCoerce = FlatSpecContract.coerceAndValidate(repairedElement)
+            if (repairedCoerce.isValid) {
+                if (repairedCoerce.convertedFromLegacy) {
+                    warnings += "Stage 3 repair returned legacy format; converted to flat spec."
+                }
+                return repairedCoerce.spec
+            }
+
+            val repairedReason = if (repairedElement == null) {
+                "Repair attempt $attempt produced unparseable JSON."
+            } else {
+                repairedCoerce.error ?: "Repair attempt $attempt failed flat-spec validation."
+            }
+            diagnostics.repairValidationErrors += "Attempt $attempt: $repairedReason"
+            warnings += "Stage 3 repair attempt $attempt invalid ($repairedReason)."
+            reasonForRepair = repairedReason
+            rawForRepair = repairCall.text
         }
 
-        warnings += "Stage 3 repaired output is still invalid (${repairedCoerce.error})."
+        warnings += "Stage 3 repaired output is still invalid after $repairAttempts attempts."
         return null
+    }
+
+    private fun buildStrictStage3FailureMessage(diagnostics: Stage3RepairDiagnostics): String {
+        val initial = diagnostics.initialValidationError
+            ?.takeIf { it.isNotBlank() }
+            ?: "Unknown Stage 3 validation error."
+        val repairSummary = if (diagnostics.repairValidationErrors.isEmpty()) {
+            "No successful repair output was produced."
+        } else {
+            diagnostics.repairValidationErrors.joinToString(" | ").take(1200)
+        }
+        return "Stage 3 failed in strict IR-only mode. Initial error: $initial Repair details: $repairSummary " +
+            "Debug builds also persist artifacts under files/result/stage3_debug."
+    }
+
+    private fun buildStrictStage3FailureDebugLog(diagnostics: Stage3RepairDiagnostics): String {
+        val initial = diagnostics.initialValidationError
+            ?.takeIf { it.isNotBlank() }
+            ?: "Unknown Stage 3 validation error."
+        val repairErrors = if (diagnostics.repairValidationErrors.isEmpty()) {
+            "none"
+        } else {
+            diagnostics.repairValidationErrors.joinToString("\n- ", prefix = "- ")
+        }
+        val selectedSnippet = truncateSnippet(diagnostics.selectedJsonCandidateText, 1200)
+        val rawSnippet = truncateSnippet(diagnostics.rawStage3Text, 1600)
+        val repairSnippet = diagnostics.repairOutputTexts.lastOrNull()?.let { truncateSnippet(it, 1600) } ?: "n/a"
+        return buildString {
+            appendLine("Stage 3 strict failure diagnostics")
+            appendLine("Initial validation error: $initial")
+            appendLine("Repair errors:")
+            appendLine(repairErrors)
+            appendLine()
+            appendLine("Selected JSON candidate (truncated):")
+            appendLine(selectedSnippet)
+            appendLine()
+            appendLine("Stage 3 raw text (truncated):")
+            appendLine(rawSnippet)
+            appendLine()
+            appendLine("Last repair output (truncated):")
+            appendLine(repairSnippet)
+        }.trim()
+    }
+
+    private fun persistStage3DiagnosticsArtifacts(diagnostics: Stage3RepairDiagnostics) {
+        if (!BuildConfig.DEBUG) {
+            return
+        }
+        runCatching {
+            val root = File(appContext.filesDir, "result/stage3_debug")
+            if (!root.exists()) {
+                root.mkdirs()
+            }
+            val runDir = File(root, "run_${System.currentTimeMillis()}")
+            runDir.mkdirs()
+
+            File(runDir, "stage3_raw.txt").writeText(diagnostics.rawStage3Text)
+            diagnostics.selectedJsonCandidateText?.let {
+                File(runDir, "stage3_selected_candidate.json").writeText(it)
+            }
+            diagnostics.repairOutputTexts.forEachIndexed { index, text ->
+                File(runDir, "stage3_repair_attempt_${index + 1}.txt").writeText(text)
+            }
+            diagnostics.repairSelectedCandidateTexts.forEachIndexed { index, text ->
+                if (!text.isNullOrBlank()) {
+                    File(runDir, "stage3_repair_candidate_${index + 1}.json").writeText(text)
+                }
+            }
+            File(runDir, "stage3_diagnostics.txt").writeText(buildStrictStage3FailureDebugLog(diagnostics))
+        }.onFailure { error ->
+            Log.w(LOG_TAG, "Failed to persist Stage 3 diagnostics artifacts: ${error.message}")
+        }
+    }
+
+    private fun truncateSnippet(text: String?, maxChars: Int): String {
+        val normalized = text?.trim().orEmpty()
+        if (normalized.isBlank()) {
+            return "n/a"
+        }
+        return if (normalized.length <= maxChars) {
+            normalized
+        } else {
+            normalized.take(maxChars) + "...(truncated)"
+        }
     }
 
     private suspend fun postUpdate(

@@ -149,12 +149,16 @@ internal object PipelineJsonExtractor {
                 "Return ONLY one valid JSON object with this shape:\n" +
                 "{\"root\":\"<id>\",\"state\":{...},\"elements\":{...}}\n\n" +
                 "Rules:\n" +
-                "- Do NOT emit legacy v0.9 message arrays (`createSurface` / `updateComponents`).\n" +
                 "- `root` must reference an existing key in `elements`.\n" +
-                "- `elements` must contain at least 2 entries (a root container and one content element).\n" +
+                "- `elements` must be a non-empty object with at least 2 entries (root container + content).\n" +
+                "- Do NOT return `{}` and do NOT return `\"elements\": {}`.\n" +
                 "- Every element must contain `type`, `props`, and `children`.\n" +
                 "- Every id in `children` must exist in `elements`.\n" +
+                "- Prefer a Stack root container with direction set.\n" +
+                "- Return a complete, renderable flat-spec even when source content is brief.\n" +
                 "- Return JSON only, no markdown.\n\n" +
+                "Required minimum skeleton (adapt ids/content as needed):\n" +
+                "{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Stack\",\"props\":{\"direction\":\"vertical\"},\"children\":[\"content\"]},\"content\":{\"type\":\"Text\",\"props\":{\"text\":\"...\"},\"children\":[]}}}\n\n" +
                 "Original output:\n${rawText.trim()}"
             )
     }

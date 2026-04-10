@@ -22,11 +22,11 @@ class GenUiNativeRendererFlatSpecTest {
             ]
           },
           "elements": {
-            "main": { "type": "Column", "props": {}, "children": ["title", "cards", "details"] },
+            "main": { "type": "Stack", "props": { "direction": "vertical", "gap": "md" }, "children": ["title", "cards", "details"] },
             "title": { "type": "Text", "props": { "text": "Example", "variant": "h2" }, "children": [] },
             "cards": {
-              "type": "Column",
-              "props": {},
+              "type": "Stack",
+              "props": { "direction": "vertical", "gap": "md" },
               "children": ["card"],
               "repeat": { "statePath": "/items", "key": "id" }
             },
@@ -157,5 +157,33 @@ class GenUiNativeRendererFlatSpecTest {
         assertEquals(1, result.surfaces.size)
         assertNull(result.surfaces.single().flatSpec)
         assertFalse(result.surfaces.single().components.isEmpty())
+    }
+
+    @Test
+    fun render_bridgesStackTextHeavyFallbackPayloadForHistoricalData() {
+        val payload = """
+            {
+              "root": "root",
+              "state": {},
+              "elements": {
+                "root": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["content"] },
+                "content": {
+                  "type": "Text",
+                  "props": { "variant": "body", "text": "## Weather\n| Day | Temp |\n| --- | --- |\n| Today | 32°C |" },
+                  "children": []
+                }
+              }
+            }
+        """.trimIndent()
+
+        val result = GenUiNativeRenderer.render(payload, sourceDir = null)
+
+        assertNull(result.errorMessage)
+        assertEquals(1, result.surfaces.size)
+        assertNull(result.surfaces.single().flatSpec)
+        assertFalse(result.surfaces.single().components.isEmpty())
+        assertTrue(
+            result.warnings.any { it.contains("text-heavy fallback content", ignoreCase = true) }
+        )
     }
 }

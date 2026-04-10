@@ -197,7 +197,7 @@ object GenUiNativeRenderer {
             return null
         }
 
-        val supportedTypes = setOf("column", "row", "list", "card", "text", "divider")
+        val supportedTypes = setOf("stack", "column", "row", "list", "card", "text", "divider")
         val unsupportedReachable = reachableIds.any { id ->
             val type = flatSpec.elements[id]?.type?.trim()?.lowercase(Locale.US).orEmpty()
             type.isNotBlank() && type !in supportedTypes

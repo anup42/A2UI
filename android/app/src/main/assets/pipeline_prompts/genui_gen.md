@@ -19,6 +19,7 @@ Response:
 - Supported actions: `openUrl`, `setState`, `pushState`, `removeState`, `validateForm`.
 - Interaction bindings must use element-level `on` objects.
 - Do NOT use legacy `props.action` or `functionCall`.
+- Do NOT emit or use `className`.
 
 ## Hard rule: no legacy message array
 - Correct output is a single flat object with `root/state/elements`.
@@ -31,7 +32,7 @@ Valid (flat-spec):
   "root": "main",
   "state": {},
   "elements": {
-    "main": { "type": "Column", "props": {}, "children": ["title"] },
+    "main": { "type": "Stack", "props": { "direction": "vertical", "gap": "md" }, "children": ["title"] },
     "title": { "type": "Text", "props": { "text": "Example", "variant": "h2" }, "children": [] }
   }
 }
@@ -53,6 +54,7 @@ Invalid (legacy, DO NOT OUTPUT):
 Allowed dynamic value expressions in props:
 - `{ "$item": "fieldName" }`
 - `{ "$state": "/path/to/value" }`
+- `{ "$bindState": "/path/to/value" }`
 - `{ "$bindItem": "fieldName" }`
 - `{ "$index": true }`
 - `{ "$cond": <condition>, "$then": <value>, "$else": <value> }`
@@ -77,6 +79,8 @@ Allowed dynamic value expressions in props:
 - Build structured app-like UI, not one giant text block.
 - Use headings and sections for medium/long responses.
 - Keep title, media, body, and CTA together inside each card.
+- Use `Stack` for flex layout and positioning intent (direction, align, justify, gap, spacing, size).
+- Use only flex-style positioning props; absolute positioning is unsupported.
 - Convert `Media: Image=<url>` into `Image` elements.
 - Convert `Media: Icon=<url>` into `Icon` elements.
 - If response has any media URL, output must include at least one `Image` element (or `$item` image binding).
@@ -88,8 +92,15 @@ Allowed dynamic value expressions in props:
 ## CATALOG
 
 Layout:
-- `Column`
-- `Row` with optional `justify`
+- `Stack` props:
+  - `direction`: `horizontal|vertical`
+  - `gap`: `none|sm|md|lg|xl`
+  - `align`: `start|center|end|stretch`
+  - `justify`: `start|center|end|between|around`
+  - `wrap` optional: `nowrap|wrap` (use with `direction: "horizontal"`)
+  - `padding`, `paddingHorizontal`, `paddingVertical` optional numbers
+  - `margin`, `marginHorizontal`, `marginVertical` optional numbers
+  - `width`, `height`, `flex` optional numbers
 - `List`
 - `Card`
 
@@ -125,11 +136,15 @@ Form:
     ]
   },
   "elements": {
-    "main": { "type": "Column", "props": {}, "children": ["title", "flight_list"] },
+    "main": {
+      "type": "Stack",
+      "props": { "direction": "vertical", "gap": "md" },
+      "children": ["title", "flight_list"]
+    },
     "title": { "type": "Text", "props": { "text": "Flights BLR to LKO", "variant": "h2" }, "children": [] },
     "flight_list": {
-      "type": "Column",
-      "props": {},
+      "type": "Stack",
+      "props": { "direction": "vertical", "gap": "md" },
       "repeat": { "statePath": "/flights", "key": "id" },
       "children": ["flight_card"]
     },

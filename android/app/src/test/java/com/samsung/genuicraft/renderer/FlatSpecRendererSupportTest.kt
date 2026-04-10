@@ -231,8 +231,8 @@ class FlatSpecRendererSupportTest {
     fun watchRuntime_triggersOnlyOnStateChange() {
         val elements = mapOf(
             "root" to FlatElement(
-                type = "Column",
-                props = emptyMap(),
+                type = "Stack",
+                props = mapOf("direction" to "vertical"),
                 children = emptyList(),
                 watch = mapOf(
                     "/flag" to mapOf(

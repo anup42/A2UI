@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.layout.Arrangement
@@ -14,11 +13,12 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -911,8 +911,8 @@ private fun RenderByType(
     modifier: Modifier = Modifier
 ) {
     when (type.lowercase()) {
-        "column" -> RenderColumn(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "row" -> RenderRow(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
+        "stack" -> RenderStack(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
+        "row", "column" -> return
         "list" -> RenderList(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "card" -> RenderCard(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "text" -> RenderText(props, modifier)
@@ -930,7 +930,19 @@ private fun RenderByType(
         "video" -> RenderVideo(props, onOpenUrl, modifier)
         "audioplayer" -> RenderAudioPlayer(props, onOpenUrl, modifier)
         else -> if (children.isNotEmpty()) {
-            RenderColumn(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
+            RenderStack(
+                props = mapOf("direction" to "vertical"),
+                children = children,
+                elements = elements,
+                state = state,
+                repeatScope = repeatScope,
+                repeatedChildScopes = repeatedChildScopes,
+                onOpenUrl = onOpenUrl,
+                onSetState = onSetState,
+                onAction = onAction,
+                activePath = activePath,
+                modifier = modifier
+            )
         }
     }
 }
@@ -983,39 +995,80 @@ private fun RenderChildren(
     }
 }
 
-@Composable
-private fun RenderColumn(
-    children: List<String>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    repeatedChildScopes: List<RepeatScope>?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit,
-    onAction: (Any?, RepeatScope?) -> Int,
-    activePath: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        RenderChildren(
-            children = children,
-            elements = elements,
-            state = state,
-            repeatScope = repeatScope,
-            repeatedChildScopes = repeatedChildScopes,
-            onOpenUrl = onOpenUrl,
-            onSetState = onSetState,
-            onAction = onAction,
-            activePath = activePath
-        )
+private fun asFloat(value: Any?): Float? = when (value) {
+    is Number -> value.toFloat()
+    is String -> value.toFloatOrNull()
+    else -> null
+}
+
+private fun asDp(value: Any?): androidx.compose.ui.unit.Dp? {
+    val number = asFloat(value) ?: return null
+    if (!number.isFinite()) return null
+    return number.dp
+}
+
+private fun stackDirection(props: Map<String, Any?>): String {
+    return props["direction"]?.toString()?.trim()?.lowercase().orEmpty().ifBlank { "vertical" }
+}
+
+private fun stackGap(props: Map<String, Any?>): androidx.compose.ui.unit.Dp {
+    return when (props["gap"]?.toString()?.trim()?.lowercase()) {
+        "none" -> 0.dp
+        "sm" -> 4.dp
+        "md" -> 8.dp
+        "lg" -> 12.dp
+        "xl" -> 16.dp
+        else -> 8.dp
     }
 }
 
+private fun applyStackModifier(
+    base: Modifier,
+    props: Map<String, Any?>,
+    direction: String
+): Modifier {
+    var out = base
+    val marginAll = asDp(props["margin"])
+    val marginHorizontal = asDp(props["marginHorizontal"]) ?: marginAll
+    val marginVertical = asDp(props["marginVertical"]) ?: marginAll
+    if (marginHorizontal != null || marginVertical != null) {
+        out = out.padding(
+            horizontal = marginHorizontal ?: 0.dp,
+            vertical = marginVertical ?: 0.dp
+        )
+    }
+
+    val paddingAll = asDp(props["padding"])
+    val paddingHorizontal = asDp(props["paddingHorizontal"]) ?: paddingAll
+    val paddingVertical = asDp(props["paddingVertical"]) ?: paddingAll
+    if (paddingHorizontal != null || paddingVertical != null) {
+        out = out.padding(
+            horizontal = paddingHorizontal ?: 0.dp,
+            vertical = paddingVertical ?: 0.dp
+        )
+    }
+
+    val width = asDp(props["width"])
+    val height = asDp(props["height"])
+    if (width != null) {
+        out = out.width(width)
+    } else {
+        out = out.fillMaxWidth()
+    }
+    if (height != null) {
+        out = out.height(height)
+    }
+
+    val flex = asFloat(props["flex"]) ?: 0f
+    if (flex > 0f) {
+        out = if (direction == "horizontal") out.fillMaxHeight() else out.fillMaxWidth()
+    }
+    return out
+}
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RenderRow(
+private fun RenderStack(
     props: Map<String, Any?>,
     children: List<String>,
     elements: Map<String, FlatElement>,
@@ -1028,17 +1081,82 @@ private fun RenderRow(
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
-    val arrangement = when (props["justify"]?.toString()?.lowercase()) {
-        "center" -> Arrangement.Center
-        "end" -> Arrangement.End
-        "spacebetween", "space-between" -> Arrangement.SpaceBetween
-        else -> Arrangement.spacedBy(8.dp)
+    val direction = stackDirection(props)
+    val gap = stackGap(props)
+    val align = props["align"]?.toString()?.trim()?.lowercase().orEmpty()
+    val justify = props["justify"]?.toString()?.trim()?.lowercase().orEmpty()
+    val wrap = props["wrap"]?.toString()?.trim()?.lowercase() == "wrap"
+    val stackModifier = applyStackModifier(modifier, props, direction)
+
+    if (direction == "horizontal") {
+        val horizontalArrangement: Arrangement.Horizontal = when (justify) {
+            "center" -> if (gap > 0.dp) Arrangement.spacedBy(gap, Alignment.CenterHorizontally) else Arrangement.Center
+            "end" -> if (gap > 0.dp) Arrangement.spacedBy(gap, Alignment.End) else Arrangement.End
+            "between" -> Arrangement.SpaceBetween
+            "around" -> Arrangement.SpaceAround
+            else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Start
+        }
+        if (wrap) {
+            FlowRow(
+                modifier = stackModifier,
+                horizontalArrangement = horizontalArrangement,
+                verticalArrangement = Arrangement.spacedBy(gap)
+            ) {
+                RenderChildren(
+                    children = children,
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    repeatedChildScopes = repeatedChildScopes,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
+                )
+            }
+            return
+        }
+        val verticalAlignment = when (align) {
+            "center" -> Alignment.CenterVertically
+            "end" -> Alignment.Bottom
+            else -> Alignment.Top
+        }
+        Row(
+            modifier = stackModifier,
+            horizontalArrangement = horizontalArrangement,
+            verticalAlignment = verticalAlignment
+        ) {
+            RenderChildren(
+                children = children,
+                elements = elements,
+                state = state,
+                repeatScope = repeatScope,
+                repeatedChildScopes = repeatedChildScopes,
+                onOpenUrl = onOpenUrl,
+                onSetState = onSetState,
+                onAction = onAction,
+                activePath = activePath
+            )
+        }
+        return
     }
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = arrangement
+
+    val verticalArrangement: Arrangement.Vertical = when (justify) {
+        "center" -> if (gap > 0.dp) Arrangement.spacedBy(gap, Alignment.CenterVertically) else Arrangement.Center
+        "end" -> if (gap > 0.dp) Arrangement.spacedBy(gap, Alignment.Bottom) else Arrangement.Bottom
+        "between" -> Arrangement.SpaceBetween
+        "around" -> Arrangement.SpaceAround
+        else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Top
+    }
+    val horizontalAlignment = when (align) {
+        "center" -> Alignment.CenterHorizontally
+        "end" -> Alignment.End
+        else -> Alignment.Start
+    }
+    Column(
+        modifier = stackModifier,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment
     ) {
         RenderChildren(
             children = children,

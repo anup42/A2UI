@@ -26,8 +26,7 @@ internal object FlatSpecContract {
     }
 
     private val allowedTypes = setOf(
-        "column",
-        "row",
+        "stack",
         "list",
         "card",
         "text",
@@ -178,6 +177,18 @@ internal object FlatSpecContract {
                     "Element '$id' uses legacy props.action. Use on.<event> action bindings instead."
                 )
             }
+            if (propsObject.has("className")) {
+                return ValidationResult(
+                    false,
+                    "Element '$id' uses unsupported props.className."
+                )
+            }
+            if (type.asString.equals("stack", ignoreCase = true)) {
+                val stackError = validateStackProps(propsObject, id)
+                if (stackError != null) {
+                    return ValidationResult(false, stackError)
+                }
+            }
 
             val children = element.get("children")
             if (children == null || !children.isJsonArray) {
@@ -287,6 +298,100 @@ internal object FlatSpecContract {
         return null
     }
 
+    private fun validateStackProps(props: JsonObject, id: String): String? {
+        val directionError = validateStringTokenProp(
+            props = props,
+            prop = "direction",
+            allowed = setOf("horizontal", "vertical"),
+            context = "Element '$id' Stack"
+        )
+        if (directionError != null) return directionError
+
+        val gapError = validateStringTokenProp(
+            props = props,
+            prop = "gap",
+            allowed = setOf("none", "sm", "md", "lg", "xl"),
+            context = "Element '$id' Stack"
+        )
+        if (gapError != null) return gapError
+
+        val alignError = validateStringTokenProp(
+            props = props,
+            prop = "align",
+            allowed = setOf("start", "center", "end", "stretch"),
+            context = "Element '$id' Stack"
+        )
+        if (alignError != null) return alignError
+
+        val justifyError = validateStringTokenProp(
+            props = props,
+            prop = "justify",
+            allowed = setOf("start", "center", "end", "between", "around"),
+            context = "Element '$id' Stack"
+        )
+        if (justifyError != null) return justifyError
+
+        val wrapError = validateStringTokenProp(
+            props = props,
+            prop = "wrap",
+            allowed = setOf("nowrap", "wrap"),
+            context = "Element '$id' Stack"
+        )
+        if (wrapError != null) return wrapError
+
+        val numberProps = listOf(
+            "padding",
+            "paddingHorizontal",
+            "paddingVertical",
+            "margin",
+            "marginHorizontal",
+            "marginVertical",
+            "width",
+            "height",
+            "flex"
+        )
+        numberProps.forEach { prop ->
+            val numericError = validateNumericProp(
+                props = props,
+                prop = prop,
+                context = "Element '$id' Stack"
+            )
+            if (numericError != null) return numericError
+        }
+        return null
+    }
+
+    private fun validateStringTokenProp(
+        props: JsonObject,
+        prop: String,
+        allowed: Set<String>,
+        context: String
+    ): String? {
+        val value = props.get(prop) ?: return null
+        if (value.isJsonObject) return null
+        if (!value.isJsonPrimitive || !value.asJsonPrimitive.isString) {
+            return "$context props.$prop must be one of: ${allowed.joinToString(", ")}."
+        }
+        val token = value.asString.trim().lowercase()
+        if (!allowed.contains(token)) {
+            return "$context props.$prop '$token' is unsupported. Allowed: ${allowed.joinToString(", ")}."
+        }
+        return null
+    }
+
+    private fun validateNumericProp(
+        props: JsonObject,
+        prop: String,
+        context: String
+    ): String? {
+        val value = props.get(prop) ?: return null
+        if (value.isJsonObject) return null
+        if (!value.isJsonPrimitive || !value.asJsonPrimitive.isNumber) {
+            return "$context props.$prop must be numeric."
+        }
+        return null
+    }
+
     fun buildFallbackFlatSpec(stage2Response: String): JsonObject {
         val textValue = stage2Response.trim().ifBlank { "No content generated." }
         val rootId = "root"
@@ -296,8 +401,11 @@ internal object FlatSpecContract {
             add("state", JsonObject())
             add("elements", JsonObject().apply {
                 add(rootId, JsonObject().apply {
-                    addProperty("type", "Column")
-                    add("props", JsonObject())
+                    addProperty("type", "Stack")
+                    add("props", JsonObject().apply {
+                        addProperty("direction", "vertical")
+                        addProperty("gap", "md")
+                    })
                     add("children", JsonArray().apply { add(textId) })
                 })
                 add(textId, JsonObject().apply {
@@ -376,6 +484,7 @@ internal object FlatSpecContract {
                     ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
                     ?.asString
                 ?: return@forEach
+            val normalizedType = normalizeLegacyType(type)
 
             if (rootId == null && id == "root") {
                 rootId = id
@@ -396,6 +505,9 @@ internal object FlatSpecContract {
                     else -> props.add(key, value.deepCopy())
                 }
             }
+            if (normalizedType == "Stack") {
+                normalizeLegacyStackProps(type, props)
+            }
 
             obj.get("children")?.takeIf { it.isJsonArray }?.asJsonArray?.forEach { child ->
                 if (child.isJsonPrimitive && child.asJsonPrimitive.isString) {
@@ -404,7 +516,7 @@ internal object FlatSpecContract {
             }
 
             elements.add(id, JsonObject().apply {
-                addProperty("type", type)
+                addProperty("type", normalizedType)
                 add("props", props)
                 add("children", children)
             })
@@ -459,6 +571,73 @@ internal object FlatSpecContract {
         val hasValue = array.any { it.isJsonPrimitive && it.asJsonPrimitive.isString && it.asString == value }
         if (!hasValue) {
             array.add(value)
+        }
+    }
+
+    private fun normalizeLegacyType(type: String): String = when (type.trim().lowercase()) {
+        "column", "row" -> "Stack"
+        else -> type
+    }
+
+    private fun normalizeLegacyStackProps(originalType: String, props: JsonObject) {
+        val normalizedOriginal = originalType.trim().lowercase()
+        val defaultDirection = when (normalizedOriginal) {
+            "row" -> "horizontal"
+            "column" -> "vertical"
+            else -> null
+        }
+        if (defaultDirection != null && !props.has("direction")) {
+            props.addProperty("direction", defaultDirection)
+        }
+
+        val align = props.get("align")
+            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            ?.asString
+            ?.let(::mapLegacyAlignToken)
+        if (!align.isNullOrBlank()) {
+            props.addProperty("align", align)
+        }
+
+        val justify = props.get("justify")
+            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            ?.asString
+            ?.let(::mapLegacyJustifyToken)
+        if (!justify.isNullOrBlank()) {
+            props.addProperty("justify", justify)
+        }
+
+        val wrap = props.get("wrap")
+            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            ?.asString
+            ?.let(::mapLegacyWrapToken)
+        if (!wrap.isNullOrBlank()) {
+            props.addProperty("wrap", wrap)
+        }
+    }
+
+    private fun mapLegacyAlignToken(raw: String): String {
+        return when (raw.trim().lowercase()) {
+            "center", "middle" -> "center"
+            "end", "flexend", "right", "bottom" -> "end"
+            "stretch" -> "stretch"
+            else -> "start"
+        }
+    }
+
+    private fun mapLegacyJustifyToken(raw: String): String {
+        return when (raw.trim().lowercase()) {
+            "center" -> "center"
+            "end", "flexend", "right", "bottom" -> "end"
+            "between", "spacebetween", "space-between" -> "between"
+            "around", "spacearound", "space-around", "spaceevenly", "space-evenly", "evenly" -> "around"
+            else -> "start"
+        }
+    }
+
+    private fun mapLegacyWrapToken(raw: String): String {
+        return when (raw.trim().lowercase()) {
+            "wrap" -> "wrap"
+            else -> "nowrap"
         }
     }
 }

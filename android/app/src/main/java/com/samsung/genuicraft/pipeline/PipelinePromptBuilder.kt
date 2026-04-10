@@ -113,8 +113,12 @@ internal object PipelinePromptBuilder {
 
         val formatPolicy = "Flat-spec policy for this request:\n" +
             "- Return ONE JSON object with keys: root, elements, and optional state.\n" +
-            "- Do not emit legacy v0.9 message arrays (createSurface/updateComponents).\n" +
-            "- Use only component types from the prompt catalog."
+            "- `root` must be a non-empty string and must exist as a key in `elements`.\n" +
+            "- `elements` must be a non-empty object (at least 2 elements: root container + content).\n" +
+            "- Every element must include `type`, `props` object, and `children` array.\n" +
+            "- Every id in `children` must exist in `elements`.\n" +
+            "- Use only component types from the prompt catalog.\n" +
+            "- Return JSON only (no prose, no markdown, no fences)."
         val responseWithPolicy = "${stage2Response.trim()}\n\n$formatPolicy\n\n$assetPolicy"
         val responseText = if (assetContext.isBlank()) {
             responseWithPolicy

@@ -85,7 +85,9 @@ class PipelineWeatherSelfTest {
                     .filter { it.isNotBlank() }
                     .map { it.lowercase() }
                 val textHeavyFallbackShape = elementTypes.count { it == "text" } == 1 &&
-                    elementTypes.all { it == "text" || it == "column" || it == "row" || it == "list" || it == "card" }
+                    elementTypes.all {
+                        it == "text" || it == "stack" || it == "column" || it == "row" || it == "list" || it == "card"
+                    }
                 Log.i(
                     TAG,
                     "stage3 elements=${elementsObject.size()} types=${elementTypes.distinct()} " +
@@ -93,6 +95,14 @@ class PipelineWeatherSelfTest {
                 )
                 Log.i(TAG, "stage3 warnings=${result.warnings.joinToString(" | ")}")
                 Log.i(TAG, "stage3 preview=${result.stage3Json.take(1200)}")
+                assertFalse(
+                    "Strict IR-only mode must not use Stage 3 fallback JSON.",
+                    result.warnings.any { it.contains("fallback JSON was used.", ignoreCase = true) }
+                )
+                assertFalse(
+                    "Strict IR-only mode must not use fallback UI rendering.",
+                    result.warnings.any { it.contains("using fallback UI", ignoreCase = true) }
+                )
                 val renderSurface = result.renderResult.surfaces.firstOrNull()
                 Log.i(
                     TAG,

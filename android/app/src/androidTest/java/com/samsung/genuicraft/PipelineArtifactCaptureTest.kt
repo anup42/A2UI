@@ -50,6 +50,14 @@ class PipelineArtifactCaptureTest {
                     "IR elements must include root id",
                     irObject.getAsJsonObject("elements").has(irObject.get("root").asString)
                 )
+                assertFalse(
+                    "Strict IR-only mode must not use Stage 3 fallback JSON.",
+                    result.warnings.any { it.contains("fallback JSON was used.", ignoreCase = true) }
+                )
+                assertFalse(
+                    "Strict IR-only mode must not use fallback UI rendering.",
+                    result.warnings.any { it.contains("using fallback UI", ignoreCase = true) }
+                )
                 File(resultDir, "prompt_respose.txt").writeText(result.stage2Prompt)
                 File(resultDir, "prompt_ir.txt").writeText(
                     buildString {
