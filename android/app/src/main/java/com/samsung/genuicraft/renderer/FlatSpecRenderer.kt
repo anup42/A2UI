@@ -1669,6 +1669,14 @@ private fun RenderStack(
         ?.lowercase()
         .orEmpty()
     val wrap = props["wrap"]?.toString()?.trim()?.lowercase() == "wrap"
+    val childElements = children.mapNotNull { childId -> elements[childId] }
+    val allButtonChildren = childElements.isNotEmpty() &&
+        childElements.all { child -> child.type.equals("button", ignoreCase = true) }
+    val autoWrapButtonRow = direction == "horizontal" &&
+        compactScreen &&
+        !wrap &&
+        allButtonChildren &&
+        children.size >= 2
     val stackModifier = applyStackModifier(modifier, props, direction)
 
     if (direction == "horizontal") {
@@ -1679,7 +1687,7 @@ private fun RenderStack(
             "around" -> Arrangement.SpaceAround
             else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Start
         }
-        if (wrap) {
+        if (wrap || autoWrapButtonRow) {
             FlowRow(
                 modifier = stackModifier,
                 horizontalArrangement = horizontalArrangement,
