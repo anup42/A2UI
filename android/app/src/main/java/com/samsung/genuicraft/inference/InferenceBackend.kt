@@ -29,7 +29,9 @@ interface InferenceBackend {
         val text: String,
         val rawResponse: String?,
         val error: String?,
-        val streamDurationMs: Long?
+        val streamDurationMs: Long?,
+        val inputTokens: Int? = null,
+        val outputTokens: Int? = null
     )
 
     data class HealthCheckResult(

@@ -1,0 +1,59 @@
+2026-04-13 01:06:46 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=928 user_template_tokens=13
+2026-04-13 01:06:46 INFO dataset: Stage3 schema mode: flat_spec
+2026-04-13 01:07:47 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-04-13 01:08:36 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-04-13 01:09:24 INFO dataset: Stage3 created ui_id=u_000003_01 schema_ok=True
+2026-04-13 01:10:10 INFO dataset: Stage3 created ui_id=u_000004_01 schema_ok=True
+2026-04-13 01:10:53 INFO dataset: Stage3 created ui_id=u_000005_01 schema_ok=True
+2026-04-13 01:11:46 INFO dataset: Stage3 created ui_id=u_000006_01 schema_ok=True
+2026-04-13 01:12:51 INFO dataset: Stage3 created ui_id=u_000007_01 schema_ok=True
+2026-04-13 01:15:23 INFO dataset: Stage3 created ui_id=u_000008_01 schema_ok=True
+2026-04-13 01:17:47 INFO dataset: Stage3 created ui_id=u_000009_01 schema_ok=True
+2026-04-13 01:18:43 INFO dataset: Stage3 created ui_id=u_000010_01 schema_ok=True
+2026-04-13 01:19:17 INFO dataset: Stage3 created ui_id=u_000011_01 schema_ok=True
+2026-04-13 01:20:18 INFO dataset: Stage3 created ui_id=u_000012_01 schema_ok=True
+2026-04-13 01:21:22 INFO dataset: Stage3 created ui_id=u_000013_01 schema_ok=True
+2026-04-13 01:23:32 INFO dataset: Stage3 created ui_id=u_000014_01 schema_ok=True
+2026-04-13 01:26:07 INFO dataset: Stage3 created ui_id=u_000015_01 schema_ok=True
+2026-04-13 01:28:02 INFO dataset: Stage3 created ui_id=u_000016_01 schema_ok=True
+2026-04-13 01:28:55 INFO dataset: Stage3 created ui_id=u_000017_01 schema_ok=True
+2026-04-13 01:31:11 INFO dataset: Stage3 created ui_id=u_000018_01 schema_ok=True
+2026-04-13 01:32:02 INFO dataset: Stage3 created ui_id=u_000019_01 schema_ok=True
+2026-04-13 01:35:05 INFO dataset: Stage3 created ui_id=u_000020_01 schema_ok=True
+2026-04-13 01:37:31 INFO dataset: Stage3 created ui_id=u_000021_01 schema_ok=True
+2026-04-13 01:38:30 INFO dataset: Stage3 created ui_id=u_000022_01 schema_ok=True
+2026-04-13 01:39:13 INFO dataset: Stage3 created ui_id=u_000023_01 schema_ok=True
+2026-04-13 01:40:12 INFO dataset: Stage3 created ui_id=u_000024_01 schema_ok=True
+2026-04-13 01:40:50 INFO dataset: Stage3 created ui_id=u_000025_01 schema_ok=True
+2026-04-13 01:41:42 INFO dataset: Stage3 created ui_id=u_000026_01 schema_ok=True
+2026-04-13 01:42:35 INFO dataset: Stage3 created ui_id=u_000027_01 schema_ok=True
+2026-04-13 01:43:15 INFO dataset: Stage3 created ui_id=u_000028_01 schema_ok=True
+2026-04-13 01:44:03 INFO dataset: Stage3 created ui_id=u_000029_01 schema_ok=True
+2026-04-13 01:44:56 INFO dataset: Stage3 created ui_id=u_000030_01 schema_ok=True
+2026-04-13 01:45:41 INFO dataset: Stage3 created ui_id=u_000031_01 schema_ok=True
+2026-04-13 01:46:35 INFO dataset: Stage3 created ui_id=u_000032_01 schema_ok=True
+2026-04-13 01:47:26 INFO dataset: Stage3 created ui_id=u_000033_01 schema_ok=True
+2026-04-13 01:49:41 INFO dataset: Stage3 created ui_id=u_000034_01 schema_ok=True
+2026-04-13 01:50:20 INFO dataset: Stage3 created ui_id=u_000035_01 schema_ok=True
+2026-04-13 01:51:17 INFO dataset: Stage3 created ui_id=u_000036_01 schema_ok=True
+2026-04-13 01:53:21 INFO dataset: Stage3 created ui_id=u_000037_01 schema_ok=True
+2026-04-13 01:54:14 INFO dataset: Stage3 created ui_id=u_000038_01 schema_ok=True
+2026-04-13 01:55:09 INFO dataset: Stage3 created ui_id=u_000039_01 schema_ok=True
+2026-04-13 01:56:08 INFO dataset: Stage3 created ui_id=u_000040_01 schema_ok=True
+2026-04-13 01:56:52 INFO dataset: Stage3 created ui_id=u_000041_01 schema_ok=True
+2026-04-13 01:57:51 INFO dataset: Stage3 created ui_id=u_000042_01 schema_ok=True
+2026-04-13 01:58:40 INFO dataset: Stage3 created ui_id=u_000043_01 schema_ok=True
+2026-04-13 02:01:20 INFO dataset: Stage3 created ui_id=u_000044_01 schema_ok=True
+2026-04-13 02:01:54 INFO dataset: Stage3 created ui_id=u_000045_01 schema_ok=True
+2026-04-13 02:02:49 INFO dataset: Stage3 created ui_id=u_000046_01 schema_ok=True
+2026-04-13 02:03:30 INFO dataset: Stage3 created ui_id=u_000047_01 schema_ok=True
+2026-04-13 02:04:06 INFO dataset: Stage3 created ui_id=u_000048_01 schema_ok=True
+2026-04-13 02:04:45 INFO dataset: Stage3 created ui_id=u_000049_01 schema_ok=True
+2026-04-13 02:05:28 INFO dataset: Stage3 created ui_id=u_000050_01 schema_ok=True
+2026-04-13 02:05:28 INFO dataset: Stage3 completed created=50
+2026-04-13 02:05:28 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\golden50_g25pro_20260309_204033_android_promptsync_20260413_010634\aggregates.json
+2026-04-13 02:05:28 INFO dataset: Stage3 complete.
+2026-04-13 02:05:40 INFO dataset: Stage4 HTTP server started on port 60050
+2026-04-13 02:06:25 INFO dataset: Stage4 renderer=json_render complete. Outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\golden50_g25pro_20260309_204033_android_promptsync_20260413_010634\rendered
+2026-04-13 02:06:54 INFO dataset: Stage4 HTTP server started on port 61679
+2026-04-13 02:07:41 INFO dataset: Stage4 renderer=lit complete. Outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\golden50_g25pro_20260309_204033_android_promptsync_20260413_010634\rendered_lit

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Column", "props": {}, "children": ["text_1"]}, "text_1": {"type": "Text", "props": {"variant": "body", "text": "Salary Conversion Overview\nBased on an annual salary of $75,000, your pre-tax hourly wage is approximately $36.06. This calculation assumes a standard full-time schedule without unpaid time off.\n\nCalculation Context\nThe conversion uses the specific figures provided in your query to determine the gross hourly rate.\n- Total Work Hours: 2,080 hours per year (40 hours x 52 weeks)\n- Pay Frequency: The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied.\n\nGross Income Breakdown\nFrequency | Gross Amount | Calculation Details\nHourly | $36.06 | Annual Salary / 2,080 Hours\nWeekly | $1,442.31 | Annual Salary / 52 Weeks\nBi-Weekly | $2,884.62 | Annual Salary / 26 Pay Periods\nSemi-Monthly | $3,125.00 | Annual Salary / 24 Pay Periods\nMonthly | $6,250.00 | Annual Salary / 12 Months\n\nIcons:\n- Calculator: ../assets/r_001374_01_1_calculator.svg\n- Cash Coin: ../assets/r_001374_01_2_cash-coin.svg\n\nQuick Actions\nCalculate Take-Home Pay: https://www.paycheckcity.com/calculator/salary\nBureau of Labor Statistics Wage Data: https://www.bls.gov/bls/blswage.htm"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

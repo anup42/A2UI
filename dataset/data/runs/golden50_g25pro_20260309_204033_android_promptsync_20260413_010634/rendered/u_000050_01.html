@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"weatherData": [{"id": "lon", "city": "London, UK", "condition": "Cloudy", "temp": "52° / 43°", "precip": "60%", "wind": "15"}, {"id": "par", "city": "Paris, France", "condition": "Light Rain", "temp": "55° / 45°", "precip": "75%", "wind": "10"}, {"id": "rom", "city": "Rome, Italy", "condition": "Sunny", "temp": "68° / 54°", "precip": "10%", "wind": "5"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["headerStack", "aboutCard", "comparisonTitle", "weatherTable", "imageryTitle", "imageGrid", "actionsTitle", "actionButton"]}, "headerStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["title", "dateStack"]}, "title": {"type": "Text", "props": {"text": "European Trip Weather Forecast", "variant": "h2"}, "children": []}, "dateStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["dateIcon", "dateText"]}, "dateIcon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "dateText": {"type": "Text", "props": {"text": "November 5, 2024", "variant": "body"}, "children": []}, "aboutCard": {"type": "Card", "props": {}, "children": ["aboutStack"]}, "aboutStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["aboutHeader", "aboutText"]}, "aboutHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["aboutIcon", "aboutTitle"]}, "aboutIcon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_8_info-circle.svg"}, "children": []}, "aboutTitle": {"type": "Text", "props": {"text": "About This Forecast", "variant": "h3"}, "children": []}, "aboutText": {"type": "Text", "props": {"text": "This comparison is generated using the specific forecast data you provided. Weather conditions can change, so checking a live forecast closer to your travel date is recommended for the most accurate and up-to-date information.", "variant": "body"}, "children": []}, "comparisonTitle": {"type": "Text", "props": {"text": "City-by-City Weather Comparison", "variant": "h3"}, "children": []}, "weatherTable": {"type": "Table", "props": {"statePath": "/weatherData", "columns": [{"key": "city", "label": "City"}, {"key": "condition", "label": "Condition"}, {"key": "temp", "label": "High / Low (°F)"}, {"key": "precip", "label": "Precip. Chance"}, {"key": "wind", "label": "Wind (mph)"}], "domain": "weather", "preferredPresentation": "cards", "sourceFormat": "markdown", "sourceText": "| City | Condition | High / Low (°F) | Precip. Chance | Wind (mph) |\n|---|---|---|---|---|\n| London, UK | Cloudy | 52° / 43° | 60% | 15 |\n| Paris, France | Light Rain | 55° / 45° | 75% | 10 |\n| Rome, Italy | Sunny | 68° / 54° | 10% | 5 |"}, "children": []}, "imageryTitle": {"type": "Text", "props": {"text": "Trip Imagery", "variant": "h3"}, "children": []}, "imageGrid": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap", "justify": "start"}, "children": ["londonCard", "parisCard", "romeCard"]}, "londonCard": {"type": "Card", "props": {"flex": 1}, "children": ["londonStack"]}, "londonStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["londonImage", "londonCaption"]}, "londonImage": {"type": "Image", "props": {"url": "../assets/r_000050_01_1_london_autumn.jpg", "fit": "cover", "height": 150}, "children": []}, "londonCaption": {"type": "Text", "props": {"text": "London in Autumn", "variant": "caption"}, "children": []}, "parisCard": {"type": "Card", "props": {"flex": 1}, "children": ["parisStack"]}, "parisStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["parisImage", "parisCaption"]}, "parisImage": {"type": "Image", "props": {"url": "../assets/r_000050_01_2_paris_rain.jpg", "fit": "cover", "height": 150}, "children": []}, "parisCaption": {"type": "Text", "props": {"text": "Paris in the Rain", "variant": "caption"}, "children": []}, "romeCard": {"type": "Card", "props": {"flex": 1}, "children": ["romeStack"]}, "romeStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["romeImage", "romeCaption"]}, "romeImage": {"type": "Image", "props": {"url": "../assets/r_000050_01_3_rome_sunny.jpg", "fit": "cover", "height": 150}, "children": []}, "romeCaption": {"type": "Text", "props": {"text": "Sunny Rome", "variant": "caption"}, "children": []}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actionButton": {"type": "Button", "props": {"label": "View Live 10-Day Forecasts", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.weather.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

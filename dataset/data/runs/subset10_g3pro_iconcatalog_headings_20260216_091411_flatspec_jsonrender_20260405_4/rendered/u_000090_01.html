@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {"games": [{"id": "codenames", "title": "Codenames", "category": "Party", "time": "15 Minutes", "description": "The group splits into two teams, Red and Blue. Each team has a Spymaster who provides one-word clues linked to multiple cards on the table. The goal is for teammates to guess the correct words based on the clue without picking the opposing team's words or the instant-loss Assassin card. It encourages clever thinking and group discussion.", "url": "https://boardgamegeek.com/boardgame/178900/codenames"}, {"id": "just_one", "title": "Just One", "category": "Party", "time": "20 Minutes", "description": "This is a fully cooperative game where everyone wins or loses together. One player is the guesser, and the other five write one-word clues to help them guess a specific word. The catch is that if any two players write the exact same clue, those clues are erased and the guesser never sees them. It forces players to be creative rather than obvious.", "url": "https://boardgamegeek.com/boardgame/254640/just-one"}, {"id": "deception", "title": "Deception: Murder in Hong Kong", "category": "Social Deduction", "time": "20 Minutes", "description": "One player is secretly the Murderer, and another is the Forensic Scientist who knows the solution but can only communicate by placing markers on scene tiles (like Cause of Death: Suffocation). The remaining players are investigators trying to interpret these vague clues to identify the murderer and the weapon used. It is less aggressive than other lying games because the focus is on the evidence.", "url": "https://boardgamegeek.com/boardgame/156129/deception-murder-in-hong-kong"}, {"id": "resistance", "title": "The Resistance", "category": "Social Deduction", "time": "30 Minutes", "description": "Players are members of a resistance group trying to overthrow a government, but spies have infiltrated the ranks. In each round, a leader proposes a team to go on a mission. Everyone votes to approve the team. If the mission goes ahead, players on the team secretly choose to Support or Sabotage the mission. The goal is to deduce who the saboteurs are based on voting patterns and mission results.", "url": "https://boardgamegeek.com/boardgame/41114/the-resistance"}]}, "elements": {"root_column": {"type": "Column", "props": {"spacing": "medium", "padding": "medium"}, "children": ["title_text", "intro_card", "picks_heading", "games_list", "quick_actions_heading", "quick_actions_column"]}, "title_text": {"type": "Text", "props": {"text": "Beginner-Friendly 6-Player Game Recommendations", "variant": "h1", "align": "center"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_column"]}, "intro_column": {"type": "Column", "props": {"spacing": "small", "padding": "medium"}, "children": ["intro_heading", "intro_text"]}, "intro_heading": {"type": "Text", "props": {"text": "Group Dynamics and Selection Criteria", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "These recommendations assume the group has little to no prior experience with modern hobby board games. The selections focus on high interaction, minimal downtime between turns, and rules that can be taught in under 5 minutes. The games selected bridge the gap between casual conversation and structured play, ensuring the 60-minute time limit is respected even with teaching time included."}, "children": []}, "picks_heading": {"type": "Text", "props": {"text": "Top Party and Deduction Picks", "variant": "h2"}, "children": []}, "games_list": {"type": "List", "props": {"spacing": "medium", "repeat": {"statePath": "/games", "key": "id"}}, "children": ["game_card"]}, "game_card": {"type": "Card", "props": {}, "children": ["game_card_column"]}, "game_card_column": {"type": "Column", "props": {"padding": "medium", "spacing": "small"}, "children": ["game_title", "game_stats_row", "game_description", "game_button"]}, "game_title": {"type": "Text", "props": {"text": {"$item": "title"}, "variant": "title"}, "children": []}, "game_stats_row": {"type": "Row", "props": {"spacing": "large", "verticalAlign": "middle"}, "children": ["game_category_row", "game_time_row"]}, "game_category_row": {"type": "Row", "props": {"spacing": "small", "verticalAlign": "middle"}, "children": ["category_icon", "category_text"]}, "category_icon": {"type": "Icon", "props": {"name": "../assets/r_000090_01_2_controller.svg", "color": "secondary"}, "children": []}, "category_text": {"type": "Text", "props": {"text": {"$item": "category"}, "variant": "body"}, "children": []}, "game_time_row": {"type": "Row", "props": {"spacing": "small", "verticalAlign": "middle"}, "children": ["time_icon", "time_text"]}, "time_icon": {"type": "Icon", "props": {"name": "../assets/r_000090_01_1_calendar-event.svg", "color": "secondary"}, "children": []}, "time_text": {"type": "Text", "props": {"text": {"$item": "time"}, "variant": "body"}, "children": []}, "game_description": {"type": "Text", "props": {"text": {"$item": "description"}}, "children": []}, "game_button": {"type": "Button", "props": {"label": "View on BoardGameGeek", "variant": "outline", "fullWidth": true}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "url"}}}}}, "quick_actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "quick_actions_column": {"type": "Column", "props": {"spacing": "small"}, "children": ["party_games_button", "social_deduction_button"]}, "party_games_button": {"type": "Button", "props": {"label": "Browse Top Party Games", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgamecategory/1030/party-game"}}}}, "social_deduction_button": {"type": "Button", "props": {"label": "Browse Social Deduction", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgamemechanic/2019/team-based-game"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

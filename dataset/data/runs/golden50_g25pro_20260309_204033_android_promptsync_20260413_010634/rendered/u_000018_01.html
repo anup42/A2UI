@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "description", "info_bar", "main_image", "recipe_tabs"]}, "title": {"type": "Text", "props": {"text": "Hearty Lentil Shepherd's Pie with Cauliflower Mash", "variant": "h1"}, "children": []}, "description": {"type": "Text", "props": {"text": "This recipe provides a complete guide for a comforting, allergy-friendly shepherd's pie. The savory lentil and mushroom filling is topped with a creamy, dairy-free cauliflower mash, creating a dish that is both vegan and gluten-free. It is designed to be prepared and baked in under 90 minutes."}, "children": []}, "info_bar": {"type": "Stack", "props": {"direction": "horizontal", "gap": "lg", "justify": "around", "paddingVertical": 16}, "children": ["prep_time_stack", "cook_time_stack", "servings_stack"]}, "prep_time_stack": {"type": "Stack", "props": {"direction": "vertical", "align": "center", "gap": "sm"}, "children": ["prep_time_label", "prep_time_value"]}, "prep_time_label": {"type": "Text", "props": {"text": "Prep Time", "variant": "caption"}, "children": []}, "prep_time_value": {"type": "Text", "props": {"text": "30 mins"}, "children": []}, "cook_time_stack": {"type": "Stack", "props": {"direction": "vertical", "align": "center", "gap": "sm"}, "children": ["cook_time_label", "cook_time_value"]}, "cook_time_label": {"type": "Text", "props": {"text": "Cook Time", "variant": "caption"}, "children": []}, "cook_time_value": {"type": "Text", "props": {"text": "50 mins"}, "children": []}, "servings_stack": {"type": "Stack", "props": {"direction": "vertical", "align": "center", "gap": "sm"}, "children": ["servings_label", "servings_value"]}, "servings_label": {"type": "Text", "props": {"text": "Servings", "variant": "caption"}, "children": []}, "servings_value": {"type": "Text", "props": {"text": "6"}, "children": []}, "main_image": {"type": "Image", "props": {"url": "https://images.unsplash.com/photo-1617343249330-537364bb124a?q=80&w=2070&auto=format&fit=crop", "fit": "cover", "height": 250}, "children": []}, "recipe_tabs": {"type": "Tabs", "props": {"tabs": [{"title": "Ingredients", "child": "ingredients_list"}, {"title": "Instructions", "child": "instructions_list"}]}, "children": []}, "ingredients_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["filling_ingredients_title", "filling_ingredients_text", "mash_ingredients_title", "mash_ingredients_text"]}, "filling_ingredients_title": {"type": "Text", "props": {"text": "For the Lentil Filling:", "variant": "h3"}, "children": []}, "filling_ingredients_text": {"type": "Text", "props": {"text": "• 1 tbsp olive oil\n• 1 large onion, chopped\n• 2 carrots, diced\n• 2 celery stalks, diced\n• 8 oz cremini mushrooms, sliced\n• 2 cloves garlic, minced\n• 1 cup brown or green lentils, rinsed\n• 4 cups vegetable broth\n• 1 tsp dried thyme\n• 1 tsp dried rosemary\n• Salt and pepper to taste"}, "children": []}, "mash_ingredients_title": {"type": "Text", "props": {"text": "For the Cauliflower Mash:", "variant": "h3"}, "children": []}, "mash_ingredients_text": {"type": "Text", "props": {"text": "• 1 large head of cauliflower, cut into florets\n• 2 cloves garlic\n• 1/4 cup unsweetened plant-based milk\n• 2 tbsp nutritional yeast\n• Salt and pepper to taste"}, "children": []}, "instructions_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["instructions_text"]}, "instructions_text": {"type": "Text", "props": {"text": "1. Preheat oven to 400°F (200°C).\n2. In a large pot or Dutch oven, heat olive oil over medium heat. Add onion, carrots, and celery and cook until softened, about 5-7 minutes.\n3. Add mushrooms and cook until they release their liquid and start to brown. Stir in the minced garlic and cook for another minute until fragrant.\n4. Add the rinsed lentils, vegetable broth, thyme, and rosemary. Bring to a boil, then reduce heat and simmer for 25-30 minutes, or until lentils are tender.\n5. While the filling simmers, prepare the mash. Place cauliflower florets and garlic cloves in a large pot and cover with water. Bring to a boil and cook for 10-15 minutes, until fork-tender. Drain well.\n6. Transfer the cooked cauliflower and garlic to a high-speed blender. Add plant-based milk, nutritional yeast, salt, and pepper. Blend until smooth and creamy.\n7. Once lentils are cooked, season the filling with salt and pepper to taste. Transfer the filling to a 9x9 inch baking dish.\n8. Spread the cauliflower mash evenly over the lentil filling.\n9. Bake for 20-25 minutes, or until the filling is bubbly and the top is lightly golden. Let it rest for 10 minutes before serving."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

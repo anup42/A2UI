@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"tasks": [{"id": "A", "name": "Excavation", "duration": 4, "predecessors": "-"}, {"id": "B", "name": "Pour Foundation", "duration": 3, "predecessors": "A"}, {"id": "C", "name": "Framing", "duration": 7, "predecessors": "B"}, {"id": "D", "name": "Plumbing Rough-in", "duration": 5, "predecessors": "B"}, {"id": "E", "name": "Electrical Rough-in", "duration": 4, "predecessors": "C"}, {"id": "F", "name": "Inspection", "duration": 1, "predecessors": "D, E"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "summary_stack", "divider_1", "task_breakdown_section", "divider_2", "path_calc_section", "divider_3", "critical_path_section", "divider_4", "images_section"]}, "title": {"type": "Text", "props": {"text": "Project Timeline and Critical Path Analysis", "variant": "h1"}, "children": []}, "summary_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "around", "wrap": "wrap"}, "children": ["duration_card", "path_card"]}, "duration_card": {"type": "Card", "props": {"flex": 1}, "children": ["duration_stack"]}, "duration_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center", "padding": 8}, "children": ["duration_icon", "duration_text_stack"]}, "duration_icon": {"type": "Icon", "props": {"name": "../assets/r_000014_01_7_calendar-week.svg"}, "children": []}, "duration_text_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "none"}, "children": ["duration_label", "duration_value"]}, "duration_label": {"type": "Text", "props": {"text": "Total Minimum Duration", "variant": "caption"}, "children": []}, "duration_value": {"type": "Text", "props": {"text": "19 Days", "variant": "h3"}, "children": []}, "path_card": {"type": "Card", "props": {"flex": 1}, "children": ["path_stack"]}, "path_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center", "padding": 8}, "children": ["path_icon", "path_text_stack"]}, "path_icon": {"type": "Icon", "props": {"name": "../assets/r_000032_01_5_diagram-3.svg"}, "children": []}, "path_text_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "none"}, "children": ["path_label", "path_value"]}, "path_label": {"type": "Text", "props": {"text": "Critical Path", "variant": "caption"}, "children": []}, "path_value": {"type": "Text", "props": {"text": "A → B → C → E → F", "variant": "h3"}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "task_breakdown_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["task_breakdown_title", "task_breakdown_intro", "task_table"]}, "task_breakdown_title": {"type": "Text", "props": {"text": "Task Breakdown and Dependencies", "variant": "h2"}, "children": []}, "task_breakdown_intro": {"type": "Text", "props": {"text": "The project tasks, their durations, and their dependencies are outlined below. This structure is used to map out the potential sequences (paths) for completing the project."}, "children": []}, "task_table": {"type": "Table", "props": {"statePath": "/tasks", "columns": [{"key": "id", "label": "Task ID"}, {"key": "name", "label": "Task Name"}, {"key": "duration", "label": "Duration (Days)"}, {"key": "predecessors", "label": "Predecessors"}]}, "children": []}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "path_calc_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["path_calc_title", "path_calc_intro", "path_1_card", "path_2_card"]}, "path_calc_title": {"type": "Text", "props": {"text": "Project Path Calculations", "variant": "h2"}, "children": []}, "path_calc_intro": {"type": "Text", "props": {"text": "To find the critical path, we must calculate the total duration of every possible path from the start of the project to the end. The longest path determines the minimum total project time."}, "children": []}, "path_1_card": {"type": "Card", "props": {}, "children": ["path_1_stack"]}, "path_1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["path_1_title", "path_1_desc", "path_1_calc"]}, "path_1_title": {"type": "Text", "props": {"text": "Path 1: A → B → C → E → F", "variant": "h3"}, "children": []}, "path_1_desc": {"type": "Text", "props": {"text": "This path involves the excavation, foundation, framing, electrical, and inspection sequence."}, "children": []}, "path_1_calc": {"type": "Text", "props": {"text": "Calculation: 4 (A) + 3 (B) + 7 (C) + 4 (E) + 1 (F) = 19 Days"}, "children": []}, "path_2_card": {"type": "Card", "props": {}, "children": ["path_2_stack"]}, "path_2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["path_2_title", "path_2_desc", "path_2_calc"]}, "path_2_title": {"type": "Text", "props": {"text": "Path 2: A → B → D → F", "variant": "h3"}, "children": []}, "path_2_desc": {"type": "Text", "props": {"text": "This path involves the excavation, foundation, plumbing, and inspection sequence."}, "children": []}, "path_2_calc": {"type": "Text", "props": {"text": "Calculation: 4 (A) + 3 (B) + 5 (D) + 1 (F) = 13 Days"}, "children": []}, "divider_3": {"type": "Divider", "props": {}, "children": []}, "critical_path_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["critical_path_title", "critical_path_intro", "critical_path_conclusion"]}, "critical_path_title": {"type": "Text", "props": {"text": "Critical Path and Total Duration", "variant": "h2"}, "children": []}, "critical_path_intro": {"type": "Text", "props": {"text": "The critical path is the longest sequence of dependent tasks through the project network. Any delay in a task on this path will delay the entire project."}, "children": []}, "critical_path_conclusion": {"type": "Text", "props": {"text": "The project's completion time is dictated by the 19-day path involving the framing and electrical work, as it takes longer than the parallel plumbing work."}, "children": []}, "divider_4": {"type": "Divider", "props": {}, "children": []}, "images_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["images_title", "image_stack"]}, "images_title": {"type": "Text", "props": {"text": "Related Images", "variant": "h2"}, "children": []}, "image_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between", "wrap": "wrap"}, "children": ["image_1", "image_2", "image_3"]}, "image_1": {"type": "Image", "props": {"url": "../assets/r_000032_01_1_ganttchart.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image_2": {"type": "Image", "props": {"url": "../assets/r_000032_01_2_construction_foundation.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image_3": {"type": "Image", "props": {"url": "../assets/r_000032_01_3_construction_framing.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {"comparisonMetrics": [{"id": "temp", "feature": "Daily Temp Range", "bangkok": "22°C - 32°C (72°F - 90°F)", "hanoi": "14°C - 20°C (57°F - 68°F)"}, {"id": "humidity", "feature": "Humidity", "bangkok": "65-70% (Comfortable for tropics)", "hanoi": "75-82% (Damp/Misty)"}, {"id": "rain", "feature": "Rain Probability", "bangkok": "Very Low (<2 days/month)", "hanoi": "Moderate (5-7 days, mostly drizzle)"}, {"id": "sky", "feature": "Sky Conditions", "bangkok": "Mostly Clear / Sunny", "hanoi": "Often Overcast / Gray"}, {"id": "comfort", "feature": "Walking Comfort", "bangkok": "Low (Heat fatigue likely)", "hanoi": "High (Cool, sweat-free)"}]}, "elements": {"root_column": {"type": "Column", "props": {"spacing": 16, "style": {"padding": [16, 16, 32, 16]}}, "children": ["title_text", "intro_text", "divider_1", "data_context_card", "divider_2", "comparison_title", "comparison_card", "divider_3", "verdict_title", "hanoi_verdict_card", "bangkok_verdict_card", "divider_4", "sources_title", "source_button_1", "source_button_2", "source_button_3"]}, "title_text": {"type": "Text", "props": {"text": "January Climate Snapshot", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "January is widely considered the peak travel season for both cities, but for very different reasons. Bangkok experiences its \"cool\" season, which is dry and sunny but still hot by global standards. Hanoi experiences a true winter, which is significantly cooler and often overcast with mist. For a walking tour, Hanoi offers much more comfortable temperatures, while Bangkok guarantees brighter photography conditions at the cost of heat exhaustion risks."}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "data_context_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["data_context_title", "data_context_text"]}, "data_context_title": {"type": "Text", "props": {"text": "Historical Data Context", "variant": "h3", "style": {"padding": [0, 0, 8, 0]}}, "children": []}, "data_context_text": {"type": "Text", "props": {"text": "The following comparison relies on historical climate averages collected over the last 30 years. January weather patterns in Southeast Asia are generally stable, but short-term fluctuations can occur. \"Rainfall probability\" here refers to the likelihood of measurable precipitation days, though intensity varies (Bangkok rain is rare/short; Hanoi rain is often a persistent light drizzle)."}, "children": []}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "comparison_title": {"type": "Text", "props": {"text": "Bangkok vs Hanoi Weather Metrics", "variant": "h2"}, "children": []}, "comparison_card": {"type": "Card", "props": {"style": {"padding": [16, 0, 8, 0]}}, "children": ["comparison_header_row", "comparison_list"]}, "comparison_header_row": {"type": "Row", "props": {"spacing": 8, "style": {"padding": [0, 16, 8, 16]}}, "children": ["header_feature", "header_bangkok", "header_hanoi"]}, "header_feature": {"type": "Text", "props": {"text": "Feature", "weight": "bold", "style": {"flex": 1.2}}, "children": []}, "header_bangkok": {"type": "Text", "props": {"text": "Bangkok", "weight": "bold", "style": {"flex": 1}}, "children": []}, "header_hanoi": {"type": "Text", "props": {"text": "Hanoi", "weight": "bold", "style": {"flex": 1}}, "children": []}, "comparison_list": {"type": "List", "props": {"repeat": {"statePath": "/comparisonMetrics", "key": "id"}}, "children": ["comparison_row_template"]}, "comparison_row_template": {"type": "Row", "props": {"spacing": 8, "style": {"padding": [8, 16]}}, "children": ["item_feature", "item_bangkok", "item_hanoi"]}, "item_feature": {"type": "Text", "props": {"text": {"$item": "feature"}, "weight": "bold", "style": {"flex": 1.2}}, "children": []}, "item_bangkok": {"type": "Text", "props": {"text": {"$item": "bangkok"}, "style": {"flex": 1}}, "children": []}, "item_hanoi": {"type": "Text", "props": {"text": {"$item": "hanoi"}, "style": {"flex": 1}}, "children": []}, "divider_3": {"type": "Divider", "props": {}, "children": []}, "verdict_title": {"type": "Text", "props": {"text": "Walking Tour Verdict", "variant": "h2"}, "children": []}, "hanoi_verdict_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["hanoi_verdict_title", "hanoi_verdict_text"]}, "hanoi_verdict_title": {"type": "Text", "props": {"text": "Choose Hanoi if:", "variant": "h3", "style": {"padding": [0, 0, 8, 0]}}, "children": []}, "hanoi_verdict_text": {"type": "Text", "props": {"text": "You prioritize physical comfort and want to explore the Old Quarter for hours without sweating. The cooler temperatures (similar to a mild European autumn) make it ideal for long treks, though photographs may look gloomy due to the common \"milk fog.\""}, "children": []}, "bangkok_verdict_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["bangkok_verdict_title", "bangkok_verdict_text"]}, "bangkok_verdict_title": {"type": "Text", "props": {"text": "Choose Bangkok if:", "variant": "h3", "style": {"padding": [0, 0, 8, 0]}}, "children": []}, "bangkok_verdict_text": {"type": "Text", "props": {"text": "You want vibrant blue skies for photography and don't mind the heat. Walking tours here are best done early morning (6:00 AM - 10:00 AM) or late evening. Mid-day walking is strenuous due to the blazing sun."}, "children": []}, "divider_4": {"type": "Divider", "props": {}, "children": []}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source_button_1": {"type": "Button", "props": {"label": "World Weather Information Service", "variant": "outline"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://worldweather.wmo.int/"}}}}, "source_button_2": {"type": "Button", "props": {"label": "Tourism Authority of Thailand", "variant": "outline"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.tourismthailand.org/"}}}}, "source_button_3": {"type": "Button", "props": {"label": "Vietnam National Authority of Tourism", "variant": "outline"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://vietnamtourism.gov.vn/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

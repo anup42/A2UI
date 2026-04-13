@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main_stack", "state": {"tracklist": [{"id": "1", "number": "1.", "artist": "Vangelis", "title": "Blade Runner Blues"}, {"id": "2", "number": "2.", "artist": "2814", "title": "新宿ゴールデン街 (Shinjuku Golden Gai)"}, {"id": "3", "number": "3.", "artist": "Lorn", "title": "Acid Rain"}, {"id": "4", "number": "4.", "artist": "Bohren & der Club of Gore", "title": "Prowler"}, {"id": "5", "number": "5.", "artist": "Subheim", "title": "The Cold-Hearted Sea"}, {"id": "6", "number": "6.", "artist": "Massive Attack", "title": "Weather Storm"}, {"id": "7", "number": "7.", "artist": "Burial", "title": "Nightmarket"}, {"id": "8", "number": "8.", "artist": "Amon Tobin", "title": "Deo"}, {"id": "9", "number": "9.", "artist": "Carbon Based Lifeforms", "title": "MOS 6581"}, {"id": "10", "number": "10.", "artist": "Aphex Twin", "title": "#3 (Rhubarb)"}]}, "elements": {"main_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header_stack", "hero_image", "context_stack", "tracklist_stack", "gallery_stack"]}, "header_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "align": "center"}, "children": ["main_title"]}, "main_title": {"type": "Text", "props": {"text": "Neon & Rain: A Cyberpunk Noir Soundtrack", "variant": "h1"}, "children": []}, "hero_image": {"type": "Image", "props": {"url": "../assets/r_000004_01_1_cyberpunk_rain_neon.jpg", "fit": "cover"}, "children": []}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["context_header_stack", "context_body"]}, "context_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["context_icon", "context_title"]}, "context_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_7_book.svg"}, "children": []}, "context_title": {"type": "Text", "props": {"text": "Playlist Context and Flow", "variant": "h2"}, "children": []}, "context_body": {"type": "Text", "props": {"text": "This playlist is curated to serve as an unobtrusive, atmospheric backdrop for reading within a cyberpunk noir setting. The selections are entirely instrumental or feature minimal, non-lyrical vocals to avoid distraction. The sequence is designed to evoke a journey through a rain-slicked, neon-drenched metropolis, moving from melancholic establishment shots to moments of quiet tension, introspection, and finally, a contemplative dawn. The fusion of ambient electronics, dark jazz, and cinematic soundscapes aims to create a cohesive and immersive auditory experience.", "variant": "body"}, "children": []}, "tracklist_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["tracklist_header_stack", "tracklist_table"]}, "tracklist_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["tracklist_icon", "tracklist_title"]}, "tracklist_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_7_controller.svg"}, "children": []}, "tracklist_title": {"type": "Text", "props": {"text": "The 'Chrome & Shadow' Tracklist", "variant": "h2"}, "children": []}, "tracklist_table": {"type": "Table", "props": {"statePath": "/tracklist", "columns": [{"key": "number", "label": "#"}, {"key": "artist", "label": "Artist"}, {"key": "title", "label": "Title"}]}, "children": []}, "gallery_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["gallery_header_stack", "gallery_images_stack"]}, "gallery_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["gallery_icon", "gallery_title"]}, "gallery_icon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_1_camera.svg"}, "children": []}, "gallery_title": {"type": "Text", "props": {"text": "Atmosphere", "variant": "h3"}, "children": []}, "gallery_images_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap", "justify": "start"}, "children": ["gallery_image_1", "gallery_image_2"]}, "gallery_image_1": {"type": "Image", "props": {"url": "../assets/r_000004_01_2_futuristic_cityscape.jpg", "fit": "cover", "width": 200, "height": 150}, "children": []}, "gallery_image_2": {"type": "Image", "props": {"url": "../assets/r_000004_01_3_rain_window_city.jpg", "fit": "cover", "width": 200, "height": 150}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

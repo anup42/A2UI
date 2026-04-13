@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header_stack", "planning_card", "daily_guide_title", "day_1_card", "day_2_card", "day_3_card", "day_4_card", "sources_stack"]}, "header_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["title", "intro_text"]}, "title": {"type": "Text", "props": {"text": "Pacific Coast Highway Photography Itinerary: SF to LA in 4 Days", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This itinerary outlines a 4-day road trip from San Francisco to Los Angeles, focusing on photography and scenic coastal views. The plan is paced to keep daily driving under 4 hours, allowing ample time for exploration, hiking, and capturing the stunning California coastline."}, "children": []}, "planning_card": {"type": "Card", "props": {}, "children": ["planning_stack"]}, "planning_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["planning_title", "planning_text", "road_conditions_button"]}, "planning_title": {"type": "Text", "props": {"text": "Trip Planning Context", "variant": "h3"}, "children": []}, "planning_text": {"type": "Text", "props": {"text": "This plan assumes you are traveling when Highway 1 is fully open. This route, particularly through Big Sur, is subject to periodic closures due to landslides. It is critical to check road conditions immediately before and during your trip. The driving times provided are estimates for active driving and do not include time for stops, meals, or potential traffic delays."}, "children": []}, "road_conditions_button": {"type": "Button", "props": {"label": "Check CA Highway 1 Road Conditions", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://roads.dot.ca.gov/"}}}}, "daily_guide_title": {"type": "Text", "props": {"text": "Daily Driving and Photography Guide", "variant": "h2"}, "children": []}, "day_1_card": {"type": "Card", "props": {}, "children": ["day_1_stack"]}, "day_1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["day_1_title", "day_1_driving_time", "day_1_scenic_stop", "day_1_hike", "day_1_overnight"]}, "day_1_title": {"type": "Text", "props": {"text": "Day 1: The Northern Coast | San Francisco to Carmel-by-the-Sea", "variant": "h3"}, "children": []}, "day_1_driving_time": {"type": "Text", "props": {"text": "Driving Time: ~2 hours 30 minutes (125 miles)", "variant": "caption"}, "children": []}, "day_1_scenic_stop": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["camera_icon_1", "day_1_scenic_text"]}, "camera_icon_1": {"type": "Icon", "props": {"name": "../assets/r_000002_01_1_camera.svg"}, "children": []}, "day_1_scenic_text": {"type": "Text", "props": {"text": "Major Scenic Stop: Pigeon Point Lighthouse. This historic 115-foot lighthouse offers a classic coastal California photo opportunity against the cliffs and ocean."}, "children": []}, "day_1_hike": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["hike_icon_1", "day_1_hike_text"]}, "hike_icon_1": {"type": "Icon", "props": {"name": "../assets/r_000036_01_2_house.svg"}, "children": []}, "day_1_hike_text": {"type": "Text", "props": {"text": "Optional Short Hike: Point Lobos State Natural Reserve. The Sea Lion Point Trail (0.6-mile loop) provides dramatic ocean views, access to tide pools, and abundant wildlife photography chances."}, "children": []}, "day_1_overnight": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["overnight_icon_1", "day_1_overnight_text"]}, "overnight_icon_1": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "day_1_overnight_text": {"type": "Text", "props": {"text": "Overnight Stay: Carmel-by-the-Sea. A charming town known for its European-style village, art galleries, and beautiful beach."}, "children": []}, "day_2_card": {"type": "Card", "props": {}, "children": ["day_2_stack"]}, "day_2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["day_2_title", "day_2_image_gallery", "day_2_driving_time", "day_2_scenic_stop", "day_2_hike", "day_2_overnight"]}, "day_2_title": {"type": "Text", "props": {"text": "Day 2: The Heart of Big Sur | Carmel-by-the-Sea to Cambria", "variant": "h3"}, "children": []}, "day_2_image_gallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["day_2_image_1", "day_2_image_2"]}, "day_2_image_1": {"type": "Image", "props": {"url": "../assets/r_000036_01_4_bixby-bridge.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "day_2_image_2": {"type": "Image", "props": {"url": "../assets/r_000036_01_5_mcway-falls.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "day_2_driving_time": {"type": "Text", "props": {"text": "Driving Time: ~2 hours 30 minutes (90 miles)", "variant": "caption"}, "children": []}, "day_2_scenic_stop": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["camera_icon_2", "day_2_scenic_text"]}, "camera_icon_2": {"type": "Icon", "props": {"name": "../assets/r_000002_01_1_camera.svg"}, "children": []}, "day_2_scenic_text": {"type": "Text", "props": {"text": "Major Scenic Stop: Bixby Creek Bridge. The most iconic landmark on Highway 1. Park in the designated pullouts on the north side of the bridge for the best and safest photographic angles."}, "children": []}, "day_2_hike": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["hike_icon_2", "day_2_hike_text"]}, "hike_icon_2": {"type": "Icon", "props": {"name": "../assets/r_000036_01_2_house.svg"}, "children": []}, "day_2_hike_text": {"type": "Text", "props": {"text": "Optional Short Hike: Partington Cove Trail. This 1-mile round-trip hike descends through a 60-foot tunnel to a secluded, rocky cove, offering a unique perspective of the Big Sur coast."}, "children": []}, "day_2_overnight": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["overnight_icon_2", "day_2_overnight_text"]}, "overnight_icon_2": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "day_2_overnight_text": {"type": "Text", "props": {"text": "Overnight Stay: Cambria. A quaint coastal village with a relaxed atmosphere, perfect for resting after a day of breathtaking views."}, "children": []}, "day_3_card": {"type": "Card", "props": {}, "children": ["day_3_stack"]}, "day_3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["day_3_title", "day_3_image", "day_3_driving_time", "day_3_scenic_stop", "day_3_hike", "day_3_overnight"]}, "day_3_title": {"type": "Text", "props": {"text": "Day 3: The Central Coast Transition | Cambria to Santa Barbara", "variant": "h3"}, "children": []}, "day_3_image": {"type": "Image", "props": {"url": "../assets/r_000036_01_6_elephant-seal.jpg", "fit": "cover", "height": 200}, "children": []}, "day_3_driving_time": {"type": "Text", "props": {"text": "Driving Time: ~3 hours (130 miles)", "variant": "caption"}, "children": []}, "day_3_scenic_stop": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["camera_icon_3", "day_3_scenic_text"]}, "camera_icon_3": {"type": "Icon", "props": {"name": "../assets/r_000002_01_1_camera.svg"}, "children": []}, "day_3_scenic_text": {"type": "Text", "props": {"text": "Major Scenic Stop: Elephant Seal Vista Point. Just north of San Simeon, this viewpoint offers incredible opportunities to photograph the massive northern elephant seals that haul out on the beach year-round."}, "children": []}, "day_3_hike": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["hike_icon_3", "day_3_hike_text"]}, "hike_icon_3": {"type": "Icon", "props": {"name": "../assets/r_000036_01_2_house.svg"}, "children": []}, "day_3_hike_text": {"type": "Text", "props": {"text": "Optional Short Hike: Fiscalini Ranch Preserve Bluff Trail. Before leaving Cambria, walk a portion of this easy 1-mile coastal trail for stunning views of the rocky shoreline and tide pools."}, "children": []}, "day_3_overnight": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["overnight_icon_3", "day_3_overnight_text"]}, "overnight_icon_3": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "day_3_overnight_text": {"type": "Text", "props": {"text": "Overnight Stay: Santa Barbara. Known as \"The American Riviera,\" this city features beautiful Spanish-style architecture, a palm-lined waterfront, and a mountainous backdrop."}, "children": []}, "day_4_card": {"type": "Card", "props": {}, "children": ["day_4_stack"]}, "day_4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["day_4_title", "day_4_image", "day_4_driving_time", "day_4_scenic_stop", "day_4_hike", "day_4_destination"]}, "day_4_title": {"type": "Text", "props": {"text": "Day 4: The Southern Approach | Santa Barbara to Los Angeles", "variant": "h3"}, "children": []}, "day_4_image": {"type": "Image", "props": {"url": "../assets/r_000036_01_7_malibu-coast.jpg", "fit": "cover", "height": 200}, "children": []}, "day_4_driving_time": {"type": "Text", "props": {"text": "Driving Time: ~2 hours (100 miles)", "variant": "caption"}, "children": []}, "day_4_scenic_stop": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["camera_icon_4", "day_4_scenic_text"]}, "camera_icon_4": {"type": "Icon", "props": {"name": "../assets/r_000002_01_1_camera.svg"}, "children": []}, "day_4_scenic_text": {"type": "Text", "props": {"text": "Major Scenic Stop: Point Dume State Beach & Preserve. Located in Malibu, this promontory offers panoramic views of the coast, Zuma Beach, and Paradise Cove. It's a prime spot for sunset photography."}, "children": []}, "day_4_hike": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["hike_icon_4", "day_4_hike_text"]}, "hike_icon_4": {"type": "Icon", "props": {"name": "../assets/r_000036_01_2_house.svg"}, "children": []}, "day_4_hike_text": {"type": "Text", "props": {"text": "Optional Short Hike: Point Dume Nature Preserve Trail. A short, sandy loop trail (approx. 1 mile) takes you to the top of the bluff for the best vantage points."}, "children": []}, "day_4_destination": {"type": "Text", "props": {"text": "Final Destination: Los Angeles. Conclude your trip by arriving in the LA area, for example, near the iconic Santa Monica Pier."}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "parks_button", "caltrans_button"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "parks_button": {"type": "Button", "props": {"label": "California Department of Parks and Recreation", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.parks.ca.gov/"}}}}, "caltrans_button": {"type": "Button", "props": {"label": "Caltrans (California Department of Transportation)", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://dot.ca.gov/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

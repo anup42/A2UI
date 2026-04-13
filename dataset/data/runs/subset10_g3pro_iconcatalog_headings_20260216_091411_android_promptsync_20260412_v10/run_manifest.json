@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-04-12T08:20:19Z",
+  "run_id": "subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10",
+  "stage": 3,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "dbd708346d254a685c1be6a1e8321c68f82e4dc0",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "gemini_2_5_pro",
+    "provider": "gemini",
+    "model": "gemini-2.5-pro"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "90e148e71e5783b3713b8791b9e6a6d16f26d0bb4840479bac2f26b259b46f70",
+      "configs\\models.yaml": "55f33e13327bfdc8281b4638c0e8cb97e83f5ced68a73f1cae3365560e62a51d"
+    },
+    "combined_sha256": "f50cfc8ee8e21f3aa45de4c007908ff0c7bb9bc4dff3b53fc9672058bd3707ef"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10",
+    "queries_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10\\queries.jsonl",
+    "responses_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10\\responses.jsonl",
+    "genui_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10\\genui.jsonl",
+    "metrics_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10\\aggregates.json",
+    "artifacts_dir": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10\\artifacts",
+    "manifest_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "dataset/src/main.py",
+      "--stage",
+      "3",
+      "--model",
+      "gemini_2_5_pro",
+      "--run_id",
+      "subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI"
+  }
+}

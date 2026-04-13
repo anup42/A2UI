@@ -62,6 +62,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.google.gson.GsonBuilder
+import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -95,6 +97,8 @@ private object GenUiAssistantSessionCache {
     var currentQuery: String? = null
     var usedFallback: Boolean = false
     var warnings: List<String> = emptyList()
+    var stage3InputTokens: Int? = null
+    var stage3OutputTokens: Int? = null
     var renderResult: GenUiNativeRenderer.RenderResult? = null
     var logs: List<AssistantLogItem> = emptyList()
 }
@@ -166,6 +170,8 @@ private fun GenUiAssistantScreen(
     var currentQuery by rememberSaveable { mutableStateOf<String?>(GenUiAssistantSessionCache.currentQuery) }
     var usedFallback by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.usedFallback) }
     var warnings by remember { mutableStateOf(ArrayList(GenUiAssistantSessionCache.warnings)) }
+    var stage3InputTokens by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.stage3InputTokens) }
+    var stage3OutputTokens by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.stage3OutputTokens) }
     var renderResult by remember {
         mutableStateOf<GenUiNativeRenderer.RenderResult?>(GenUiAssistantSessionCache.renderResult)
     }
@@ -191,6 +197,8 @@ private fun GenUiAssistantScreen(
         currentQuery,
         usedFallback,
         warnings,
+        stage3InputTokens,
+        stage3OutputTokens,
         renderResult,
         logs.toList()
     ) {
@@ -203,6 +211,8 @@ private fun GenUiAssistantScreen(
         GenUiAssistantSessionCache.currentQuery = currentQuery
         GenUiAssistantSessionCache.usedFallback = usedFallback
         GenUiAssistantSessionCache.warnings = warnings.toList()
+        GenUiAssistantSessionCache.stage3InputTokens = stage3InputTokens
+        GenUiAssistantSessionCache.stage3OutputTokens = stage3OutputTokens
         GenUiAssistantSessionCache.renderResult = displayRenderResult
         GenUiAssistantSessionCache.logs = logs.toList()
     }
@@ -232,6 +242,28 @@ private fun GenUiAssistantScreen(
         }
     }
 
+    fun formatLogCardContent(title: String, content: String): String {
+        if (!title.equals("GenUI JSON", ignoreCase = true)) {
+            return content
+        }
+        val trimmed = content.trim()
+        if (trimmed.isBlank()) {
+            return content
+        }
+        return runCatching {
+            val parsed = PipelineJsonExtractor.extractJsonElement(trimmed)
+                ?: PipelineJsonExtractor.extractJsonElement(
+                    PipelineJsonExtractor.extractFencedBlock(trimmed).orEmpty()
+                )
+                ?: return content
+            GsonBuilder()
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
+                .create()
+                .toJson(parsed)
+        }.getOrElse { content }
+    }
+
     fun upsertLogCard(
         title: String,
         content: String,
@@ -239,9 +271,10 @@ private fun GenUiAssistantScreen(
         append: Boolean = false
     ) {
         if (content.isBlank()) return
+        val normalizedContent = if (append) content else formatLogCardContent(title, content)
         val index = logs.indexOfFirst { it.title == title }
         if (index < 0) {
-            val newItem = AssistantLogItem(title = title, content = content, monospace = monospace)
+            val newItem = AssistantLogItem(title = title, content = normalizedContent, monospace = monospace)
             if (title == "Debug log") {
                 logs.add(0, newItem)
             } else {
@@ -251,7 +284,7 @@ private fun GenUiAssistantScreen(
         }
         val existing = logs[index]
         val mergedContent = if (append) {
-            val normalizedLine = content.trim()
+            val normalizedLine = normalizedContent.trim()
             val hasLine = existing.content
                 .lineSequence()
                 .map { it.trim() }
@@ -262,7 +295,7 @@ private fun GenUiAssistantScreen(
                 "${existing.content}\n$normalizedLine".trim()
             }
         } else {
-            content
+            normalizedContent
         }
         logs[index] = existing.copy(
             content = mergedContent,
@@ -512,6 +545,8 @@ private fun GenUiAssistantScreen(
                                 renderResult = null
                                 warnings = arrayListOf()
                                 usedFallback = false
+                                stage3InputTokens = null
+                                stage3OutputTokens = null
                                 logs.clear()
                                 resetSteps(GenUiStagePipeline.Stage.STAGE2)
                                 currentStatus = "Starting pipeline"
@@ -547,6 +582,23 @@ private fun GenUiAssistantScreen(
                                                 monospace = true
                                             )
                                         }
+                                        if (update.stage == GenUiStagePipeline.Stage.STAGE3 &&
+                                            (update.llmInputTokens != null || update.llmOutputTokens != null)
+                                        ) {
+                                            stage3InputTokens = update.llmInputTokens
+                                            stage3OutputTokens = update.llmOutputTokens
+                                            upsertLogCard(
+                                                title = "IR Tokens",
+                                                content = buildString {
+                                                    append("Input: ")
+                                                    append(update.llmInputTokens?.toString() ?: "n/a")
+                                                    append('\n')
+                                                    append("Output: ")
+                                                    append(update.llmOutputTokens?.toString() ?: "n/a")
+                                                },
+                                                monospace = true
+                                            )
+                                        }
                                         update.renderResult?.let { partialRender ->
                                             if (partialRender.errorMessage == null) {
                                                 renderResult = partialRender
@@ -558,6 +610,8 @@ private fun GenUiAssistantScreen(
                                             val result = outcome.result
                                             stage2Text = result.stage2Response
                                             stage3Json = result.stage3Json
+                                            stage3InputTokens = result.stage3InputTokens
+                                            stage3OutputTokens = result.stage3OutputTokens
                                             renderResult = result.renderResult
                                             warnings = ArrayList(result.warnings.map(::sanitizeUiLogText))
                                             usedFallback = result.usedFallback
@@ -570,6 +624,19 @@ private fun GenUiAssistantScreen(
                                                 content = result.stage3Json,
                                                 monospace = true
                                             )
+                                            if (result.stage3InputTokens != null || result.stage3OutputTokens != null) {
+                                                upsertLogCard(
+                                                    title = "IR Tokens",
+                                                    content = buildString {
+                                                        append("Input: ")
+                                                        append(result.stage3InputTokens?.toString() ?: "n/a")
+                                                        append('\n')
+                                                        append("Output: ")
+                                                        append(result.stage3OutputTokens?.toString() ?: "n/a")
+                                                    },
+                                                    monospace = true
+                                                )
+                                            }
                                             appendDebugLogLine("Pipeline completed successfully.")
                                             steps.indices.forEach { i ->
                                                 steps[i] = steps[i].copy(status = PipelineStepStatus.Done)

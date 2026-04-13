@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {"playlist": [{"phase": "1: Guest Arrival (0-60 min)", "artist": "Vitamin String Quartet", "song_title": "thank u, next"}, {"phase": "1: Guest Arrival (0-60 min)", "artist": "L'indécis", "song_title": "Soulful"}, {"phase": "1: Guest Arrival (0-60 min)", "artist": "Bad Snacks", "song_title": "While You're Away"}, {"phase": "1: Guest Arrival (0-60 min)", "artist": "Vitamin String Quartet", "song_title": "In My Feelings"}, {"phase": "1: Guest Arrival (0-60 min)", "artist": "Oatmello", "song_title": "Good Night"}, {"phase": "2: Dinner (60-150 min)", "artist": "Ludovico Einaudi", "song_title": "Nuvole Bianche"}, {"phase": "2: Dinner (60-150 min)", "artist": "Brian Eno", "song_title": "Music for Airports 1/1"}, {"phase": "2: Dinner (60-150 min)", "artist": "Ólafur Arnalds", "song_title": "Lag Fyrir Ömmu"}, {"phase": "2: Dinner (60-150 min)", "artist": "Max Richter", "song_title": "On the Nature of Daylight"}, {"phase": "2: Dinner (60-150 min)", "artist": "Yann Tiersen", "song_title": "Comptine d'un autre été, l'après-midi"}, {"phase": "3: Dessert/Coffee (150-180 min)", "artist": "Bill Withers", "song_title": "Lovely Day"}, {"phase": "3: Dessert/Coffee (150-180 min)", "artist": "Etta James", "song_title": "At Last"}, {"phase": "3: Dessert/Coffee (150-180 min)", "artist": "Sam Cooke", "song_title": "(What A) Wonderful World"}, {"phase": "3: Dessert/Coffee (150-180 min)", "artist": "Otis Redding", "song_title": "(Sittin' On) The Dock of the Bay"}, {"phase": "3: Dessert/Coffee (150-180 min)", "artist": "Al Green", "song_title": "Let's Stay Together"}]}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "date_stack", "main_image", "flow_section", "track_section", "image_gallery", "actions_section"]}, "title": {"type": "Text", "props": {"text": "Your Curated Dinner Party Soundtrack", "variant": "h1"}, "children": []}, "date_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["date_icon", "intro_text"]}, "date_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "A 3-hour playlist for your dinner party on November 15, 2024.", "variant": "body"}, "children": []}, "main_image": {"type": "Image", "props": {"url": "../assets/r_000042_01_4_dinnerparty_cozy.jpg", "fit": "cover"}, "children": []}, "flow_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["flow_title", "flow_text"]}, "flow_title": {"type": "Text", "props": {"text": "Setting the Mood: Playlist Flow", "variant": "h2"}, "children": []}, "flow_text": {"type": "Text", "props": {"text": "This playlist is structured to complement the natural rhythm of your event. It begins with upbeat, instrumental tracks to welcome guests without overwhelming conversation. As the party moves to dinner, the music softens to an atmospheric background, creating a relaxed and intimate setting. The final phase shifts to soulful classics, providing a warm and familiar soundtrack for dessert and coffee, ending the night on a high note."}, "children": []}, "track_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["track_title", "track_text", "playlist_table"]}, "track_title": {"type": "Text", "props": {"text": "Track-by-Track Playlist Structure", "variant": "h2"}, "children": []}, "track_text": {"type": "Text", "props": {"text": "These 15 tracks form the core of your 3-hour playlist. To fill the required time, add more songs from these artists or explore playlists with similar keywords (e.g., \"Lo-fi Jazz,\" \"Ambient Piano,\" \"Classic Soul\") on your preferred streaming service."}, "children": []}, "playlist_table": {"type": "Table", "props": {"statePath": "/playlist", "columns": [{"key": "phase", "label": "Phase"}, {"key": "artist", "label": "Artist"}, {"key": "song_title", "label": "Song Title"}], "sourceFormat": "markdown", "sourceText": "| Phase | Artist | Song Title |\n|---|---|---|\n| 1: Guest Arrival (0-60 min) | Vitamin String Quartet | thank u, next |\n| 1: Guest Arrival (0-60 min) | L'indécis | Soulful |\n| 1: Guest Arrival (0-60 min) | Bad Snacks | While You're Away |\n| 1: Guest Arrival (0-60 min) | Vitamin String Quartet | In My Feelings |\n| 1: Guest Arrival (0-60 min) | Oatmello | Good Night |\n| 2: Dinner (60-150 min) | Ludovico Einaudi | Nuvole Bianche |\n| 2: Dinner (60-150 min) | Brian Eno | Music for Airports 1/1 |\n| 2: Dinner (60-150 min) | Ólafur Arnalds | Lag Fyrir Ömmu |\n| 2: Dinner (60-150 min) | Max Richter | On the Nature of Daylight |\n| 2: Dinner (60-150 min) | Yann Tiersen | Comptine d'un autre été, l'après-midi |\n| 3: Dessert/Coffee (150-180 min) | Bill Withers | Lovely Day |\n| 3: Dessert/Coffee (150-180 min) | Etta James | At Last |\n| 3: Dessert/Coffee (150-180 min) | Sam Cooke | (What A) Wonderful World |\n| 3: Dessert/Coffee (150-180 min) | Otis Redding | (Sittin' On) The Dock of the Bay |\n| 3: Dessert/Coffee (150-180 min) | Al Green | Let's Stay Together |"}, "children": []}, "image_gallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image_record_player", "image_socializing"]}, "image_record_player": {"type": "Image", "props": {"url": "../assets/r_000042_01_5_recordplayer.jpg", "fit": "cover", "flex": 1}, "children": []}, "image_socializing": {"type": "Image", "props": {"url": "../assets/r_000042_01_6_friends_dining.jpg", "fit": "cover", "flex": 1}, "children": []}, "actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "buttons_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "buttons_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["spotify_button", "apple_button", "youtube_button"]}, "spotify_button": {"type": "Button", "props": {"label": "Find on Spotify"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/search/dinner%20party%20lo-fi%20soul"}}}}, "apple_button": {"type": "Button", "props": {"label": "Find on Apple Music"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.apple.com/us/search?term=dinner%20party%20lo-fi%20soul"}}}}, "youtube_button": {"type": "Button", "props": {"label": "Find on YouTube Music"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.youtube.com/search?q=dinner%20party%20lo-fi%20soul"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

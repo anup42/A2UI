@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {"salesData": [{"drink": "Cold Brew", "category": "Cold", "q1_sales": 900, "q2_sales": 1850, "sales_change": "+105.56%"}, {"drink": "Iced Latte", "category": "Cold", "q1_sales": 850, "q2_sales": 1500, "sales_change": "+76.47%"}, {"drink": "Espresso", "category": "Hot", "q1_sales": 1200, "q2_sales": 1150, "sales_change": "-4.17%"}, {"drink": "Cappuccino", "category": "Hot", "q1_sales": 1100, "q2_sales": 1000, "sales_change": "-9.09%"}, {"drink": "Hot Chocolate", "category": "Hot", "q1_sales": 700, "q2_sales": 350, "sales_change": "-50.00%"}]}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro", "breakdown_section", "highlights_section", "trends_section"]}, "title": {"type": "Text", "props": {"text": "Quarterly Drink Sales Performance Analysis", "variant": "h1"}, "children": []}, "intro": {"type": "Text", "props": {"text": "This report analyzes the sales performance of five key drinks between the first and second quarters, highlighting individual product growth and overall category trends based on the provided data."}, "children": []}, "breakdown_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["breakdown_header", "sales_table"]}, "breakdown_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["breakdown_icon", "breakdown_title"]}, "breakdown_icon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_2_briefcase.svg"}, "children": []}, "breakdown_title": {"type": "Text", "props": {"text": "Drink-by-Drink Sales Breakdown (Q1 vs. Q2)", "variant": "h2"}, "children": []}, "sales_table": {"type": "Table", "props": {"statePath": "/salesData", "columns": [{"key": "drink", "label": "Drink"}, {"key": "category", "label": "Category"}, {"key": "q1_sales", "label": "Q1 Sales"}, {"key": "q2_sales", "label": "Q2 Sales"}, {"key": "sales_change", "label": "Sales Change (%)"}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Drink | Category | Q1 Sales | Q2 Sales | Sales Change (%) |\n|---|---|---|---|---|\n| Cold Brew | Cold | 900 | 1850 | +105.56% |\n| Iced Latte | Cold | 850 | 1500 | +76.47% |\n| Espresso | Hot | 1200 | 1150 | -4.17% |\n| Cappuccino | Hot | 1100 | 1000 | -9.09% |\n| Hot Chocolate | Hot | 700 | 350 | -50.00% |"}, "children": []}, "highlights_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["highlights_header", "highlight_1", "highlight_2"]}, "highlights_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["highlights_icon", "highlights_title"]}, "highlights_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_8_info-circle.svg"}, "children": []}, "highlights_title": {"type": "Text", "props": {"text": "Q2 Performance Highlights", "variant": "h2"}, "children": []}, "highlight_1": {"type": "Text", "props": {"text": "- Top Performer by Volume: Cold Brew was the best-selling drink in Q2, with 1,850 units sold."}, "children": []}, "highlight_2": {"type": "Text", "props": {"text": "- Highest Percentage Growth: Cold Brew also exhibited the highest growth, increasing sales by over 105% from Q1 to Q2."}, "children": []}, "trends_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["trends_header", "trends_text"]}, "trends_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["trends_icon", "trends_title"]}, "trends_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_8_info-circle.svg"}, "children": []}, "trends_title": {"type": "Text", "props": {"text": "Overall Category Trends: Hot vs. Cold Drinks", "variant": "h2"}, "children": []}, "trends_text": {"type": "Text", "props": {"text": "The data reveals a significant seasonal shift in customer preference. The Cold drink category experienced explosive growth of 91.4% from Q1 to Q2, driven by the strong performance of both Cold Brew and Iced Latte. In contrast, the Hot drink category saw a combined sales decline of 16.7%. This powerful surge in cold beverage sales more than compensated for the drop in hot drinks, leading to a healthy 23.2% increase in total sales across all analyzed products."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"schedule": [{"id": "1", "time": "2:00 PM", "event": "First Look", "details": "Private moment for the couple; allows for early photos", "icon": "../assets/r_000175_01_1_camera.svg"}, {"id": "2", "time": "2:30 PM", "event": "Formal Photos", "details": "Wedding party and immediate family portraits; wrap by 3:30 PM", "icon": "../assets/r_000175_01_1_camera.svg"}, {"id": "3", "time": "3:30 PM", "event": "Guest Arrival Buffer", "details": "Couple in hiding; guests arrive and take seats", "icon": "../assets/r_000264_01_2_alarm.svg"}, {"id": "4", "time": "4:00 PM", "event": "Wedding Ceremony", "details": "Processional begins; exchange of vows and rings", "icon": "../assets/r_000090_01_1_calendar-event.svg"}, {"id": "5", "time": "4:30 PM", "event": "Recessional & Transition", "details": "15-minute buffer for family exit and guest movement", "icon": "../assets/r_000264_01_2_alarm.svg"}, {"id": "6", "time": "4:45 PM", "event": "Cocktail Hour", "details": "Guests mingle; extended family photos if needed", "icon": "../assets/r_000090_01_1_calendar-event.svg"}, {"id": "7", "time": "5:45 PM", "event": "Reception Transition", "details": "Guests move to dining area; 15-minute seating buffer", "icon": "../assets/r_000264_01_2_alarm.svg"}, {"id": "8", "time": "6:00 PM", "event": "Grand Entrance", "details": "Introduction of wedding party and newlyweds", "icon": "../assets/r_000090_01_1_calendar-event.svg"}, {"id": "9", "time": "6:15 PM", "event": "Dinner Service", "details": "Plated or buffet service begins immediately after entrance", "icon": "../assets/r_000090_01_1_calendar-event.svg"}, {"id": "10", "time": "7:15 PM", "event": "Toasts & Speeches", "details": "Scheduled toward the end of the meal as plates are cleared", "icon": "../assets/r_000090_01_1_calendar-event.svg"}, {"id": "11", "time": "7:45 PM", "event": "First Dance", "details": "Couple opens the dance floor; transition to party music", "icon": "../assets/r_000090_01_1_calendar-event.svg"}]}, "elements": {"root": {"type": "Column", "props": {"spacing": 16, "padding": {"all": 16}}, "children": ["title", "intro_text", "logistics_card", "schedule_title", "schedule_list"]}, "title": {"type": "Text", "props": {"text": "Wedding Day Overview", "textStyle": "headline-medium"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This timeline outlines a smooth flow for a 4:00 PM ceremony on Saturday, June 15, 2025. The schedule prioritizes a relaxed pace by incorporating buffer periods for guest movement and photography, ensuring key moments like the First Look and Grand Entrance occur without rushing.", "textStyle": "body-medium"}, "children": []}, "logistics_card": {"type": "Card", "props": {"padding": {"all": 16}}, "children": ["logistics_column"]}, "logistics_column": {"type": "Column", "props": {"spacing": 8}, "children": ["logistics_title", "logistics_text"]}, "logistics_title": {"type": "Text", "props": {"text": "Timeline Logistics & Venue Context", "textStyle": "title-medium"}, "children": []}, "logistics_text": {"type": "Text", "props": {"text": "This schedule assumes that the ceremony and reception take place at the same venue or within a 5-10 minute drive of each other. A 30-minute duration is allocated for the ceremony, which is standard for non-religious or semi-religious civil unions. Sunset on June 15 is typically late (around 8:30 PM), allowing for potential \"golden hour\" photos during dinner service if desired.", "textStyle": "body-medium"}, "children": []}, "schedule_title": {"type": "Text", "props": {"text": "Detailed Day-of Schedule", "textStyle": "headline-small"}, "children": []}, "schedule_list": {"type": "List", "props": {"spacing": 12, "repeat": {"statePath": "/schedule", "key": "id"}}, "children": ["schedule_item_card"]}, "schedule_item_card": {"type": "Card", "props": {"padding": {"all": 16}}, "children": ["schedule_item_row"]}, "schedule_item_row": {"type": "Row", "props": {"spacing": 16, "crossAxisAlignment": "start"}, "children": ["time_text", "details_column"]}, "time_text": {"type": "Text", "props": {"text": {"$item": "time"}, "textStyle": "label-large", "fontWeight": "bold", "width": 70}, "children": []}, "details_column": {"type": "Column", "props": {"spacing": 4, "flex": 1}, "children": ["event_row", "details_text"]}, "event_row": {"type": "Row", "props": {"spacing": 8, "crossAxisAlignment": "center"}, "children": ["event_icon", "event_text"]}, "event_icon": {"type": "Icon", "props": {"name": {"$item": "icon"}, "size": 20}, "children": []}, "event_text": {"type": "Text", "props": {"text": {"$item": "event"}, "textStyle": "title-medium"}, "children": []}, "details_text": {"type": "Text", "props": {"text": {"$item": "details"}, "textStyle": "body-medium"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

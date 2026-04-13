@@ -154,6 +154,11 @@ internal object PipelineJsonExtractor {
                 "- Do NOT return `{}` and do NOT return `\"elements\": {}`.\n" +
                 "- Every element must contain `type`, `props`, and `children`.\n" +
                 "- Every id in `children` must exist in `elements`.\n" +
+                "- For table data, prefer a compact `Table` element with empty `children`.\n" +
+                "- Set `Table.props.columns` and `Table.props.statePath` (or inline `rows` when needed).\n" +
+                "- Keep row data in state arrays; do not expand to one element id per row/cell.\n" +
+                "- Set `Table.props.domain` (`weather|flight|generic`) and `Table.props.preferredPresentation` (`cards|table`).\n" +
+                "- Weather/climate outputs must include a dedicated metrics table section.\n" +
                 "- Prefer a Stack root container with direction set.\n" +
                 "- Return a complete, renderable flat-spec even when source content is brief.\n" +
                 "- Return JSON only, no markdown.\n\n" +

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Column", "props": {}, "children": ["text_1"]}, "text_1": {"type": "Text", "props": {"variant": "body", "text": "Your Transatlantic Multi-City Flight Plan\nThis plan outlines the booking process and pre-purchase checks for a two-adult, multi-city trip in Economy class from New York (JFK) to London (LHR), then to Rome (FCO), and returning to New York (JFK) in May 2025. The focus is on Star Alliance carriers with at least one checked bag included and layovers under four hours.\n\nPlanning Context for U.S. Travelers\nThis checklist assumes both adult passengers are U.S. citizens traveling with U.S. passports. Visa and entry requirements can vary significantly based on nationality, so it is crucial to verify the rules for your specific citizenship and travel documents.\n\nPre-Booking Verification Checklist\nBefore committing to a purchase, review these critical details to avoid unexpected costs or travel disruptions.\n\nTravel Documents & Entry Requirements\n- Passport Validity: Confirm both passports are valid for at least six months beyond your return date (i.e., valid until at least late November 2025).\n- Visa and Entry Rules: As of now, U.S. citizens do not need a visa for short-term tourist stays in the UK or the Schengen Area (which includes Italy).\n- ETIAS Authorization: Check the official status of the European Travel Information and Authorisation System (ETIAS). This electronic travel authorization is expected to become mandatory for visa-exempt visitors to the Schengen Area. Verify the implementation date and application process on the official EU website.\n\nAirline, Fare & Baggage Policies\n- Carrier Confirmation: Ensure all flights are operated by Star Alliance member airlines (e.g., United, Lufthansa, Swiss, Air Canada, Turkish Airlines) to maintain alliance benefits.\n- Baggage Allowance: Carefully read the fare details to confirm that one checked bag per passenger is included for all three flight legs. Intra-European flights often have \"Light\" or \"Basic\" fares that exclude checked baggage.\n- Fare Rules & Flexibility: Understand the policies for changes and cancellations. Note the fees for modifying your itinerary, as non-refundable Economy fares are common.\n- Seat Selection: Determine if standard seat selection is included or if it requires an additional fee. This can add a significant cost if not bundled with the fare.\n\nFlight Itinerary Details\n- Layover Logistics: Verify that any connection times are under your 4-hour limit. Check the specific airports for layovers, as some cities (like London or Paris) have multiple airports that may require a transfer.\n- Passenger Names: Double-check that the first, middle, and last names for both passengers on the booking match their passports exactly. Mismatches can lead to denied boarding.\n- Total Travel Time: Review the full duration of each travel day, including layovers, to ensure it aligns with your expectations and comfort.\n\nSample Star Alliance Itineraries\nThese are illustrative examples of how different Star Alliance carriers might be combined to fulfill your itinerary. Actual routes, layovers, and availability will vary.\n\n| Carrier Combination | Leg 1: JFK-LHR | Leg 2: LHR-FCO | Leg 3: FCO-JFK | Key Feature |\n|---|---|---|---|---|\n| United / Lufthansa | United (Direct) | Lufthansa (1 stop via FRA) | United (Direct) | Maximizes direct long-haul flights. |\n| Air Canada | Air Canada (1 stop via YYZ) | Air Canada (1 stop via YUL) | Air Canada (1 stop via YYZ) | Consistent single-carrier experience through Canadian hubs. |\n| Swiss International | SWISS (1 stop via ZRH) | SWISS (1 stop via ZRH) | SWISS (1 stop via ZRH) | Efficient connections through a single European hub (Zurich). |\n| Lufthansa | Lufthansa (1 stop via MUC) | Lufthansa (Direct) | Lufthansa (1 stop via FRA) | Utilizes a primary European carrier for all legs. |\n| Turkish Airlines | Turkish (1 stop via IST) | Turkish (1 stop via IST) | Turkish (1 stop via IST) | Often offers competitive pricing with a single stop in Istanbul. |\n\nImages\nLondon Landmark: ../assets/r_000008_01_1_london_bridge.jpg\nRome Landmark: ../assets/r_000008_01_2_rome_colosseum.jpg\nNew York Skyline: ../assets/r_000008_01_3_newyork_skyline.jpg\n\nIcons:\n- Airplane: ../assets/r_000003_01_5_airplane.svg\n- Checklist: ../assets/r_000008_01_5_clipboard-check.svg\n- Passport: ../assets/r_000005_01_4_bag-check.svg\n\nImages:\n- London Landmark: ../assets/r_000008_01_1_london_bridge.jpg\n- Rome Landmark: ../assets/r_000008_01_2_rome_colosseum.jpg\n- New York Skyline: ../assets/r_000008_01_3_newyork_skyline.jpg\n\nIcons:\n- Option 1: Search Star Alliance Flights | Use the official alliance finder to explore routes and member airline options. | Action: [Button: Open Flight Finder]: ../assets/r_000003_01_5_airplane.svg\n- Option 2: Check ETIAS Official Status | Verify the latest requirements for U.S. citizens traveling to the Schengen Area. | Action: [Button: Visit EU Travel Site]: https://travel-europe.europa.eu/etias_en\n\nQuick Actions\nOption 1: Search Star Alliance Flights | Use the official alliance finder to explore routes and member airline options. | Action: [Button: Open Flight Finder] https://www.staralliance.com/en/finder\nOption 2: Check ETIAS Official Status | Verify the latest requirements for U.S. citizens traveling to the Schengen Area. | Action: [Button: Visit EU Travel Site] https://travel-europe.europa.eu/etias_en"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

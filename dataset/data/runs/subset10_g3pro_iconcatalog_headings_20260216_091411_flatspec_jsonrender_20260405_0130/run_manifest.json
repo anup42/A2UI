@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-04-04T21:16:32Z",
+  "run_id": "subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130",
+  "stage": 3,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "bbf5fba2914a39ae58406e06584a1ed34fcf53b7",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "gemini_2_5_pro",
+    "provider": "gemini",
+    "model": "gemini-2.5-pro"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "e865e63a4ee5b373496c58fbceb5717091941f5bbe9de875a9ecf9daaed4f9ba",
+      "configs\\models.yaml": "55f33e13327bfdc8281b4638c0e8cb97e83f5ced68a73f1cae3365560e62a51d"
+    },
+    "combined_sha256": "d6ff54e345c6046acaab8e6f807500c2ada07c74aab5caad396c4a37443d4190"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130",
+    "queries_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\\queries.jsonl",
+    "responses_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\\responses.jsonl",
+    "genui_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\\genui.jsonl",
+    "metrics_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\\aggregates.json",
+    "artifacts_dir": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\\artifacts",
+    "manifest_path": "data\\runs\\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "3",
+      "--run_id",
+      "subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130",
+      "--model",
+      "gemini_2_5_pro"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+  }
+}

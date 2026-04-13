@@ -1,0 +1,15 @@
+2026-04-12 13:11:20 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=928 user_template_tokens=13
+2026-04-12 13:11:20 INFO dataset: Stage3 schema mode: flat_spec
+2026-04-12 13:12:15 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-04-12 13:13:18 INFO dataset: Stage3 created ui_id=u_000264_01 schema_ok=True
+2026-04-12 13:14:24 INFO dataset: Stage3 created ui_id=u_000701_01 schema_ok=True
+2026-04-12 13:15:34 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-04-12 13:16:39 INFO dataset: Stage3 created ui_id=u_000090_01 schema_ok=True
+2026-04-12 13:17:25 INFO dataset: Stage3 created ui_id=u_001047_01 schema_ok=True
+2026-04-12 13:18:37 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-04-12 13:19:37 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-04-12 13:20:37 INFO dataset: Stage3 created ui_id=u_001502_01 schema_ok=True
+2026-04-12 13:21:45 INFO dataset: Stage3 created ui_id=u_001590_01 schema_ok=True
+2026-04-12 13:21:45 INFO dataset: Stage3 completed created=10
+2026-04-12 13:21:45 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412\aggregates.json
+2026-04-12 13:21:45 INFO dataset: Stage3 complete.

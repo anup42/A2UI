@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {"flights": [{"id": "ana", "airline": "ANA (Direct)", "fare": "GBP 1,035", "departure": "19:00", "arrival": "17:55+1", "travelTime": "13h 55m", "stops": "Direct", "decision": "Strong direct option"}, {"id": "ba", "airline": "British Airways (Direct)", "fare": "EUR 1,059", "departure": "11:50", "arrival": "10:25+1", "travelTime": "13h 35m", "stops": "Direct", "decision": "Fastest direct in snapshot"}, {"id": "emirates", "airline": "Emirates (via DXB)", "fare": "EUR 673", "departure": "20:20", "arrival": "22:30+1", "travelTime": "17h 10m", "stops": "1 stop (DXB)", "decision": "Cheapest option with one stop"}]}, "elements": {"root_column": {"type": "Column", "props": {"style": {"padding": 16, "gap": 16}}, "children": ["title_text", "subtitle_text", "summary_text", "flights_list", "recommendation_card", "search_button"]}, "title_text": {"type": "Text", "props": {"text": "Flight Options: London to Tokyo", "variant": "h1"}, "children": []}, "subtitle_text": {"type": "Text", "props": {"text": "For October 26th", "variant": "subtitle", "style": {"paddingBottom": 8}}, "children": []}, "summary_text": {"type": "Text", "props": {"text": "Here's a snapshot of your options. Direct flights are faster but cost around £1,000-€1,059. One-stop options are significantly cheaper at around €673 but take longer."}, "children": []}, "flights_list": {"type": "List", "props": {"style": {"gap": 12}}, "children": ["flight_card"], "repeat": {"statePath": "/flights", "key": "id"}}, "flight_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["card_content_col"]}, "card_content_col": {"type": "Column", "props": {"style": {"gap": 12}}, "children": ["airline_fare_row", "divider_1", "times_row", "details_row", "decision_text"]}, "airline_fare_row": {"type": "Row", "props": {"style": {"justifyContent": "space-between", "alignItems": "center"}}, "children": ["airline_text", "fare_text"]}, "airline_text": {"type": "Text", "props": {"text": {"$item": "airline"}, "variant": "title", "weight": "bold"}, "children": []}, "fare_text": {"type": "Text", "props": {"text": {"$item": "fare"}, "variant": "title", "weight": "bold"}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "times_row": {"type": "Row", "props": {"style": {"justifyContent": "space-between"}}, "children": ["departure_col", "arrival_col"]}, "departure_col": {"type": "Column", "props": {"style": {"alignItems": "flex-start"}}, "children": ["dep_label", "dep_time"]}, "dep_label": {"type": "Text", "props": {"text": "Departure", "variant": "caption"}, "children": []}, "dep_time": {"type": "Text", "props": {"text": {"$item": "departure"}, "weight": "medium"}, "children": []}, "arrival_col": {"type": "Column", "props": {"style": {"alignItems": "flex-end"}}, "children": ["arr_label", "arr_time"]}, "arr_label": {"type": "Text", "props": {"text": "Arrival", "variant": "caption"}, "children": []}, "arr_time": {"type": "Text", "props": {"text": {"$item": "arrival"}, "weight": "medium"}, "children": []}, "details_row": {"type": "Row", "props": {"style": {"justifyContent": "space-between"}}, "children": ["duration_col", "stops_col"]}, "duration_col": {"type": "Column", "props": {"style": {"alignItems": "flex-start"}}, "children": ["dur_label", "dur_time"]}, "dur_label": {"type": "Text", "props": {"text": "Duration", "variant": "caption"}, "children": []}, "dur_time": {"type": "Text", "props": {"text": {"$item": "travelTime"}, "weight": "medium"}, "children": []}, "stops_col": {"type": "Column", "props": {"style": {"alignItems": "flex-end"}}, "children": ["stops_label", "stops_value"]}, "stops_label": {"type": "Text", "props": {"text": "Stops", "variant": "caption"}, "children": []}, "stops_value": {"type": "Text", "props": {"text": {"$item": "stops"}, "weight": "medium"}, "children": []}, "decision_text": {"type": "Text", "props": {"text": {"$item": "decision"}, "style": {"paddingTop": 8, "fontStyle": "italic"}}, "children": []}, "recommendation_card": {"type": "Card", "props": {"style": {"padding": 16, "backgroundColor": "#E3F2FD"}}, "children": ["recommendation_col"]}, "recommendation_col": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["rec_title", "rec_text"]}, "rec_title": {"type": "Text", "props": {"text": "Recommendation", "variant": "h2"}, "children": []}, "rec_text": {"type": "Text", "props": {"text": "If budget is your main concern, Emirates offers the best value. If you prioritize speed and a direct flight, British Airways is the fastest option shown."}, "children": []}, "search_button": {"type": "Button", "props": {"text": "Search on Google Flights", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/flights?q=flights+from+london+to+tokyo+on+october+26"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -4,6 +4,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.samsung.genuicraft.renderer.native.NativePayloadParser
 import java.io.File
 import java.nio.charset.Charset
 import java.util.Locale
@@ -2012,29 +2013,7 @@ object GenUiHtmlRenderer {
     }
 
     private fun resolveAssetUrl(raw: String, sourceDir: File?): String {
-        val normalized = raw.replace("\\", "/")
-        if (sourceDir == null) {
-            return when {
-                normalized.startsWith("../assets/") -> "/" + normalized.removePrefix("../")
-                normalized.startsWith("./assets/") -> "/" + normalized.removePrefix("./")
-                normalized.startsWith("assets/") -> "/$normalized"
-                else -> normalized
-            }
-        }
-
-        val relative = when {
-            normalized.startsWith("/assets/") -> normalized.removePrefix("/")
-            normalized.startsWith("./assets/") -> normalized.removePrefix("./")
-            normalized.startsWith("../assets/") -> normalized.removePrefix("../")
-            normalized.startsWith("assets/") -> normalized
-            else -> return normalized
-        }
-
-        return try {
-            File(sourceDir, relative).toURI().toString()
-        } catch (_: Exception) {
-            normalized
-        }
+        return NativePayloadParser.resolveAssetUrl(raw, sourceDir)
     }
 
     private fun buildHtml(body: String): String {

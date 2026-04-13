@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {"schedule_data": [{"time": "17:00 - 18:30", "action": "Optional: Forest Dwellers", "location": "Grove Stage", "notes": "A great way to start the evening at the same stage where Solar Flare will play."}, {"time": "18:30 - 19:00", "action": "Get Food / Secure Spot", "location": "Grove Stage Area", "notes": "Grab a bite and find a good vantage point for Solar Flare."}, {"time": "19:00 - 20:10", "action": "Watch Solar Flare", "location": "Grove Stage", "notes": "Enjoy the first 70 minutes of this must-see set."}, {"time": "20:10", "action": "DECISION POINT", "location": "Travel from Grove Stage", "notes": "To see another must-see artist, you must leave Solar Flare's set before it ends."}, {"time": "20:15 onwards", "action": "Choose Your Headliner", "location": "Main Stage or River Tent", "notes": "Option A (Echo Bloom): Head to the River Tent for their full set (20:15-21:15)."}, {"time": "20:25 onwards", "action": "Choose Your Headliner", "location": "Main Stage or River Tent", "notes": "Option B (The Wandering Stars): Head to the Main Stage. You'll miss the first 25 mins but can see the rest of their 90-min set."}, {"time": "21:15 - 21:30", "action": "Festival Finale", "location": "Main Stage", "notes": "If you chose Option A, you can hurry to the Main Stage to catch the grand finale of The Wandering Stars."}]}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "image_gallery", "planning_section", "conflict_section", "schedule_section", "actions_section"]}, "title": {"type": "Text", "props": {"text": "Your Personal Ethereal Beats Festival Itinerary", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Here is a personalized schedule for your day at the Ethereal Beats Festival, designed to help you see your must-see artists: The Wandering Stars, Solar Flare, and Echo Bloom. The plan highlights a key time conflict you will need to navigate and provides options for your evening."}, "children": []}, "image_gallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000026_01_1_music_festival_stage.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000026_01_2_music_festival_crowd.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000026_01_3_music_festival_lights.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "planning_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["planning_title", "planning_text"]}, "planning_title": {"type": "Text", "props": {"text": "Planning Considerations", "variant": "h2"}, "children": []}, "planning_text": {"type": "Text", "props": {"text": "This itinerary assumes an average walking time of 10-15 minutes between stages. During peak hours with large crowds, travel time may be longer, so it's wise to start moving to your next destination a few minutes earlier than planned to secure a good spot."}, "children": []}, "conflict_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["conflict_title_stack", "conflict_intro", "conflict_list", "conflict_summary"]}, "conflict_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["conflict_icon", "conflict_title"]}, "conflict_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "conflict_title": {"type": "Text", "props": {"text": "The Main Event Conflict: 20:00 - 21:15", "variant": "h2"}, "children": []}, "conflict_intro": {"type": "Text", "props": {"text": "Your three priority artists have overlapping set times, creating a significant scheduling conflict. You will not be able to see the entirety of all three performances."}, "children": []}, "conflict_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "paddingHorizontal": 16}, "children": ["conflict_item1", "conflict_item2"]}, "conflict_item1": {"type": "Text", "props": {"text": "• Solar Flare's set (19:00-20:30) overlaps with the start of The Wandering Stars (20:00)."}, "children": []}, "conflict_item2": {"type": "Text", "props": {"text": "• Echo Bloom's entire set (20:15-21:15) runs concurrently with The Wandering Stars' performance (20:00-21:30)."}, "children": []}, "conflict_summary": {"type": "Text", "props": {"text": "You will need to leave Solar Flare's set early and then make a choice between seeing Echo Bloom or The Wandering Stars."}, "children": []}, "schedule_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["schedule_title", "schedule_intro", "schedule_table"]}, "schedule_title": {"type": "Text", "props": {"text": "Your Personalized Schedule and Decision Point", "variant": "h2"}, "children": []}, "schedule_intro": {"type": "Text", "props": {"text": "This timeline provides a recommended flow for your day, including optional performances and the critical decision you'll need to make."}, "children": []}, "schedule_table": {"type": "Table", "props": {"columns": [{"key": "time", "label": "Time"}, {"key": "action", "label": "Action"}, {"key": "location", "label": "Location"}, {"key": "notes", "label": "Notes"}], "statePath": "/schedule_data", "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Time | Action | Location | Notes |\n|---|---|---|---|\n| 17:00 - 18:30 | Optional: Forest Dwellers | Grove Stage | A great way to start the evening at the same stage where Solar Flare will play. |\n| 18:30 - 19:00 | Get Food / Secure Spot | Grove Stage Area | Grab a bite and find a good vantage point for Solar Flare. |\n| 19:00 - 20:10 | Watch Solar Flare | Grove Stage | Enjoy the first 70 minutes of this must-see set. |\n| 20:10 | DECISION POINT | Travel from Grove Stage | To see another must-see artist, you must leave Solar Flare's set before it ends. |\n| 20:15 onwards | Choose Your Headliner | Main Stage or River Tent | Option A (Echo Bloom): Head to the River Tent for their full set (20:15-21:15). |\n| 20:25 onwards | Choose Your Headliner | Main Stage or River Tent | Option B (The Wandering Stars): Head to the Main Stage. You'll miss the first 25 mins but can see the rest of their 90-min set. |\n| 21:15 - 21:30 | Festival Finale | Main Stage | If you chose Option A, you can hurry to the Main Stage to catch the grand finale of The Wandering Stars. |"}, "children": []}, "actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["actions_title", "actions_text", "map_button"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_text": {"type": "Text", "props": {"text": "Review the official festival grounds to plan your routes between stages."}, "children": []}, "map_button": {"type": "Button", "props": {"label": "View Example Festival Map", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.lollapalooza.com/map"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

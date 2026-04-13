@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Column", "props": {}, "children": ["text_1"]}, "text_1": {"type": "Text", "props": {"variant": "body", "text": "SKU #99001 Availability Snapshot\n\nBased on the current inventory data, the Blue Widget (SKU #99001) has 0 units available for sale. Although there is a total physical count of 7 units across your warehouses and store front, the 7 reserved units fully offset this stock. Consequently, the item is effectively out of stock for new orders until replenishment occurs or reservations are released.\n\nInventory Calculation Context\n\nThe Available for Sale status is derived by summing the physical inventory from all listed locations (Warehouse A, Warehouse B, and Store Front) and subtracting the Reserved quantity. Reserved items are considered committed to existing orders or transfers and are therefore excluded from sellable inventory.\n\nDetailed Stock Breakdown\n\nLocation / Category | Quantity | Notes\nWarehouse A | 0 | Currently empty\nWarehouse B | 5 | Main stock location\nStore Front | 2 | Floor units\nReserved Units | -7 | Committed stock\nNet Available | 0 | Out of Stock\n\nWarehouse Inventory: ../assets/r_001590_01_1_warehouse_shelves.jpg\nBlue Widget Concept: ../assets/r_001590_01_2_blue_product.jpg\n\nInventory Box: ../assets/r_001590_01_3_box-seam.svg\nStatus Alert: ../assets/r_001590_01_4_exclamation-circle.svg\n\nIcons:\n- Bell: ../assets/r_001374_01_1_calculator.svg\n- Calculator: ../assets/r_001590_01_6_bell.svg\n\nQuick Actions\n\n[Button: Search Suppliers] https://www.google.com/search?q=blue+widget+wholesale+suppliers\n[Button: Inventory Management Tips] https://www.investopedia.com/terms/i/inventory-management.asp"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

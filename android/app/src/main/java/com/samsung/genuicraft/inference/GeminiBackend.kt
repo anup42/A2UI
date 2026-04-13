@@ -56,6 +56,7 @@ class GeminiBackend(
             val stream = if (code in 200..299) connection.inputStream else connection.errorStream
             val streamRead = InferenceStreamUtils.readStreamWithTiming(stream)
             val raw = streamRead.text
+            val usage = parseTokenUsage(raw)
 
             if (code !in 200..299) {
                 val short = raw.trim().ifBlank { "HTTP $code" }
@@ -75,7 +76,9 @@ class GeminiBackend(
                     text = "",
                     rawResponse = raw,
                     error = "HTTP $code: ${short.take(320)}$authHint [mode=vertex_ai_express_api_key endpoint=$endpointLabel model=${normalizeModelName(model)}]",
-                    streamDurationMs = streamRead.streamDurationMs
+                    streamDurationMs = streamRead.streamDurationMs,
+                    inputTokens = usage.inputTokens,
+                    outputTokens = usage.outputTokens
                 )
             }
 
@@ -86,7 +89,9 @@ class GeminiBackend(
                     text = "",
                     rawResponse = raw,
                     error = "Gemini response did not include candidate text.$details",
-                    streamDurationMs = streamRead.streamDurationMs
+                    streamDurationMs = streamRead.streamDurationMs,
+                    inputTokens = usage.inputTokens,
+                    outputTokens = usage.outputTokens
                 )
             }
 
@@ -94,7 +99,9 @@ class GeminiBackend(
                 text = extraction.text,
                 rawResponse = raw,
                 error = null,
-                streamDurationMs = streamRead.streamDurationMs
+                streamDurationMs = streamRead.streamDurationMs,
+                inputTokens = usage.inputTokens,
+                outputTokens = usage.outputTokens
             )
         } catch (io: IOException) {
             InferenceBackend.GenerateResponse(
@@ -223,6 +230,25 @@ class GeminiBackend(
         val text: String?,
         val diagnostics: String?
     )
+
+    private data class TokenUsage(
+        val inputTokens: Int?,
+        val outputTokens: Int?
+    )
+
+    private fun parseTokenUsage(raw: String): TokenUsage {
+        val root = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
+            ?: return TokenUsage(inputTokens = null, outputTokens = null)
+        val usage = root.getAsJsonObject("usageMetadata")
+            ?: return TokenUsage(inputTokens = null, outputTokens = null)
+        val promptTokenCount = usage.intOrNull("promptTokenCount")
+        val candidatesTokenCount = usage.intOrNull("candidatesTokenCount")
+            ?: usage.intOrNull("outputTokenCount")
+        return TokenUsage(
+            inputTokens = promptTokenCount,
+            outputTokens = candidatesTokenCount
+        )
+    }
 
     private fun extractGeminiText(raw: String): GeminiTextExtraction {
         val root = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
@@ -373,4 +399,12 @@ class GeminiBackend(
     private companion object {
         val gson = GsonBuilder().disableHtmlEscaping().create()
     }
+}
+
+private fun JsonObject.intOrNull(key: String): Int? {
+    val value = get(key) ?: return null
+    if (!value.isJsonPrimitive) return null
+    val primitive = value.asJsonPrimitive
+    if (!primitive.isNumber) return null
+    return runCatching { primitive.asInt }.getOrNull()
 }

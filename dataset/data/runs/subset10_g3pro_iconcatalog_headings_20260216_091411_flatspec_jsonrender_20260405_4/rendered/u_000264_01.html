@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {"requirements": [{"id": "date", "label": "Travel Date", "value": "31 May 2026"}, {"id": "route", "label": "Route", "value": "London (LHR) -> Tokyo (HND)"}, {"id": "passengers", "label": "Passengers", "value": "2 Adults"}, {"id": "cabin", "label": "Cabin Preference", "value": "Premium Economy"}], "flights": [{"id": "ana", "airline": "ANA (Direct)", "fare": "GBP 1,035", "departure": "19:00", "arrival": "17:55+1", "travelTime": "13h 55m", "stops": "Direct"}, {"id": "ba", "airline": "British Airways (Direct)", "fare": "EUR 1,059", "departure": "11:50", "arrival": "10:25+1", "travelTime": "13h 35m", "stops": "Direct"}, {"id": "emirates", "airline": "Emirates (via DXB)", "fare": "EUR 673", "departure": "20:20", "arrival": "22:30+1", "travelTime": "17h 10m", "stops": "1 stop (DXB)"}], "bookingOptions": [{"id": "ana_book", "logo": "../assets/r_000264_01_logo_ana_official.svg", "title": "ANA (Direct)", "description": "Direct service with strong fare in May window.", "buttonLabel": "Book ANA", "url": "https://flights.ana.co.jp/en-gb/flights-from-london-to-tokyo"}, {"id": "ba_book", "logo": "../assets/r_000264_01_logo_ba_official.png", "title": "British Airways (Direct)", "description": "Direct routing with shortest direct block time in this snapshot.", "buttonLabel": "Book BA", "url": "https://www.skyscanner.net/flights/airline-flights-to-city/tyoa/british-airways-ba/cheap-flights-with-british-airways-ba-flights-to-tokyo"}, {"id": "emirates_book", "logo": "../assets/r_000264_01_logo_emirates_official.png", "title": "Emirates (via DXB)", "description": "Lowest fare snapshot, but one-stop routing.", "buttonLabel": "Book Emirates", "url": "https://www.skyscanner.net/flights/airline-flights-to-city/hnd/emirates-ek/cheap-flights-with-emirates-ek-flights-to-tokyo-haneda"}]}, "elements": {"root_column": {"type": "Column", "props": {"spacing": "medium", "padding": "medium"}, "children": ["title_text", "subtitle_text", "context_card", "requirements_card", "comparison_card", "booking_options_list", "quick_actions_card"]}, "title_text": {"type": "Text", "props": {"text": "Flight Booking Recommendation", "variant": "h1", "align": "center"}, "children": []}, "subtitle_text": {"type": "Text", "props": {"text": "London to Tokyo (Live May 2026 Snapshot)", "variant": "subtitle", "align": "center"}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_column"]}, "context_column": {"type": "Column", "props": {"spacing": "small"}, "children": ["context_title", "context_text"]}, "context_title": {"type": "Text", "props": {"text": "Snapshot Context", "variant": "h2"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "This is a live market snapshot collected on 2026-02-16 for travel on 31 May 2026. Fares are volatile and may change at booking time."}, "children": []}, "requirements_card": {"type": "Card", "props": {}, "children": ["requirements_column"]}, "requirements_column": {"type": "Column", "props": {"spacing": "medium"}, "children": ["requirements_title", "requirements_list"]}, "requirements_title": {"type": "Text", "props": {"text": "Travel Requirements", "variant": "h2"}, "children": []}, "requirements_list": {"type": "List", "props": {"template": "requirement_item_row", "repeat": {"statePath": "/requirements", "key": "id"}}, "children": []}, "requirement_item_row": {"type": "Row", "props": {"spacing": "medium", "mainAxisAlignment": "spaceBetween"}, "children": ["requirement_label", "requirement_value"]}, "requirement_label": {"type": "Text", "props": {"text": {"$item": "label"}, "weight": "bold"}, "children": []}, "requirement_value": {"type": "Text", "props": {"text": {"$item": "value"}, "align": "end"}, "children": []}, "comparison_card": {"type": "Card", "props": {}, "children": ["comparison_column"]}, "comparison_column": {"type": "Column", "props": {"spacing": "medium"}, "children": ["comparison_title", "comparison_header_row", "comparison_list"]}, "comparison_title": {"type": "Text", "props": {"text": "Flight Comparison", "variant": "h2"}, "children": []}, "comparison_header_row": {"type": "Row", "props": {"spacing": "small", "mainAxisAlignment": "spaceBetween"}, "children": ["header_airline", "header_fare", "header_time"]}, "header_airline": {"type": "Text", "props": {"text": "Airline", "weight": "bold", "flex": 2}, "children": []}, "header_fare": {"type": "Text", "props": {"text": "Fare", "weight": "bold", "flex": 1, "align": "center"}, "children": []}, "header_time": {"type": "Text", "props": {"text": "Time", "weight": "bold", "flex": 1, "align": "end"}, "children": []}, "comparison_list": {"type": "List", "props": {"template": "comparison_item_row", "repeat": {"statePath": "/flights", "key": "id"}, "spacing": "small"}, "children": []}, "comparison_item_row": {"type": "Row", "props": {"spacing": "small", "mainAxisAlignment": "spaceBetween", "verticalAlignment": "center"}, "children": ["item_airline", "item_fare", "item_time"]}, "item_airline": {"type": "Text", "props": {"text": {"$item": "airline"}, "flex": 2}, "children": []}, "item_fare": {"type": "Text", "props": {"text": {"$item": "fare"}, "flex": 1, "align": "center"}, "children": []}, "item_time": {"type": "Text", "props": {"text": {"$item": "travelTime"}, "flex": 1, "align": "end"}, "children": []}, "booking_options_list": {"type": "List", "props": {"template": "booking_card", "repeat": {"statePath": "/bookingOptions", "key": "id"}, "spacing": "medium"}, "children": []}, "booking_card": {"type": "Card", "props": {}, "children": ["booking_card_column"]}, "booking_card_column": {"type": "Column", "props": {"spacing": "small"}, "children": ["booking_card_header", "booking_description", "booking_button"]}, "booking_card_header": {"type": "Row", "props": {"spacing": "medium", "verticalAlignment": "center"}, "children": ["booking_logo", "booking_title"]}, "booking_logo": {"type": "Image", "props": {"source": {"$item": "logo"}, "width": 40, "height": 40, "contentScale": "fit"}, "children": []}, "booking_title": {"type": "Text", "props": {"text": {"$item": "title"}, "variant": "title"}, "children": []}, "booking_description": {"type": "Text", "props": {"text": {"$item": "description"}}, "children": []}, "booking_button": {"type": "Button", "props": {"label": {"$item": "buttonLabel"}, "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "url"}}}}}, "quick_actions_card": {"type": "Card", "props": {}, "children": ["quick_actions_column"]}, "quick_actions_column": {"type": "Column", "props": {"spacing": "medium"}, "children": ["quick_actions_title", "google_flights_button", "skyscanner_button"]}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "google_flights_button": {"type": "Button", "props": {"label": "Compare on Google Flights", "variant": "secondary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/travel/flights"}}}}, "skyscanner_button": {"type": "Button", "props": {"label": "Check Heathrow -> Haneda market fares", "variant": "secondary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.skyscanner.gg/routes/lhr/hnd/london-heathrow-to-tokyo-haneda.html"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

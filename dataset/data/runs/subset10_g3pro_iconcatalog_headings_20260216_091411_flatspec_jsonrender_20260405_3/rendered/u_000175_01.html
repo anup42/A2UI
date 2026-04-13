@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"recommendations": [{"id": "xs20", "option": "Option 1", "name": "Fujifilm X-S20", "tagline": "Best for color science and battery life", "feature": "7-stop IBIS", "url": "https://fujifilm-x.com/global/products/cameras/x-s20/", "buttonLabel": "View X-S20 Specs", "image": "../assets/r_000175_01_3_fujifilm_camera.jpg"}, {"id": "a6700", "option": "Option 2", "name": "Sony a6700", "tagline": "Best for autofocus and lens selection", "feature": "AI-driven Subject Tracking", "url": "https://electronics.sony.com/imaging/interchangeable-lens-cameras/aps-c/p/ilce6700-b", "buttonLabel": "View a6700 Details", "image": "../assets/r_000175_01_4_sony_alpha_camera.jpg"}, {"id": "om5", "option": "Option 3", "name": "OM System OM-5", "tagline": "Best for durability and compactness", "feature": "IP53 Weather Sealing", "url": "https://explore.omsystem.com/us/en/om-5", "buttonLabel": "View OM-5 Features", "image": "../assets/r_000175_01_5_nature_photography_camera.jpg"}], "specs": [{"id": "spec_release", "feature": "Release Year", "fuji": "May 2023", "sony": "July 2023", "om": "Oct 2022"}, {"id": "spec_sensor", "feature": "Sensor Size", "fuji": "APS-C (26MP)", "sony": "APS-C (26MP)", "om": "Micro 4/3 (20MP)"}, {"id": "spec_weight", "feature": "Weight (Body)", "fuji": "~491g", "sony": "~493g", "om": "~414g"}, {"id": "spec_price", "feature": "Est. Price", "fuji": "~$1,299", "sony": "~$1,398", "om": "~$1,199"}, {"id": "spec_mount", "feature": "Lens Mount", "fuji": "Fuji X Mount", "sony": "Sony E-Mount", "om": "Micro Four Thirds"}, {"id": "spec_ibis", "feature": "IBIS Rating", "fuji": "Up to 7.0 stops", "sony": "Up to 5.0 stops", "om": "Up to 7.5 stops"}], "sources": [{"id": "source1", "text": "1. Fujifilm X-S20 Official Specifications", "url": "https://fujifilm-x.com/global/products/cameras/x-s20/specifications/"}, {"id": "source2", "text": "2. Sony a6700 Product Page", "url": "https://electronics.sony.com/imaging/interchangeable-lens-cameras/aps-c/p/ilce6700-b"}, {"id": "source3", "text": "3. OM System OM-5 Overview", "url": "https://explore.omsystem.com/us/en/om-5"}]}, "elements": {"root": {"type": "Column", "props": {"spacing": 16, "padding": {"all": 16}}, "children": ["title", "intro_text", "divider_1", "criteria_title", "criteria_text", "criteria_list", "divider_2", "recommendations_title", "recommendations_list", "divider_3", "specs_title", "specs_table", "divider_4", "actions_title", "actions_buttons", "divider_5", "sources_title", "sources_list"]}, "title": {"type": "Text", "props": {"text": "Top Travel Mirrorless Recommendations", "variant": "h1", "align": "center"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "For a travel photographer needing portability without sacrificing stability, the best options released between 2020 and 2023 are the Fujifilm X-S20, Sony a6700, and OM System OM-5. These models specifically address your need for In-Body Image Stabilization (IBIS) in a chassis under 500g, while offering distinct advantages in lens ecosystems and color science."}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "criteria_title": {"type": "Text", "props": {"text": "Criteria and Pricing Context", "variant": "h2"}, "children": []}, "criteria_text": {"type": "Text", "props": {"text": "The recommendations below adhere strictly to your budget cap of $1,500 USD and weight limit of 500g (body including battery). Prices listed are approximate body-only retail prices as of late 2023/early 2024."}, "children": []}, "criteria_list": {"type": "Column", "props": {"spacing": 8}, "children": ["criteria_weight", "criteria_lens", "criteria_ibis"]}, "criteria_weight": {"type": "Row", "props": {"spacing": 8, "alignment": "center"}, "children": ["icon_weight", "text_weight"]}, "icon_weight": {"type": "Icon", "props": {"src": "../assets/r_000175_01_6_feather.svg", "size": 20}, "children": []}, "text_weight": {"type": "Text", "props": {"text": "**Weight:** Includes battery and memory card to reflect real-world travel load."}, "children": []}, "criteria_lens": {"type": "Row", "props": {"spacing": 8, "alignment": "center"}, "children": ["icon_lens", "text_lens"]}, "icon_lens": {"type": "Icon", "props": {"src": "../assets/r_000175_01_1_camera.svg", "size": 20}, "children": []}, "text_lens": {"type": "Text", "props": {"text": "**Lens Ecosystem:** \"Affordable\" is defined by the availability of third-party options (Sigma, Tamron) or a mature Micro Four Thirds market."}, "children": []}, "criteria_ibis": {"type": "Row", "props": {"spacing": 8, "alignment": "center"}, "children": ["icon_ibis", "text_ibis"]}, "icon_ibis": {"type": "Icon", "props": {"src": "../assets/r_000175_01_7_activity.svg", "size": 20}, "children": []}, "text_ibis": {"type": "Text", "props": {"text": "**IBIS:** All selected models feature 5-axis in-body stabilization, essential for handheld travel shots in low light or video."}, "children": []}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "recommendations_title": {"type": "Text", "props": {"text": "Recommended Models", "variant": "h2"}, "children": []}, "recommendations_list": {"type": "List", "props": {"spacing": 16, "repeat": {"statePath": "/recommendations", "key": "id"}}, "children": ["recommendation_card"]}, "recommendation_card": {"type": "Card", "props": {"padding": {"all": 16}}, "children": ["recommendation_image", "recommendation_details"]}, "recommendation_image": {"type": "Image", "props": {"src": {"$item": "image"}, "aspectRatio": 1.5, "cornerRadius": 8}, "children": []}, "recommendation_details": {"type": "Column", "props": {"spacing": 8, "padding": {"top": 12}}, "children": ["recommendation_name", "recommendation_tagline", "recommendation_feature", "recommendation_button"]}, "recommendation_name": {"type": "Text", "props": {"text": {"$template": "${option}: ${name}"}, "variant": "title"}, "children": []}, "recommendation_tagline": {"type": "Text", "props": {"text": {"$item": "tagline"}, "variant": "subtitle"}, "children": []}, "recommendation_feature": {"type": "Text", "props": {"text": {"$item": "feature"}}, "children": []}, "recommendation_button": {"type": "Button", "props": {"label": {"$item": "buttonLabel"}, "variant": "filled", "margin": {"top": 8}}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "url"}}}}}, "divider_3": {"type": "Divider", "props": {}, "children": []}, "specs_title": {"type": "Text", "props": {"text": "Technical Specifications Table", "variant": "h2"}, "children": []}, "specs_table": {"type": "Column", "props": {"spacing": 8, "border": {"all": {"width": 1, "color": "#E0E0E0"}}, "cornerRadius": 8, "padding": {"all": 8}}, "children": ["specs_header", "specs_list"]}, "specs_header": {"type": "Row", "props": {"distribution": "space-between", "padding": {"bottom": 8}, "border": {"bottom": {"width": 1, "color": "#E0E0E0"}}}, "children": ["header_feature", "header_fuji", "header_sony", "header_om"]}, "header_feature": {"type": "Text", "props": {"text": "Feature", "fontWeight": "bold", "flex": 2}, "children": []}, "header_fuji": {"type": "Text", "props": {"text": "X-S20", "fontWeight": "bold", "flex": 1, "align": "right"}, "children": []}, "header_sony": {"type": "Text", "props": {"text": "a6700", "fontWeight": "bold", "flex": 1, "align": "right"}, "children": []}, "header_om": {"type": "Text", "props": {"text": "OM-5", "fontWeight": "bold", "flex": 1, "align": "right"}, "children": []}, "specs_list": {"type": "List", "props": {"spacing": 8, "repeat": {"statePath": "/specs", "key": "id"}}, "children": ["spec_row"]}, "spec_row": {"type": "Row", "props": {"distribution": "space-between"}, "children": ["spec_feature", "spec_fuji", "spec_sony", "spec_om"]}, "spec_feature": {"type": "Text", "props": {"text": {"$item": "feature"}, "flex": 2}, "children": []}, "spec_fuji": {"type": "Text", "props": {"text": {"$item": "fuji"}, "flex": 1, "align": "right"}, "children": []}, "spec_sony": {"type": "Text", "props": {"text": {"$item": "sony"}, "flex": 1, "align": "right"}, "children": []}, "spec_om": {"type": "Text", "props": {"text": {"$item": "om"}, "flex": 1, "align": "right"}, "children": []}, "divider_4": {"type": "Divider", "props": {}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_buttons": {"type": "Column", "props": {"spacing": 8}, "children": ["button_compare", "button_search"]}, "button_compare": {"type": "Button", "props": {"label": "Compare Sensor Sizes", "variant": "outlined"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.dpreview.com/articles/8670169226/sensor-sizes-explained"}}}}, "button_search": {"type": "Button", "props": {"label": "Search Used Lenses", "variant": "outlined"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.mpb.com/en-us"}}}}, "divider_5": {"type": "Divider", "props": {}, "children": []}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_list": {"type": "List", "props": {"spacing": 8, "repeat": {"statePath": "/sources", "key": "id"}}, "children": ["source_item"]}, "source_item": {"type": "Button", "props": {"label": {"$item": "text"}, "variant": "text", "alignment": "start"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "url"}}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

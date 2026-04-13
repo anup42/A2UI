@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 20}, "children": ["header_stack", "intro_stack", "image_gallery_stack", "features_title", "features_stack", "quick_actions_title", "preorder_button"]}, "header_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["main_title", "subtitle"]}, "main_title": {"type": "Text", "props": {"text": "Aura Band: Your Guide to Mindful Wellness", "variant": "h1"}, "children": []}, "subtitle": {"type": "Text", "props": {"text": "Product Narrative: Reclaim Your Calm", "variant": "h2"}, "children": []}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["intro_title", "intro_body"]}, "intro_title": {"type": "Text", "props": {"text": "Master Your Inner State", "variant": "h3"}, "children": []}, "intro_body": {"type": "Text", "props": {"text": "Introducing the Aura Band, the revolutionary wristband scientifically engineered to help you understand and master your body's response to modern life's demands. Using advanced biosensors to monitor heart rate variability and electrodermal activity, Aura provides a clear window into your nervous system. A subtle, color-changing LED offers an intuitive, at-a-glance awareness of your stress levels—from calming blue to alert red. When it detects rising tension, the band delivers a gentle, silent haptic nudge, prompting a mindful pause for a guided breathing exercise. This proactive approach to stress management integrates seamlessly into your day. Our companion app provides insightful weekly wellness reports to help you identify patterns, alongside a curated library of guided meditations designed to restore your balance. Stop reacting to stress. It's time to reclaim your calm and discover your equilibrium."}, "children": []}, "image_gallery_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image_1", "image_2", "image_3"]}, "image_1": {"type": "Image", "props": {"url": "../assets/r_000024_01_1_sleek_wristband.jpg", "fit": "cover", "height": 200, "flex": 1}, "children": []}, "image_2": {"type": "Image", "props": {"url": "../assets/r_000024_01_2_wellness_app.jpg", "fit": "cover", "height": 200, "flex": 1}, "children": []}, "image_3": {"type": "Image", "props": {"url": "../assets/r_000024_01_3_glowing_led_light.jpg", "fit": "cover", "height": 200, "flex": 1}, "children": []}, "features_title": {"type": "Text", "props": {"text": "Core Features and Benefits", "variant": "h2"}, "children": []}, "features_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "stretch"}, "children": ["feature_card_1", "feature_card_2", "feature_card_3"]}, "feature_card_1": {"type": "Card", "props": {"flex": 1}, "children": ["feature_stack_1"]}, "feature_stack_1": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["feature_icon_1", "feature_title_1", "feature_desc_1", "feature_benefit_1", "feature_button_1"]}, "feature_icon_1": {"type": "Icon", "props": {"name": "../assets/r_000024_01_4_heart-pulse.svg"}, "children": []}, "feature_title_1": {"type": "Text", "props": {"text": "Real-Time Awareness", "variant": "h3"}, "children": []}, "feature_desc_1": {"type": "Text", "props": {"text": "A discreet, color-changing LED provides an instant, intuitive understanding of your current stress level."}, "children": []}, "feature_benefit_1": {"type": "Text", "props": {"text": "Key Benefit: At-a-glance insight", "variant": "caption"}, "children": []}, "feature_button_1": {"type": "Button", "props": {"label": "Learn More", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.example.com/aura-band/features#awareness"}}}}, "feature_card_2": {"type": "Card", "props": {"flex": 1}, "children": ["feature_stack_2"]}, "feature_stack_2": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["feature_icon_2", "feature_title_2", "feature_desc_2", "feature_benefit_2", "feature_button_2"]}, "feature_icon_2": {"type": "Icon", "props": {"name": "../assets/r_000012_01_6_bell.svg"}, "children": []}, "feature_title_2": {"type": "Text", "props": {"text": "Proactive Nudges", "variant": "h3"}, "children": []}, "feature_desc_2": {"type": "Text", "props": {"text": "Gentle, silent haptic vibrations prompt you to engage in calming breathing exercises the moment stress is detected."}, "children": []}, "feature_benefit_2": {"type": "Text", "props": {"text": "Key Benefit: Proactive stress management", "variant": "caption"}, "children": []}, "feature_button_2": {"type": "Button", "props": {"label": "Learn More", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.example.com/aura-band/features#haptics"}}}}, "feature_card_3": {"type": "Card", "props": {"flex": 1}, "children": ["feature_stack_3"]}, "feature_stack_3": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["feature_icon_3", "feature_title_3", "feature_desc_3", "feature_benefit_3", "feature_button_3"]}, "feature_icon_3": {"type": "Icon", "props": {"name": "../assets/r_000022_01_4_phone.svg"}, "children": []}, "feature_title_3": {"type": "Text", "props": {"text": "Deeper Insights", "variant": "h3"}, "children": []}, "feature_desc_3": {"type": "Text", "props": {"text": "The companion app delivers personalized weekly reports and a library of guided meditations to support long-term wellness."}, "children": []}, "feature_benefit_3": {"type": "Text", "props": {"text": "Key Benefit: Data-driven self-care", "variant": "caption"}, "children": []}, "feature_button_3": {"type": "Button", "props": {"label": "Learn More", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.example.com/aura-band/features#app"}}}}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "preorder_button": {"type": "Button", "props": {"label": "Pre-Order the Aura Band", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.example.com/aura-band/preorder"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

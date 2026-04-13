@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header_stack", "intro_text", "core_section", "table_section", "async_section", "actions_section", "sources_section"]}, "header_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["main_title"]}, "main_title": {"type": "Text", "props": {"text": "JavaScript Variable Declaration: var, let, and const", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This guide explains the key differences between the `var`, `let`, and `const` keywords in JavaScript, focusing on their scope, hoisting behavior, and re-assignment rules. Understanding these distinctions is fundamental to writing modern, predictable, and bug-free JavaScript code. `let` and `const`, introduced in ES6 (2015), are now the standard for variable declaration."}, "children": []}, "core_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["core_title", "core_intro", "core_cards_stack"]}, "core_title": {"type": "Text", "props": {"text": "Core Characteristics and Behavior", "variant": "h2"}, "children": []}, "core_intro": {"type": "Text", "props": {"text": "The primary differences between `var`, `let`, and `const` lie in their scoping rules, how they are handled by the JavaScript engine before execution (hoisting), and whether their values can be changed after declaration."}, "children": []}, "core_cards_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["var_card", "let_card", "const_card"]}, "var_card": {"type": "Card", "props": {}, "children": ["var_card_content"]}, "var_card_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["var_header", "var_scope", "var_hoisting"]}, "var_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["var_icon", "var_title"]}, "var_icon": {"type": "Icon", "props": {"name": "../assets/r_000040_01_2_box-arrow-in-down-right.svg"}, "children": []}, "var_title": {"type": "Text", "props": {"text": "var", "variant": "h3"}, "children": []}, "var_scope": {"type": "Text", "props": {"text": "Scope: Function-scoped. A variable declared with `var` is accessible anywhere within the function it is defined in, regardless of block constructs like `if` statements or `for` loops. If declared outside any function, it is globally scoped."}, "children": []}, "var_hoisting": {"type": "Text", "props": {"text": "Hoisting: `var` declarations are hoisted to the top of their scope and are initialized with the value `undefined`. This means you can access a `var` variable before its declaration without an error, though its value will be `undefined`."}, "children": []}, "let_card": {"type": "Card", "props": {}, "children": ["let_card_content"]}, "let_card_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["let_header", "let_scope", "let_hoisting"]}, "let_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["let_icon", "let_title"]}, "let_icon": {"type": "Icon", "props": {"name": "../assets/r_000040_01_1_braces.svg"}, "children": []}, "let_title": {"type": "Text", "props": {"text": "let", "variant": "h3"}, "children": []}, "let_scope": {"type": "Text", "props": {"text": "Scope: Block-scoped. A variable declared with `let` is only accessible within the block (`{...}`) it is defined in. This includes loops, `if` statements, and standalone blocks."}, "children": []}, "let_hoisting": {"type": "Text", "props": {"text": "Hoisting: `let` declarations are hoisted but are not initialized. Accessing a `let` variable before its declaration results in a `ReferenceError`. This period between the start of the block and the declaration is known as the \"Temporal Dead Zone\" (TDZ)."}, "children": []}, "const_card": {"type": "Card", "props": {}, "children": ["const_card_content"]}, "const_card_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["const_header", "const_scope", "const_hoisting", "const_reassignment"]}, "const_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["const_icon", "const_title"]}, "const_icon": {"type": "Icon", "props": {"name": "../assets/r_000040_01_3_lock.svg"}, "children": []}, "const_title": {"type": "Text", "props": {"text": "const", "variant": "h3"}, "children": []}, "const_scope": {"type": "Text", "props": {"text": "Scope: Block-scoped. Same as `let`, a `const` variable is only accessible within the block it is defined in."}, "children": []}, "const_hoisting": {"type": "Text", "props": {"text": "Hoisting: Same as `let`, `const` declarations are hoisted but not initialized, creating a Temporal Dead Zone."}, "children": []}, "const_reassignment": {"type": "Text", "props": {"text": "Re-assignment: A `const` variable cannot be re-assigned after it has been declared. It must be initialized at the time of declaration. Note that for objects and arrays, this means the reference cannot be changed, but the contents of the object or array can be modified."}, "children": []}, "table_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["table_title", "comparison_table"]}, "table_title": {"type": "Text", "props": {"text": "Feature Comparison Table", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Keyword | Scope | Hoisting Behavior | Can Re-declare (same scope) | Can Re-assign |\n|---|---|---|---|---|\n| `var` | Function | Hoisted and initialized to `undefined` | Yes | Yes |\n| `let` | Block | Hoisted, but not initialized (TDZ) | No | Yes |\n| `const` | Block | Hoisted, but not initialized (TDZ) | No | No |", "columns": [{"key": "keyword", "label": "Keyword"}, {"key": "scope", "label": "Scope"}, {"key": "hoisting", "label": "Hoisting Behavior"}, {"key": "redeclare", "label": "Can Re-declare (same scope)"}, {"key": "reassign", "label": "Can Re-assign"}], "rows": [{"keyword": "`var`", "scope": "Function", "hoisting": "Hoisted and initialized to `undefined`", "redeclare": "Yes", "reassign": "Yes"}, {"keyword": "`let`", "scope": "Block", "hoisting": "Hoisted, but not initialized (TDZ)", "redeclare": "No", "reassign": "Yes"}, {"keyword": "`const`", "scope": "Block", "hoisting": "Hoisted, but not initialized (TDZ)", "redeclare": "No", "reassign": "No"}]}, "children": []}, "async_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["async_title", "async_intro", "var_problem_stack", "let_solution_stack", "async_conclusion"]}, "async_title": {"type": "Text", "props": {"text": "Critical Use Case: Asynchronous Loops", "variant": "h2"}, "children": []}, "async_intro": {"type": "Text", "props": {"text": "This example demonstrates a common scenario in asynchronous programming where the choice of keyword is critical. The goal is to log the numbers 0, 1, and 2 after a short delay."}, "children": []}, "var_problem_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["var_problem_title", "var_problem_text", "var_code_card"]}, "var_problem_title": {"type": "Text", "props": {"text": "Problem with `var`", "variant": "h3"}, "children": []}, "var_problem_text": {"type": "Text", "props": {"text": "Because `var i` is function-scoped, there is only one `i` variable shared across all loop iterations. By the time the `setTimeout` callbacks execute, the loop has already finished, and the value of `i` is 3."}, "children": []}, "var_code_card": {"type": "Card", "props": {"padding": 16}, "children": ["var_code_text"]}, "var_code_text": {"type": "Text", "props": {"text": "```javascript\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => {\n    console.log(i); // Outputs: 3, 3, 3\n  }, 100);\n}\n```"}, "children": []}, "let_solution_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["let_solution_title", "let_solution_text", "let_code_card"]}, "let_solution_title": {"type": "Text", "props": {"text": "Solution with `let`", "variant": "h3"}, "children": []}, "let_solution_text": {"type": "Text", "props": {"text": "Using `let` creates a new, block-scoped `i` for each iteration of the loop. Each `setTimeout` callback captures a different `i` with the value it had during that specific iteration, leading to the expected output."}, "children": []}, "let_code_card": {"type": "Card", "props": {"padding": 16}, "children": ["let_code_text"]}, "let_code_text": {"type": "Text", "props": {"text": "```javascript\nfor (let i = 0; i < 3; i++) {\n  setTimeout(() => {\n    console.log(i); // Outputs: 0, 1, 2\n  }, 100);\n}\n```"}, "children": []}, "async_conclusion": {"type": "Text", "props": {"text": "This behavior makes `let` essential for writing correct and intuitive loops involving closures or asynchronous operations."}, "children": []}, "actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["actions_title", "guide_button"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "guide_button": {"type": "Button", "props": {"label": "Read Full JavaScript Guide", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide"}}}}, "sources_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sources_title", "source_link_var", "source_link_let", "source_link_const"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "source_link_var": {"type": "Button", "props": {"label": "MDN Web Docs: var", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var"}}}}, "source_link_let": {"type": "Button", "props": {"label": "MDN Web Docs: let", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let"}}}}, "source_link_const": {"type": "Button", "props": {"label": "MDN Web Docs: const", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

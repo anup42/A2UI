@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main_stack", "state": {}, "elements": {"main_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro", "note_card", "table_title", "comparison_table", "images_title", "images_container", "actions_title", "actions_stack", "sources_stack"]}, "title": {"type": "Text", "props": {"text": "Flagship Smartphone Showdown: iPhone 13 Pro vs. Pixel 6 Pro", "variant": "h1"}, "children": []}, "intro": {"type": "Text", "props": {"text": "This comparison provides a head-to-head look at two of 2021's top-tier smartphones, focusing on key areas that define the user experience: camera capabilities, display quality, battery endurance, and processing power."}, "children": []}, "note_card": {"type": "Card", "props": {}, "children": ["note_stack"]}, "note_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["note_title", "note_body"]}, "note_title": {"type": "Text", "props": {"text": "A Note on This Comparison", "variant": "h3"}, "children": []}, "note_body": {"type": "Text", "props": {"text": "The details provided are based on the specifications and general consensus from expert reviews at the time of the products' launch. Actual battery life and performance can vary significantly based on individual usage patterns, network conditions, and software updates over time."}, "children": []}, "table_title": {"type": "Text", "props": {"text": "Feature-by-Feature Comparison Table", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "iphone", "label": "Apple iPhone 13 Pro"}, {"key": "pixel", "label": "Google Pixel 6 Pro"}], "rows": [{"category": "Main Camera System", "iphone": "Triple 12MP system (Wide, Ultra Wide, 3x Telephoto). Features larger sensors for improved low-light performance. Unique software includes Cinematic Mode for video with rack focus and Photographic Styles for customized looks.", "pixel": "Triple system (50MP Wide, 12MP Ultra Wide, 48MP 4x Telephoto). The large main sensor captures more light. Unique software includes Magic Eraser to remove objects, Real Tone for accurate skin tones, and Motion Mode."}, {"category": "Display", "iphone": "6.1-inch Super Retina XDR (OLED) with ProMotion. Features an adaptive refresh rate from 10Hz to 120Hz. Resolution is 2532 x 1170 pixels.", "pixel": "6.7-inch LTPO AMOLED. Features an adaptive refresh rate from 10Hz to 120Hz. Resolution is 3120 x 1440 pixels (QHD+)."}, {"category": "Battery Life", "iphone": "Widely praised for its endurance. Launch reviews estimated around 11-12 hours of continuous web browsing or heavy mixed usage on a single charge.", "pixel": "Considered good, but generally rated slightly below the iPhone 13 Pro. Launch reviews estimated around 9-10 hours of continuous web browsing or heavy mixed usage."}, {"category": "Processor", "iphone": "Apple A15 Bionic chip. Focuses on delivering industry-leading raw CPU and GPU performance for gaming, app speed, and overall system responsiveness, along with high efficiency.", "pixel": "Google Tensor (1st Gen) chip. Custom-built with a focus on accelerating on-device machine learning and AI tasks, powering features like live translation, voice transcription, and computational photography."}], "sourceFormat": "markdown", "sourceText": "| Category | Apple iPhone 13 Pro | Google Pixel 6 Pro |\n|---|---|---|\n| Main Camera System | Triple 12MP system (Wide, Ultra Wide, 3x Telephoto). Features larger sensors for improved low-light performance. Unique software includes Cinematic Mode for video with rack focus and Photographic Styles for customized looks. | Triple system (50MP Wide, 12MP Ultra Wide, 48MP 4x Telephoto). The large main sensor captures more light. Unique software includes Magic Eraser to remove objects, Real Tone for accurate skin tones, and Motion Mode. |\n| Display | 6.1-inch Super Retina XDR (OLED) with ProMotion. Features an adaptive refresh rate from 10Hz to 120Hz. Resolution is 2532 x 1170 pixels. | 6.7-inch LTPO AMOLED. Features an adaptive refresh rate from 10Hz to 120Hz. Resolution is 3120 x 1440 pixels (QHD+). |\n| Battery Life | Widely praised for its endurance. Launch reviews estimated around 11-12 hours of continuous web browsing or heavy mixed usage on a single charge. | Considered good, but generally rated slightly below the iPhone 13 Pro. Launch reviews estimated around 9-10 hours of continuous web browsing or heavy mixed usage. |\n| Processor | Apple A15 Bionic chip. Focuses on delivering industry-leading raw CPU and GPU performance for gaming, app speed, and overall system responsiveness, along with high efficiency. | Google Tensor (1st Gen) chip. Custom-built with a focus on accelerating on-device machine learning and AI tasks, powering features like live translation, voice transcription, and computational photography. |"}, "children": []}, "images_title": {"type": "Text", "props": {"text": "Images", "variant": "h2"}, "children": []}, "images_container": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start", "justify": "around"}, "children": ["iphone_image_card", "pixel_image_card"]}, "iphone_image_card": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "flex": 1}, "children": ["iphone_image", "iphone_caption"]}, "iphone_image": {"type": "Image", "props": {"url": "../assets/r_000029_01_1_iphone13pro.jpg", "fit": "cover", "height": 200}, "children": []}, "iphone_caption": {"type": "Text", "props": {"text": "Apple iPhone 13 Pro", "variant": "caption"}, "children": []}, "pixel_image_card": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "flex": 1}, "children": ["pixel_image", "pixel_caption"]}, "pixel_image": {"type": "Image", "props": {"url": "../assets/r_000029_01_2_pixel6pro.jpg", "fit": "cover", "height": 200}, "children": []}, "pixel_caption": {"type": "Text", "props": {"text": "Google Pixel 6 Pro", "variant": "caption"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["iphone_button", "pixel_button"]}, "iphone_button": {"type": "Button", "props": {"label": "View Full iPhone 13 Pro Technical Specs"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://support.apple.com/kb/SP852"}}}}, "pixel_button": {"type": "Button", "props": {"label": "View Full Pixel 6 Pro Technical Specs"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://support.google.com/pixelphone/answer/7158570"}}}}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sources_title", "source1", "source2"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "source1": {"type": "Text", "props": {"text": "GSMArena. (2021). Apple iPhone 13 Pro Review.", "variant": "caption"}, "children": []}, "source2": {"type": "Text", "props": {"text": "The Verge. (2021). Google Pixel 6 Pro Review.", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

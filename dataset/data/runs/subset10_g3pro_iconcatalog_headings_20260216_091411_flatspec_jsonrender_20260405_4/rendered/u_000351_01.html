@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {"metrics": [{"id": "temp", "feature": "Daily Temp Range", "bangkok": "22°C - 32°C (72°F - 90°F)", "hanoi": "14°C - 20°C (57°F - 68°F)"}, {"id": "humidity", "feature": "Humidity", "bangkok": "65-70% (Comfortable for tropics)", "hanoi": "75-82% (Damp/Misty)"}, {"id": "rain", "feature": "Rain Probability", "bangkok": "Very Low (<2 days/month)", "hanoi": "Moderate (5-7 days, mostly drizzle)"}, {"id": "sky", "feature": "Sky Conditions", "bangkok": "Mostly Clear / Sunny", "hanoi": "Often Overcast / Gray"}, {"id": "comfort", "feature": "Walking Comfort", "bangkok": "Low (Heat fatigue likely)", "hanoi": "High (Cool, sweat-free)"}], "sources": [{"id": "src1", "name": "World Weather Information Service", "url": "https://worldweather.wmo.int/"}, {"id": "src2", "name": "Tourism Authority of Thailand", "url": "https://www.tourismthailand.org/"}, {"id": "src3", "name": "Vietnam National Authority of Tourism", "url": "https://vietnamtourism.gov.vn/"}]}, "elements": {"root_column": {"type": "Column", "props": {"spacing": "medium"}, "children": ["title_text", "intro_card", "context_card", "metrics_card", "verdict_card", "sources_card"]}, "title_text": {"type": "Text", "props": {"text": "January Climate Snapshot", "variant": "h1", "align": "center"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_text"]}, "intro_text": {"type": "Text", "props": {"text": "January is widely considered the peak travel season for both cities, but for very different reasons. Bangkok experiences its \"cool\" season, which is dry and sunny but still hot by global standards. Hanoi experiences a true winter, which is significantly cooler and often overcast with mist. For a walking tour, Hanoi offers much more comfortable temperatures, while Bangkok guarantees brighter photography conditions at the cost of heat exhaustion risks."}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_title", "context_text"]}, "context_title": {"type": "Text", "props": {"text": "Historical Data Context", "variant": "h2"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "The following comparison relies on historical climate averages collected over the last 30 years. January weather patterns in Southeast Asia are generally stable, but short-term fluctuations can occur. \"Rainfall probability\" here refers to the likelihood of measurable precipitation days, though intensity varies (Bangkok rain is rare/short; Hanoi rain is often a persistent light drizzle)."}, "children": []}, "metrics_card": {"type": "Card", "props": {}, "children": ["metrics_title", "metrics_header_row", "metrics_list"]}, "metrics_title": {"type": "Text", "props": {"text": "Bangkok vs Hanoi Weather Metrics", "variant": "h2"}, "children": []}, "metrics_header_row": {"type": "Row", "props": {"spacing": "small", "distribution": "space-between"}, "children": ["header_feature", "header_bangkok", "header_hanoi"]}, "header_feature": {"type": "Text", "props": {"text": "Feature", "weight": "bold", "flex": 2}, "children": []}, "header_bangkok": {"type": "Text", "props": {"text": "Bangkok", "weight": "bold", "flex": 3, "align": "center"}, "children": []}, "header_hanoi": {"type": "Text", "props": {"text": "Hanoi", "weight": "bold", "flex": 3, "align": "center"}, "children": []}, "metrics_list": {"type": "List", "props": {"template": "metric_row_template", "repeat": {"statePath": "/metrics", "key": "id"}, "spacing": "medium"}, "children": []}, "metric_row_template": {"type": "Row", "props": {"spacing": "small", "distribution": "space-between", "verticalAlign": "start"}, "children": ["metric_feature", "metric_bangkok", "metric_hanoi"]}, "metric_feature": {"type": "Text", "props": {"text": {"$item": "feature"}, "weight": "bold", "flex": 2}, "children": []}, "metric_bangkok": {"type": "Text", "props": {"text": {"$item": "bangkok"}, "flex": 3, "align": "center"}, "children": []}, "metric_hanoi": {"type": "Text", "props": {"text": {"$item": "hanoi"}, "flex": 3, "align": "center"}, "children": []}, "verdict_card": {"type": "Card", "props": {}, "children": ["verdict_title", "verdict_hanoi_col", "verdict_bangkok_col"]}, "verdict_title": {"type": "Text", "props": {"text": "Walking Tour Verdict", "variant": "h2"}, "children": []}, "verdict_hanoi_col": {"type": "Column", "props": {"spacing": "extra-small"}, "children": ["verdict_hanoi_title", "verdict_hanoi_text"]}, "verdict_hanoi_title": {"type": "Text", "props": {"text": "Choose Hanoi if:", "variant": "subtitle", "weight": "bold"}, "children": []}, "verdict_hanoi_text": {"type": "Text", "props": {"text": "You prioritize physical comfort and want to explore the Old Quarter for hours without sweating. The cooler temperatures (similar to a mild European autumn) make it ideal for long treks, though photographs may look gloomy due to the common \"milk fog.\""}, "children": []}, "verdict_bangkok_col": {"type": "Column", "props": {"spacing": "extra-small"}, "children": ["verdict_bangkok_title", "verdict_bangkok_text"]}, "verdict_bangkok_title": {"type": "Text", "props": {"text": "Choose Bangkok if:", "variant": "subtitle", "weight": "bold"}, "children": []}, "verdict_bangkok_text": {"type": "Text", "props": {"text": "You want vibrant blue skies for photography and don't mind the heat. Walking tours here are best done early morning (6:00 AM - 10:00 AM) or late evening. Mid-day walking is strenuous due to the blazing sun."}, "children": []}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_title", "sources_list"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_list": {"type": "List", "props": {"template": "source_button_template", "repeat": {"statePath": "/sources", "key": "id"}, "spacing": "small"}, "children": []}, "source_button_template": {"type": "Button", "props": {"label": {"$item": "name"}, "variant": "link"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "url"}}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

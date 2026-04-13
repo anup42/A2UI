@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "mainStack", "state": {"travelOptions": [{"id": "1", "option": "Walking", "time": "45-60 minutes", "cost": "€0", "pro": "Very scenic route along the Seine River, passing many landmarks.", "con": "Can be tiring; entirely dependent on weather conditions."}, {"id": "2", "option": "Metro", "time": "25-35 minutes", "cost": "€2.15", "pro": "Fast and efficient, bypassing all street-level traffic.", "con": "Can be very crowded, especially during peak hours; you miss the city views."}, {"id": "3", "option": "Taxi", "time": "15-40 minutes", "cost": "€15 - €25", "pro": "Comfortable and direct door-to-door service, ideal for tired travelers.", "con": "Most expensive option and can be significantly delayed by heavy traffic."}]}, "elements": {"mainStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "disclaimerStack", "comparisonTable", "imageSectionStack", "actionsStack", "sourcesStack"]}, "title": {"type": "Text", "props": {"text": "Eiffel Tower to Louvre: Travel Options", "variant": "h2"}, "children": []}, "disclaimerStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["disclaimerTitle", "disclaimerText"]}, "disclaimerTitle": {"type": "Text", "props": {"text": "What This Comparison Assumes", "variant": "h3"}, "children": []}, "disclaimerText": {"type": "Text", "props": {"text": "The following estimates are for one adult traveler during standard daytime hours. Travel times and costs can vary based on the time of day, traffic conditions, specific walking pace, and current public transport fares. Taxi prices are particularly sensitive to traffic."}, "children": []}, "comparisonTable": {"type": "Table", "props": {"statePath": "/travelOptions", "columns": [{"key": "option", "label": "Option"}, {"key": "time", "label": "Approximate Time"}, {"key": "cost", "label": "Typical Cost (€)"}, {"key": "pro", "label": "Pro"}, {"key": "con", "label": "Con"}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Option | Approximate Time | Typical Cost (€) | Pro | Con |\n| --- | --- | --- | --- | --- |\n| Walking | 45-60 minutes | €0 | Very scenic route along the Seine River, passing many landmarks. | Can be tiring; entirely dependent on weather conditions. |\n| Metro | 25-35 minutes | €2.15 | Fast and efficient, bypassing all street-level traffic. | Can be very crowded, especially during peak hours; you miss the city views. |\n| Taxi | 15-40 minutes | €15 - €25 | Comfortable and direct door-to-door service, ideal for tired travelers. | Most expensive option and can be significantly delayed by heavy traffic. |"}, "children": []}, "imageSectionStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["imageTitle", "imageGallery"]}, "imageTitle": {"type": "Text", "props": {"text": "Images", "variant": "h3"}, "children": []}, "imageGallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000013_01_1_eiffel-tower_paris.jpg", "fit": "cover"}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000035_01_2_louvre_museum.jpg", "fit": "cover"}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000035_01_3_paris_metro_sign.jpg", "fit": "cover"}, "children": []}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actionsTitle", "directionsButton"]}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "directionsButton": {"type": "Button", "props": {"label": "Get Live Directions on Google Maps", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/maps/dir/Eiffel+Tower,+Champ+de+Mars,+Paris,+France/Louvre+Museum,+Rue+de+Rivoli,+Paris,+France/"}}}}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sourcesTitle", "faresLink"]}, "sourcesTitle": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "faresLink": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["faresIcon", "faresButton"]}, "faresIcon": {"type": "Icon", "props": {"name": "../assets/r_000035_01_7_compass.svg"}, "children": []}, "faresButton": {"type": "Button", "props": {"label": "RATP - Official Fares", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.ratp.fr/en/tickets-and-fares"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -153,25 +153,20 @@ private fun RenderScreen(
                     RenderMode.NATIVE -> stringResource(id = R.string.render_mode_native)
                     RenderMode.WEB -> stringResource(id = R.string.render_mode_web)
                 }
-
-                Text(
-                    text = stringResource(
-                        id = R.string.rendering_position,
-                        index + 1,
-                        session.records.size,
-                        record.sourceLabel
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = modeLabel,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.primary
+                val positionLabel = stringResource(
+                    id = R.string.rendering_position,
+                    index + 1,
+                    session.records.size,
+                    record.sourceLabel
                 )
 
                 when (session.renderMode) {
                     RenderMode.WEB -> {
+                        RenderMetadataHeader(
+                            positionLabel = positionLabel,
+                            modeLabel = modeLabel
+                        )
+
                         val webResult = remember(record.rawJson, record.sourceDir) {
                             GenUiHtmlRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
                         }
@@ -209,10 +204,6 @@ private fun RenderScreen(
                             applyDynamicHtmlPalette(webResult.html, colorScheme, deviceConfig)
                         }
 
-                        if (webResult.warnings.isNotEmpty()) {
-                            WarningCard(warnings = webResult.warnings)
-                        }
-
                         WebRenderPane(
                             html = themedHtml,
                             assetLoader = assetLoader,
@@ -227,15 +218,17 @@ private fun RenderScreen(
                             GenUiNativeRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
                         }
 
-                        if (nativeResult.warnings.isNotEmpty()) {
-                            WarningCard(warnings = nativeResult.warnings)
-                        }
-
                         GenUiNativeRenderer.Render(
                             result = nativeResult,
                             sourceDir = record.sourceDir,
                             onOpenExternalUrl = onOpenExternalUrl,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            headerContent = {
+                                RenderMetadataHeader(
+                                    positionLabel = positionLabel,
+                                    modeLabel = modeLabel
+                                )
+                            }
                         )
                     }
                 }
@@ -245,35 +238,20 @@ private fun RenderScreen(
 }
 
 @Composable
-private fun WarningCard(warnings: List<String>) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-        colors = genUiCardColors(GenUiCardTone.Error),
-        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Text(
-                text = "Warnings",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.error
-            )
-            warnings.forEach { warning ->
-                Text(
-                    text = "- $warning",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
+private fun RenderMetadataHeader(
+    positionLabel: String,
+    modeLabel: String
+) {
+    Text(
+        text = positionLabel,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Text(
+        text = modeLabel,
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+        color = MaterialTheme.colorScheme.primary
+    )
 }
 
 @Composable

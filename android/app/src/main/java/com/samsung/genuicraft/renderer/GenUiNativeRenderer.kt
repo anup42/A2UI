@@ -170,7 +170,6 @@ object GenUiNativeRenderer {
         }
 
         val embedded = findEmbeddedFlatSpec(parsed) ?: return null
-        warnings += "Detected flat-spec IR inside record metadata and rendered the embedded payload."
         return buildFlatSpecSurface(embedded, warnings)
     }
 
@@ -335,7 +334,8 @@ object GenUiNativeRenderer {
         result: RenderResult,
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        headerContent: (@Composable () -> Unit)? = null
     ) {
         if (result.errorMessage != null) {
             Surface(
@@ -362,6 +362,16 @@ object GenUiNativeRenderer {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 20.dp)
         ) {
+            if (headerContent != null) {
+                item("render_header") {
+                    headerContent()
+                }
+            }
+            if (result.warnings.isNotEmpty()) {
+                item("render_warnings") {
+                    NativeRenderWarningCard(warnings = result.warnings)
+                }
+            }
             if (!runtimeMessage.isNullOrBlank()) {
                 item("runtime_message") {
                     RuntimeMessageBanner(runtimeMessage)
@@ -487,6 +497,31 @@ object GenUiNativeRenderer {
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
             )
+        }
+    }
+
+    @Composable
+    private fun NativeRenderWarningCard(warnings: List<String>) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+            colors = genUiCardColors(GenUiCardTone.Warning),
+            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                warnings.forEach { warning ->
+                    Text(
+                        text = warning,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         }
     }
 
@@ -2371,7 +2406,11 @@ object GenUiNativeRenderer {
                 }
             } else {
                 AsyncImage(
-                    model = ImageRequest.Builder(context).data(model).crossfade(true).build(),
+                    model = ImageRequest.Builder(context)
+                        .data(model)
+                        .crossfade(true)
+                        .allowHardware(false)
+                        .build(),
                     imageLoader = imageLoader,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),

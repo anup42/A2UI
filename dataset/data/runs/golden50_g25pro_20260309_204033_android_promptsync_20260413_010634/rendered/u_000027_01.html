@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "mainContainer", "state": {"tableData": [{"ageGroup": "18-24", "tiktok": "75.0%", "instagram": "25.0%", "facebook": "0.0%", "linkedin": "0.0%"}, {"ageGroup": "25-34", "tiktok": "0.0%", "instagram": "66.7%", "facebook": "0.0%", "linkedin": "33.3%"}, {"ageGroup": "35-44", "tiktok": "0.0%", "instagram": "0.0%", "facebook": "66.7%", "linkedin": "33.3%"}], "popularPlatforms": [{"id": "1", "icon": "../assets/r_000027_01_1_check-circle.svg", "description": "18-24 Age Group: TikTok is the most popular platform, preferred by 75% of users in this cohort."}, {"id": "2", "icon": "../assets/r_000001_01_7_book.svg", "description": "25-34 Age Group: Instagram is the most popular platform, with a 66.7% preference rate."}, {"id": "3", "icon": "../assets/r_000027_01_3_calculator.svg", "description": "35-44 Age Group: Facebook is the most popular platform, also with a 66.7% preference rate."}]}, "elements": {"mainContainer": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro", "divider1", "contextSection", "divider2", "tableSection", "divider3", "popularSection"]}, "title": {"type": "Text", "props": {"text": "Social Media Preferences by Age: Survey Analysis", "variant": "h1"}, "children": []}, "intro": {"type": "Text", "props": {"text": "This report summarizes the analysis of the provided user survey data, breaking down social media platform preferences by age group and identifying the most popular platform for each demographic.", "variant": "body"}, "children": []}, "divider1": {"type": "Divider", "props": {}, "children": []}, "contextSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["contextHeader", "contextBody"]}, "contextHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["contextIcon", "contextTitle"]}, "contextIcon": {"type": "Icon", "props": {"name": "../assets/r_000027_01_5_newspaper.svg"}, "children": []}, "contextTitle": {"type": "Text", "props": {"text": "Analysis Context", "variant": "h2"}, "children": []}, "contextBody": {"type": "Text", "props": {"text": "This analysis is based solely on the 10 user records provided. The findings reflect trends within this specific dataset and should not be considered representative of the general population due to the small sample size. All percentages are calculated based on the total number of respondents within each age group.", "variant": "body"}, "children": []}, "divider2": {"type": "Divider", "props": {}, "children": []}, "tableSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["tableHeader", "dataTable"]}, "tableHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["tableIcon", "tableTitle"]}, "tableIcon": {"type": "Icon", "props": {"name": "../assets/r_000027_01_4_graph-up.svg"}, "children": []}, "tableTitle": {"type": "Text", "props": {"text": "Platform Preference Percentage by Age Group", "variant": "h2"}, "children": []}, "dataTable": {"type": "Table", "props": {"columns": [{"key": "ageGroup", "label": "Age Group"}, {"key": "tiktok", "label": "TikTok"}, {"key": "instagram", "label": "Instagram"}, {"key": "facebook", "label": "Facebook"}, {"key": "linkedin", "label": "LinkedIn"}], "statePath": "/tableData", "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Age Group | TikTok | Instagram | Facebook | LinkedIn |\n|---|---|---|---|---|\n| 18-24 | 75.0% | 25.0% | 0.0% | 0.0% |\n| 25-34 | 0.0% | 66.7% | 0.0% | 33.3% |\n| 35-44 | 0.0% | 0.0% | 66.7% | 33.3% |"}, "children": []}, "divider3": {"type": "Divider", "props": {}, "children": []}, "popularSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["popularHeader", "popularList"]}, "popularHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["popularIcon", "popularTitle"]}, "popularIcon": {"type": "Icon", "props": {"name": "../assets/r_000027_01_4_graph-up.svg"}, "children": []}, "popularTitle": {"type": "Text", "props": {"text": "Most Popular Platform per Age Group", "variant": "h2"}, "children": []}, "popularList": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["popularCard"]}, "popularCard": {"type": "Card", "props": {}, "children": ["cardContent"], "repeat": {"statePath": "/popularPlatforms", "key": "id"}}, "cardContent": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center", "padding": 16}, "children": ["platformIcon", "platformDescription"]}, "platformIcon": {"type": "Icon", "props": {"name": {"$item": "icon"}}, "children": []}, "platformDescription": {"type": "Text", "props": {"text": {"$item": "description"}}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {"coffee_comparison": [{"feature": "Avg. Brew Time", "drip": "4-8 minutes", "french": "4-5 minutes", "pod": "1-2 minutes"}, {"feature": "Flavor Profile", "drip": "Classic, balanced, clean", "french": "Rich, full-bodied, robust", "pod": "Varies by pod; can be strong but less nuanced"}, {"feature": "Cleanup Effort", "drip": "Low (toss paper filter)", "french": "High (scoop out wet grounds)", "pod": "Very Low (toss used pod)"}, {"feature": "Cost Per Cup", "drip": "Low ($0.20 - $0.40)", "french": "Lowest ($0.15 - $0.30)", "pod": "High ($0.50 - $1.00+)"}, {"feature": "Best For", "drip": "Consistency and brewing for 1-4 people", "french": "Maximum flavor control and richness", "pod": "Ultimate speed and convenience"}]}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "assumptions_stack", "comparison_stack", "recommendation_stack", "visual_guide_stack"]}, "title": {"type": "Text", "props": {"text": "Choosing Your Ideal Coffee Maker for Quick Mornings", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This guide compares three popular coffee maker types to help you find the perfect match for your budget, speed, and flavor preferences. We'll break down the pros and cons of each before providing a final recommendation based on your specific needs.", "variant": "body"}, "children": []}, "assumptions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["assumptions_title", "assumptions_text"]}, "assumptions_title": {"type": "Text", "props": {"text": "What This Comparison Assumes", "variant": "h2"}, "children": []}, "assumptions_text": {"type": "Text", "props": {"text": "This analysis is based on typical models available in the US market for under $100. We assume the use of standard, good-quality coffee grounds and pods. \"Brew time\" refers to the total time from starting the machine to having a cup ready to drink.", "variant": "body"}, "children": []}, "comparison_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["comparison_title", "comparison_table"]}, "comparison_title": {"type": "Text", "props": {"text": "Coffee Maker Type Comparison", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "feature", "label": "Feature"}, {"key": "drip", "label": "Drip Coffee Machine"}, {"key": "french", "label": "French Press"}, {"key": "pod", "label": "Single-Serve Pod Machine"}], "statePath": "/coffee_comparison", "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Feature | Drip Coffee Machine | French Press | Single-Serve Pod Machine |\n|---|---|---|---|\n| Avg. Brew Time | 4-8 minutes | 4-5 minutes | 1-2 minutes |\n| Flavor Profile | Classic, balanced, clean | Rich, full-bodied, robust | Varies by pod; can be strong but less nuanced |\n| Cleanup Effort | Low (toss paper filter) | High (scoop out wet grounds) | Very Low (toss used pod) |\n| Cost Per Cup | Low ($0.20 - $0.40) | Lowest ($0.15 - $0.30) | High ($0.50 - $1.00+) |\n| Best For | Consistency and brewing for 1-4 people | Maximum flavor control and richness | Ultimate speed and convenience |"}, "children": []}, "recommendation_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["recommendation_title", "recommendation_text"]}, "recommendation_title": {"type": "Text", "props": {"text": "Recommendation for Your Needs", "variant": "h2"}, "children": []}, "recommendation_text": {"type": "Text", "props": {"text": "Based on your priorities, the **Single-Serve Pod Machine** is the best choice for you.\n\nWhile a French press delivers the richest flavor, it fails on your key requirements for speed and, most significantly, easy cleanup. A pod machine is the undisputed winner for speed (under 2 minutes) and convenience—the cleanup is as simple as throwing away a small pod. While some coffee purists find the flavor less complex, you can easily find a wide variety of \"extra bold\" or \"dark roast\" pods from numerous brands that will deliver the strong flavor you're looking for. It perfectly balances your need for speed, ease, and a strong morning cup within your budget.", "variant": "body"}, "children": []}, "visual_guide_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["visual_guide_title", "visual_guide_images_stack"]}, "visual_guide_title": {"type": "Text", "props": {"text": "Visual Guide to Coffee Makers", "variant": "h2"}, "children": []}, "visual_guide_images_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between", "align": "start"}, "children": ["drip_card", "french_press_card", "pod_card"]}, "drip_card": {"type": "Card", "props": {"flex": 1}, "children": ["drip_image_stack"]}, "drip_image_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "align": "center"}, "children": ["drip_image", "drip_label"]}, "drip_image": {"type": "Image", "props": {"url": "../assets/r_000006_01_1_dripcoffeemaker.jpg", "fit": "cover", "height": 120}, "children": []}, "drip_label": {"type": "Text", "props": {"text": "Drip Coffee Maker", "variant": "caption"}, "children": []}, "french_press_card": {"type": "Card", "props": {"flex": 1}, "children": ["french_press_image_stack"]}, "french_press_image_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "align": "center"}, "children": ["french_press_image", "french_press_label"]}, "french_press_image": {"type": "Image", "props": {"url": "../assets/r_000006_01_2_frenchpress.jpg", "fit": "cover", "height": 120}, "children": []}, "french_press_label": {"type": "Text", "props": {"text": "French Press", "variant": "caption"}, "children": []}, "pod_card": {"type": "Card", "props": {"flex": 1}, "children": ["pod_image_stack"]}, "pod_image_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "align": "center"}, "children": ["pod_image", "pod_label"]}, "pod_image": {"type": "Image", "props": {"url": "../assets/r_000006_01_3_podcoffeemaker.jpg", "fit": "cover", "height": 120}, "children": []}, "pod_label": {"type": "Text", "props": {"text": "Single-Serve Pod Machine", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

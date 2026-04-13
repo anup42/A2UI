@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Column", "props": {"style": {"padding": 16, "gap": 16}}, "children": ["title", "intro_card", "modes_title", "option1_card", "option2_card", "option3_card", "quick_actions_title", "quick_actions_card"]}, "title": {"type": "Text", "props": {"text": "Universal Scanner Activation", "style": {"typography": "headline-medium"}}, "children": []}, "intro_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["intro_col"]}, "intro_col": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["intro_title", "intro_text"]}, "intro_title": {"type": "Text", "props": {"text": "Scanning Environment and Permissions", "style": {"typography": "title-medium"}}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This response assumes the user is operating a mobile device with a functional rear-facing camera. It is assumed that \"linear barcodes\" refer to standard retail symbologies such as UPC-A, UPC-E, or EAN-13 used for product identification. Camera permissions must be granted to the browser or host application to enable video capture for decoding.", "style": {"typography": "body-medium"}}, "children": []}, "modes_title": {"type": "Text", "props": {"text": "Active Scanning Modes", "style": {"typography": "title-large"}}, "children": []}, "option1_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["option1_col"]}, "option1_col": {"type": "Column", "props": {"style": {"gap": 12}}, "children": ["option1_header", "option1_desc", "option1_button"]}, "option1_header": {"type": "Row", "props": {"style": {"gap": 16, "alignItems": "center"}}, "children": ["option1_icon", "option1_title"]}, "option1_icon": {"type": "Icon", "props": {"name": "../assets/r_000090_01_3_upc-scan.svg", "style": {"size": 24}}, "children": []}, "option1_title": {"type": "Text", "props": {"text": "Web-Based Universal Scanner", "style": {"typography": "title-medium"}}, "children": []}, "option1_desc": {"type": "Text", "props": {"text": "Recognizes standard QR codes and linear barcodes via browser. Instant access without installation.", "style": {"typography": "body-medium"}}, "children": []}, "option1_button": {"type": "Button", "props": {"label": "Launch Web Scanner", "variant": "filled"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://qrcodescan.in/"}}}}, "option2_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["option2_col"]}, "option2_col": {"type": "Column", "props": {"style": {"gap": 12}}, "children": ["option2_header", "option2_desc", "option2_button"]}, "option2_header": {"type": "Row", "props": {"style": {"gap": 16, "alignItems": "center"}}, "children": ["option2_icon", "option2_title"]}, "option2_icon": {"type": "Icon", "props": {"name": "../assets/r_001502_01_3_bag-check.svg", "style": {"size": 24}}, "children": []}, "option2_title": {"type": "Text", "props": {"text": "Retail Price Search", "style": {"typography": "title-medium"}}, "children": []}, "option2_desc": {"type": "Text", "props": {"text": "Manual lookup or barcode entry for price comparison. Aggregated retail data.", "style": {"typography": "body-medium"}}, "children": []}, "option2_button": {"type": "Button", "props": {"label": "Check Prices", "variant": "filled"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://shopping.google.com/"}}}}, "option3_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["option3_col"]}, "option3_col": {"type": "Column", "props": {"style": {"gap": 12}}, "children": ["option3_header", "option3_desc", "option3_button"]}, "option3_header": {"type": "Row", "props": {"style": {"gap": 16, "alignItems": "center"}}, "children": ["option3_icon", "option3_title"]}, "option3_icon": {"type": "Icon", "props": {"name": "../assets/r_000175_01_1_camera.svg", "style": {"size": 24}}, "children": []}, "option3_title": {"type": "Text", "props": {"text": "Advanced Scanner Application", "style": {"typography": "title-medium"}}, "children": []}, "option3_desc": {"type": "Text", "props": {"text": "Dedicated tool for rapid batch scanning and history. Offline capability.", "style": {"typography": "body-medium"}}, "children": []}, "option3_button": {"type": "Button", "props": {"label": "Install Scanner App", "variant": "filled"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://play.google.com/store/apps/details?id=com.google.zxing.client.android"}}}}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "style": {"typography": "title-large"}}, "children": []}, "quick_actions_card": {"type": "Card", "props": {"style": {"padding": 16}}, "children": ["quick_actions_col"]}, "quick_actions_col": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["troubleshooting_button", "standards_button"]}, "troubleshooting_button": {"type": "Button", "props": {"label": "Troubleshooting Camera", "variant": "text"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://support.google.com/android/answer/9334246?hl=en"}}}}, "standards_button": {"type": "Button", "props": {"label": "Barcode Standards Info", "variant": "text"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.gs1.org/standards/barcodes"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

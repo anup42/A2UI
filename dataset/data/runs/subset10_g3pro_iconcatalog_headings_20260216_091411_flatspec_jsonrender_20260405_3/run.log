@@ -1,0 +1,22 @@
+2026-04-05 19:14:14 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=399 user_template_tokens=13
+2026-04-05 19:14:14 INFO dataset: Stage3 schema mode: flat_spec
+2026-04-05 19:15:04 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-04-05 19:17:28 INFO dataset: Stage3 created ui_id=u_000264_01 schema_ok=True
+2026-04-05 19:18:15 INFO dataset: Stage3 created ui_id=u_000701_01 schema_ok=True
+2026-04-05 19:19:11 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-04-05 19:20:07 INFO dataset: Stage3 created ui_id=u_000090_01 schema_ok=True
+2026-04-05 19:20:59 INFO dataset: Stage3 created ui_id=u_001047_01 schema_ok=True
+2026-04-05 19:22:11 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-04-05 19:23:04 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-04-05 19:23:49 INFO dataset: Stage3 created ui_id=u_001502_01 schema_ok=True
+2026-04-05 19:24:38 INFO dataset: Stage3 created ui_id=u_001590_01 schema_ok=True
+2026-04-05 19:24:38 INFO dataset: Stage3 completed created=10
+2026-04-05 19:24:38 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_3\aggregates.json
+2026-04-05 19:24:38 INFO dataset: Stage3 complete.
+2026-04-05 19:24:45 INFO dataset: Stage4 HTTP server started on port 53874
+2026-04-05 19:25:09 INFO dataset: Stage4 renderer=json_render complete. Outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_3\rendered
+2026-04-05 19:25:10 INFO dataset: Stage4 HTTP server started on port 53927
+2026-04-05 19:25:26 INFO dataset: Stage4 renderer=lit complete. Outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_3\rendered_lit
+2026-04-05 19:25:35 INFO dataset: Stage3 already complete for run_id=subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_3. Recomputed aggregates only (10 rows).
+2026-04-05 19:40:07 INFO dataset: Stage3 already complete for run_id=subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_3. Recomputed aggregates only (10 rows).
+2026-04-05 19:41:22 INFO dataset: Stage3 already complete for run_id=subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_3. Recomputed aggregates only (10 rows).

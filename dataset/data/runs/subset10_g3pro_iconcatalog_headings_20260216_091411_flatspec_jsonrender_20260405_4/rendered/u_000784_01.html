@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {"itinerary": [{"id": "day1", "day": "Day 1", "title": "Arashiyama Nature & Wildlife", "location": "West Kyoto", "description": "Start at JR Saga-Arashiyama Station. Walk 15 minutes to the Monkey Park entrance; the climb is an easy 20-minute trail with monkeys at the summit. Afterward, cross the Togetsukyo Bridge to the Bamboo Grove.", "image": "https://storage.googleapis.com/gen-ui-images/kyoto_bamboo.jpg", "buttonText": "Arashiyama Area Guide", "buttonUrl": "https://kyoto.travel/en/areas/arashiyama.html"}, {"id": "day2", "day": "Day 2", "title": "Iconic Gates & Views", "location": "Southern & Eastern Kyoto", "description": "Morning at Fushimi Inari (JR Inari Station is immediately adjacent). The lower loop hike is gentle and features thousands of gates. Afternoon: Take a taxi to Kiyomizu-dera to avoid the steep approach walk.", "image": "https://storage.googleapis.com/gen-ui-images/fushimi_inari_torii.jpg", "buttonText": "Fushimi Inari Maps", "buttonUrl": "https://inari.jp/en/map/"}, {"id": "day3", "day": "Day 3", "title": "Gold Pavilion & Trains", "location": "North & Central", "description": "Morning: Kinkaku-ji (Golden Pavilion). Access via taxi or direct bus to minimize walking. Afternoon: Kyoto Railway Museum (adjacent to Umekoji-Kyotonishi Station). Interactive and ideal for ages 8-10.", "image": "https://storage.googleapis.com/gen-ui-images/kinkakuji_temple.jpg", "buttonText": "Railway Museum Info", "buttonUrl": "https://www.kyotorailwaymuseum.jp/en/"}], "dining": [{"id": "d1", "name": "Conveyor Belt Sushi (Kaitenzushi)", "details": "\"Kura Sushi\" or \"Sushiro\" chains offer tablets for ordering and separate booths."}, {"id": "d2", "name": "Udon and Soba Noodles", "details": "\"Omen\" near Ginkaku-ji or Arashiyama offers dipping noodles that are fun for kids."}, {"id": "d3", "name": "Okonomiyaki", "details": "Savory pancakes where you can watch the food being cooked on a hotplate. \"Donguri\" is a family-friendly chain."}, {"id": "d4", "name": "Department Store Basements (Depachika)", "details": "Located under Isetan (Kyoto Station) or Takashimaya. Great for picking up high-quality bento boxes for a picnic if restaurants are too crowded."}], "sources": [{"id": "s1", "text": "Kyoto Official Travel Guide", "url": "https://kyoto.travel/en"}, {"id": "s2", "text": "Japan Guide (Kyoto Section)", "url": "https://www.japan-guide.com/e/e2158.html"}, {"id": "s3", "text": "Kyoto Railway Museum Official", "url": "https://www.kyotorailwaymuseum.jp/en/"}]}, "elements": {"root_column": {"type": "Column", "props": {"spacing": "medium", "padding": {"all": "medium"}}, "children": ["title_text", "intro_text", "pacing_card", "divider_1", "itinerary_header_row", "itinerary_list", "divider_2", "dining_header_row", "dining_card", "divider_3", "sources_header_row", "sources_list"]}, "title_text": {"type": "Text", "props": {"text": "Kyoto Family Trip Overview (April 5-7)", "variant": "h1", "align": "start"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Visiting Kyoto in early April places you in the peak of spring season. While cherry blossoms (sakura) may be starting to flutter down by April 5-7, the city will be vibrant and busy. This itinerary balances the crowds by mixing popular historical sites with ample outdoor space for children. The schedule prioritizes locations with direct transit access or short taxi rides to strictly limit transit-to-destination walking to under 30 minutes."}, "children": []}, "pacing_card": {"type": "Card", "props": {"padding": {"all": "medium"}}, "children": ["pacing_column"]}, "pacing_column": {"type": "Column", "props": {"spacing": "medium"}, "children": ["pacing_title", "pacing_text", "pacing_list"]}, "pacing_title": {"type": "Text", "props": {"text": "Pacing and Transit Context", "variant": "h2"}, "children": []}, "pacing_text": {"type": "Text", "props": {"text": "To accommodate children ages 8 and 10 and the walking constraints, this plan utilizes a \"hub\" approach where you visit one major area in the morning and one in the afternoon."}, "children": []}, "pacing_list": {"type": "Column", "props": {"spacing": "small"}, "children": ["pacing_item_1", "pacing_item_2", "pacing_item_3"]}, "pacing_item_1": {"type": "Column", "props": {}, "children": ["pacing_item_1_title", "pacing_item_1_text"]}, "pacing_item_1_title": {"type": "Text", "props": {"text": "Transit Strategy", "weight": "bold"}, "children": []}, "pacing_item_1_text": {"type": "Text", "props": {"text": "Use JR lines and the subway where possible to avoid traffic. For Kiyomizu-dera, a taxi is recommended from the nearest station (Kyoto Station or Kiyomizu-Gojo) to the top of the hill to save energy for the actual temple grounds."}, "children": []}, "pacing_item_2": {"type": "Column", "props": {}, "children": ["pacing_item_2_title", "pacing_item_2_text"]}, "pacing_item_2_title": {"type": "Text", "props": {"text": "Hiking Note", "weight": "bold"}, "children": []}, "pacing_item_2_text": {"type": "Text", "props": {"text": "The hikes selected (Monkey Park and Fushimi Inari) are the activities themselves, not transit walks. Both have rest stops and safe paths."}, "children": []}, "pacing_item_3": {"type": "Column", "props": {}, "children": ["pacing_item_3_title", "pacing_item_3_text"]}, "pacing_item_3_title": {"type": "Text", "props": {"text": "Weather Framework", "weight": "bold"}, "children": []}, "pacing_item_3_text": {"type": "Text", "props": {"text": "Early April averages 10-20 degrees Celsius (50-68 F). Rain is possible, so indoor backups like the Railway Museum are included."}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "itinerary_header_row": {"type": "Row", "props": {"spacing": "small", "verticalAlign": "center"}, "children": ["itinerary_icon", "itinerary_title"]}, "itinerary_icon": {"type": "Icon", "props": {"name": "map", "size": "large"}, "children": []}, "itinerary_title": {"type": "Text", "props": {"text": "3-Day Itinerary: Temples & Trails", "variant": "h2"}, "children": []}, "itinerary_list": {"type": "List", "props": {"repeat": {"statePath": "/itinerary", "key": "id"}, "spacing": "medium"}, "children": ["itinerary_item_card"]}, "itinerary_item_card": {"type": "Card", "props": {}, "children": ["itinerary_item_column"]}, "itinerary_item_column": {"type": "Column", "props": {"spacing": "small"}, "children": ["itinerary_item_image", "itinerary_item_content_column"]}, "itinerary_item_image": {"type": "Image", "props": {"src": {"$item": "image"}, "aspectRatio": "16:9", "cornerRadius": {"topStart": "medium", "topEnd": "medium"}}, "children": []}, "itinerary_item_content_column": {"type": "Column", "props": {"spacing": "small", "padding": {"all": "medium"}}, "children": ["itinerary_item_header_row", "itinerary_item_desc", "itinerary_item_button"]}, "itinerary_item_header_row": {"type": "Column", "props": {}, "children": ["itinerary_item_day_text", "itinerary_item_title_text"]}, "itinerary_item_day_text": {"type": "Text", "props": {"text": {"$item": "day"}, "variant": "subtitle", "weight": "bold"}, "children": []}, "itinerary_item_title_text": {"type": "Text", "props": {"text": {"$template": "${title} | ${location}"}, "variant": "title"}, "children": []}, "itinerary_item_desc": {"type": "Text", "props": {"text": {"$item": "description"}}, "children": []}, "itinerary_item_button": {"type": "Button", "props": {"label": {"$item": "buttonText"}, "variant": "outline", "width": "stretch"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "buttonUrl"}}}}}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "dining_header_row": {"type": "Row", "props": {"spacing": "small", "verticalAlign": "center"}, "children": ["dining_icon", "dining_title"]}, "dining_icon": {"type": "Icon", "props": {"name": "restaurant", "size": "large"}, "children": []}, "dining_title": {"type": "Text", "props": {"text": "Kid-Friendly Dining", "variant": "h2"}, "children": []}, "dining_card": {"type": "Card", "props": {}, "children": ["dining_column"]}, "dining_column": {"type": "Column", "props": {"spacing": "medium"}, "children": ["dining_image", "dining_content_column"]}, "dining_image": {"type": "Image", "props": {"src": "https://storage.googleapis.com/gen-ui-images/kyoto_food.jpg", "aspectRatio": "16:9", "cornerRadius": {"topStart": "medium", "topEnd": "medium"}}, "children": []}, "dining_content_column": {"type": "Column", "props": {"spacing": "medium", "padding": {"all": "medium"}}, "children": ["dining_intro_text", "dining_list"]}, "dining_intro_text": {"type": "Text", "props": {"text": "Families in Kyoto often prefer casual dining where noise levels are acceptable and menus are visual."}, "children": []}, "dining_list": {"type": "List", "props": {"repeat": {"statePath": "/dining", "key": "id"}, "spacing": "medium"}, "children": ["dining_item_column"]}, "dining_item_column": {"type": "Column", "props": {"spacing": "x-small"}, "children": ["dining_item_type", "dining_item_details"]}, "dining_item_type": {"type": "Text", "props": {"text": {"$item": "name"}, "weight": "bold"}, "children": []}, "dining_item_details": {"type": "Text", "props": {"text": {"$item": "details"}}, "children": []}, "divider_3": {"type": "Divider", "props": {}, "children": []}, "sources_header_row": {"type": "Row", "props": {"spacing": "small", "verticalAlign": "center"}, "children": ["sources_icon", "sources_title"]}, "sources_icon": {"type": "Icon", "props": {"name": "book", "size": "large"}, "children": []}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_list": {"type": "List", "props": {"repeat": {"statePath": "/sources", "key": "id"}, "spacing": "small"}, "children": ["source_button"]}, "source_button": {"type": "Button", "props": {"label": {"$item": "text"}, "variant": "outline", "width": "stretch"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "url"}}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

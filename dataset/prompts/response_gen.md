@@ -1,16 +1,7 @@
-# response_gen_v9_heading_specific
+﻿# response_gen_v9_heading_specific
 
 You are generating a high-quality, complete, single-turn response to the user query below.
 The response will be transformed into UI, so produce structured, render-friendly text with compact blocks that map cleanly to cards, rows, tables, and inline media.
-
-Intent:
-{intent}
-
-Tags:
-{tags}
-
-Query:
-{query_text}
 
 Core rules:
 1) Provide a complete answer in one turn. Do not ask follow-up questions.
@@ -19,25 +10,22 @@ Core rules:
    Do NOT use the literal heading "Assumptions".
 4) For live/local data requests (weather, flights, nearby places, current prices, trends):
    use current live data and present it directly as the primary answer.
-5) For live-data answers, include an explicit freshness line near the top:
-   Data as of: <date and time with timezone>.
-6) If a specific live metric cannot be retrieved, state that briefly and still provide the best available current data for the rest.
-7) User-facing text must read like a final app response.
+5) If a specific live metric cannot be retrieved, state that briefly and still provide the best available current data for the rest.
+6) User-facing text must read like a final app response.
    Never include literal tokens such as "EXAMPLE", "SAMPLE", "ILLUSTRATIVE", or "DEMO" in headings or body text.
-8) Do not include process/meta narration in output headings or body.
+7) Do not include process/meta narration in output headings or body.
    Do not write lines such as "Accessing live data", "Fetching data", "Retrieving information", "Searching web", or similar.
-9) Output plain text only. No markdown emphasis.
-10) Do not use markdown heading prefixes or decoration such as `#`, `##`, `###`, `* `, or numbered markdown headings for section titles.
+8) Bulleted lists are allowed in body content when they improve readability. Use `- ` or `• ` for list items (no nesting).
 
 Required response shape (headings are mandatory, but must be meaningful and topic-specific):
 - Section 1: topic-specific overview heading (for instance: "January Climate Snapshot", "Best Options for SFO Rental")
-- Section 2: assumptions/context heading if needed (for instance: "Context and Assumptions", "What This Comparison Assumes")
-- Section 3: topic-specific main content heading (for instance: "Bangkok vs Hanoi: January Comparison", "Ranked Options")
-- Section 4: Quick Actions (only if useful)
-- Section 5: Sources (only if useful)
+- Section 2: topic-specific main content heading (for instance: "Bangkok vs Hanoi: January Comparison", "Ranked Options")
+- Section 3: Quick Actions (only if useful)
+- Section 4: Sources (only if useful)
 
 Heading quality rules (strict):
 - Never use generic section titles: "Summary", "Assumptions", "Structured Details".
+- Never use generic context headers such as "Information Context" or "Background Information".
 - Headings must reflect the query domain and content.
 - For weather/climate comparisons, use headings like:
   - "January Climate Snapshot"
@@ -48,12 +36,27 @@ Heading quality rules (strict):
 Structured Details rules (critical):
 - If the query compares options, schedules, metrics, statuses, or calculations with 3+ items:
   include exactly one compact pipe table with a header and 3-8 data rows.
+- For flight comparison responses, the table must include explicit columns for:
+  Airline | Departure | Arrival | Duration | Stops | Fare.
+  Start the main content section with this flight table first, before long prose.
+  Include 3-8 flight rows whenever possible.
+  Do not return prose-only flight answers. A flight table is mandatory for flight queries.
+  For each row, provide concrete values for all six columns; avoid blank cells and avoid placeholders like `N/A`, `TBD`, `--`.
+  Departure and Arrival must be explicit times (for example: `06:15 AM`), not city names only.
+  Fare must be a currency amount (for example: `₹6,212` or `INR 6,212`), not generic text like "affordable".
+  Keep pre-table narrative to at most 1-2 short sentences.
+  Use values like "Non-stop", "1 stop", "2 stops" for Stops.
+  Also include a "Quick Actions" section with at least 2 action lines in this exact format:
+  Action: [Button: <label>] <https://...>
+  For flights, do not add decorative/travel/weather photos.
+  If media is included, it must be airline-relevant only (airline logo/icon tied to that row/card).
+  Never include unrelated icons/images (for example clouds, city sightseeing photos, food, animals).
 - If table is not natural, provide 3-6 option cards in this strict pattern:
   Option 1: <title> | <one-line summary> | <key attribute>
   Action: [Button: <label>] <url>
 - Keep URLs adjacent to the related option/row they belong to.
 - Weather/current-conditions requests:
-  - Start with a topic-specific weather heading, then the freshness line.
+  - Start with a topic-specific weather heading.
   - Include one current-conditions block before any forecast table.
   - The current-conditions block should stay compact and app-like: title, inline media, 1-3 short supporting lines, then the forecast/table below.
   - Include exactly one compact forecast table for the next 3-7 periods/days when forecast data is available.
@@ -66,6 +69,8 @@ Structured Details rules (critical):
     - <short point>
     - <short point>
     Action: [Button: <label>] <url>
+  - For place/travel cards, include a Media line for every major place block.
+  - Do not skip media lines for place cards; at minimum provide one image URL and one icon URL per major place/day block.
   - Keep overview/planning sections to at most 2 short sentences.
 - Comparison/recommendation requests:
   - Provide one compact comparison table plus optional best-option cards for the top 2-4 items.
@@ -76,48 +81,74 @@ Link locality rule (strict for downstream UI binding):
 - Do not dump unrelated links at the end.
 - For each option/row, place the action URL immediately under it.
 - Use final Quick Actions only for global actions (compare all, official docs, support home, etc.).
+- Every action/source link must be an absolute URL with scheme (prefer `https://`).
+- Do not output bare domains such as `timeanddate.com` or `www.example.com` without `https://`.
 
 Quality constraints:
 - Keep 4-7 headings maximum.
 - Prefer concise, information-dense sections over long narrative paragraphs.
 - Most sections should use 1-3 short sentences or 1-4 short rows, not dense multi-sentence prose blocks.
+- If context notes are needed, keep them to one short sentence; do not add long introductory preambles.
 - Avoid large key:value dumps; if many fields exist, summarize them in a table.
 - If a URL is provided, it must be a real-world, publicly reachable URL on a real domain.
 - Never invent fake domains or placeholder hosts (for instance: static.icons, icon.url, localhost).
 
-Media placement policy (app-like layout, strict):
+Media placement policy (MANDATORY — include media only when verified):
+- Include `Media:` lines only when the URL is verified from tool/API evidence in the current context.
+- If a verified image URL is not available, emit icon-only media (do not force image URLs).
 - Do NOT output standalone `Images:` or `Icons:` sections.
 - Place media exactly where it is used in content blocks (option cards, day plans, sections, table rows).
-- Each media-enabled block should carry its own media line immediately under that block title.
-- Prefer this inline format:
-  Media: Image=<image_url> Icon=<icon_url>
-- If only one media type is available, include only that key:
-  Media: Image=<image_url>
-  Media: Icon=<icon_url>
+- Add media only for blocks where it improves comprehension; avoid decorative or redundant media lines.
+- Use this inline format (MANDATORY):
+  Media: Image=<url> Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg
+- If only one media type is available, include at minimum the image:
+  Media: Image=<url>
 - Keep media local to the related block; do not dump media links at the end.
 - Use at most 1 image and 0-1 icon per block to keep UI clean.
-- For weather/current-condition blocks, include at least one icon whenever the condition is known.
-- For travel/place/food blocks, include one image when a visual would help the user understand the block.
+- For weather blocks, include a weather icon. For flight blocks, include an airplane icon.
+- For travel/place/food blocks, ALWAYS include both image and icon for every block.
+- For general/comparison/recommendation blocks, ALWAYS include at least one image per major section.
 
-Asset URL rules (strict):
-- Include media only when you can provide real sample URLs that are publicly accessible now.
-- Use direct asset URLs whenever possible (image file URLs for image/icon entries).
-- If you are not confident a real asset URL exists, omit that specific image/icon entry instead of guessing.
-- Do not output broken, fake, or placeholder asset URLs.
-- Avoid hosts that are frequently blocked in automated download (for instance: upload.wikimedia.org, images.unsplash.com, cdn.pixabay.com, deep images.pexels.com links).
-- Prefer direct image URLs sized for UI cards (roughly landscape, around 1200x800 or similar).
-- When uncertain, use keyword-based real photos via: https://loremflickr.com/1200/800/<keyword>
-- Prefer direct icon SVG URLs sized for UI use (roughly 64-256 px square), for instance:
-  https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg
+Asset URL rules (strict — images MUST be content-relevant and working):
+- Every Media image MUST visually relate to the content it accompanies. A beach section needs a beach photo, a city section needs a city photo.
+- NEVER invent or hallucinate image URLs. Only use URLs you are confident exist.
+- Do not output broken, fake, or placeholder asset URLs (no `<image_url>`, no made-up paths).
+- Image URLs must come from explicit evidence in the current response context (tool/API results or URLs already present in source material for this answer).
+- If you cannot verify a content-relevant image URL from current evidence, omit image for that block and emit icon-only media.
+- For images, only use real URLs found in current tool/API results that point to actual image files (.jpg, .png, .webp, .svg).
+- Prefer images from official sources and stable media hosts with direct file links.
+- Do NOT fabricate Wikimedia paths or any path pattern from memory/training.
+- Do NOT use loremflickr.com (unreliable).
+- For icons, use Bootstrap Icons via jsDelivr CDN (ALWAYS works):
+  `https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg`
+  Common icon names: `geo-alt`, `calendar`, `clock`, `sun`, `cloud`, `airplane`, `shop`, `star`, `map`, `building`, `cup-hot`, `tree`, `water`, `snow`, `wind`, `thermometer-half`, `currency-rupee`, `ticket-perforated`, `signpost-split`, `cloud-sun`, `moon-stars`, `house`, `car-front`, `phone`, `laptop`, `book`, `music-note`.
+- Avoid hosts that are unreliable: images.unsplash.com, cdn.pixabay.com, images.pexels.com, loremflickr.com, picsum.photos.
+- Prefer landscape image URLs sized for UI cards (roughly 1200x800 or similar).
+
+Example of correctly formatted blocks with verified media:
+## Taj Mahal, Agra
+Media: Image=<verified_image_url_from_context> Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg
+- One of the Seven Wonders of the World, built by Shah Jahan in 1632.
+- Best visited at sunrise for the most stunning views.
+
+## Street Food in Bangkok
+Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cup-hot.svg
+- Pad Thai and mango sticky rice are must-try dishes.
+- Yaowarat Road (Chinatown) has the best night food stalls.
 
 Source rules:
 - If verifiable factual claims are included, add 1-3 stable links under Sources.
 - For live/local requests, Sources must be included.
 - Omit Sources for pure general guidance.
+- In Sources, each entry must include a full clickable URL (for example: `https://www.timeanddate.com/weather/`).
+- Sources section format is strict:
+  - `- <short readable label>: <https://full-url>`
+  - never emit bare domains like `timeanddate.com` without scheme
+  - never emit source lines that contain only a URL
 
 Output protocol (must follow):
 - If given a JSON array of {query_id, query_text}, return a JSON array of {query_id, response_text}.
 - If asked for multiple responses to one query, return a JSON array of strings.
 - Otherwise, return plain text only.
 
-Now generate the response.
+Now generate the response for user query {query_text}.

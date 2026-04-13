@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Column", "props": {}, "children": ["text_1"]}, "text_1": {"type": "Text", "props": {"variant": "body", "text": "October Climate Showdown: Rome vs. Lisbon\n\nThis comparison provides a snapshot of the typical weather conditions in Rome and Lisbon during October to help with your travel planning. It outlines key climate metrics to help you decide which city best suits your preference for warmer, sunnier weather.\n\nA Note on Climate Averages\n\nThe following data is based on long-term historical climate averages and should be used as a general guide, not a live weather forecast. Actual weather conditions in October 2024 can vary. It is always recommended to check a detailed forecast closer to your travel dates.\n\nOctober Weather Comparison Table\n\n| City | Average High (°C) | Average Low (°C) | Average Rainy Days | Average Sunshine (Hours/Day) |\n|---|---|---|---|---|\n| Rome, Italy | 22°C | 12°C | 8 | 6 |\n| Lisbon, Portugal | 22°C | 15°C | 9 | 7 |\n\nRecommendation for Sun-Seekers\n\nFor a tourist who prefers warmer and sunnier conditions, Lisbon is the recommended choice for an October trip.\n\nWhile both cities boast a pleasant average high temperature of 22°C, Lisbon's key advantages are its warmer evenings and greater amount of sunshine. The average low in Lisbon is a comfortable 15°C compared to Rome's cooler 12°C, making it more pleasant for evening activities. Additionally, Lisbon typically offers an extra hour of sunshine per day. Although it has a slightly higher number of rainy days on average, the combination of warmer nights and more sun makes it the better option for your stated preferences.\n\nImages\n\nAutumn in Rome: ../assets/r_000009_01_1_rome_autumn.jpg\nLisbon Coastline: ../assets/r_000009_01_2_lisbon_coast.jpg\nColosseum in Rome: ../assets/r_000009_01_3_colosseum_rome.jpg\n\nTemperature: ../assets/r_000009_01_4_thermometer-half.svg\nSunshine: ../assets/r_000009_01_5_sun-fill.svg\nRain: ../assets/r_000009_01_6_cloud-rain-fill.svg\n\nIcons:\n- Calendar Event: ../assets/r_000006_01_5_calendar-event.svg\n- Camera: ../assets/r_000002_01_1_camera.svg\n\nImages:\n- Autumn in Rome: ../assets/r_000009_01_1_rome_autumn.jpg\n- Lisbon Coastline: ../assets/r_000009_01_2_lisbon_coast.jpg\n- Colosseum in Rome: ../assets/r_000009_01_3_colosseum_rome.jpg\n\nIcons:\n- World Meteorological Organization: https://wmo.int/\n- Climate-Data.org: ../assets/r_000009_01_9_cloud-sun.svg\n\nSources\n\nWorld Meteorological Organization: https://wmo.int/\nClimate-Data.org: https://en.climate-data.org/\n\nImages:\n- Verified Visual 1: ../assets/r_000009_01_10_800.jpg\n- Verified Visual 2: ../assets/r_000009_01_11_800.jpg"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

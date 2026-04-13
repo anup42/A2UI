@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main_stack", "state": {"comparisonData": [{"hotel": "Sakura Inn Kyoto", "price": "$220", "room_req": "Yes (King, Non-smoking)", "amenity_req": "Yes (Wi-Fi, Gym)", "recommendation": "**Best Fit**"}, {"hotel": "Gion Traditional Ryokan", "price": "$245", "room_req": "No (Queen bed, Smoking)", "amenity_req": "Yes (Wi-Fi, Gym)", "recommendation": "Not a fit"}, {"hotel": "Kyoto Grand Hotel", "price": "$280", "room_req": "Yes (King, Non-smoking)", "amenity_req": "No (Missing Gym)", "recommendation": "Not a fit"}]}, "elements": {"main_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "evaluation_stack", "table_stack", "gallery_stack", "cta_button"]}, "title": {"type": "Text", "props": {"text": "Top Hotel Pick for Your Kyoto Stay", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Based on your specific needs for a 5-night stay in Kyoto, Sakura Inn Kyoto is the clear best choice. It is the only option that satisfies all your must-have requirements, including budget, room type, and amenities. The other hotels fail to meet at least one of your critical criteria."}, "children": []}, "evaluation_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["evaluation_title", "evaluation_text"]}, "evaluation_title": {"type": "Text", "props": {"text": "How Your Options Were Evaluated", "variant": "h2"}, "children": []}, "evaluation_text": {"type": "Text", "props": {"text": "This recommendation is based on a direct comparison of the provided hotel data against your four requirements: a budget under $250/night, a non-smoking room with a king-size bed, free Wi-Fi, and an on-site gym. The hotel must meet all four conditions to be considered a good fit."}, "children": []}, "table_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["table_title", "comparison_table"]}, "table_title": {"type": "Text", "props": {"text": "Hotel Requirements Checklist", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"statePath": "/comparisonData", "columns": [{"key": "hotel", "label": "Hotel"}, {"key": "price", "label": "Price/Night (USD)"}, {"key": "room_req", "label": "Meets Room Requirements?"}, {"key": "amenity_req", "label": "Meets Amenity Requirements?"}, {"key": "recommendation", "label": "Recommendation"}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Hotel | Price/Night (USD) | Meets Room Requirements? | Meets Amenity Requirements? | Recommendation |\n|---|---|---|---|---|\n| Sakura Inn Kyoto | $220 | Yes (King, Non-smoking) | Yes (Wi-Fi, Gym) | **Best Fit** |\n| Gion Traditional Ryokan | $245 | No (Queen bed, Smoking) | Yes (Wi-Fi, Gym) | Not a fit |\n| Kyoto Grand Hotel | $280 | Yes (King, Non-smoking) | No (Missing Gym) | Not a fit |"}, "children": []}, "gallery_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000007_01_4_kyotohotel.jpg", "fit": "cover", "height": 200, "flex": 1}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000007_01_5_kyoto_shrine.jpg", "fit": "cover", "height": 200, "flex": 1}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000007_01_6_hotelgym.jpg", "fit": "cover", "height": 200, "flex": 1}, "children": []}, "cta_button": {"type": "Button", "props": {"label": "Check Availability for Sakura Inn Kyoto", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.booking.com/searchresults.html?ss=Sakura+Inn+Kyoto"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

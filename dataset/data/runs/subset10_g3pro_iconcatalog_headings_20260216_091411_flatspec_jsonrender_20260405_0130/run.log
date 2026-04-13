@@ -1,0 +1,102 @@
+2026-04-05 02:32:38 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=355 user_template_tokens=13
+2026-04-05 02:32:38 INFO dataset: Stage3 schema mode: flat_spec
+2026-04-05 02:32:40 ERROR dataset: Stage3 generation error response_id=r_001374_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:42 ERROR dataset: Stage3 generation error response_id=r_000264_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:43 ERROR dataset: Stage3 generation error response_id=r_000701_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:44 ERROR dataset: Stage3 generation error response_id=r_000175_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:47 ERROR dataset: Stage3 generation error response_id=r_000090_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:48 ERROR dataset: Stage3 generation error response_id=r_001047_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:49 ERROR dataset: Stage3 generation error response_id=r_000784_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:51 ERROR dataset: Stage3 generation error response_id=r_000351_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:52 ERROR dataset: Stage3 generation error response_id=r_001502_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:56 ERROR dataset: Stage3 generation error response_id=r_001590_01: HTTP 404: Not Found {
+  "error": {
+    "code": 404,
+    "message": "Publisher Model `projects/551717914567/locations/asia-southeast1/publishers/google/models/gemini-3-pro-preview` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions",
+    "status": "NOT_FOUND"
+  }
+}
+2026-04-05 02:32:56 WARNING dataset: Stage3 completed with generation failures=10 created=0
+2026-04-05 02:32:56 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\aggregates.json
+2026-04-05 02:32:56 INFO dataset: Stage3 complete.
+2026-04-05 02:33:07 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=355 user_template_tokens=13
+2026-04-05 02:33:07 INFO dataset: Stage3 schema mode: flat_spec
+2026-04-05 02:33:54 INFO dataset: Stage3 created ui_id=u_001374_01 schema_ok=True
+2026-04-05 02:35:04 INFO dataset: Stage3 created ui_id=u_000264_01 schema_ok=True
+2026-04-05 02:36:06 INFO dataset: Stage3 created ui_id=u_000701_01 schema_ok=True
+2026-04-05 02:37:20 INFO dataset: Stage3 created ui_id=u_000175_01 schema_ok=True
+2026-04-05 02:38:07 INFO dataset: Stage3 created ui_id=u_000090_01 schema_ok=True
+2026-04-05 02:38:47 INFO dataset: Stage3 created ui_id=u_001047_01 schema_ok=True
+2026-04-05 02:39:56 INFO dataset: Stage3 created ui_id=u_000784_01 schema_ok=True
+2026-04-05 02:41:00 INFO dataset: Stage3 created ui_id=u_000351_01 schema_ok=True
+2026-04-05 02:42:16 INFO dataset: Stage3 created ui_id=u_001502_01 schema_ok=True
+2026-04-05 02:43:02 INFO dataset: Stage3 created ui_id=u_001590_01 schema_ok=True
+2026-04-05 02:43:02 INFO dataset: Stage3 completed created=10
+2026-04-05 02:43:02 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\aggregates.json
+2026-04-05 02:43:02 INFO dataset: Stage3 complete.
+2026-04-05 02:43:15 INFO dataset: Stage4 HTTP server started on port 59191
+2026-04-05 02:43:51 INFO dataset: Stage4 complete. Rendered outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\rendered
+2026-04-05 02:44:13 INFO dataset: Stage4 HTTP server started on port 61150
+2026-04-05 02:44:24 INFO dataset: Stage4 renderer=json_render complete. Outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\rendered
+2026-04-05 02:44:25 INFO dataset: Stage4 HTTP server started on port 61210
+2026-04-05 02:44:48 INFO dataset: Stage4 renderer=lit complete. Outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\rendered_lit
+2026-04-05 02:44:57 INFO dataset: Stage3 already complete for run_id=subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130. Recomputed aggregates only (10 rows).
+2026-04-05 02:45:54 INFO dataset: Stage4 HTTP server started on port 62058
+2026-04-05 02:46:04 INFO dataset: Stage4 renderer=json_render complete. Outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\rendered
+2026-04-05 02:46:05 INFO dataset: Stage4 HTTP server started on port 62120
+2026-04-05 02:46:25 INFO dataset: Stage4 renderer=lit complete. Outputs stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130\rendered_lit
+2026-04-05 02:46:32 INFO dataset: Stage3 already complete for run_id=subset10_g3pro_iconcatalog_headings_20260216_091411_flatspec_jsonrender_20260405_0130. Recomputed aggregates only (10 rows).

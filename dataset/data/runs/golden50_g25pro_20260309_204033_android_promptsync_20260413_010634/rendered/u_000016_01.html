@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "params_card", "proposed_title", "options_stack", "unavailable_card"]}, "title": {"type": "Text", "props": {"text": "Shared Team Availability: Sep 9-13", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Based on the schedules provided for Maria, David, and Sarah, here are the optimal times for a 60-minute team meeting during the week of September 9, 2024."}, "children": []}, "params_card": {"type": "Card", "props": {}, "children": ["params_stack"]}, "params_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["params_title", "params_list"]}, "params_title": {"type": "Text", "props": {"text": "Scheduling Parameters", "variant": "h3"}, "children": []}, "params_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["param_duration", "param_timezone", "param_hours", "param_participants"]}, "param_duration": {"type": "Text", "props": {"text": "• Meeting Duration: 60 minutes."}, "children": []}, "param_timezone": {"type": "Text", "props": {"text": "• Timezone: All times are in America/New_York."}, "children": []}, "param_hours": {"type": "Text", "props": {"text": "• Business Hours: Meetings are scheduled between 9:00 AM and 5:00 PM."}, "children": []}, "param_participants": {"type": "Text", "props": {"text": "• Participants: Maria, David, and Sarah must all be available."}, "children": []}, "proposed_title": {"type": "Text", "props": {"text": "Proposed 60-Minute Meeting Slots", "variant": "h3"}, "children": []}, "options_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["option1_card", "option2_card"]}, "option1_card": {"type": "Card", "props": {}, "children": ["option1_stack"]}, "option1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["option1_text", "option1_button"]}, "option1_text": {"type": "Text", "props": {"text": "Option 1: Monday, September 9 | 10:00 AM - 11:00 AM | Early-week sync"}, "children": []}, "option1_button": {"type": "Button", "props": {"label": "Schedule on Google Calendar"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Team+Meeting&dates=20240909T140000Z/20240909T150000Z&details=Team+meeting+with+Maria,+David,+and+Sarah."}}}}, "option2_card": {"type": "Card", "props": {}, "children": ["option2_stack"]}, "option2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["option2_text", "option2_button"]}, "option2_text": {"type": "Text", "props": {"text": "Option 2: Friday, September 13 | 10:00 AM - 11:00 AM | End-of-week review"}, "children": []}, "option2_button": {"type": "Button", "props": {"label": "Schedule on Google Calendar"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Team+Meeting&dates=20240913T140000Z/20240913T150000Z&details=Team+meeting+with+Maria,+David,+and+Sarah."}}}}, "unavailable_card": {"type": "Card", "props": {}, "children": ["unavailable_stack"]}, "unavailable_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["unavailable_title", "unavailable_intro", "unavailable_list"]}, "unavailable_title": {"type": "Text", "props": {"text": "Days With No Common Availability", "variant": "h3"}, "children": []}, "unavailable_intro": {"type": "Text", "props": {"text": "Due to conflicting appointments, there are no 60-minute slots where all three participants are free on the following days:"}, "children": []}, "unavailable_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["unavailable_tue", "unavailable_wed", "unavailable_thu"]}, "unavailable_tue": {"type": "Text", "props": {"text": "• Tuesday, September 10"}, "children": []}, "unavailable_wed": {"type": "Text", "props": {"text": "• Wednesday, September 11"}, "children": []}, "unavailable_thu": {"type": "Text", "props": {"text": "• Thursday, September 12"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

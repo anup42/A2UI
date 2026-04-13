@@ -6,11 +6,13 @@ import json
 from typing import Any
 
 _ALLOWED_TYPES = {
+    "stack",
     "column",
     "row",
     "list",
     "card",
     "text",
+    "table",
     "image",
     "icon",
     "video",
@@ -35,11 +37,13 @@ _ALLOWED_ACTIONS = {
 }
 
 _TYPE_CANONICAL_MAP = {
+    "stack": "Stack",
     "column": "Column",
     "row": "Row",
     "list": "List",
     "card": "Card",
     "text": "Text",
+    "table": "Table",
     "image": "Image",
     "icon": "Icon",
     "video": "Video",

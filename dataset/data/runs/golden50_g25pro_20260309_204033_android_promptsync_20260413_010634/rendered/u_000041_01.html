@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header", "intro_card", "picks_header", "podcast_stack", "comparison_header", "comparison_table", "image_gallery", "quick_actions_header", "quick_actions_stack"]}, "header": {"type": "Text", "props": {"text": "Podcast Recommendations: Narrative-Driven Tech & Science", "variant": "h1"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["intro_header", "intro_body"]}, "intro_header": {"type": "Text", "props": {"text": "A Note on Your Listening Criteria", "variant": "h2"}, "children": []}, "intro_body": {"type": "Text", "props": {"text": "This list is curated based on your preference for the structured, deep-dive storytelling found in 'Hardcore History' and 'Planet Money'. The recommendations focus on well-researched narratives and high production value, avoiding the unstructured conversational style you dislike. While episode lengths can vary, these podcasts generally align with your 25-40 minute target.", "variant": "body"}, "children": []}, "picks_header": {"type": "Text", "props": {"text": "Top Picks for Your Playlist", "variant": "h2"}, "children": []}, "podcast_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["card_99_invisible", "card_radiolab", "card_darknet"]}, "card_99_invisible": {"type": "Card", "props": {}, "children": ["stack_99_invisible"]}, "stack_99_invisible": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["title_99_invisible", "desc_99_invisible", "best_for_99_invisible", "button_99_invisible"]}, "title_99_invisible": {"type": "Text", "props": {"text": "99% Invisible", "variant": "h3"}, "children": []}, "desc_99_invisible": {"type": "Text", "props": {"text": "Explores the hidden design and architecture that shapes our world.", "variant": "body"}, "children": []}, "best_for_99_invisible": {"type": "Text", "props": {"text": "Best for: Making complex design and technology topics accessible through tight narratives.", "variant": "caption"}, "children": []}, "button_99_invisible": {"type": "Button", "props": {"label": "Listen Now", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://99percentinvisible.org/"}}}}, "card_radiolab": {"type": "Card", "props": {}, "children": ["stack_radiolab"]}, "stack_radiolab": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["title_radiolab", "desc_radiolab", "best_for_radiolab", "button_radiolab"]}, "title_radiolab": {"type": "Text", "props": {"text": "Radiolab", "variant": "h3"}, "children": []}, "desc_radiolab": {"type": "Text", "props": {"text": "Investigates big questions in science, philosophy, and the human experience.", "variant": "body"}, "children": []}, "best_for_radiolab": {"type": "Text", "props": {"text": "Best for: Deep scientific storytelling with exceptional sound design.", "variant": "caption"}, "children": []}, "button_radiolab": {"type": "Button", "props": {"label": "Listen Now", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://radiolab.org/podcasts"}}}}, "card_darknet": {"type": "Card", "props": {}, "children": ["stack_darknet"]}, "stack_darknet": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["title_darknet", "desc_darknet", "best_for_darknet", "button_darknet"]}, "title_darknet": {"type": "Text", "props": {"text": "Darknet Diaries", "variant": "h3"}, "children": []}, "desc_darknet": {"type": "Text", "props": {"text": "True stories from the dark side of the internet, covering hacking and cybercrime.", "variant": "body"}, "children": []}, "best_for_darknet": {"type": "Text", "props": {"text": "Best for: Gripping, suspenseful tech narratives told in a documentary style.", "variant": "caption"}, "children": []}, "button_darknet": {"type": "Button", "props": {"label": "Listen Now", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://darknetdiaries.com/"}}}}, "comparison_header": {"type": "Text", "props": {"text": "How the Recommendations Compare", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "podcast", "label": "Podcast"}, {"key": "primary_focus", "label": "Primary Focus"}, {"key": "typical_length", "label": "Typical Length"}, {"key": "storytelling_style", "label": "Storytelling Style"}], "rows": [{"podcast": "99% Invisible", "primary_focus": "Design & Urbanism Tech", "typical_length": "25-40 min", "storytelling_style": "Focused, Explanatory"}, {"podcast": "Radiolab", "primary_focus": "Broad Science & Philosophy", "typical_length": "30-50 min", "storytelling_style": "Investigative, Sound-Rich"}, {"podcast": "Darknet Diaries", "primary_focus": "Cybersecurity & Hacking", "typical_length": "40-60 min", "storytelling_style": "True Crime, Suspenseful"}, {"podcast": "Endless Thread", "primary_focus": "Internet Culture & History", "typical_length": "25-35 min", "storytelling_style": "Exploratory, Human-Interest"}, {"podcast": "Twenty Thousand Hertz", "primary_focus": "The Stories Behind Sound", "typical_length": "20-30 min", "storytelling_style": "Thematic, Highly Polished"}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Podcast | Primary Focus | Typical Length | Storytelling Style |\n|---|---|---|---|\n| 99% Invisible | Design & Urbanism Tech | 25-40 min | Focused, Explanatory |\n| Radiolab | Broad Science & Philosophy | 30-50 min | Investigative, Sound-Rich |\n| Darknet Diaries | Cybersecurity & Hacking | 40-60 min | True Crime, Suspenseful |\n| Endless Thread | Internet Culture & History | 25-35 min | Exploratory, Human-Interest |\n| Twenty Thousand Hertz | The Stories Behind Sound | 20-30 min | Thematic, Highly Polished |"}, "children": []}, "image_gallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image_podcast", "image_science", "image_tech"]}, "image_podcast": {"type": "Image", "props": {"url": "../assets/r_000041_01_1_podcast.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image_science": {"type": "Image", "props": {"url": "../assets/r_000041_01_2_science.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image_tech": {"type": "Image", "props": {"url": "../assets/r_000041_01_3_technology.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "quick_actions_header": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "quick_actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["button_spotify", "button_apple"]}, "button_spotify": {"type": "Button", "props": {"label": "Explore Podcasts on Spotify", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/genre/podcasts-web"}}}}, "button_apple": {"type": "Button", "props": {"label": "Explore Podcasts on Apple", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.apple.com/apple-podcasts/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -61,6 +61,7 @@ class LocalServerBackend(
             val stream = if (code in 200..299) connection.inputStream else connection.errorStream
             val streamRead = InferenceStreamUtils.readStreamWithTiming(stream)
             val raw = streamRead.text
+            val usage = parseLocalTokenUsage(raw)
 
             if (code !in 200..299) {
                 val short = raw.trim().ifBlank { "HTTP $code" }
@@ -68,7 +69,9 @@ class LocalServerBackend(
                     text = "",
                     rawResponse = raw,
                     error = "HTTP $code: ${short.take(320)}",
-                    streamDurationMs = streamRead.streamDurationMs
+                    streamDurationMs = streamRead.streamDurationMs,
+                    inputTokens = usage.first,
+                    outputTokens = usage.second
                 )
             }
 
@@ -78,7 +81,9 @@ class LocalServerBackend(
                     text = "",
                     rawResponse = raw,
                     error = "Local server response did not include text output.",
-                    streamDurationMs = streamRead.streamDurationMs
+                    streamDurationMs = streamRead.streamDurationMs,
+                    inputTokens = usage.first,
+                    outputTokens = usage.second
                 )
             }
 
@@ -86,7 +91,9 @@ class LocalServerBackend(
                 text = text,
                 rawResponse = raw,
                 error = null,
-                streamDurationMs = streamRead.streamDurationMs
+                streamDurationMs = streamRead.streamDurationMs,
+                inputTokens = usage.first,
+                outputTokens = usage.second
             )
         } catch (unknownHost: UnknownHostException) {
             InferenceBackend.GenerateResponse(
@@ -189,6 +196,19 @@ class LocalServerBackend(
             }
         }
         return null
+    }
+
+    private fun parseLocalTokenUsage(raw: String): Pair<Int?, Int?> {
+        val root = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
+            ?: return Pair(null, null)
+        val usage = root.getAsJsonObject("usage")
+        val promptTokens = usage?.get("prompt_tokens")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asInt
+            ?: root.get("prompt_tokens")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asInt
+            ?: usage?.get("promptTokenCount")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asInt
+        val completionTokens = usage?.get("completion_tokens")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asInt
+            ?: root.get("completion_tokens")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asInt
+            ?: usage?.get("outputTokenCount")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asInt
+        return Pair(promptTokens, completionTokens)
     }
 
     // ── error classification ───────────────────────────────────────────

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {}, "elements": {"root_column": {"type": "Column", "props": {"spacing": "medium", "padding": "medium"}, "children": ["title", "intro_card", "disclaimer_card", "metrics_title", "metrics_container", "verdict_title", "verdict_container", "sources_title", "sources_container"]}, "title": {"type": "Text", "props": {"text": "January Climate Snapshot", "typography": "headline-medium", "alignment": "center"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_col"]}, "intro_col": {"type": "Column", "props": {"padding": "medium", "spacing": "small"}, "children": ["intro_text"]}, "intro_text": {"type": "Text", "props": {"text": "January 2024 was the warmest January on record globally, continuing a trend of record-breaking temperatures. This report summarizes key climate metrics and provides a verdict on the month's climate status."}, "children": []}, "disclaimer_card": {"type": "Card", "props": {"variant": "elevated"}, "children": ["disclaimer_col"]}, "disclaimer_col": {"type": "Column", "props": {"padding": "medium"}, "children": ["disclaimer_text"]}, "disclaimer_text": {"type": "Text", "props": {"text": "This information is based on preliminary data from various climate agencies and is subject to change upon final analysis.", "typography": "body-small", "color": "on-surface-variant"}, "children": []}, "metrics_title": {"type": "Text", "props": {"text": "Key Metrics", "typography": "title-large", "padding": {"top": "large"}}, "children": []}, "metrics_container": {"type": "Column", "props": {"spacing": "medium"}, "children": ["temp_card", "co2_card", "ice_card"]}, "temp_card": {"type": "Card", "props": {}, "children": ["temp_card_row"]}, "temp_card_row": {"type": "Row", "props": {"padding": "medium", "spacing": "medium", "crossAxisAlignment": "center"}, "children": ["temp_icon", "temp_text_col"]}, "temp_icon": {"type": "Icon", "props": {"name": "thermostat", "size": "large"}, "children": []}, "temp_text_col": {"type": "Column", "props": {}, "children": ["temp_label", "temp_value"]}, "temp_label": {"type": "Text", "props": {"text": "Global Surface Temp Anomaly"}, "children": []}, "temp_value": {"type": "Text", "props": {"text": "+1.27°C", "typography": "title-medium", "weight": "bold"}, "children": []}, "co2_card": {"type": "Card", "props": {}, "children": ["co2_card_row"]}, "co2_card_row": {"type": "Row", "props": {"padding": "medium", "spacing": "medium", "crossAxisAlignment": "center"}, "children": ["co2_icon", "co2_text_col"]}, "co2_icon": {"type": "Icon", "props": {"name": "cloud", "size": "large"}, "children": []}, "co2_text_col": {"type": "Column", "props": {}, "children": ["co2_label", "co2_value"]}, "co2_label": {"type": "Text", "props": {"text": "Atmospheric CO₂"}, "children": []}, "co2_value": {"type": "Text", "props": {"text": "422.80 ppm", "typography": "title-medium", "weight": "bold"}, "children": []}, "ice_card": {"type": "Card", "props": {}, "children": ["ice_card_row"]}, "ice_card_row": {"type": "Row", "props": {"padding": "medium", "spacing": "medium", "crossAxisAlignment": "center"}, "children": ["ice_icon", "ice_text_col"]}, "ice_icon": {"type": "Icon", "props": {"name": "ac_unit", "size": "large"}, "children": []}, "ice_text_col": {"type": "Column", "props": {}, "children": ["ice_label", "ice_value"]}, "ice_label": {"type": "Text", "props": {"text": "Antarctic Sea Ice Extent"}, "children": []}, "ice_value": {"type": "Text", "props": {"text": "Record Low", "typography": "title-medium", "weight": "bold"}, "children": []}, "verdict_title": {"type": "Text", "props": {"text": "Verdict", "typography": "title-large", "padding": {"top": "large"}}, "children": []}, "verdict_container": {"type": "Card", "props": {}, "children": ["verdict_col"]}, "verdict_col": {"type": "Column", "props": {"padding": "medium"}, "children": ["verdict_text"]}, "verdict_text": {"type": "Text", "props": {"text": "The data clearly indicates a continued and accelerating warming trend. January 2024 sets a new, concerning benchmark, highlighting the urgency of climate action."}, "children": []}, "sources_title": {"type": "Text", "props": {"text": "Data Sources", "typography": "title-large", "padding": {"top": "large"}}, "children": []}, "sources_container": {"type": "Column", "props": {"spacing": "small"}, "children": ["source1_button", "source2_button"]}, "source1_button": {"type": "Button", "props": {"label": "Copernicus Climate Change Service", "variant": "outlined"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://climate.copernicus.eu/"}}}}, "source2_button": {"type": "Button", "props": {"label": "NOAA National Centers for Environmental Information", "variant": "outlined"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.ncei.noaa.gov/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

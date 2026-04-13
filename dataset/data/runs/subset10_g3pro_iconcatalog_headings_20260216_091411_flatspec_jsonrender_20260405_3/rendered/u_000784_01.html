@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "rootColumn", "state": {"selectedTab": "day1", "dining": [{"id": "d1", "type": "Conveyor Belt Sushi (Kaitenzushi)", "details": "\"Kura Sushi\" or \"Sushiro\" chains offer tablets for ordering and separate booths."}, {"id": "d2", "type": "Udon and Soba Noodles", "details": "\"Omen\" near Ginkaku-ji or Arashiyama offers dipping noodles that are fun for kids."}, {"id": "d3", "type": "Okonomiyaki", "details": "Savory pancakes where you can watch the food being cooked on a hotplate. \"Donguri\" is a family-friendly chain."}, {"id": "d4", "type": "Department Store Basements (Depachika)", "details": "Located under Isetan (Kyoto Station) or Takashimaya. Great for picking up high-quality bento boxes for a picnic if restaurants are too crowded."}], "sources": [{"id": "s1", "label": "Kyoto Official Travel Guide", "url": "https://kyoto.travel/en"}, {"id": "s2", "label": "Japan Guide (Kyoto Section)", "url": "https://www.japan-guide.com/e/e2158.html"}, {"id": "s3", "label": "Kyoto Railway Museum Official", "url": "https://www.kyotorailwaymuseum.jp/en/"}]}, "elements": {"rootColumn": {"type": "Column", "props": {"spacing": 16, "padding": {"top": 16, "bottom": 16, "left": 16, "right": 16}}, "children": ["title", "introCard", "itineraryTitle", "itineraryTabs", "day1Card", "day2Card", "day3Card", "diningCard", "sourcesCard"]}, "title": {"type": "Text", "props": {"text": "Kyoto Family Trip Overview (April 5-7)", "variant": "h1", "align": "start"}, "children": []}, "introCard": {"type": "Card", "props": {"padding": 16}, "children": ["introText", "pacingTitle", "pacingText"]}, "introText": {"type": "Text", "props": {"text": "Visiting Kyoto in early April places you in the peak of spring season. While cherry blossoms (sakura) may be starting to flutter down by April 5-7, the city will be vibrant and busy. This itinerary balances the crowds by mixing popular historical sites with ample outdoor space for children."}, "children": []}, "pacingTitle": {"type": "Text", "props": {"text": "Pacing and Transit Context", "variant": "title", "margin": {"top": 12}}, "children": []}, "pacingText": {"type": "Text", "props": {"text": "To accommodate children ages 8 and 10 and the walking constraints, this plan utilizes a \"hub\" approach where you visit one major area in the morning and one in the afternoon. A taxi is recommended for the steep hill to Kiyomizu-dera. Early April averages 10-20°C (50-68°F) and rain is possible."}, "children": []}, "itineraryTitle": {"type": "Text", "props": {"text": "3-Day Itinerary: Temples & Trails", "variant": "h2"}, "children": []}, "itineraryTabs": {"type": "Tabs", "props": {"value": {"$state": "/selectedTab"}}, "children": ["tabDay1", "tabDay2", "tabDay3"]}, "tabDay1": {"type": "Button", "props": {"label": "Day 1", "variant": "tab"}, "children": [], "on": {"press": {"action": "setState", "params": {"path": "/selectedTab", "value": "day1"}}}}, "tabDay2": {"type": "Button", "props": {"label": "Day 2", "variant": "tab"}, "children": [], "on": {"press": {"action": "setState", "params": {"path": "/selectedTab", "value": "day2"}}}}, "tabDay3": {"type": "Button", "props": {"label": "Day 3", "variant": "tab"}, "children": [], "on": {"press": {"action": "setState", "params": {"path": "/selectedTab", "value": "day3"}}}}, "day1Card": {"type": "Card", "props": {"padding": 16, "visible": {"$cond": {"$eq": [{"$state": "/selectedTab"}, "day1"]}}}, "children": ["day1Image", "day1Title", "day1Subtitle", "day1Desc", "day1Button"]}, "day1Image": {"type": "Image", "props": {"src": "../assets/r_000784_01_3_kyoto_bamboo.jpg", "aspectRatio": 1.5, "resizeMode": "cover"}, "children": []}, "day1Title": {"type": "Text", "props": {"text": "Arashiyama Nature & Wildlife", "variant": "h3", "margin": {"top": 12}}, "children": []}, "day1Subtitle": {"type": "Text", "props": {"text": "Iwatayama Monkey Park & Bamboo Grove | West Kyoto", "variant": "subtitle"}, "children": []}, "day1Desc": {"type": "Text", "props": {"text": "Start at JR Saga-Arashiyama Station. Walk 15 minutes to the Monkey Park entrance for an easy 20-minute trail. Afterward, cross the Togetsukyo Bridge to the Bamboo Grove.", "margin": {"top": 8}}, "children": []}, "day1Button": {"type": "Button", "props": {"label": "Arashiyama Area Guide", "variant": "tonal", "margin": {"top": 12}}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://kyoto.travel/en/areas/arashiyama.html"}}}}, "day2Card": {"type": "Card", "props": {"padding": 16, "visible": {"$cond": {"$eq": [{"$state": "/selectedTab"}, "day2"]}}}, "children": ["day2Image", "day2Title", "day2Subtitle", "day2Desc", "day2Button"]}, "day2Image": {"type": "Image", "props": {"src": "../assets/r_000784_01_4_fushimi_inari_torii.jpg", "aspectRatio": 1.5, "resizeMode": "cover"}, "children": []}, "day2Title": {"type": "Text", "props": {"text": "Iconic Gates & Views", "variant": "h3", "margin": {"top": 12}}, "children": []}, "day2Subtitle": {"type": "Text", "props": {"text": "Fushimi Inari Shrine & Kiyomizu-dera | Southern & Eastern Kyoto", "variant": "subtitle"}, "children": []}, "day2Desc": {"type": "Text", "props": {"text": "Morning at Fushimi Inari (JR Inari Station is adjacent). The lower loop hike is gentle. Afternoon: Take a taxi to Kiyomizu-dera to avoid the steep approach walk.", "margin": {"top": 8}}, "children": []}, "day2Button": {"type": "Button", "props": {"label": "Fushimi Inari Maps", "variant": "tonal", "margin": {"top": 12}}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://inari.jp/en/map/"}}}}, "day3Card": {"type": "Card", "props": {"padding": 16, "visible": {"$cond": {"$eq": [{"$state": "/selectedTab"}, "day3"]}}}, "children": ["day3Image", "day3Title", "day3Subtitle", "day3Desc", "day3Button"]}, "day3Image": {"type": "Image", "props": {"src": "../assets/r_000784_01_5_kinkakuji_temple.jpg", "aspectRatio": 1.5, "resizeMode": "cover"}, "children": []}, "day3Title": {"type": "Text", "props": {"text": "Gold Pavilion & Trains", "variant": "h3", "margin": {"top": 12}}, "children": []}, "day3Subtitle": {"type": "Text", "props": {"text": "Kinkaku-ji Temple & Kyoto Railway Museum | North & Central", "variant": "subtitle"}, "children": []}, "day3Desc": {"type": "Text", "props": {"text": "Morning: Kinkaku-ji (Golden Pavilion). Access via taxi or direct bus. Afternoon: Kyoto Railway Museum (adjacent to Umekoji-Kyotonishi Station), which is interactive and ideal for ages 8-10.", "margin": {"top": 8}}, "children": []}, "day3Button": {"type": "Button", "props": {"label": "Railway Museum Info", "variant": "tonal", "margin": {"top": 12}}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.kyotorailwaymuseum.jp/en/"}}}}, "diningCard": {"type": "Card", "props": {"padding": 16}, "children": ["diningHeader", "diningImage", "diningList"]}, "diningHeader": {"type": "Row", "props": {"spacing": 8, "alignItems": "center"}, "children": ["diningIcon", "diningTitle"]}, "diningIcon": {"type": "Icon", "props": {"name": "../assets/r_000784_01_9_cup-straw.svg"}, "children": []}, "diningTitle": {"type": "Text", "props": {"text": "Kid-Friendly Dining", "variant": "h2"}, "children": []}, "diningImage": {"type": "Image", "props": {"src": "../assets/r_000784_01_6_kyoto_food.jpg", "aspectRatio": 1.77, "resizeMode": "cover", "margin": {"top": 12}}, "children": []}, "diningList": {"type": "List", "props": {"spacing": 16, "margin": {"top": 16}}, "children": ["diningItem"], "repeat": {"statePath": "/dining", "key": "id"}}, "diningItem": {"type": "Column", "props": {"spacing": 4}, "children": ["diningItemType", "diningItemDetails"]}, "diningItemType": {"type": "Text", "props": {"text": {"$bindItem": "type"}, "fontWeight": "bold"}, "children": []}, "diningItemDetails": {"type": "Text", "props": {"text": {"$bindItem": "details"}}, "children": []}, "sourcesCard": {"type": "Card", "props": {"padding": 16}, "children": ["sourcesHeader", "sourcesList"]}, "sourcesHeader": {"type": "Row", "props": {"spacing": 8, "alignItems": "center"}, "children": ["sourcesIcon", "sourcesTitle"]}, "sourcesIcon": {"type": "Icon", "props": {"name": "../assets/r_000784_01_2_book.svg"}, "children": []}, "sourcesTitle": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesList": {"type": "Column", "props": {"spacing": 0, "margin": {"top": 8}}, "children": ["sourceButton"], "repeat": {"statePath": "/sources", "key": "id"}}, "sourceButton": {"type": "Button", "props": {"label": {"$bindItem": "label"}, "variant": "text", "align": "start"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$bindItem": "url"}}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Column", "props": {"spacing": 16, "padding": {"all": 16}}, "children": ["screen_title", "intro_card", "divider_1", "picks_title", "codenames_card", "just_one_card", "deception_card", "resistance_card", "divider_2", "quick_actions_title", "quick_actions_column"]}, "screen_title": {"type": "Text", "props": {"text": "Beginner-Friendly 6-Player Game Recommendations", "variant": "h1", "align": "center"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_column"]}, "intro_column": {"type": "Column", "props": {"spacing": 8, "padding": {"all": 16}}, "children": ["intro_title", "intro_text"]}, "intro_title": {"type": "Text", "props": {"text": "Group Dynamics and Selection Criteria", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "These recommendations assume the group has little to no prior experience with modern hobby board games. The selections focus on high interaction, minimal downtime between turns, and rules that can be taught in under 5 minutes. The games selected bridge the gap between casual conversation and structured play, ensuring the 60-minute time limit is respected even with teaching time included."}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "picks_title": {"type": "Text", "props": {"text": "Top Party and Deduction Picks", "variant": "h2"}, "children": []}, "codenames_card": {"type": "Card", "props": {}, "children": ["codenames_column"]}, "codenames_column": {"type": "Column", "props": {"spacing": 12, "padding": {"all": 16}}, "children": ["codenames_title", "codenames_subtitle", "codenames_details_row", "codenames_desc", "codenames_button"]}, "codenames_title": {"type": "Text", "props": {"text": "Codenames", "variant": "h3"}, "children": []}, "codenames_subtitle": {"type": "Text", "props": {"text": "Team-based word association game", "variant": "subtitle"}, "children": []}, "codenames_details_row": {"type": "Row", "props": {"spacing": 16, "wrap": true}, "children": ["codenames_players_row", "codenames_type_row", "codenames_time_row"]}, "codenames_players_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["players_icon_1", "codenames_players_text"]}, "players_icon_1": {"type": "Icon", "props": {"src": "../assets/r_000090_01_3_upc-scan.svg", "size": 16}, "children": []}, "codenames_players_text": {"type": "Text", "props": {"text": "6 Players"}, "children": []}, "codenames_type_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["type_icon_1", "codenames_type_text"]}, "type_icon_1": {"type": "Icon", "props": {"src": "../assets/r_000090_01_1_calendar-event.svg", "size": 16}, "children": []}, "codenames_type_text": {"type": "Text", "props": {"text": "Party"}, "children": []}, "codenames_time_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["time_icon_1", "codenames_time_text"]}, "time_icon_1": {"type": "Icon", "props": {"src": "../assets/r_000090_01_2_controller.svg", "size": 16}, "children": []}, "codenames_time_text": {"type": "Text", "props": {"text": "15 Minutes"}, "children": []}, "codenames_desc": {"type": "Text", "props": {"text": "The group splits into two teams, Red and Blue. Each team has a Spymaster who provides one-word clues linked to multiple cards on the table. The goal is for teammates to guess the correct words based on the clue without picking the opposing team's words or the instant-loss Assassin card. It encourages clever thinking and group discussion."}, "children": []}, "codenames_button": {"type": "Button", "props": {"label": "View on BoardGameGeek", "variant": "outlined"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgame/178900/codenames"}}}}, "just_one_card": {"type": "Card", "props": {}, "children": ["just_one_column"]}, "just_one_column": {"type": "Column", "props": {"spacing": 12, "padding": {"all": 16}}, "children": ["just_one_title", "just_one_subtitle", "just_one_details_row", "just_one_desc", "just_one_button"]}, "just_one_title": {"type": "Text", "props": {"text": "Just One", "variant": "h3"}, "children": []}, "just_one_subtitle": {"type": "Text", "props": {"text": "Cooperative guessing game", "variant": "subtitle"}, "children": []}, "just_one_details_row": {"type": "Row", "props": {"spacing": 16, "wrap": true}, "children": ["just_one_players_row", "just_one_type_row", "just_one_time_row"]}, "just_one_players_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["players_icon_2", "just_one_players_text"]}, "players_icon_2": {"type": "Icon", "props": {"src": "../assets/r_000090_01_3_upc-scan.svg", "size": 16}, "children": []}, "just_one_players_text": {"type": "Text", "props": {"text": "6 Players"}, "children": []}, "just_one_type_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["type_icon_2", "just_one_type_text"]}, "type_icon_2": {"type": "Icon", "props": {"src": "../assets/r_000090_01_1_calendar-event.svg", "size": 16}, "children": []}, "just_one_type_text": {"type": "Text", "props": {"text": "Party"}, "children": []}, "just_one_time_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["time_icon_2", "just_one_time_text"]}, "time_icon_2": {"type": "Icon", "props": {"src": "../assets/r_000090_01_2_controller.svg", "size": 16}, "children": []}, "just_one_time_text": {"type": "Text", "props": {"text": "20 Minutes"}, "children": []}, "just_one_desc": {"type": "Text", "props": {"text": "This is a fully cooperative game where everyone wins or loses together. One player is the guesser, and the other five write one-word clues to help them guess a specific word. The catch is that if any two players write the exact same clue, those clues are erased and the guesser never sees them. It forces players to be creative rather than obvious."}, "children": []}, "just_one_button": {"type": "Button", "props": {"label": "View on BoardGameGeek", "variant": "outlined"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgame/254640/just-one"}}}}, "deception_card": {"type": "Card", "props": {}, "children": ["deception_column"]}, "deception_column": {"type": "Column", "props": {"spacing": 12, "padding": {"all": 16}}, "children": ["deception_title", "deception_subtitle", "deception_details_row", "deception_desc", "deception_button"]}, "deception_title": {"type": "Text", "props": {"text": "Deception: Murder in Hong Kong", "variant": "h3"}, "children": []}, "deception_subtitle": {"type": "Text", "props": {"text": "Crime-solving deduction game", "variant": "subtitle"}, "children": []}, "deception_details_row": {"type": "Row", "props": {"spacing": 16, "wrap": true}, "children": ["deception_players_row", "deception_type_row", "deception_time_row"]}, "deception_players_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["players_icon_3", "deception_players_text"]}, "players_icon_3": {"type": "Icon", "props": {"src": "../assets/r_000090_01_3_upc-scan.svg", "size": 16}, "children": []}, "deception_players_text": {"type": "Text", "props": {"text": "6 Players"}, "children": []}, "deception_type_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["type_icon_3", "deception_type_text"]}, "type_icon_3": {"type": "Icon", "props": {"src": "../assets/r_000090_01_1_calendar-event.svg", "size": 16}, "children": []}, "deception_type_text": {"type": "Text", "props": {"text": "Social Deduction"}, "children": []}, "deception_time_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["time_icon_3", "deception_time_text"]}, "time_icon_3": {"type": "Icon", "props": {"src": "../assets/r_000090_01_2_controller.svg", "size": 16}, "children": []}, "deception_time_text": {"type": "Text", "props": {"text": "20 Minutes"}, "children": []}, "deception_desc": {"type": "Text", "props": {"text": "One player is secretly the Murderer, and another is the Forensic Scientist who knows the solution but can only communicate by placing markers on scene tiles (like Cause of Death: Suffocation). The remaining players are investigators trying to interpret these vague clues to identify the murderer and the weapon used. It is less aggressive than other lying games because the focus is on the evidence."}, "children": []}, "deception_button": {"type": "Button", "props": {"label": "View on BoardGameGeek", "variant": "outlined"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgame/156129/deception-murder-in-hong-kong"}}}}, "resistance_card": {"type": "Card", "props": {}, "children": ["resistance_column"]}, "resistance_column": {"type": "Column", "props": {"spacing": 12, "padding": {"all": 16}}, "children": ["resistance_title", "resistance_subtitle", "resistance_details_row", "resistance_desc", "resistance_button"]}, "resistance_title": {"type": "Text", "props": {"text": "The Resistance", "variant": "h3"}, "children": []}, "resistance_subtitle": {"type": "Text", "props": {"text": "Dystopian secret identity game", "variant": "subtitle"}, "children": []}, "resistance_details_row": {"type": "Row", "props": {"spacing": 16, "wrap": true}, "children": ["resistance_players_row", "resistance_type_row", "resistance_time_row"]}, "resistance_players_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["players_icon_4", "resistance_players_text"]}, "players_icon_4": {"type": "Icon", "props": {"src": "../assets/r_000090_01_3_upc-scan.svg", "size": 16}, "children": []}, "resistance_players_text": {"type": "Text", "props": {"text": "6 Players"}, "children": []}, "resistance_type_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["type_icon_4", "resistance_type_text"]}, "type_icon_4": {"type": "Icon", "props": {"src": "../assets/r_000090_01_1_calendar-event.svg", "size": 16}, "children": []}, "resistance_type_text": {"type": "Text", "props": {"text": "Social Deduction"}, "children": []}, "resistance_time_row": {"type": "Row", "props": {"spacing": 4, "crossAxisAlignment": "center"}, "children": ["time_icon_4", "resistance_time_text"]}, "time_icon_4": {"type": "Icon", "props": {"src": "../assets/r_000090_01_2_controller.svg", "size": 16}, "children": []}, "resistance_time_text": {"type": "Text", "props": {"text": "30 Minutes"}, "children": []}, "resistance_desc": {"type": "Text", "props": {"text": "Players are members of a resistance group trying to overthrow a government, but spies have infiltrated the ranks. In each round, a leader proposes a team to go on a mission. Everyone votes to approve the team. If the mission goes ahead, players on the team secretly choose to Support or Sabotage the mission. The goal is to deduce who the saboteurs are based on voting patterns and mission results."}, "children": []}, "resistance_button": {"type": "Button", "props": {"label": "View on BoardGameGeek", "variant": "outlined"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgame/41114/the-resistance"}}}}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "quick_actions_column": {"type": "Column", "props": {"spacing": 8}, "children": ["party_games_button", "social_deduction_button"]}, "party_games_button": {"type": "Button", "props": {"label": "Browse Top Party Games"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgamecategory/1030/party-game"}}}}, "social_deduction_button": {"type": "Button", "props": {"label": "Browse Social Deduction"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgamemechanic/2019/team-based-game"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

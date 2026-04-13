@@ -81,11 +81,13 @@
         "type": {
           "type": "string",
           "enum": [
+            "Stack",
             "Column",
             "Row",
             "List",
             "Card",
             "Text",
+            "Table",
             "Image",
             "Icon",
             "Video",

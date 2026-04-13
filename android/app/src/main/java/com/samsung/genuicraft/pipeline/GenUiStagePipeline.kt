@@ -34,7 +34,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         val debugLog: String? = null,
         val stage2Response: String? = null,
         val stage3Json: String? = null,
-        val renderResult: GenUiNativeRenderer.RenderResult? = null
+        val renderResult: GenUiNativeRenderer.RenderResult? = null,
+        val llmInputTokens: Int? = null,
+        val llmOutputTokens: Int? = null
     )
 
     data class PipelineResult(
@@ -44,6 +46,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3Prompt: String,
         val stage3SystemPrompt: String?,
         val stage3Json: String,
+        val stage3InputTokens: Int?,
+        val stage3OutputTokens: Int?,
         val stageDurationsMs: Map<Stage, Long>,
         val stageStreamDurationsMs: Map<Stage, Long>,
         val usedFallback: Boolean,
@@ -57,7 +61,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         var initialValidationError: String? = null,
         val repairValidationErrors: MutableList<String> = mutableListOf(),
         val repairOutputTexts: MutableList<String> = mutableListOf(),
-        val repairSelectedCandidateTexts: MutableList<String?> = mutableListOf()
+        val repairSelectedCandidateTexts: MutableList<String?> = mutableListOf(),
+        var tableDiagnostics: FlatSpecContract.TableDiagnostics? = null
     )
 
     sealed interface Outcome {
@@ -674,6 +679,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                 "Local stage3 KV prefix cache hit path (cache key only)."
             }
         }
+        val stage3StructuredOutput = shouldUseStructuredOutput(irProvider, geminiApiMode)
+        if (irProvider == InferenceBackendSettings.Provider.GEMINI && !stage3StructuredOutput) {
+            warnings += "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs)."
+        }
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
@@ -688,7 +697,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
             allowCachedContent = true,
-            structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI,
+            structuredOutput = stage3StructuredOutput,
             localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
             localSendSystemPrompt = localSendStage3SystemPrompt,
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
@@ -726,28 +735,21 @@ class GenUiStagePipeline(private val appContext: Context) {
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
             onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) },
             onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
+            structuredOutput = stage3StructuredOutput,
             warnings = warnings,
             diagnostics = stage3Diagnostics
-        )
-        if (stage3JsonElement == null) {
-            markDuration(Stage.STAGE3, stage3StartedAtMs)
-            val strictMessage = buildStrictStage3FailureMessage(stage3Diagnostics)
+        ) ?: run {
             val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
             persistStage3DiagnosticsArtifacts(stage3Diagnostics)
+            warnings += "Stage 3 strict validation failed; using deterministic fallback flat spec."
             postUpdate(
                 onStageUpdate,
                 Stage.STAGE3,
-                "Stage 3 failed: invalid IR output",
+                "Stage 3 strict validation failed; using fallback IR",
                 debugLog = strictDebug,
                 stage2Response = stage2Response
             )
-            return@withContext Outcome.Failure(
-                stage = Stage.STAGE3,
-                message = strictMessage,
-                stage2Response = stage2Response,
-                stageDurationsMs = stageDurationsMs.toMap(),
-                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
-            )
+            FlatSpecContract.buildFallbackFlatSpec(stage2Response)
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
@@ -792,7 +794,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             onStageUpdate,
             Stage.STAGE3,
             "GenUI JSON ready",
-            stage3Json = stage3Json
+            debugLog = buildTableDiagnosticsDebugLog(stage3Diagnostics.tableDiagnostics),
+            stage3Json = stage3Json,
+            llmInputTokens = stage3Call.inputTokens,
+            llmOutputTokens = stage3Call.outputTokens
         )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
@@ -826,6 +831,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3Prompt = stage3Prompt,
                 stage3SystemPrompt = promptContext.systemPrompt,
                 stage3Json = stage3Json,
+                stage3InputTokens = stage3Call.inputTokens,
+                stage3OutputTokens = stage3Call.outputTokens,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
                 usedFallback = false,
@@ -1129,6 +1136,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                 "Local stage3 KV prefix cache hit path (cache key only)."
             }
         }
+        val stage3StructuredOutput = shouldUseStructuredOutput(provider, geminiApiMode)
+        if (provider == InferenceBackendSettings.Provider.GEMINI && !stage3StructuredOutput) {
+            warnings += "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs)."
+        }
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
@@ -1143,7 +1154,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
             allowCachedContent = true,
-            structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+            structuredOutput = stage3StructuredOutput,
             localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
             localSendSystemPrompt = localSendStage3SystemPrompt,
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
@@ -1181,28 +1192,21 @@ class GenUiStagePipeline(private val appContext: Context) {
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
             onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) },
             onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
+            structuredOutput = stage3StructuredOutput,
             warnings = warnings,
             diagnostics = stage3Diagnostics
-        )
-        if (stage3JsonElement == null) {
-            markDuration(Stage.STAGE3, stage3StartedAtMs)
-            val strictMessage = buildStrictStage3FailureMessage(stage3Diagnostics)
+        ) ?: run {
             val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
             persistStage3DiagnosticsArtifacts(stage3Diagnostics)
+            warnings += "Stage 3 strict validation failed; using deterministic fallback flat spec."
             postUpdate(
                 onStageUpdate,
                 Stage.STAGE3,
-                "Stage 3 failed: invalid IR output",
+                "Stage 3 strict validation failed; using fallback IR",
                 debugLog = strictDebug,
                 stage2Response = stage2Response
             )
-            return@withContext Outcome.Failure(
-                stage = Stage.STAGE3,
-                message = strictMessage,
-                stage2Response = stage2Response,
-                stageDurationsMs = stageDurationsMs.toMap(),
-                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
-            )
+            FlatSpecContract.buildFallbackFlatSpec(stage2Response)
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
@@ -1247,7 +1251,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             onStageUpdate,
             Stage.STAGE3,
             "GenUI JSON ready",
-            stage3Json = stage3Json
+            debugLog = buildTableDiagnosticsDebugLog(stage3Diagnostics.tableDiagnostics),
+            stage3Json = stage3Json,
+            llmInputTokens = stage3Call.inputTokens,
+            llmOutputTokens = stage3Call.outputTokens
         )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
@@ -1281,6 +1288,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3Prompt = stage3Prompt,
                 stage3SystemPrompt = promptContext.systemPrompt,
                 stage3Json = stage3Json,
+                stage3InputTokens = stage3Call.inputTokens,
+                stage3OutputTokens = stage3Call.outputTokens,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
                 usedFallback = false,
@@ -1423,6 +1432,13 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             STAGE3_MAX_OUTPUT_TOKENS
         }
+        val stage3StructuredOutput = shouldUseStructuredOutput(
+            irProvider,
+            InferenceBackendSettings.getGeminiApiMode(appContext)
+        )
+        if (irProvider == InferenceBackendSettings.Provider.GEMINI && !stage3StructuredOutput) {
+            warnings += "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs)."
+        }
 
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
         val stage3StartedAtMs = System.currentTimeMillis()
@@ -1437,7 +1453,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             enableGoogleSearch = false,
             cachedContentName = null,
             allowCachedContent = false,
-            structuredOutput = irProvider == InferenceBackendSettings.Provider.GEMINI
+            structuredOutput = stage3StructuredOutput
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -1471,28 +1487,21 @@ class GenUiStagePipeline(private val appContext: Context) {
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
             onGeminiCachedContentMissing = null,
             onMarkStreamDuration = { markStreamDuration(Stage.STAGE3, it) },
+            structuredOutput = stage3StructuredOutput,
             warnings = warnings,
             diagnostics = stage3Diagnostics
-        )
-        if (stage3JsonElement == null) {
-            markDuration(Stage.STAGE3, stage3StartedAtMs)
-            val strictMessage = buildStrictStage3FailureMessage(stage3Diagnostics)
+        ) ?: run {
             val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
             persistStage3DiagnosticsArtifacts(stage3Diagnostics)
+            warnings += "Stage 3 strict validation failed; using deterministic fallback flat spec."
             postUpdate(
                 onStageUpdate,
                 Stage.STAGE3,
-                "Stage 3 failed: invalid IR output",
+                "Stage 3 strict validation failed; using fallback IR",
                 debugLog = strictDebug,
                 stage2Response = sanitizedResponse
             )
-            return Outcome.Failure(
-                stage = Stage.STAGE3,
-                message = strictMessage,
-                stage2Response = sanitizedResponse,
-                stageDurationsMs = stageDurationsMs.toMap(),
-                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
-            )
+            FlatSpecContract.buildFallbackFlatSpec(sanitizedResponse)
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
@@ -1551,7 +1560,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             onStageUpdate,
             Stage.STAGE3,
             "GenUI JSON ready",
-            stage3Json = stage3Json
+            debugLog = buildTableDiagnosticsDebugLog(stage3Diagnostics.tableDiagnostics),
+            stage3Json = stage3Json,
+            llmInputTokens = stage3Call.inputTokens,
+            llmOutputTokens = stage3Call.outputTokens
         )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
@@ -1585,6 +1597,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3Prompt = stage3Prompt,
                 stage3SystemPrompt = promptContext.systemPrompt,
                 stage3Json = stage3Json,
+                stage3InputTokens = stage3Call.inputTokens,
+                stage3OutputTokens = stage3Call.outputTokens,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
                 usedFallback = false,
@@ -1608,10 +1622,15 @@ class GenUiStagePipeline(private val appContext: Context) {
         geminiCacheFallbackSystemPrompt: String?,
         onGeminiCachedContentMissing: ((String) -> Unit)?,
         onMarkStreamDuration: (Long?) -> Unit,
+        structuredOutput: Boolean,
         warnings: MutableList<String>,
         diagnostics: Stage3RepairDiagnostics
     ): JsonElement? {
         val initialCoerce = FlatSpecContract.coerceAndValidate(initialJsonElement)
+        if (initialCoerce.warnings.isNotEmpty()) {
+            warnings += initialCoerce.warnings
+        }
+        diagnostics.tableDiagnostics = initialCoerce.tableDiagnostics
         if (initialCoerce.isValid) {
             if (initialCoerce.convertedFromLegacy) {
                 warnings += "Stage 3 returned legacy format; converted to flat spec."
@@ -1651,7 +1670,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 enableGoogleSearch = false,
                 cachedContentName = cachedContentName,
                 allowCachedContent = allowCachedContent,
-                structuredOutput = provider == InferenceBackendSettings.Provider.GEMINI,
+                structuredOutput = structuredOutput,
                 localSystemPromptCacheKey = localSystemPromptCacheKey,
                 localSendSystemPrompt = localSendSystemPrompt,
                 geminiCacheFallbackSystemPrompt = geminiCacheFallbackSystemPrompt,
@@ -1669,6 +1688,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             val repairedElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
             diagnostics.repairSelectedCandidateTexts += repairedElement?.toString()
             val repairedCoerce = FlatSpecContract.coerceAndValidate(repairedElement)
+            if (repairedCoerce.warnings.isNotEmpty()) {
+                warnings += repairedCoerce.warnings
+            }
+            diagnostics.tableDiagnostics = repairedCoerce.tableDiagnostics
             if (repairedCoerce.isValid) {
                 if (repairedCoerce.convertedFromLegacy) {
                     warnings += "Stage 3 repair returned legacy format; converted to flat spec."
@@ -1691,17 +1714,54 @@ class GenUiStagePipeline(private val appContext: Context) {
         return null
     }
 
-    private fun buildStrictStage3FailureMessage(diagnostics: Stage3RepairDiagnostics): String {
-        val initial = diagnostics.initialValidationError
-            ?.takeIf { it.isNotBlank() }
-            ?: "Unknown Stage 3 validation error."
-        val repairSummary = if (diagnostics.repairValidationErrors.isEmpty()) {
-            "No successful repair output was produced."
-        } else {
-            diagnostics.repairValidationErrors.joinToString(" | ").take(1200)
+    private fun shouldUseStructuredOutput(
+        provider: InferenceBackendSettings.Provider,
+        geminiApiMode: InferenceBackendSettings.GeminiApiMode
+    ): Boolean {
+        if (provider != InferenceBackendSettings.Provider.GEMINI) {
+            return false
         }
-        return "Stage 3 failed in strict IR-only mode. Initial error: $initial Repair details: $repairSummary " +
-            "Debug builds also persist artifacts under files/result/stage3_debug."
+        return geminiApiMode != InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY
+    }
+
+    private fun buildTableDiagnosticsDebugLog(
+        diagnostics: FlatSpecContract.TableDiagnostics?
+    ): String? {
+        val table = diagnostics ?: return null
+        if (!table.tableDetected &&
+            table.canonicalizationRewrites.isEmpty() &&
+            table.irElementCount == 0 &&
+            table.irByteSize == 0
+        ) {
+            return null
+        }
+        val rewrites = if (table.canonicalizationRewrites.isEmpty()) {
+            "none"
+        } else {
+            table.canonicalizationRewrites.joinToString(separator = "; ")
+        }
+        val mappingWarnings = if (table.mappingWarnings.isEmpty()) {
+            "none"
+        } else {
+            table.mappingWarnings.joinToString(separator = "; ")
+        }
+        return buildString {
+            appendLine("Stage 3 table diagnostics")
+            appendLine("table_detected: ${table.tableDetected}")
+            appendLine("columns: ${table.columns}")
+            appendLine("rows: ${table.rows}")
+            appendLine("table_domain: ${table.tableDomain}")
+            appendLine("preferred_presentation: ${table.preferredPresentation}")
+            appendLine("presentation_chosen: ${table.presentationChosen}")
+            appendLine("render_mode: ${table.renderMode}")
+            appendLine("card_mapping_status: ${table.cardMappingStatus}")
+            appendLine("mapping_warnings: $mappingWarnings")
+            appendLine("ir_element_count: ${table.irElementCount}")
+            appendLine("ir_byte_size: ${table.irByteSize}")
+            appendLine("compaction_applied: ${table.compactionApplied}")
+            appendLine("removed_field_count: ${table.removedFieldCount}")
+            append("canonicalization_rewrites: $rewrites")
+        }
     }
 
     private fun buildStrictStage3FailureDebugLog(diagnostics: Stage3RepairDiagnostics): String {
@@ -1716,11 +1776,16 @@ class GenUiStagePipeline(private val appContext: Context) {
         val selectedSnippet = truncateSnippet(diagnostics.selectedJsonCandidateText, 1200)
         val rawSnippet = truncateSnippet(diagnostics.rawStage3Text, 1600)
         val repairSnippet = diagnostics.repairOutputTexts.lastOrNull()?.let { truncateSnippet(it, 1600) } ?: "n/a"
+        val tableDebug = buildTableDiagnosticsDebugLog(diagnostics.tableDiagnostics)
         return buildString {
             appendLine("Stage 3 strict failure diagnostics")
             appendLine("Initial validation error: $initial")
             appendLine("Repair errors:")
             appendLine(repairErrors)
+            if (!tableDebug.isNullOrBlank()) {
+                appendLine()
+                appendLine(tableDebug)
+            }
             appendLine()
             appendLine("Selected JSON candidate (truncated):")
             appendLine(selectedSnippet)
@@ -1782,7 +1847,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         debugLog: String? = null,
         stage2Response: String? = null,
         stage3Json: String? = null,
-        renderResult: GenUiNativeRenderer.RenderResult? = null
+        renderResult: GenUiNativeRenderer.RenderResult? = null,
+        llmInputTokens: Int? = null,
+        llmOutputTokens: Int? = null
     ) {
         withContext(Dispatchers.Main) {
             callback(
@@ -1792,7 +1859,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                     debugLog = debugLog,
                     stage2Response = stage2Response,
                     stage3Json = stage3Json,
-                    renderResult = renderResult
+                    renderResult = renderResult,
+                    llmInputTokens = llmInputTokens,
+                    llmOutputTokens = llmOutputTokens
                 )
             )
         }
@@ -1828,11 +1897,17 @@ class GenUiStagePipeline(private val appContext: Context) {
         var attempt = 0
         var accumulatedStreamMs = 0L
         var hasStreamSample = false
+        var accumulatedInputTokens = 0L
+        var hasInputTokenSample = false
+        var accumulatedOutputTokens = 0L
+        var hasOutputTokenSample = false
         var last: InferenceBackend.GenerateResponse = InferenceBackend.GenerateResponse(
             text = "",
             rawResponse = null,
             error = "Unknown generation error",
-            streamDurationMs = null
+            streamDurationMs = null,
+            inputTokens = null,
+            outputTokens = null
         )
         val effectiveCachedContentName = if (
             allowCachedContent && provider == InferenceBackendSettings.Provider.GEMINI
@@ -1861,6 +1936,14 @@ class GenUiStagePipeline(private val appContext: Context) {
                 accumulatedStreamMs += it
                 hasStreamSample = true
             }
+            last.inputTokens?.let {
+                accumulatedInputTokens += it.toLong()
+                hasInputTokenSample = true
+            }
+            last.outputTokens?.let {
+                accumulatedOutputTokens += it.toLong()
+                hasOutputTokenSample = true
+            }
             if (last.error == null) {
                 if (
                     provider == InferenceBackendSettings.Provider.LOCAL_SERVER &&
@@ -1869,7 +1952,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                 ) {
                     cacheManager.markLocalSystemPromptCacheKeyReady(localSystemPromptCacheKey)
                 }
-                return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+                return last.copy(
+                    streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
+                    inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                )
             }
             val errorClass = backend.classifyError(last.error!!)
             if (
@@ -1895,7 +1982,19 @@ class GenUiStagePipeline(private val appContext: Context) {
                     accumulatedStreamMs += it
                     hasStreamSample = true
                 }
-                return fallback.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+                fallback.inputTokens?.let {
+                    accumulatedInputTokens += it.toLong()
+                    hasInputTokenSample = true
+                }
+                fallback.outputTokens?.let {
+                    accumulatedOutputTokens += it.toLong()
+                    hasOutputTokenSample = true
+                }
+                return fallback.copy(
+                    streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
+                    inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                )
             }
             if (
                 provider == InferenceBackendSettings.Provider.GEMINI &&
@@ -1920,7 +2019,19 @@ class GenUiStagePipeline(private val appContext: Context) {
                     accumulatedStreamMs += it
                     hasStreamSample = true
                 }
-                return fallback.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+                fallback.inputTokens?.let {
+                    accumulatedInputTokens += it.toLong()
+                    hasInputTokenSample = true
+                }
+                fallback.outputTokens?.let {
+                    accumulatedOutputTokens += it.toLong()
+                    hasOutputTokenSample = true
+                }
+                return fallback.copy(
+                    streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
+                    inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                )
             }
             if (
                 provider == InferenceBackendSettings.Provider.LOCAL_SERVER &&
@@ -1950,13 +2061,25 @@ class GenUiStagePipeline(private val appContext: Context) {
                     accumulatedStreamMs += it
                     hasStreamSample = true
                 }
+                cacheRecovery.inputTokens?.let {
+                    accumulatedInputTokens += it.toLong()
+                    hasInputTokenSample = true
+                }
+                cacheRecovery.outputTokens?.let {
+                    accumulatedOutputTokens += it.toLong()
+                    hasOutputTokenSample = true
+                }
                 if (cacheRecovery.error == null) {
                     cacheManager.markLocalSystemPromptCacheKeyReady(localSystemPromptCacheKey)
                     Log.i(LOG_TAG, "Local stage3 KV prefix cache recovery succeeded for key=$localSystemPromptCacheKey")
                 } else {
                     Log.w(LOG_TAG, "Local stage3 KV prefix cache recovery failed for key=$localSystemPromptCacheKey: ${cacheRecovery.error}")
                 }
-                return cacheRecovery.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+                return cacheRecovery.copy(
+                    streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
+                    inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                )
             }
             if (
                 provider == InferenceBackendSettings.Provider.GEMINI &&
@@ -1996,11 +2119,27 @@ class GenUiStagePipeline(private val appContext: Context) {
                     accumulatedStreamMs += it
                     hasStreamSample = true
                 }
-                return cacheRecovery.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+                cacheRecovery.inputTokens?.let {
+                    accumulatedInputTokens += it.toLong()
+                    hasInputTokenSample = true
+                }
+                cacheRecovery.outputTokens?.let {
+                    accumulatedOutputTokens += it.toLong()
+                    hasOutputTokenSample = true
+                }
+                return cacheRecovery.copy(
+                    streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
+                    inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                )
             }
             val retryable = errorClass == InferenceBackend.ErrorClass.TRANSIENT
             if (!retryable || attempt >= 3) {
-                return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+                return last.copy(
+                    streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
+                    inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                )
             }
             Log.w(
                 LOG_TAG,
@@ -2008,7 +2147,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                     "error=${last.error.orEmpty().take(180)}"
             )
         }
-        return last.copy(streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null)
+        return last.copy(
+            streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
+            inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
+            outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+        )
     }
 
     private companion object {

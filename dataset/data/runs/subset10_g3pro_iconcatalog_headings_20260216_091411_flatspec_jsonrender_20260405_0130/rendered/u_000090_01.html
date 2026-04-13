@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Column", "props": {}, "children": ["text_1"]}, "text_1": {"type": "Text", "props": {"variant": "body", "text": "Beginner-Friendly 6-Player Game Recommendations\n\nGroup Dynamics and Selection Criteria\nThese recommendations assume the group has little to no prior experience with modern hobby board games. The selections focus on high interaction, minimal downtime between turns, and rules that can be taught in under 5 minutes. The games selected bridge the gap between casual conversation and structured play, ensuring the 60-minute time limit is respected even with teaching time included.\n\nTop Party and Deduction Picks\n\nOption 1: Codenames | Team-based word association game | Party / 15 Minutes\nThe group splits into two teams, Red and Blue. Each team has a Spymaster who provides one-word clues linked to multiple cards on the table. The goal is for teammates to guess the correct words based on the clue without picking the opposing team's words or the instant-loss Assassin card. It encourages clever thinking and group discussion.\nAction: [Button: View on BoardGameGeek] https://boardgamegeek.com/boardgame/178900/codenames\n\nOption 2: Just One | Cooperative guessing game | Party / 20 Minutes\nThis is a fully cooperative game where everyone wins or loses together. One player is the guesser, and the other five write one-word clues to help them guess a specific word. The catch is that if any two players write the exact same clue, those clues are erased and the guesser never sees them. It forces players to be creative rather than obvious.\nAction: [Button: View on BoardGameGeek] https://boardgamegeek.com/boardgame/254640/just-one\n\nOption 3: Deception: Murder in Hong Kong | Crime-solving deduction game | Social Deduction / 20 Minutes\nOne player is secretly the Murderer, and another is the Forensic Scientist who knows the solution but can only communicate by placing markers on scene tiles (like Cause of Death: Suffocation). The remaining players are investigators trying to interpret these vague clues to identify the murderer and the weapon used. It is less aggressive than other lying games because the focus is on the evidence.\nAction: [Button: View on BoardGameGeek] https://boardgamegeek.com/boardgame/156129/deception-murder-in-hong-kong\n\nOption 4: The Resistance | Dystopian secret identity game | Social Deduction / 30 Minutes\nPlayers are members of a resistance group trying to overthrow a government, but spies have infiltrated the ranks. In each round, a leader proposes a team to go on a mission. Everyone votes to approve the team. If the mission goes ahead, players on the team secretly choose to Support or Sabotage the mission. The goal is to deduce who the saboteurs are based on voting patterns and mission results.\nAction: [Button: View on BoardGameGeek] https://boardgamegeek.com/boardgame/41114/the-resistance\n\nIcons:\n- Dice: ../assets/r_000090_01_1_calendar-event.svg\n- Time: ../assets/r_000090_01_2_controller.svg\n- Players: ../assets/r_000090_01_3_upc-scan.svg\n\nQuick Actions\n[Button: Browse Top Party Games] https://boardgamegeek.com/boardgamecategory/1030/party-game\n[Button: Browse Social Deduction] https://boardgamegeek.com/boardgamemechanic/2019/team-based-game\n\nSources\nBoardGameGeek Codenames Listing: https://boardgamegeek.com/boardgame/178900/codenames\nBoardGameGeek Just One Listing: https://boardgamegeek.com/boardgame/254640/just-one"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

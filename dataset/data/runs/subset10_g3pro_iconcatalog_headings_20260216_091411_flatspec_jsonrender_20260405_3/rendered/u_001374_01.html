@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"breakdown": [{"id": "hourly", "frequency": "Hourly", "amount": "$36.06", "details": "Annual Salary / 2,080 Hours"}, {"id": "weekly", "frequency": "Weekly", "amount": "$1,442.31", "details": "Annual Salary / 52 Weeks"}, {"id": "biweekly", "frequency": "Bi-Weekly", "amount": "$2,884.62", "details": "Annual Salary / 26 Pay Periods"}, {"id": "semimonthly", "frequency": "Semi-Monthly", "amount": "$3,125.00", "details": "Annual Salary / 24 Pay Periods"}, {"id": "monthly", "frequency": "Monthly", "amount": "$6,250.00", "details": "Annual Salary / 12 Months"}]}, "elements": {"root": {"type": "Column", "props": {"spacing": "medium", "padding": {"all": "medium"}}, "children": ["title", "summary_card", "context_card", "breakdown_card", "actions_card"]}, "title": {"type": "Text", "props": {"text": "Salary Conversion Overview", "variant": "h1", "align": "center"}, "children": []}, "summary_card": {"type": "Card", "props": {"padding": {"all": "medium"}}, "children": ["summary_row", "summary_disclaimer"]}, "summary_row": {"type": "Row", "props": {"spacing": "medium", "verticalAlign": "center"}, "children": ["summary_icon", "summary_text_col"]}, "summary_icon": {"type": "Icon", "props": {"name": "../assets/r_001374_01_2_cash-coin.svg", "size": "large", "color": "primary"}, "children": []}, "summary_text_col": {"type": "Column", "props": {}, "children": ["summary_value", "summary_label"]}, "summary_value": {"type": "Text", "props": {"text": "$36.06", "variant": "headline"}, "children": []}, "summary_label": {"type": "Text", "props": {"text": "Based on an annual salary of $75,000, your pre-tax hourly wage is approximately:", "variant": "body"}, "children": []}, "summary_disclaimer": {"type": "Text", "props": {"text": "This calculation assumes a standard full-time schedule without unpaid time off.", "variant": "caption", "padding": {"top": "small"}}, "children": []}, "context_card": {"type": "Card", "props": {"padding": {"all": "medium"}}, "children": ["context_header_row", "context_text_1", "context_text_2", "context_text_3"]}, "context_header_row": {"type": "Row", "props": {"spacing": "small", "verticalAlign": "center", "padding": {"bottom": "small"}}, "children": ["context_icon", "context_title"]}, "context_icon": {"type": "Icon", "props": {"name": "../assets/r_001374_01_1_calculator.svg", "size": "medium"}, "children": []}, "context_title": {"type": "Text", "props": {"text": "Calculation Context", "variant": "h2"}, "children": []}, "context_text_1": {"type": "Text", "props": {"text": "The conversion uses the specific figures provided in your query to determine the gross hourly rate.", "variant": "body"}, "children": []}, "context_text_2": {"type": "Text", "props": {"text": "- Total Work Hours: 2,080 hours per year (40 hours x 52 weeks)", "variant": "body", "padding": {"top": "small"}}, "children": []}, "context_text_3": {"type": "Text", "props": {"text": "- Pay Frequency: The breakdown below illustrates how this salary translates across different pay periods before taxes or deductions are applied.", "variant": "body", "padding": {"top": "small"}}, "children": []}, "breakdown_card": {"type": "Card", "props": {"padding": {"all": "medium"}}, "children": ["breakdown_title", "breakdown_header", "breakdown_divider", "breakdown_list"]}, "breakdown_title": {"type": "Text", "props": {"text": "Gross Income Breakdown", "variant": "h2"}, "children": []}, "breakdown_header": {"type": "Row", "props": {"spacing": "small", "padding": {"top": "medium", "bottom": "small"}}, "children": ["header_freq", "header_amount", "header_details"]}, "header_freq": {"type": "Text", "props": {"text": "Frequency", "variant": "label", "weight": "bold", "flex": 2}, "children": []}, "header_amount": {"type": "Text", "props": {"text": "Gross Amount", "variant": "label", "weight": "bold", "flex": 2}, "children": []}, "header_details": {"type": "Text", "props": {"text": "Calculation Details", "variant": "label", "weight": "bold", "flex": 3}, "children": []}, "breakdown_divider": {"type": "Divider", "props": {}, "children": []}, "breakdown_list": {"type": "List", "props": {"template": "breakdown_item_row", "repeat": {"statePath": "/breakdown", "key": "id"}}, "children": []}, "breakdown_item_row": {"type": "Row", "props": {"spacing": "small", "padding": {"vertical": "small"}}, "children": ["item_freq", "item_amount", "item_details"]}, "item_freq": {"type": "Text", "props": {"text": {"$bindItem": "frequency"}, "variant": "body", "flex": 2}, "children": []}, "item_amount": {"type": "Text", "props": {"text": {"$bindItem": "amount"}, "variant": "body", "flex": 2}, "children": []}, "item_details": {"type": "Text", "props": {"text": {"$bindItem": "details"}, "variant": "caption", "flex": 3}, "children": []}, "actions_card": {"type": "Card", "props": {"padding": {"all": "medium"}}, "children": ["actions_title", "action_button_1", "action_button_2"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2", "padding": {"bottom": "small"}}, "children": []}, "action_button_1": {"type": "Button", "props": {"label": "Calculate Take-Home Pay", "variant": "secondary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.paycheckcity.com/calculator/salary"}}}}, "action_button_2": {"type": "Button", "props": {"label": "Bureau of Labor Statistics Wage Data", "variant": "secondary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.bls.gov/bls/blswage.htm"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

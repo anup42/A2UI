@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {"itinerary_rows": [{"id": "1", "time": "9:00 AM", "activity": "Kiyomizu-dera Temple", "details": "Arrive early to experience this iconic temple built on the side of a mountain. Famous for its wooden stage offering panoramic views of Kyoto."}, {"id": "2", "time": "11:00 AM", "activity": "Historic Streets Walk", "details": "Descend from the temple via the beautifully preserved Sannenzaka and Ninenzaka stone stairways. These streets are lined with traditional shops and teahouses."}, {"id": "3", "time": "12:30 PM", "activity": "Traditional Lunch", "details": "Find a local restaurant in the area between Ninenzaka and Kodai-ji. Suggested meal: Yudofu (simmered tofu, a Kyoto specialty) or a simple Soba/Udon noodle set."}, {"id": "4", "time": "2:00 PM", "activity": "Kodai-ji Temple", "details": "A serene Zen Buddhist temple known for its rock gardens and rich history. It is often less crowded than Kiyomizu-dera, offering a peaceful break."}, {"id": "5", "time": "4:00 PM", "activity": "Yasaka Shrine", "details": "Walk to the end of the historic path to reach Yasaka Shrine, a vibrant and important shrine located at the edge of Gion. It's always open and beautiful as dusk approaches."}, {"id": "6", "time": "6:00 PM onwards", "activity": "Gion Evening Stroll", "details": "Explore the famous Gion district. Walk down Hanamikoji Lane for a chance to see geiko or maiko. Enjoy dinner in one of the many traditional restaurants in Gion or nearby Pontocho Alley."}]}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "planning_notes_section", "itinerary_section", "images_section", "quick_actions_section", "sources_section"]}, "title": {"type": "Text", "props": {"text": "A Day in Historic Higashiyama, Kyoto", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This itinerary provides a relaxed, single-day walking tour through Kyoto's most preserved district, Higashiyama, for your visit on Tuesday, November 5, 2024. The plan focuses on iconic historical sites and traditional atmosphere, and is easily navigated from the Gion area."}, "children": []}, "planning_notes_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["planning_notes_title", "planning_notes_text"]}, "planning_notes_title": {"type": "Text", "props": {"text": "Planning Notes for Your November 5th Visit", "variant": "h2"}, "children": []}, "planning_notes_text": {"type": "Text", "props": {"text": "This plan assumes you are starting from the Gion district. November is peak autumn foliage season in Kyoto, which means stunning scenery but also larger crowds. It is advisable to start your day early to enjoy the main sites with fewer people. Wear comfortable walking shoes, as this itinerary involves exploring hilly, stone-paved streets. All locations are connected by scenic walks, eliminating the need for transport between sites."}, "children": []}, "itinerary_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["itinerary_title", "itinerary_table"]}, "itinerary_title": {"type": "Text", "props": {"text": "Walking Itinerary: Higashiyama District", "variant": "h2"}, "children": []}, "itinerary_table": {"type": "Table", "props": {"statePath": "/itinerary_rows", "columns": [{"key": "time", "label": "Time"}, {"key": "activity", "label": "Activity"}, {"key": "details", "label": "Details"}], "domain": "generic", "preferredPresentation": "table"}, "children": []}, "images_section": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image1", "image2"]}, "image1": {"type": "Image", "props": {"url": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=2070&auto=format&fit=crop", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image2": {"type": "Image", "props": {"url": "https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=2070&auto=format&fit=crop", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "quick_actions_section": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["map_button", "share_button"]}, "map_button": {"type": "Button", "props": {"label": "View on Map", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/maps/search/?api=1&query=Higashiyama+District,+Kyoto"}}}}, "share_button": {"type": "Button", "props": {"label": "Share Itinerary", "variant": "borderless"}, "children": []}, "sources_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sources_title", "sources_text"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "sources_text": {"type": "Text", "props": {"text": "Itinerary based on common tourist routes and knowledge of Kyoto's Higashiyama district. Images from Unsplash.", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

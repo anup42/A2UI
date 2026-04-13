@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {"breakdown": [{"id": "wh-a", "category": "Warehouse A", "quantity": "0", "notes": "Currently empty"}, {"id": "wh-b", "category": "Warehouse B", "quantity": "5", "notes": "Main stock location"}, {"id": "sf", "category": "Store Front", "quantity": "2", "notes": "Floor units"}, {"id": "res", "category": "Reserved Units", "quantity": "-7", "notes": "Committed stock"}, {"id": "net", "category": "Net Available", "quantity": "0", "notes": "Out of Stock"}]}, "elements": {"root_column": {"type": "Column", "props": {"spacing": "medium", "padding": "medium"}, "children": ["header_text", "status_card", "breakdown_card", "context_card", "images_row", "actions_card"]}, "header_text": {"type": "Text", "props": {"text": "SKU #99001 Availability Snapshot", "fontSize": "large", "fontWeight": "bold", "align": "center"}, "children": []}, "status_card": {"type": "Card", "props": {"padding": "large", "backgroundColor": "surface-variant"}, "children": ["status_row"]}, "status_row": {"type": "Row", "props": {"spacing": "medium", "verticalAlign": "center"}, "children": ["status_icon", "status_text_column"]}, "status_icon": {"type": "Icon", "props": {"source": "../assets/r_001590_01_4_exclamation-circle.svg", "size": "x-large", "color": "error"}, "children": []}, "status_text_column": {"type": "Column", "props": {}, "children": ["status_main_text", "status_sub_text"]}, "status_main_text": {"type": "Text", "props": {"text": "0 Units Available for Sale", "fontSize": "x-large", "fontWeight": "bold"}, "children": []}, "status_sub_text": {"type": "Text", "props": {"text": "The item is effectively out of stock for new orders. (7 physical units are offset by 7 reserved units).", "fontSize": "small", "color": "on-surface-variant"}, "children": []}, "breakdown_card": {"type": "Card", "props": {}, "children": ["breakdown_title_row", "breakdown_list"]}, "breakdown_title_row": {"type": "Row", "props": {"padding": "medium", "spacing": "medium", "verticalAlign": "center"}, "children": ["breakdown_icon", "breakdown_title_text"]}, "breakdown_icon": {"type": "Icon", "props": {"source": "../assets/r_001590_01_3_box-seam.svg", "size": "large"}, "children": []}, "breakdown_title_text": {"type": "Text", "props": {"text": "Detailed Stock Breakdown", "fontSize": "large", "fontWeight": "medium"}, "children": []}, "breakdown_list": {"type": "List", "props": {"padding": {"horizontal": "medium", "bottom": "medium"}, "repeat": {"statePath": "/breakdown", "key": "id"}}, "children": ["breakdown_item_row"]}, "breakdown_item_row": {"type": "Row", "props": {"padding": {"vertical": "small"}, "fontWeight": {"$cond": {"if": {"==": [{"$item": "id"}, "net"]}, "$then": "bold", "$else": "regular"}}}, "children": ["breakdown_item_category", "breakdown_item_quantity"]}, "breakdown_item_category": {"type": "Text", "props": {"text": {"$item": "category"}, "flex": 3}, "children": []}, "breakdown_item_quantity": {"type": "Text", "props": {"text": {"$item": "quantity"}, "flex": 1, "align": "right"}, "children": []}, "context_card": {"type": "Card", "props": {"padding": "medium"}, "children": ["context_title_row", "context_text"]}, "context_title_row": {"type": "Row", "props": {"spacing": "medium", "verticalAlign": "center", "margin": {"bottom": "small"}}, "children": ["context_icon", "context_title_text"]}, "context_icon": {"type": "Icon", "props": {"source": "../assets/r_001374_01_1_calculator.svg", "size": "large"}, "children": []}, "context_title_text": {"type": "Text", "props": {"text": "Inventory Calculation Context", "fontSize": "large", "fontWeight": "medium"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "The Available for Sale status is derived by summing the physical inventory from all listed locations (Warehouse A, Warehouse B, and Store Front) and subtracting the Reserved quantity.", "color": "on-surface-variant"}, "children": []}, "images_row": {"type": "Row", "props": {"spacing": "medium", "distribution": "fill"}, "children": ["image_card_1", "image_card_2"]}, "image_card_1": {"type": "Card", "props": {"flex": 1}, "children": ["image_1", "image_caption_1"]}, "image_1": {"type": "Image", "props": {"source": "../assets/r_001590_01_1_warehouse_shelves.jpg", "aspectRatio": 1.5}, "children": []}, "image_caption_1": {"type": "Text", "props": {"text": "Warehouse Inventory", "padding": "medium", "align": "center"}, "children": []}, "image_card_2": {"type": "Card", "props": {"flex": 1}, "children": ["image_2", "image_caption_2"]}, "image_2": {"type": "Image", "props": {"source": "../assets/r_001590_01_2_blue_product.jpg", "aspectRatio": 1.5}, "children": []}, "image_caption_2": {"type": "Text", "props": {"text": "Blue Widget Concept", "padding": "medium", "align": "center"}, "children": []}, "actions_card": {"type": "Card", "props": {"padding": "medium"}, "children": ["actions_title", "actions_column"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "fontSize": "large", "fontWeight": "medium", "margin": {"bottom": "small"}}, "children": []}, "actions_column": {"type": "Column", "props": {"spacing": "small"}, "children": ["action_button_1", "action_button_2"]}, "action_button_1": {"type": "Button", "props": {"text": "Search Suppliers", "variant": "outlined", "width": "fill"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/search?q=blue+widget+wholesale+suppliers"}}}}, "action_button_2": {"type": "Button", "props": {"text": "Inventory Management Tips", "variant": "outlined", "width": "fill"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.investopedia.com/terms/i/inventory-management.asp"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

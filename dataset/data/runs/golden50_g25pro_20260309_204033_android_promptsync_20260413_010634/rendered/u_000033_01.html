@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"flights": [{"id": "ice", "rank": 1, "airline": "Icelandair", "justification": "This option is ranked first as it offers the best overall value. It is by far the most affordable choice, saving you $460 compared to the next cheapest option that meets your criteria. While the travel time is longer than the direct flights, the 2.5-hour layover is well within your 3-hour preference, making it an excellent choice for budget-conscious travelers."}, {"id": "ba", "rank": 2, "airline": "British Airways", "justification": "For those prioritizing a faster, more direct journey, this is the best-balanced option. As a non-stop flight, it eliminates the hassle of connections and offers a quick 8-hour travel time. It strikes a great balance between speed and cost, being more affordable than the slightly faster Virgin Atlantic flight."}, {"id": "va", "rank": 3, "airline": "Virgin Atlantic", "justification": "This is the fastest flight available, getting you to London in just 7.5 hours. However, this premium speed comes at the highest cost. The 30-minute time savings over British Airways may not be worth the additional $100 for two travelers unless speed is your absolute top priority."}, {"id": "aa", "rank": 4, "airline": "American Airlines", "justification": "This option is ranked last because it fails to meet your core requirement of a layover under 3 hours. The 4.5-hour layover, combined with the longest total travel time and a mid-range price, makes it the least appealing choice among the flights provided."}], "flightTableData": [{"rank": 1, "airline": "Icelandair", "cost": "$1,240", "travel_time": "11 hours", "layover": "2.5 hours", "justification": "Best value; meets all criteria at the lowest price."}, {"rank": 2, "airline": "British Airways", "cost": "$1,700", "travel_time": "8 hours", "layover": "0 hours (Direct)", "justification": "Excellent balance of speed and cost for a non-stop flight."}, {"rank": 3, "airline": "Virgin Atlantic", "cost": "$1,800", "travel_time": "7.5 hours", "layover": "0 hours (Direct)", "justification": "Fastest option available, but at the highest price point."}, {"rank": 4, "airline": "American Airlines", "cost": "$1,560", "travel_time": "13 hours", "layover": "4.5 hours", "justification": "Fails layover requirement; longest travel time."}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "recommendation_section", "ranked_options_title", "flight_card_template", "comparison_title", "comparison_table", "image_gallery", "actions_section"]}, "title": {"type": "Text", "props": {"text": "Flight Ranking for Your NYC to London Trip", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Here is a ranked comparison of your flight options for two adults traveling from New York to London (October 15-22, 2024). The ranking is based on your stated priorities of a good balance between total cost, shortest travel time, and a layover of less than three hours."}, "children": []}, "recommendation_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["recommendation_title", "recommendation_text"]}, "recommendation_title": {"type": "Text", "props": {"text": "Basis for This Recommendation", "variant": "h2"}, "children": []}, "recommendation_text": {"type": "Text", "props": {"text": "This analysis is based on the flight data you provided. The total cost is calculated for two adult passengers. It is always recommended to verify current prices and availability directly with the airlines or a flight aggregator, as fares can change frequently. This comparison assumes these are round-trip, economy-class fares and does not account for potential extra fees for baggage, seat selection, or other services."}, "children": []}, "ranked_options_title": {"type": "Text", "props": {"text": "Ranked Flight Options", "variant": "h2"}, "children": []}, "flight_card_template": {"type": "Card", "props": {}, "children": ["flight_card_content"], "repeat": {"statePath": "/flights", "key": "id"}}, "flight_card_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["flight_header", "flight_justification"]}, "flight_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["flight_rank", "flight_airline"]}, "flight_rank": {"type": "Text", "props": {"text": {"$template": "${$item:rank}."}, "variant": "h3"}, "children": []}, "flight_airline": {"type": "Text", "props": {"text": {"$item": "airline"}, "variant": "h3"}, "children": []}, "flight_justification": {"type": "Text", "props": {"text": {"$item": "justification"}}, "children": []}, "comparison_title": {"type": "Text", "props": {"text": "At-a-Glance Comparison", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"statePath": "/flightTableData", "columns": [{"key": "rank", "label": "Rank"}, {"key": "airline", "label": "Airline"}, {"key": "cost", "label": "Total Cost (2 Adults)"}, {"key": "travel_time", "label": "Total Travel Time"}, {"key": "layover", "label": "Layover Duration"}, {"key": "justification", "label": "Justification"}], "domain": "flight", "preferredPresentation": "cards", "sourceFormat": "markdown", "sourceText": "| Rank | Airline | Total Cost (2 Adults) | Total Travel Time | Layover Duration | Justification |\n|---|---|---|---|---|---|\n| 1 | Icelandair | $1,240 | 11 hours | 2.5 hours | Best value; meets all criteria at the lowest price. |\n| 2 | British Airways | $1,700 | 8 hours | 0 hours (Direct) | Excellent balance of speed and cost for a non-stop flight. |\n| 3 | Virgin Atlantic | $1,800 | 7.5 hours | 0 hours (Direct) | Fastest option available, but at the highest price point. |\n| 4 | American Airlines | $1,560 | 13 hours | 4.5 hours | Fails layover requirement; longest travel time. |"}, "children": []}, "image_gallery": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["images_title", "image_stack"]}, "images_title": {"type": "Text", "props": {"text": "Images", "variant": "h2"}, "children": []}, "image_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000033_01_1_london_towerbridge.jpg", "fit": "cover", "height": 100, "flex": 1}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000033_01_2_airplane_sky.jpg", "fit": "cover", "height": 100, "flex": 1}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000033_01_3_newyork_manhattan.jpg", "fit": "cover", "height": 100, "flex": 1}, "children": []}, "actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["button_google_flights", "button_heathrow"]}, "button_google_flights": {"type": "Button", "props": {"label": "Search All Flights on Google Flights"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/flights"}}}}, "button_heathrow": {"type": "Button", "props": {"label": "View London Heathrow Airport Info"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.heathrow.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

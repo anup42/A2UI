@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_column", "state": {"ingredients": ["1.5 cups Arborio rice (do not rinse, as starch is needed)", "5 to 6 cups vegetable broth (kept warm in a separate pot)", "1 lb mixed mushrooms (cremini, shiitake, oyster), sliced", "2 shallots, finely minced", "3 cloves garlic, minced", "0.5 cup dry white wine", "3 tbsp olive oil (divided)", "2 tbsp vegan butter (or extra olive oil)", "0.25 cup nutritional yeast (optional, for cheesy flavor)", "1 tbsp fresh thyme leaves", "Salt and black pepper to taste", "Fresh parsley for garnish"], "instructions": [{"id": "step1", "title": "Warm the Broth", "text": "Pour the vegetable broth into a saucepan and keep it on a low simmer next to your main cooking pot. Cold broth shocks the rice and stops the cooking process, preventing the creamy texture from developing."}, {"id": "step2", "title": "Sauté the Mushrooms", "text": "In your heavy-bottomed pot, heat 1 tablespoon of olive oil over medium-high heat. Add the sliced mushrooms and cook until browned and their liquid has evaporated (about 5-8 minutes). Season with a pinch of salt. Remove mushrooms from the pot and set aside. This prevents them from getting rubbery during the rice cooking."}, {"id": "step3", "title": "Aromatics and Toasting", "text": "Reduce heat to medium. Add the remaining 2 tablespoons of olive oil to the pot. Add shallots and cook until softened (2-3 minutes). Add garlic and thyme, cooking for another minute until fragrant. Add the Arborio rice. Toast the rice, stirring constantly, for 1-2 minutes until the edges are translucent and the center remains opaque. This toasting step creates a shell around the grain so it doesn't turn to mush while slowly releasing starch."}, {"id": "step4", "title": "Deglaze", "text": "Pour in the white wine. Stir constantly until the wine is fully absorbed by the rice."}, {"id": "step5", "title": "The Risotto Method", "text": "Begin adding the warm broth, one ladle (about 0.5 cup) at a time. Stir frequently. Wait until the liquid is almost completely absorbed before adding the next ladle. The friction from stirring rubs the grains together, releasing the starch that creates the creamy sauce. Repeat this process for about 20-25 minutes. The rice is done when it is tender but still has a slight bite (al dente)."}, {"id": "step6", "title": "The Finish (Mantecatura)", "text": "Remove the pot from the heat. This is crucial. Stir in the cooked mushrooms, vegan butter, and nutritional yeast. Vigorously stir the mixture for 30 seconds to emulsify the fats with the starch. This step guarantees the creamy mouthfeel without dairy. Season with salt and pepper to taste. Garnish with fresh parsley and serve immediately."}], "phases": [{"id": "phase1", "phase": "Prep", "duration": "10-15 mins", "action": "Chop vegetables, slice mushrooms, warm broth"}, {"id": "phase2", "phase": "Sauté", "duration": "8-10 mins", "action": "Brown mushrooms, sweat shallots, toast rice"}, {"id": "phase3", "phase": "Simmer", "duration": "20-25 mins", "action": "Add broth gradually, stir frequently to release starch"}, {"id": "phase4", "phase": "Rest", "duration": "2-3 mins", "action": "Remove from heat, beat in fat (mantecatura) for creaminess"}]}, "elements": {"root_column": {"type": "Column", "props": {"style": {"padding": 16, "gap": 16}}, "children": ["title_text", "hero_image", "overview_card", "context_card", "instructions_card", "phases_card", "sources_card"]}, "title_text": {"type": "Text", "props": {"text": "Creamy Vegan Mushroom Risotto", "variant": "h1", "style": {"textAlign": "center"}}, "children": []}, "hero_image": {"type": "Image", "props": {"src": "../assets/r_000701_01_1_mushroom-risotto.jpg", "alt": "A bowl of creamy vegan mushroom risotto, garnished with fresh parsley", "style": {"height": 200, "borderRadius": 8}}, "children": []}, "overview_card": {"type": "Card", "props": {}, "children": ["overview_column"]}, "overview_column": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["overview_title", "overview_text"]}, "overview_title": {"type": "Text", "props": {"text": "Overview", "variant": "h2"}, "children": []}, "overview_text": {"type": "Text", "props": {"text": "This recipe creates a rich, velvety risotto for 4 people without using dairy. The key to the creamy texture lies in the high starch content of Arborio rice and the agitation process (stirring), which releases that starch into the broth. We will use a mix of mushrooms for depth of flavor and finish with a \"mantecatura\" technique using vegan fat to emulsify the sauce."}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_column"]}, "context_column": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["context_title", "context_text"]}, "context_title": {"type": "Text", "props": {"text": "Kitchen & Ingredient Context", "variant": "h2"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "This recipe assumes you have a heavy-bottomed pot or Dutch oven to distribute heat evenly. We assume the use of dry white wine (like Pinot Grigio or Sauvignon Blanc) to deglaze the pan, but you can substitute extra vegetable broth mixed with a teaspoon of lemon juice or white wine vinegar if you prefer an alcohol-free version. We also assume the use of store-bought low-sodium vegetable broth, but homemade stock works excellently."}, "children": []}, "instructions_card": {"type": "Card", "props": {}, "children": ["instructions_column"]}, "instructions_column": {"type": "Column", "props": {"style": {"gap": 16}}, "children": ["ingredients_section", "arborio_image", "instructions_section"]}, "ingredients_section": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["ingredients_header_row", "ingredients_list"]}, "ingredients_header_row": {"type": "Row", "props": {"style": {"alignItems": "center", "gap": 8}}, "children": ["ingredients_icon", "ingredients_title"]}, "ingredients_icon": {"type": "Icon", "props": {"src": "../assets/r_000701_01_6_basket.svg", "alt": "basket icon"}, "children": []}, "ingredients_title": {"type": "Text", "props": {"text": "Ingredients", "variant": "h3"}, "children": []}, "ingredients_list": {"type": "List", "props": {"template": "ingredient_item_template", "style": {"paddingLeft": 24, "gap": 4}}, "children": [], "repeat": {"statePath": "/ingredients", "key": "$index"}}, "ingredient_item_template": {"type": "Text", "props": {"text": {"$template": "• ${$item}"}}, "children": []}, "arborio_image": {"type": "Image", "props": {"src": "../assets/r_000701_01_2_arborio-rice.jpg", "alt": "Close-up of Arborio rice grains showing their texture", "style": {"height": 150, "borderRadius": 8}}, "children": []}, "instructions_section": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["instructions_title", "instructions_list", "cooking_process_image"]}, "instructions_title": {"type": "Text", "props": {"text": "Instructions", "variant": "h3"}, "children": []}, "instructions_list": {"type": "List", "props": {"template": "instruction_item_template", "style": {"gap": 16}}, "children": [], "repeat": {"statePath": "/instructions", "key": "id"}}, "instruction_item_template": {"type": "Row", "props": {"style": {"gap": 12, "alignItems": "flex-start"}}, "children": ["instruction_step_number", "instruction_step_details"]}, "instruction_step_number": {"type": "Text", "props": {"text": {"$template": "${$index+1}."}, "variant": "title"}, "children": []}, "instruction_step_details": {"type": "Column", "props": {"style": {"gap": 4}}, "children": ["instruction_step_title", "instruction_step_text"]}, "instruction_step_title": {"type": "Text", "props": {"text": {"$item": "title"}, "variant": "subtitle"}, "children": []}, "instruction_step_text": {"type": "Text", "props": {"text": {"$item": "text"}}, "children": []}, "cooking_process_image": {"type": "Image", "props": {"src": "../assets/r_000701_01_3_cooking-rice.jpg", "alt": "Rice being cooked in a pot", "style": {"height": 150, "borderRadius": 8, "marginTop": 8}}, "children": []}, "phases_card": {"type": "Card", "props": {}, "children": ["phases_column"]}, "phases_column": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["phases_header_row", "phases_table_header", "phases_list"]}, "phases_header_row": {"type": "Row", "props": {"style": {"alignItems": "center", "gap": 8}}, "children": ["phases_icon", "phases_title"]}, "phases_icon": {"type": "Icon", "props": {"src": "../assets/r_000701_01_5_clock.svg", "alt": "clock icon"}, "children": []}, "phases_title": {"type": "Text", "props": {"text": "Risotto Cooking Phases", "variant": "h2"}, "children": []}, "phases_table_header": {"type": "Row", "props": {"style": {"paddingBottom": 4, "borderBottomWidth": 1, "borderBottomColor": "#E0E0E0"}}, "children": ["phase_header_text", "duration_header_text", "action_header_text"]}, "phase_header_text": {"type": "Text", "props": {"text": "Phase", "variant": "subtitle", "style": {"flex": 1}}, "children": []}, "duration_header_text": {"type": "Text", "props": {"text": "Duration", "variant": "subtitle", "style": {"flex": 1}}, "children": []}, "action_header_text": {"type": "Text", "props": {"text": "Key Action", "variant": "subtitle", "style": {"flex": 2}}, "children": []}, "phases_list": {"type": "List", "props": {"template": "phase_item_template", "style": {"gap": 8}}, "children": [], "repeat": {"statePath": "/phases", "key": "id"}}, "phase_item_template": {"type": "Row", "props": {"style": {"alignItems": "flex-start"}}, "children": ["phase_text", "duration_text", "action_text"]}, "phase_text": {"type": "Text", "props": {"text": {"$item": "phase"}, "style": {"flex": 1}}, "children": []}, "duration_text": {"type": "Text", "props": {"text": {"$item": "duration"}, "style": {"flex": 1}}, "children": []}, "action_text": {"type": "Text", "props": {"text": {"$item": "action"}, "style": {"flex": 2}}, "children": []}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_column"]}, "sources_column": {"type": "Column", "props": {"style": {"gap": 8}}, "children": ["sources_title", "source_button_1", "source_button_2", "source_button_3"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source_button_1": {"type": "Button", "props": {"label": "Serious Eats (The Science of Risotto)", "variant": "link"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.seriouseats.com/how-to-make-perfect-risotto-recipe"}}}}, "source_button_2": {"type": "Button", "props": {"label": "Minimalist Baker (Vegan Risotto Tips)", "variant": "link"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://minimalistbaker.com/creamy-vegetable-risotto-30-minutes/"}}}}, "source_button_3": {"type": "Button", "props": {"label": "Love & Lemons (Mushroom Risotto Guide)", "variant": "link"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.loveandlemons.com/mushroom-risotto/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -5,6 +5,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
+import java.nio.file.Files
 
 class NativeIrCompatibilityTest {
 
@@ -79,5 +81,49 @@ class NativeIrCompatibilityTest {
         assertNotNull(parsed)
         assertEquals(NativeActionParsing.ComponentActionKind.ShowMessage, parsed!!.kind)
         assertEquals("Ready", parsed.value)
+    }
+
+    @Test
+    fun resolveAssetUrl_resolvesParentRelativeAssetFromSiblingAssetsDir() {
+        val root = Files.createTempDirectory("a2ui_native_assets").toFile()
+        val dataDir = File(root, "data").apply { mkdirs() }
+        val assetFile = File(root, "assets/icon.svg").apply {
+            parentFile?.mkdirs()
+            writeText("<svg></svg>")
+        }
+        try {
+            val resolved = NativePayloadParser.resolveAssetUrl("../assets/icon.svg", dataDir)
+            assertEquals(assetFile.toURI().toString(), resolved)
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun resolveAssetUrl_resolvesParentRelativeAssetFromRunLocalAssetsDir() {
+        val root = Files.createTempDirectory("a2ui_native_assets_local").toFile()
+        val runDir = File(root, "run").apply { mkdirs() }
+        val assetFile = File(runDir, "assets/icon.svg").apply {
+            parentFile?.mkdirs()
+            writeText("<svg></svg>")
+        }
+        try {
+            val resolved = NativePayloadParser.resolveAssetUrl("../assets/icon.svg", runDir)
+            assertEquals(assetFile.toURI().toString(), resolved)
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun resolveAssetUrl_fallsBackToAppAssetPathWhenLocalAssetMissing() {
+        val root = Files.createTempDirectory("a2ui_native_assets_missing").toFile()
+        val dataDir = File(root, "data").apply { mkdirs() }
+        try {
+            val resolved = NativePayloadParser.resolveAssetUrl("../assets/missing.svg", dataDir)
+            assertEquals("/assets/missing.svg", resolved)
+        } finally {
+            root.deleteRecursively()
+        }
     }
 }

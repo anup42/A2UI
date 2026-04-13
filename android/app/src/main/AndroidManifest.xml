@@ -53,6 +53,10 @@
             android:name=".RenderActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".DatasetRenderCaptureActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

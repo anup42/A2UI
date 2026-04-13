@@ -26,6 +26,14 @@ object SampleDatasets {
             assetFileName = "golden50_g25pro_20260309_204033_genui.jsonl",
             sourceLabel = "golden50_g25pro_20260309_204033",
             expectedRecords = 50
+        ),
+        SampleDataset(
+            id = "subset10_android_promptsync_20260412_v10",
+            title = "Subset10 Android Prompt Sync v10",
+            description = "10-item Stage3 run using Android v10 flat-spec prompt sync (Stack/Table canonical output).",
+            assetFileName = "subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10_genui.jsonl",
+            sourceLabel = "subset10_android_promptsync_20260412_v10",
+            expectedRecords = 10
         )
     )
 

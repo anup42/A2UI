@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "description", "chart_image", "data_table", "actions_title", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Q1 2023 Revenue Visualization", "variant": "h2"}, "children": []}, "description": {"type": "Text", "props": {"text": "This bar chart visualizes the monthly revenue for your online store during the first quarter of 2023, based on the data you provided."}, "children": []}, "chart_image": {"type": "Image", "props": {"url": "../assets/r_000011_01_3_barchart.jpg", "fit": "contain"}, "children": []}, "data_table": {"type": "Table", "props": {"columns": [{"key": "month", "label": "Month"}, {"key": "revenue", "label": "Revenue"}], "rows": [{"month": "January", "revenue": "$12,500"}, {"month": "February", "revenue": "$18,000"}, {"month": "March", "revenue": "$15,750"}], "sourceFormat": "markdown", "sourceText": "| Month    | Revenue   |\n|----------|-----------|\n| January  | $12,500   |\n| February | $18,000   |\n| March    | $15,750   |"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["button_export", "button_view_data", "button_create_new"]}, "button_export": {"type": "Button", "props": {"label": "Export Chart as PNG"}, "children": []}, "button_view_data": {"type": "Button", "props": {"label": "View Data in Spreadsheet"}, "children": []}, "button_create_new": {"type": "Button", "props": {"label": "Create New Visualization"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

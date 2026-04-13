@@ -174,15 +174,32 @@ internal object NativePayloadParser {
         val relative = when {
             normalized.startsWith("/assets/") -> normalized.removePrefix("/")
             normalized.startsWith("./assets/") -> normalized.removePrefix("./")
-            normalized.startsWith("../assets/") -> normalized.removePrefix("../")
+            normalized.startsWith("../assets/") -> normalized
             normalized.startsWith("assets/") -> normalized
             else -> return normalized
         }
 
-        return try {
-            File(sourceDir, relative).toURI().toString()
-        } catch (_: Exception) {
-            normalized
+        val candidateVariants = buildList {
+            add(relative)
+            if (normalized.startsWith("../assets/")) {
+                add(normalized.removePrefix("../"))
+            }
+        }.distinct()
+        for (candidateVariant in candidateVariants) {
+            val localFile = runCatching {
+                File(sourceDir, candidateVariant).toPath().normalize().toFile()
+            }.getOrNull() ?: continue
+            if (localFile.exists()) {
+                return runCatching { localFile.toURI().toString() }.getOrElse { normalized }
+            }
+        }
+
+        return when {
+            normalized.startsWith("../assets/") -> "/" + normalized.removePrefix("../")
+            normalized.startsWith("./assets/") -> "/" + normalized.removePrefix("./")
+            normalized.startsWith("assets/") -> "/$normalized"
+            normalized.startsWith("/assets/") -> normalized
+            else -> normalized
         }
     }
 

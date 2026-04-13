@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"weeklyOverview": [{"week": "1", "dates": "Jul 26 - Aug 1", "topic": "Arithmetic", "saturday": "Deep Dive: Fractions, Decimals, Percentages", "goal": "Master core number properties and calculations."}, {"week": "2", "dates": "Aug 2 - Aug 8", "topic": "Algebra", "saturday": "Word Problems & Systems of Equations", "goal": "Solve equations, inequalities, and functions efficiently."}, {"week": "3", "dates": "Aug 9 - Aug 15", "topic": "Geometry", "saturday": "Coordinate Geometry & 3D Shapes", "goal": "Understand spatial relationships and formulas."}, {"week": "4", "dates": "Aug 16 - Aug 22", "topic": "Data Analysis", "saturday": "Probability & Combinatorics", "goal": "Interpret data and calculate statistical measures."}, {"week": "5", "dates": "Aug 23 - Aug 29", "topic": "Final Review", "saturday": "In-depth Test 1 Error Analysis", "goal": "Build stamina and refine test-taking strategy."}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["headerStack", "introText", "topImage", "contextSection", "overviewSection", "scheduleSection", "actionsSection"]}, "headerStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["headerIcon", "headerTitle"]}, "headerIcon": {"type": "Icon", "props": {"name": "../assets/r_000014_01_7_calendar-week.svg"}, "children": []}, "headerTitle": {"type": "Text", "props": {"text": "Your 5-Week GRE Quant Study Blueprint", "variant": "h1"}, "children": []}, "introText": {"type": "Text", "props": {"text": "This study plan is designed to systematically cover all major GRE Quantitative Reasoning topics over four weeks, with a final week dedicated to full-length practice and consolidation. The schedule is structured around your availability, leading up to your test date on August 30, 2024."}, "children": []}, "topImage": {"type": "Image", "props": {"url": "../assets/r_000037_01_2_studying_books.jpg", "fit": "cover"}, "children": []}, "contextSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["contextTitle", "contextText"]}, "contextTitle": {"type": "Text", "props": {"text": "Study Plan Context", "variant": "h2"}, "children": []}, "contextText": {"type": "Text", "props": {"text": "This plan starts on Friday, July 26, 2024, to align with your 5-week timeline. It assumes you have access to a primary GRE preparation resource, such as the Official Guide to the GRE General Test, and supplemental online question banks. The daily time is best spent with a mix of concept review, solving practice problems, and analyzing your errors. Adjust the focus on sub-topics based on your personal strengths and weaknesses identified in initial diagnostic tests or weekly quizzes."}, "children": []}, "overviewSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["overviewTitle", "overviewTable"]}, "overviewTitle": {"type": "Text", "props": {"text": "Weekly Focus Overview", "variant": "h2"}, "children": []}, "overviewTable": {"type": "Table", "props": {"statePath": "/weeklyOverview", "columns": [{"key": "week", "label": "Week"}, {"key": "dates", "label": "Dates"}, {"key": "topic", "label": "Primary Topic"}, {"key": "saturday", "label": "Saturday Focus (3 hrs)"}, {"key": "goal", "label": "End-of-Week Goal"}], "sourceFormat": "markdown", "sourceText": "| Week | Dates | Primary Topic | Saturday Focus (3 hrs) | End-of-Week Goal |\n|---|---|---|---|---|\n| 1 | Jul 26 - Aug 1 | Arithmetic | Deep Dive: Fractions, Decimals, Percentages | Master core number properties and calculations. |\n| 2 | Aug 2 - Aug 8 | Algebra | Word Problems & Systems of Equations | Solve equations, inequalities, and functions efficiently. |\n| 3 | Aug 9 - Aug 15 | Geometry | Coordinate Geometry & 3D Shapes | Understand spatial relationships and formulas. |\n| 4 | Aug 16 - Aug 22 | Data Analysis | Probability & Combinatorics | Interpret data and calculate statistical measures. |\n| 5 | Aug 23 - Aug 29 | Final Review | In-depth Test 1 Error Analysis | Build stamina and refine test-taking strategy. |"}, "children": []}, "scheduleSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["scheduleTitle", "week1Card", "week2Card", "week3Card", "week4Card", "week5Card"]}, "scheduleTitle": {"type": "Text", "props": {"text": "Detailed Weekly Study Schedule", "variant": "h2"}, "children": []}, "week1Card": {"type": "Card", "props": {}, "children": ["week1Stack"]}, "week1Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["week1Header", "week1Item1", "week1Item2", "week1Item3", "week1Item4", "week1Item5", "week1Item6"]}, "week1Header": {"type": "Text", "props": {"text": "Week 1: Arithmetic (July 26 - August 1)", "variant": "h3"}, "children": []}, "week1Item1": {"type": "Text", "props": {"text": "Friday (90 min): Number Properties, Integers, Divisibility Rules."}, "children": []}, "week1Item2": {"type": "Text", "props": {"text": "Saturday (3 hrs): Fractions, Decimals, Percentages, and Ratio/Proportion. Complete a large set of practice problems."}, "children": []}, "week1Item3": {"type": "Text", "props": {"text": "Monday (90 min): Exponents and Roots."}, "children": []}, "week1Item4": {"type": "Text", "props": {"text": "Tuesday (90 min): Rates and Work Problems."}, "children": []}, "week1Item5": {"type": "Text", "props": {"text": "Wednesday (90 min): General review of all Arithmetic topics covered."}, "children": []}, "week1Item6": {"type": "Text", "props": {"text": "Thursday (90 min): Take a 30-40 minute timed quiz on Arithmetic. Spend the remaining time reviewing every mistake."}, "children": []}, "week2Card": {"type": "Card", "props": {}, "children": ["week2Stack"]}, "week2Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["week2Header", "week2Item1", "week2Item2", "week2Item3", "week2Item4", "week2Item5", "week2Item6"]}, "week2Header": {"type": "Text", "props": {"text": "Week 2: Algebra (August 2 - August 8)", "variant": "h3"}, "children": []}, "week2Item1": {"type": "Text", "props": {"text": "Friday (90 min): Operations with Algebraic Expressions, Rules of Exponents."}, "children": []}, "week2Item2": {"type": "Text", "props": {"text": "Saturday (3 hrs): Solving Linear & Quadratic Equations, Systems of Equations, and Inequalities. Focus on word problems that translate to algebraic equations."}, "children": []}, "week2Item3": {"type": "Text", "props": {"text": "Monday (90 min): Functions and their properties (f(x) notation, domain, range)."}, "children": []}, "week2Item4": {"type": "Text", "props": {"text": "Tuesday (90 min): Advanced Word Problems (mixture, interest, etc.)."}, "children": []}, "week2Item5": {"type": "Text", "props": {"text": "Wednesday (90 min): General review of all Algebra topics."}, "children": []}, "week2Item6": {"type": "Text", "props": {"text": "Thursday (90 min): Take a 30-40 minute timed quiz on Algebra. Spend the remaining time on detailed error analysis."}, "children": []}, "week3Card": {"type": "Card", "props": {}, "children": ["week3Stack"]}, "week3Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["week3Header", "week3Image", "week3Item1", "week3Item2", "week3Item3", "week3Item4", "week3Item5", "week3Item6"]}, "week3Header": {"type": "Text", "props": {"text": "Week 3: Geometry (August 9 - August 15)", "variant": "h3"}, "children": []}, "week3Image": {"type": "Image", "props": {"url": "../assets/r_000037_01_4_geometry_diagrams.jpg", "fit": "cover"}, "children": []}, "week3Item1": {"type": "Text", "props": {"text": "Friday (90 min): Lines, Angles, Triangles, and Quadrilaterals. Memorize key formulas."}, "children": []}, "week3Item2": {"type": "Text", "props": {"text": "Saturday (3 hrs): Circles, Polygons, and 3D Figures (Cubes, Cylinders). Practice problems involving combined shapes."}, "children": []}, "week3Item3": {"type": "Text", "props": {"text": "Monday (90 min): Coordinate Geometry (Slope, Intercepts, Distance Formula, Midpoint)."}, "children": []}, "week3Item4": {"type": "Text", "props": {"text": "Tuesday (90 min): Mixed Geometry problem-solving session."}, "children": []}, "week3Item5": {"type": "Text", "props": {"text": "Wednesday (90 min): General review of all Geometry topics and formulas."}, "children": []}, "week3Item6": {"type": "Text", "props": {"text": "Thursday (90 min): Take a 30-40 minute timed quiz on Geometry. Review all mistakes and the underlying formulas."}, "children": []}, "week4Card": {"type": "Card", "props": {}, "children": ["week4Stack"]}, "week4Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["week4Header", "week4Image", "week4Item1", "week4Item2", "week4Item3", "week4Item4", "week4Item5", "week4Item6"]}, "week4Header": {"type": "Text", "props": {"text": "Week 4: Data Analysis (August 16 - August 22)", "variant": "h3"}, "children": []}, "week4Image": {"type": "Image", "props": {"url": "../assets/r_000037_01_3_graph_chart.jpg", "fit": "cover"}, "children": []}, "week4Item1": {"type": "Text", "props": {"text": "Friday (90 min): Statistics (Mean, Median, Mode, Range)."}, "children": []}, "week4Item2": {"type": "Text", "props": {"text": "Saturday (3 hrs): Advanced Statistics (Standard Deviation, Quartiles, Percentiles) and Probability."}, "children": []}, "week4Item3": {"type": "Text", "props": {"text": "Monday (90 min): Combinatorics (Permutations and Combinations)."}, "children": []}, "week4Item4": {"type": "Text", "props": {"text": "Tuesday (90 min): Data Interpretation (Graphs, Charts, Tables). Focus on reading and extracting information quickly."}, "children": []}, "week4Item5": {"type": "Text", "props": {"text": "Wednesday (90 min): General review of all Data Analysis topics."}, "children": []}, "week4Item6": {"type": "Text", "props": {"text": "Thursday (90 min): Take a 30-40 minute timed quiz on Data Analysis. Review errors thoroughly."}, "children": []}, "week5Card": {"type": "Card", "props": {}, "children": ["week5Stack"]}, "week5Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["week5Header", "week5Item1", "week5Item2", "week5Item3", "week5Item4", "week5Item5", "week5Item6"]}, "week5Header": {"type": "Text", "props": {"text": "Week 5: Final Review & Practice Tests (August 23 - August 29)", "variant": "h3"}, "children": []}, "week5Item1": {"type": "Text", "props": {"text": "Friday (90 min): Take a full-length ETS POWERPREP Online Practice Test 1."}, "children": []}, "week5Item2": {"type": "Text", "props": {"text": "Saturday (3 hrs): Perform a deep, comprehensive review of Test 1. Categorize your errors (careless mistake, concept gap, time pressure) and re-do incorrect questions."}, "children": []}, "week5Item3": {"type": "Text", "props": {"text": "Monday (90 min): Targeted practice on your weakest 2-3 topics identified from Test 1."}, "children": []}, "week5Item4": {"type": "Text", "props": {"text": "Tuesday (90 min): Take a second full-length Practice Test."}, "children": []}, "week5Item5": {"type": "Text", "props": {"text": "Wednesday (90 min): Review Test 2, focusing on patterns in your mistakes."}, "children": []}, "week5Item6": {"type": "Text", "props": {"text": "Thursday (90 min): Light review of formulas and key strategies. Do not engage in heavy problem-solving. Rest and prepare for test day."}, "children": []}, "actionsSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actionsTitle", "action1Card"]}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions for Your Prep", "variant": "h2"}, "children": []}, "action1Card": {"type": "Card", "props": {}, "children": ["action1Stack"]}, "action1Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["action1Title", "action1Desc", "action1Button"]}, "action1Title": {"type": "Text", "props": {"text": "Option 1: GRE Math Review", "variant": "h3"}, "children": []}, "action1Desc": {"type": "Text", "props": {"text": "A comprehensive guide covering all quant topics. | Official PDF"}, "children": []}, "action1Button": {"type": "Button", "props": {"label": "Download PDF"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "../assets/r_000037_01_1_gre-math-review.pdf"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

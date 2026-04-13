@@ -783,7 +783,7 @@ internal object PipelineMediaSanitizer {
 
             val iconName = pickGeneralIconName(trimmed, topicKeyword)
             val iconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
-            output += "Media: Image=$iconUrl Icon=$iconUrl"
+            output += "Media: Icon=$iconUrl"
             inserted += 1
         }
 
@@ -792,7 +792,7 @@ internal object PipelineMediaSanitizer {
             val iconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
             return buildString {
                 append(normalized)
-                append("\nMedia: Image=$iconUrl Icon=$iconUrl")
+                append("\nMedia: Icon=$iconUrl")
             }
         }
 

@@ -24,7 +24,7 @@ Response:
 ## Hard rule: no legacy message array
 - Correct output is a single flat object with `root/state/elements`.
 
-## Positive and negative format examples
+## Positive format example
 
 Valid (flat-spec):
 ```json
@@ -36,14 +36,6 @@ Valid (flat-spec):
     "title": { "type": "Text", "props": { "text": "Example", "variant": "h2" }, "children": [] }
   }
 }
-```
-
-Invalid (legacy, DO NOT OUTPUT):
-```json
-[
-  { "version": "v0.9", "createSurface": { "surfaceId": "surface_live", "catalogId": "..." } },
-  { "version": "v0.9", "updateComponents": { "surfaceId": "surface_live", "components": [] } }
-]
 ```
 
 ## Asset URL policy
@@ -66,10 +58,34 @@ Allowed dynamic value expressions in props:
 - Strict semantics: repeat renders the parent element once, and repeats the parent element's `children` for each item.
 - Use `repeat` with:
   - `"repeat": { "statePath": "/hotels", "key": "id" }`
+- Do NOT put repeat inside props. `props.repeat` is invalid.
 - Use `visible` (top-level field on an element) for conditional rendering:
   - `{"$state":"/tab","eq":"hotels"}`
   - `{"$and":[...]}`
   - `{"$or":[...]}`
+
+## Canonical table requirements (compact mode)
+- When source content has comparative/tabular data, emit a single compact `Table` element instead of expanded row/cell element trees.
+- Preferred compact table shape:
+  - One element with `type: "Table"` and empty `children`.
+  - Store table rows as-is in `state` (preferred) and reference via `props.statePath`.
+  - If state path is not practical, inline rows in `props.rows`.
+  - Include `props.columns` in display order as:
+    - `[{"key":"column_1","label":"Column 1"}, {"key":"column_2","label":"Column 2"}, ...]`
+  - Column keys/labels should be generic and derived from source headers for the current domain (not weather-specific by default).
+  - Include metadata:
+    - `domain`: `weather | flight | generic`
+    - `preferredPresentation`: `cards | table`
+    - optional `sourceFormat`: `markdown | csv | tsv | html | plain`
+    - optional `sourceText`: raw table text from source response
+- Do NOT expand compact table payloads into `header_row`, `body_rows`, `row_template`, or per-cell elements.
+- Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
+- Weather/climate outputs must include a dedicated metrics table.
+- Flight comparisons should include explicit airline/time/fare columns.
+- Defaults:
+  - weather/flight => `preferredPresentation: "cards"`
+  - generic => `preferredPresentation: "table"`
+- If table parsing is partial, keep compact `Table` with best-effort columns/rows; do not degrade to prose-only output.
 
 ## Watch bindings
 - You may use element-level `watch` to react to state changes:
@@ -83,7 +99,8 @@ Allowed dynamic value expressions in props:
 - Use only flex-style positioning props; absolute positioning is unsupported.
 - Convert `Media: Image=<url>` into `Image` elements.
 - Convert `Media: Icon=<url>` into `Icon` elements.
-- If response has any media URL, output must include at least one `Image` element (or `$item` image binding).
+- If response contains `Media: Image=<url>`, preserve it as an `Image` element.
+- Do not fabricate an `Image` element from icon-only media.
 - Convert links/CTAs to `Button` with `openUrl`.
 - Keep `Tags: A | B | C` lines: emit chips via `Text` with `variant: "chip"`.
 - For hotel/restaurant/place result sets, prefer one card template with `repeat` over a state array.
@@ -106,6 +123,13 @@ Layout:
 
 Content:
 - `Text` props: `text` (required), `variant` optional (`h1|h2|h3|body|caption|chip|label`)
+- `Table` props:
+  - `columns` (required list of `{ "key": "...", "label": "..." }`)
+  - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
+  - `domain` optional (`weather|flight|generic`)
+  - `preferredPresentation` optional (`cards|table`)
+  - `sourceFormat` optional (`markdown|csv|tsv|html|plain`)
+  - `sourceText` optional raw table text
 - `Image` props: `url` (required), `fit` optional (`cover|contain`)
 - `Icon` props: `name` (required, icon URL)
 - `Video` props: `url` (required)
@@ -124,44 +148,3 @@ Form:
 - `ChoicePicker` props: `label` (required), `options` (required), `value` (required array)
 - `Slider` props: `min`, `max`, `value` (required numbers), `label` optional
 - `DateTimeInput` props: `value` (required), `label` optional, `enableDate` optional, `enableTime` optional
-
-## Canonical domain example (flight cards with repeat)
-```json
-{
-  "root": "main",
-  "state": {
-    "flights": [
-      { "id": "f1", "airline": "IndiGo", "time": "05:50 - 08:20", "fare": "INR 5,488", "url": "https://example.com/f1" },
-      { "id": "f2", "airline": "Akasa Air", "time": "07:00 - 09:25", "fare": "INR 5,799", "url": "https://example.com/f2" }
-    ]
-  },
-  "elements": {
-    "main": {
-      "type": "Stack",
-      "props": { "direction": "vertical", "gap": "md" },
-      "children": ["title", "flight_list"]
-    },
-    "title": { "type": "Text", "props": { "text": "Flights BLR to LKO", "variant": "h2" }, "children": [] },
-    "flight_list": {
-      "type": "Stack",
-      "props": { "direction": "vertical", "gap": "md" },
-      "repeat": { "statePath": "/flights", "key": "id" },
-      "children": ["flight_card"]
-    },
-    "flight_card": { "type": "Card", "props": {}, "children": ["airline", "time", "fare", "cta"] },
-    "airline": { "type": "Text", "props": { "text": { "$item": "airline" }, "variant": "h3" }, "children": [] },
-    "time": { "type": "Text", "props": { "text": { "$item": "time" } }, "children": [] },
-    "fare": { "type": "Text", "props": { "text": { "$item": "fare" } }, "children": [] },
-    "cta": {
-      "type": "Button",
-      "props": {
-        "label": "Open"
-      },
-      "on": {
-        "press": { "action": "openUrl", "params": { "url": { "$item": "url" } } }
-      },
-      "children": []
-    }
-  }
-}
-```

@@ -1,0 +1,6 @@
+scenario,query_id,ui_id,schema_valid_strict,repair_attempts,fallback_generated,json_render_image_ok,lit_image_ok
+calculation_table,q_001374,u_001374_01,True,0,False,True,True
+booking_cards_actions,q_000264,u_000264_01,True,0,False,True,True
+long_recipe_media,q_000701,u_000701_01,True,1,False,True,True
+itinerary_day_cards,q_000784,u_000784_01,True,0,False,True,True
+inventory_status,q_001590,u_001590_01,True,0,False,True,True

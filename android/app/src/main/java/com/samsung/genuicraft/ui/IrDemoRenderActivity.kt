@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,8 +31,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +44,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 private sealed interface IrDemoRenderUiState {
@@ -325,6 +331,7 @@ private fun IrDemoRenderScreen(
     onOpenExternalUrl: (String) -> Unit
 ) {
     val deviceConfig = rememberDeviceUiConfig()
+    val contentListState = rememberLazyListState()
     val horizontalPadding = when (deviceConfig.widthClass) {
         DeviceSizeClass.Compact -> 12.dp
         DeviceSizeClass.Medium -> 18.dp
@@ -374,8 +381,35 @@ private fun IrDemoRenderScreen(
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
         ) { backgroundModifier ->
+            val hasGeneratedJson = !generatedIrJson.isNullOrBlank()
+            val shouldAutoScroll =
+                when {
+                    debugMode -> {
+                        uiState is IrDemoRenderUiState.Loading ||
+                            uiState is IrDemoRenderUiState.Success ||
+                            hasGeneratedJson
+                    }
+
+                    else -> {
+                        uiState is IrDemoRenderUiState.Success || hasGeneratedJson
+                    }
+                }
+            LaunchedEffect(debugMode, shouldAutoScroll, logs.size, generatedIrJson, uiState::class) {
+                if (!shouldAutoScroll) {
+                    return@LaunchedEffect
+                }
+                repeat(3) {
+                    snapshotFlow { contentListState.layoutInfo.totalItemsCount }
+                        .filter { it > 0 }
+                        .first()
+                    val lastIndex = (contentListState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
+                    contentListState.scrollToItem(lastIndex)
+                    delay(32)
+                }
+            }
             if (debugMode) {
                 LazyColumn(
+                    state = contentListState,
                     modifier = backgroundModifier
                         .fillMaxSize()
                         .imePadding()
@@ -461,58 +495,71 @@ private fun IrDemoRenderScreen(
                     }
                 }
             } else {
-                Column(
+                LazyColumn(
+                    state = contentListState,
                     modifier = backgroundModifier
+                        .fillMaxSize()
                         .imePadding()
                         .padding(horizontal = horizontalPadding, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
-                    if (session != null) {
-                        Text(
-                            text = session.sourceLabel,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    item {
+                        if (session != null) {
+                            Text(
+                                text = session.sourceLabel,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
 
-                    if (record != null) {
-                        Text(
-                            text = stringResource(id = R.string.ir_demo_query_prefix),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = decodeIrDemoQueryText(record.queryText),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                    item {
+                        if (record != null) {
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text(
+                                    text = stringResource(id = R.string.ir_demo_query_prefix),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = decodeIrDemoQueryText(record.queryText),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
                     }
 
                     when (uiState) {
                         is IrDemoRenderUiState.Loading -> {
-                            IrDemoLoadingCard(message = uiState.message)
+                            item { IrDemoLoadingCard(message = uiState.message) }
                         }
 
                         is IrDemoRenderUiState.Failure -> {
-                            Text(
-                                text = uiState.message,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error
-                            )
+                            item {
+                                Text(
+                                    text = uiState.message,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
 
                         is IrDemoRenderUiState.Success -> {
                             if (uiState.result.warnings.isNotEmpty()) {
-                                IrDemoWarningCard(warnings = uiState.result.warnings)
+                                item { IrDemoWarningCard(warnings = uiState.result.warnings) }
                             }
-                            GenUiNativeRenderer.Render(
-                                result = uiState.result.renderResult,
-                                sourceDir = null,
-                                onOpenExternalUrl = onOpenExternalUrl,
-                                modifier = Modifier.weight(1f)
-                            )
+                            item {
+                                GenUiNativeRenderer.RenderInline(
+                                    result = uiState.result.renderResult,
+                                    sourceDir = null,
+                                    onOpenExternalUrl = onOpenExternalUrl,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }

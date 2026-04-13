@@ -1,11 +1,169 @@
 package com.samsung.genuicraft.renderer
 
+import com.google.gson.JsonParser
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FlatSpecRendererSupportTest {
+
+    @Test
+    fun resolveCoilMediaModel_mapsAssetPathsToAndroidAssetUris() {
+        assertEquals(
+            "file:///android_asset/icons/cloud.svg",
+            resolveCoilMediaModel("/assets/icons/cloud.svg")
+        )
+        assertEquals(
+            "file:///android_asset/icons/cloud.svg",
+            resolveCoilMediaModel("assets/icons/cloud.svg")
+        )
+    }
+
+    @Test
+    fun resolveMediaUrlCandidate_supportsLegacyAndSourceStringFields() {
+        val imageKeys = listOf("url", "src", "image", "source", "name")
+        val legacyProps = mapOf<String, Any?>("url" to "https://example.com/a.jpg")
+        val sourceProps = mapOf<String, Any?>("source" to "https://example.com/b.jpg")
+
+        assertEquals("https://example.com/a.jpg", resolveMediaUrlCandidate(legacyProps, imageKeys))
+        assertEquals("https://example.com/b.jpg", resolveMediaUrlCandidate(sourceProps, imageKeys))
+    }
+
+    @Test
+    fun resolveMediaUrlCandidate_supportsSourceObjectAndNestedListForms() {
+        val imageKeys = listOf("url", "src", "image", "source", "name")
+        val sourceUriProps = mapOf<String, Any?>(
+            "source" to mapOf("uri" to "https://example.com/c.jpg")
+        )
+        val listProps = mapOf<String, Any?>(
+            "source" to listOf(
+                mapOf("path" to ""),
+                mapOf("value" to "https://example.com/d.jpg")
+            )
+        )
+
+        assertEquals("https://example.com/c.jpg", resolveMediaUrlCandidate(sourceUriProps, imageKeys))
+        assertEquals("https://example.com/d.jpg", resolveMediaUrlCandidate(listProps, imageKeys))
+    }
+
+    @Test
+    fun resolveMediaUrlCandidate_supportsIconSourceField() {
+        val iconKeys = listOf("name", "icon", "source", "url", "src")
+        val props = mapOf<String, Any?>(
+            "source" to mapOf("url" to "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cloud.svg")
+        )
+
+        assertEquals(
+            "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cloud.svg",
+            resolveMediaUrlCandidate(props, iconKeys)
+        )
+    }
+
+    @Test
+    fun resolveMediaUrlCandidate_ignoresUnresolvedBindingMaps() {
+        val imageKeys = listOf("url", "src", "image", "source", "name")
+        val unresolvedBindingProps = mapOf<String, Any?>(
+            "source" to mapOf("\$item" to "logo")
+        )
+
+        assertEquals("", resolveMediaUrlCandidate(unresolvedBindingProps, imageKeys))
+    }
+
+    @Test
+    fun deriveImageFallbackUrl_returnsSeededFallbackForWikimediaWeatherLikeImages() {
+        val sourceUrl =
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Bangalore_skyline.jpg/1280px-Bangalore_skyline.jpg"
+        val props = mapOf<String, Any?>(
+            "alt" to "Bengaluru weather skyline"
+        )
+
+        val fallback = deriveImageFallbackUrl(sourceUrl, props)
+
+        assertEquals("https://picsum.photos/seed/genuicraft_weather_hero/1280/720", fallback)
+    }
+
+    @Test
+    fun deriveImageFallbackUrl_prefersExplicitFallbackUrl() {
+        val sourceUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/x/y/z.jpg/1200px-z.jpg"
+        val props = mapOf<String, Any?>(
+            "fallbackUrl" to "https://example.com/fallback.jpg"
+        )
+
+        val fallback = deriveImageFallbackUrl(sourceUrl, props)
+
+        assertEquals("https://example.com/fallback.jpg", fallback)
+    }
+
+    @Test
+    fun deriveImageFallbackUrl_returnsNullForNonWikimediaHosts() {
+        val sourceUrl = "https://cdn.example.com/media/photo.jpg"
+
+        val fallback = deriveImageFallbackUrl(sourceUrl, emptyMap())
+
+        assertNull(fallback)
+    }
+
+    @Test
+    fun parse_supportsTemplateAndRepeatInsideProps() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": { "items": [ { "id": "a", "title": "One" } ] },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["list"] },
+                "list": {
+                  "type": "List",
+                  "props": {
+                    "template": "row",
+                    "repeat": { "path": "items", "key": "id" }
+                  },
+                  "children": []
+                },
+                "row": { "type": "Card", "props": {}, "children": ["title"] },
+                "title": { "type": "Text", "text": "Top picks", "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)
+        assertNotNull(parsed)
+        val list = parsed!!.elements["list"]!!
+        assertTrue(list.children.contains("row"))
+        assertEquals("/items", list.repeat?.statePath)
+        val title = parsed.elements["title"]!!
+        assertEquals("Top picks", title.props["text"])
+    }
+
+    @Test
+    fun parse_normalizesLegacyRowAndColumnTypesToStack() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "root",
+              "state": {},
+              "elements": {
+                "root": { "type": "Column", "props": {}, "children": ["row1"] },
+                "row1": { "type": "Row", "props": {}, "children": ["t1"] },
+                "t1": { "type": "Text", "props": { "text": "ok" }, "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)
+        assertNotNull(parsed)
+        val root = parsed!!.elements["root"]!!
+        val row = parsed.elements["row1"]!!
+        assertEquals("Stack", root.type)
+        assertEquals("vertical", root.props["direction"])
+        assertEquals("Stack", row.type)
+        assertEquals("horizontal", row.props["direction"])
+    }
 
     @Test
     fun setAtPath_updatesNestedMapPath() {
@@ -253,6 +411,394 @@ class FlatSpecRendererSupportTest {
         assertTrue(unchanged.isEmpty())
         assertEquals(1, changed.size)
         assertFalse(stableAgain.isNotEmpty())
+    }
+
+    @Test
+    fun extractFlatTableModel_keepsWeatherInTableMode() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": { "forecast": [ { "day": "Mon", "temp": "29C", "humidity": "65%" } ] },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["table"] },
+                "table": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["header", "rows"] },
+                "header": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["h1", "h2", "h3"] },
+                "h1": { "type": "Text", "props": { "text": "Day" }, "children": [] },
+                "h2": { "type": "Text", "props": { "text": "Temperature" }, "children": [] },
+                "h3": { "type": "Text", "props": { "text": "Humidity" }, "children": [] },
+                "rows": { "type": "Stack", "props": { "direction": "vertical" }, "repeat": { "statePath": "/forecast" }, "children": ["row"] },
+                "row": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["c1", "c2", "c3"] },
+                "c1": { "type": "Text", "props": { "text": { "${'$'}item": "day" } }, "children": [] },
+                "c2": { "type": "Text", "props": { "text": { "${'$'}item": "temp" } }, "children": [] },
+                "c3": { "type": "Text", "props": { "text": { "${'$'}item": "humidity" } }, "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)!!
+        val table = parsed.elements["table"]!!
+        val model = extractFlatTableModel(
+            containerChildren = table.children,
+            containerProps = table.props,
+            elements = parsed.elements,
+            state = parsed.state,
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertTrue(model!!.isWeather)
+        assertEquals(FlatTableRenderMode.WEATHER_CARDS, model.renderMode)
+    }
+
+    @Test
+    fun extractFlatTableModel_overridesGenericDomainHintForWeatherSignals() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": { "forecast": [ { "day": "Sun, Apr 12", "condition": "Partly sunny", "high": "34°C", "low": "22°C" } ] },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["table"] },
+                "table": {
+                  "type": "Stack",
+                  "props": { "direction": "vertical", "domain": "generic", "preferredPresentation": "table" },
+                  "children": ["header", "rows"]
+                },
+                "header": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["h1", "h2", "h3", "h4"] },
+                "h1": { "type": "Text", "props": { "text": "Date" }, "children": [] },
+                "h2": { "type": "Text", "props": { "text": "Conditions" }, "children": [] },
+                "h3": { "type": "Text", "props": { "text": "High (°C/°F)" }, "children": [] },
+                "h4": { "type": "Text", "props": { "text": "Low (°C/°F)" }, "children": [] },
+                "rows": { "type": "Stack", "props": { "direction": "vertical" }, "repeat": { "statePath": "/forecast" }, "children": ["row"] },
+                "row": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["c1", "c2", "c3", "c4"] },
+                "c1": { "type": "Text", "props": { "text": { "${'$'}item": "day" } }, "children": [] },
+                "c2": { "type": "Text", "props": { "text": { "${'$'}item": "condition" } }, "children": [] },
+                "c3": { "type": "Text", "props": { "text": { "${'$'}item": "high" } }, "children": [] },
+                "c4": { "type": "Text", "props": { "text": { "${'$'}item": "low" } }, "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)!!
+        val table = parsed.elements["table"]!!
+        val model = extractFlatTableModel(
+            containerChildren = table.children,
+            containerProps = table.props,
+            elements = parsed.elements,
+            state = parsed.state,
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals("weather", model!!.domain)
+        assertEquals("cards", model.preferredPresentation)
+        assertEquals(FlatTableRenderMode.WEATHER_CARDS, model.renderMode)
+    }
+
+    @Test
+    fun extractFlatTableModel_usesResponsiveCardsForWideGenericTableOnCompactScreen() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": { "rows": [ { "id": "a", "opt": "A", "price": "${'$'}100", "dur": "2h", "stops": "0" } ] },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["table"] },
+                "table": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["header", "rows"] },
+                "header": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["h1", "h2", "h3", "h4"] },
+                "h1": { "type": "Text", "props": { "text": "Option" }, "children": [] },
+                "h2": { "type": "Text", "props": { "text": "Price" }, "children": [] },
+                "h3": { "type": "Text", "props": { "text": "Duration" }, "children": [] },
+                "h4": { "type": "Text", "props": { "text": "Stops" }, "children": [] },
+                "rows": { "type": "Stack", "props": { "direction": "vertical" }, "repeat": { "statePath": "/rows", "key": "id" }, "children": ["row"] },
+                "row": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["c1", "c2", "c3", "c4"] },
+                "c1": { "type": "Text", "props": { "text": { "${'$'}item": "opt" } }, "children": [] },
+                "c2": { "type": "Text", "props": { "text": { "${'$'}item": "price" } }, "children": [] },
+                "c3": { "type": "Text", "props": { "text": { "${'$'}item": "dur" } }, "children": [] },
+                "c4": { "type": "Text", "props": { "text": { "${'$'}item": "stops" } }, "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)!!
+        val table = parsed.elements["table"]!!
+        val model = extractFlatTableModel(
+            containerChildren = table.children,
+            containerProps = table.props,
+            elements = parsed.elements,
+            state = parsed.state,
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals(FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL, model!!.renderMode)
+        assertEquals(4, model.columns)
+    }
+
+    @Test
+    fun extractFlatTableModel_keepsTwoColumnFactsAsSimpleTable() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["table"] },
+                "table": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["header", "row1", "row2"] },
+                "header": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["h1", "h2"] },
+                "h1": { "type": "Text", "props": { "text": "Metric" }, "children": [] },
+                "h2": { "type": "Text", "props": { "text": "Value" }, "children": [] },
+                "row1": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["r11", "r12"] },
+                "r11": { "type": "Text", "props": { "text": "Humidity" }, "children": [] },
+                "r12": { "type": "Text", "props": { "text": "60%" }, "children": [] },
+                "row2": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["r21", "r22"] },
+                "r21": { "type": "Text", "props": { "text": "Wind" }, "children": [] },
+                "r22": { "type": "Text", "props": { "text": "8 km/h" }, "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)!!
+        val table = parsed.elements["table"]!!
+        val model = extractFlatTableModel(
+            containerChildren = table.children,
+            containerProps = table.props,
+            elements = parsed.elements,
+            state = parsed.state,
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals(FlatTableRenderMode.TABLE, model!!.renderMode)
+        assertEquals(2, model.columns)
+        assertEquals(2, model.rows)
+    }
+
+    @Test
+    fun extractFlatTableModel_usesFlightCardsWhenFlightHeadersDetected() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": { "rows": [ { "id": "a", "airline": "IndiGo", "dep": "06:00", "arr": "08:15", "fare": "INR 5,499" } ] },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["table"] },
+                "table": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["header", "rows"] },
+                "header": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["h1", "h2", "h3", "h4"] },
+                "h1": { "type": "Text", "props": { "text": "Airline" }, "children": [] },
+                "h2": { "type": "Text", "props": { "text": "Departure" }, "children": [] },
+                "h3": { "type": "Text", "props": { "text": "Arrival" }, "children": [] },
+                "h4": { "type": "Text", "props": { "text": "Fare" }, "children": [] },
+                "rows": { "type": "Stack", "props": { "direction": "vertical" }, "repeat": { "statePath": "/rows", "key": "id" }, "children": ["row"] },
+                "row": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["c1", "c2", "c3", "c4"] },
+                "c1": { "type": "Text", "props": { "text": { "${'$'}item": "airline" } }, "children": [] },
+                "c2": { "type": "Text", "props": { "text": { "${'$'}item": "dep" } }, "children": [] },
+                "c3": { "type": "Text", "props": { "text": { "${'$'}item": "arr" } }, "children": [] },
+                "c4": { "type": "Text", "props": { "text": { "${'$'}item": "fare" } }, "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)!!
+        val table = parsed.elements["table"]!!
+        val model = extractFlatTableModel(
+            containerChildren = table.children,
+            containerProps = table.props,
+            elements = parsed.elements,
+            state = parsed.state,
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertTrue(model!!.isFlight)
+        assertEquals(FlatTableRenderMode.FLIGHT_CARDS, model.renderMode)
+    }
+
+    @Test
+    fun extractFlatTableModel_keepsCardsFirstForWeatherEvenWithTablePreferenceHint() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": { "forecast": [ { "day": "Mon", "temp": "29C", "humidity": "65%" } ] },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["table"] },
+                "table": {
+                  "type": "Stack",
+                  "props": { "direction": "vertical", "domain": "weather", "preferredPresentation": "table" },
+                  "children": ["header", "rows"]
+                },
+                "header": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["h1", "h2", "h3"] },
+                "h1": { "type": "Text", "props": { "text": "Day" }, "children": [] },
+                "h2": { "type": "Text", "props": { "text": "Temperature" }, "children": [] },
+                "h3": { "type": "Text", "props": { "text": "Humidity" }, "children": [] },
+                "rows": { "type": "Stack", "props": { "direction": "vertical" }, "repeat": { "statePath": "/forecast" }, "children": ["row"] },
+                "row": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["c1", "c2", "c3"] },
+                "c1": { "type": "Text", "props": { "text": { "${'$'}item": "day" } }, "children": [] },
+                "c2": { "type": "Text", "props": { "text": { "${'$'}item": "temp" } }, "children": [] },
+                "c3": { "type": "Text", "props": { "text": { "${'$'}item": "humidity" } }, "children": [] }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)!!
+        val table = parsed.elements["table"]!!
+        val model = extractFlatTableModel(
+            containerChildren = table.children,
+            containerProps = table.props,
+            elements = parsed.elements,
+            state = parsed.state,
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals("table", model!!.preferredPresentation)
+        assertEquals(FlatTableRenderMode.WEATHER_CARDS, model.renderMode)
+    }
+
+    @Test
+    fun extractDirectTableModel_infersWeatherFromCompactColumns() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "day", "label" to "Day"),
+                mapOf("key" to "condition", "label" to "Conditions"),
+                mapOf("key" to "high", "label" to "High (°C/°F)"),
+                mapOf("key" to "low", "label" to "Low (°C/°F)")
+            ),
+            "statePath" to "/forecast",
+            "domain" to "generic",
+            "preferredPresentation" to "table"
+        )
+        val state = mapOf<String, Any?>(
+            "forecast" to listOf(
+                mapOf("day" to "Sun", "condition" to "Clear", "high" to "34°C/94°F", "low" to "23°C/73°F")
+            )
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = state,
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals("weather", model!!.domain)
+        assertEquals(FlatTableRenderMode.WEATHER_CARDS, model.renderMode)
+        assertEquals(1, model.rows.size)
+        assertEquals("Sun", model.rows.first().first())
+    }
+
+    @Test
+    fun extractDirectTableModel_usesHorizontalScrollForWideGenericCompactTable() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "option", "label" to "Option"),
+                mapOf("key" to "price", "label" to "Price"),
+                mapOf("key" to "duration", "label" to "Duration"),
+                mapOf("key" to "stops", "label" to "Stops")
+            ),
+            "rows" to listOf(
+                mapOf("option" to "A", "price" to "INR 5,200", "duration" to "2h", "stops" to "0")
+            ),
+            "domain" to "generic",
+            "preferredPresentation" to "table"
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals("generic", model!!.domain)
+        assertEquals(FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL, model.renderMode)
+        assertEquals(4, model.columns.size)
+    }
+
+    @Test
+    fun extractDirectTableModel_mapsGenericColumnKeysByPositionWhenRowKeysDiffer() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "column_1", "label" to "Day"),
+                mapOf("key" to "column_2", "label" to "Conditions"),
+                mapOf("key" to "column_3", "label" to "High"),
+                mapOf("key" to "column_4", "label" to "Low")
+            ),
+            "rows" to listOf(
+                mapOf("day" to "Sun", "conditions" to "Clear", "high_c" to "34", "low_c" to "22")
+            ),
+            "domain" to "generic",
+            "preferredPresentation" to "table"
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals(listOf("Sun", "Clear", "34", "22"), model!!.rows.first())
+    }
+
+    @Test
+    fun extractDirectTableModel_supportsRowsCellsShape() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "airline", "label" to "Airline"),
+                mapOf("key" to "price", "label" to "Price")
+            ),
+            "rows" to listOf(
+                mapOf("cells" to listOf("IndiGo", "INR 5,488"))
+            )
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals(listOf("IndiGo", "INR 5,488"), model!!.rows.first())
+    }
+
+    @Test
+    fun extractDirectTableModel_resolvesDynamicExpressionsInsideRows() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "city", "label" to "City"),
+                mapOf("key" to "temp", "label" to "Temp")
+            ),
+            "rows" to listOf(
+                mapOf(
+                    "city" to mapOf("${'$'}state" to "/weather/city"),
+                    "temp" to mapOf("${'$'}template" to "${'$'}{/weather/temp_c}°C")
+                )
+            )
+        )
+        val state = mapOf<String, Any?>(
+            "weather" to mapOf(
+                "city" to "Bengaluru",
+                "temp_c" to 31
+            )
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = state,
+            compactScreen = false
+        )
+
+        assertNotNull(model)
+        assertEquals(listOf("Bengaluru", "31°C"), model!!.rows.first())
     }
 }
 
