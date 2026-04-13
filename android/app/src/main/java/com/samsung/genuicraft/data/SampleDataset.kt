@@ -28,6 +28,14 @@ object SampleDatasets {
             expectedRecords = 50
         ),
         SampleDataset(
+            id = "golden50_g25pro_20260309_204033_android_promptsync_20260413_010634",
+            title = "Golden 50 Android Prompt Sync",
+            description = "Latest 50-item Android prompt-sync run rendered on device captures.",
+            assetFileName = "golden50_g25pro_20260309_204033_android_promptsync_20260413_010634_genui.jsonl",
+            sourceLabel = "golden50_g25pro_20260309_204033_android_promptsync_20260413_010634",
+            expectedRecords = 50
+        ),
+        SampleDataset(
             id = "subset10_android_promptsync_20260412_v10",
             title = "Subset10 Android Prompt Sync v10",
             description = "10-item Stage3 run using Android v10 flat-spec prompt sync (Stack/Table canonical output).",
