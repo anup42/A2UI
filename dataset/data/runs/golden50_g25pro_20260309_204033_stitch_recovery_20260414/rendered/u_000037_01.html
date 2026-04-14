@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["header_stack", "intro_text", "breakdown_title", "week1_card", "week2_card", "week3_card", "week4_card", "week5_card", "quick_actions_title", "quick_actions_stack"]}, "header_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["main_title"]}, "main_title": {"type": "Text", "props": {"text": "GRE Quant 5-Week Study Schedule", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This structured plan is designed for the GRE Quantitative Reasoning section, leading up to your test date on August 30, 2024. The schedule allocates 90 minutes on weekdays and 3 hours on Saturdays, with Sundays for rest. Each week focuses on a core topic area, culminating in a final week of intensive practice."}, "children": []}, "breakdown_title": {"type": "Text", "props": {"text": "Weekly Breakdown: July 29 - August 29", "variant": "h2"}, "children": []}, "week1_card": {"type": "Card", "props": {}, "children": ["week1_stack"]}, "week1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["week1_header", "week1_image", "week1_text_focus", "week1_text_plan", "week1_text_goal", "week1_button"]}, "week1_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["week1_icon", "week1_title"]}, "week1_icon": {"type": "Icon", "props": {"name": "../assets/r_000037_01_2_hash.svg"}, "children": []}, "week1_title": {"type": "Text", "props": {"text": "Week 1: Arithmetic Foundations (July 29 - August 3)", "variant": "h3"}, "children": []}, "week1_image": {"type": "Image", "props": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Number-line.svg/1280px-Number-line.svg.png"}, "children": []}, "week1_text_focus": {"type": "Text", "props": {"text": "Focus: Master the building blocks of GRE Quant. Cover number properties, integers, fractions, decimals, percentages, ratios, and proportions."}, "children": []}, "week1_text_plan": {"type": "Text", "props": {"text": "Weekday Plan (90 min): 60 minutes for concept learning and formula memorization; 30 minutes for targeted practice problems."}, "children": []}, "week1_text_goal": {"type": "Text", "props": {"text": "Saturday Goal (3 hrs): Take a timed 45-60 minute quiz on all Arithmetic topics, then spend the remaining time reviewing every question, especially your mistakes."}, "children": []}, "week1_button": {"type": "Button", "props": {"label": "Practice Arithmetic"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.khanacademy.org/math/arithmetic"}}}}, "week2_card": {"type": "Card", "props": {}, "children": ["week2_stack"]}, "week2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["week2_header", "week2_image", "week2_text_focus", "week2_text_plan", "week2_text_goal", "week2_button"]}, "week2_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["week2_icon", "week2_title"]}, "week2_icon": {"type": "Icon", "props": {"name": "../assets/r_000037_01_4_x-lg.svg"}, "children": []}, "week2_title": {"type": "Text", "props": {"text": "Week 2: Algebra & Coordinate Geometry (August 5 - August 10)", "variant": "h3"}, "children": []}, "week2_image": {"type": "Image", "props": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Quadratic_formula.svg/1200px-Quadratic_formula.svg.png"}, "children": []}, "week2_text_focus": {"type": "Text", "props": {"text": "Focus: Algebraic manipulations, equations, inequalities, exponents, roots, functions, and word problems. Introduce coordinate geometry concepts like lines, slopes, and quadrants."}, "children": []}, "week2_text_plan": {"type": "Text", "props": {"text": "Weekday Plan (90 min): 60 minutes on algebraic concepts and strategies; 30 minutes applying them to GRE-style questions."}, "children": []}, "week2_text_goal": {"type": "Text", "props": {"text": "Saturday Goal (3 hrs): Complete a timed quiz covering Algebra and basic Coordinate Geometry. Analyze your problem-solving process and speed for each question."}, "children": []}, "week2_button": {"type": "Button", "props": {"label": "Practice Algebra"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.khanacademy.org/math/algebra"}}}}, "week3_card": {"type": "Card", "props": {}, "children": ["week3_stack"]}, "week3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["week3_header", "week3_image", "week3_text_focus", "week3_text_plan", "week3_text_goal", "week3_button"]}, "week3_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["week3_icon", "week3_title"]}, "week3_icon": {"type": "Icon", "props": {"name": "../assets/r_000037_01_6_triangle-fill.svg"}, "children": []}, "week3_title": {"type": "Text", "props": {"text": "Week 3: Geometry (August 12 - August 17)", "variant": "h3"}, "children": []}, "week3_image": {"type": "Image", "props": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Pythagorean_theorem_demonstration.svg/1200px-Pythagorean_theorem_demonstration.svg.png"}, "children": []}, "week3_text_focus": {"type": "Text", "props": {"text": "Focus: Deep dive into shapes and their properties. Cover lines, angles, triangles, quadrilaterals, circles, polygons, and 3D solids (cubes, cylinders)."}, "children": []}, "week3_text_plan": {"type": "Text", "props": {"text": "Weekday Plan (90 min): 60 minutes memorizing geometry rules and theorems; 30 minutes on practice problems, focusing on visual and spatial reasoning."}, "children": []}, "week3_text_goal": {"type": "Text", "props": {"text": "Saturday Goal (3 hrs): Take a timed quiz focused solely on Geometry. Use the review time to create flashcards for any formulas you forgot."}, "children": []}, "week3_button": {"type": "Button", "props": {"label": "Practice Geometry"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.khanacademy.org/math/geometry"}}}}, "week4_card": {"type": "Card", "props": {}, "children": ["week4_stack"]}, "week4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["week4_header", "week4_image", "week4_text_focus", "week4_text_plan", "week4_text_goal", "week4_button"]}, "week4_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["week4_icon", "week4_title"]}, "week4_icon": {"type": "Icon", "props": {"name": "../assets/r_000037_01_8_bar-chart-line-fill.svg"}, "children": []}, "week4_title": {"type": "Text", "props": {"text": "Week 4: Data Analysis & Mixed Review (August 19 - August 24)", "variant": "h3"}, "children": []}, "week4_image": {"type": "Image", "props": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Misleading_y-axis_in_a_line_graph.png/1024px-Misleading_y-axis_in_a_line_graph.png"}, "children": []}, "week4_text_focus": {"type": "Text", "props": {"text": "Focus: Data interpretation from graphs, charts, and tables. Cover statistics (mean, median, mode, standard deviation), probability, and combinatorics (permutations, combinations)."}, "children": []}, "week4_text_plan": {"type": "Text", "props": {"text": "Weekday Plan (90 min): 60 minutes on data and probability concepts; 30 minutes on mixed problem sets that include topics from previous weeks."}, "children": []}, "week4_text_goal": {"type": "Text", "props": {"text": "Saturday Goal (3 hrs): Complete a timed quiz with a heavy emphasis on Data Analysis but also including questions from all four topic areas to simulate test variety."}, "children": []}, "week4_button": {"type": "Button", "props": {"label": "Practice Data Analysis"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.khanacademy.org/math/statistics-probability"}}}}, "week5_card": {"type": "Card", "props": {}, "children": ["week5_stack"]}, "week5_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["week5_header", "week5_image", "week5_text_focus", "week5_text_plan", "week5_text_final", "week5_button"]}, "week5_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["week5_icon", "week5_title"]}, "week5_icon": {"type": "Icon", "props": {"name": "../assets/r_000037_01_10_stopwatch-fill.svg"}, "children": []}, "week5_title": {"type": "Text", "props": {"text": "Week 5: Final Review & Practice Tests (August 26 - August 29)", "variant": "h3"}, "children": []}, "week5_image": {"type": "Image", "props": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Computer-based_testing.jpg/1280px-Computer-based_testing.jpg"}, "children": []}, "week5_text_focus": {"type": "Text", "props": {"text": "Focus: Building stamina and refining test-day strategy. This week is dedicated to full-length, timed practice exams."}, "children": []}, "week5_text_plan": {"type": "Text", "props": {"text": "Plan: Take a full-length PowerPrep test on Monday and Wednesday. Use the 90 minutes on Tuesday and Thursday for in-depth review of the previous day's test, focusing on pacing, errors, and strategy."}, "children": []}, "week5_text_final": {"type": "Text", "props": {"text": "Final Day (Aug 29): Light review of key formulas and concepts. Do not take a full test. Rest well and ensure you are prepared for test day."}, "children": []}, "week5_button": {"type": "Button", "props": {"label": "Access PowerPrep Tests"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.ets.org/gre/prepare-for-the-test/test-prep-materials/powerprep-online"}}}}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "quick_actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["qa_button1", "qa_button2"]}, "qa_button1": {"type": "Button", "props": {"label": "GRE Quant Overview"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.ets.org/gre/test-takers/general-test/prepare/quantitative-reasoning.html"}}}}, "qa_button2": {"type": "Button", "props": {"label": "Official Math Review"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "../assets/r_000037_01_11_gre-math-review.pdf"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

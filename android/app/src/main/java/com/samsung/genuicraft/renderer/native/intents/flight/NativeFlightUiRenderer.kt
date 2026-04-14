@@ -76,7 +76,6 @@ internal object NativeFlightUiRenderer {
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Neutral),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                 ) {
                     Column(
                         modifier = Modifier

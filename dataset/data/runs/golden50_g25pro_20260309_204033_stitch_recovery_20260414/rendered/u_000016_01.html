@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["header_stack", "summary_text", "context_stack", "slots_stack", "actions_stack"]}, "header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["header_icon", "header_title"]}, "header_icon": {"type": "Icon", "props": {"name": "../assets/r_000016_01_1_calendar-check.svg"}, "children": []}, "header_title": {"type": "Text", "props": {"text": "Available Meeting Slots: Sep 9-13", "variant": "h3"}, "children": []}, "summary_text": {"type": "Text", "props": {"text": "Based on the provided schedules, there are two possible 60-minute slots during the week where Maria, David, and Sarah are all available. The analysis accounts for each member's unique availability within standard business hours."}, "children": []}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["context_title", "context_body", "context_params_card"]}, "context_title": {"type": "Text", "props": {"text": "Scheduling Context", "variant": "h3"}, "children": []}, "context_body": {"type": "Text", "props": {"text": "The following parameters were used to identify common meeting times for Maria, David, and Sarah for the week of September 9-13, 2024."}, "children": []}, "context_params_card": {"type": "Card", "props": {}, "children": ["context_params_text"]}, "context_params_text": {"type": "Text", "props": {"text": "Meeting Duration: 60 minutes\nBusiness Hours: 9:00 AM - 5:00 PM\nTimezone: America/New_York (ET)"}, "children": []}, "slots_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["slots_title", "slots_description", "slots_table"]}, "slots_title": {"type": "Text", "props": {"text": "Shared 60-Minute Time Slots", "variant": "h3"}, "children": []}, "slots_description": {"type": "Text", "props": {"text": "This table shows all time slots where the entire team is available for a 60-minute meeting."}, "children": []}, "slots_table": {"type": "Table", "props": {"columns": [{"key": "day", "label": "Day"}, {"key": "date", "label": "Date"}, {"key": "slot", "label": "Available Slot"}], "rows": [{"day": "Monday", "date": "Sep 9, 2024", "slot": "10:00 AM - 11:00 AM"}, {"day": "Tuesday", "date": "Sep 10, 2024", "slot": "No common availability"}, {"day": "Wednesday", "date": "Sep 11, 2024", "slot": "No common availability"}, {"day": "Thursday", "date": "Sep 12, 2024", "slot": "No common availability"}, {"day": "Friday", "date": "Sep 13, 2024", "slot": "10:00 AM - 11:00 AM"}], "domain": "schedule", "preferredPresentation": "cards", "sourceFormat": "markdown", "sourceText": "| Day | Date | Available Slot |\n| :--- | :--- | :--- |\n| Monday | Sep 9, 2024 | 10:00 AM - 11:00 AM |\n| Tuesday | Sep 10, 2024 | No common availability |\n| Wednesday | Sep 11, 2024 | No common availability |\n| Thursday | Sep 12, 2024 | No common availability |\n| Friday | Sep 13, 2024 | 10:00 AM - 11:00 AM |"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_buttons_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_buttons_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["create_invite_button", "send_poll_button"]}, "create_invite_button": {"type": "Button", "props": {"label": "Create Calendar Invite"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/calendar/render?action=TEMPLATE"}}}}, "send_poll_button": {"type": "Button", "props": {"label": "Send Team Poll"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://doodle.com/create"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

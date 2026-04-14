@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "summary_stack", "schedule_stack", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Construction Project Timeline Analysis", "variant": "h2"}, "children": []}, "summary_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["summary_intro", "summary_details"]}, "summary_intro": {"type": "Text", "props": {"text": "Based on the task dependencies you provided, the project's total minimum duration is calculated to be 19 days. The longest sequence of dependent tasks, known as the critical path, dictates this timeline."}, "children": []}, "summary_details": {"type": "Card", "props": {}, "children": ["summary_details_stack"]}, "summary_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["duration_text", "path_text"]}, "duration_text": {"type": "Text", "props": {"text": "Total Minimum Duration: 19 Days"}, "children": []}, "path_text": {"type": "Text", "props": {"text": "Critical Path: A → B → C → E → F"}, "children": []}, "schedule_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["schedule_title", "schedule_intro", "schedule_table", "float_note"]}, "schedule_title": {"type": "Text", "props": {"text": "Detailed Task Schedule", "variant": "h3"}, "children": []}, "schedule_intro": {"type": "Text", "props": {"text": "The table below outlines the earliest start and finish day for each task. The critical path represents the tasks with zero \"float\" or slack time; any delay in these tasks will extend the entire project duration."}, "children": []}, "schedule_table": {"type": "Table", "props": {"domain": "schedule", "preferredPresentation": "table", "columns": [{"key": "task", "label": "Task"}, {"key": "duration", "label": "Duration (Days)"}, {"key": "start", "label": "Start Day"}, {"key": "end", "label": "End Day"}, {"key": "critical", "label": "On Critical Path"}], "rows": [{"task": "A: Excavation", "duration": 4, "start": 1, "end": 4, "critical": "Yes"}, {"task": "B: Pour Foundation", "duration": 3, "start": 5, "end": 7, "critical": "Yes"}, {"task": "C: Framing", "duration": 7, "start": 8, "end": 14, "critical": "Yes"}, {"task": "D: Plumbing Rough-in", "duration": 5, "start": 8, "end": 12, "critical": "No"}, {"task": "E: Electrical Rough-in", "duration": 4, "start": 15, "end": 18, "critical": "Yes"}, {"task": "F: Inspection", "duration": 1, "start": 19, "end": 19, "critical": "Yes"}]}, "children": []}, "float_note": {"type": "Text", "props": {"text": "Task D (Plumbing Rough-in) is not on the critical path and has a \"float\" of 6 days. This means it could start as late as Day 14 or take up to 11 days to complete without delaying the project's final inspection.", "variant": "caption"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "button_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "button_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["gantt_button", "cpm_button"]}, "gantt_button": {"type": "Button", "props": {"label": "Visualize in a Gantt Chart", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.teamgantt.com/gantt-chart-software"}}}}, "cpm_button": {"type": "Button", "props": {"label": "Learn about Critical Path", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.pmi.org/learning/library/critical-path-method-basics-5932"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

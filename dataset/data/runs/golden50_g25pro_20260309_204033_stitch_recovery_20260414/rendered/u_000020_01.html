@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "itinerary_title", "morning_card", "lunch_card", "afternoon_card", "evening_card", "actions_section", "sources_section"]}, "title": {"type": "Text", "props": {"text": "A Day in Historic Higashiyama, Kyoto", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This relaxed, single-day itinerary for November 5, 2024, guides you through the timeless beauty of Kyoto's Higashiyama district. The route is designed for a leisurely pace, with all locations easily accessible on foot from the Gion area, allowing you to immerse yourself in the sights and sounds of old Japan during the stunning autumn season."}, "children": []}, "itinerary_title": {"type": "Text", "props": {"text": "Your Itinerary for November 5, 2024", "variant": "h2"}, "children": []}, "morning_card": {"type": "Card", "props": {}, "children": ["morning_stack"]}, "morning_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["morning_header", "morning_desc"]}, "morning_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["morning_icon", "morning_title"]}, "morning_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_6_tree.svg"}, "children": []}, "morning_title": {"type": "Text", "props": {"text": "Morning (9:00 AM): Kiyomizu-dera Temple", "variant": "h3"}, "children": []}, "morning_desc": {"type": "Text", "props": {"text": "Start your day at this iconic UNESCO World Heritage site, famous for its large wooden stage that juts out from the main hall.\nArriving early helps you avoid the largest crowds and enjoy the panoramic city views framed by autumn leaves.\nDon't miss the Otowa Waterfall, where visitors can drink from streams said to grant health, longevity, and success."}, "children": []}, "lunch_card": {"type": "Card", "props": {}, "children": ["lunch_stack"]}, "lunch_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["lunch_header", "lunch_desc"]}, "lunch_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["lunch_icon", "lunch_title"]}, "lunch_icon": {"type": "Icon", "props": {"name": "../assets/r_000018_01_1_cup-hot.svg"}, "children": []}, "lunch_title": {"type": "Text", "props": {"text": "Lunch (12:30 PM): Traditional Kyoto Cuisine", "variant": "h3"}, "children": []}, "lunch_desc": {"type": "Text", "props": {"text": "Stroll down the beautifully preserved, stone-paved streets of Sannenzaka and Ninenzaka, lined with traditional shops and restaurants.\nFor lunch, seek out a local eatery serving Kyoto specialties.\nPopular choices include Yudofu (simmered tofu in a hot pot), a delicate and warming local dish, or a comforting bowl of Kyo-udon (Kyoto-style udon noodles)."}, "children": []}, "afternoon_card": {"type": "Card", "props": {}, "children": ["afternoon_stack"]}, "afternoon_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["afternoon_header", "afternoon_desc"]}, "afternoon_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["afternoon_icon", "afternoon_title"]}, "afternoon_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_2_building.svg"}, "children": []}, "afternoon_title": {"type": "Text", "props": {"text": "Afternoon (2:30 PM): Kodai-ji Temple & Yasaka Shrine", "variant": "h3"}, "children": []}, "afternoon_desc": {"type": "Text", "props": {"text": "Visit Kodai-ji Temple, an elegant Zen Buddhist temple known for its ornate interiors and magnificent gardens, which are especially beautiful in the fall.\nAfterwards, walk towards Maruyama Park and visit the vibrant Yasaka Shrine, one of Kyoto's most famous Shinto shrines, located at the eastern end of Shijo-dori."}, "children": []}, "evening_card": {"type": "Card", "props": {}, "children": ["evening_stack"]}, "evening_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["evening_header", "evening_desc"]}, "evening_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["evening_icon", "evening_title"]}, "evening_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_3_moon-stars.svg"}, "children": []}, "evening_title": {"type": "Text", "props": {"text": "Evening (6:00 PM): Explore Gion District", "variant": "h3"}, "children": []}, "evening_desc": {"type": "Text", "props": {"text": "As dusk falls, explore the historic Gion district, Japan's most famous geisha district.\nWander through Hanami-koji Lane, where you might catch a glimpse of a geiko or maiko on her way to an appointment.\nFor dinner, explore the nearby Pontocho Alley, a narrow lane packed with a variety of restaurants offering everything from casual yakitori to formal kaiseki dining."}, "children": []}, "actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["map_button", "guide_button"]}, "map_button": {"type": "Button", "props": {"label": "Explore Higashiyama Map"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/maps/d/u/0/viewer?mid=1_k2y-3_gBCbQv5k6ANu-t_d2f78&hl=en_US&ll=35.00109590740921%2C135.78206149999998&z=15"}}}}, "guide_button": {"type": "Button", "props": {"label": "Kyoto Official Travel Guide"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://kyoto.travel/en/"}}}}, "sources_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "sources_text"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "sources_text": {"type": "Text", "props": {"text": "Kyoto City Official Travel Guide: https://kyoto.travel/en/\nJapan-guide.com (Higashiyama): https://www.japan-guide.com/e/e3959.html"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

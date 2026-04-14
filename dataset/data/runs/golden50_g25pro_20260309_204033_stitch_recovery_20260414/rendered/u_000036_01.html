@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro", "itinerary_title", "day1_card", "day2_card", "day3_card", "day4_card", "quick_actions_section", "sources_section"]}, "title": {"type": "Text", "props": {"text": "Pacific Coast Highway Journey: SF to LA", "variant": "h1"}, "children": []}, "intro": {"type": "Text", "props": {"text": "This 4-day itinerary guides you from San Francisco to Los Angeles along the iconic Highway 1, focusing on breathtaking coastal views and photography opportunities. Each day's drive is planned to be under 4 hours, allowing ample time for stops and exploration."}, "children": []}, "itinerary_title": {"type": "Text", "props": {"text": "Your 4-Day Coastal Itinerary", "variant": "h2"}, "children": []}, "day1_card": {"type": "Card", "props": {}, "children": ["day1_content"]}, "day1_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["day1_title", "day1_desc"]}, "day1_title": {"type": "Text", "props": {"text": "Day 1: San Francisco to Monterey", "variant": "h3"}, "children": []}, "day1_desc": {"type": "Text", "props": {"text": "Start your journey with a photo op at the Golden Gate Bridge. Drive south along the coast, stopping in Santa Cruz for its famous boardwalk. End your day in Monterey. Driving time: ~2.5 hours."}, "children": []}, "day2_card": {"type": "Card", "props": {}, "children": ["day2_content"]}, "day2_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["day2_title", "day2_desc"]}, "day2_title": {"type": "Text", "props": {"text": "Day 2: Monterey to San Simeon", "variant": "h3"}, "children": []}, "day2_desc": {"type": "Text", "props": {"text": "Experience the famous 17-Mile Drive and charming Carmel-by-the-Sea. Continue through Big Sur, stopping at Bixby Bridge and McWay Falls for iconic photos. Driving time: ~3 hours."}, "children": []}, "day3_card": {"type": "Card", "props": {}, "children": ["day3_content"]}, "day3_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["day3_title", "day3_desc"]}, "day3_title": {"type": "Text", "props": {"text": "Day 3: San Simeon to Santa Barbara", "variant": "h3"}, "children": []}, "day3_desc": {"type": "Text", "props": {"text": "Visit the elephant seal rookery near San Simeon and consider a tour of Hearst Castle. Drive through Morro Bay and the unique Danish-inspired town of Solvang. Driving time: ~3.5 hours."}, "children": []}, "day4_card": {"type": "Card", "props": {}, "children": ["day4_content"]}, "day4_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["day4_title", "day4_desc"]}, "day4_title": {"type": "Text", "props": {"text": "Day 4: Santa Barbara to Los Angeles", "variant": "h3"}, "children": []}, "day4_desc": {"type": "Text", "props": {"text": "Enjoy Santa Barbara's beautiful downtown before heading south. Cruise through Malibu and stop at its famous beaches before concluding your trip at the Santa Monica Pier. Driving time: ~2 hours."}, "children": []}, "quick_actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "paddingVertical": 16}, "children": ["quick_actions_title", "quick_actions_buttons"]}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "quick_actions_buttons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["book_hotel_btn", "rent_car_btn", "share_btn"]}, "book_hotel_btn": {"type": "Button", "props": {"label": "Book Hotels", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/travel/hotels"}}}}, "rent_car_btn": {"type": "Button", "props": {"label": "Rent a Car", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/travel/flights/cars"}}}}, "share_btn": {"type": "Button", "props": {"label": "Share Itinerary", "variant": "borderless"}, "children": [], "on": {"press": {"action": "setState", "params": {"path": "/showShareOptions", "value": true}}}}, "sources_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "paddingVertical": 16}, "children": ["sources_title", "sources_text"]}, "sources_title": {"type": "Text", "props": {"text": "Information Sources", "variant": "h2"}, "children": []}, "sources_text": {"type": "Text", "props": {"text": "Itinerary based on public travel guides and California tourism information. Driving times are estimates and can vary based on traffic and road conditions.", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

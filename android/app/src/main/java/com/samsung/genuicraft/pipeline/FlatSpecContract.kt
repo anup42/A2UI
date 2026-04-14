@@ -66,6 +66,8 @@ internal object FlatSpecContract {
         "slider",
         "datetimeinput"
     )
+    private val cardFirstTableDomains = setOf("weather", "flight", "booking", "schedule", "status")
+    private val supportedTableDomains = cardFirstTableDomains + setOf("generic", "comparison")
 
     fun looksLikeFlatSpec(json: JsonElement?): Boolean {
         if (json == null || !json.isJsonObject) return false
@@ -839,10 +841,10 @@ internal object FlatSpecContract {
                     ?.asString
                     ?.trim()
                     ?.lowercase()
-                if (normalizedDomain !in setOf("weather", "flight", "generic")) {
+                if (normalizedDomain !in supportedTableDomains) {
                     props.addProperty("domain", candidate.domain)
                     rewrites += "Element '${candidate.tableElementId}': set props.domain=${candidate.domain}."
-                } else if (normalizedDomain == "generic" && candidate.domain in setOf("weather", "flight")) {
+                } else if (normalizedDomain == "generic" && candidate.domain in cardFirstTableDomains) {
                     props.addProperty("domain", candidate.domain)
                     rewrites +=
                         "Element '${candidate.tableElementId}': rewrote props.domain from generic to ${candidate.domain} based on header signals."
@@ -857,7 +859,7 @@ internal object FlatSpecContract {
                     rewrites += "Element '${candidate.tableElementId}': set props.preferredPresentation=${candidate.preferredPresentation}."
                 } else if (
                     normalizedDomain == "generic" &&
-                    candidate.domain in setOf("weather", "flight") &&
+                    candidate.domain in cardFirstTableDomains &&
                     normalizedPresentation == "table"
                 ) {
                     props.addProperty("preferredPresentation", "cards")
@@ -1234,16 +1236,18 @@ internal object FlatSpecContract {
             )
         }
         val renderMode = when {
-            bestCandidate.domain in setOf("weather", "flight") -> "cards_first"
+            bestCandidate.domain in cardFirstTableDomains -> "cards_first"
+            bestCandidate.domain == "comparison" && bestCandidate.columns >= 3 -> "cards_first"
             bestCandidate.domain == "generic" && bestCandidate.columns >= 4 -> "horizontal_scroll_table"
             else -> "table"
         }
         val cardMappingStatus = when {
-            bestCandidate.domain !in setOf("weather", "flight") -> "not_applicable"
+            bestCandidate.domain == "comparison" -> "pending_runtime_mapping"
+            bestCandidate.domain !in cardFirstTableDomains -> "not_applicable"
             else -> "pending_runtime_mapping"
         }
         val mappingWarnings = mutableListOf<String>()
-        if (bestCandidate.domain in setOf("weather", "flight") &&
+        if (bestCandidate.domain in cardFirstTableDomains &&
             bestCandidate.rows == 0
         ) {
             mappingWarnings += "Domain '${bestCandidate.domain}' requested cards but table rows are empty."
@@ -1393,23 +1397,16 @@ internal object FlatSpecContract {
         props: JsonObject,
         headerLabels: List<String>
     ): TableIntent {
-        val weatherSignals = headerLabels.count { label -> isWeatherHeaderLabel(label) }
-        val flightSignals = headerLabels.count { label -> isFlightHeaderLabel(label) }
-        val strongFlightSignals = headerLabels.count { label -> isStrongFlightHeaderLabel(label) }
         val explicitDomain = props.get("domain")
             ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
             ?.asString
             ?.trim()
             ?.lowercase()
-            ?.takeIf { it in setOf("weather", "flight", "generic") }
-        val inferredFromHeaders = when {
-            weatherSignals >= 2 -> "weather"
-            strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
-            else -> "generic"
-        }
+            ?.takeIf { it in supportedTableDomains }
+        val inferredFromHeaders = inferTableDomainFromHeaders(headerLabels)
         val inferredDomain = when {
-            explicitDomain == "weather" || explicitDomain == "flight" -> explicitDomain
-            explicitDomain == "generic" && inferredFromHeaders in setOf("weather", "flight") -> inferredFromHeaders
+            explicitDomain != null && explicitDomain in cardFirstTableDomains -> explicitDomain
+            explicitDomain == "generic" && inferredFromHeaders in cardFirstTableDomains -> inferredFromHeaders
             explicitDomain != null -> explicitDomain
             else -> inferredFromHeaders
         }
@@ -1420,9 +1417,9 @@ internal object FlatSpecContract {
             ?.lowercase()
             ?.takeIf { it in setOf("cards", "table") }
         val preferredPresentation = when {
-            explicitPresentation == null -> if (inferredDomain in setOf("weather", "flight")) "cards" else "table"
+            explicitPresentation == null -> if (inferredDomain in cardFirstTableDomains) "cards" else "table"
             explicitDomain == "generic" &&
-                inferredDomain in setOf("weather", "flight") &&
+                inferredDomain in cardFirstTableDomains &&
                 explicitPresentation == "table" -> "cards"
             else -> explicitPresentation
         }
@@ -1590,6 +1587,100 @@ internal object FlatSpecContract {
             "destination"
         )
         return keywords.any { keyword -> token.contains(keyword) }
+    }
+
+    private fun isBookingEntityHeaderLabel(label: String): Boolean {
+        if (label.isBlank()) return false
+        val token = label.lowercase()
+        val keywords = listOf(
+            "hotel",
+            "property",
+            "provider",
+            "option",
+            "listing",
+            "vendor",
+            "airline",
+            "plan",
+            "package",
+            "name"
+        )
+        return keywords.any { keyword -> token.contains(keyword) }
+    }
+
+    private fun isBookingValueHeaderLabel(label: String): Boolean {
+        if (label.isBlank()) return false
+        val token = label.lowercase()
+        val keywords = listOf(
+            "price",
+            "cost",
+            "fare",
+            "rate",
+            "night",
+            "duration",
+            "room",
+            "amenity",
+            "wifi",
+            "rating",
+            "review",
+            "book",
+            "reserve",
+            "deal",
+            "url",
+            "link"
+        )
+        return keywords.any { keyword -> token.contains(keyword) }
+    }
+
+    private fun isScheduleHeaderLabel(label: String): Boolean {
+        if (label.isBlank()) return false
+        val token = label.lowercase()
+        val timeKeywords = listOf("time", "date", "day", "slot", "start", "end")
+        val eventKeywords = listOf("event", "activity", "agenda", "session", "task", "title", "stop", "location")
+        return timeKeywords.any { token.contains(it) } || eventKeywords.any { token.contains(it) }
+    }
+
+    private fun isStatusHeaderLabel(label: String): Boolean {
+        if (label.isBlank()) return false
+        val token = label.lowercase()
+        val keywords = listOf(
+            "status",
+            "state",
+            "stage",
+            "progress",
+            "eta",
+            "updated",
+            "resolved",
+            "tracking",
+            "phase"
+        )
+        return keywords.any { keyword -> token.contains(keyword) }
+    }
+
+    private fun isComparisonFeatureHeader(label: String): Boolean {
+        if (label.isBlank()) return false
+        val token = label.lowercase()
+        val keywords = listOf("feature", "metric", "criteria", "attribute", "spec", "dimension", "parameter")
+        return keywords.any { keyword -> token.contains(keyword) }
+    }
+
+    private fun inferTableDomainFromHeaders(headerLabels: List<String>): String {
+        val weatherSignals = headerLabels.count(::isWeatherHeaderLabel)
+        val flightSignals = headerLabels.count(::isFlightHeaderLabel)
+        val strongFlightSignals = headerLabels.count(::isStrongFlightHeaderLabel)
+        val bookingEntitySignals = headerLabels.count(::isBookingEntityHeaderLabel)
+        val bookingValueSignals = headerLabels.count(::isBookingValueHeaderLabel)
+        val scheduleSignals = headerLabels.count(::isScheduleHeaderLabel)
+        val statusSignals = headerLabels.count(::isStatusHeaderLabel)
+        val featureLike = isComparisonFeatureHeader(headerLabels.firstOrNull().orEmpty())
+        return when {
+            weatherSignals >= 2 -> "weather"
+            strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
+            bookingEntitySignals >= 1 && bookingValueSignals >= 2 -> "booking"
+            scheduleSignals >= 2 && statusSignals >= 1 -> "status"
+            scheduleSignals >= 2 -> "schedule"
+            featureLike && headerLabels.size >= 3 -> "comparison"
+            else -> "generic"
+        }
     }
 
     private fun resolveStateArraySize(state: JsonObject, path: String): Int {

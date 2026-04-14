@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title_text", "intro_text", "checklist_title", "checklist_intro", "checklist_table", "actions_title", "actions_intro", "actions_container", "sources_title", "sources_container"]}, "title_text": {"type": "Text", "props": {"text": "Resolving DaVinci Resolve Surface Tracker Crashes", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Based on your system specifications and the specific crash scenario involving the Fusion Surface Tracker, the issue likely stems from a conflict between the software, GPU driver, and system configuration, especially when processing demanding 4K Blackmagic RAW media. The following checklist provides a systematic approach to isolate and resolve the instability."}, "children": []}, "checklist_title": {"type": "Text", "props": {"text": "Systematic Diagnostic Checklist", "variant": "h2"}, "children": []}, "checklist_intro": {"type": "Text", "props": {"text": "This checklist is ordered from in-application tweaks to deeper system-level changes. Test the crash condition after each major step."}, "children": []}, "checklist_table": {"type": "Table", "props": {"columns": [{"key": "step", "label": "Step"}, {"key": "category", "label": "Category"}, {"key": "action", "label": "Action"}, {"key": "details", "label": "Details"}], "rows": [{"step": "1", "category": "Media Test", "action": "Isolate the BRAW Clip", "details": "Transcode a short segment of the 4K BRAW clip to ProRes 422 HQ. Apply the Surface Tracker to this new file. If it doesn't crash, the issue is related to BRAW decoding."}, {"step": "2", "category": "Resolve Prefs", "action": "Change BRAW Decode", "details": "Go to Preferences > System > Memory and GPU. Under GPU Configuration, uncheck \"Use GPU for Blackmagic RAW decode\". This forces CPU decoding and can bypass a GPU-specific bug."}, {"step": "3", "category": "Resolve Cache", "action": "Use Proxies", "details": "In the Media Pool, right-click the BRAW clip and select \"Generate Proxy Media\". Ensure playback is set to use proxies (Playback > Proxy Handling > Prefer Proxies) and try the tracker again."}, {"step": "4", "category": "Windows Setting", "action": "Disable HAGS", "details": "Go to Windows Settings > System > Display > Graphics > Change default graphics settings. Turn off Hardware-accelerated GPU scheduling and restart your PC. This feature can cause instability in pro apps."}, {"step": "5", "category": "NVIDIA Panel", "action": "Set Max Performance", "details": "Open the NVIDIA Control Panel, go to Manage 3D Settings > Program Settings. Select DaVinci Resolve (resolve.exe) and set \"Power management mode\" to \"Prefer maximum performance\"."}, {"step": "6", "category": "Driver Version", "action": "Try an Alternate Driver", "details": "Use DDU in Safe Mode to uninstall the current driver. Install a slightly older (e.g., 537.42) or the absolute latest NVIDIA Studio Driver. A specific version may have a bug affecting Fusion."}, {"step": "7", "category": "System Stability", "action": "Disable XMP/Overclocks", "details": "Reboot into your BIOS/UEFI. Temporarily disable any CPU overclocking and the XMP/DOCP profile for your DDR5 RAM, letting it run at its default JEDEC speed. Memory instability is a common cause of silent crashes."}, {"step": "8", "category": "Software Version", "action": "Update DaVinci Resolve", "details": "Your issue might be a known bug in version 18.5. Check the Blackmagic Design support page for a newer stable version (e.g., 18.6 or higher) which may contain a fix."}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_intro": {"type": "Text", "props": {"text": "If the issue persists, generating diagnostic logs is the most critical step for getting official support."}, "children": []}, "actions_container": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["action1_card", "action2_card"]}, "action1_card": {"type": "Card", "props": {}, "children": ["action1_stack"]}, "action1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["action1_label", "action1_desc"]}, "action1_label": {"type": "Text", "props": {"text": "Generate Resolve Logs", "variant": "label"}, "children": []}, "action1_desc": {"type": "Text", "props": {"text": "From DaVinci Resolve's top menu, navigate to Help > Create Diagnostics Log on Desktop."}, "children": []}, "action2_card": {"type": "Card", "props": {}, "children": ["action2_stack"]}, "action2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["action2_label", "action2_desc", "action2_button"]}, "action2_label": {"type": "Text", "props": {"text": "Post on the Blackmagic Forum", "variant": "label"}, "children": []}, "action2_desc": {"type": "Text", "props": {"text": "Create a new post on the official Blackmagic Design forum. Attach the diagnostic log zip file and provide a detailed description of the problem, including your system specs and the exact steps to reproduce the crash."}, "children": []}, "action2_button": {"type": "Button", "props": {"label": "Go to Forum"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://forum.blackmagicdesign.com/viewforum.php?f=21"}}}}, "sources_title": {"type": "Text", "props": {"text": "Official Resources", "variant": "h2"}, "children": []}, "sources_container": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["source1_button", "source2_button"]}, "source1_button": {"type": "Button", "props": {"label": "BMD Support Center"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.blackmagicdesign.com/support/"}}}}, "source2_button": {"type": "Button", "props": {"label": "NVIDIA Studio Drivers"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nvidia.com/Download/index.aspx?lang=en-us"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

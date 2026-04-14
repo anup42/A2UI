@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "summary", "notifications_title", "notification_1_card", "notification_2_card"]}, "title": {"type": "Text", "props": {"text": "Stock Alert Summary for TECH", "variant": "h3"}, "children": []}, "summary": {"type": "Text", "props": {"text": "Based on the provided price data and rules, two push notifications would have been triggered during the week of November 6-9, 2023. A 'New High' alert was sent on Tuesday, and a 'Large Drop' alert was sent on Wednesday."}, "children": []}, "notifications_title": {"type": "Text", "props": {"text": "Triggered Push Notifications", "variant": "h3"}, "children": []}, "notification_1_card": {"type": "Card", "props": {}, "children": ["notification_1_stack"]}, "notification_1_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["notification_1_icon", "notification_1_content"]}, "notification_1_icon": {"type": "Icon", "props": {"name": "../assets/r_000030_01_4_graph-up-arrow.svg"}, "children": []}, "notification_1_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["notification_1_title", "notification_1_day", "notification_1_notif_title", "notification_1_notif_body"]}, "notification_1_title": {"type": "Text", "props": {"text": "Notification 1: New High Alert", "variant": "label"}, "children": []}, "notification_1_day": {"type": "Text", "props": {"text": "Trigger Day: Tuesday, 2023-11-07"}, "children": []}, "notification_1_notif_title": {"type": "Text", "props": {"text": "Notification Title: TECH: New High"}, "children": []}, "notification_1_notif_body": {"type": "Text", "props": {"text": "Notification Body: TECH reached a new period high of $218.00."}, "children": []}, "notification_2_card": {"type": "Card", "props": {}, "children": ["notification_2_stack"]}, "notification_2_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["notification_2_icon", "notification_2_content"]}, "notification_2_icon": {"type": "Icon", "props": {"name": "../assets/r_000047_01_2_graph-down-arrow.svg"}, "children": []}, "notification_2_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["notification_2_title", "notification_2_day", "notification_2_notif_title", "notification_2_notif_body"]}, "notification_2_title": {"type": "Text", "props": {"text": "Notification 2: Large Drop Alert", "variant": "label"}, "children": []}, "notification_2_day": {"type": "Text", "props": {"text": "Trigger Day: Wednesday, 2023-11-08"}, "children": []}, "notification_2_notif_title": {"type": "Text", "props": {"text": "Notification Title: TECH: Large Drop Alert"}, "children": []}, "notification_2_notif_body": {"type": "Text", "props": {"text": "Notification Body: TECH dropped 2.98% to $211.50 from the previous close."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -123,7 +123,9 @@ object GenUiNativeRenderer {
         val rootId: String,
         val components: Map<String, JsonObject>,
         /** Non-null when this surface uses the Phase 2+ flat-spec format. */
-        val flatSpec: FlatSpec? = null
+        val flatSpec: FlatSpec? = null,
+        /** Optional mapping from local asset-style paths (assets/..., ../assets/...) to remote URLs. */
+        val assetUrlMap: Map<String, String> = emptyMap()
     )
 
     private enum class IconFallbackKind {
@@ -138,8 +140,9 @@ object GenUiNativeRenderer {
         } catch (exc: Exception) {
             return RenderResult(emptyList(), warnings, "Invalid payload: ${exc.message ?: exc.javaClass.simpleName}")
         }
+        val assetUrlMap = extractAssetUrlMap(parsed)
 
-        parseFlatSpecSurface(parsed, warnings)?.let { surface ->
+        parseFlatSpecSurface(parsed, warnings, assetUrlMap)?.let { surface ->
             return RenderResult(listOf(surface), warnings)
         }
 
@@ -163,30 +166,33 @@ object GenUiNativeRenderer {
 
     private fun parseFlatSpecSurface(
         parsed: JsonElement,
-        warnings: MutableList<String>
+        warnings: MutableList<String>,
+        assetUrlMap: Map<String, String>
     ): SurfaceState? {
         if (FlatSpecParser.isFlatSpec(parsed)) {
-            return buildFlatSpecSurface(parsed, warnings)
+            return buildFlatSpecSurface(parsed, warnings, assetUrlMap)
         }
 
         val embedded = findEmbeddedFlatSpec(parsed) ?: return null
-        return buildFlatSpecSurface(embedded, warnings)
+        return buildFlatSpecSurface(embedded, warnings, assetUrlMap)
     }
 
     private fun buildFlatSpecSurface(
         parsed: JsonElement,
-        warnings: MutableList<String>
+        warnings: MutableList<String>,
+        assetUrlMap: Map<String, String>
     ): SurfaceState? {
         val flatSpec = FlatSpecParser.parse(parsed) ?: return null
         maybeBuildLegacySurfaceFromTextHeavyFlatSpec(flatSpec)?.let { legacySurface ->
             warnings += "Flat-spec contained text-heavy fallback content; rendered with structured text parser."
-            return legacySurface
+            return legacySurface.copy(assetUrlMap = assetUrlMap)
         }
         return SurfaceState(
             surfaceId = "flat_surface",
             rootId = flatSpec.root,
             components = emptyMap(),
-            flatSpec = flatSpec
+            flatSpec = flatSpec,
+            assetUrlMap = assetUrlMap
         )
     }
 
@@ -489,7 +495,6 @@ object GenUiNativeRenderer {
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
             colors = genUiCardColors(GenUiCardTone.Primary),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
             Text(
                 text = message,
@@ -506,7 +511,6 @@ object GenUiNativeRenderer {
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
             colors = genUiCardColors(GenUiCardTone.Warning),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
             Column(
                 modifier = Modifier
@@ -538,12 +542,11 @@ object GenUiNativeRenderer {
                 shape = RoundedCornerShape(GenUiTokens.RadiusXl),
                 colors = genUiCardColors(GenUiCardTone.Neutral),
                 elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationMd),
-                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 FlatSpecContent(
                     spec = surface.flatSpec,
-                    resolveAssetUrl = { raw -> NativePayloadParser.resolveAssetUrl(raw, sourceDir) },
+                    resolveAssetUrl = { raw -> resolveSurfaceAssetUrl(raw, sourceDir, surface.assetUrlMap) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -557,7 +560,6 @@ object GenUiNativeRenderer {
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
             colors = genUiCardColors(GenUiCardTone.Neutral),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationMd),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
             modifier = Modifier
                 .fillMaxWidth()
         ) {
@@ -920,7 +922,6 @@ object GenUiNativeRenderer {
             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
             colors = genUiCardColors(GenUiCardTone.Neutral),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
             Column(
                 modifier = Modifier
@@ -1048,7 +1049,6 @@ object GenUiNativeRenderer {
                                 shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                                 colors = genUiCardColors(GenUiCardTone.Neutral),
                                 elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -1256,7 +1256,6 @@ object GenUiNativeRenderer {
                             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                             colors = genUiCardColors(GenUiCardTone.Neutral),
                             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                         ) {
                             Column(
                                 modifier = Modifier
@@ -1644,7 +1643,6 @@ object GenUiNativeRenderer {
                     onClick = { resolved?.let(onOpenExternalUrl) },
                     enabled = resolved != null,
                     shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                 ) {
                     MarkdownText(
                         text = link.label,
@@ -1725,7 +1723,6 @@ object GenUiNativeRenderer {
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Primary),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                 ) {
                     Column(
                         modifier = Modifier
@@ -1799,7 +1796,6 @@ object GenUiNativeRenderer {
                 shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                 colors = genUiCardColors(GenUiCardTone.Neutral),
                 elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
             ) {
                 FlowRow(
                     modifier = Modifier
@@ -1851,7 +1847,6 @@ object GenUiNativeRenderer {
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Neutral),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                 ) {
                     Column(
                         modifier = Modifier
@@ -1957,7 +1952,6 @@ object GenUiNativeRenderer {
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
             colors = CardDefaults.cardColors(containerColor = genUiTableContainerColor()),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
             Column(
                 modifier = Modifier
@@ -2143,7 +2137,6 @@ object GenUiNativeRenderer {
         Card(
             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
             colors = genUiCardColors(GenUiCardTone.Neutral),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
             Column(
                 modifier = Modifier
@@ -2160,7 +2153,6 @@ object GenUiNativeRenderer {
                     onClick = { externalUrl?.let(onOpenExternalUrl) },
                     enabled = externalUrl != null,
                     shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                 ) {
                     Text("Open video", style = MaterialTheme.typography.labelLarge)
                 }
@@ -2184,7 +2176,6 @@ object GenUiNativeRenderer {
         Card(
             shape = RoundedCornerShape(GenUiTokens.RadiusLg),
             colors = genUiCardColors(GenUiCardTone.Neutral),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
             Column(
                 modifier = Modifier
@@ -2201,7 +2192,6 @@ object GenUiNativeRenderer {
                     onClick = { externalUrl?.let(onOpenExternalUrl) },
                     enabled = externalUrl != null,
                     shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                 ) {
                     Text("Play audio", style = MaterialTheme.typography.labelLarge)
                 }
@@ -2242,7 +2232,6 @@ object GenUiNativeRenderer {
                 },
                 enabled = enabled,
                 shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
             ) {
                 Text(displayLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             }
@@ -2324,7 +2313,6 @@ object GenUiNativeRenderer {
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                 colors = genUiCardColors(GenUiCardTone.Primary),
-                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
             ) {
                 Column(
                     modifier = Modifier
@@ -2483,7 +2471,6 @@ object GenUiNativeRenderer {
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
             colors = CardDefaults.cardColors(containerColor = genUiTableContainerColor()),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
             Column(
                 modifier = Modifier
@@ -3170,8 +3157,97 @@ object GenUiNativeRenderer {
         return when {
             resolved.startsWith("/assets/") -> "file:///android_asset/${resolved.removePrefix("/assets/")}"
             resolved.startsWith("assets/") -> "file:///android_asset/${resolved.removePrefix("assets/")}"
+            resolved.startsWith("../assets/") -> "file:///android_asset/${resolved.removePrefix("../")}"
+            resolved.startsWith("./assets/") -> "file:///android_asset/${resolved.removePrefix("./")}"
             else -> resolved
         }
+    }
+
+    private fun resolveSurfaceAssetUrl(
+        raw: String,
+        sourceDir: File?,
+        assetUrlMap: Map<String, String>
+    ): String {
+        if (assetUrlMap.isNotEmpty()) {
+            resolveAssetFromMap(raw, assetUrlMap)?.let { return it }
+        }
+        val resolved = NativePayloadParser.resolveAssetUrl(raw, sourceDir)
+        if (assetUrlMap.isNotEmpty()) {
+            resolveAssetFromMap(resolved, assetUrlMap)?.let { return it }
+        }
+        return resolved
+    }
+
+    private fun resolveAssetFromMap(
+        value: String,
+        assetUrlMap: Map<String, String>
+    ): String? {
+        val normalized = value.replace("\\", "/").trim()
+        if (normalized.isBlank()) return null
+        val candidates = linkedSetOf<String>().apply {
+            add(normalized)
+            add(normalized.removePrefix("/"))
+            add(normalized.removePrefix("./"))
+            add(normalized.removePrefix("../"))
+            add("/${normalized.removePrefix("/").removePrefix("./").removePrefix("../")}")
+            add("./${normalized.removePrefix("/").removePrefix("./").removePrefix("../")}")
+            add("../${normalized.removePrefix("/").removePrefix("./").removePrefix("../")}")
+        }
+        candidates.forEach { candidate ->
+            assetUrlMap[candidate]?.let { return it }
+        }
+        val fileName = normalized.substringAfterLast('/')
+        if (fileName.isNotBlank()) {
+            val bySuffix = assetUrlMap.entries.firstOrNull { (path, _) ->
+                path.endsWith("/$fileName") || path == fileName
+            }
+            if (bySuffix != null) return bySuffix.value
+        }
+        return null
+    }
+
+    private fun extractAssetUrlMap(parsed: JsonElement): Map<String, String> {
+        if (!parsed.isJsonObject) {
+            return emptyMap()
+        }
+        val root = parsed.asJsonObject
+        val assetsArray = root.get("assets")?.takeIf { it.isJsonArray }?.asJsonArray ?: return emptyMap()
+        val mapping = linkedMapOf<String, String>()
+        assetsArray.forEach { entry ->
+            val asset = entry.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            val path = asset.get("path")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
+                ?.replace("\\", "/")
+                ?.trim()
+                .orEmpty()
+            val url = asset.get("url")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
+                ?.let(NativePayloadParser::canonicalizeNetworkUrlToken)
+                ?.trim()
+                .orEmpty()
+            if (path.isBlank() || url.isBlank()) return@forEach
+
+            val canonical = path.removePrefix("/").removePrefix("./").removePrefix("../")
+            val variants = linkedSetOf<String>().apply {
+                add(path)
+                add(canonical)
+                add("/$canonical")
+                add("./$canonical")
+                add("../$canonical")
+                if (canonical.startsWith("assets/")) {
+                    val fileName = canonical.substringAfterLast('/')
+                    if (fileName.isNotBlank()) {
+                        add(fileName)
+                        add("assets/$fileName")
+                        add("/assets/$fileName")
+                        add("../assets/$fileName")
+                        add("./assets/$fileName")
+                    }
+                }
+            }
+            variants
+                .filter { it.isNotBlank() }
+                .forEach { variant -> mapping.putIfAbsent(variant, url) }
+        }
+        return mapping
     }
 
     private fun toExternalUrl(value: String?): String? {

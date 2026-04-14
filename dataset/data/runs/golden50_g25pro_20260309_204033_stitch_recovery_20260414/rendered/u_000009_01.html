@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "comparison_title", "comparison_intro", "comparison_table", "recommendation_title", "recommendation_card", "sources_stack"]}, "title": {"type": "Text", "props": {"text": "October Climate Snapshot: Rome vs. Lisbon", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "In October, both Rome and Lisbon transition into a pleasant autumn season, offering mild weather ideal for city exploration. While both are excellent destinations, Lisbon generally presents slightly warmer and sunnier conditions, particularly in the evenings, which may better suit travelers seeking to maximize daylight and comfortable temperatures."}, "children": []}, "comparison_title": {"type": "Text", "props": {"text": "City-by-City October Weather Comparison", "variant": "h2"}, "children": []}, "comparison_intro": {"type": "Text", "props": {"text": "This table outlines the typical climate data for each city during the month of October, based on historical averages."}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "rome", "label": "Rome, Italy"}, {"key": "lisbon", "label": "Lisbon, Portugal"}], "rows": [{"metric": "Average High Temperature", "rome": "22°C (72°F)", "lisbon": "22°C (72°F)"}, {"metric": "Average Low Temperature", "rome": "12°C (54°F)", "lisbon": "15°C (59°F)"}, {"metric": "Average Rainy Days", "rome": "9 days", "lisbon": "8 days"}, {"metric": "Daily Sunshine Hours", "rome": "~6 hours", "lisbon": "~7 hours"}], "domain": "weather", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Metric | Rome, Italy | Lisbon, Portugal |\n| :--- | :--- | :--- |\n| Average High Temperature | 22°C (72°F) | 22°C (72°F) |\n| Average Low Temperature | 12°C (54°F) | 15°C (59°F) |\n| Average Rainy Days | 9 days | 8 days |\n| Daily Sunshine Hours | ~6 hours | ~7 hours |"}, "children": []}, "recommendation_title": {"type": "Text", "props": {"text": "Recommendation for Warmer, Sunnier Travel", "variant": "h2"}, "children": []}, "recommendation_card": {"type": "Card", "props": {}, "children": ["recommendation_content_stack"]}, "recommendation_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["recommendation_image", "recommendation_header_stack", "recommendation_details_stack"]}, "recommendation_image": {"type": "Image", "props": {"url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Praca_do_Comercio_Lisbon_April_2013-4a.jpg", "fit": "cover"}, "children": []}, "recommendation_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["recommendation_icon", "recommendation_text"]}, "recommendation_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_2_sun.svg"}, "children": []}, "recommendation_text": {"type": "Text", "props": {"text": "For a tourist prioritizing warmer and sunnier conditions, Lisbon is the recommended choice."}, "children": []}, "recommendation_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["detail_1", "detail_2", "detail_3"]}, "detail_1": {"type": "Text", "props": {"text": "• Warmer Evenings: While daytime highs are identical, Lisbon's average low temperature is a noticeable 3°C warmer, making for more comfortable evenings outdoors."}, "children": []}, "detail_2": {"type": "Text", "props": {"text": "• More Sunshine: Lisbon typically enjoys an extra hour of sunshine each day compared to Rome, providing more daylight for sightseeing."}, "children": []}, "detail_3": {"type": "Text", "props": {"text": "• Similar Rainfall: The chance of encountering a rainy day is nearly the same in both cities, making it a neutral factor in this comparison."}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "source_button_1", "source_button_2"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "source_button_1": {"type": "Button", "props": {"label": "Climate Data for World Cities", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.weather-and-climate.com/"}}}}, "source_button_2": {"type": "Button", "props": {"label": "Time and Date - Historical Weather", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.timeanddate.com/weather/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

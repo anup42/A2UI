@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header_title", "intro_text", "conflicts_section", "strategies_section", "actions_section"]}, "header_title": {"type": "Text", "props": {"text": "Your Ethereal Beats Festival Plan: Aug 17", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Here is a personalized schedule for the Ethereal Beats Festival, focusing on your must-see artists: The Wandering Stars, Solar Flare, and Echo Bloom. Based on the official lineup, there is a significant time conflict between all three acts, requiring you to make a choice on how to spend your evening."}, "children": []}, "conflicts_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["conflicts_title", "conflicts_intro", "schedule_table"]}, "conflicts_title": {"type": "Text", "props": {"text": "Artist Conflicts & Schedule Breakdown", "variant": "h3"}, "children": []}, "conflicts_intro": {"type": "Text", "props": {"text": "Your three preferred artists have overlapping sets between 19:00 and 21:30 across three different stages. The primary conflict occurs between 20:15 and 21:15, where The Wandering Stars and Echo Bloom are playing at the same time."}, "children": []}, "schedule_table": {"type": "Table", "props": {"columns": [{"key": "time_slot", "label": "Time Slot"}, {"key": "artist_stage", "label": "Artist & Stage"}, {"key": "must_sees", "label": "Your Must-Sees"}, {"key": "notes", "label": "Notes & Conflicts"}], "rows": [{"time_slot": "17:00 - 18:30", "artist_stage": "Forest Dwellers @ Grove Stage", "must_sees": "", "notes": "Open slot. Good time to explore or get food."}, {"time_slot": "18:00 - 19:30", "artist_stage": "Crimson Tide @ Main Stage", "must_sees": "", "notes": "Open slot before your must-sees begin."}, {"time_slot": "18:30 - 19:45", "artist_stage": "Aqua Groove @ River Tent", "must_sees": "", "notes": "Open slot."}, {"time_slot": "19:00 - 20:30", "artist_stage": "Solar Flare @ Grove Stage", "must_sees": "✅ Must-See #1", "notes": "Conflict: Overlaps with The Wandering Stars (30 min) & Echo Bloom (15 min)."}, {"time_slot": "20:00 - 21:30", "artist_stage": "The Wandering Stars @ Main Stage", "must_sees": "✅ Must-See #2", "notes": "Major Conflict: Overlaps with Echo Bloom for their entire set."}, {"time_slot": "20:15 - 21:15", "artist_stage": "Echo Bloom @ River Tent", "must_sees": "✅ Must-See #3", "notes": "Major Conflict: Overlaps entirely with The Wandering Stars' core set time."}], "domain": "schedule", "preferredPresentation": "table", "sourceFormat": "markdown"}, "children": []}, "strategies_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["strategies_title", "strategies_header", "option1_stack", "option2_stack", "option3_stack"]}, "strategies_title": {"type": "Text", "props": {"text": "Suggested Viewing Strategies", "variant": "h3"}, "children": []}, "strategies_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["strategies_icon", "strategies_text"]}, "strategies_icon": {"type": "Icon", "props": {"name": "../assets/r_000015_01_1_signpost-split.svg"}, "children": []}, "strategies_text": {"type": "Text", "props": {"text": "Because you cannot see all three artists in full, here are three potential strategies for your evening."}, "children": []}, "option1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option1_title", "option1_desc", "option1_details"]}, "option1_title": {"type": "Text", "props": {"text": "Option 1: The Headliner Experience", "variant": "label"}, "children": []}, "option1_desc": {"type": "Text", "props": {"text": "See the first hour of Solar Flare, then catch the full headlining set from The Wandering Stars. This means you will miss Echo Bloom entirely."}, "children": []}, "option1_details": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 8}, "children": ["option1_item1", "option1_item2"]}, "option1_item1": {"type": "Text", "props": {"text": "• 19:00 - 20:00: Watch Solar Flare at the Grove Stage."}, "children": []}, "option1_item2": {"type": "Text", "props": {"text": "• 20:00 - 21:30: Move to the Main Stage for The Wandering Stars."}, "children": []}, "option2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option2_title", "option2_desc", "option2_details"]}, "option2_title": {"type": "Text", "props": {"text": "Option 2: The Intimate Set", "variant": "label"}, "children": []}, "option2_desc": {"type": "Text", "props": {"text": "Prioritize the full Echo Bloom performance after catching most of Solar Flare's set. This means you will miss The Wandering Stars."}, "children": []}, "option2_details": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 8}, "children": ["option2_item1", "option2_item2"]}, "option2_item1": {"type": "Text", "props": {"text": "• 19:00 - 20:10: Watch Solar Flare at the Grove Stage."}, "children": []}, "option2_item2": {"type": "Text", "props": {"text": "• 20:15 - 21:15: Move to the River Tent for Echo Bloom."}, "children": []}, "option3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option3_title", "option3_desc", "option3_details"]}, "option3_title": {"type": "Text", "props": {"text": "Option 3: The Festival Sampler", "variant": "label"}, "children": []}, "option3_desc": {"type": "Text", "props": {"text": "Catch a portion of all three artists. This strategy involves moving between stages and means you won't see any single performance from start to finish."}, "children": []}, "option3_details": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 8}, "children": ["option3_item1", "option3_item2", "option3_item3"]}, "option3_item1": {"type": "Text", "props": {"text": "• 19:00 - 19:45: Start with Solar Flare at the Grove Stage."}, "children": []}, "option3_item2": {"type": "Text", "props": {"text": "• 20:00 - 20:45: Move to the Main Stage for the first half of The Wandering Stars."}, "children": []}, "option3_item3": {"type": "Text", "props": {"text": "• 20:50 - 21:15: Head to the River Tent to catch the end of Echo Bloom's set."}, "children": []}, "actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["map_button", "lineup_button"]}, "map_button": {"type": "Button", "props": {"label": "View Festival Map"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://example.com/ethereal-beats-festival-2024-map"}}}}, "lineup_button": {"type": "Button", "props": {"label": "Full Lineup Details"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://example.com/ethereal-beats-festival-2024-lineup"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

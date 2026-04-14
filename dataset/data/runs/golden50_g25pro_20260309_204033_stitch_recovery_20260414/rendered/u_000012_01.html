@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main_stack", "state": {}, "elements": {"main_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro", "daily_hours_section", "weekly_effort_section", "task_status_section", "insight_section"]}, "title": {"type": "Text", "props": {"text": "Project Work Summary: Nov 6-10, 2023", "variant": "h2"}, "children": []}, "intro": {"type": "Text", "props": {"text": "This dashboard summarizes project activity, effort distribution, and task status based on the provided data for the week. A total of 33 hours were logged across 9 tasks."}, "children": []}, "daily_hours_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["daily_hours_title", "daily_hours_desc", "daily_hours_table"]}, "daily_hours_title": {"type": "Text", "props": {"text": "Daily Hours by Project", "variant": "h3"}, "children": []}, "daily_hours_desc": {"type": "Text", "props": {"text": "The chart below shows the total hours worked each day, segmented by project. Tuesday was the most productive day with 8 total hours, while Friday was the least with 5 hours."}, "children": []}, "daily_hours_table": {"type": "Table", "props": {"columns": [{"key": "day", "label": "Day"}, {"key": "alpha", "label": "Alpha (hrs)"}, {"key": "beta", "label": "Beta (hrs)"}, {"key": "gamma", "label": "Gamma (hrs)"}, {"key": "total", "label": "Daily Total (hrs)"}], "rows": [{"day": "Mon, Nov 6", "alpha": 4, "beta": 3, "gamma": 0, "total": 7}, {"day": "Tue, Nov 7", "alpha": 5, "beta": 0, "gamma": 3, "total": 8}, {"day": "Wed, Nov 8", "alpha": 0, "beta": 6, "gamma": 0, "total": 6}, {"day": "Thu, Nov 9", "alpha": 2, "beta": 0, "gamma": 5, "total": 7}, {"day": "Fri, Nov 10", "alpha": 0, "beta": 4, "gamma": 1, "total": 5}], "domain": "schedule", "preferredPresentation": "table"}, "children": []}, "weekly_effort_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["weekly_effort_title", "weekly_effort_desc", "weekly_effort_table"]}, "weekly_effort_title": {"type": "Text", "props": {"text": "Weekly Effort Distribution", "variant": "h3"}, "children": []}, "weekly_effort_desc": {"type": "Text", "props": {"text": "This breakdown shows the distribution of the 33 total hours across all three projects for the entire week. Project Beta received the largest share of the team's effort."}, "children": []}, "weekly_effort_table": {"type": "Table", "props": {"columns": [{"key": "project", "label": "Project"}, {"key": "hours", "label": "Total Hours"}, {"key": "percentage", "label": "Percentage of Effort"}], "rows": [{"project": "Beta", "hours": 13, "percentage": "39.4%"}, {"project": "Alpha", "hours": 11, "percentage": "33.3%"}, {"project": "Gamma", "hours": 9, "percentage": "27.3%"}], "domain": "comparison", "preferredPresentation": "table"}, "children": []}, "task_status_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["task_status_title", "task_status_desc", "task_status_table"]}, "task_status_title": {"type": "Text", "props": {"text": "Task Status Breakdown", "variant": "h3"}, "children": []}, "task_status_desc": {"type": "Text", "props": {"text": "This table provides a count of all tasks categorized by their status. The majority of tasks for the week were successfully completed."}, "children": []}, "task_status_table": {"type": "Table", "props": {"columns": [{"key": "status", "label": "Status"}, {"key": "count", "label": "Task Count"}], "rows": [{"status": "Completed", "count": 5}, {"status": "In Progress", "count": 3}, {"status": "Blocked", "count": 1}], "domain": "status", "preferredPresentation": "table"}, "children": []}, "insight_section": {"type": "Card", "props": {}, "children": ["insight_stack"]}, "insight_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["insight_title", "insight_text"]}, "insight_title": {"type": "Text", "props": {"text": "Key Insight: Project Beta", "variant": "h3"}, "children": []}, "insight_text": {"type": "Text", "props": {"text": "Project Beta consumed the most hours this week (13h). While a significant 6-hour task was completed mid-week, the project ended the week with another task still in progress, indicating sustained effort but incomplete deliverables for the period."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

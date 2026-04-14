@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "mainStack", "state": {"scanState": "scanning"}, "elements": {"mainStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "description", "divider1", "scannerSection", "divider2", "actionsSection"]}, "title": {"type": "Text", "props": {"text": "Event Check-in Scanner", "variant": "h3"}, "children": []}, "description": {"type": "Text", "props": {"text": "This interface provides a streamlined process for validating attendee tickets via QR code for quick and efficient event entry. The screen transitions from a scanning view to a confirmation status upon a successful scan."}, "children": []}, "divider1": {"type": "Divider", "props": {}, "children": []}, "scannerSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["scannerTitle", "viewContainer"]}, "scannerTitle": {"type": "Text", "props": {"text": "Scanner Interface & Confirmation", "variant": "h3"}, "children": []}, "viewContainer": {"type": "Stack", "props": {"direction": "vertical"}, "children": ["scanningView", "successView"]}, "scanningView": {"type": "Card", "props": {}, "children": ["scanningViewContent"], "visible": {"$state": "/scanState", "eq": "scanning"}, "on": {"press": {"action": "setState", "params": {"path": "/scanState", "value": "success"}}}}, "scanningViewContent": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "align": "center", "padding": 16}, "children": ["scanningViewTitle", "scanningIcon", "cameraViewText", "overlayText"]}, "scanningViewTitle": {"type": "Text", "props": {"text": "Scanning View"}, "children": []}, "scanningIcon": {"type": "Icon", "props": {"name": "../assets/r_000043_01_1_qr-code-scan.svg"}, "children": []}, "cameraViewText": {"type": "Text", "props": {"text": "[Camera View Active]"}, "children": []}, "overlayText": {"type": "Text", "props": {"text": "Position the QR code inside the frame."}, "children": []}, "successView": {"type": "Card", "props": {}, "children": ["successViewContent"], "visible": {"$state": "/scanState", "eq": "success"}}, "successViewContent": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "align": "center", "padding": 16}, "children": ["successViewTitle", "successIcon", "successTitle", "attendeeInfo", "statusInfo"]}, "successViewTitle": {"type": "Text", "props": {"text": "Success View"}, "children": []}, "successIcon": {"type": "Icon", "props": {"name": "../assets/r_000043_01_2_check-circle-fill.svg"}, "children": []}, "successTitle": {"type": "Text", "props": {"text": "Check-in Successful!", "variant": "h2"}, "children": []}, "attendeeInfo": {"type": "Text", "props": {"text": "Attendee: Jane Smith"}, "children": []}, "statusInfo": {"type": "Text", "props": {"text": "Status: Confirmed"}, "children": []}, "divider2": {"type": "Divider", "props": {}, "children": []}, "actionsSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actionsTitle", "actionsStack"]}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actionsStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["resetButton"]}, "resetButton": {"type": "Button", "props": {"label": "Scan Next Ticket"}, "children": [], "on": {"press": {"action": "setState", "params": {"path": "/scanState", "value": "scanning"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

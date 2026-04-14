@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title_text", "intro_text", "args_section_stack", "kwargs_section_stack", "combined_section_stack", "comparison_section_stack", "sources_section_stack"]}, "title_text": {"type": "Text", "props": {"text": "Flexible Function Arguments: *args and **kwargs", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "In Python, *args and kwargs are special syntaxes used in function definitions to pass a variable number of arguments. This allows you to create flexible functions that can accept a varying number of inputs without defining each one explicitly. The names args and kwargs are a convention; the asterisks (* and ) are the key syntactical elements."}, "children": []}, "args_section_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["args_title", "args_explanation", "args_code_title", "args_code_card", "args_output_title", "args_output_card"]}, "args_title": {"type": "Text", "props": {"text": "*args: Handling Variable Positional Arguments", "variant": "h2"}, "children": []}, "args_explanation": {"type": "Text", "props": {"text": "The *args syntax allows a function to accept any number of non-keyword (positional) arguments. These arguments are collected into a tuple within the function. This is useful when you don't know in advance how many items a user might want to pass to your function."}, "children": []}, "args_code_title": {"type": "Text", "props": {"text": "Code Illustration", "variant": "h3"}, "children": []}, "args_code_card": {"type": "Card", "props": {"padding": 16}, "children": ["args_code_text"]}, "args_code_text": {"type": "Text", "props": {"text": "def sum_all_numbers(*args):\n  \"\"\"This function sums all numbers passed to it.\"\"\"\n  print(f\"Arguments received as a tuple: {args}\")\n  total = 0\n  for num in args:\n    total += num\n  return total\n\n--- Function Calls ---\nCall with three arguments\nprint(f\"Sum: {sum_all_numbers(1, 2, 3)}\")\n\nCall with five arguments\nprint(f\"Sum: {sum_all_numbers(10, 20, 30, 40, 50)}\")", "variant": "h1"}, "children": []}, "args_output_title": {"type": "Text", "props": {"text": "Output", "variant": "h3"}, "children": []}, "args_output_card": {"type": "Card", "props": {"padding": 16}, "children": ["args_output_text"]}, "args_output_text": {"type": "Text", "props": {"text": "Arguments received as a tuple: (1, 2, 3)\nSum: 6\nArguments received as a tuple: (10, 20, 30, 40, 50)\nSum: 150"}, "children": []}, "kwargs_section_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["kwargs_title", "kwargs_explanation", "kwargs_code_title", "kwargs_code_card", "kwargs_output_title", "kwargs_output_card"]}, "kwargs_title": {"type": "Text", "props": {"text": "**kwargs: Handling Variable Keyword Arguments", "variant": "h2"}, "children": []}, "kwargs_explanation": {"type": "Text", "props": {"text": "The **kwargs syntax allows a function to accept any number of keyword arguments (e.g., name=\"Alice\"). These arguments are collected into a dictionary, where the keys are the argument names (as strings) and the values are the argument values."}, "children": []}, "kwargs_code_title": {"type": "Text", "props": {"text": "Code Illustration", "variant": "h3"}, "children": []}, "kwargs_code_card": {"type": "Card", "props": {"padding": 16}, "children": ["kwargs_code_text"]}, "kwargs_code_text": {"type": "Text", "props": {"text": "def display_user_profile(**kwargs):\n  \"\"\"This function displays user details passed as keyword arguments.\"\"\"\n  print(f\"Arguments received as a dictionary: {kwargs}\")\n  for key, value in kwargs.items():\n    print(f\"- {key.replace('_', ' ').title()}: {value}\")\n\n--- Function Call ---\ndisplay_user_profile(\n    username=\"alex_p\",\n    email=\"alex.p@example.com\",\n    account_status=\"Active\"\n)", "variant": "h1"}, "children": []}, "kwargs_output_title": {"type": "Text", "props": {"text": "Output", "variant": "h3"}, "children": []}, "kwargs_output_card": {"type": "Card", "props": {"padding": 16}, "children": ["kwargs_output_text"]}, "kwargs_output_text": {"type": "Text", "props": {"text": "Arguments received as a dictionary: {'username': 'alex_p', 'email': 'alex.p@example.com', 'account_status': 'Active'}\n• Username: alex_p\n• Email: alex.p@example.com\n• Account Status: Active"}, "children": []}, "combined_section_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["combined_title", "combined_explanation", "combined_code_title", "combined_code_card"]}, "combined_title": {"type": "Text", "props": {"text": "Combining *args and **kwargs", "variant": "h2"}, "children": []}, "combined_explanation": {"type": "Text", "props": {"text": "You can use standard arguments, *args, and kwargs together in a single function definition. The required order is always: standard_arguments, *args, kwargs."}, "children": []}, "combined_code_title": {"type": "Text", "props": {"text": "Code Illustration", "variant": "h3"}, "children": []}, "combined_code_card": {"type": "Card", "props": {"padding": 16}, "children": ["combined_code_text"]}, "combined_code_text": {"type": "Text", "props": {"text": "def process_order(order_id, *items, **customer_details):\n  \"\"\"Processes an order with a required ID, variable items, and optional customer details.\"\"\"\n  print(f\"Processing Order ID: {order_id}\")\n\n  print(\"\\nItems in Order:\")\n  for item in items:\n    print(f\"- {item}\")\n\n  if customer_details:\n    print(\"\\nCustomer Details:\")\n    for key, value in customer_details.items():\n      print(f\"- {key.title()}: {value}\")\n\n--- Function Call ---\nprocess_order(\n    \"A-1024\",\n    \"Laptop\", \"Mouse\", \"Keyboard\",\n    name=\"John Doe\",\n    shipping_address=\"123 Python Lane\"\n)", "variant": "h1"}, "children": []}, "comparison_section_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["comparison_title", "comparison_table"]}, "comparison_title": {"type": "Text", "props": {"text": "Comparison at a Glance", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "syntax", "label": "Syntax"}, {"key": "parameter_type", "label": "Parameter Type"}, {"key": "data_structure", "label": "Data Structure"}, {"key": "purpose", "label": "Purpose"}], "rows": [{"syntax": "`*args`", "parameter_type": "Positional", "data_structure": "Tuple", "purpose": "To pass a variable number of non-named arguments."}, {"syntax": "`**kwargs`", "parameter_type": "Keyword", "data_structure": "Dictionary", "purpose": "To pass a variable number of named (keyword) arguments."}], "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Syntax | Parameter Type | Data Structure | Purpose |\n| :--- | :--- | :--- | :--- |\n| `*args` | Positional | Tuple | To pass a variable number of non-named arguments. |\n| `**kwargs` | Keyword | Dictionary | To pass a variable number of named (keyword) arguments. |"}, "children": []}, "sources_section_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "sources_button"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_button": {"type": "Button", "props": {"label": "Official Python Documentation (Arbitrary Argument Lists)", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://docs.python.org/3/tutorial/controlflow.html#arbitrary-argument-lists"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

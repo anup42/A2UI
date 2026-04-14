@@ -24,6 +24,18 @@ Response:
 ## Hard rule: no legacy message array
 - Correct output is a single flat object with `root/state/elements`.
 
+## Markdown-to-IR conversion rule (strict)
+- Do not emit literal markdown control tokens in `Text.props.text`:
+  - no leading `#`, `##`, `###`
+  - no literal table pipes (`|`) for table rows
+  - no fenced code markers (``` or ''')
+  - avoid leaving raw `**bold**` markers in final text
+- Convert markdown intent into UI structure:
+  - headings -> `Text` with `variant` (`h1|h2|h3`)
+  - table-like markdown -> compact `Table`
+  - code-like sections -> `Card` + `Text` (plain content, no fence markers)
+  - emphasis -> plain text wording (or split into separate labeled/value text nodes)
+
 ## Positive format example
 
 Valid (flat-spec):
@@ -74,7 +86,7 @@ Allowed dynamic value expressions in props:
     - `[{"key":"column_1","label":"Column 1"}, {"key":"column_2","label":"Column 2"}, ...]`
   - Column keys/labels should be generic and derived from source headers for the current domain (not weather-specific by default).
   - Include metadata:
-    - `domain`: `weather | flight | generic`
+    - `domain`: `weather | flight | booking | schedule | status | comparison | generic`
     - `preferredPresentation`: `cards | table`
     - optional `sourceFormat`: `markdown | csv | tsv | html | plain`
     - optional `sourceText`: raw table text from source response
@@ -83,8 +95,8 @@ Allowed dynamic value expressions in props:
 - Weather/climate outputs must include a dedicated metrics table.
 - Flight comparisons should include explicit airline/time/fare columns.
 - Defaults:
-  - weather/flight => `preferredPresentation: "cards"`
-  - generic => `preferredPresentation: "table"`
+  - weather/flight/booking/schedule/status => `preferredPresentation: "cards"`
+  - comparison/generic => `preferredPresentation: "table"`
 - If table parsing is partial, keep compact `Table` with best-effort columns/rows; do not degrade to prose-only output.
 
 ## Watch bindings
@@ -126,7 +138,7 @@ Content:
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
-  - `domain` optional (`weather|flight|generic`)
+  - `domain` optional (`weather|flight|booking|schedule|status|comparison|generic`)
   - `preferredPresentation` optional (`cards|table`)
   - `sourceFormat` optional (`markdown|csv|tsv|html|plain`)
   - `sourceText` optional raw table text

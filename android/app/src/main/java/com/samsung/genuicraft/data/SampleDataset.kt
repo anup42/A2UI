@@ -36,6 +36,14 @@ object SampleDatasets {
             expectedRecords = 50
         ),
         SampleDataset(
+            id = "golden50_g25pro_20260309_204033_stitch_recovery_20260414",
+            title = "Golden 50 Stitch Recovery",
+            description = "Stitch-guided recovery run with updated table routing, markdown cleanup, and refreshed Android captures.",
+            assetFileName = "golden50_g25pro_20260309_204033_stitch_recovery_20260414_genui.jsonl",
+            sourceLabel = "golden50_g25pro_20260309_204033_stitch_recovery_20260414",
+            expectedRecords = 50
+        ),
+        SampleDataset(
             id = "subset10_android_promptsync_20260412_v10",
             title = "Subset10 Android Prompt Sync v10",
             description = "10-item Stage3 run using Android v10 flat-spec prompt sync (Stack/Table canonical output).",

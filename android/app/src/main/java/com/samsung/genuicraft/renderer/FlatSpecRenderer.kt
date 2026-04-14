@@ -62,6 +62,10 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -122,6 +126,7 @@ internal enum class FlatTableRenderMode {
     TABLE_HORIZONTAL_SCROLL,
     WEATHER_CARDS,
     FLIGHT_CARDS,
+    BOOKING_CARDS,
     RESPONSIVE_CARD_ROWS
 }
 
@@ -164,6 +169,8 @@ private val ICON_PROP_KEYS = listOf("name", "icon", "source", "url", "src")
 private val MEDIA_OBJECT_KEYS = listOf("uri", "url", "src", "path", "value", "source", "image", "icon", "name")
 private val DIRECT_TABLE_ROW_LIST_KEYS = listOf("cells", "values", "row", "data")
 private const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
+private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "schedule", "status")
+private val SUPPORTED_TABLE_DOMAINS = CARD_FIRST_TABLE_DOMAINS + setOf("generic", "comparison")
 
 object FlatSpecParser {
 
@@ -1045,7 +1052,7 @@ private fun RenderByType(
         "column" -> RenderStack(elementId, props + mapOf("direction" to "vertical"), children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "list" -> RenderList(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "card" -> RenderCard(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "table" -> RenderDirectTable(props, state, modifier)
+        "table" -> RenderDirectTable(props, state, onOpenUrl, modifier)
         "text" -> RenderText(props, modifier)
         "image" -> RenderImage(props, onOpenUrl, modifier)
         "icon" -> RenderIcon(props, modifier)
@@ -1424,6 +1431,105 @@ private fun isStrongFlightHeaderLabel(label: String): Boolean {
     return keywords.any { keyword -> token.contains(keyword) }
 }
 
+private fun isBookingEntityHeaderLabel(label: String): Boolean {
+    if (label.isBlank()) return false
+    val token = label.lowercase()
+    val keywords = listOf(
+        "hotel",
+        "property",
+        "provider",
+        "option",
+        "listing",
+        "vendor",
+        "airline",
+        "plan",
+        "package",
+        "name"
+    )
+    return keywords.any { keyword -> token.contains(keyword) }
+}
+
+private fun isBookingValueHeaderLabel(label: String): Boolean {
+    if (label.isBlank()) return false
+    val token = label.lowercase()
+    val keywords = listOf(
+        "price",
+        "cost",
+        "fare",
+        "rate",
+        "night",
+        "duration",
+        "room",
+        "amenity",
+        "wifi",
+        "rating",
+        "review",
+        "book",
+        "reserve",
+        "deal",
+        "url",
+        "link"
+    )
+    return keywords.any { keyword -> token.contains(keyword) }
+}
+
+private fun isScheduleHeaderLabel(label: String): Boolean {
+    if (label.isBlank()) return false
+    val token = label.lowercase()
+    val timeKeywords = listOf("time", "date", "day", "slot", "start", "end")
+    val eventKeywords = listOf("event", "activity", "agenda", "session", "task", "title", "stop", "location")
+    return timeKeywords.any { token.contains(it) } || eventKeywords.any { token.contains(it) }
+}
+
+private fun isStatusHeaderLabel(label: String): Boolean {
+    if (label.isBlank()) return false
+    val token = label.lowercase()
+    val keywords = listOf(
+        "status",
+        "state",
+        "stage",
+        "progress",
+        "eta",
+        "updated",
+        "resolved",
+        "tracking",
+        "phase"
+    )
+    return keywords.any { keyword -> token.contains(keyword) }
+}
+
+private fun isComparisonFeatureHeader(label: String): Boolean {
+    if (label.isBlank()) return false
+    val token = label.lowercase()
+    val keywords = listOf("feature", "metric", "criteria", "attribute", "spec", "dimension", "parameter")
+    return keywords.any { keyword -> token.contains(keyword) }
+}
+
+private fun inferTableDomainFromHeaders(headers: List<String>): String {
+    val weatherSignals = headers.count(::isWeatherHeaderLabel)
+    val flightSignals = headers.count(::isFlightHeaderLabel)
+    val strongFlightSignals = headers.count(::isStrongFlightHeaderLabel)
+    val bookingEntitySignals = headers.count(::isBookingEntityHeaderLabel)
+    val bookingValueSignals = headers.count(::isBookingValueHeaderLabel)
+    val scheduleSignals = headers.count(::isScheduleHeaderLabel)
+    val statusSignals = headers.count(::isStatusHeaderLabel)
+    val featureLike = isComparisonFeatureHeader(headers.firstOrNull().orEmpty())
+    return when {
+        weatherSignals >= 2 -> "weather"
+        strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
+        bookingEntitySignals >= 1 && bookingValueSignals >= 2 -> "booking"
+        scheduleSignals >= 2 && statusSignals >= 1 -> "status"
+        scheduleSignals >= 2 -> "schedule"
+        featureLike && headers.size >= 3 -> "comparison"
+        else -> "generic"
+    }
+}
+
+private fun shouldPreferComparisonCards(headers: List<String>, compactScreen: Boolean): Boolean {
+    if (!compactScreen || headers.size < 3) return false
+    return isComparisonFeatureHeader(headers.firstOrNull().orEmpty())
+}
+
 internal fun extractFlatTableModel(
     containerChildren: List<String>,
     containerProps: Map<String, Any?>,
@@ -1507,39 +1613,38 @@ internal fun extractFlatTableModel(
         val label = resolveTableHeaderLabel(cellId?.let(elements::get), state)
         label.ifBlank { "Column ${index + 1}" }
     }
-    val isWeather = headers.count(::isWeatherHeaderLabel) >= 2
-    val flightSignals = headers.count(::isFlightHeaderLabel)
-    val strongFlightSignals = headers.count(::isStrongFlightHeaderLabel)
-    val isFlight = strongFlightSignals >= 1 && flightSignals >= 2
-    val inferredDomain = when {
-        isWeather -> "weather"
-        isFlight -> "flight"
-        else -> "generic"
-    }
+    val inferredDomain = inferTableDomainFromHeaders(headers)
+    val isWeather = inferredDomain == "weather"
+    val isFlight = inferredDomain == "flight"
     val explicitDomain = containerProps["domain"]?.toString()?.trim()?.lowercase()
-        ?.takeIf { it in setOf("weather", "flight", "generic") }
+        ?.takeIf { it in SUPPORTED_TABLE_DOMAINS }
     val domain = when {
-        explicitDomain == "weather" || explicitDomain == "flight" -> explicitDomain
-        explicitDomain == "generic" && inferredDomain in setOf("weather", "flight") -> inferredDomain
+        explicitDomain != null && explicitDomain in CARD_FIRST_TABLE_DOMAINS -> explicitDomain
+        explicitDomain == "generic" && inferredDomain in CARD_FIRST_TABLE_DOMAINS -> inferredDomain
         explicitDomain != null -> explicitDomain
         else -> inferredDomain
     }
     val explicitPreferredPresentation = containerProps["preferredPresentation"]?.toString()?.trim()?.lowercase()
         ?.takeIf { it in setOf("cards", "table") }
     val preferredPresentation = when {
-        explicitPreferredPresentation == null -> if (domain == "generic") "table" else "cards"
+        explicitPreferredPresentation == null -> if (domain in CARD_FIRST_TABLE_DOMAINS) "cards" else "table"
         explicitDomain == "generic" &&
             explicitPreferredPresentation == "table" &&
-            domain in setOf("weather", "flight") -> "cards"
+            domain in CARD_FIRST_TABLE_DOMAINS -> "cards"
         else -> explicitPreferredPresentation
     }
     val cardMappingStatus = when (domain) {
-        "weather", "flight" -> "pending_runtime_mapping"
+        "comparison" -> "pending_runtime_mapping"
+        in CARD_FIRST_TABLE_DOMAINS -> "pending_runtime_mapping"
         else -> "not_applicable"
     }
+    val comparisonCardsPreferred = domain == "comparison" && shouldPreferComparisonCards(headers, compactScreen)
     val renderMode = when {
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
+        domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
+        comparisonCardsPreferred -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
+        domain in setOf("schedule", "status") -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         compactScreen && columns >= 4 -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
         else -> FlatTableRenderMode.TABLE
     }
@@ -1672,11 +1777,37 @@ private fun RenderStack(
     val childElements = children.mapNotNull { childId -> elements[childId] }
     val allButtonChildren = childElements.isNotEmpty() &&
         childElements.all { child -> child.type.equals("button", ignoreCase = true) }
+    val hasLongButtonLabel = childElements.any { child ->
+        child.props["label"]?.toString()?.trim()?.length ?: 0 > 20
+    }
     val autoWrapButtonRow = direction == "horizontal" &&
         compactScreen &&
         !wrap &&
         allButtonChildren &&
         children.size >= 2
+    val hasMediaChild = childElements.any { child ->
+        child.type.equals("icon", ignoreCase = true) || child.type.equals("image", ignoreCase = true)
+    }
+    val hasLongTextChild = childElements.any { child ->
+        if (!child.type.equals("text", ignoreCase = true)) return@any false
+        val rawText = (
+            child.props["text"]
+                ?: child.props["title"]
+                ?: child.props["label"]
+                ?: child.props["content"]
+                ?: child.props["value"]
+            )
+            ?.toString()
+            .orEmpty()
+        rawText.length >= 90
+    }
+    val forceVerticalMediaTextRow = direction == "horizontal" &&
+        compactScreen &&
+        !wrap &&
+        children.size in 2..3 &&
+        hasMediaChild &&
+        hasLongTextChild
+    val forceVerticalButtonStack = autoWrapButtonRow && hasLongButtonLabel
     val stackModifier = applyStackModifier(modifier, props, direction)
 
     if (direction == "horizontal") {
@@ -1686,6 +1817,44 @@ private fun RenderStack(
             "between" -> Arrangement.SpaceBetween
             "around" -> Arrangement.SpaceAround
             else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Start
+        }
+        if (forceVerticalButtonStack) {
+            Column(
+                modifier = stackModifier,
+                verticalArrangement = Arrangement.spacedBy(gap)
+            ) {
+                RenderChildren(
+                    children = children,
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    repeatedChildScopes = repeatedChildScopes,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
+                )
+            }
+            return
+        }
+        if (forceVerticalMediaTextRow) {
+            Column(
+                modifier = stackModifier,
+                verticalArrangement = Arrangement.spacedBy(gap)
+            ) {
+                RenderChildren(
+                    children = children,
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    repeatedChildScopes = repeatedChildScopes,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
+                )
+            }
+            return
         }
         if (wrap || autoWrapButtonRow) {
             FlowRow(
@@ -1793,7 +1962,8 @@ private fun RenderTableLayout(
     )
     val cardsRequested =
         tableModel.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
-            tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS
+            tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
+            tableModel.renderMode == FlatTableRenderMode.BOOKING_CARDS
     val autoHorizontalScroll = shouldUseHorizontalTableScroll(
         compactScreen = compactScreen,
         screenWidthDp = screenWidthDp,
@@ -1828,7 +1998,18 @@ private fun RenderTableLayout(
             return
         }
     }
+    if (tableModel.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
+        val rendered = renderBookingRowsIfPossible(
+            headers = tableModel.headers,
+            rows = tableRows,
+            onOpenUrl = onOpenUrl
+        )
+        if (rendered) {
+            return
+        }
+    }
     val effectiveRenderMode = when {
+        tableModel.renderMode == FlatTableRenderMode.RESPONSIVE_CARD_ROWS -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         cardsRequested && autoHorizontalScroll && tableModel.columns <= 3 -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         cardsRequested && autoHorizontalScroll -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
         cardsRequested -> FlatTableRenderMode.TABLE
@@ -1976,34 +2157,30 @@ internal fun extractDirectTableModel(
 
     val resolvedRows = rows.map { row -> resolveDirectTableRow(row, columns, state) }
     val headerLabels = columns.map { column -> column.label }
-    val weatherSignals = headerLabels.count(::isWeatherHeaderLabel)
-    val flightSignals = headerLabels.count(::isFlightHeaderLabel)
-    val strongFlightSignals = headerLabels.count(::isStrongFlightHeaderLabel)
     val explicitDomain = props["domain"]?.toString()?.trim()?.lowercase()
-        ?.takeIf { it in setOf("weather", "flight", "generic") }
-    val inferredDomain = when {
-        weatherSignals >= 2 -> "weather"
-        strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
-        else -> "generic"
-    }
+        ?.takeIf { it in SUPPORTED_TABLE_DOMAINS }
+    val inferredDomain = inferTableDomainFromHeaders(headerLabels)
     val domain = when {
-        explicitDomain == "weather" || explicitDomain == "flight" -> explicitDomain
-        explicitDomain == "generic" && inferredDomain in setOf("weather", "flight") -> inferredDomain
+        explicitDomain != null && explicitDomain in CARD_FIRST_TABLE_DOMAINS -> explicitDomain
+        explicitDomain == "generic" && inferredDomain in CARD_FIRST_TABLE_DOMAINS -> inferredDomain
         explicitDomain != null -> explicitDomain
         else -> inferredDomain
     }
     val explicitPreferredPresentation = props["preferredPresentation"]?.toString()?.trim()?.lowercase()
         ?.takeIf { it in setOf("cards", "table") }
     val preferredPresentation = when {
-        explicitPreferredPresentation == null -> if (domain == "generic") "table" else "cards"
+        explicitPreferredPresentation == null -> if (domain in CARD_FIRST_TABLE_DOMAINS) "cards" else "table"
         explicitDomain == "generic" &&
             explicitPreferredPresentation == "table" &&
-            domain in setOf("weather", "flight") -> "cards"
+            domain in CARD_FIRST_TABLE_DOMAINS -> "cards"
         else -> explicitPreferredPresentation
     }
     val renderMode = when {
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
+        domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
+        domain == "comparison" && shouldPreferComparisonCards(headerLabels, compactScreen) -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
+        domain in setOf("schedule", "status") -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         compactScreen && columns.size >= 4 -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
         else -> FlatTableRenderMode.TABLE
     }
@@ -2200,6 +2377,10 @@ internal fun resolveCoilMediaModel(url: String): String {
             "file:///android_asset/${normalized.removePrefix("/assets/")}"
         normalized.startsWith("assets/") ->
             "file:///android_asset/${normalized.removePrefix("assets/")}"
+        normalized.startsWith("../assets/") ->
+            "file:///android_asset/${normalized.removePrefix("../")}"
+        normalized.startsWith("./assets/") ->
+            "file:///android_asset/${normalized.removePrefix("./")}"
         else -> normalized
     }
 }
@@ -2494,11 +2675,167 @@ private fun ResponsiveFieldBlock(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = normalizedValue,
+            text = parseBoldMarkdown(normalizedValue),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+private fun findTableColumnIndex(
+    headers: List<String>,
+    keywords: List<String>,
+    exclude: Set<Int> = emptySet()
+): Int? {
+    val normalizedKeywords = keywords.map { it.lowercase() }
+    return headers.indices.firstOrNull { index ->
+        if (index in exclude) {
+            false
+        } else {
+            val token = normalizeTableHeaderForMatch(headers[index])
+            normalizedKeywords.any { keyword -> token.contains(keyword) }
+        }
+    }
+}
+
+private fun isLikelyHttpUrl(value: String): Boolean {
+    val normalized = value.trim().lowercase()
+    return normalized.startsWith("https://") || normalized.startsWith("http://")
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun renderBookingRowsIfPossible(
+    headers: List<String>,
+    rows: List<List<String>>,
+    onOpenUrl: (String) -> Unit
+): Boolean {
+    if (rows.isEmpty()) return false
+    val titleIndex = findTableColumnIndex(
+        headers = headers,
+        keywords = listOf("hotel", "property", "provider", "option", "listing", "vendor", "airline", "name", "route", "plan")
+    ) ?: 0
+    val priceIndex = findTableColumnIndex(
+        headers = headers,
+        keywords = listOf("price", "cost", "fare", "rate", "night", "budget")
+    )
+    val linkIndex = findTableColumnIndex(
+        headers = headers,
+        keywords = listOf("url", "link", "book", "booking", "reserve", "website")
+    )
+    val secondaryIndex = findTableColumnIndex(
+        headers = headers,
+        keywords = listOf("duration", "time", "date", "location", "room", "type", "class", "stops", "status"),
+        exclude = setOf(titleIndex, priceIndex ?: -1)
+    )
+    val hasBookingSignal = priceIndex != null || linkIndex != null || headers.any(::isBookingEntityHeaderLabel)
+    if (!hasBookingSignal) return false
+
+    val shownRows = rows.filter { row ->
+        row.any { value -> value.trim().isNotBlank() }
+    }
+    if (shownRows.isEmpty()) return false
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        shownRows.forEach { row ->
+            val title = row.getOrNull(titleIndex).orEmpty().trim().ifBlank { "Option" }
+            val price = priceIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
+            val secondary = secondaryIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
+            val actionUrl = linkIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
+                ?.takeIf(::isLikelyHttpUrl)
+            val chips = buildList {
+                headers.forEachIndexed { index, header ->
+                    if (index in setOf(titleIndex, priceIndex, secondaryIndex, linkIndex)) return@forEachIndexed
+                    val value = row.getOrNull(index).orEmpty().trim()
+                    if (value.isBlank()) return@forEachIndexed
+                    add(header.ifBlank { "Detail" } to value)
+                }
+            }.take(4)
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = genUiCardColors(GenUiCardTone.Neutral),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = parseBoldMarkdown(title),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            if (secondary.isNotBlank()) {
+                                Text(
+                                    text = parseBoldMarkdown(secondary),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        if (price.isNotBlank()) {
+                            Surface(
+                                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Text(
+                                    text = parseBoldMarkdown(price),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                                )
+                            }
+                        }
+                    }
+                    if (chips.isNotEmpty()) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            chips.forEach { (label, value) ->
+                                Surface(
+                                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f)
+                                ) {
+                                    Text(
+                                        text = parseBoldMarkdown("${label.trim()}: ${value.trim()}"),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    if (!actionUrl.isNullOrBlank()) {
+                        Button(
+                            onClick = { onOpenUrl(actionUrl) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Open Option")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true
 }
 
 @Composable
@@ -2530,7 +2867,7 @@ private fun ResponsiveComparisonRowCard(
         ) {
             if (title.isNotBlank()) {
                 Text(
-                    text = title,
+                    text = parseBoldMarkdown(title),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -2563,6 +2900,73 @@ private fun ResponsiveComparisonRowCard(
                     value = row.getOrNull(index).orEmpty(),
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ResponsiveComparisonColumnCards(
+    headers: List<String>,
+    rows: List<List<String>>,
+    spacing: Dp
+) {
+    if (headers.size < 3 || rows.isEmpty()) return
+    val featureHeader = headers.firstOrNull().orEmpty().ifBlank { "Feature" }
+    val maxColumns = maxOf(headers.size, rows.maxOfOrNull { row -> row.size } ?: 0)
+    if (maxColumns < 3) return
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        (1 until maxColumns).forEach { columnIndex ->
+            val columnTitle = headers.getOrNull(columnIndex).orEmpty().ifBlank { "Option ${columnIndex}" }
+            val items = rows.mapNotNull { row ->
+                val feature = row.getOrNull(0).orEmpty().trim()
+                val value = row.getOrNull(columnIndex).orEmpty().trim()
+                if (feature.isBlank() || value.isBlank()) null else feature to value
+            }.take(8)
+            if (items.isEmpty()) return@forEach
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = genUiCardColors(GenUiCardTone.Neutral),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(columnTitle),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    items.forEach { (feature, value) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text(
+                                text = parseBoldMarkdown(feature),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(0.44f)
+                            )
+                            Text(
+                                text = parseBoldMarkdown(value),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(0.56f)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -2602,7 +3006,7 @@ private fun ResponsiveScheduleRowCard(
                         color = MaterialTheme.colorScheme.primaryContainer
                     ) {
                         Text(
-                            text = timeValue,
+                            text = parseBoldMarkdown(timeValue),
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -2610,7 +3014,7 @@ private fun ResponsiveScheduleRowCard(
                     }
                 }
                 Text(
-                    text = titleValue,
+                    text = parseBoldMarkdown(titleValue),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
@@ -2618,7 +3022,7 @@ private fun ResponsiveScheduleRowCard(
             }
             if (detailValue.isNotBlank()) {
                 Text(
-                    text = detailValue,
+                    text = parseBoldMarkdown(detailValue),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -2668,7 +3072,7 @@ private fun ResponsiveGenericRowCard(
         ) {
             if (!title.isNullOrBlank()) {
                 Text(
-                    text = title,
+                    text = parseBoldMarkdown(title),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -2693,6 +3097,19 @@ private fun RenderResponsiveTableRows(
 ) {
     if (rows.isEmpty()) return
     val template = pickResponsiveTableTemplate(headers, rows)
+    val featureMatrixStyle = template == ResponsiveTableCardTemplate.COMPARISON &&
+        headers.size >= 3 &&
+        isComparisonFeatureHeader(headers.firstOrNull().orEmpty())
+    if (featureMatrixStyle) {
+        Column(modifier = modifier.fillMaxWidth()) {
+            ResponsiveComparisonColumnCards(
+                headers = headers,
+                rows = rows,
+                spacing = spacing
+            )
+        }
+        return
+    }
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(spacing)
@@ -2714,6 +3131,7 @@ private fun RenderResponsiveTableRows(
 private fun RenderDirectTable(
     props: Map<String, Any?>,
     state: Map<String, Any?>,
+    onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
@@ -2722,7 +3140,8 @@ private fun RenderDirectTable(
     val headers = table.columns.map { column -> column.label }
     val cardsRequested =
         table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
-            table.renderMode == FlatTableRenderMode.FLIGHT_CARDS
+            table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
+            table.renderMode == FlatTableRenderMode.BOOKING_CARDS
 
     if (table.renderMode == FlatTableRenderMode.WEATHER_CARDS) {
         val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
@@ -2751,6 +3170,16 @@ private fun RenderDirectTable(
             return
         }
     }
+    if (table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
+        val rendered = renderBookingRowsIfPossible(
+            headers = headers,
+            rows = table.rows,
+            onOpenUrl = onOpenUrl
+        )
+        if (rendered) {
+            return
+        }
+    }
 
     val spacing = 8.dp
     val autoHorizontalScroll = shouldUseHorizontalTableScroll(
@@ -2760,6 +3189,7 @@ private fun RenderDirectTable(
         rows = table.rows
     )
     val effectiveRenderMode = when {
+        table.renderMode == FlatTableRenderMode.RESPONSIVE_CARD_ROWS -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         cardsRequested && autoHorizontalScroll && table.columns.size <= 3 -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         cardsRequested && autoHorizontalScroll -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
         cardsRequested -> FlatTableRenderMode.TABLE
@@ -2822,7 +3252,7 @@ private fun RenderDirectTable(
                             Modifier.weight(1f)
                         }
                         Text(
-                            text = label,
+                            text = parseBoldMarkdown(label),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = columnModifier
@@ -2843,7 +3273,7 @@ private fun RenderDirectTable(
                                 Modifier.weight(1f)
                             }
                             Text(
-                                text = value,
+                                text = parseBoldMarkdown(value),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = columnModifier
@@ -2930,12 +3360,6 @@ private fun RenderResponsiveTableRowCard(
                 .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = "Row ${rowIndex + 1}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-            )
             rowElement.children.forEachIndexed { index, cellId ->
                 Text(
                     text = headers.getOrNull(index).orEmpty().ifBlank { "Column ${index + 1}" },
@@ -3037,7 +3461,7 @@ private fun RenderCard(
 
 @Composable
 private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) {
-    val text = (
+    val rawText = (
         props["text"]
             ?: props["title"]
             ?: props["label"]
@@ -3046,42 +3470,51 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         )
         ?.toString()
         .orEmpty()
-    if (text.isBlank()) return
+    if (rawText.isBlank()) return
+    parseFencedCodeBlock(rawText)?.let { codeBlock ->
+        RenderCodeBlock(codeBlock = codeBlock, modifier = modifier)
+        return
+    }
+    val markdown = parseSupportedMarkdownText(rawText)
     val rawVariant = (
         props["variant"]?.toString()
             ?: props["typography"]?.toString()
         )
         ?.lowercase()
         .orEmpty()
+    val impliedHeadingVariant = when (markdown.headingLevel) {
+        1 -> "h1"
+        2 -> "h2"
+        3 -> "h3"
+        else -> ""
+    }
+    val normalizedVariantSource = if (rawVariant.isBlank()) impliedHeadingVariant else rawVariant
     val variant = when {
-        rawVariant == "h1" || rawVariant.contains("headline-large") -> "h1"
-        rawVariant == "h2" || rawVariant.contains("headline") || rawVariant.contains("title-large") -> "h2"
-        rawVariant == "h3" || rawVariant.contains("title") || rawVariant.contains("subtitle") || rawVariant.contains("heading") -> "h3"
-        rawVariant.contains("caption") || rawVariant.contains("label") || rawVariant.contains("body-small") -> "caption"
-        rawVariant.contains("chip") -> "chip"
-        else -> rawVariant
+        normalizedVariantSource == "h1" || normalizedVariantSource.contains("headline-large") -> "h1"
+        normalizedVariantSource == "h2" || normalizedVariantSource.contains("headline") || normalizedVariantSource.contains("title-large") -> "h2"
+        normalizedVariantSource == "h3" || normalizedVariantSource.contains("title") || normalizedVariantSource.contains("subtitle") || normalizedVariantSource.contains("heading") -> "h3"
+        normalizedVariantSource.contains("caption") || normalizedVariantSource.contains("label") || normalizedVariantSource.contains("body-small") -> "caption"
+        normalizedVariantSource.contains("chip") -> "chip"
+        else -> normalizedVariantSource
     }
     when (variant) {
         "h1" -> Text(
-            text = text,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
+            text = markdown.content,
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
             modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         "h2" -> Text(
-            text = text,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
+            text = markdown.content,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             modifier = modifier.padding(horizontal = 16.dp, vertical = 6.dp)
         )
         "h3" -> Text(
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
+            text = markdown.content,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp)
         )
         "caption", "label" -> Text(
-            text = text,
+            text = markdown.content,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp)
@@ -3092,17 +3525,152 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
             modifier = modifier.padding(2.dp)
         ) {
             Text(
-                text = text,
+                text = markdown.content,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
             )
         }
         else -> Text(
-            text = text,
+            text = markdown.content,
             style = MaterialTheme.typography.bodyMedium,
             modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp)
         )
+    }
+}
+
+private data class FencedCodeBlock(
+    val code: String,
+    val language: String? = null
+)
+
+@Composable
+private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Modifier) {
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+            val languageLabel = codeBlock.language?.trim().orEmpty()
+            if (languageLabel.isNotBlank()) {
+                Text(
+                    text = languageLabel.uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+            }
+            Text(
+                text = codeBlock.code.ifBlank { " " },
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+            )
+        }
+    }
+}
+
+private data class SupportedMarkdownText(
+    val content: AnnotatedString,
+    val headingLevel: Int?
+)
+
+private fun parseFencedCodeBlock(raw: String): FencedCodeBlock? {
+    val trimmed = raw.trim()
+    val fence = when {
+        trimmed.startsWith("```") -> "```"
+        trimmed.startsWith("'''") -> "'''"
+        else -> return null
+    }
+    if (!trimmed.endsWith(fence) || trimmed.length <= fence.length * 2) return null
+    val inner = trimmed.substring(fence.length, trimmed.length - fence.length).trim('\n', '\r')
+    if (inner.isBlank()) return FencedCodeBlock(code = "")
+    val lines = inner.lines()
+    val firstLine = lines.firstOrNull()?.trim().orEmpty()
+    val languageToken = if (
+        lines.size > 1 &&
+        firstLine.matches(Regex("^[A-Za-z0-9_+\\-]{1,20}$"))
+    ) {
+        firstLine
+    } else {
+        null
+    }
+    val code = if (languageToken != null) {
+        lines.drop(1).joinToString("\n")
+    } else {
+        inner
+    }
+    return FencedCodeBlock(code = code, language = languageToken)
+}
+
+private fun parseSupportedMarkdownText(raw: String): SupportedMarkdownText {
+    val trimmedStart = raw.trimStart()
+    val headingLevel = when {
+        trimmedStart.startsWith("### ") -> 3
+        trimmedStart.startsWith("## ") -> 2
+        trimmedStart.startsWith("# ") -> 1
+        else -> null
+    }
+    val withoutHeading = if (headingLevel != null) {
+        trimmedStart.substring(headingLevel + 1).trimStart()
+    } else {
+        raw
+    }
+    return SupportedMarkdownText(
+        content = parseBoldMarkdown(withoutHeading),
+        headingLevel = headingLevel
+    )
+}
+
+private val LEADING_LABEL_REGEX = Regex("^(\\s*)([A-Za-z][A-Za-z0-9 /()&+\\-]{0,40}):(\\s*.*)$")
+
+private fun parseBoldMarkdown(raw: String): AnnotatedString {
+    return buildAnnotatedString {
+        raw.split('\n').forEachIndexed { index, line ->
+            if (index > 0) append('\n')
+            val labelMatch = LEADING_LABEL_REGEX.matchEntire(line)
+            if (labelMatch != null) {
+                val leading = labelMatch.groupValues.getOrNull(1).orEmpty()
+                val label = labelMatch.groupValues.getOrNull(2).orEmpty()
+                val rest = labelMatch.groupValues.getOrNull(3).orEmpty()
+                append(leading)
+                pushStyle(SpanStyle(fontWeight = FontWeight.SemiBold))
+                append("$label:")
+                pop()
+                appendMarkdownBoldSpans(rest)
+            } else {
+                appendMarkdownBoldSpans(line)
+            }
+        }
+    }
+}
+
+private fun AnnotatedString.Builder.appendMarkdownBoldSpans(segment: String) {
+    var cursor = 0
+    while (cursor < segment.length) {
+        val start = segment.indexOf("**", cursor)
+        if (start < 0) {
+            append(segment.substring(cursor))
+            break
+        }
+        val end = segment.indexOf("**", start + 2)
+        if (end < 0) {
+            append(segment.substring(cursor))
+            break
+        }
+        if (start > cursor) append(segment.substring(cursor, start))
+        val boldText = segment.substring(start + 2, end)
+        if (boldText.isNotEmpty()) {
+            pushStyle(SpanStyle(fontWeight = FontWeight.SemiBold))
+            append(boldText)
+            pop()
+        }
+        cursor = end + 2
     }
 }
 
@@ -3258,7 +3826,11 @@ private fun RenderButton(
     } else {
         { onAction(actionCandidate, repeatScope) }
     }
-    val buttonModifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+    val buttonModifier = modifier
+        .padding(horizontal = 16.dp, vertical = 4.dp)
+        .let { base ->
+            if (label.length > 20) base.fillMaxWidth() else base
+        }
     if (variant == "borderless" || variant == "text" || variant == "outlined") {
         OutlinedButton(onClick = onClick, modifier = buttonModifier) {
             Text(text = label)

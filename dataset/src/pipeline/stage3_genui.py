@@ -366,6 +366,83 @@ def _truncate_tokens(text: str, max_tokens: int) -> tuple[str, bool]:
     return trimmed, True
 
 
+_LEADING_MARKDOWN_HEADING_RE = re.compile(r"^\s*(#{1,3})\s+(.*)$")
+_BOLD_MARKDOWN_RE = re.compile(r"\*\*(.+?)\*\*")
+
+
+def _normalize_text_markdown_for_ir(raw: str) -> tuple[str, str | None]:
+    if not isinstance(raw, str):
+        return "", None
+    if not raw.strip():
+        return raw, None
+
+    heading_variant: str | None = None
+    out_lines: list[str] = []
+    for line in raw.splitlines():
+        current = line.rstrip()
+
+        heading_match = _LEADING_MARKDOWN_HEADING_RE.match(current)
+        if heading_match:
+            level = len(heading_match.group(1))
+            if heading_variant is None:
+                heading_variant = "h1" if level == 1 else ("h2" if level == 2 else "h3")
+            current = heading_match.group(2).strip()
+
+        trimmed = current.lstrip()
+        if trimmed.startswith("- "):
+            current = f"{current[: len(current) - len(trimmed)]}• {trimmed[2:].strip()}"
+        elif trimmed.startswith("* "):
+            current = f"{current[: len(current) - len(trimmed)]}• {trimmed[2:].strip()}"
+
+        if "|" in current and current.count("|") >= 2:
+            pieces = [part.strip() for part in current.strip().strip("|").split("|")]
+            pieces = [part for part in pieces if part]
+            if len(pieces) >= 2:
+                current = " • ".join(pieces)
+
+        current = _BOLD_MARKDOWN_RE.sub(lambda m: m.group(1), current)
+        current = current.replace("```", "").replace("'''", "")
+        out_lines.append(current)
+
+    normalized = "\n".join(out_lines).strip()
+    return normalized, heading_variant
+
+
+def _normalize_flat_spec_text_content(genui_json: Any) -> Any:
+    if not isinstance(genui_json, dict):
+        return genui_json
+    elements = genui_json.get("elements")
+    if not isinstance(elements, dict):
+        return genui_json
+
+    for element in elements.values():
+        if not isinstance(element, dict):
+            continue
+        element_type = str(element.get("type") or "").strip().lower()
+        if element_type != "text":
+            continue
+        props = element.get("props")
+        if not isinstance(props, dict):
+            continue
+        variant = props.get("variant")
+        normalized_variant = variant.strip().lower() if isinstance(variant, str) else ""
+
+        for text_key in ("text", "title", "label", "content", "value"):
+            value = props.get(text_key)
+            if not isinstance(value, str):
+                continue
+            normalized_text, inferred_heading = _normalize_text_markdown_for_ir(value)
+            props[text_key] = normalized_text
+            if (
+                inferred_heading
+                and not normalized_variant
+            ):
+                props["variant"] = inferred_heading
+                normalized_variant = inferred_heading
+
+    return genui_json
+
+
 
 
 def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logger) -> str:
@@ -748,6 +825,80 @@ def run_stage3(
                 if not validator_ok:
                     schema_valid_lenient = True
 
+        final_regen_attempts = max(0, int(os.getenv("STAGE3_FINAL_REGEN_ATTEMPTS", "1")))
+        regen_attempt = 0
+        while (
+            (not parsed_ok or genui_json is None or not schema_valid_strict)
+            and flat_spec_mode
+            and regen_attempt < final_regen_attempts
+        ):
+            regen_attempt += 1
+            repair_needed = True
+            regeneration_prompt = (
+                f"{prompt}\n\n"
+                "Previous output was invalid or incomplete.\n"
+                "Regenerate the full flat-spec JSON from the source response.\n"
+                "Return ONLY one valid JSON object with root/state/elements.\n"
+                "Keep JSON compact and avoid literal markdown markers in text fields."
+            )
+
+            def _regen_call():
+                rate_limiter.acquire()
+                return adapter.generate(
+                    prompt=regeneration_prompt,
+                    system=system_prompt,
+                    temperature=0.1,
+                    max_tokens=max(max_tokens, 8192),
+                    seed=seed + 900 + regen_attempt,
+                    json_mode=True if adapter.spec.supports_json_mode else False,
+                )
+
+            try:
+                regen_result = with_retry(_regen_call, max_attempts=max_attempts)
+            except Exception as exc:
+                if isinstance(exc, LLMRateLimitError):
+                    logger.error(
+                        "Stage3 final regen rate limit info: limits=%s headers=%s",
+                        exc.limits or "unset",
+                        exc.headers or "none",
+                    )
+                errors.append(f"final_regen_exception: {exc}")
+                break
+
+            if regen_result.error:
+                errors.append(f"final_regen_error: {regen_result.error}")
+                break
+
+            raw_text = regen_result.text
+            try:
+                parsed_json = extract_json_element(raw_text) if flat_spec_mode else extract_json(raw_text)
+                if flat_spec_mode:
+                    coerce_result = coerce_and_validate(parsed_json)
+                    if not coerce_result.is_valid:
+                        parsed_ok = False
+                        genui_json = None
+                        errors.append(f"final_regen_flat_spec_error: {coerce_result.error}")
+                        continue
+                    genui_json = coerce_result.spec
+                    converted_from_legacy = bool(coerce_result.converted_from_legacy)
+                else:
+                    genui_json = parsed_json
+                parsed_ok = True
+            except Exception as exc:
+                parsed_ok = False
+                errors.append(f"final_regen_json_parse_error: {exc}")
+                continue
+
+            schema_valid_strict, schema_errors, validator_ok = _validate_schema(
+                schema, genui_json, schema_path.parent
+            )
+            if schema_valid_strict:
+                schema_valid_lenient = True
+            else:
+                errors.extend(schema_errors)
+                if not validator_ok:
+                    schema_valid_lenient = True
+
         if not parsed_ok or genui_json is None or not schema_valid_strict:
             # Final fallback: build a minimal valid output matching the configured schema mode.
             fallback_text = _apply_asset_replacements(response_text, assets_list)
@@ -798,6 +949,8 @@ def run_stage3(
                     schema_valid_lenient = True
 
         genui_json = _rewrite_genui_asset_urls(genui_json, assets_list)
+        if flat_spec_mode:
+            genui_json = _normalize_flat_spec_text_content(genui_json)
 
         toon = encode_toon(genui_json)
         toon_ok = roundtrip_ok(genui_json, toon)

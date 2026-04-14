@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": "md"}, "children": ["title_text", "intro_text", "subtitle_text", "recommendations_stack", "quick_actions_section"]}, "title_text": {"type": "Text", "props": {"text": "Recommendations for Your Game Night", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Based on your group's enjoyment of 'Pandemic' and preference for cooperative strategy games that can be learned and played in under two hours, here are three excellent recommendations that avoid the complexity and time commitment of games like 'Gloomhaven'."}, "children": []}, "subtitle_text": {"type": "Text", "props": {"text": "Top Cooperative Games Under Two Hours", "variant": "h3"}, "children": []}, "recommendations_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["game1_card", "game2_card", "game3_card"]}, "game1_card": {"type": "Card", "props": {}, "children": ["game1_stack"]}, "game1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": "md"}, "children": ["game1_header", "game1_desc", "game1_playtime", "game1_reason", "game1_button"]}, "game1_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["game1_icon", "game1_title"]}, "game1_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_2_sun.svg"}, "children": []}, "game1_title": {"type": "Text", "props": {"text": "Forbidden Desert", "variant": "h3"}, "children": []}, "game1_desc": {"type": "Text", "props": {"text": "A cooperative adventure where you must find a legendary flying machine buried in the ruins of an ancient desert city and escape before you're all buried by the relentless sandstorm or succumb to thirst."}, "children": []}, "game1_playtime": {"type": "Text", "props": {"text": "Playtime: 45-60 minutes"}, "children": []}, "game1_reason": {"type": "Text", "props": {"text": "Why it's a great fit: Created by the same designer as 'Pandemic', it offers a familiar feeling of escalating tension and teamwork. The moving board and resource management (water) introduce fresh strategic challenges that are easy to grasp."}, "children": []}, "game1_button": {"type": "Button", "props": {"label": "See on BoardGameGeek"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgame/136063/forbidden-desert"}}}}, "game2_card": {"type": "Card", "props": {}, "children": ["game2_stack"]}, "game2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": "md"}, "children": ["game2_header", "game2_desc", "game2_playtime", "game2_reason", "game2_button"]}, "game2_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["game2_icon", "game2_title"]}, "game2_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_3_moon-stars.svg"}, "children": []}, "game2_title": {"type": "Text", "props": {"text": "Horrified", "variant": "h3"}, "children": []}, "game2_desc": {"type": "Text", "props": {"text": "Team up to save a village from the onslaught of classic monsters like Dracula, The Mummy, and Frankenstein's Monster. Each monster requires a unique strategy to defeat, creating a varied and puzzle-like experience."}, "children": []}, "game2_playtime": {"type": "Text", "props": {"text": "Playtime: 60 minutes"}, "children": []}, "game2_reason": {"type": "Text", "props": {"text": "Why it's a great fit: It's a highly thematic and accessible co-op game. The difficulty can be easily adjusted by choosing which monsters to face, providing excellent replayability and ensuring it fits within your two-hour timeframe."}, "children": []}, "game2_button": {"type": "Button", "props": {"label": "See on BoardGameGeek"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgame/282524/horrified"}}}}, "game3_card": {"type": "Card", "props": {}, "children": ["game3_stack"]}, "game3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": "md"}, "children": ["game3_header", "game3_desc", "game3_playtime", "game3_reason", "game3_button"]}, "game3_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["game3_icon", "game3_title"]}, "game3_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_4_stars.svg"}, "children": []}, "game3_title": {"type": "Text", "props": {"text": "The Crew: The Quest for Planet Nine", "variant": "h3"}, "children": []}, "game3_desc": {"type": "Text", "props": {"text": "This is a cooperative trick-taking card game. Players are astronauts on a space mission and must work together to complete 50 different missions, each with unique win conditions. The catch is that communication is severely limited."}, "children": []}, "game3_playtime": {"type": "Text", "props": {"text": "Playtime: 5-20 minutes per mission"}, "children": []}, "game3_reason": {"type": "Text", "props": {"text": "Why it's a great fit: It introduces a completely different style of cooperative strategy. It's incredibly easy to teach, and you can play as many or as few missions as you have time for. It's a fantastic \"one more round\" game that relies on clever, silent teamwork."}, "children": []}, "game3_button": {"type": "Button", "props": {"label": "See on BoardGameGeek"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com/boardgame/284083/crew-quest-planet-nine"}}}}, "quick_actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": "md"}, "children": ["quick_actions_title", "quick_actions_buttons"]}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "quick_actions_buttons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["find_more_button", "refine_button"]}, "find_more_button": {"type": "Button", "props": {"label": "Find More Like These"}, "children": []}, "refine_button": {"type": "Button", "props": {"label": "Refine Preferences", "variant": "borderless"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

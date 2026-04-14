@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["header_stack", "intro_text", "recommendations_stack", "details_main_stack", "actions_main_stack"]}, "header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["header_icon", "header_title"]}, "header_icon": {"type": "Icon", "props": {"name": "../assets/r_000008_01_1_airplane.svg"}, "children": []}, "header_title": {"type": "Text", "props": {"text": "Flight Ranking: New York to London", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Based on your priorities for a balance of cost, travel time, and a short layover, here are the flight options ranked from best to worst for your trip. The total cost is calculated for two adults."}, "children": []}, "recommendations_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["recommendations_title", "option1_card", "option2_card", "option3_card", "option4_card"]}, "recommendations_title": {"type": "Text", "props": {"text": "Ranked Flight Recommendations", "variant": "h3"}, "children": []}, "option1_card": {"type": "Card", "props": {}, "children": ["option1_stack"]}, "option1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["option1_title", "option1_desc", "option1_details_stack"]}, "option1_title": {"type": "Text", "props": {"text": "Option 1: Icelandair (Best Balance)"}, "children": []}, "option1_desc": {"type": "Text", "props": {"text": "This option provides the best balance between cost and travel time. It is significantly cheaper than the non-stop flights, and the 2.5-hour layover is well within your 3-hour preference."}, "children": []}, "option1_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option1_cost", "option1_time", "option1_stops"]}, "option1_cost": {"type": "Text", "props": {"text": "Total Cost (2 Adults): $1,240"}, "children": []}, "option1_time": {"type": "Text", "props": {"text": "Total Travel Time: 11 hours"}, "children": []}, "option1_stops": {"type": "Text", "props": {"text": "Stops: 1 (2.5-hour layover)"}, "children": []}, "option2_card": {"type": "Card", "props": {}, "children": ["option2_stack"]}, "option2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["option2_title", "option2_desc", "option2_details_stack"]}, "option2_title": {"type": "Text", "props": {"text": "Option 2: British Airways (Fast Non-Stop)"}, "children": []}, "option2_desc": {"type": "Text", "props": {"text": "A strong choice if you prefer a non-stop flight. It's faster than the Icelandair option and slightly more affordable than the quickest flight offered by Virgin Atlantic, making it a good value for a direct route."}, "children": []}, "option2_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option2_cost", "option2_time", "option2_stops"]}, "option2_cost": {"type": "Text", "props": {"text": "Total Cost (2 Adults): $1,700"}, "children": []}, "option2_time": {"type": "Text", "props": {"text": "Total Travel Time: 8 hours"}, "children": []}, "option2_stops": {"type": "Text", "props": {"text": "Stops: Non-stop"}, "children": []}, "option3_card": {"type": "Card", "props": {}, "children": ["option3_stack"]}, "option3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["option3_title", "option3_desc", "option3_details_stack"]}, "option3_title": {"type": "Text", "props": {"text": "Option 3: Virgin Atlantic (Quickest Journey)"}, "children": []}, "option3_desc": {"type": "Text", "props": {"text": "This is the fastest flight available. Choose this option if minimizing your time in transit is the absolute top priority and the higher cost is not a concern."}, "children": []}, "option3_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option3_cost", "option3_time", "option3_stops"]}, "option3_cost": {"type": "Text", "props": {"text": "Total Cost (2 Adults): $1,800"}, "children": []}, "option3_time": {"type": "Text", "props": {"text": "Total Travel Time: 7.5 hours"}, "children": []}, "option3_stops": {"type": "Text", "props": {"text": "Stops: Non-stop"}, "children": []}, "option4_card": {"type": "Card", "props": {}, "children": ["option4_stack"]}, "option4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["option4_title", "option4_desc", "option4_details_stack"]}, "option4_title": {"type": "Text", "props": {"text": "Option 4: American Airlines (Not Recommended)"}, "children": []}, "option4_desc": {"type": "Text", "props": {"text": "This option is ranked last because its 4.5-hour layover does not meet your requirement for a layover under 3 hours. It also has the longest total travel time of all the choices."}, "children": []}, "option4_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option4_cost", "option4_time", "option4_stops"]}, "option4_cost": {"type": "Text", "props": {"text": "Total Cost (2 Adults): $1,560"}, "children": []}, "option4_time": {"type": "Text", "props": {"text": "Total Travel Time: 13 hours"}, "children": []}, "option4_stops": {"type": "Text", "props": {"text": "Stops: 1 (4.5-hour layover)"}, "children": []}, "details_main_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["details_title", "details_intro", "details_list_stack"]}, "details_title": {"type": "Text", "props": {"text": "Trip Details & Preferences", "variant": "h3"}, "children": []}, "details_intro": {"type": "Text", "props": {"text": "This ranking is based on the following travel details:"}, "children": []}, "details_list_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["details_passengers", "details_route", "details_dates", "details_priorities"]}, "details_passengers": {"type": "Text", "props": {"text": "Passengers: 2 adults"}, "children": []}, "details_route": {"type": "Text", "props": {"text": "Route: New York, USA (NYC) to London, UK (LON)"}, "children": []}, "details_dates": {"type": "Text", "props": {"text": "Dates: October 15, 2024 to October 22, 2024"}, "children": []}, "details_priorities": {"type": "Text", "props": {"text": "Priorities: A balance of cost and speed, with a layover under 3 hours."}, "children": []}, "actions_main_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_buttons_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_buttons_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["button_google", "button_kayak"]}, "button_google": {"type": "Button", "props": {"label": "Search Flights on Google"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/flights"}}}}, "button_kayak": {"type": "Button", "props": {"label": "Compare on Kayak"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.kayak.com"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"revenueData": [{"month": "January", "revenue": "$12,500"}, {"month": "February", "revenue": "$18,000"}, {"month": "March", "revenue": "$15,750"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["main_heading", "summary_text", "data_section_stack", "actions_section_stack"]}, "main_heading": {"type": "Text", "props": {"text": "Q1 2023 Revenue Snapshot", "variant": "h1"}, "children": []}, "summary_text": {"type": "Text", "props": {"text": "Your online store's revenue for the first quarter of 2023 totaled $46,250. The peak performance was in February, which accounted for the highest monthly earnings."}, "children": []}, "data_section_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["data_heading", "icon_note_stack", "revenue_table"]}, "data_heading": {"type": "Text", "props": {"text": "Monthly Revenue Data for Q1 2023", "variant": "h2"}, "children": []}, "icon_note_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["icon", "note_text"]}, "icon": {"type": "Icon", "props": {"name": "../assets/r_000011_01_1_bar-chart-line.svg"}, "children": []}, "note_text": {"type": "Text", "props": {"text": "This data is ready for visualization in a bar chart with the title 'Q1 2023 Revenue'."}, "children": []}, "revenue_table": {"type": "Table", "props": {"columns": [{"key": "month", "label": "Month"}, {"key": "revenue", "label": "Revenue (USD)"}], "statePath": "/revenueData", "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Month | Revenue (USD) |\n|---|---|\n| January | $12,500 |\n| February | $18,000 |\n| March | $15,750 |"}, "children": []}, "actions_section_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_heading", "buttons_stack"]}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "buttons_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["button_sheets", "button_tools"]}, "button_sheets": {"type": "Button", "props": {"label": "Create Chart in Sheets"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://sheets.new"}}}}, "button_tools": {"type": "Button", "props": {"label": "Explore Data Tools"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.canva.com/graphs/bar-charts/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {"hotels": [{"id": "hoxton", "name": "The Hoxton, Shoreditch", "description": "A stylish, vibrant hotel known for its creative atmosphere and popular co-working lobby.", "iconUrl": "../assets/r_000001_01_2_building.svg", "walk": "Approx. 7 minutes", "features": "Each room features a desk and free Wi-Fi. The lively lobby is a well-known spot for remote work and networking.", "bestFor": "Travelers who appreciate design and a social, energetic environment.", "url": "https://www.booking.com/hotel/gb/the-hoxton-grill.en-gb.html"}, {"id": "citizenm", "name": "citizenM London Shoreditch", "description": "A modern, tech-forward hotel offering streamlined comfort and high-tech amenities.", "iconUrl": "../assets/r_000001_01_2_building.svg", "walk": "Approx. 5 minutes", "features": "Control room lighting, blinds, and temperature with a \"MoodPad\" tablet. Features a small desk, wall-to-wall window, and exceptionally fast, free Wi-Fi.", "bestFor": "Tech-savvy travelers looking for efficiency and superb connectivity.", "url": "https://www.booking.com/hotel/gb/citizenm-london-shoreditch.en-gb.html"}, {"id": "pointa", "name": "Point A Hotel London - Shoreditch", "description": "A smart, budget-conscious choice that focuses on providing the essentials with quality.", "iconUrl": "../assets/r_000001_01_2_building.svg", "walk": "Approx. 10 minutes", "features": "Compact, well-designed rooms with a practical fold-down desk, power showers, and reliable high-speed Wi-Fi.", "bestFor": "Travelers seeking the best value without compromising on a prime location and core amenities.", "url": "https://www.booking.com/hotel/gb/point-a-shoreditch.en-gb.html"}], "comparisonData": [{"hotel": "The Hoxton, Shoreditch", "price": "~£195", "walk": "7 min", "feature": "Creative Hub & Lobby"}, {"hotel": "citizenM London Shoreditch", "price": "~£180", "walk": "5 min", "feature": "High-Tech Rooms"}, {"hotel": "Point A Hotel London", "price": "~£150", "walk": "10 min", "feature": "Excellent Value"}]}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["main_title", "intro_text", "hotels_title", "hotel_list", "comparison_title", "comparison_table", "actions_title", "actions_stack", "sources_title", "sources_stack"]}, "main_title": {"type": "Text", "props": {"text": "Hotel Options Near Liverpool Street Station", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Based on your requirements for a 3-night stay (Oct 21-24) for one adult, here are hotel options within a 15-minute walk of Liverpool Street Station. All selections are under £200 per night and include free high-speed Wi-Fi and an in-room desk, suitable for a business trip. Prices are estimates for your travel dates and subject to change."}, "children": []}, "hotels_title": {"type": "Text", "props": {"text": "Recommended Hotels for Your Business Trip", "variant": "h1"}, "children": []}, "hotel_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["hotel_card_template"]}, "hotel_card_template": {"type": "Card", "props": {}, "children": ["card_content_stack"], "repeat": {"statePath": "/hotels", "key": "id"}}, "card_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["hotel_header_stack", "hotel_details_stack", "hotel_button"]}, "hotel_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["hotel_icon", "hotel_title_description"]}, "hotel_icon": {"type": "Icon", "props": {"name": {"$item": "iconUrl"}}, "children": []}, "hotel_title_description": {"type": "Text", "props": {"text": {"$template": "${name} | ${description}"}}, "children": []}, "hotel_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["walk_text", "features_text", "best_for_text"]}, "walk_text": {"type": "Text", "props": {"text": {"$template": "Walk to Station: ${walk}"}}, "children": []}, "features_text": {"type": "Text", "props": {"text": {"$template": "Key Features: ${features}"}}, "children": []}, "best_for_text": {"type": "Text", "props": {"text": {"$template": "Best For: ${bestFor}"}}, "children": []}, "hotel_button": {"type": "Button", "props": {"label": "Check Rates & Availability"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "url"}}}}}, "comparison_title": {"type": "Text", "props": {"text": "Side-by-Side Comparison", "variant": "h1"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "hotel", "label": "Hotel"}, {"key": "price", "label": "Est. Price / Night"}, {"key": "walk", "label": "Walk to Station"}, {"key": "feature", "label": "Key Feature"}], "statePath": "/comparisonData", "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Hotel | Est. Price / Night | Walk to Station | Key Feature |\n| :--- | :--- | :--- | :--- |\n| The Hoxton, Shoreditch | ~£195 | 7 min | Creative Hub & Lobby |\n| citizenM London Shoreditch | ~£180 | 5 min | High-Tech Rooms |\n| Point A Hotel London | ~£150 | 10 min | Excellent Value |"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h1"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["more_hotels_button", "map_button"]}, "more_hotels_button": {"type": "Button", "props": {"label": "View More Hotels"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.booking.com/searchresults.html?ss=Liverpool+Street+Station&ssne=London&ssne_raw=London&checkin=2024-10-21&checkout=2024-10-24&group_adults=1&no_rooms=1&sb_travel_purpose=business&nflt=price%3DGBP-min-200-1%3Bwifi%3D1&radius=1"}}}}, "map_button": {"type": "Button", "props": {"label": "Map of Area"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/maps/search/hotels/@51.5188,-0.0814,15z?entry=ttu"}}}}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h1"}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["source_1", "source_2"]}, "source_1": {"type": "Text", "props": {"text": "Hotel Pricing and Availability: Booking.com", "variant": "caption"}, "children": []}, "source_2": {"type": "Text", "props": {"text": "Walking Times: Google Maps", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

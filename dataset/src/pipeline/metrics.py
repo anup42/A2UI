@@ -580,6 +580,65 @@ def _find_table_rows(components: list[dict[str, Any]]) -> list[list[str]]:
     return rows
 
 
+def _extract_direct_table_cells_from_components(
+    components: list[dict[str, Any]],
+    genui_json: Any,
+) -> list[str]:
+    if not isinstance(genui_json, dict):
+        return []
+    state = genui_json.get("state")
+    if not isinstance(state, dict):
+        state = {}
+
+    cells: list[str] = []
+    for comp in components:
+        if comp.get("component") != "Table":
+            continue
+        rows = comp.get("rows")
+        if not isinstance(rows, list):
+            state_path = comp.get("statePath")
+            if isinstance(state_path, str) and state_path.strip():
+                resolved = _resolve_state_pointer(state, state_path.strip())
+                if isinstance(resolved, list):
+                    rows = resolved
+        if not isinstance(rows, list) or not rows:
+            continue
+
+        columns = comp.get("columns")
+        column_keys: list[str] = []
+        if isinstance(columns, list):
+            for item in columns:
+                if isinstance(item, dict):
+                    key = item.get("key")
+                    label = item.get("label")
+                    if isinstance(label, str) and label.strip():
+                        cells.append(label.strip())
+                    if isinstance(key, str) and key.strip():
+                        column_keys.append(key.strip())
+                elif isinstance(item, str) and item.strip():
+                    column_keys.append(item.strip())
+                    cells.append(item.strip())
+        source_text = comp.get("sourceText")
+        if isinstance(source_text, str) and source_text.strip():
+            cells.extend(_extract_table_cells_from_response(source_text))
+
+        for row in rows:
+            if isinstance(row, dict):
+                if column_keys:
+                    for key in column_keys:
+                        value = row.get(key)
+                        cells.extend(_flatten_scalar_values(value))
+                else:
+                    for value in row.values():
+                        cells.extend(_flatten_scalar_values(value))
+            elif isinstance(row, list):
+                for value in row:
+                    cells.extend(_flatten_scalar_values(value))
+            else:
+                cells.extend(_flatten_scalar_values(row))
+    return cells
+
+
 def _extract_table_cells_from_response(response_text: str) -> list[str]:
     cells: list[str] = []
     if not response_text:
@@ -884,9 +943,11 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
 
     index = _build_component_index(components)
     table_rows = _find_table_rows(components)
-    table_pattern_detected = 1.0 if table_rows else 0.0
+    direct_table_cells = _extract_direct_table_cells_from_components(components, genui_json)
+    table_pattern_detected = 1.0 if table_rows or direct_table_cells else 0.0
     expected_cells = _extract_table_cells_from_response(response_text)
     ir_cells = _extract_table_cells_from_ir(table_rows, index)
+    ir_cells.extend(direct_table_cells)
     ir_cells.extend(_extract_repeat_state_cells(genui_json))
     expected_norm = {_normalize_text(c) for c in expected_cells if c}
     ir_norm = {_normalize_text(c) for c in ir_cells if c}

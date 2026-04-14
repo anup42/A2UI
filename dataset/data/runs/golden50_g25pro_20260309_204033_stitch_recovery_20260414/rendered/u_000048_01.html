@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["header_stack", "summary_text", "on_the_go_section"]}, "header_stack": {"type": "Stack", "props": {"direction": "horizontal", "align": "center", "gap": "md"}, "children": ["header_icon", "header_text"]}, "header_icon": {"type": "Icon", "props": {"name": "../assets/r_000048_01_1_calendar-event.svg"}, "children": []}, "header_text": {"type": "Text", "props": {"text": "Your Day Ahead: Wednesday, Dec 6", "variant": "h3"}, "children": []}, "summary_text": {"type": "Text", "props": {"text": "Good morning! You have 4 events scheduled for today. Your first meeting, the 'Q4 Planning Session', is virtual and begins at 9:00 AM."}, "children": []}, "on_the_go_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["on_the_go_title", "on_the_go_description", "appointments_list"]}, "on_the_go_title": {"type": "Text", "props": {"text": "On-the-Go Today", "variant": "h3"}, "children": []}, "on_the_go_description": {"type": "Text", "props": {"text": "Be sure to plan for travel to your two in-person appointments."}, "children": []}, "appointments_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["appointment_1", "appointment_2"]}, "appointment_1": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["appointment_1_title", "appointment_1_location"]}, "appointment_1_title": {"type": "Text", "props": {"text": "12:30 PM: Lunch with Marketing Team"}, "children": []}, "appointment_1_location": {"type": "Stack", "props": {"direction": "horizontal", "align": "center", "gap": "sm"}, "children": ["appointment_1_icon", "appointment_1_location_text"]}, "appointment_1_icon": {"type": "Icon", "props": {"name": "../assets/r_000036_01_8_geo-alt.svg"}, "children": []}, "appointment_1_location_text": {"type": "Text", "props": {"text": "Location: Oak & Ivy Restaurant"}, "children": []}, "appointment_2": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["appointment_2_title", "appointment_2_location"]}, "appointment_2_title": {"type": "Text", "props": {"text": "3:00 PM: Dentist Check-up"}, "children": []}, "appointment_2_location": {"type": "Stack", "props": {"direction": "horizontal", "align": "center", "gap": "sm"}, "children": ["appointment_2_icon", "appointment_2_location_text"]}, "appointment_2_icon": {"type": "Icon", "props": {"name": "../assets/r_000036_01_8_geo-alt.svg"}, "children": []}, "appointment_2_location_text": {"type": "Text", "props": {"text": "Location: Maple Dental Clinic, 455 Pine Ave"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

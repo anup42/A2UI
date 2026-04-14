@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title_text", "intro_text", "itinerary_title", "day_1_card", "day_2_card", "day_3_card", "day_4_card", "day_5_card", "budget_title", "budget_intro", "budget_table", "dining_title", "dining_intro", "dining_list_stack", "actions_title", "actions_stack", "sources_title", "sources_stack"]}, "title_text": {"type": "Text", "props": {"text": "Paris Family Adventure Overview", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Here is a 5-day itinerary for your family trip to Paris, designed for a relaxed pace with a mix of iconic landmarks and child-focused activities. The plan keeps your budget of $3000 USD in mind, focusing on pre-booked tickets to save time and ensuring no activities extend past 9 PM. For local transport, a Navigo Découverte weekly pass for each family member is the most cost-effective option for your Monday-to-Friday trip."}, "children": []}, "itinerary_title": {"type": "Text", "props": {"text": "5-Day Paris Itinerary", "variant": "h2"}, "children": []}, "day_1_card": {"type": "Card", "props": {"padding": 16}, "children": ["day_1_stack"]}, "day_1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day_1_header", "day_1_item_1", "day_1_item_2", "day_1_item_3", "day_1_item_4"]}, "day_1_header": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between", "align": "center"}, "children": ["day_1_title", "day_1_icon"]}, "day_1_title": {"type": "Text", "props": {"text": "Day 1: Montmartre Charm (Monday, Aug 12)", "variant": "h3"}, "children": []}, "day_1_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_2_palette.svg"}, "children": []}, "day_1_item_1": {"type": "Text", "props": {"text": "• Arrive and settle into your accommodation."}, "children": []}, "day_1_item_2": {"type": "Text", "props": {"text": "• In the late afternoon, take the funicular up to the charming hilltop neighborhood of Montmartre."}, "children": []}, "day_1_item_3": {"type": "Text", "props": {"text": "• Admire the Sacré-Cœur Basilica from the outside and enjoy the panoramic city views from its steps."}, "children": []}, "day_1_item_4": {"type": "Text", "props": {"text": "• For a fun and easy dinner, find a local crêperie for a variety of sweet and savory crêpes that are sure to please everyone."}, "children": []}, "day_2_card": {"type": "Card", "props": {"padding": 16}, "children": ["day_2_stack"]}, "day_2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day_2_header", "day_2_item_1", "day_2_item_2", "day_2_item_3"]}, "day_2_header": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between", "align": "center"}, "children": ["day_2_title", "day_2_icon"]}, "day_2_title": {"type": "Text", "props": {"text": "Day 2: Iconic Sights & Seine Views (Tuesday, Aug 13)", "variant": "h3"}, "children": []}, "day_2_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_4_water.svg"}, "children": []}, "day_2_item_1": {"type": "Text", "props": {"text": "• Start your day with a pre-booked morning visit to the Eiffel Tower. Going to the top offers an unforgettable experience for the whole family."}, "children": []}, "day_2_item_2": {"type": "Text", "props": {"text": "• After lunch, embark on a relaxing Seine River Cruise. It’s a fantastic way to see many of Paris's famous landmarks from a different perspective without tiring out little legs."}, "children": []}, "day_2_item_3": {"type": "Text", "props": {"text": "• Choose a classic bistro for dinner; many offer simple, kid-friendly dishes like steak frites (steak and fries)."}, "children": []}, "day_3_card": {"type": "Card", "props": {"padding": 16}, "children": ["day_3_stack"]}, "day_3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day_3_header", "day_3_item_1", "day_3_item_2"]}, "day_3_header": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between", "align": "center"}, "children": ["day_3_title", "day_3_icon"]}, "day_3_title": {"type": "Text", "props": {"text": "Day 3: Royal Art & Garden Play (Wednesday, Aug 14)", "variant": "h3"}, "children": []}, "day_3_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_6_tree.svg"}, "children": []}, "day_3_item_1": {"type": "Text", "props": {"text": "• Visit the Louvre Museum in the morning. To keep children engaged, plan a \"treasure hunt\" to find famous masterpieces like the Mona Lisa, the Venus de Milo, and the Winged Victory of Samothrace."}, "children": []}, "day_3_item_2": {"type": "Text", "props": {"text": "• In the afternoon, head next door to the Jardin des Tuileries. Enjoy a picnic lunch and let the kids burn off energy by the grand basin, where they can rent and sail model boats."}, "children": []}, "day_4_card": {"type": "Card", "props": {"padding": 16}, "children": ["day_4_stack"]}, "day_4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day_4_header", "day_4_item_1", "day_4_item_2", "day_4_item_3"]}, "day_4_header": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between", "align": "center"}, "children": ["day_4_title", "day_4_icon"]}, "day_4_title": {"type": "Text", "props": {"text": "Day 4: A Day of Science & Discovery (Thursday, Aug 15)", "variant": "h3"}, "children": []}, "day_4_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_8_lightbulb.svg"}, "children": []}, "day_4_item_1": {"type": "Text", "props": {"text": "• Dedicate the day to the Cité des Sciences et de l'Industrie, one of Europe's largest science museums."}, "children": []}, "day_4_item_2": {"type": "Text", "props": {"text": "• The interactive exhibits and the dedicated \"Cité des Enfants\" (Children's City) for different age groups provide a full day of hands-on learning and fun."}, "children": []}, "day_4_item_3": {"type": "Text", "props": {"text": "• For dinner, consider a casual pizzeria or a traditional \"bouillon\" restaurant, known for serving classic French dishes at affordable prices."}, "children": []}, "day_5_card": {"type": "Card", "props": {"padding": 16}, "children": ["day_5_stack"]}, "day_5_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day_5_header", "day_5_item_1", "day_5_item_2", "day_5_item_3"]}, "day_5_header": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between", "align": "center"}, "children": ["day_5_title", "day_5_icon"]}, "day_5_title": {"type": "Text", "props": {"text": "Day 5: Parisian Gardens & Farewell (Friday, Aug 16)", "variant": "h3"}, "children": []}, "day_5_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_10_joystick.svg"}, "children": []}, "day_5_item_1": {"type": "Text", "props": {"text": "• Spend your final morning at the beautiful Jardin du Luxembourg. The park features a fantastic playground, pony rides, and a traditional puppet theater (Théâtre des Marionnettes)."}, "children": []}, "day_5_item_2": {"type": "Text", "props": {"text": "• Enjoy a final Parisian lunch in the nearby Latin Quarter and do some last-minute souvenir shopping."}, "children": []}, "day_5_item_3": {"type": "Text", "props": {"text": "• Head to the airport for your departure, filled with family memories."}, "children": []}, "budget_title": {"type": "Text", "props": {"text": "Estimated Budget Breakdown ($3000 USD)", "variant": "h2"}, "children": []}, "budget_intro": {"type": "Text", "props": {"text": "This table provides an approximate breakdown of costs, leaving a substantial buffer for snacks, souvenirs, and other incidentals within your budget."}, "children": []}, "budget_table": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "cost", "label": "Estimated Cost (USD)"}, {"key": "details", "label": "Details"}], "rows": [{"category": "Activities", "cost": "$260", "details": "Eiffel Tower, Louvre, Cité des Sciences, and Seine Cruise for 2 adults & 2 children."}, {"category": "Food & Dining", "cost": "$1,000", "details": "Approx. $200 per day for meals, snacks, and drinks for a family of four."}, {"category": "Local Transport", "cost": "$160", "details": "Four Navigo Découverte weekly passes, providing unlimited travel in central Paris."}, {"category": "Subtotal", "cost": "$1,420", "details": "-"}, {"category": "Contingency/Buffer", "cost": "$1,580", "details": "For shopping, extra treats, or unplanned activities."}, {"category": "Total Budget", "cost": "$3,000", "details": "-"}], "domain": "generic", "preferredPresentation": "table"}, "children": []}, "dining_title": {"type": "Text", "props": {"text": "Dining Tips for Young Travelers", "variant": "h2"}, "children": []}, "dining_intro": {"type": "Text", "props": {"text": "Paris offers many simple and delicious options perfect for children, even picky eaters. Look for these items on menus:"}, "children": []}, "dining_list_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["dining_item_1", "dining_item_2", "dining_item_3", "dining_item_4", "dining_item_5", "dining_item_6"]}, "dining_item_1": {"type": "Text", "props": {"text": "• Crêpes: Available with savory fillings (galettes) like ham and cheese or sweet fillings like Nutella or sugar."}, "children": []}, "dining_item_2": {"type": "Text", "props": {"text": "• Croque Monsieur: A classic grilled ham and cheese sandwich, often served with a side of fries or salad."}, "children": []}, "dining_item_3": {"type": "Text", "props": {"text": "• Steak Frites: A simple dish of a pan-fried steak served with french fries. A staple in most bistros."}, "children": []}, "dining_item_4": {"type": "Text", "props": {"text": "• Poulet Rôti: Roast chicken is widely available and a familiar comfort food for many children."}, "children": []}, "dining_item_5": {"type": "Text", "props": {"text": "• Jambon-Beurre: The quintessential Parisian sandwich: a fresh baguette with butter and ham."}, "children": []}, "dining_item_6": {"type": "Text", "props": {"text": "• From the Boulangerie: For breakfast or snacks, you can't go wrong with croissants, pain au chocolat, and fresh baguettes."}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["action_button_1", "action_button_2", "action_button_3", "action_button_4"]}, "action_button_1": {"type": "Button", "props": {"label": "Book Eiffel Tower Tickets"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.toureiffel.paris/en/rates-opening-times"}}}}, "action_button_2": {"type": "Button", "props": {"label": "Book Louvre Museum Tickets"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.louvre.fr/en/visit/hours-admission"}}}}, "action_button_3": {"type": "Button", "props": {"label": "Cité des Sciences Tickets"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.cite-sciences.fr/en/information-and-contact/practical-information/prices-and-online-tickets/"}}}}, "action_button_4": {"type": "Button", "props": {"label": "Book a Seine River Cruise"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.bpc.paris/en/"}}}}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["source_button_1", "source_button_2"]}, "source_button_1": {"type": "Button", "props": {"label": "Paris Official Tourism Office", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://parisjetaime.com/eng/"}}}}, "source_button_2": {"type": "Button", "props": {"label": "RATP Public Transport", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.ratp.fr/en/titres-et-tarifs/navigo-decouverte-pass"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

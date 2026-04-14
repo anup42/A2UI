@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "intro", "analysis_title", "analysis_intro", "comparison_table", "synthesis_title", "synthesis_intro", "synthesis_list"]}, "title": {"type": "Text", "props": {"text": "Lithium-Ion Battery Degradation: Abstract Comparison", "variant": "h1"}, "children": []}, "intro": {"type": "Text", "props": {"text": "This analysis breaks down two research abstracts on lithium-ion battery degradation, focusing on the core mechanisms, investigative methods, and proposed solutions. While both address battery aging, they explore different facets of the problem."}, "children": []}, "analysis_title": {"type": "Text", "props": {"text": "Side-by-Side Abstract Analysis", "variant": "h2"}, "children": []}, "analysis_intro": {"type": "Text", "props": {"text": "The two abstracts investigate distinct degradation pathways in different types of lithium-ion cells. The following table provides a direct comparison of their key aspects."}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "feature", "label": "Feature"}, {"key": "abstract_a", "label": "Abstract A (NMC-Graphite)"}, {"key": "abstract_b", "label": "Abstract B (Silicon-Graphite)"}], "rows": [{"feature": "Primary Degradation Mechanism", "abstract_a": "Lithium plating on the anode surface, driven by high-rate charging (>2C).", "abstract_b": "Instability of the Solid-Electrolyte Interphase (SEI) layer, causing continuous dissolution and reformation."}, {"feature": "Key Experimental Techniques", "abstract_a": "Electrochemical Impedance Spectroscopy (EIS) and Scanning Electron Microscopy (SEM).", "abstract_b": "Atomic Force Microscopy (AFM) and X-ray Photoelectron Spectroscopy (XPS)."}, {"feature": "Proposed Mitigation Strategy", "abstract_a": "A multi-stage charging protocol to replace the standard Constant-Current Constant-Voltage (CCCV) method.", "abstract_b": "Using fluoroethylene carbonate (FEC) as an electrolyte additive to stabilize the SEI layer."}, {"feature": "Reported Improvement", "abstract_a": "30% extension in cycle life.", "abstract_b": "50% improvement in capacity retention over 500 cycles."}], "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Feature | Abstract A (NMC-Graphite) | Abstract B (Silicon-Graphite) |\n| :--- | :--- | :--- |\n| **Primary Degradation Mechanism** | Lithium plating on the anode surface, driven by high-rate charging (>2C). | Instability of the Solid-Electrolyte Interphase (SEI) layer, causing continuous dissolution and reformation. |\n| **Key Experimental Techniques** | Electrochemical Impedance Spectroscopy (EIS) and Scanning Electron Microscopy (SEM). | Atomic Force Microscopy (AFM) and X-ray Photoelectron Spectroscopy (XPS). |\n| **Proposed Mitigation Strategy** | A multi-stage charging protocol to replace the standard Constant-Current Constant-Voltage (CCCV) method. | Using fluoroethylene carbonate (FEC) as an electrolyte additive to stabilize the SEI layer. |\n| **Reported Improvement** | 30% extension in cycle life. | 50% improvement in capacity retention over 500 cycles. |"}, "children": []}, "synthesis_title": {"type": "Text", "props": {"text": "Synthesis: Complementary Research Perspectives", "variant": "h2"}, "children": []}, "synthesis_intro": {"type": "Text", "props": {"text": "The findings from these two abstracts are complementary, not contradictory. They address different, yet equally important, aspects of battery degradation that can occur in lithium-ion cells."}, "children": []}, "synthesis_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["synthesis_item1", "synthesis_item2", "synthesis_item3"]}, "synthesis_item1": {"type": "Text", "props": {"text": "• Different Focus: Abstract A targets a degradation mechanism (lithium plating) induced by a specific operational stress (high-rate charging). Abstract B focuses on an inherent material-level instability (SEI layer on a silicon-composite anode)."}, "children": []}, "synthesis_item2": {"type": "Text", "props": {"text": "• Different Systems: The studies investigate different anode materials (NMC-graphite vs. silicon-graphite composite), which are known to have different failure modes. Silicon anodes, for example, are particularly susceptible to SEI instability due to large volume changes during cycling."}, "children": []}, "synthesis_item3": {"type": "Text", "props": {"text": "• Independent Solutions: The proposed solutions are not mutually exclusive. An optimized battery system could potentially incorporate both a sophisticated charging protocol (from A) and advanced electrolyte additives (from B) to simultaneously combat multiple degradation pathways, leading to a more significant overall improvement in battery lifespan and performance."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

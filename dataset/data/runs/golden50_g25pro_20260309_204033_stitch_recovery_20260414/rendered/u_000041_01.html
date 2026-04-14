@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "intro", "subtitle", "card1", "card2", "card3", "card4", "quick_actions_title", "quick_actions_stack", "sources_title", "sources_stack"]}, "title": {"type": "Text", "props": {"text": "Your Next Podcast Recommendation", "variant": "h3"}, "children": []}, "intro": {"type": "Text", "props": {"text": "Based on your enjoyment of 'Hardcore History' for its deep narratives and 'Planet Money' for its accessible explanations, the ideal recommendation is a podcast that combines structured, in-depth storytelling with fascinating topics in science or technology. The following suggestions are highly produced, avoid unstructured conversation, and fit your preferred episode length."}, "children": []}, "subtitle": {"type": "Text", "props": {"text": "Top Recommendations for You", "variant": "h3"}, "children": []}, "card1": {"type": "Card", "props": {}, "children": ["card1_stack"]}, "card1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["card1_header", "card1_details", "card1_button"]}, "card1_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["card1_icon", "card1_title_stack"]}, "card1_icon": {"type": "Icon", "props": {"name": "../assets/r_000041_01_1_mic.svg"}, "children": []}, "card1_title_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["card1_title", "card1_desc"]}, "card1_title": {"type": "Text", "props": {"text": "Darknet Diaries", "variant": "label"}, "children": []}, "card1_desc": {"type": "Text", "props": {"text": "True stories from the dark side of the internet, focusing on hacking, data breaches, and cybercrime."}, "children": []}, "card1_details": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["card1_detail1", "card1_detail2", "card1_detail3"]}, "card1_detail1": {"type": "Text", "props": {"text": "Why it fits: Features a strong, single-narrator style reminiscent of 'Hardcore History', providing deep dives into complex technical stories."}, "children": []}, "card1_detail2": {"type": "Text", "props": {"text": "Structure: Each episode is a tightly edited, self-contained narrative."}, "children": []}, "card1_detail3": {"type": "Text", "props": {"text": "Length: Episodes typically run between 30 and 50 minutes."}, "children": []}, "card1_button": {"type": "Button", "props": {"label": "Visit Website"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://darknetdiaries.com/"}}}}, "card2": {"type": "Card", "props": {}, "children": ["card2_stack"]}, "card2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["card2_header", "card2_details", "card2_button"]}, "card2_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["card2_icon", "card2_title_stack"]}, "card2_icon": {"type": "Icon", "props": {"name": "../assets/r_000041_01_1_mic.svg"}, "children": []}, "card2_title_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["card2_title", "card2_desc"]}, "card2_title": {"type": "Text", "props": {"text": "99% Invisible", "variant": "label"}, "children": []}, "card2_desc": {"type": "Text", "props": {"text": "A podcast about the unnoticed architecture and design that shape our world."}, "children": []}, "card2_details": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["card2_detail1", "card2_detail2", "card2_detail3"]}, "card2_detail1": {"type": "Text", "props": {"text": "Why it fits: Excels at making a niche subject (design) incredibly compelling and accessible, much like 'Planet Money'."}, "children": []}, "card2_detail2": {"type": "Text", "props": {"text": "Structure: Highly polished and story-driven with a clear narrative arc."}, "children": []}, "card2_detail3": {"type": "Text", "props": {"text": "Length: Most episodes are in the 25-40 minute range."}, "children": []}, "card2_button": {"type": "Button", "props": {"label": "Visit Website"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://99pi.org/"}}}}, "card3": {"type": "Card", "props": {}, "children": ["card3_stack"]}, "card3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["card3_header", "card3_details", "card3_button"]}, "card3_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["card3_icon", "card3_title_stack"]}, "card3_icon": {"type": "Icon", "props": {"name": "../assets/r_000041_01_1_mic.svg"}, "children": []}, "card3_title_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["card3_title", "card3_desc"]}, "card3_title": {"type": "Text", "props": {"text": "Twenty Thousand Hertz", "variant": "label"}, "children": []}, "card3_desc": {"type": "Text", "props": {"text": "Reveals the stories behind the world's most recognizable and interesting sounds."}, "children": []}, "card3_details": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["card3_detail1", "card3_detail2", "card3_detail3"]}, "card3_detail1": {"type": "Text", "props": {"text": "Why it fits: Blends technology, science, and history into engaging, well-crafted narratives."}, "children": []}, "card3_detail2": {"type": "Text", "props": {"text": "Structure: Exceptionally high production value and focused storytelling."}, "children": []}, "card3_detail3": {"type": "Text", "props": {"text": "Length: Episodes are concise, usually between 20 and 30 minutes."}, "children": []}, "card3_button": {"type": "Button", "props": {"label": "Visit Website"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.20k.org/"}}}}, "card4": {"type": "Card", "props": {}, "children": ["card4_stack"]}, "card4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["card4_header", "card4_details", "card4_button"]}, "card4_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["card4_icon", "card4_title_stack"]}, "card4_icon": {"type": "Icon", "props": {"name": "../assets/r_000041_01_1_mic.svg"}, "children": []}, "card4_title_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["card4_title", "card4_desc"]}, "card4_title": {"type": "Text", "props": {"text": "Radiolab", "variant": "label"}, "children": []}, "card4_desc": {"type": "Text", "props": {"text": "Explores big questions in science, philosophy, and the human experience through sound-rich stories."}, "children": []}, "card4_details": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["card4_detail1", "card4_detail2", "card4_detail3"]}, "card4_detail1": {"type": "Text", "props": {"text": "Why it fits: A benchmark for narrative science journalism, known for making complex topics emotionally resonant."}, "children": []}, "card4_detail2": {"type": "Text", "props": {"text": "Structure: Masterfully produced with a unique, layered sound design, though some episodes can run longer than your preferred range."}, "children": []}, "card4_detail3": {"type": "Text", "props": {"text": "Length: Varies, but many episodes are around 30-50 minutes."}, "children": []}, "card4_button": {"type": "Button", "props": {"label": "Visit Website"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.wnycstudios.org/podcasts/radiolab"}}}}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "quick_actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["spotify_button", "apple_button"]}, "spotify_button": {"type": "Button", "props": {"label": "Find on Spotify"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/search"}}}}, "apple_button": {"type": "Button", "props": {"label": "Find on Apple Podcasts"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://podcasts.apple.com/us/genre/podcast/id26"}}}}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["source1", "source2", "source3", "source4"]}, "source1": {"type": "Text", "props": {"text": "Darknet Diaries Official Site: https://darknetdiaries.com/"}, "children": []}, "source2": {"type": "Text", "props": {"text": "99% Invisible Official Site: https://99pi.org/"}, "children": []}, "source3": {"type": "Text", "props": {"text": "Twenty Thousand Hertz Official Site: https://www.20k.org/"}, "children": []}, "source4": {"type": "Text", "props": {"text": "Radiolab Official Site: https://www.wnycstudios.org/podcasts/radiolab"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

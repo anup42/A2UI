@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "flight_card", "checklist_card", "actions_card", "sources_card"]}, "title": {"type": "Text", "props": {"text": "Itinerary Snapshot: NYC - London - Rome", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This plan outlines a multi-city flight itinerary for two adults traveling in Economy class from New York (JFK) to London (LHR), then to Rome (FCO), and returning to New York. The proposed flights align with a Star Alliance preference and include at least one checked bag per person. All prices and times are illustrative for planning purposes and should be verified at the time of booking."}, "children": []}, "flight_card": {"type": "Card", "props": {}, "children": ["flight_stack"]}, "flight_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["flight_title", "flight_intro_stack", "flight_table"]}, "flight_title": {"type": "Text", "props": {"text": "Star Alliance Flight Option", "variant": "h3"}, "children": []}, "flight_intro_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["flight_icon", "flight_intro_text"]}, "flight_icon": {"type": "Icon", "props": {"name": "../assets/r_000008_01_1_airplane.svg"}, "children": []}, "flight_intro_text": {"type": "Text", "props": {"text": "The following multi-city itinerary is based on Star Alliance carriers with layovers under 4 hours. The estimated total fare for two adults is approximately $3,850."}, "children": []}, "flight_table": {"type": "Table", "props": {"columns": [{"key": "airline", "label": "Airline"}, {"key": "departure", "label": "Departure"}, {"key": "arrival", "label": "Arrival"}, {"key": "duration", "label": "Duration"}, {"key": "stops", "label": "Stops"}, {"key": "leg", "label": "Leg"}], "rows": [{"airline": "United Airlines", "departure": "08:30 PM (JFK)", "arrival": "08:45 AM (LHR)", "duration": "7h 15m", "stops": "Non-stop", "leg": "NYC to London"}, {"airline": "Lufthansa", "departure": "10:05 AM (LHR)", "arrival": "03:20 PM (FCO)", "duration": "4h 15m", "stops": "1 stop (FRA)", "leg": "London to Rome"}, {"airline": "SWISS", "departure": "01:10 PM (FCO)", "arrival": "07:05 PM (JFK)", "duration": "11h 55m", "stops": "1 stop (ZRH)", "leg": "Rome to NYC"}], "domain": "flight", "preferredPresentation": "cards", "sourceFormat": "markdown", "sourceText": "| Airline | Departure | Arrival | Duration | Stops | Leg |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| United Airlines | 08:30 PM (JFK) | 08:45 AM (LHR) | 7h 15m | Non-stop | NYC to London |\n| Lufthansa | 10:05 AM (LHR) | 03:20 PM (FCO) | 4h 15m | 1 stop (FRA) | London to Rome |\n| SWISS | 01:10 PM (FCO) | 07:05 PM (JFK) | 11h 55m | 1 stop (ZRH) | Rome to NYC |"}, "children": []}, "checklist_card": {"type": "Card", "props": {}, "children": ["checklist_stack"]}, "checklist_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["checklist_title", "checklist_intro", "checklist_section1", "checklist_section2", "checklist_section3", "checklist_section4"]}, "checklist_title": {"type": "Text", "props": {"text": "Pre-Booking Verification Checklist", "variant": "h3"}, "children": []}, "checklist_intro": {"type": "Text", "props": {"text": "Before finalizing your purchase, carefully review the following items to ensure a smooth travel experience."}, "children": []}, "checklist_section1": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["checklist_section1_title", "checklist_section1_body"]}, "checklist_section1_title": {"type": "Text", "props": {"text": "1. Travel Documents & Entry Requirements", "variant": "label"}, "children": []}, "checklist_section1_body": {"type": "Text", "props": {"text": "• Passport Validity: Check that both travelers' passports are valid for at least six months beyond your return date (May 26, 2025).\n• Visa Requirements: As US citizens, you do not currently need a visa for short-term tourism in the UK or the Schengen Area (which includes Italy). However, verify the latest requirements for the European Travel Information and Authorisation System (ETIAS), which may be in effect.\n• Full Names: Ensure the names on the ticket booking match the names on the passports exactly, including middle names."}, "children": []}, "checklist_section2": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["checklist_section2_title", "checklist_section2_body"]}, "checklist_section2_title": {"type": "Text", "props": {"text": "2. Fare Rules, Baggage, and Seats", "variant": "label"}, "children": []}, "checklist_section2_body": {"type": "Text", "props": {"text": "• Baggage Allowance: Confirm the fare includes at least one checked bag per person for all flight legs. Check the weight and size limits for both checked and carry-on luggage.\n• Change & Cancellation Policy: Understand the fees and rules for changing or canceling your tickets. Economy fares can be restrictive.\n• Seat Selection: Check if you can select seats in advance and if there is a fee to do so. Some basic economy fares assign seats at check-in."}, "children": []}, "checklist_section3": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["checklist_section3_title", "checklist_section3_body"]}, "checklist_section3_title": {"type": "Text", "props": {"text": "3. Itinerary and Airline Details", "variant": "label"}, "children": []}, "checklist_section3_body": {"type": "Text", "props": {"text": "• Connection Times: Double-check that the layover times in Frankfurt (FRA) and Zurich (ZRH) are sufficient for you.\n• Terminal Information: Note the arrival and departure terminals for all airports, especially during connections.\n• Airline Alliance: Confirm that all flight segments are operated by Star Alliance partners to ensure mileage accrual if you are part of a frequent flyer program."}, "children": []}, "checklist_section4": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["checklist_section4_title", "checklist_section4_body"]}, "checklist_section4_title": {"type": "Text", "props": {"text": "4. Payment and Confirmation", "variant": "label"}, "children": []}, "checklist_section4_body": {"type": "Text", "props": {"text": "• Travel Protection: Consider purchasing with a credit card that offers travel insurance or trip cancellation benefits.\n• Final Price: Verify the total cost, including all taxes and carrier-imposed fees, before submitting payment.\n• Save Records: After booking, immediately save and print your e-ticket confirmations and receipts."}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_button_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_button_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["button_google", "button_star_alliance"]}, "button_google": {"type": "Button", "props": {"label": "Search on Google Flights"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/travel/flights/search?tfs=eJx9j81uwyAQhN9lcwVIlYqK2M5OOkB-YgN2W5qEwK5qG3XvXgS9nZnkzfw8_AIjHMA7D5N4aM2A2gQ1aD6kZ0xT7oEa6wN1kL1pWqFv1sE4tV8sYgK-A0dI7uI91gU-mK2F44sIe_z10c3wB_b69c-N9kYw-wQz29q4b1R_gX3c3a9f0O4bV9_hVd3e1V9R7Ue1Wc3gT-Z27qFj_L5v1V7A_Q2L19e79Y8L-P0B0G6wJ88Kx5vW_Q29yD8K3S_Q7z-8n3VqG29YqWpW69iA0n0K7y-R6R0uE4x_AQB4J9M"}}}}, "button_star_alliance": {"type": "Button", "props": {"label": "Explore Star Alliance"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.staralliance.com/en/home"}}}}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "source_1", "source_2", "source_3"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "source_1": {"type": "Button", "props": {"label": "US Department of State - International Travel", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://travel.state.gov/content/travel/en/international-travel.html"}}}}, "source_2": {"type": "Button", "props": {"label": "UK Government - Check if you need a UK visa", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.gov.uk/check-uk-visa"}}}}, "source_3": {"type": "Button", "props": {"label": "Italian Ministry of Foreign Affairs - Visa for Italy", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://vistoperitalia.esteri.it/home/en"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

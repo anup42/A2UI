@@ -99,6 +99,43 @@ Quick Actions:
         self.assertGreater(metrics.get("section_heading_coverage", 0.0), 0.0)
         self.assertGreaterEqual(metrics.get("action_coverage", 0.0), 1.0)
 
+    def test_direct_table_component_detection_for_flat_spec(self) -> None:
+        response_text = """
+Comparison Table
+Feature | Option A | Option B
+Battery | 5000 mAh | 4500 mAh
+Price | INR 20,000 | INR 24,000
+""".strip()
+        spec = {
+            "root": "root",
+            "state": {
+                "rows": [
+                    {"feature": "Battery", "a": "5000 mAh", "b": "4500 mAh"},
+                    {"feature": "Price", "a": "INR 20,000", "b": "INR 24,000"},
+                ]
+            },
+            "elements": {
+                "root": {"type": "Stack", "props": {"direction": "vertical"}, "children": ["table"]},
+                "table": {
+                    "type": "Table",
+                    "props": {
+                        "columns": [
+                            {"key": "feature", "label": "Feature"},
+                            {"key": "a", "label": "Option A"},
+                            {"key": "b", "label": "Option B"},
+                        ],
+                        "statePath": "/rows",
+                        "domain": "comparison",
+                    },
+                    "children": [],
+                },
+            },
+        }
+
+        metrics = compute_ui_metrics(response_text, spec)
+        self.assertGreaterEqual(metrics.get("table_pattern_detected", 0.0), 1.0)
+        self.assertGreater(metrics.get("table_cell_coverage", 0.0), 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

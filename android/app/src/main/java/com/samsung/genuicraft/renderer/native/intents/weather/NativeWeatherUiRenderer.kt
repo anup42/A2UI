@@ -74,7 +74,6 @@ internal object NativeWeatherUiRenderer {
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
             colors = CardDefaults.cardColors(containerColor = genUiTableContainerColor()),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
         ) {
             Column(
                 modifier = Modifier
@@ -87,7 +86,6 @@ internal object NativeWeatherUiRenderer {
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Primary),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                 ) {
                     Column(
                         modifier = Modifier
@@ -182,7 +180,6 @@ internal object NativeWeatherUiRenderer {
                         shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                         colors = genUiCardColors(GenUiCardTone.Neutral),
                         elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
                     ) {
                         Column(
                             modifier = Modifier

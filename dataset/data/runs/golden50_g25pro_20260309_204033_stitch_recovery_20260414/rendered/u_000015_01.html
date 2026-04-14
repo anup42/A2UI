@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "timeline_stack", "milestones_stack", "divider1", "phases_title", "phase1_card", "phase2_card", "phase3_card", "phase4_card", "phase5_card", "divider2", "actions_title", "actions_stack", "divider3", "sources_title", "sources_stack"]}, "title": {"type": "Text", "props": {"text": "Blog Launch Project Overview", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This plan outlines the key phases, tasks, and timeline for launching a new company blog. The project commences on August 1, 2024, with a target launch date of October 15, 2024. The primary goal is to establish a branded content platform and go live with five foundational articles to engage the target audience."}, "children": []}, "timeline_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm"}, "children": ["timeline_label", "timeline_value"]}, "timeline_label": {"type": "Text", "props": {"text": "Project Timeline:", "variant": "label"}, "children": []}, "timeline_value": {"type": "Text", "props": {"text": "August 1, 2024 - October 15, 2024"}, "children": []}, "milestones_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["milestones_label", "milestone1_text", "milestone2_text", "milestone3_text", "milestone4_text"]}, "milestones_label": {"type": "Text", "props": {"text": "Key Milestones:", "variant": "label"}, "children": []}, "milestone1_text": {"type": "Text", "props": {"text": "• M1: Content Strategy Finalized"}, "children": []}, "milestone2_text": {"type": "Text", "props": {"text": "• M2: Blog Design Approved"}, "children": []}, "milestone3_text": {"type": "Text", "props": {"text": "• M3: Technical Setup Complete"}, "children": []}, "milestone4_text": {"type": "Text", "props": {"text": "• M4: Launch with 5 Articles"}, "children": []}, "divider1": {"type": "Divider", "props": {}, "children": []}, "phases_title": {"type": "Text", "props": {"text": "Phase-by-Phase Execution Plan", "variant": "h2"}, "children": []}, "phase1_card": {"type": "Card", "props": {}, "children": ["phase1_stack"]}, "phase1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["phase1_header", "phase1_timeline", "phase1_item1", "phase1_item2", "phase1_item3", "phase1_item4", "phase1_milestone"]}, "phase1_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["phase1_icon", "phase1_title"]}, "phase1_icon": {"type": "Icon", "props": {"name": "../assets/r_000015_01_1_signpost-split.svg"}, "children": []}, "phase1_title": {"type": "Text", "props": {"text": "Phase 1: Strategy & Planning", "variant": "h3"}, "children": []}, "phase1_timeline": {"type": "Text", "props": {"text": "Timeline: August 1 - August 14 (2 weeks)", "variant": "caption"}, "children": []}, "phase1_item1": {"type": "Text", "props": {"text": "• Define blog objectives, KPIs, and target audience personas."}, "children": []}, "phase1_item2": {"type": "Text", "props": {"text": "• Conduct keyword research and identify core content pillars/topics."}, "children": []}, "phase1_item3": {"type": "Text", "props": {"text": "• Develop a content calendar for the first three months."}, "children": []}, "phase1_item4": {"type": "Text", "props": {"text": "• Outline the first 10 blog post ideas (including the 5 for launch)."}, "children": []}, "phase1_milestone": {"type": "Text", "props": {"text": "Milestone 1: Content Strategy Finalized by August 14.", "variant": "label"}, "children": []}, "phase2_card": {"type": "Card", "props": {}, "children": ["phase2_stack"]}, "phase2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["phase2_header", "phase2_timeline", "phase2_item1", "phase2_item2", "phase2_item3", "phase2_milestone"]}, "phase2_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["phase2_icon", "phase2_title"]}, "phase2_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_2_palette.svg"}, "children": []}, "phase2_title": {"type": "Text", "props": {"text": "Phase 2: Design & Branding", "variant": "h3"}, "children": []}, "phase2_timeline": {"type": "Text", "props": {"text": "Timeline: August 15 - August 28 (2 weeks)", "variant": "caption"}, "children": []}, "phase2_item1": {"type": "Text", "props": {"text": "• Create wireframes and mockups for the blog's layout (homepage, post page, category page)."}, "children": []}, "phase2_item2": {"type": "Text", "props": {"text": "• Develop or adapt brand guidelines for the blog (logo usage, color palette, typography)."}, "children": []}, "phase2_item3": {"type": "Text", "props": {"text": "• Design any necessary graphical assets, such as social media templates and blog post headers."}, "children": []}, "phase2_milestone": {"type": "Text", "props": {"text": "Milestone 2: Blog Design and Branding Approved by August 28.", "variant": "label"}, "children": []}, "phase3_card": {"type": "Card", "props": {}, "children": ["phase3_stack"]}, "phase3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["phase3_header", "phase3_timeline", "phase3_item1", "phase3_item2", "phase3_item3", "phase3_item4", "phase3_item5", "phase3_milestone"]}, "phase3_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["phase3_icon", "phase3_title"]}, "phase3_icon": {"type": "Icon", "props": {"name": "../assets/r_000015_01_3_gear.svg"}, "children": []}, "phase3_title": {"type": "Text", "props": {"text": "Phase 3: Development & Technical Setup", "variant": "h3"}, "children": []}, "phase3_timeline": {"type": "Text", "props": {"text": "Timeline: August 29 - September 25 (4 weeks)", "variant": "caption"}, "children": []}, "phase3_item1": {"type": "Text", "props": {"text": "• Select and set up web hosting and a domain."}, "children": []}, "phase3_item2": {"type": "Text", "props": {"text": "• Install and configure the Content Management System (CMS), e.g., WordPress."}, "children": []}, "phase3_item3": {"type": "Text", "props": {"text": "• Develop or customize the blog theme based on the approved design."}, "children": []}, "phase3_item4": {"type": "Text", "props": {"text": "• Install essential plugins for SEO, analytics, security, and performance."}, "children": []}, "phase3_item5": {"type": "Text", "props": {"text": "• Implement responsive design and test across major browsers and devices."}, "children": []}, "phase3_milestone": {"type": "Text", "props": {"text": "Milestone 3: Technical Setup and CMS Integration Complete by September 25.", "variant": "label"}, "children": []}, "phase4_card": {"type": "Card", "props": {}, "children": ["phase4_stack"]}, "phase4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["phase4_header", "phase4_timeline", "phase4_item1", "phase4_item2", "phase4_item3", "phase4_item4", "phase4_item5"]}, "phase4_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["phase4_icon", "phase4_title"]}, "phase4_icon": {"type": "Icon", "props": {"name": "../assets/r_000015_01_4_pencil-square.svg"}, "children": []}, "phase4_title": {"type": "Text", "props": {"text": "Phase 4: Content Creation", "variant": "h3"}, "children": []}, "phase4_timeline": {"type": "Text", "props": {"text": "Timeline: August 22 - October 9 (7 weeks, parallel to other phases)", "variant": "caption"}, "children": []}, "phase4_item1": {"type": "Text", "props": {"text": "• Assign and write the five initial launch articles."}, "children": []}, "phase4_item2": {"type": "Text", "props": {"text": "• Conduct editorial reviews for grammar, style, and accuracy."}, "children": []}, "phase4_item3": {"type": "Text", "props": {"text": "• Perform on-page SEO for each article (titles, meta descriptions, image alt-text)."}, "children": []}, "phase4_item4": {"type": "Text", "props": {"text": "• Source or create high-quality images and graphics for each post."}, "children": []}, "phase4_item5": {"type": "Text", "props": {"text": "• Upload and format the final articles in the CMS."}, "children": []}, "phase5_card": {"type": "Card", "props": {}, "children": ["phase5_stack"]}, "phase5_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["phase5_header", "phase5_timeline", "phase5_item1", "phase5_item2", "phase5_item3", "phase5_item4", "phase5_milestone"]}, "phase5_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["phase5_icon", "phase5_title"]}, "phase5_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_2_rocket-takeoff.svg"}, "children": []}, "phase5_title": {"type": "Text", "props": {"text": "Phase 5: Pre-Launch & Go-Live", "variant": "h3"}, "children": []}, "phase5_timeline": {"type": "Text", "props": {"text": "Timeline: October 10 - October 15 (1 week)", "variant": "caption"}, "children": []}, "phase5_item1": {"type": "Text", "props": {"text": "• Conduct final quality assurance (QA) testing to fix any bugs or broken links."}, "children": []}, "phase5_item2": {"type": "Text", "props": {"text": "• Set up analytics tracking (e.g., Google Analytics) and test."}, "children": []}, "phase5_item3": {"type": "Text", "props": {"text": "• Schedule the five articles to be published on launch day."}, "children": []}, "phase5_item4": {"type": "Text", "props": {"text": "• Prepare launch promotion materials (email announcement, social media posts)."}, "children": []}, "phase5_milestone": {"type": "Text", "props": {"text": "Milestone 4: Launch Blog on October 15 with promotional push.", "variant": "label"}, "children": []}, "divider2": {"type": "Divider", "props": {}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["trello_button", "asana_button"]}, "trello_button": {"type": "Button", "props": {"label": "Create Trello Board"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://trello.com/"}}}}, "asana_button": {"type": "Button", "props": {"label": "Start Asana Project"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://asana.com/"}}}}, "divider3": {"type": "Divider", "props": {}, "children": []}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "align": "start"}, "children": ["source1_button", "source2_button"]}, "source1_button": {"type": "Button", "props": {"label": "HubSpot Blog: A Guide to Content Marketing Strategy", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://blog.hubspot.com/marketing/content-marketing-strategy-guide"}}}}, "source2_button": {"type": "Button", "props": {"label": "Ahrefs Blog: How to Start a Blog and Make Money", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://ahrefs.com/blog/how-to-start-a-blog/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

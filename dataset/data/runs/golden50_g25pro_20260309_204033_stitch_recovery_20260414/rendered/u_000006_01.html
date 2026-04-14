@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["header_text", "intro_text", "comparison_header", "comparison_intro", "comparison_table", "recommendation_header", "recommendation_text", "models_header", "models_stack", "quick_actions_header", "quick_actions_stack", "sources_header", "sources_stack"]}, "header_text": {"type": "Text", "props": {"text": "Choosing Your Ideal Coffee Maker", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Finding the right coffee maker involves balancing brew speed, flavor richness, and cleanup effort. For a fast, strong single serving under $100, several excellent options fit your needs by prioritizing different aspects of the coffee-making experience."}, "children": []}, "comparison_header": {"type": "Text", "props": {"text": "Coffee Maker Comparison & Recommendation", "variant": "h3"}, "children": []}, "comparison_intro": {"type": "Text", "props": {"text": "Based on your criteria, the French Press is the strongest match for flavor, while pod machines offer unbeatable speed and simplicity. The table below outlines the key differences."}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "type", "label": "Type"}, {"key": "price", "label": "Price Range"}, {"key": "brew_time", "label": "Brew Time"}, {"key": "flavor", "label": "Flavor Profile"}, {"key": "cleanup", "label": "Cleanup Effort"}], "rows": [{"type": "French Press", "price": "$20 - $70", "brew_time": "~4 min", "flavor": "Strong & Rich", "cleanup": "Moderate"}, {"type": "Pod Machine", "price": "$70 - $200", "brew_time": "~1-2 min", "flavor": "Good", "cleanup": "Very Easy"}, {"type": "Drip Machine", "price": "$30 - $150", "brew_time": "~5-10 min", "flavor": "Moderate", "cleanup": "Easy"}], "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Type | Price Range | Brew Time | Flavor Profile | Cleanup Effort |\n| :--- | :--- | :--- | :--- | :--- |\n| **French Press** | $20 - $70 | **~4 min** | **Strong & Rich** | Moderate |\n| **Pod Machine** | $70 - $200 | **~1-2 min** | Good | **Very Easy** |\n| **Drip Machine** | $30 - $150 | ~5-10 min | Moderate | Easy |"}, "children": []}, "recommendation_header": {"type": "Text", "props": {"text": "Top Recommendation:", "variant": "h3"}, "children": []}, "recommendation_text": {"type": "Text", "props": {"text": "For your preference for a strong, rich flavor and a brew time under 5 minutes, the French Press is the ideal choice. It provides excellent flavor control and a full-bodied cup by steeping the grounds directly in water, preserving the coffee's natural oils. While cleanup requires scooping out used grounds, the superior taste is a significant payoff for coffee lovers."}, "children": []}, "models_header": {"type": "Text", "props": {"text": "Our Top-Rated Models", "variant": "h3"}, "children": []}, "models_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["bodum_card", "keurig_card", "hamilton_card"]}, "bodum_card": {"type": "Card", "props": {}, "children": ["bodum_card_stack"]}, "bodum_card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["bodum_header_stack", "bodum_desc", "bodum_button"]}, "bodum_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["bodum_icon", "bodum_title"]}, "bodum_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_1_award.svg"}, "children": []}, "bodum_title": {"type": "Text", "props": {"text": "Best for Flavor: Bodum Chambord French Press", "variant": "label"}, "children": []}, "bodum_desc": {"type": "Text", "props": {"text": "A timeless classic known for its durability and ability to produce a consistently rich, aromatic, and full-bodied brew. It puts you in complete control of the brewing process."}, "children": []}, "bodum_button": {"type": "Button", "props": {"label": "View on Bodum.com", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.bodum.com/us/en/1923-16us4-chambord"}}}}, "keurig_card": {"type": "Card", "props": {}, "children": ["keurig_card_stack"]}, "keurig_card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["keurig_header_stack", "keurig_desc", "keurig_button"]}, "keurig_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["keurig_icon", "keurig_title"]}, "keurig_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_2_rocket-takeoff.svg"}, "children": []}, "keurig_title": {"type": "Text", "props": {"text": "Fastest & Easiest: Keurig K-Mini Plus", "variant": "label"}, "children": []}, "keurig_desc": {"type": "Text", "props": {"text": "This slim, single-serve machine delivers a coffee in under two minutes with zero mess. It's the ultimate choice for speed and convenience, perfect for rushed mornings."}, "children": []}, "keurig_button": {"type": "Button", "props": {"label": "View on Keurig.com", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.keurig.com/coffee-makers/k-mini-plus-single-serve-coffee-maker/p/k-mini-plus-coffee-maker"}}}}, "hamilton_card": {"type": "Card", "props": {}, "children": ["hamilton_card_stack"]}, "hamilton_card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["hamilton_header_stack", "hamilton_desc", "hamilton_button"]}, "hamilton_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["hamilton_icon", "hamilton_title"]}, "hamilton_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_3_gear-wide-connected.svg"}, "children": []}, "hamilton_title": {"type": "Text", "props": {"text": "Best of Both Worlds: Hamilton Beach Scoop Single-Serve", "variant": "label"}, "children": []}, "hamilton_desc": {"type": "Text", "props": {"text": "This machine offers the speed of a single-serve brewer without the waste or expense of pods. It features a built-in mesh scoop filter, allowing you to use any coffee grounds you prefer."}, "children": []}, "hamilton_button": {"type": "Button", "props": {"label": "View on Amazon", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.amazon.com/Hamilton-Beach-Scoop-Single-Serve-Coffee-Maker-49981/dp/B008JC7156/"}}}}, "quick_actions_header": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "quick_actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["guides_button", "compare_button"]}, "guides_button": {"type": "Button", "props": {"label": "Explore Coffee Brewing Guides"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.seriouseats.com/coffee-brewing-guides"}}}}, "compare_button": {"type": "Button", "props": {"label": "Compare All Coffee Makers"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.rtings.com/coffee-maker"}}}}, "sources_header": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["source_1", "source_2"]}, "source_1": {"type": "Text", "props": {"text": "The New York Times Wirecutter: Best Coffee Maker Reviews: https://www.nytimes.com/wirecutter/reviews/the-best-coffee-maker/", "variant": "caption"}, "children": []}, "source_2": {"type": "Text", "props": {"text": "National Coffee Association: Brewing Fundamentals: https://www.ncausa.org/About-Coffee/How-to-Brew-Coffee", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "interact_title", "interact_text", "convergent_card", "divergent_card", "transform_card", "sources_stack"]}, "title": {"type": "Text", "props": {"text": "Earth's Cracked Shell", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Imagine the Earth is like a hard-boiled egg. If you tap it gently, the shell cracks into several large pieces. That's a lot like our planet! The Earth's outer layer, called the crust, isn't one solid piece. It's broken into giant, slow-moving slabs called tectonic plates. These plates float on a hotter, softer layer of rock beneath them, kind of like crackers floating on a thick soup. The whole theory of how these plates move and interact is called Plate Tectonics."}, "children": []}, "interact_title": {"type": "Text", "props": {"text": "How the Plates Interact", "variant": "h3"}, "children": []}, "interact_text": {"type": "Text", "props": {"text": "The most exciting action happens where these plates meet, at their boundaries. Earthquakes, volcanoes, and mountain ranges are all formed here. There are three main ways the plates interact."}, "children": []}, "convergent_card": {"type": "Card", "props": {}, "children": ["convergent_stack"]}, "convergent_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["convergent_header_stack", "convergent_desc", "convergent_list_stack"]}, "convergent_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["convergent_icon", "convergent_title"]}, "convergent_icon": {"type": "Icon", "props": {"name": "../assets/r_000038_01_2_arrows-collapse.svg"}, "children": []}, "convergent_title": {"type": "Text", "props": {"text": "1. Convergent Boundaries: The Collision", "variant": "h3"}, "children": []}, "convergent_desc": {"type": "Text", "props": {"text": "This is where two plates are crashing directly into each other. The immense pressure can cause the land to buckle and fold upwards, creating massive mountain ranges."}, "children": []}, "convergent_list_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["convergent_item1_stack", "convergent_item2_stack", "convergent_item3_stack"]}, "convergent_item1_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm"}, "children": ["convergent_item1_label", "convergent_item1_value"]}, "convergent_item1_label": {"type": "Text", "props": {"text": "What happens:", "variant": "label"}, "children": []}, "convergent_item1_value": {"type": "Text", "props": {"text": "Plates collide."}, "children": []}, "convergent_item2_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm"}, "children": ["convergent_item2_label", "convergent_item2_value"]}, "convergent_item2_label": {"type": "Text", "props": {"text": "Result:", "variant": "label"}, "children": []}, "convergent_item2_value": {"type": "Text", "props": {"text": "Mountains, earthquakes, and volcanoes."}, "children": []}, "convergent_item3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["convergent_item3_label", "convergent_item3_value"]}, "convergent_item3_label": {"type": "Text", "props": {"text": "Real-World Example:", "variant": "label"}, "children": []}, "convergent_item3_value": {"type": "Text", "props": {"text": "The Himalayas. The plate carrying India has been crashing into the plate carrying Asia for millions of years, pushing up the world's tallest mountains, including Mount Everest."}, "children": []}, "divergent_card": {"type": "Card", "props": {}, "children": ["divergent_stack"]}, "divergent_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["divergent_header_stack", "divergent_desc", "divergent_list_stack"]}, "divergent_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["divergent_icon", "divergent_title"]}, "divergent_icon": {"type": "Icon", "props": {"name": "../assets/r_000038_01_4_arrows-expand.svg"}, "children": []}, "divergent_title": {"type": "Text", "props": {"text": "2. Divergent Boundaries: The Separation", "variant": "h3"}, "children": []}, "divergent_desc": {"type": "Text", "props": {"text": "This is where two plates are pulling away from each other. As they separate, molten rock (magma) from below rises up to fill the gap, creating new crust."}, "children": []}, "divergent_list_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["divergent_item1_stack", "divergent_item2_stack", "divergent_item3_stack"]}, "divergent_item1_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm"}, "children": ["divergent_item1_label", "divergent_item1_value"]}, "divergent_item1_label": {"type": "Text", "props": {"text": "What happens:", "variant": "label"}, "children": []}, "divergent_item1_value": {"type": "Text", "props": {"text": "Plates pull apart."}, "children": []}, "divergent_item2_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm"}, "children": ["divergent_item2_label", "divergent_item2_value"]}, "divergent_item2_label": {"type": "Text", "props": {"text": "Result:", "variant": "label"}, "children": []}, "divergent_item2_value": {"type": "Text", "props": {"text": "New crust is formed, often creating underwater mountain ranges and rift valleys."}, "children": []}, "divergent_item3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["divergent_item3_label", "divergent_item3_value"]}, "divergent_item3_label": {"type": "Text", "props": {"text": "Real-World Example:", "variant": "label"}, "children": []}, "divergent_item3_value": {"type": "Text", "props": {"text": "The Mid-Atlantic Ridge. This is a massive underwater mountain chain in the Atlantic Ocean where the North American and Eurasian plates are separating. Iceland is a part of this ridge that rises above the water."}, "children": []}, "transform_card": {"type": "Card", "props": {}, "children": ["transform_stack"]}, "transform_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["transform_header_stack", "transform_desc", "transform_list_stack"]}, "transform_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["transform_icon", "transform_title"]}, "transform_icon": {"type": "Icon", "props": {"name": "../assets/r_000038_01_6_arrow-left-right.svg"}, "children": []}, "transform_title": {"type": "Text", "props": {"text": "3. Transform Boundaries: The Side-Swipe", "variant": "h3"}, "children": []}, "transform_desc": {"type": "Text", "props": {"text": "This is where two plates are sliding horizontally past one another. They don't crash or pull apart, but the friction of them grinding against each other can be huge."}, "children": []}, "transform_list_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["transform_item1_stack", "transform_item2_stack", "transform_item3_stack"]}, "transform_item1_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm"}, "children": ["transform_item1_label", "transform_item1_value"]}, "transform_item1_label": {"type": "Text", "props": {"text": "What happens:", "variant": "label"}, "children": []}, "transform_item1_value": {"type": "Text", "props": {"text": "Plates slide past each other."}, "children": []}, "transform_item2_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm"}, "children": ["transform_item2_label", "transform_item2_value"]}, "transform_item2_label": {"type": "Text", "props": {"text": "Result:", "variant": "label"}, "children": []}, "transform_item2_value": {"type": "Text", "props": {"text": "No new land is formed or destroyed, but the built-up stress is often released as powerful earthquakes."}, "children": []}, "transform_item3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["transform_item3_label", "transform_item3_value"]}, "transform_item3_label": {"type": "Text", "props": {"text": "Real-World Example:", "variant": "label"}, "children": []}, "transform_item3_value": {"type": "Text", "props": {"text": "The San Andreas Fault in California. The Pacific Plate is sliding northwest past the North American Plate, causing frequent earthquakes in the region."}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "sources_links_stack"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "sources_links_stack": {"type": "Stack", "props": {"direction": "vertical", "align": "start"}, "children": ["source_button_1", "source_button_2", "source_button_3"]}, "source_button_1": {"type": "Button", "props": {"label": "National Geographic - Plate Tectonics", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nationalgeographic.org/encyclopedia/plate-tectonics/"}}}}, "source_button_2": {"type": "Button", "props": {"label": "NASA Space Place - Tectonic Plates", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://spaceplace.nasa.gov/plate-tectonics/en/"}}}}, "source_button_3": {"type": "Button", "props": {"label": "USGS - Understanding Plate Motions", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://pubs.usgs.gov/gip/dynamic/understanding.html"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

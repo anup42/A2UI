@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": "lg"}, "children": ["header_stack", "planning_stack", "itinerary_stack", "actions_stack", "sources_stack"]}, "header_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["main_title", "intro_text"]}, "main_title": {"type": "Text", "props": {"text": "Kyoto Family Adventure: November 5-9, 2024", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This itinerary balances Kyoto's rich cultural heritage with engaging activities for children, ensuring a memorable trip for the whole family. Days are organized by neighborhood to minimize travel time, allowing for a relaxed pace. November is a beautiful time to visit, with pleasant weather and the beginning of autumn foliage."}, "children": []}, "planning_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["planning_title", "planning_text"]}, "planning_title": {"type": "Text", "props": {"text": "Trip Planning Context", "variant": "h3"}, "children": []}, "planning_text": {"type": "Text", "props": {"text": "This plan assumes your family will utilize Kyoto's efficient public transportation system (buses and subways). A one-day bus pass (around ¥700 for adults) can be a cost-effective option for days with multiple bus trips. All attraction fees are approximate per person and subject to change."}, "children": []}, "itinerary_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["itinerary_title", "day1_card", "day2_card", "day3_card", "day4_card", "day5_card"]}, "itinerary_title": {"type": "Text", "props": {"text": "Daily Itinerary: Culture, Fun, and Food", "variant": "h3"}, "children": []}, "day1_card": {"type": "Card", "props": {}, "children": ["day1_stack"]}, "day1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day1_image", "day1_title_stack", "day1_morning_text", "day1_afternoon_text", "day1_dinner_text"]}, "day1_image": {"type": "Image", "props": {"url": "../assets/r_000034_01_1_pexels-photo-1684226.jpeg", "fit": "cover"}, "children": []}, "day1_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["day1_icon", "day1_title"]}, "day1_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_2_building.svg"}, "children": []}, "day1_title": {"type": "Text", "props": {"text": "Day 1 (Nov 5): Eastern Kyoto's Temples & Geisha District", "variant": "h3"}, "children": []}, "day1_morning_text": {"type": "Text", "props": {"text": "Morning: Visit the magnificent Kiyomizu-dera Temple, perched on a hillside with panoramic views of the city. The walk up through the historic Higashiyama District is part of the experience. (Fee: ~¥400)"}, "children": []}, "day1_afternoon_text": {"type": "Text", "props": {"text": "Afternoon: Explore the charming, preserved streets of Sannenzaka and Ninenzaka. These pedestrian-only lanes are filled with traditional shops and teahouses, perfect for finding souvenirs and snacks."}, "children": []}, "day1_dinner_text": {"type": "Text", "props": {"text": "Dinner: Enjoy a casual meal in the nearby Gion district. Find a restaurant serving Okonomiyaki (savory pancakes) or Yakitori (grilled skewers), which are fun and interactive dining experiences for kids."}, "children": []}, "day2_card": {"type": "Card", "props": {}, "children": ["day2_stack"]}, "day2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day2_image", "day2_title_stack", "day2_morning_text", "day2_afternoon_text", "day2_dinner_text"]}, "day2_image": {"type": "Image", "props": {"url": "../assets/r_000034_01_3_pexels-photo-235648.jpeg", "fit": "cover"}, "children": []}, "day2_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["day2_icon", "day2_title"]}, "day2_icon": {"type": "Icon", "props": {"name": "../assets/r_000017_01_2_star.svg"}, "children": []}, "day2_title": {"type": "Text", "props": {"text": "Day 2 (Nov 6): Golden Pavilions & Ninja Thrills", "variant": "h3"}, "children": []}, "day2_morning_text": {"type": "Text", "props": {"text": "Morning: Marvel at the stunning Kinkaku-ji (Golden Pavilion). The top two floors of this Zen Buddhist temple are completely covered in gold leaf, creating a breathtaking reflection in the surrounding pond. (Fee: ~¥500)"}, "children": []}, "day2_afternoon_text": {"type": "Text", "props": {"text": "Afternoon: Immerse yourselves in the world of Japanese cinema at Toei Kyoto Studio Park (Eigamura). This active film set features ninja shows, a samurai maze, and opportunities to dress up in period costumes. (Fee: Adults ~¥2,400, Children ~¥1,200-¥1,400)"}, "children": []}, "day2_dinner_text": {"type": "Text", "props": {"text": "Dinner: Head to a local ramen shop for a comforting and delicious meal. The rich broth and customizable toppings make it a crowd-pleaser for all ages."}, "children": []}, "day3_card": {"type": "Card", "props": {}, "children": ["day3_stack"]}, "day3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day3_image", "day3_title_stack", "day3_morning_text", "day3_afternoon_text", "day3_dinner_text"]}, "day3_image": {"type": "Image", "props": {"url": "../assets/r_000034_01_5_pexels-photo-2112727.jpeg", "fit": "cover"}, "children": []}, "day3_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["day3_icon", "day3_title"]}, "day3_icon": {"type": "Icon", "props": {"name": "../assets/r_000015_01_1_signpost-split.svg"}, "children": []}, "day3_title": {"type": "Text", "props": {"text": "Day 3 (Nov 7): Southern Kyoto's Torii Gates & Locomotives", "variant": "h3"}, "children": []}, "day3_morning_text": {"type": "Text", "props": {"text": "Morning: Hike through the thousands of iconic red gates at Fushimi Inari Shrine. This vast shrine complex is dedicated to the god of rice and is free to enter. The winding paths are an adventure for kids to explore."}, "children": []}, "day3_afternoon_text": {"type": "Text", "props": {"text": "Afternoon: Discover Japan's railway history at the Kyoto Railway Museum. With over 50 retired trains, interactive exhibits, and a real steam locomotive ride, it's a fantastic and educational experience for the family. (Fee: Adults ~¥1,500, Children ~¥500)"}, "children": []}, "day3_dinner_text": {"type": "Text", "props": {"text": "Dinner: The area around Kyoto Station offers a vast array of dining options. Visit \"Kyoto Ramen Koji\" on the 10th floor of the station building for a choice of eight different regional ramen styles."}, "children": []}, "day4_card": {"type": "Card", "props": {}, "children": ["day4_stack"]}, "day4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day4_title_stack", "day4_morning_text", "day4_afternoon_text", "day4_dinner_text"]}, "day4_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["day4_icon", "day4_title"]}, "day4_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_6_tree.svg"}, "children": []}, "day4_title": {"type": "Text", "props": {"text": "Day 4 (Nov 8): Arashiyama's Bamboo Forest & Monkeys", "variant": "h3"}, "children": []}, "day4_morning_text": {"type": "Text", "props": {"text": "Morning: Walk through the ethereal Arashiyama Bamboo Grove. Arrive early to experience the magical light and towering bamboo stalks with fewer crowds. Afterwards, stroll across the scenic Togetsukyo Bridge."}, "children": []}, "day4_afternoon_text": {"type": "Text", "props": {"text": "Afternoon: Take a short, scenic hike up to the Arashiyama Monkey Park Iwatayama. At the top, you can safely observe and feed over 100 Japanese macaques (snow monkeys) while enjoying spectacular views of Kyoto. (Fee: ~¥600)"}, "children": []}, "day4_dinner_text": {"type": "Text", "props": {"text": "Dinner: Enjoy a meal in Arashiyama, known for its restaurants serving Yudofu (simmered tofu in hot broth), a delicate local specialty. Many restaurants also offer kid-friendly tempura and udon noodle sets."}, "children": []}, "day5_card": {"type": "Card", "props": {}, "children": ["day5_stack"]}, "day5_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day5_title_stack", "day5_morning_text", "day5_afternoon_text", "day5_dinner_text"]}, "day5_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["day5_icon", "day5_title"]}, "day5_icon": {"type": "Icon", "props": {"name": "../assets/r_000034_01_10_shop.svg"}, "children": []}, "day5_title": {"type": "Text", "props": {"text": "Day 5 (Nov 9): Central Kyoto's Market & Shogun Castle", "variant": "h3"}, "children": []}, "day5_morning_text": {"type": "Text", "props": {"text": "Morning: Explore Nishiki Market, known as \"Kyoto's Kitchen.\" This lively, covered market street is packed with stalls selling fresh seafood, local produce, and countless unique snacks like tako tamago (octopus with a quail egg)."}, "children": []}, "day5_afternoon_text": {"type": "Text", "props": {"text": "Afternoon: Visit Nijo Castle, the former residence of the Tokugawa shoguns. The main attraction for kids will be the \"nightingale floors\" in Ninomaru Palace, which were designed to chirp when walked upon to alert guards of intruders. (Fee: ~¥1,300)"}, "children": []}, "day5_dinner_text": {"type": "Text", "props": {"text": "Dinner: For your farewell dinner, explore Pontocho Alley, a narrow, atmospheric lane running parallel to the Kamo River. You'll find a wide variety of restaurants, including many that serve Tonkatsu (deep-fried pork cutlet)."}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_button_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_button_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["action_button_1", "action_button_2"]}, "action_button_1": {"type": "Button", "props": {"label": "Kyoto Travel Guide"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://kyoto.travel/en/"}}}}, "action_button_2": {"type": "Button", "props": {"label": "Japan Public Transit Info"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.japan-guide.com/e/e2032.html"}}}}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sources_title", "source_1", "source_2", "source_3"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "source_1": {"type": "Text", "props": {"text": "Japan National Tourism Organization (JNTO): https://www.japan.travel/en/"}, "children": []}, "source_2": {"type": "Text", "props": {"text": "Inside Kyoto - Itinerary Ideas: https://www.insidekyoto.com/kyoto-itineraries"}, "children": []}, "source_3": {"type": "Text", "props": {"text": "Toei Kyoto Studio Park Official Site: https://www.toei-eigamura.com/en/"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

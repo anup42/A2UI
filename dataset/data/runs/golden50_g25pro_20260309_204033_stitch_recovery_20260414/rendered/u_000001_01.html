@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title_text", "intro_text", "comparison_section", "recommendation_section", "booking_section", "sources_section"]}, "title_text": {"type": "Text", "props": {"text": "Rome Family Trip: November 11-15, 2024", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This plan outlines a comparison of key historical sites for your family's trip, keeping your children's ages (10 and 14), interests, and budget in mind. All costs are estimated for two adults, as children under 18 often receive free or reduced admission, but may still require a reserved ticket."}, "children": []}, "comparison_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["comparison_title", "comparison_intro", "sites_table"]}, "comparison_title": {"type": "Text", "props": {"text": "Comparing Rome's Ancient Wonders", "variant": "h2"}, "children": []}, "comparison_intro": {"type": "Text", "props": {"text": "This table compares three of Rome's most significant historical sites to help you plan your activities."}, "children": []}, "sites_table": {"type": "Table", "props": {"columns": [{"key": "site_name", "label": "Site Name"}, {"key": "duration", "label": "Estimated Visit Duration"}, {"key": "suitability", "label": "Suitability for Kids (10 & 14)"}, {"key": "cost", "label": "Family Ticket Cost (€)"}], "rows": [{"site_name": "Colosseum", "duration": "2-3 hours", "suitability": "High: The history of gladiators and its immense scale are captivating for all ages.", "cost": "~€44 (2 adults @ €18 + ~€4 booking fee each)"}, {"site_name": "Pantheon", "duration": "30-60 minutes", "suitability": "Moderate: Architecturally stunning, especially the oculus, but a quicker visit.", "cost": "~€10 (2 adults @ €5 each)"}, {"site_name": "Roman Forum", "duration": "2-4 hours", "suitability": "Moderate-High: Requires more imagination. Best with a guide or app to bring the ruins to life.", "cost": "Included with Colosseum ticket"}], "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Site Name | Estimated Visit Duration | Suitability for Kids (10 & 14) | Family Ticket Cost (€) |\n| :--- | :--- | :--- | :--- |\n| **Colosseum** | 2-3 hours | **High:** The history of gladiators and its immense scale are captivating for all ages. | ~€44 (2 adults @ €18 + ~€4 booking fee each) |\n| **Pantheon** | 30-60 minutes | **Moderate:** Architecturally stunning, especially the oculus, but a quicker visit. | ~€10 (2 adults @ €5 each) |\n| **Roman Forum** | 2-4 hours | **Moderate-High:** Requires more imagination. Best with a guide or app to bring the ruins to life. | Included with Colosseum ticket |"}, "children": []}, "recommendation_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["recommendation_title", "recommendation_card"]}, "recommendation_title": {"type": "Text", "props": {"text": "Recommendation for Your First Full Day (Nov 12th)", "variant": "h2"}, "children": []}, "recommendation_card": {"type": "Card", "props": {}, "children": ["card_stack"]}, "card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["recommendation_image", "card_content_stack"]}, "recommendation_image": {"type": "Image", "props": {"url": "../assets/r_000001_01_1_1200px-Colosseo_2020.jpg", "fit": "cover"}, "children": []}, "card_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["recommendation_intro_stack", "recommendation_details"]}, "recommendation_intro_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["recommendation_icon", "recommendation_intro_text"]}, "recommendation_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_2_building.svg"}, "children": []}, "recommendation_intro_text": {"type": "Text", "props": {"text": "For your first full day, the Colosseum is the best choice to kick off your Roman adventure."}, "children": []}, "recommendation_details": {"type": "Text", "props": {"text": "Its epic scale and fascinating stories provide an immediate \"wow\" factor that will engage both children and adults. Since the ticket also includes the Roman Forum and Palatine Hill, you can dedicate the entire day to exploring this concentrated area of ancient history. Start at the Colosseum in the morning to beat the biggest crowds and use the afternoon to wander through the adjacent Roman Forum at a more leisurely pace. This approach is efficient and makes for an unforgettable introduction to the city's past."}, "children": []}, "booking_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["booking_title", "booking_intro", "button_stack"]}, "booking_title": {"type": "Text", "props": {"text": "Booking & Planning Resources", "variant": "h2"}, "children": []}, "booking_intro": {"type": "Text", "props": {"text": "It is highly recommended to book tickets online in advance to avoid long queues, especially for the Colosseum."}, "children": []}, "button_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["button_colosseum", "button_pantheon", "button_tours"]}, "button_colosseum": {"type": "Button", "props": {"label": "Book Colosseum Tickets"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.coopculture.it/en/products/ticket-colosseum-roman-forum-palatine_24h/"}}}}, "button_pantheon": {"type": "Button", "props": {"label": "Book Pantheon Tickets"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.pantheonroma.com/reservations/"}}}}, "button_tours": {"type": "Button", "props": {"label": "Explore Family Tours"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.getyourguide.com/rome-l33/family-friendly-tc6/"}}}}, "sources_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sources_title", "sources_text"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_text": {"type": "Text", "props": {"text": "• Official Colosseum Ticketing Partner: https://www.coopculture.it\n• Pantheon Official Website: https://www.pantheonroma.com/home/\n• Italian Ministry of Culture (Pantheon): https://www.direzionemusei.lazio.beniculturali.it/pantheon/", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

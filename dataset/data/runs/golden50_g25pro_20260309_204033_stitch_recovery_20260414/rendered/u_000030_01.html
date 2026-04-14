@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header_stack", "intro_text", "comparison_title", "comparison_intro", "comparison_table", "profiles_title", "profiles_stack", "actions_title", "actions_stack", "sources_title", "sources_stack"]}, "header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["header_icon", "header_title"]}, "header_icon": {"type": "Icon", "props": {"name": "../assets/r_000015_01_1_signpost-split.svg"}, "children": []}, "header_title": {"type": "Text", "props": {"text": "Value vs. Growth: A Core Investing Philosophy Showdown", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Value and Growth investing represent two of the most fundamental and widely followed strategies for selecting stocks. While both aim to generate returns, they do so through opposing philosophies: Value investing seeks to buy stocks for less than their current worth, while Growth investing focuses on companies with the potential for rapid future expansion, often regardless of their current price."}, "children": []}, "comparison_title": {"type": "Text", "props": {"text": "Investment Strategy Comparison", "variant": "h2"}, "children": []}, "comparison_intro": {"type": "Text", "props": {"text": "This table provides a direct comparison of the key characteristics that define Value and Growth investing approaches."}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "strategy", "label": "Strategy"}, {"key": "core_principle", "label": "Core Principle"}, {"key": "risk_reward_profile", "label": "Risk & Reward Profile"}, {"key": "time_horizon", "label": "Time Horizon"}, {"key": "key_metrics", "label": "Key Metrics"}, {"key": "company_archetype", "label": "Company Archetype"}], "rows": [{"strategy": "Value Investing", "core_principle": "Buy stocks for less than their intrinsic value, seeking a \"margin of safety.\"", "risk_reward_profile": "Lower risk, moderate returns. Less volatile, aims to protect principal.", "time_horizon": "Long-term (5-10+ years)", "key_metrics": "Low P/E Ratio, Low P/B Ratio, High Dividend Yield", "company_archetype": "Established, profitable companies in mature industries, often temporarily undervalued."}, {"strategy": "Growth Investing", "core_principle": "Invest in companies poised for above-average earnings and revenue growth.", "risk_reward_profile": "Higher risk, higher potential returns. More volatile, with risk of overpaying.", "time_horizon": "Medium to Long-term", "key_metrics": "High Revenue Growth, High EPS Growth, Expanding Market Share", "company_archetype": "Innovative companies in expanding sectors like tech or biotech, often not yet profitable."}], "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Strategy | Core Principle | Risk & Reward Profile | Time Horizon | Key Metrics | Company Archetype |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| **Value Investing** | Buy stocks for less than their intrinsic value, seeking a \"margin of safety.\" | Lower risk, moderate returns. Less volatile, aims to protect principal. | Long-term (5-10+ years) | Low P/E Ratio, Low P/B Ratio, High Dividend Yield | Established, profitable companies in mature industries, often temporarily undervalued. |\n| **Growth Investing** | Invest in companies poised for above-average earnings and revenue growth. | Higher risk, higher potential returns. More volatile, with risk of overpaying. | Medium to Long-term | High Revenue Growth, High EPS Growth, Expanding Market Share | Innovative companies in expanding sectors like tech or biotech, often not yet profitable. |"}, "children": []}, "profiles_title": {"type": "Text", "props": {"text": "Strategy Profiles", "variant": "h2"}, "children": []}, "profiles_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["value_card", "growth_card"]}, "value_card": {"type": "Card", "props": {"flex": 1}, "children": ["value_stack"]}, "value_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["value_header_stack", "value_bullet_1", "value_bullet_2", "value_bullet_3"]}, "value_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["value_icon", "value_title"]}, "value_icon": {"type": "Icon", "props": {"name": "../assets/r_000030_01_3_gem.svg"}, "children": []}, "value_title": {"type": "Text", "props": {"text": "Value Investing", "variant": "h3"}, "children": []}, "value_bullet_1": {"type": "Text", "props": {"text": "• The Goal: Find hidden gems—solid companies trading at a discount."}, "children": []}, "value_bullet_2": {"type": "Text", "props": {"text": "• The Mindset: You are buying a piece of a business, not just a stock ticker. The focus is on what the company is worth today."}, "children": []}, "value_bullet_3": {"type": "Text", "props": {"text": "• The Archetype: A large, stable bank or consumer goods company that has seen its stock price fall due to a temporary setback or market overreaction."}, "children": []}, "growth_card": {"type": "Card", "props": {"flex": 1}, "children": ["growth_stack"]}, "growth_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["growth_header_stack", "growth_bullet_1", "growth_bullet_2", "growth_bullet_3"]}, "growth_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["growth_icon", "growth_title"]}, "growth_icon": {"type": "Icon", "props": {"name": "../assets/r_000030_01_4_graph-up-arrow.svg"}, "children": []}, "growth_title": {"type": "Text", "props": {"text": "Growth Investing", "variant": "h3"}, "children": []}, "growth_bullet_1": {"type": "Text", "props": {"text": "• The Goal: Identify companies that will dominate the future."}, "children": []}, "growth_bullet_2": {"type": "Text", "props": {"text": "• The Mindset: You are investing in future potential and innovation. The focus is on what the company could become tomorrow."}, "children": []}, "growth_bullet_3": {"type": "Text", "props": {"text": "• The Archetype: A software-as-a-service (SaaS) company or a biotech firm with a promising new drug, reinvesting all its profits back into expansion."}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["button_buffett", "button_growth"]}, "button_buffett": {"type": "Button", "props": {"label": "Learn from Warren Buffett"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.berkshirehathaway.com/letters/letters.html"}}}}, "button_growth": {"type": "Button", "props": {"label": "Read about Growth Stocks"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.investopedia.com/terms/g/growthstock.asp"}}}}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["source_1", "source_2"]}, "source_1": {"type": "Text", "props": {"text": "• Value Investing Overview: https://www.investopedia.com/terms/v/valueinvesting.asp"}, "children": []}, "source_2": {"type": "Text", "props": {"text": "• Growth Investing Overview: https://www.forbes.com/advisor/investing/growth-investing/"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

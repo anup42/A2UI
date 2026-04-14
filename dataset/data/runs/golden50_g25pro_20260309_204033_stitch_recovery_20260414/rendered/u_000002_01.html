@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["header", "intro_text", "sales_section", "insights_section"]}, "header": {"type": "Text", "props": {"text": "Quarterly Drink Sales Performance", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This summary analyzes the coffee shop's drink sales, comparing performance between Q1 and Q2. The data indicates a significant seasonal shift in customer preference from hot to cold beverages."}, "children": []}, "sales_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sales_header", "sales_table"]}, "sales_header": {"type": "Text", "props": {"text": "Sales Performance by Drink", "variant": "h3"}, "children": []}, "sales_table": {"type": "Table", "props": {"columns": [{"key": "drink", "label": "Drink"}, {"key": "category", "label": "Category"}, {"key": "q1_sales", "label": "Q1 Sales"}, {"key": "q2_sales", "label": "Q2 Sales"}, {"key": "qq_change", "label": "Q/Q Change"}], "rows": [{"drink": "Cold Brew", "category": "Cold", "q1_sales": 900, "q2_sales": 1850, "qq_change": "+105.6%"}, {"drink": "Iced Latte", "category": "Cold", "q1_sales": 850, "q2_sales": 1500, "qq_change": "+76.5%"}, {"drink": "Espresso", "category": "Hot", "q1_sales": 1200, "q2_sales": 1150, "qq_change": "-4.2%"}, {"drink": "Cappuccino", "category": "Hot", "q1_sales": 1100, "q2_sales": 1000, "qq_change": "-9.1%"}, {"drink": "Hot Chocolate", "category": "Hot", "q1_sales": 700, "q2_sales": 350, "qq_change": "-50.0%"}], "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Drink | Category | Q1 Sales | Q2 Sales | Q/Q Change |\n| :--- | :--- | :--- | :--- | :--- |\n| Cold Brew | Cold | 900 | 1,850 | +105.6% |\n| Iced Latte | Cold | 850 | 1,500 | +76.5% |\n| Espresso | Hot | 1,200 | 1,150 | -4.2% |\n| Cappuccino | Hot | 1,100 | 1,000 | -9.1% |\n| Hot Chocolate | Hot | 700 | 350 | -50.0% |"}, "children": []}, "insights_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["insights_header", "insights_list"]}, "insights_header": {"type": "Text", "props": {"text": "Key Performance Insights", "variant": "h3"}, "children": []}, "insights_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["insight_1", "insight_2", "insight_3"]}, "insight_1": {"type": "Text", "props": {"text": "• Top Performer (Q2): Cold Brew was the best-selling drink in the second quarter, with 1,850 units sold."}, "children": []}, "insight_2": {"type": "Text", "props": {"text": "• Highest Growth: Cold Brew also experienced the most significant growth, with sales more than doubling (+105.6%) compared to Q1."}, "children": []}, "insight_3": {"type": "Text", "props": {"text": "• Category Trend: A clear trend emerged showing a strong shift towards cold drinks. Combined sales for Cold Brew and Iced Latte grew from 1,750 units in Q1 to 3,350 in Q2. Conversely, sales for all hot drinks declined, falling from a combined 3,000 units to 2,500."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

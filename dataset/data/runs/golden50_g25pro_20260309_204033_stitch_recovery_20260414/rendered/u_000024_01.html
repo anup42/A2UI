@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "serenity_stack", "features_stack", "actions_title", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Aura Band: Master Your Inner Balance", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Navigate the demands of your day with quiet confidence and newfound clarity. The Aura Band is a sophisticated wellness companion designed for the modern professional, using science-backed technology to help you understand and manage your body's response to stress. It seamlessly integrates into your life, empowering you to cultivate a state of calm."}, "children": []}, "serenity_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["serenity_icon", "serenity_text_stack"]}, "serenity_icon": {"type": "Icon", "props": {"name": "../assets/r_000024_01_1_yin-yang.svg"}, "children": []}, "serenity_text_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["serenity_title", "serenity_description"]}, "serenity_title": {"type": "Text", "props": {"text": "Science-Backed Serenity", "variant": "h2"}, "children": []}, "serenity_description": {"type": "Text", "props": {"text": "The Aura Band provides proactive stress management through a suite of advanced features, translating complex biometrics into simple, actionable insights."}, "children": []}, "features_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["feature_1_stack", "feature_2_stack", "feature_3_stack"]}, "feature_1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["feature_1_title", "feature_1_text"]}, "feature_1_title": {"type": "Text", "props": {"text": "Intuitive Stress Display", "variant": "label"}, "children": []}, "feature_1_text": {"type": "Text", "props": {"text": "An elegant, color-changing LED provides an at-a-glance understanding of your physiological state. A calm blue indicates rest, amber signifies moderate stress, and red alerts you to elevated levels, helping you build awareness."}, "children": []}, "feature_2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["feature_2_title", "feature_2_text"]}, "feature_2_title": {"type": "Text", "props": {"text": "Discreet Haptic Guidance", "variant": "label"}, "children": []}, "feature_2_text": {"type": "Text", "props": {"text": "When it detects rising stress via heart rate variability and electrodermal activity, the band delivers silent, gentle vibrations. These nudges prompt you to recenter with deep breathing exercises, helping you restore equilibrium before stress takes hold."}, "children": []}, "feature_3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["feature_3_title", "feature_3_text"]}, "feature_3_title": {"type": "Text", "props": {"text": "Personalized Wellness App", "variant": "label"}, "children": []}, "feature_3_text": {"type": "Text", "props": {"text": "Sync with our companion app to unlock your full potential. Review personalized weekly wellness reports to track patterns and access a curated library of guided meditation sessions to support your long-term journey to a more centered you."}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["preorder_button", "explore_button"]}, "preorder_button": {"type": "Button", "props": {"label": "Pre-Order Aura Band"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://example.com/aura-band/pre-order"}}}}, "explore_button": {"type": "Button", "props": {"label": "Explore Features"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://example.com/aura-band/features"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

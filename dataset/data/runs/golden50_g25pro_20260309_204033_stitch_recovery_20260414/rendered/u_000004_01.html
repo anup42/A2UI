@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header_stack", "tracklist_header", "tracklist_stack", "actions_header", "actions_stack"]}, "header_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["main_title", "intro_text"]}, "main_title": {"type": "Text", "props": {"text": "Cyberpunk Noir: A Reading Soundtrack", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This 10-track playlist is curated to create an atmospheric, melancholic, and futuristic soundscape for a 'Cyberpunk Noir' setting. The instrumental selections blend electronic, jazz, and ambient elements to serve as the perfect, non-distracting background for reading."}, "children": []}, "tracklist_header": {"type": "Text", "props": {"text": "The Tracklist", "variant": "h2"}, "children": []}, "tracklist_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["track_1", "track_2", "track_3", "track_4", "track_5", "track_6", "track_7", "track_8", "track_9", "track_10"]}, "track_1": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_1_title", "track_1_desc"]}, "track_1_title": {"type": "Text", "props": {"text": "1. Vangelis - \"Blade Runner Blues\"", "variant": "label"}, "children": []}, "track_1_desc": {"type": "Text", "props": {"text": "The quintessential track that defined the genre's sound—a lonely, rain-soaked saxophone melody over atmospheric synths."}, "children": []}, "track_2": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_2_title", "track_2_desc"]}, "track_2_title": {"type": "Text", "props": {"text": "2. Lorn - \"Acid Rain\"", "variant": "label"}, "children": []}, "track_2_desc": {"type": "Text", "props": {"text": "A gritty, modern take on the cyberpunk theme, featuring a heavy, lurching beat and melancholic synth pads that evoke a sense of urban decay."}, "children": []}, "track_3": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_3_title", "track_3_desc"]}, "track_3_title": {"type": "Text", "props": {"text": "3. Bohren & der Club of Gore - \"Prowler\"", "variant": "label"}, "children": []}, "track_3_desc": {"type": "Text", "props": {"text": "This \"doom jazz\" piece is pure noir. Incredibly slow, dark, and minimalist, it paints a picture of a smoky, late-night detective's office."}, "children": []}, "track_4": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_4_title", "track_4_desc"]}, "track_4_title": {"type": "Text", "props": {"text": "4. 2814 - \"恢復\" (Recovery)", "variant": "label"}, "children": []}, "track_4_desc": {"type": "Text", "props": {"text": "A landmark track in the dreampunk genre, this piece is lush, ethereal, and vast, suggesting the scale of a futuristic megalopolis seen from a high-rise window."}, "children": []}, "track_5": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_5_title", "track_5_desc"]}, "track_5_title": {"type": "Text", "props": {"text": "5. Michael McCann - \"Icarus (Main Theme)\"", "variant": "label"}, "children": []}, "track_5_desc": {"type": "Text", "props": {"text": "From the Deus Ex: Human Revolution soundtrack, this track blends synthetic textures with haunting vocalizations and a powerful, tragic melody that speaks to transhumanist themes."}, "children": []}, "track_6": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_6_title", "track_6_desc"]}, "track_6_title": {"type": "Text", "props": {"text": "6. The Kilimanjaro Darkjazz Ensemble - \"Giallo\"", "variant": "label"}, "children": []}, "track_6_desc": {"type": "Text", "props": {"text": "Cinematic and suspenseful, this track combines dark jazz instrumentation with an unsettling ambient background, perfect for a tense, investigative mood."}, "children": []}, "track_7": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_7_title", "track_7_desc"]}, "track_7_title": {"type": "Text", "props": {"text": "7. Boards of Canada - \"Reach for the Dead\"", "variant": "label"}, "children": []}, "track_7_desc": {"type": "Text", "props": {"text": "Eerie and nostalgic, this song uses decaying analog synth sounds to create a feeling of a lost or forgotten future, fitting the melancholic side of cyberpunk."}, "children": []}, "track_8": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_8_title", "track_8_desc"]}, "track_8_title": {"type": "Text", "props": {"text": "8. P.T. Adamczyk - \"The Rebel Path\"", "variant": "label"}, "children": []}, "track_8_desc": {"type": "Text", "props": {"text": "An instrumental piece from the Cyberpunk 2077 soundtrack that captures the determined, anti-authoritarian spirit of a noir protagonist with a driving synth beat."}, "children": []}, "track_9": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_9_title", "track_9_desc"]}, "track_9_title": {"type": "Text", "props": {"text": "9. Kenji Kawai - \"Making of a Cyborg\"", "variant": "label"}, "children": []}, "track_9_desc": {"type": "Text", "props": {"text": "From the 1995 Ghost in the Shell film, this iconic piece uses traditional Japanese choir and percussion to create an otherworldly, ritualistic, and profoundly futuristic atmosphere."}, "children": []}, "track_10": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["track_10_title", "track_10_desc"]}, "track_10_title": {"type": "Text", "props": {"text": "10. Aphex Twin - \"#3\"", "variant": "label"}, "children": []}, "track_10_desc": {"type": "Text", "props": {"text": "A pure and beautiful ambient track from Selected Ambient Works Volume II. It serves as a perfect closing piece, fading out with a sense of quiet, contemplative solitude."}, "children": []}, "actions_header": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["youtube_button", "spotify_button"]}, "youtube_button": {"type": "Button", "props": {"label": "Listen on YouTube Music"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.youtube.com/search?q=Cyberpunk+Noir+Reading+Playlist"}}}}, "spotify_button": {"type": "Button", "props": {"label": "Search on Spotify"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/search/cyberpunk%20noir%20ambient"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title_subjects", "card_subjects", "divider_1", "title_draft_stack", "card_draft", "divider_2", "title_checklist", "card_checklist", "divider_3", "title_guidelines", "card_guidelines"]}, "title_subjects": {"type": "Text", "props": {"text": "Email Subject Line Options", "variant": "h3"}, "children": []}, "card_subjects": {"type": "Card", "props": {}, "children": ["stack_subjects"]}, "stack_subjects": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["stack_subject_1", "stack_subject_2"]}, "stack_subject_1": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["label_subject_1", "text_subject_1"]}, "label_subject_1": {"type": "Text", "props": {"text": "Option 1 (Concise):"}, "children": []}, "text_subject_1": {"type": "Text", "props": {"text": "Following up - Senior Data Analyst Interview"}, "children": []}, "stack_subject_2": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["label_subject_2", "text_subject_2"]}, "label_subject_2": {"type": "Text", "props": {"text": "Option 2 (More Detailed):"}, "children": []}, "text_subject_2": {"type": "Text", "props": {"text": "Thank You - Senior Data Analyst Interview | Alex Chen"}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "title_draft_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["icon_draft", "title_draft"]}, "icon_draft": {"type": "Icon", "props": {"name": "../assets/r_000023_01_1_envelope.svg"}, "children": []}, "title_draft": {"type": "Text", "props": {"text": "Follow-Up Email Draft", "variant": "h3"}, "children": []}, "card_draft": {"type": "Card", "props": {}, "children": ["stack_draft"]}, "stack_draft": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["stack_to", "stack_subject_draft", "divider_email", "stack_email_body"]}, "stack_to": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["label_to", "text_to"]}, "label_to": {"type": "Text", "props": {"text": "To:", "variant": "label"}, "children": []}, "text_to": {"type": "Text", "props": {"text": "ereed@innovatesolutions.com"}, "children": []}, "stack_subject_draft": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["label_subject_draft", "text_subject_draft"]}, "label_subject_draft": {"type": "Text", "props": {"text": "Subject:", "variant": "label"}, "children": []}, "text_subject_draft": {"type": "Text", "props": {"text": "Following up - Senior Data Analyst Interview"}, "children": []}, "divider_email": {"type": "Divider", "props": {}, "children": []}, "stack_email_body": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["text_p1", "text_p2", "text_p3", "text_p4", "text_p5", "text_p6", "text_p7", "text_p8", "text_p9"]}, "text_p1": {"type": "Text", "props": {"text": "Dear Dr. Reed,"}, "children": []}, "text_p2": {"type": "Text", "props": {"text": "Thank you again for taking the time to speak with me on Thursday, October 26th, about the Senior Data Analyst position at Innovate Solutions Inc. Our conversation further solidified my enthusiasm for this opportunity and for the chance to contribute to your team."}, "children": []}, "text_p3": {"type": "Text", "props": {"text": "I was particularly interested in our discussion about 'Project Phoenix'. Hearing about the goals of the data migration resonated strongly with my background in designing and implementing large-scale ETL pipelines. I am confident that my experience in data validation and performance optimization would be a valuable asset in ensuring a smooth and efficient transition for that critical project."}, "children": []}, "text_p4": {"type": "Text", "props": {"text": "I am very excited about the prospect of joining Innovate Solutions and am convinced my background is an excellent match for the requirements of this role."}, "children": []}, "text_p5": {"type": "Text", "props": {"text": "Thank you once again for your time and consideration. I look forward to hearing from you soon."}, "children": []}, "text_p6": {"type": "Text", "props": {"text": "Best regards,"}, "children": []}, "text_p7": {"type": "Text", "props": {"text": "Alex Chen"}, "children": []}, "text_p8": {"type": "Text", "props": {"text": "[Your Phone Number]"}, "children": []}, "text_p9": {"type": "Text", "props": {"text": "[Your LinkedIn Profile URL]"}, "children": []}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "title_checklist": {"type": "Text", "props": {"text": "Personalization Checklist", "variant": "h3"}, "children": []}, "card_checklist": {"type": "Card", "props": {}, "children": ["stack_checklist"]}, "stack_checklist": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["intro_checklist", "check_1", "check_2", "check_3", "check_4"]}, "intro_checklist": {"type": "Text", "props": {"text": "Before sending, make sure you've filled in the bracketed information:"}, "children": []}, "check_1": {"type": "CheckBox", "props": {"label": "[Your Phone Number]", "value": false}, "children": []}, "check_2": {"type": "CheckBox", "props": {"label": "[Your LinkedIn Profile URL]", "value": false}, "children": []}, "check_3": {"type": "CheckBox", "props": {"label": "Confirm the interviewer's name and title are correct (Dr. Evelyn Reed).", "value": false}, "children": []}, "check_4": {"type": "CheckBox", "props": {"label": "Double-check the date of the interview (Thursday, October 26th).", "value": false}, "children": []}, "divider_3": {"type": "Divider", "props": {}, "children": []}, "title_guidelines": {"type": "Text", "props": {"text": "Key Guidelines for Sending", "variant": "h3"}, "children": []}, "card_guidelines": {"type": "Card", "props": {}, "children": ["stack_guidelines"]}, "stack_guidelines": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["guideline_1", "guideline_2", "guideline_3"]}, "guideline_1": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["guideline_1_label", "guideline_1_text"]}, "guideline_1_label": {"type": "Text", "props": {"text": "Timing:", "variant": "label"}, "children": []}, "guideline_1_text": {"type": "Text", "props": {"text": "Send within 24 hours of the interview."}, "children": []}, "guideline_2": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["guideline_2_label", "guideline_2_text"]}, "guideline_2_label": {"type": "Text", "props": {"text": "Proofread:", "variant": "label"}, "children": []}, "guideline_2_text": {"type": "Text", "props": {"text": "Check for any spelling or grammar errors. Read it aloud to catch awkward phrasing."}, "children": []}, "guideline_3": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["guideline_3_label", "guideline_3_text"]}, "guideline_3_label": {"type": "Text", "props": {"text": "Keep it Concise:", "variant": "label"}, "children": []}, "guideline_3_text": {"type": "Text", "props": {"text": "The goal is to reiterate interest and add a specific point of connection, not to write a novel."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"laptops": [{"model": "Lenovo Ideapad 5 Pro", "budget": "✅ Yes ($1350)", "storage": "✅ Yes", "gpu": "✅ Yes", "screen": "✅ Yes (16\")", "verdict": "Recommended"}, {"model": "Acer Swift X", "budget": "✅ Yes ($1099)", "storage": "❌ No (512GB)", "gpu": "✅ Yes", "screen": "✅ Yes (14\")", "verdict": "Does not meet storage needs"}, {"model": "HP Spectre x360", "budget": "✅ Yes ($1450)", "storage": "✅ Yes", "gpu": "❌ No (Integrated)", "screen": "❌ No (13.5\")", "verdict": "Fails on GPU and screen size"}, {"model": "Dell XPS 15", "budget": "❌ No ($1650)", "storage": "✅ Yes", "gpu": "✅ Yes", "screen": "✅ Yes (15.6\")", "verdict": "Over budget"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "recommendation_text", "analysis_title", "analysis_section", "comparison_table", "actions_title", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Recommended Laptop for Graphic Design", "variant": "h3"}, "children": []}, "recommendation_text": {"type": "Text", "props": {"text": "Based on your specific requirements for a graphic design student laptop under $1500, the Lenovo Ideapad 5 Pro is the only model from your list that meets all criteria. It successfully balances price, performance, and display quality, featuring a dedicated GPU, 1TB of storage, and a color-accurate screen within your budget."}, "children": []}, "analysis_title": {"type": "Text", "props": {"text": "Laptop Analysis & Comparison", "variant": "h3"}, "children": []}, "analysis_section": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["analysis_icon", "analysis_text"]}, "analysis_icon": {"type": "Icon", "props": {"name": "../assets/r_000005_01_1_laptop.svg"}, "children": []}, "analysis_text": {"type": "Text", "props": {"text": "This table breaks down how each laptop compares to your key requirements. All models listed have the required 16GB of RAM and a color gamut of at least 99% sRGB. The points of failure for the other models are highlighted below."}, "children": []}, "comparison_table": {"type": "Table", "props": {"statePath": "/laptops", "columns": [{"key": "model", "label": "Model"}, {"key": "budget", "label": "Budget (<$1500)"}, {"key": "storage", "label": "Storage (1TB)"}, {"key": "gpu", "label": "GPU (Dedicated)"}, {"key": "screen", "label": "Screen (14\"-16\")"}, {"key": "verdict", "label": "Final Verdict"}], "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Model | Budget (<$1500) | Storage (1TB) | GPU (Dedicated) | Screen (14\"-16\") | Final Verdict |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| **Lenovo Ideapad 5 Pro** | ✅ Yes ($1350) | ✅ Yes | ✅ Yes | ✅ Yes (16\") | **Recommended** |\n| Acer Swift X | ✅ Yes ($1099) | ❌ No (512GB) | ✅ Yes | ✅ Yes (14\") | Does not meet storage needs |\n| HP Spectre x360 | ✅ Yes ($1450) | ✅ Yes | ❌ No (Integrated) | ❌ No (13.5\") | Fails on GPU and screen size |\n| Dell XPS 15 | ❌ No ($1650) | ✅ Yes | ✅ Yes | ✅ Yes (15.6\") | Over budget |"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["search_button", "lenovo_button"]}, "search_button": {"type": "Button", "props": {"label": "Search for Lenovo Ideapad 5 Pro"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/search?q=Lenovo+Ideapad+5+Pro+16+inch+RTX+3050"}}}}, "lenovo_button": {"type": "Button", "props": {"label": "View on Lenovo's Website"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.lenovo.com/us/en/d/ideapad-5-series/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

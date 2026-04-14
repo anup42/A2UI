@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header_stack", "image", "intro_text", "divider_1", "ingredients_prep_section", "divider_2", "tips_section"]}, "header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["title", "icon"]}, "title": {"type": "Text", "props": {"text": "Classic Soft & Chewy Chocolate Chip Cookies", "variant": "h1"}, "children": []}, "icon": {"type": "Icon", "props": {"name": "../assets/r_000017_01_2_star.svg"}, "children": []}, "image": {"type": "Image", "props": {"url": "../assets/r_000017_01_1_Chocolate_Chip_Cookies_-_kimberlykv.jpg", "fit": "cover"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This simple, no-chill recipe delivers perfectly soft and chewy chocolate chip cookies every time. Using both brown and white sugar ensures a crisp edge with a wonderfully moist center, ready to enjoy in under 30 minutes."}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "ingredients_prep_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["ingredients_prep_title", "ingredients_section", "instructions_section"]}, "ingredients_prep_title": {"type": "Text", "props": {"text": "Ingredients & Preparation", "variant": "h2"}, "children": []}, "ingredients_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["ingredients_title", "ingredients_list"]}, "ingredients_title": {"type": "Text", "props": {"text": "Ingredients", "variant": "h3"}, "children": []}, "ingredients_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["ingredient_1", "ingredient_2", "ingredient_3", "ingredient_4", "ingredient_5", "ingredient_6", "ingredient_7", "ingredient_8", "ingredient_9"]}, "ingredient_1": {"type": "Text", "props": {"text": "• 2 ¼ cups all-purpose flour"}, "children": []}, "ingredient_2": {"type": "Text", "props": {"text": "• 1 teaspoon baking soda"}, "children": []}, "ingredient_3": {"type": "Text", "props": {"text": "• ½ teaspoon salt"}, "children": []}, "ingredient_4": {"type": "Text", "props": {"text": "• 1 cup (2 sticks) unsalted butter, softened"}, "children": []}, "ingredient_5": {"type": "Text", "props": {"text": "• ¾ cup granulated sugar"}, "children": []}, "ingredient_6": {"type": "Text", "props": {"text": "• ¾ cup packed light brown sugar"}, "children": []}, "ingredient_7": {"type": "Text", "props": {"text": "• 2 large eggs, room temperature"}, "children": []}, "ingredient_8": {"type": "Text", "props": {"text": "• 1 teaspoon vanilla extract"}, "children": []}, "ingredient_9": {"type": "Text", "props": {"text": "• 2 cups semi-sweet chocolate chips"}, "children": []}, "instructions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["instructions_title", "instructions_list"]}, "instructions_title": {"type": "Text", "props": {"text": "Instructions", "variant": "h3"}, "children": []}, "instructions_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["instruction_1", "instruction_2", "instruction_3", "instruction_4", "instruction_5", "instruction_6", "instruction_7", "instruction_8", "instruction_9"]}, "instruction_1": {"type": "Text", "props": {"text": "1. Preheat & Prep: Preheat your oven to 375°F (190°C). Line two large baking sheets with parchment paper."}, "children": []}, "instruction_2": {"type": "Text", "props": {"text": "2. Combine Dry Ingredients: In a medium bowl, whisk together the all-purpose flour, baking soda, and salt. Set aside."}, "children": []}, "instruction_3": {"type": "Text", "props": {"text": "3. Cream Butter & Sugars: In a large bowl using an electric mixer, beat the softened butter, granulated sugar, and brown sugar on medium speed until the mixture is light and fluffy, about 2-3 minutes."}, "children": []}, "instruction_4": {"type": "Text", "props": {"text": "4. Add Wet Ingredients: Beat in the eggs one at a time, mixing well after each addition. Stir in the vanilla extract."}, "children": []}, "instruction_5": {"type": "Text", "props": {"text": "5. Combine Wet & Dry: Gradually add the flour mixture to the wet ingredients, mixing on low speed until just combined. Be careful not to overmix the dough."}, "children": []}, "instruction_6": {"type": "Text", "props": {"text": "6. Add Chocolate: Using a spatula or wooden spoon, gently stir in the semi-sweet chocolate chips until they are evenly distributed."}, "children": []}, "instruction_7": {"type": "Text", "props": {"text": "7. Portion Dough: Drop rounded tablespoons of dough about 2 inches apart onto the prepared baking sheets."}, "children": []}, "instruction_8": {"type": "Text", "props": {"text": "8. Bake: Bake for 9-11 minutes, or until the edges are lightly golden and the centers are set but still soft."}, "children": []}, "instruction_9": {"type": "Text", "props": {"text": "9. Cool: Let the cookies cool on the baking sheets for 5 minutes before transferring them to a wire rack to cool completely."}, "children": []}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "tips_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["tips_title", "tips_list"]}, "tips_title": {"type": "Text", "props": {"text": "Baking Tips for Perfect Cookies", "variant": "h2"}, "children": []}, "tips_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["tip_1", "tip_2", "tip_3", "tip_4"]}, "tip_1": {"type": "Text", "props": {"text": "• Room Temperature Ingredients: Using softened butter and room temperature eggs helps create a smoother, more uniform dough that bakes evenly."}, "children": []}, "tip_2": {"type": "Text", "props": {"text": "• Measure Flour Correctly: To avoid dense cookies, fluff the flour with a fork, spoon it into your measuring cup, and level it off with a straight edge. Do not scoop directly from the bag and pack it down."}, "children": []}, "tip_3": {"type": "Text", "props": {"text": "• Don't Overbake: For the chewiest texture, remove the cookies from the oven when the centers still look slightly underdone. They will continue to set on the hot baking sheet."}, "children": []}, "tip_4": {"type": "Text", "props": {"text": "• Even Baking: For a more uniform shape and even browning, rotate the baking sheets halfway through the baking time."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

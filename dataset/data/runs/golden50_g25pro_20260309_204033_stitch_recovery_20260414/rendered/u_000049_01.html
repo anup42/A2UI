@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "summary_stack", "divider_1", "holdings_title", "holdings_description", "holdings_table", "divider_2", "report_basis_card"]}, "title": {"type": "Text", "props": {"text": "Portfolio Snapshot: June 14, 2023", "variant": "h3"}, "children": []}, "summary_stack": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between", "gap": "md"}, "children": ["total_value_stack", "day_change_stack"]}, "total_value_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["total_value_label", "total_value_text"]}, "total_value_label": {"type": "Text", "props": {"text": "Total Portfolio Value", "variant": "caption"}, "children": []}, "total_value_text": {"type": "Text", "props": {"text": "$15,353.70", "variant": "h3"}, "children": []}, "day_change_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "align": "end"}, "children": ["day_change_label", "day_change_text"]}, "day_change_label": {"type": "Text", "props": {"text": "Day's Gain/Loss", "variant": "caption"}, "children": []}, "day_change_text": {"type": "Text", "props": {"text": "-$19.70 (-0.13%)", "variant": "h3"}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "holdings_title": {"type": "Text", "props": {"text": "Holdings Performance", "variant": "h3"}, "children": []}, "holdings_description": {"type": "Text", "props": {"text": "The table below details the performance of each individual stock in your portfolio as of the end of the trading day."}, "children": []}, "holdings_table": {"type": "Table", "props": {"columns": [{"key": "ticker", "label": "Ticker"}, {"key": "current_value", "label": "Current Value"}, {"key": "day_change_usd", "label": "Day's Change ($)"}, {"key": "day_change_pct", "label": "Day's Change (%)"}], "rows": [{"ticker": "AAPL", "current_value": "$1,752.80", "day_change_usd": "+$21.80", "day_change_pct": "+1.26%"}, {"ticker": "GOOG", "current_value": "$11,252.50", "day_change_usd": "+$27.50", "day_change_pct": "+0.24%"}, {"ticker": "TSLA", "current_value": "$2,348.40", "day_change_usd": "-$69.00", "day_change_pct": "-2.85%"}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Ticker | Current Value | Day's Change ($) | Day's Change (%) |\n| :--- | :--- | :--- | :--- |\n| **AAPL** | $1,752.80 | +$21.80 | +1.26% |\n| **GOOG** | $11,252.50 | +$27.50 | +0.24% |\n| **TSLA** | $2,348.40 | -$69.00 | -2.85% |"}, "children": []}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "report_basis_card": {"type": "Card", "props": {}, "children": ["report_basis_stack"]}, "report_basis_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 12}, "children": ["report_basis_title", "report_basis_text"]}, "report_basis_title": {"type": "Text", "props": {"text": "Report Basis", "variant": "h3"}, "children": []}, "report_basis_text": {"type": "Text", "props": {"text": "This summary is based on the provided holdings information and market closing prices for June 14, 2023. It does not account for any fees, taxes, or corporate actions. The total portfolio change percentage is calculated against the total value from the previous day's close.", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

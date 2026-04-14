@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title_stack", "summary_text", "details_title", "formula_card", "details_table", "actions_title", "actions_stack", "sources_title", "sources_stack"]}, "title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["title_icon", "title_text"]}, "title_icon": {"type": "Icon", "props": {"name": "../assets/r_000031_01_1_house-door.svg"}, "children": []}, "title_text": {"type": "Text", "props": {"text": "Mortgage Payment Summary", "variant": "h1"}, "children": []}, "summary_text": {"type": "Text", "props": {"text": "Based on a $420,000 loan at a 5.75% fixed annual interest rate over 30 years, your estimated monthly payment is $2,451.26. Over the life of the loan, the total interest paid will be greater than the original principal amount."}, "children": []}, "details_title": {"type": "Text", "props": {"text": "Loan Details & Formula", "variant": "h2"}, "children": []}, "formula_card": {"type": "Card", "props": {}, "children": ["formula_stack"]}, "formula_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["formula_text", "formula_details"]}, "formula_text": {"type": "Text", "props": {"text": "The monthly payment (M) is calculated using the standard amortization formula:\nM = P [ i(1 + i)^n ] / [ (1 + i)^n – 1 ]"}, "children": []}, "formula_details": {"type": "Text", "props": {"text": "• P: Principal loan amount ($420,000)\n• i: Monthly interest rate (5.75% / 12 = 0.479%)\n• n: Number of payments (30 years * 12 = 360)"}, "children": []}, "details_table": {"type": "Table", "props": {"columns": [{"key": "component", "label": "Component"}, {"key": "amount", "label": "Amount"}], "rows": [{"component": "Principal Loan Amount", "amount": "$420,000.00"}, {"component": "Annual Interest Rate", "amount": "5.75%"}, {"component": "Loan Term", "amount": "30 Years (360 Months)"}, {"component": "Monthly Payment", "amount": "$2,451.26"}, {"component": "Total Principal Paid", "amount": "$420,000.00"}, {"component": "Total Interest Paid", "amount": "$462,453.60"}, {"component": "Total Lifetime Cost", "amount": "$882,453.60"}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Component | Amount |\n| :--- | :--- |\n| Principal Loan Amount | $420,000.00 |\n| Annual Interest Rate | 5.75% |\n| Loan Term | 30 Years (360 Months) |\n| **Monthly Payment** | **$2,451.26** |\n| Total Principal Paid | $420,000.00 |\n| Total Interest Paid | $462,453.60 |\n| **Total Lifetime Cost** | **$882,453.60** |"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["button_calculator", "button_options"]}, "button_calculator": {"type": "Button", "props": {"label": "Use a Mortgage Calculator", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumerfinance.gov/owning-a-home/mortgage-calculator/"}}}}, "button_options": {"type": "Button", "props": {"label": "Explore Loan Options", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nerdwallet.com/mortgages/mortgage-rates"}}}}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["source_1", "source_2"]}, "source_1": {"type": "Button", "props": {"label": "Consumer Financial Protection Bureau: Mortgage Loan Information", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumerfinance.gov/owning-a-home/"}}}}, "source_2": {"type": "Button", "props": {"label": "Investopedia: How to Calculate Your Monthly Mortgage Payment", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.investopedia.com/articles/personal-finance/042015/how-calculate-your-monthly-mortgage-payment.asp"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

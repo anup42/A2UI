@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "phase1_card", "phase2_card", "phase3_card", "actions_title", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Dinner Party Playlist: November 15, 2024", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Here is a structured three-hour playlist designed to create the perfect atmosphere for your dinner party, with specific song suggestions for each phase."}, "children": []}, "phase1_card": {"type": "Card", "props": {}, "children": ["phase1_stack"]}, "phase1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["phase1_header", "phase1_desc", "phase1_songs"]}, "phase1_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["phase1_icon", "phase1_title"]}, "phase1_icon": {"type": "Icon", "props": {"name": "../assets/r_000042_01_1_people.svg"}, "children": []}, "phase1_title": {"type": "Text", "props": {"text": "Phase 1: Arrival & Mingling (First 60 Mins)", "variant": "h3"}, "children": []}, "phase1_desc": {"type": "Text", "props": {"text": "Upbeat, instrumental, and modern tunes to welcome guests without overpowering conversation. This selection blends contemporary pop covers with smooth, jazzy lo-fi beats."}, "children": []}, "phase1_songs": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["song1_1", "song1_2", "song1_3", "song1_4", "song1_5"]}, "song1_1": {"type": "Text", "props": {"text": "• \"thank u, next\" - Vitamin String Quartet"}, "children": []}, "song1_2": {"type": "Text", "props": {"text": "• \"Soulful\" - L'indécis"}, "children": []}, "song1_3": {"type": "Text", "props": {"text": "• \"Blinding Lights\" - Vitamin String Quartet"}, "children": []}, "song1_4": {"type": "Text", "props": {"text": "• \"Murakami\" - Blue Wednesday"}, "children": []}, "song1_5": {"type": "Text", "props": {"text": "• \"Good Night\" - Oatmello"}, "children": []}, "phase2_card": {"type": "Card", "props": {}, "children": ["phase2_stack"]}, "phase2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["phase2_header", "phase2_desc", "phase2_songs"]}, "phase2_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["phase2_icon", "phase2_title"]}, "phase2_icon": {"type": "Icon", "props": {"name": "../assets/r_000042_01_2_music-note-list.svg"}, "children": []}, "phase2_title": {"type": "Text", "props": {"text": "Phase 2: Dinner & Conversation (Next 90 Mins)", "variant": "h3"}, "children": []}, "phase2_desc": {"type": "Text", "props": {"text": "A transition to softer, atmospheric music that serves as an elegant, unobtrusive backdrop for the main course. The focus is on beautiful piano and ambient soundscapes."}, "children": []}, "phase2_songs": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["song2_1", "song2_2", "song2_3", "song2_4", "song2_5"]}, "song2_1": {"type": "Text", "props": {"text": "• \"Nuvole Bianche\" - Ludovico Einaudi"}, "children": []}, "song2_2": {"type": "Text", "props": {"text": "• \"Music for Airports 1/1\" - Brian Eno"}, "children": []}, "song2_3": {"type": "Text", "props": {"text": "• \"Comptine d'un autre été, l'après-midi\" - Yann Tiersen"}, "children": []}, "song2_4": {"type": "Text", "props": {"text": "• \"saman\" - Ólafur Arnalds"}, "children": []}, "song2_5": {"type": "Text", "props": {"text": "• \"#3\" (from Selected Ambient Works Vol. II) - Aphex Twin"}, "children": []}, "phase3_card": {"type": "Card", "props": {}, "children": ["phase3_stack"]}, "phase3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["phase3_header", "phase3_desc", "phase3_songs"]}, "phase3_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["phase3_icon", "phase3_title"]}, "phase3_icon": {"type": "Icon", "props": {"name": "../assets/r_000018_01_1_cup-hot.svg"}, "children": []}, "phase3_title": {"type": "Text", "props": {"text": "Phase 3: Dessert & Wind-Down (Final 30 Mins)", "variant": "h3"}, "children": []}, "phase3_desc": {"type": "Text", "props": {"text": "As the evening winds down, the playlist shifts to familiar, soulful classics. These warm and timeless songs are perfect for creating a relaxed, feel-good atmosphere over dessert and coffee."}, "children": []}, "phase3_songs": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["song3_1", "song3_2", "song3_3", "song3_4", "song3_5"]}, "song3_1": {"type": "Text", "props": {"text": "• \"Lovely Day\" - Bill Withers"}, "children": []}, "song3_2": {"type": "Text", "props": {"text": "• \"At Last\" - Etta James"}, "children": []}, "song3_3": {"type": "Text", "props": {"text": "• \"Bring It On Home to Me\" - Sam Cooke"}, "children": []}, "song3_4": {"type": "Text", "props": {"text": "• \"(Sittin' On) The Dock of the Bay\" - Otis Redding"}, "children": []}, "song3_5": {"type": "Text", "props": {"text": "• \"I Say a Little Prayer\" - Aretha Franklin"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["spotify_button", "apple_button", "youtube_button"]}, "spotify_button": {"type": "Button", "props": {"label": "Create on Spotify"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/playlist/create"}}}}, "apple_button": {"type": "Button", "props": {"label": "Create on Apple Music"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.apple.com/us/playlist/create"}}}}, "youtube_button": {"type": "Button", "props": {"label": "Create on YouTube Music"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.youtube.com/playlist/create"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

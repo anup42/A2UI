@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "intro_text", "top_choice_card", "analysis_title", "analysis_intro", "comparison_table", "other_options_title", "other_options_stack", "actions_title", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Your Recommended Hotel in Kyoto", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Based on your requirements, the Sakura Inn Kyoto is the best and only suitable option. It meets all your criteria, including the nightly budget, king-size non-smoking room, and an on-site gym. The other hotels fail to meet one or more of your must-have requirements."}, "children": []}, "top_choice_card": {"type": "Card", "props": {}, "children": ["top_choice_stack"]}, "top_choice_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["top_choice_title", "top_choice_content_stack"]}, "top_choice_title": {"type": "Text", "props": {"text": "Top Choice: Sakura Inn Kyoto", "variant": "h2"}, "children": []}, "top_choice_content_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["top_choice_icon", "top_choice_details_stack"]}, "top_choice_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_2_building.svg"}, "children": []}, "top_choice_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["price_text", "room_text", "amenities_text", "why_text"]}, "price_text": {"type": "Text", "props": {"text": "Price: $220 / night (within your $250 budget)"}, "children": []}, "room_text": {"type": "Text", "props": {"text": "Room: King, Non-smoking"}, "children": []}, "amenities_text": {"type": "Text", "props": {"text": "Amenities: Includes both free Wi-Fi and an on-site gym."}, "children": []}, "why_text": {"type": "Text", "props": {"text": "Why it fits: This is the only hotel provided that satisfies every one of your specified needs for the stay."}, "children": []}, "analysis_title": {"type": "Text", "props": {"text": "Hotel Options Analysis", "variant": "h3"}, "children": []}, "analysis_intro": {"type": "Text", "props": {"text": "This table provides a direct comparison of the three hotels against your specific requirements for your 5-night stay from October 15th to October 20th, 2024."}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "hotel", "label": "Hotel"}, {"key": "price", "label": "Price/Night (USD)"}, {"key": "room", "label": "Room Type"}, {"key": "gym", "label": "Gym Access"}, {"key": "meets_needs", "label": "Meets All Needs?"}], "rows": [{"hotel": "Sakura Inn Kyoto", "price": "$220", "room": "King, Non-smoking", "gym": "Yes", "meets_needs": "Yes"}, {"hotel": "Gion Traditional Ryokan", "price": "$245", "room": "Queen, Smoking", "gym": "Yes", "meets_needs": "No"}, {"hotel": "Kyoto Grand Hotel", "price": "$280", "room": "King, Non-smoking", "gym": "No", "meets_needs": "No"}], "domain": "comparison", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Hotel | Price/Night (USD) | Room Type | Gym Access | Meets All Needs? |\n| :--- | :--- | :--- | :--- | :--- |\n| **Sakura Inn Kyoto** | $220 | King, Non-smoking | Yes | **Yes** |\n| Gion Traditional Ryokan | $245 | Queen, Smoking | Yes | No |\n| Kyoto Grand Hotel | $280 | King, Non-smoking | No | No |"}, "children": []}, "other_options_title": {"type": "Text", "props": {"text": "Analysis of Other Options", "variant": "h3"}, "children": []}, "other_options_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["other_options_gion", "other_options_grand"]}, "other_options_gion": {"type": "Text", "props": {"text": "• Gion Traditional Ryokan: While within budget, this option does not meet your needs as it offers a Queen bed (not King) and is a smoking room."}, "children": []}, "other_options_grand": {"type": "Text", "props": {"text": "• Kyoto Grand Hotel: This hotel is over your specified budget of $250 per night and does not have an on-site gym."}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["search_button", "guide_button"]}, "search_button": {"type": "Button", "props": {"label": "Search for Kyoto Hotels"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.booking.com/searchresults.html?ss=Kyoto&checkin=2024-10-15&checkout=2024-10-20&group_adults=2&nflt=ht_amenities%3D7%3Broomfacility%3D301%3Broomfacility%3D11"}}}}, "guide_button": {"type": "Button", "props": {"label": "Explore Kyoto Travel Guide"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.japan.travel/en/destinations/kansai/kyoto/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

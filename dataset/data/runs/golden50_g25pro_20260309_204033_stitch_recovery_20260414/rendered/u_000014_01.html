@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["header_stack", "intro_text", "timeline_section", "actions_section", "sources_section"]}, "header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["title", "header_icon"]}, "title": {"type": "Text", "props": {"text": "Candle Business Launch Plan: September - November 2024", "variant": "h1"}, "children": []}, "header_icon": {"type": "Icon", "props": {"name": "../assets/r_000014_01_2_clipboard-check.svg"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This plan outlines the key milestones for launching your handmade candle business, starting from September 1, 2024. The goal is to be fully operational and ready for your first sale by November 30, 2024, leveraging your existing product designs and sourced materials."}, "children": []}, "timeline_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["timeline_title", "timeline_intro", "timeline_table"]}, "timeline_title": {"type": "Text", "props": {"text": "Project Timeline and Key Tasks", "variant": "h2"}, "children": []}, "timeline_intro": {"type": "Text", "props": {"text": "This timeline breaks down the project into three monthly phases, from legal and brand finalization to the official online store launch."}, "children": []}, "timeline_table": {"type": "Table", "props": {"columns": [{"key": "month", "label": "Month"}, {"key": "phase", "label": "Phase & Goals"}, {"key": "tasks", "label": "Key Tasks & Target Dates"}], "rows": [{"month": "Sep 2024", "phase": "Foundation & Branding", "tasks": "• Register business name & obtain EIN (by Sep 10)\n• Open a business bank account (by Sep 15)\n• Finalize packaging design & order samples (by Sep 20)\n• Conduct product photoshoot (by Sep 30)"}, {"month": "Oct 2024", "phase": "E-commerce & Marketing Setup", "tasks": "• Select platform (Etsy/Shopify) & build store (by Oct 15)\n• Write compelling product descriptions & set prices (by Oct 20)\n• Set up social media profiles (Instagram, Pinterest) (by Oct 25)\n• Finalize shipping strategy and materials (by Oct 31)"}, {"month": "Nov 2024", "phase": "Inventory & Launch", "tasks": "• Produce initial inventory for sale (by Nov 15)\n• Begin \"coming soon\" social media campaign (from Nov 1)\n• Conduct final site testing and quality checks (by Nov 25)\n• Official Store Launch (by Nov 30)"}], "domain": "schedule", "preferredPresentation": "cards", "sourceFormat": "markdown", "sourceText": "| Month | Phase & Goals | Key Tasks & Target Dates |\n| :--- | :--- | :--- |\n| **Sep 2024** | **Foundation & Branding** | • Register business name & obtain EIN (by Sep 10)<br>• Open a business bank account (by Sep 15)<br>• Finalize packaging design & order samples (by Sep 20)<br>• Conduct product photoshoot (by Sep 30) |\n| **Oct 2024** | **E-commerce & Marketing Setup** | • Select platform (Etsy/Shopify) & build store (by Oct 15)<br>• Write compelling product descriptions & set prices (by Oct 20)<br>• Set up social media profiles (Instagram, Pinterest) (by Oct 25)<br>• Finalize shipping strategy and materials (by Oct 31) |\n| **Nov 2024** | **Inventory & Launch** | • Produce initial inventory for sale (by Nov 15)<br>• Begin \"coming soon\" social media campaign (from Nov 1)<br>• Conduct final site testing and quality checks (by Nov 25)<br>• **Official Store Launch** (by Nov 30) |"}, "children": []}, "actions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_buttons"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_buttons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["shopify_button", "etsy_button"]}, "shopify_button": {"type": "Button", "props": {"label": "Explore Shopify Plans"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.shopify.com/pricing"}}}}, "etsy_button": {"type": "Button", "props": {"label": "Open an Etsy Shop"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.etsy.com/sell"}}}}, "sources_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "source_1", "source_2"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "source_1": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center", "wrap": "wrap"}, "children": ["source_1_label", "source_1_button"]}, "source_1_label": {"type": "Text", "props": {"text": "U.S. Small Business Administration:"}, "children": []}, "source_1_button": {"type": "Button", "props": {"label": "Choose a business structure", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.sba.gov/business-guide/launch-your-business/choose-business-structure"}}}}, "source_2": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center", "wrap": "wrap"}, "children": ["source_2_label", "source_2_button"]}, "source_2_label": {"type": "Text", "props": {"text": "Shopify Blog:"}, "children": []}, "source_2_button": {"type": "Button", "props": {"label": "How to Start a Candle Business", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.shopify.com/blog/how-to-start-a-candle-business"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

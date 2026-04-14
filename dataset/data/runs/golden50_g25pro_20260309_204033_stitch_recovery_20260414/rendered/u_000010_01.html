@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "forecast_title", "forecast_table", "breakdown_title", "day1_card", "day2_card", "day3_card"]}, "title": {"type": "Text", "props": {"text": "Melbourne Weather Outlook: Sep 15-17", "variant": "h1"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This forecast for mid-September in Melbourne shows classic variable spring weather. Expect a mix of sun, showers, and significant wind, with temperatures ranging from cool to mild. Layering your clothing will be essential for staying comfortable."}, "children": []}, "forecast_title": {"type": "Text", "props": {"text": "3-Day Forecast at a Glance", "variant": "h2"}, "children": []}, "forecast_table": {"type": "Table", "props": {"columns": [{"key": "date", "label": "Date"}, {"key": "temp", "label": "High / Low (°C)"}, {"key": "condition", "label": "Condition"}, {"key": "wind", "label": "Wind (kph)"}], "rows": [{"date": "Sun, Sep 15", "temp": "16° / 8°", "condition": "Partly cloudy, AM showers (40%)", "wind": "25"}, {"date": "Mon, Sep 16", "temp": "19° / 11°", "condition": "Sunny and clear", "wind": "15"}, {"date": "Tue, Sep 17", "temp": "14° / 7°", "condition": "Overcast, rain (70%), strong wind", "wind": "40"}], "domain": "weather", "preferredPresentation": "table", "sourceFormat": "markdown", "sourceText": "| Date | High / Low (°C) | Condition | Wind (kph) |\n| :--- | :--- | :--- | :--- |\n| Sun, Sep 15 | 16° / 8° | Partly cloudy, AM showers (40%) | 25 |\n| Mon, Sep 16 | 19° / 11° | Sunny and clear | 15 |\n| Tue, Sep 17 | 14° / 7° | Overcast, rain (70%), strong wind | 40 |"}, "children": []}, "breakdown_title": {"type": "Text", "props": {"text": "Daily Breakdown & Attire", "variant": "h2"}, "children": []}, "day1_card": {"type": "Card", "props": {}, "children": ["day1_stack"]}, "day1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day1_header", "day1_weather_stack", "day1_clothing_stack"]}, "day1_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["day1_icon", "day1_title"]}, "day1_icon": {"type": "Icon", "props": {"name": "../assets/r_000010_01_1_cloud-drizzle.svg"}, "children": []}, "day1_title": {"type": "Text", "props": {"text": "Sunday, September 15: Cool with Morning Showers", "variant": "h3"}, "children": []}, "day1_weather_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["day1_weather_label", "day1_weather_text"]}, "day1_weather_label": {"type": "Text", "props": {"text": "Weather", "variant": "label"}, "children": []}, "day1_weather_text": {"type": "Text", "props": {"text": "A cool day with a high of 16°C. Be prepared for morning showers and a moderate breeze."}, "children": []}, "day1_clothing_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["day1_clothing_label", "day1_clothing_text"]}, "day1_clothing_label": {"type": "Text", "props": {"text": "Clothing", "variant": "label"}, "children": []}, "day1_clothing_text": {"type": "Text", "props": {"text": "Wear layers, such as a long-sleeve shirt and a fleece or sweater. A light waterproof or water-resistant jacket is recommended for the morning. Comfortable walking shoes are a must."}, "children": []}, "day2_card": {"type": "Card", "props": {}, "children": ["day2_stack"]}, "day2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day2_header", "day2_weather_stack", "day2_clothing_stack"]}, "day2_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["day2_icon", "day2_title"]}, "day2_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_2_sun.svg"}, "children": []}, "day2_title": {"type": "Text", "props": {"text": "Monday, September 16: Mild and Sunny", "variant": "h3"}, "children": []}, "day2_weather_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["day2_weather_label", "day2_weather_text"]}, "day2_weather_label": {"type": "Text", "props": {"text": "Weather", "variant": "label"}, "children": []}, "day2_weather_text": {"type": "Text", "props": {"text": "The best day of the forecast, with a pleasant high of 19°C, clear sunny skies, and light winds."}, "children": []}, "day2_clothing_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["day2_clothing_label", "day2_clothing_text"]}, "day2_clothing_label": {"type": "Text", "props": {"text": "Clothing", "variant": "label"}, "children": []}, "day2_clothing_text": {"type": "Text", "props": {"text": "A light sweater or long-sleeve top should be sufficient. It's a great day for walking, so sunglasses are advisable. You can likely leave the heavy rain gear at your accommodation."}, "children": []}, "day3_card": {"type": "Card", "props": {}, "children": ["day3_stack"]}, "day3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["day3_header", "day3_weather_stack", "day3_clothing_stack"]}, "day3_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["day3_icon", "day3_title"]}, "day3_icon": {"type": "Icon", "props": {"name": "../assets/r_000010_01_3_cloud-rain-heavy.svg"}, "children": []}, "day3_title": {"type": "Text", "props": {"text": "Tuesday, September 17: Cold, Wet, and Windy", "variant": "h3"}, "children": []}, "day3_weather_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["day3_weather_label", "day3_weather_text"]}, "day3_weather_label": {"type": "Text", "props": {"text": "Weather", "variant": "label"}, "children": []}, "day3_weather_text": {"type": "Text", "props": {"text": "A significant downturn in conditions. The day will be cold at 14°C, with a high chance of rain and strong, gusty winds up to 40 kph."}, "children": []}, "day3_clothing_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["day3_clothing_label", "day3_clothing_text"]}, "day3_clothing_label": {"type": "Text", "props": {"text": "Clothing", "variant": "label"}, "children": []}, "day3_clothing_text": {"type": "Text", "props": {"text": "A reliable waterproof and windproof jacket is essential. Dress warmly underneath with a sweater or fleece. Waterproof shoes are highly recommended. Due to the strong winds, a beanie or hood will be more practical than an umbrella."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

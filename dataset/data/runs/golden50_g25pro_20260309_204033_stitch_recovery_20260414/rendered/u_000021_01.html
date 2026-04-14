@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "intro_text", "diagnostic_context_card", "guide_title", "guide_intro", "steps_stack", "next_steps_title", "next_steps_stack"]}, "title": {"type": "Text", "props": {"text": "Troubleshooting Your Nighthawk R7000 Disconnects", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Based on your description, the issue is likely related to the router's configuration, firmware, or a signal problem from your ISP. The amber internet light indicates the router is failing to acquire a valid IP address or connection from the modem. The following systematic guide will help you diagnose the root cause."}, "children": []}, "diagnostic_context_card": {"type": "Card", "props": {}, "children": ["diagnostic_context_stack"]}, "diagnostic_context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["diagnostic_context_title", "diagnostic_context_text"]}, "diagnostic_context_title": {"type": "Text", "props": {"text": "Diagnostic Context", "variant": "h3"}, "children": []}, "diagnostic_context_text": {"type": "Text", "props": {"text": "• Router: Netgear Nighthawk R7000\n• ISP: Comcast\n• Symptom: Hourly internet disconnects for ~5 minutes; router's internet light turns amber.\n• Initial Steps Taken: Rebooting modem/router and checking physical cables."}, "children": []}, "guide_title": {"type": "Text", "props": {"text": "Step-by-Step Diagnostic Guide", "variant": "h3"}, "children": []}, "guide_intro": {"type": "Text", "props": {"text": "Follow these steps in order. After each step, monitor your connection for at least an hour to see if the issue is resolved before proceeding to the next."}, "children": []}, "steps_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step1_card", "step2_card", "step3_card", "step4_card", "step5_card"]}, "step1_card": {"type": "Card", "props": {}, "children": ["step1_stack"]}, "step1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step1_title_stack", "step1_text"]}, "step1_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["step1_icon", "step1_title"]}, "step1_icon": {"type": "Icon", "props": {"name": "../assets/r_000021_01_1_card-text.svg"}, "children": []}, "step1_title": {"type": "Text", "props": {"text": "Step 1: Check Router Logs for Clues"}, "children": []}, "step1_text": {"type": "Text", "props": {"text": "The router's system logs often contain specific error messages that coincide with the disconnects. Look for entries like \"[DoS attack: ...]\", \"[Internet disconnected]\", or \"[DHCP IP: ...]\" around the time of an outage.\n• Log in to your router's admin panel by visiting `http://www.routerlogin.net`.\n• Navigate to Advanced > Administration > Logs.\n• If you see frequent \"DoS attack\" logs, this is a known firmware issue that can cause false positives and disconnects. Disabling the \"Port Scan and DoS Protection\" feature (under Advanced > Setup > WAN Setup) can be a temporary fix."}, "children": []}, "step2_card": {"type": "Card", "props": {}, "children": ["step2_stack"]}, "step2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step2_title_stack", "step2_text"]}, "step2_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["step2_icon", "step2_title"]}, "step2_icon": {"type": "Icon", "props": {"name": "../assets/r_000021_01_2_arrow-up-circle.svg"}, "children": []}, "step2_title": {"type": "Text", "props": {"text": "Step 2: Update Router Firmware"}, "children": []}, "step2_text": {"type": "Text", "props": {"text": "Outdated firmware is a very common cause of performance and stability problems.\n• In the router admin panel, go to Advanced > Administration > Router Update.\n• Click \"Check\" and if a new version is available, follow the on-screen instructions to install it."}, "children": []}, "step3_card": {"type": "Card", "props": {}, "children": ["step3_stack"]}, "step3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step3_title_stack", "step3_text"]}, "step3_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["step3_icon", "step3_title"]}, "step3_icon": {"type": "Icon", "props": {"name": "../assets/r_000021_01_3_thermometer-half.svg"}, "children": []}, "step3_title": {"type": "Text", "props": {"text": "Step 3: Rule Out Overheating"}, "children": []}, "step3_text": {"type": "Text", "props": {"text": "The Nighthawk R7000 can run hot, which may cause components to fail intermittently.\n• Check if the router feels excessively hot to the touch.\n• Ensure it is in a well-ventilated area with at least a few inches of clearance on all sides. Do not place it in a closed cabinet or on top of other electronics."}, "children": []}, "step4_card": {"type": "Card", "props": {}, "children": ["step4_stack"]}, "step4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step4_title_stack", "step4_text"]}, "step4_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["step4_icon", "step4_title"]}, "step4_icon": {"type": "Icon", "props": {"name": "../assets/r_000015_01_1_signpost-split.svg"}, "children": []}, "step4_title": {"type": "Text", "props": {"text": "Step 4: Change DNS Servers"}, "children": []}, "step4_text": {"type": "Text", "props": {"text": "Your ISP's DNS servers can sometimes be unreliable. Switching to a public DNS provider is a common and effective fix for intermittent connectivity.\n• In the admin panel, navigate to Basic > Internet.\n• Under \"Domain Name Server (DNS) Address\", select Use These DNS Servers.\n• Enter a primary and secondary address. Two reliable options are:\n  • Google DNS: `8.8.8.8` and `8.8.4.4`\n  • Cloudflare DNS: `1.1.1.1` and `1.0.0.1`"}, "children": []}, "step5_card": {"type": "Card", "props": {}, "children": ["step5_stack"]}, "step5_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step5_title_stack", "step5_text"]}, "step5_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["step5_icon", "step5_title"]}, "step5_icon": {"type": "Icon", "props": {"name": "../assets/r_000021_01_5_cloud-slash.svg"}, "children": []}, "step5_title": {"type": "Text", "props": {"text": "Step 5: Isolate the Problem to the ISP"}, "children": []}, "step5_text": {"type": "Text", "props": {"text": "If the problem persists after trying all the above, the issue might be with your Comcast service or the modem itself.\n• Connect a computer directly to your modem via an Ethernet cable, bypassing the R7000 router entirely.\n• Monitor this direct connection. If you still experience hourly disconnects, the fault lies with your modem or Comcast's signal.\n• If the direct connection is stable, the R7000 is likely faulty."}, "children": []}, "next_steps_title": {"type": "Text", "props": {"text": "Next Steps", "variant": "h3"}, "children": []}, "next_steps_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["next_steps_text1", "next_steps_text2"]}, "next_steps_text1": {"type": "Text", "props": {"text": "If the problem is with your ISP or modem, contact Comcast support. Provide them with the times of the disconnects and explain that you've isolated the issue by connecting directly to the modem."}, "children": []}, "next_steps_text2": {"type": "Text", "props": {"text": "If the problem is with the router (direct connection was stable, but connection through router is not), and it's still under warranty, contact Netgear support. If it's out of warranty, you may need to consider a factory reset as a last resort or replacing the unit."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>
