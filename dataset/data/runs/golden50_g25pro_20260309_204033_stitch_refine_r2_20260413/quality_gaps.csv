@@ -1,0 +1,51 @@
+ui_id,query_id,response_id,intent,category,ir_element_count,ir_byte_size,table_domains,table_cell_coverage,information_chunking_score,image_presence,icon_presence,markdown_leak_lines,fallback_generated,screenshot_exists,screenshot_path,gaps
+u_000001_01,q_000001,r_000001_01,Information Retrieval,Travel,26,6406,generic,1.0000,0.6558,1.0000,1.0000,3,0,1,android_device_rendered\01_u_000001_01.png,markdown_leakage
+u_000002_01,q_000002,r_000002_01,Information Retrieval,Comparison,12,3172,generic,1.0000,0.6580,0.0000,0.0000,0,0,1,android_device_rendered\02_u_000002_01.png,missing_media_signal
+u_000003_01,q_000003,r_000003_01,Entertainment,Education,39,6281,,0.0000,0.8470,0.0000,1.0000,0,0,1,android_device_rendered\03_u_000003_01.png,
+u_000004_01,q_000004,r_000004_01,Entertainment,Entertainment,39,6601,,0.0000,0.8797,0.0000,0.0000,0,0,1,android_device_rendered\04_u_000004_01.png,
+u_000005_01,q_000005,r_000005_01,product_lookup,Data_visualisation,12,3850,generic,1.0000,0.4818,0.0000,1.0000,0,0,1,android_device_rendered\05_u_000005_01.png,
+u_000006_01,q_000006,r_000006_01,product_lookup,Booking,40,8072,generic,1.0000,0.7354,0.0000,1.0000,0,0,1,android_device_rendered\06_u_000006_01.png,
+u_000007_01,q_000007,r_000007_01,Booking,Booking,29,5743,generic,1.0000,0.7474,1.0000,1.0000,6,0,1,android_device_rendered\07_u_000007_01.png,markdown_leakage
+u_000008_01,q_000008,r_000008_01,Booking,Weather,42,9775,flight,1.0000,0.8547,0.0000,1.0000,12,0,1,android_device_rendered\08_u_000008_01.png,markdown_leakage
+u_000009_01,q_000009,r_000009_01,weather,Weather,19,4277,weather,1.0000,0.6569,0.0000,1.0000,3,0,1,android_device_rendered\09_u_000009_01.png,markdown_leakage
+u_000010_01,q_000010,r_000010_01,weather,Weather,28,5421,weather,1.0000,0.8264,0.0000,1.0000,0,0,1,android_device_rendered\10_u_000010_01.png,
+u_000011_01,q_000011,r_000011_01,data visualisation,Data_visualisation,16,2598,,1.0000,0.4812,0.0000,1.0000,0,0,1,android_device_rendered\11_u_000011_01.png,
+u_000012_01,q_000012,r_000012_01,data visualisation,Data_visualisation,21,5807,generic,1.0000,0.7593,0.0000,0.0000,0,0,1,android_device_rendered\12_u_000012_01.png,
+u_000013_01,q_000013,r_000013_01,Planning,Travel,2,5951,,0.0000,0.0000,0.0000,0.0000,37,1,1,android_device_rendered\13_u_000013_01.png,fallback_generated;markdown_leakage;dense_text_layout;missing_media_signal
+u_000014_01,q_000014,r_000014_01,Planning,Productivity,16,4913,,1.0000,0.4723,0.0000,1.0000,0,0,1,android_device_rendered\14_u_000014_01.png,
+u_000015_01,q_000015,r_000015_01,productivity,Event_schedule,76,11078,,0.0000,0.8830,0.0000,1.0000,29,0,1,android_device_rendered\15_u_000015_01.png,markdown_leakage
+u_000016_01,q_000016,r_000016_01,productivity,Event_schedule,18,3828,generic,1.0000,0.6519,0.0000,1.0000,3,0,1,android_device_rendered\16_u_000016_01.png,markdown_leakage
+u_000017_01,q_000017,r_000017_01,Recipe,Recipe,38,5647,,0.0000,0.8902,1.0000,1.0000,0,0,1,android_device_rendered\17_u_000017_01.png,
+u_000018_01,q_000018,r_000018_01,Recipe,Recipe,75,11229,,0.0000,0.9342,0.0000,1.0000,38,0,1,android_device_rendered\18_u_000018_01.png,markdown_leakage
+u_000019_01,q_000019,r_000019_01,Localization,Travel,27,6908,generic,1.0000,0.5285,0.0000,1.0000,2,0,1,android_device_rendered\19_u_000019_01.png,markdown_leakage
+u_000020_01,q_000020,r_000020_01,Localization,Travel,37,6543,,0.0000,0.8266,0.0000,1.0000,13,0,1,android_device_rendered\20_u_000020_01.png,markdown_leakage
+u_000021_01,q_000021,r_000021_01,Technical support,Travel,2,4687,,0.0000,0.0000,0.0000,0.0000,28,1,1,android_device_rendered\21_u_000021_01.png,fallback_generated;markdown_leakage;dense_text_layout;missing_media_signal
+u_000022_01,q_000022,r_000022_01,Technical support,Technical_Support,18,7683,generic,1.0000,0.5193,0.0000,0.0000,0,0,1,android_device_rendered\22_u_000022_01.png,
+u_000023_01,q_000023,r_000023_01,Creating Writing,Creative_writing,56,8347,,0.0000,0.8387,0.0000,1.0000,0,0,1,android_device_rendered\23_u_000023_01.png,
+u_000024_01,q_000024,r_000024_01,Creating Writing,Comparison,17,3483,,0.0000,0.7480,0.0000,1.0000,0,0,1,android_device_rendered\24_u_000024_01.png,
+u_000025_01,q_000025,r_000025_01,Event Schedule,Event_schedule,11,3720,generic,1.0000,0.5195,0.0000,0.0000,0,0,1,android_device_rendered\25_u_000025_01.png,
+u_000026_01,q_000026,r_000026_01,Event Schedule,Event_schedule,36,7860,generic,1.0000,0.8239,0.0000,1.0000,7,0,1,android_device_rendered\26_u_000026_01.png,markdown_leakage
+u_000027_01,q_000027,r_000027_01,Research Analysis,Booking,28,4863,generic,1.0000,0.7690,0.0000,1.0000,0,0,1,android_device_rendered\27_u_000027_01.png,
+u_000028_01,q_000028,r_000028_01,Research Analysis,Comparison,12,5008,generic,1.0000,0.7744,0.0000,0.0000,0,0,1,android_device_rendered\28_u_000028_01.png,missing_media_signal
+u_000029_01,q_000029,r_000029_01,Comparison,Comparison,10,4899,generic,1.0000,0.2416,0.0000,0.0000,0,0,1,android_device_rendered\29_u_000029_01.png,dense_text_layout;missing_media_signal
+u_000030_01,q_000030,r_000030_01,Comparison,Comparison,35,7733,generic,1.0000,0.7376,0.0000,1.0000,8,0,1,android_device_rendered\30_u_000030_01.png,markdown_leakage
+u_000031_01,q_000031,r_000031_01,calculation,Calculation,20,4278,generic,1.0000,0.7279,0.0000,1.0000,0,0,1,android_device_rendered\31_u_000031_01.png,
+u_000032_01,q_000032,r_000032_01,calculation,Comparison,12,3306,generic,1.0000,0.5666,0.0000,0.0000,0,0,1,android_device_rendered\32_u_000032_01.png,missing_media_signal
+u_000033_01,q_000033,r_000033_01,Travel,Travel,25,5076,,0.0000,0.6944,0.0000,1.0000,4,0,1,android_device_rendered\33_u_000033_01.png,markdown_leakage
+u_000034_01,q_000034,r_000034_01,Travel,Travel,2,5655,,0.0000,0.0000,0.0000,0.0000,25,1,1,android_device_rendered\34_u_000034_01.png,fallback_generated;markdown_leakage;dense_text_layout;missing_media_signal
+u_000035_01,q_000035,r_000035_01,Navigation,Travel,14,3921,generic,1.0000,0.5310,0.0000,0.0000,0,0,1,android_device_rendered\35_u_000035_01.png,missing_media_signal
+u_000036_01,q_000036,r_000036_01,Navigation,Travel,61,10748,,0.0000,0.9055,1.0000,1.0000,0,0,1,android_device_rendered\36_u_000036_01.png,
+u_000037_01,q_000037,r_000037_01,Education,Education,58,10827,,0.0000,0.8966,1.0000,1.0000,15,0,1,android_device_rendered\37_u_000037_01.png,markdown_leakage
+u_000038_01,q_000038,r_000038_01,Education,Education,38,6559,,0.0000,0.7352,0.0000,1.0000,0,0,1,android_device_rendered\38_u_000038_01.png,
+u_000039_01,q_000039,r_000039_01,Documentation,Education,33,7883,generic,1.0000,0.8047,0.0000,0.0000,8,0,1,android_device_rendered\39_u_000039_01.png,markdown_leakage
+u_000040_01,q_000040,r_000040_01,Documentation,Comparison,42,8925,generic,1.0000,0.8758,0.0000,1.0000,0,0,1,android_device_rendered\40_u_000040_01.png,
+u_000041_01,q_000041,r_000041_01,media playback,Productivity,63,10314,,0.0000,0.8302,0.0000,1.0000,16,0,1,android_device_rendered\41_u_000041_01.png,markdown_leakage
+u_000042_01,q_000042,r_000042_01,media playback,Recipe,42,6178,,0.0000,0.8673,0.0000,1.0000,0,0,1,android_device_rendered\42_u_000042_01.png,
+u_000043_01,q_000043,r_000043_01,qr scanner,Event_schedule,19,2921,,0.0000,0.4065,0.0000,1.0000,0,0,1,android_device_rendered\43_u_000043_01.png,dense_text_layout
+u_000044_01,q_000044,r_000044_01,qr scanner,Education,20,3183,,0.0000,0.4763,0.0000,1.0000,0,0,1,android_device_rendered\44_u_000044_01.png,
+u_000045_01,q_000045,r_000045_01,status check,Status_check,15,3295,generic,1.0000,0.7552,0.0000,1.0000,0,0,1,android_device_rendered\45_u_000045_01.png,
+u_000046_01,q_000046,r_000046_01,status check,Status_check,9,2032,generic,1.0000,0.5524,0.0000,1.0000,0,0,1,android_device_rendered\46_u_000046_01.png,
+u_000047_01,q_000047,r_000047_01,notification,General,22,3245,,0.0000,0.6427,0.0000,1.0000,0,0,1,android_device_rendered\47_u_000047_01.png,
+u_000048_01,q_000048,r_000048_01,notification,Travel,20,2610,,0.0000,0.6453,0.0000,1.0000,0,0,1,android_device_rendered\48_u_000048_01.png,
+u_000049_01,q_000049,r_000049_01,widgets,General,16,3158,generic,1.0000,0.3175,0.0000,0.0000,0,0,1,android_device_rendered\49_u_000049_01.png,dense_text_layout
+u_000050_01,q_000050,r_000050_01,widgets,Weather,5,2122,weather,0.0000,0.3402,0.0000,0.0000,0,0,1,android_device_rendered\50_u_000050_01.png,weak_table_coverage;dense_text_layout;missing_media_signal

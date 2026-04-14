@@ -1,0 +1,167 @@
+2026-04-13 21:20:14 INFO dataset: Stage2 created response_id=r_000001_01
+2026-04-13 21:20:44 INFO dataset: Stage2 created response_id=r_000002_01
+2026-04-13 21:21:22 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Forbidden_Desert_board_game.jpg/1280px-Forbidden_Desert_board_game.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:21:22 WARNING dataset: Stage2 asset unresolved response_id=r_000003_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Forbidden_Desert_board_game.jpg/1280px-Forbidden_Desert_board_game.jpg
+2026-04-13 21:21:24 INFO dataset: Stage2 created response_id=r_000003_01
+2026-04-13 21:22:37 INFO dataset: Stage2 created response_id=r_000004_01
+2026-04-13 21:23:14 INFO dataset: Stage2 created response_id=r_000005_01
+2026-04-13 21:24:06 INFO dataset: Stage2 created response_id=r_000006_01
+2026-04-13 21:24:39 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/2/23/The_Thousand_Kyoto_hotel_201905.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:24:39 WARNING dataset: Stage2 asset unresolved response_id=r_000007_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/2/23/The_Thousand_Kyoto_hotel_201905.jpg
+2026-04-13 21:24:39 INFO dataset: Stage2 created response_id=r_000007_01
+2026-04-13 21:25:24 INFO dataset: Stage2 created response_id=r_000008_01
+2026-04-13 21:25:58 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/a/a7/Praca_do_Comercio_Lisbon_April_2013-4a.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:25:58 WARNING dataset: Stage2 asset unresolved response_id=r_000009_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/a/a7/Praca_do_Comercio_Lisbon_April_2013-4a.jpg
+2026-04-13 21:25:58 INFO dataset: Stage2 created response_id=r_000009_01
+2026-04-13 21:26:29 INFO dataset: Stage2 created response_id=r_000010_01
+2026-04-13 21:27:01 INFO dataset: Stage2 created response_id=r_000011_01
+2026-04-13 21:27:36 INFO dataset: Stage2 created response_id=r_000012_01
+2026-04-13 21:28:27 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/e/e4/Montmartre_in_Paris_France_2.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:28:27 WARNING dataset: Stage2 asset unresolved response_id=r_000013_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/e/e4/Montmartre_in_Paris_France_2.jpg
+2026-04-13 21:28:28 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/a/a3/Bateaux_Mouche_sur_la_Seine_%282559051392%29.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:28:28 WARNING dataset: Stage2 asset unresolved response_id=r_000013_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/a/a3/Bateaux_Mouche_sur_la_Seine_%282559051392%29.jpg
+2026-04-13 21:28:28 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/1/1d/Jardin_des_Tuileries_28_02_2007_N1.jpg err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:28:28 WARNING dataset: Stage2 asset unresolved response_id=r_000013_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/1/1d/Jardin_des_Tuileries_28_02_2007_N1.jpg
+2026-04-13 21:28:29 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/5/54/Cit%C3%A9_des_sciences_et_de_l%27industrie_-_La_Villette_-_Paris_2010.jpg err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:28:29 WARNING dataset: Stage2 asset unresolved response_id=r_000013_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/5/54/Cit%C3%A9_des_sciences_et_de_l%27industrie_-_La_Villette_-_Paris_2010.jpg
+2026-04-13 21:28:29 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/8/87/Jardin_du_Luxembourg_in_Paris_September_2013.jpg err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:28:29 WARNING dataset: Stage2 asset unresolved response_id=r_000013_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/8/87/Jardin_du_Luxembourg_in_Paris_September_2013.jpg
+2026-04-13 21:28:29 INFO dataset: Stage2 created response_id=r_000013_01
+2026-04-13 21:29:06 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/6/6f/Making_Candles.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:29:06 WARNING dataset: Stage2 asset unresolved response_id=r_000014_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/6/6f/Making_Candles.jpg
+2026-04-13 21:29:07 INFO dataset: Stage2 created response_id=r_000014_01
+2026-04-13 21:29:48 INFO dataset: Stage2 created response_id=r_000015_01
+2026-04-13 21:30:33 INFO dataset: Stage2 created response_id=r_000016_01
+2026-04-13 21:31:08 INFO dataset: Stage2 created response_id=r_000017_01
+2026-04-13 21:31:44 INFO dataset: Stage2 created response_id=r_000018_01
+2026-04-13 21:32:23 WARNING dataset: Stage2 asset download failed url=https://images.trvl-media.com/lodging/3000000/2820000/2813500/2813426/133d168c.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:32:23 WARNING dataset: Stage2 asset unresolved response_id=r_000019_01 kind=asset url=https://images.trvl-media.com/lodging/3000000/2820000/2813500/2813426/133d168c.jpg
+2026-04-13 21:32:25 WARNING dataset: Stage2 asset download failed url=https://images.trvl-media.com/lodging/14000000/13290000/13283200/13283134/6225f82c.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:32:25 WARNING dataset: Stage2 asset unresolved response_id=r_000019_01 kind=asset url=https://images.trvl-media.com/lodging/14000000/13290000/13283200/13283134/6225f82c.jpg
+2026-04-13 21:32:27 WARNING dataset: Stage2 asset download failed url=https://images.trvl-media.com/lodging/14000000/13010000/13009700/13009653/35f37505.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:32:27 WARNING dataset: Stage2 asset unresolved response_id=r_000019_01 kind=asset url=https://images.trvl-media.com/lodging/14000000/13010000/13009700/13009653/35f37505.jpg
+2026-04-13 21:32:27 INFO dataset: Stage2 created response_id=r_000019_01
+2026-04-13 21:33:16 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Kiyomizu-dera_in_Kyoto_with_autumn_colors_202311.jpg/1280px-Kiyomizu-dera_in_Kyoto_with_autumn_colors_202311.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:33:16 WARNING dataset: Stage2 asset unresolved response_id=r_000020_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Kiyomizu-dera_in_Kyoto_with_autumn_colors_202311.jpg/1280px-Kiyomizu-dera_in_Kyoto_with_autumn_colors_202311.jpg
+2026-04-13 21:33:17 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Sannenzaka_and_Yasaka_Pagoda_at_sunset_in_Kyoto.jpg/1280px-Sannenzaka_and_Yasaka_Pagoda_at_sunset_in_Kyoto.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:33:17 WARNING dataset: Stage2 asset unresolved response_id=r_000020_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Sannenzaka_and_Yasaka_Pagoda_at_sunset_in_Kyoto.jpg/1280px-Sannenzaka_and_Yasaka_Pagoda_at_sunset_in_Kyoto.jpg
+2026-04-13 21:33:17 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Kodai-ji_Temple_in_Kyoto.jpg/1280px-Kodai-ji_Temple_in_Kyoto.jpg err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:33:17 WARNING dataset: Stage2 asset unresolved response_id=r_000020_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Kodai-ji_Temple_in_Kyoto.jpg/1280px-Kodai-ji_Temple_in_Kyoto.jpg
+2026-04-13 21:33:17 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Gion_Kyoto_Japan_in_the_evening.jpg/1280px-Gion_Kyoto_Japan_in_the_evening.jpg err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:33:17 WARNING dataset: Stage2 asset unresolved response_id=r_000020_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Gion_Kyoto_Japan_in_the_evening.jpg/1280px-Gion_Kyoto_Japan_in_the_evening.jpg
+2026-04-13 21:33:17 INFO dataset: Stage2 created response_id=r_000020_01
+2026-04-13 21:36:09 INFO dataset: Stage2 created response_id=r_000021_01
+2026-04-13 21:36:52 INFO dataset: Stage2 created response_id=r_000022_01
+2026-04-13 21:37:28 INFO dataset: Stage2 created response_id=r_000023_01
+2026-04-13 21:38:03 INFO dataset: Stage2 created response_id=r_000024_01
+2026-04-13 21:38:37 INFO dataset: Stage2 created response_id=r_000025_01
+2026-04-13 21:39:17 INFO dataset: Stage2 created response_id=r_000026_01
+2026-04-13 21:39:47 INFO dataset: Stage2 created response_id=r_000027_01
+2026-04-13 21:41:02 INFO dataset: Stage2 created response_id=r_000028_01
+2026-04-13 21:41:32 INFO dataset: Stage2 created response_id=r_000029_01
+2026-04-13 21:42:48 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/4/4b/Bull_and_Bear_Frankfurt_Stock_Exchange.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:42:48 WARNING dataset: Stage2 asset unresolved response_id=r_000030_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/4/4b/Bull_and_Bear_Frankfurt_Stock_Exchange.jpg
+2026-04-13 21:42:48 INFO dataset: Stage2 created response_id=r_000030_01
+2026-04-13 21:43:39 INFO dataset: Stage2 created response_id=r_000031_01
+2026-04-13 21:44:32 INFO dataset: Stage2 created response_id=r_000032_01
+2026-04-13 21:48:31 INFO dataset: Stage2 created response_id=r_000033_01
+2026-04-13 21:52:42 WARNING dataset: Stage2 asset download failed url=https://images.pexels.com/photos/53141/bamboo-arashiyama-kyoto-japan-53141.jpeg err=HTTP Error 404: Not Found
+2026-04-13 21:52:42 WARNING dataset: Stage2 asset unresolved response_id=r_000034_01 kind=asset url=https://images.pexels.com/photos/53141/bamboo-arashiyama-kyoto-japan-53141.jpeg
+2026-04-13 21:52:43 WARNING dataset: Stage2 asset download failed url=https://images.pexels.com/photos/14899285/pexels-photo-14899285.jpeg err=HTTP Error 404: Not Found
+2026-04-13 21:52:43 WARNING dataset: Stage2 asset unresolved response_id=r_000034_01 kind=asset url=https://images.pexels.com/photos/14899285/pexels-photo-14899285.jpeg
+2026-04-13 21:52:43 INFO dataset: Stage2 created response_id=r_000034_01
+2026-04-13 21:53:09 INFO dataset: Stage2 created response_id=r_000035_01
+2026-04-13 21:54:00 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/2/23/Pigeon_Point_Lighthouse_2021.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:54:00 WARNING dataset: Stage2 asset unresolved response_id=r_000036_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/2/23/Pigeon_Point_Lighthouse_2021.jpg
+2026-04-13 21:54:01 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/a/a5/Bixby_Creek_Bridge%2C_Big_Sur_in_July_2020.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:54:01 WARNING dataset: Stage2 asset unresolved response_id=r_000036_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/a/a5/Bixby_Creek_Bridge%2C_Big_Sur_in_July_2020.jpg
+2026-04-13 21:54:01 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/4/44/Morro_Bay_and_Morro_Rock_from_Black_Hill.jpg err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:54:01 WARNING dataset: Stage2 asset unresolved response_id=r_000036_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/4/44/Morro_Bay_and_Morro_Rock_from_Black_Hill.jpg
+2026-04-13 21:54:01 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/e/e6/Point_Dume_from_the_beach.jpg err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:54:01 WARNING dataset: Stage2 asset unresolved response_id=r_000036_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/e/e6/Point_Dume_from_the_beach.jpg
+2026-04-13 21:54:01 INFO dataset: Stage2 created response_id=r_000036_01
+2026-04-13 21:54:47 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Number-line.svg/1280px-Number-line.svg.png err=HTTP Error 404: Not Found
+2026-04-13 21:54:47 WARNING dataset: Stage2 asset unresolved response_id=r_000037_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Number-line.svg/1280px-Number-line.svg.png
+2026-04-13 21:54:48 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Quadratic_formula.svg/1200px-Quadratic_formula.svg.png err=HTTP Error 404: Not Found
+2026-04-13 21:54:48 WARNING dataset: Stage2 asset unresolved response_id=r_000037_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Quadratic_formula.svg/1200px-Quadratic_formula.svg.png
+2026-04-13 21:54:48 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Pythagorean_theorem_demonstration.svg/1200px-Pythagorean_theorem_demonstration.svg.png err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:54:48 WARNING dataset: Stage2 asset unresolved response_id=r_000037_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Pythagorean_theorem_demonstration.svg/1200px-Pythagorean_theorem_demonstration.svg.png
+2026-04-13 21:54:48 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Misleading_y-axis_in_a_line_graph.png/1024px-Misleading_y-axis_in_a_line_graph.png err=HTTP Error 429: Use thumbnail steps listed on https://w.wiki/GHai. Please contact noc@wikimedia.org for further information (a765913)
+2026-04-13 21:54:48 WARNING dataset: Stage2 asset unresolved response_id=r_000037_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Misleading_y-axis_in_a_line_graph.png/1024px-Misleading_y-axis_in_a_line_graph.png
+2026-04-13 21:54:49 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Computer-based_testing.jpg/1280px-Computer-based_testing.jpg err=HTTP Error 429: Too many requests (f061ab2)
+2026-04-13 21:54:49 WARNING dataset: Stage2 asset unresolved response_id=r_000037_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Computer-based_testing.jpg/1280px-Computer-based_testing.jpg
+2026-04-13 21:54:50 INFO dataset: Stage2 created response_id=r_000037_01
+2026-04-13 21:55:49 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Everest-Lhotse-Nuptse-from-Gokyo-Ri.jpg/1280px-Everest-Lhotse-Nuptse-from-Gokyo-Ri.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:55:49 WARNING dataset: Stage2 asset unresolved response_id=r_000038_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Everest-Lhotse-Nuptse-from-Gokyo-Ri.jpg/1280px-Everest-Lhotse-Nuptse-from-Gokyo-Ri.jpg
+2026-04-13 21:55:52 WARNING dataset: Stage2 asset download failed url=https://oceanexplorer.noaa.gov/facts/mid-ocean-ridge.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:55:52 WARNING dataset: Stage2 asset unresolved response_id=r_000038_01 kind=asset url=https://oceanexplorer.noaa.gov/facts/mid-ocean-ridge.jpg
+2026-04-13 21:55:53 WARNING dataset: Stage2 asset download failed url=https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/San_Andreas_fault.jpg/1280px-San_Andreas_fault.jpg err=HTTP Error 404: Not Found
+2026-04-13 21:55:53 WARNING dataset: Stage2 asset unresolved response_id=r_000038_01 kind=asset url=https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/San_Andreas_fault.jpg/1280px-San_Andreas_fault.jpg
+2026-04-13 21:55:54 INFO dataset: Stage2 created response_id=r_000038_01
+2026-04-13 21:56:37 INFO dataset: Stage2 created response_id=r_000039_01
+2026-04-13 21:57:13 INFO dataset: Stage2 created response_id=r_000040_01
+2026-04-13 21:57:57 INFO dataset: Stage2 created response_id=r_000041_01
+2026-04-13 21:58:31 INFO dataset: Stage2 created response_id=r_000042_01
+2026-04-13 22:08:49 INFO dataset: Stage2 created response_id=r_000043_01
+2026-04-13 22:10:08 INFO dataset: Stage2 created response_id=r_000044_01
+2026-04-13 22:10:36 INFO dataset: Stage2 created response_id=r_000045_01
+2026-04-13 22:11:07 INFO dataset: Stage2 created response_id=r_000046_01
+2026-04-13 22:18:02 INFO dataset: Stage2 created response_id=r_000047_01
+2026-04-13 22:18:29 INFO dataset: Stage2 created response_id=r_000048_01
+2026-04-13 22:22:49 INFO dataset: Stage2 created response_id=r_000049_01
+2026-04-13 22:24:48 INFO dataset: Stage2 created response_id=r_000050_01
+2026-04-13 22:25:04 INFO dataset: Stage3 Gemini prompt mode=system_prefix system_tokens=928 user_template_tokens=13
+2026-04-13 22:25:04 INFO dataset: Stage3 schema mode: flat_spec
+2026-04-13 22:26:18 INFO dataset: Stage3 created ui_id=u_000001_01 schema_ok=True
+2026-04-13 22:26:56 INFO dataset: Stage3 created ui_id=u_000002_01 schema_ok=True
+2026-04-13 22:29:16 INFO dataset: Stage3 created ui_id=u_000003_01 schema_ok=True
+2026-04-13 22:30:00 INFO dataset: Stage3 created ui_id=u_000004_01 schema_ok=True
+2026-04-13 22:30:36 INFO dataset: Stage3 created ui_id=u_000005_01 schema_ok=True
+2026-04-13 22:32:08 INFO dataset: Stage3 created ui_id=u_000006_01 schema_ok=True
+2026-04-13 22:34:01 INFO dataset: Stage3 created ui_id=u_000007_01 schema_ok=True
+2026-04-13 22:35:43 INFO dataset: Stage3 created ui_id=u_000008_01 schema_ok=True
+2026-04-13 22:36:59 INFO dataset: Stage3 created ui_id=u_000009_01 schema_ok=True
+2026-04-13 22:37:50 INFO dataset: Stage3 created ui_id=u_000010_01 schema_ok=True
+2026-04-13 22:38:47 INFO dataset: Stage3 created ui_id=u_000011_01 schema_ok=True
+2026-04-13 22:39:51 INFO dataset: Stage3 created ui_id=u_000012_01 schema_ok=True
+2026-04-13 22:42:47 INFO dataset: Stage3 created ui_id=u_000013_01 schema_ok=True
+2026-04-13 22:43:38 INFO dataset: Stage3 created ui_id=u_000014_01 schema_ok=True
+2026-04-13 22:44:48 INFO dataset: Stage3 created ui_id=u_000015_01 schema_ok=True
+2026-04-13 22:45:24 INFO dataset: Stage3 created ui_id=u_000016_01 schema_ok=True
+2026-04-13 22:48:40 INFO dataset: Stage3 created ui_id=u_000017_01 schema_ok=True
+2026-04-13 22:56:43 INFO dataset: Stage3 created ui_id=u_000018_01 schema_ok=True
+2026-04-13 22:57:29 INFO dataset: Stage3 created ui_id=u_000019_01 schema_ok=True
+2026-04-13 22:58:34 INFO dataset: Stage3 created ui_id=u_000020_01 schema_ok=True
+2026-04-13 23:02:27 INFO dataset: Stage3 created ui_id=u_000021_01 schema_ok=True
+2026-04-13 23:03:42 INFO dataset: Stage3 created ui_id=u_000022_01 schema_ok=True
+2026-04-13 23:04:49 INFO dataset: Stage3 created ui_id=u_000023_01 schema_ok=True
+2026-04-13 23:05:35 INFO dataset: Stage3 created ui_id=u_000024_01 schema_ok=True
+2026-04-13 23:07:07 INFO dataset: Stage3 created ui_id=u_000025_01 schema_ok=True
+2026-04-13 23:08:16 INFO dataset: Stage3 created ui_id=u_000026_01 schema_ok=True
+2026-04-13 23:11:14 INFO dataset: Stage3 created ui_id=u_000027_01 schema_ok=True
+2026-04-13 23:13:02 INFO dataset: Stage3 created ui_id=u_000028_01 schema_ok=True
+2026-04-13 23:14:06 INFO dataset: Stage3 created ui_id=u_000029_01 schema_ok=True
+2026-04-13 23:15:04 INFO dataset: Stage3 created ui_id=u_000030_01 schema_ok=True
+2026-04-13 23:16:05 INFO dataset: Stage3 created ui_id=u_000031_01 schema_ok=True
+2026-04-13 23:16:42 INFO dataset: Stage3 created ui_id=u_000032_01 schema_ok=True
+2026-04-13 23:18:41 INFO dataset: Stage3 created ui_id=u_000033_01 schema_ok=True
+2026-04-13 23:30:31 INFO dataset: Stage3 created ui_id=u_000034_01 schema_ok=True
+2026-04-13 23:31:08 INFO dataset: Stage3 created ui_id=u_000035_01 schema_ok=True
+2026-04-13 23:37:33 INFO dataset: Stage3 created ui_id=u_000036_01 schema_ok=True
+2026-04-13 23:45:23 INFO dataset: Stage3 created ui_id=u_000037_01 schema_ok=True
+2026-04-13 23:46:02 INFO dataset: Stage3 created ui_id=u_000038_01 schema_ok=True
+2026-04-13 23:47:03 INFO dataset: Stage3 created ui_id=u_000039_01 schema_ok=True
+2026-04-13 23:48:39 INFO dataset: Stage3 created ui_id=u_000040_01 schema_ok=True
+2026-04-13 23:58:21 INFO dataset: Stage3 created ui_id=u_000041_01 schema_ok=True
+2026-04-14 00:04:59 INFO dataset: Stage3 created ui_id=u_000042_01 schema_ok=True
+2026-04-14 00:08:58 INFO dataset: Stage3 created ui_id=u_000043_01 schema_ok=True
+2026-04-14 00:24:33 INFO dataset: Stage3 created ui_id=u_000044_01 schema_ok=True
+2026-04-14 00:34:18 INFO dataset: Stage3 created ui_id=u_000045_01 schema_ok=True
+2026-04-14 00:35:00 INFO dataset: Stage3 created ui_id=u_000046_01 schema_ok=True
+2026-04-14 00:35:35 INFO dataset: Stage3 created ui_id=u_000047_01 schema_ok=True
+2026-04-14 00:36:07 INFO dataset: Stage3 created ui_id=u_000048_01 schema_ok=True
+2026-04-14 00:36:49 INFO dataset: Stage3 created ui_id=u_000049_01 schema_ok=True
+2026-04-14 00:37:31 INFO dataset: Stage3 created ui_id=u_000050_01 schema_ok=True
+2026-04-14 00:37:31 INFO dataset: Stage3 completed created=50
+2026-04-14 00:37:31 INFO dataset: Stage3 aggregates stored at C:\Users\anupk\Documents\git\A2UI\dataset\data\runs\golden50_g25pro_20260309_204033_stitch_refine_r2_20260413\aggregates.json
+2026-04-14 00:37:31 INFO dataset: Stage3 complete.
