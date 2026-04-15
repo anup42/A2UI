@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Project: Skybridge Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#d8e3fb",
+                        "tertiary": "#000000",
+                        "secondary": "#515f74",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#d6e3ff",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "inverse-on-surface": "#ecf1ff",
+                        "primary": "#000000",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "on-tertiary-container": "#0c9488",
+                        "surface-container-low": "#f0f3ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eeff",
+                        "primary-container": "#0d1c32",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#b9c7e4",
+                        "secondary-fixed": "#d5e3fc",
+                        "outline": "#75777e",
+                        "on-primary-container": "#76849f",
+                        "surface-container-high": "#dee8ff",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#111c2d",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "background": "#f9f9ff",
+                        "inverse-surface": "#263143",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b9c7e4",
+                        "outline-variant": "#c5c6cd",
+                        "tertiary-fixed": "#89f5e7",
+                        "tertiary-fixed-dim": "#6bd8cb",
+                        "surface-dim": "#cfdaf2",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#44474d",
+                        "surface": "#f9f9ff",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f9f9ff",
+                        "tertiary-container": "#00201d",
+                        "surface-container-highest": "#d8e3fb",
+                        "on-primary-fixed": "#0d1c32",
+                        "surface-tint": "#515f78",
+                        "on-primary-fixed-variant": "#39475f",
+                        "error": "#ba1a1a",
+                        "on-background": "#111c2d",
+                        "on-secondary-container": "#57657a",
+                        "secondary-container": "#d5e3fc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-[#f9f9ff] dark:bg-[#0d1c32] fixed top-0 w-full z-50 flex justify-between items-center w-full px-6 h-16 transition-colors duration-150 ease-in-out">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#0d1c32] dark:text-[#f9f9ff]" data-icon="architecture">architecture</span>
+<h1 class="font-['Manrope'] font-extrabold tracking-tight text-2xl text-[#0d1c32] dark:text-[#f9f9ff]">Project: Skybridge</h1>
+</div>
+<div class="hidden md:flex gap-6">
+<a class="text-[#0c9488] font-bold border-b-2 border-[#0c9488] font-['Manrope'] transition-colors duration-150 ease-in-out" href="#">Timeline</a>
+<a class="text-[#111c2d] dark:text-[#b9c7e4] font-['Manrope'] hover:bg-[#d8e3fb]/50 dark:hover:bg-[#111c2d]/50 transition-colors duration-150 ease-in-out" href="#">Tasks</a>
+<a class="text-[#111c2d] dark:text-[#b9c7e4] font-['Manrope'] hover:bg-[#d8e3fb]/50 dark:hover:bg-[#111c2d]/50 transition-colors duration-150 ease-in-out" href="#">Team</a>
+</div>
+</header>
+<main class="mt-20 px-4 space-y-6">
+<!-- Hero Header -->
+<section class="relative h-48 w-full overflow-hidden rounded-lg shadow-sm">
+<img alt="Timeline Overview" class="w-full h-full object-cover grayscale brightness-50" data-alt="professional construction gantt chart planning document on technical blue paper with architectural drafting lines and measurements" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAac57Gb54ygY7CVNYPCsrf3F_oqABVTQMoKZf_c2V5eMH7s3cLjMxa27qV3xxv5Xh-xKqMo9yOYtlKNsCdYuS5jGvy95xe6W6-wERM7ZKkw07gz6P23PkA9YVVVEbHkmTMF6diJ6ISS88QFc-oiBsEs-6xXOzKjT1_7PQjRjcSaACB9kpHHWlA5wui89nd0bnFuwsGBW8BVSIuBt4WW9t5s6HhDUnJIb73jq9zPkJkjo7qHQ0GEXnT5CnBuG3eIDQ1KekokMWMJSA"/>
+<div class="absolute inset-0 bg-primary-container/40 flex flex-col justify-end p-6">
+<p class="text-on-tertiary-container font-label uppercase tracking-widest text-[10px] mb-1">Architecture &amp; Engineering</p>
+<h2 class="text-on-primary font-headline text-3xl font-extrabold tracking-tight">Project Timeline</h2>
+</div>
+</section>
+<!-- Key Metrics Bento -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-highest p-4 rounded-lg relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-on-tertiary-container"></div>
+<p class="text-on-primary-container font-label text-[10px] uppercase tracking-widest">Min. Duration</p>
+<p class="text-on-surface font-headline text-3xl font-black">19 Days</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg">
+<p class="text-on-primary-container font-label text-[10px] uppercase tracking-widest">Active Path</p>
+<p class="text-on-tertiary-container font-headline text-2xl font-bold">Critical</p>
+</div>
+</div>
+<!-- Critical Path Visualization -->
+<section class="space-y-3">
+<h3 class="font-headline font-extrabold text-on-surface tracking-tight flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="linear_scale">linear_scale</span>
+                Critical Path Analysis
+            </h3>
+<div class="bg-surface-container-lowest p-6 rounded-lg space-y-4">
+<div class="flex items-center justify-between overflow-x-auto pb-4 gap-4 no-scrollbar">
+<div class="flex flex-col items-center gap-2 shrink-0">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-sm">A</div>
+<p class="text-[9px] font-bold uppercase tracking-tighter">Excavation</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="arrow_forward">arrow_forward</span>
+<div class="flex flex-col items-center gap-2 shrink-0">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-sm">B</div>
+<p class="text-[9px] font-bold uppercase tracking-tighter">Foundation</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="arrow_forward">arrow_forward</span>
+<div class="flex flex-col items-center gap-2 shrink-0">
+<div class="w-10 h-10 rounded-full bg-on-tertiary-container text-on-tertiary flex items-center justify-center font-bold text-sm">C</div>
+<p class="text-[9px] font-bold uppercase tracking-tighter text-on-tertiary-container">Framing</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="arrow_forward">arrow_forward</span>
+<div class="flex flex-col items-center gap-2 shrink-0">
+<div class="w-10 h-10 rounded-full bg-on-tertiary-container text-on-tertiary flex items-center justify-center font-bold text-sm">E</div>
+<p class="text-[9px] font-bold uppercase tracking-tighter text-on-tertiary-container">Electrical</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="arrow_forward">arrow_forward</span>
+<div class="flex flex-col items-center gap-2 shrink-0">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-sm">F</div>
+<p class="text-[9px] font-bold uppercase tracking-tighter">Inspect</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded text-[11px] leading-relaxed text-secondary border-l-2 border-on-tertiary-container">
+<strong class="text-on-surface">NOTE:</strong> The framing and electrical work represent the primary dictates of completion time due to sequential dependency.
+                </div>
+</div>
+</section>
+<!-- Task List / Table -->
+<section class="space-y-3">
+<div class="flex justify-between items-end">
+<h3 class="font-headline font-extrabold text-on-surface tracking-tight">Project Tasks</h3>
+<p class="text-[10px] text-secondary-fixed-dim font-bold uppercase tracking-widest">Technical Spec v2.1</p>
+</div>
+<div class="bg-surface-container-lowest overflow-hidden rounded-lg">
+<div class="grid grid-cols-12 bg-surface-container-high px-4 py-3 border-b border-outline-variant/15">
+<div class="col-span-2 font-label text-[10px] font-black uppercase text-on-surface-variant">ID</div>
+<div class="col-span-6 font-label text-[10px] font-black uppercase text-on-surface-variant">Task Name</div>
+<div class="col-span-4 text-right font-label text-[10px] font-black uppercase text-on-surface-variant">Dur/Pred</div>
+</div>
+<div class="divide-y divide-outline-variant/10">
+<!-- Task A -->
+<div class="grid grid-cols-12 px-4 py-4 items-center">
+<div class="col-span-2 font-bold text-primary">A</div>
+<div class="col-span-6 font-medium text-on-surface">Excavation</div>
+<div class="col-span-4 text-right">
+<span class="text-[10px] bg-surface-container px-2 py-1 rounded font-bold">4d</span>
+<span class="text-[10px] text-outline-variant ml-1">—</span>
+</div>
+</div>
+<!-- Task B -->
+<div class="grid grid-cols-12 px-4 py-4 items-center bg-surface-container-low/30">
+<div class="col-span-2 font-bold text-primary">B</div>
+<div class="col-span-6 font-medium text-on-surface">Pour Foundation</div>
+<div class="col-span-4 text-right">
+<span class="text-[10px] bg-surface-container px-2 py-1 rounded font-bold">3d</span>
+<span class="text-[10px] text-primary font-bold ml-1">A</span>
+</div>
+</div>
+<!-- Task C -->
+<div class="grid grid-cols-12 px-4 py-4 items-center bg-on-tertiary-container/5">
+<div class="col-span-2 font-bold text-on-tertiary-container">C</div>
+<div class="col-span-6 font-bold text-on-surface">Framing</div>
+<div class="col-span-4 text-right">
+<span class="text-[10px] bg-on-tertiary-container/20 text-on-tertiary-container px-2 py-1 rounded font-black">7d</span>
+<span class="text-[10px] text-primary font-bold ml-1">B</span>
+</div>
+</div>
+<!-- Task D -->
+<div class="grid grid-cols-12 px-4 py-4 items-center">
+<div class="col-span-2 font-bold text-primary">D</div>
+<div class="col-span-6 font-medium text-on-surface">Plumbing Rough-in</div>
+<div class="col-span-4 text-right">
+<span class="text-[10px] bg-surface-container px-2 py-1 rounded font-bold">4d</span>
+<span class="text-[10px] text-primary font-bold ml-1">B</span>
+</div>
+</div>
+<!-- Task E -->
+<div class="grid grid-cols-12 px-4 py-4 items-center bg-on-tertiary-container/5">
+<div class="col-span-2 font-bold text-on-tertiary-container">E</div>
+<div class="col-span-6 font-bold text-on-surface">Electrical Rough-in</div>
+<div class="col-span-4 text-right">
+<span class="text-[10px] bg-on-tertiary-container/20 text-on-tertiary-container px-2 py-1 rounded font-black">3d</span>
+<span class="text-[10px] text-primary font-bold ml-1">C</span>
+</div>
+</div>
+<!-- Task F -->
+<div class="grid grid-cols-12 px-4 py-4 items-center">
+<div class="col-span-2 font-bold text-primary">F</div>
+<div class="col-span-6 font-medium text-on-surface">Inspection</div>
+<div class="col-span-4 text-right">
+<span class="text-[10px] bg-surface-container px-2 py-1 rounded font-bold">2d</span>
+<span class="text-[10px] text-primary font-bold ml-1">D,E</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Project Path Calculations -->
+<section class="space-y-3">
+<h3 class="font-headline font-extrabold text-on-surface tracking-tight flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="calculate">calculate</span>
+                Project Path Calculations
+            </h3>
+<div class="bg-primary-container p-6 rounded-lg text-on-primary">
+<div class="grid grid-cols-2 gap-8 divide-x divide-outline-variant/30">
+<div class="space-y-2">
+<p class="font-label text-[10px] uppercase tracking-widest text-on-primary-container">Primary Path 01</p>
+<p class="text-3xl font-black">19 <span class="text-sm font-light opacity-60">DAYS</span></p>
+<p class="text-[9px] uppercase font-bold text-on-tertiary-container">Critical sequence</p>
+</div>
+<div class="pl-8 space-y-2">
+<p class="font-label text-[10px] uppercase tracking-widest text-on-primary-container">Alt Path 02</p>
+<p class="text-3xl font-black opacity-40">13 <span class="text-sm font-light">DAYS</span></p>
+<p class="text-[9px] uppercase font-bold text-outline">Sub-critical float</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/20 flex items-center gap-4">
+<div class="w-12 h-12 bg-white/5 rounded flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="speed">speed</span>
+</div>
+<p class="text-xs font-medium opacity-80">Path variance detected: 6 days lag between structural framing and mechanical systems.</p>
+</div>
+</div>
+</section>
+<!-- Contextual Visuals -->
+<section class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<img class="w-full aspect-square object-cover rounded shadow-inner" data-alt="close-up of wet concrete being poured into wooden forms for building foundation with rebar reinforcement" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL_GblE9mTfMtxQ6KhsMnI49CGhB4wQJHZxbkZnpKmnKratyXoaKt-M2jiQxjdp2AP8xKnR4vLDDGsZOJVjnoFsPLOOPPfrPKqRBoawCA7mXjDChQlsNVQVeMVXPv8jPGexcrfVx4utU-pY5NEVB933RL5XQbB0MdhmOSmMQIXo2u4r8x0wD1DQa09113a-x3r109QlYSkS4KJXWfrnMuAaYU-Pygbs7wPSscyPAKIf5d58IzJt7TytmnL6Wz42ntt7I5ZcwgPJ3o"/>
+<p class="text-[9px] font-bold uppercase tracking-widest text-center text-on-surface-variant">Phase 02: Foundation</p>
+</div>
+<div class="space-y-2">
+<img class="w-full aspect-square object-cover rounded shadow-inner" data-alt="low angle view of wooden structural framing of a house against a bright morning sky with technical blueprint overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ2bHIRXpgICfO8z8bmYjJS6E9ejQAR8CxZaJckD01eQHjdEt6L-Kvx80wDs62CD2SulyO4JGTYSOqBaK03l2P54l-7GsppbplFjdO_H63g5JCW4nbAHQstzoiFjP5PbOJeaxr66iawtIv4U7PI5sOu5WwGRwWa5XEGUSvAB_qBaK5AYDk7VkR1aGly2Agx6dLag0Pn8_gUs_Gx2q359lFJ1_OROSvtK378ztLBICVrO2AOvE5y8Ur2gk2bVp90ykISgXykVnIVo0"/>
+<p class="text-[9px] font-bold uppercase tracking-widest text-center text-on-surface-variant">Phase 03: Framing</p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-[#f9f9ff] dark:bg-[#0d1c32] border-t border-[#c5c6cd]/15">
+<div class="flex flex-col items-center justify-center text-[#0c9488] bg-[#d8e3fb] dark:bg-[#111c2d] rounded-[4px] py-1 px-4 scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="linear_scale">linear_scale</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest">Timeline</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#111c2d] dark:text-[#b9c7e4] py-1 px-4 opacity-70 hover:bg-[#f0f3ff] dark:hover:bg-[#111c2d] scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest">Tasks</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#111c2d] dark:text-[#b9c7e4] py-1 px-4 opacity-70 hover:bg-[#f0f3ff] dark:hover:bg-[#111c2d] scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest">Team</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#111c2d] dark:text-[#b9c7e4] py-1 px-4 opacity-70 hover:bg-[#f0f3ff] dark:hover:bg-[#111c2d] scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest">Settings</span>
+</div>
+</nav>
+</body></html>

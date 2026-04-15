@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["main_title", "intro_text", "image_gallery", "context_card", "checklist_card", "itineraries_card", "actions_card"]}, "main_title": {"type": "Text", "props": {"text": "Your Transatlantic Multi-City Flight Plan", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This plan outlines the booking process and pre-purchase checks for a two-adult, multi-city trip in Economy class from New York (JFK) to London (LHR), then to Rome (FCO), and returning to New York (JFK) in May 2025. The focus is on Star Alliance carriers with at least one checked bag included and layovers under four hours."}, "children": []}, "image_gallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image_london", "image_rome", "image_ny"]}, "image_london": {"type": "Image", "props": {"url": "../assets/r_000008_01_1_london_bridge.jpg", "fit": "cover"}, "children": []}, "image_rome": {"type": "Image", "props": {"url": "../assets/r_000008_01_2_rome_colosseum.jpg", "fit": "cover"}, "children": []}, "image_ny": {"type": "Image", "props": {"url": "../assets/r_000008_01_3_newyork_skyline.jpg", "fit": "cover"}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_stack"]}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["context_title", "context_text"]}, "context_title": {"type": "Text", "props": {"text": "Planning Context for U.S. Travelers", "variant": "h2"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "This checklist assumes both adult passengers are U.S. citizens traveling with U.S. passports. Visa and entry requirements can vary significantly based on nationality, so it is crucial to verify the rules for your specific citizenship and travel documents."}, "children": []}, "checklist_card": {"type": "Card", "props": {}, "children": ["checklist_stack"]}, "checklist_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["checklist_title", "checklist_intro", "documents_title", "doc_item_1", "doc_item_2", "doc_item_3", "airline_title", "airline_item_1", "airline_item_2", "airline_item_3", "airline_item_4", "itinerary_title", "itinerary_item_1", "itinerary_item_2", "itinerary_item_3"]}, "checklist_title": {"type": "Text", "props": {"text": "Pre-Booking Verification Checklist", "variant": "h2"}, "children": []}, "checklist_intro": {"type": "Text", "props": {"text": "Before committing to a purchase, review these critical details to avoid unexpected costs or travel disruptions."}, "children": []}, "documents_title": {"type": "Text", "props": {"text": "Travel Documents & Entry Requirements", "variant": "h3"}, "children": []}, "doc_item_1": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["doc_icon_1", "doc_text_1"]}, "doc_icon_1": {"type": "Icon", "props": {"name": "../assets/r_000008_01_5_clipboard-check.svg"}, "children": []}, "doc_text_1": {"type": "Text", "props": {"text": "Passport Validity: Confirm both passports are valid for at least six months beyond your return date (i.e., valid until at least late November 2025)."}, "children": []}, "doc_item_2": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["doc_icon_2", "doc_text_2"]}, "doc_icon_2": {"type": "Icon", "props": {"name": "../assets/r_000008_01_5_clipboard-check.svg"}, "children": []}, "doc_text_2": {"type": "Text", "props": {"text": "Visa and Entry Rules: As of now, U.S. citizens do not need a visa for short-term tourist stays in the UK or the Schengen Area (which includes Italy)."}, "children": []}, "doc_item_3": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["doc_icon_3", "doc_text_3"]}, "doc_icon_3": {"type": "Icon", "props": {"name": "../assets/r_000008_01_5_clipboard-check.svg"}, "children": []}, "doc_text_3": {"type": "Text", "props": {"text": "ETIAS Authorization: Check the official status of the European Travel Information and Authorisation System (ETIAS). Verify the implementation date and application process on the official EU website."}, "children": []}, "airline_title": {"type": "Text", "props": {"text": "Airline, Fare & Baggage Policies", "variant": "h3"}, "children": []}, "airline_item_1": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["airline_icon_1", "airline_text_1"]}, "airline_icon_1": {"type": "Icon", "props": {"name": "../assets/r_000005_01_4_bag-check.svg"}, "children": []}, "airline_text_1": {"type": "Text", "props": {"text": "Carrier Confirmation: Ensure all flights are operated by Star Alliance member airlines to maintain alliance benefits."}, "children": []}, "airline_item_2": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["airline_icon_2", "airline_text_2"]}, "airline_icon_2": {"type": "Icon", "props": {"name": "../assets/r_000005_01_4_bag-check.svg"}, "children": []}, "airline_text_2": {"type": "Text", "props": {"text": "Baggage Allowance: Carefully read the fare details to confirm that one checked bag per passenger is included for all three flight legs."}, "children": []}, "airline_item_3": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["airline_icon_3", "airline_text_3"]}, "airline_icon_3": {"type": "Icon", "props": {"name": "../assets/r_000005_01_4_bag-check.svg"}, "children": []}, "airline_text_3": {"type": "Text", "props": {"text": "Fare Rules & Flexibility: Understand the policies for changes and cancellations. Note the fees for modifying your itinerary."}, "children": []}, "airline_item_4": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["airline_icon_4", "airline_text_4"]}, "airline_icon_4": {"type": "Icon", "props": {"name": "../assets/r_000005_01_4_bag-check.svg"}, "children": []}, "airline_text_4": {"type": "Text", "props": {"text": "Seat Selection: Determine if standard seat selection is included or if it requires an additional fee."}, "children": []}, "itinerary_title": {"type": "Text", "props": {"text": "Flight Itinerary Details", "variant": "h3"}, "children": []}, "itinerary_item_1": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["itinerary_icon_1", "itinerary_text_1"]}, "itinerary_icon_1": {"type": "Icon", "props": {"name": "../assets/r_000003_01_5_airplane.svg"}, "children": []}, "itinerary_text_1": {"type": "Text", "props": {"text": "Layover Logistics: Verify that any connection times are under your 4-hour limit and check for airport transfers."}, "children": []}, "itinerary_item_2": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["itinerary_icon_2", "itinerary_text_2"]}, "itinerary_icon_2": {"type": "Icon", "props": {"name": "../assets/r_000003_01_5_airplane.svg"}, "children": []}, "itinerary_text_2": {"type": "Text", "props": {"text": "Passenger Names: Double-check that the first, middle, and last names for both passengers on the booking match their passports exactly."}, "children": []}, "itinerary_item_3": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["itinerary_icon_3", "itinerary_text_3"]}, "itinerary_icon_3": {"type": "Icon", "props": {"name": "../assets/r_000003_01_5_airplane.svg"}, "children": []}, "itinerary_text_3": {"type": "Text", "props": {"text": "Total Travel Time: Review the full duration of each travel day, including layovers, to ensure it aligns with your expectations."}, "children": []}, "itineraries_card": {"type": "Card", "props": {}, "children": ["itineraries_stack"]}, "itineraries_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["itineraries_title", "itineraries_intro", "itineraries_table"]}, "itineraries_title": {"type": "Text", "props": {"text": "Sample Star Alliance Itineraries", "variant": "h2"}, "children": []}, "itineraries_intro": {"type": "Text", "props": {"text": "These are illustrative examples of how different Star Alliance carriers might be combined to fulfill your itinerary. Actual routes, layovers, and availability will vary."}, "children": []}, "itineraries_table": {"type": "Table", "props": {"domain": "flight", "preferredPresentation": "cards", "columns": [{"key": "carrier", "label": "Carrier Combination"}, {"key": "leg1", "label": "Leg 1: JFK-LHR"}, {"key": "leg2", "label": "Leg 2: LHR-FCO"}, {"key": "leg3", "label": "Leg 3: FCO-JFK"}, {"key": "feature", "label": "Key Feature"}], "rows": [{"carrier": "United / Lufthansa", "leg1": "United (Direct)", "leg2": "Lufthansa (1 stop via FRA)", "leg3": "United (Direct)", "feature": "Maximizes direct long-haul flights."}, {"carrier": "Air Canada", "leg1": "Air Canada (1 stop via YYZ)", "leg2": "Air Canada (1 stop via YUL)", "leg3": "Air Canada (1 stop via YYZ)", "feature": "Consistent single-carrier experience through Canadian hubs."}, {"carrier": "Swiss International", "leg1": "SWISS (1 stop via ZRH)", "leg2": "SWISS (1 stop via ZRH)", "leg3": "SWISS (1 stop via ZRH)", "feature": "Efficient connections through a single European hub (Zurich)."}, {"carrier": "Lufthansa", "leg1": "Lufthansa (1 stop via MUC)", "leg2": "Lufthansa (Direct)", "leg3": "Lufthansa (1 stop via FRA)", "feature": "Utilizes a primary European carrier for all legs."}, {"carrier": "Turkish Airlines", "leg1": "Turkish (1 stop via IST)", "leg2": "Turkish (1 stop via IST)", "leg3": "Turkish (1 stop via IST)", "feature": "Often offers competitive pricing with a single stop in Istanbul."}]}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "action_1_stack", "action_2_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "action_1_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action_1_text", "action_1_button"]}, "action_1_text": {"type": "Text", "props": {"text": "Search Star Alliance Flights: Use the official alliance finder to explore routes and member airline options."}, "children": []}, "action_1_button": {"type": "Button", "props": {"label": "Open Flight Finder", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.staralliance.com/en/finder"}}}}, "action_2_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action_2_text", "action_2_button"]}, "action_2_text": {"type": "Text", "props": {"text": "Check ETIAS Official Status: Verify the latest requirements for U.S. citizens traveling to the Schengen Area."}, "children": []}, "action_2_button": {"type": "Button", "props": {"label": "Visit EU Travel Site", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://travel-europe.europa.eu/etias_en"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

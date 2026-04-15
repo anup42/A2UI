@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Flight Ranking: NYC to London</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#2f486a",
+                    "inverse-primary": "#ffb4a3",
+                    "surface-container-high": "#ebe8e3",
+                    "on-tertiary-container": "#7ea2ee",
+                    "on-primary-container": "#f88065",
+                    "surface-variant": "#e5e2dd",
+                    "inverse-surface": "#31302d",
+                    "on-secondary": "#ffffff",
+                    "outline": "#8a726c",
+                    "tertiary": "#002152",
+                    "surface-container-low": "#f6f3ee",
+                    "on-primary-fixed-variant": "#812814",
+                    "on-tertiary-fixed": "#001a43",
+                    "primary": "#4b0900",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f3f0eb",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#ddc0ba",
+                    "tertiary-fixed": "#d8e2ff",
+                    "secondary-fixed": "#d4e3ff",
+                    "secondary": "#476083",
+                    "secondary-container": "#bdd6ff",
+                    "secondary-fixed-dim": "#afc8f0",
+                    "primary-fixed": "#ffdad2",
+                    "primary-container": "#6e1a07",
+                    "surface-container": "#f0ede8",
+                    "on-secondary-fixed": "#001c3a",
+                    "tertiary-container": "#00367c",
+                    "background": "#fcf9f4",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#aec6ff",
+                    "on-primary-fixed": "#3d0600",
+                    "on-background": "#1c1c19",
+                    "on-surface-variant": "#56423d",
+                    "surface-dim": "#dcdad5",
+                    "surface-tint": "#a13f29",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#445d80",
+                    "surface-bright": "#fcf9f4",
+                    "surface": "#fcf9f4",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#1a448a",
+                    "primary-fixed-dim": "#ffb4a3",
+                    "on-surface": "#1c1c19",
+                    "surface-container-highest": "#e5e2dd",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Newsreader"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #fcf9f4;
+        }
+        .serif-italic { font-family: 'Newsreader', serif; font-style: italic; }
+        .serif-heading { font-family: 'Newsreader', serif; }
+        
+        /* The "No-Line" Rule transitions */
+        .section-split {
+            background: linear-gradient(to bottom, #fcf9f4 0%, #f6f3ee 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f4] dark:bg-stone-950">
+<div class="flex justify-between items-center px-6 h-16 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#4b0900] dark:text-red-400">menu</span>
+<h1 class="text-2xl font-serif italic tracking-tight text-[#4b0900] dark:text-red-300">Curated Journeys</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male traveler in a clean studio setting with soft warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6EhPWcaL94USIB9gt6zv90uqJpN11HEf8PPqoGn4eKLL2r5HqJEyp_Y3POxO_f5N2IsL8k2EPeUC1bJHF0VvXB7SHxafuikM3GhhM8DknJlDTtrc4GbaPjwUUhYb1jIGR2X9zzfeaMyqqb_F8byWZxUOzu_ZAu4vJguCokGO4xZQ8Ot__nZZ61EeFcYCIPhiaOHVKiy2zL__ooWKkEKTAXaFtk7Prad6vxxTeYoYxk1DHnSyiIolSRMN3tQKVyIERrL2JU3owMa4"/>
+</div>
+</div>
+<div class="bg-[#f2eee8] dark:bg-stone-900 h-[1px] w-full absolute bottom-0"></div>
+</header>
+<main class="pt-16 pb-24">
+<!-- Hero Section: Immersive Header -->
+<section class="relative h-[530px] flex flex-col justify-end p-8 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="London View" class="w-full h-full object-cover" data-alt="Cinematic wide shot of the London skyline and Big Ben at dusk with orange and purple skies reflected in the Thames" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8_IyCStXRcWNiwjbAVK5bAO_7PL5eTG-a0EV6uZPQvFHVTSXL48Y46ZUaYhjDkY4jW5jHp7IFN55nkhM6NqvTP6Wp1eD6o9iM8O7kmQcuttZb-ONNczWK2jt3w1EEN6Wn2itL-yOlDOLiRBtdGfY7wisi463SUsYQkSWtBhEUPvleNz3jmSCv6aSqz-4OhATQwgOufviDG6NZtqH3i_KiUPujVqqBBUuEQpzld7CMaOW5a0hQmBTcQM97jjjMddi2hliXTUCJX-0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent"></div>
+</div>
+<div class="relative z-10 space-y-2">
+<span class="inline-block px-3 py-1 bg-on-primary/10 backdrop-blur-md text-on-primary text-[10px] font-label font-bold uppercase tracking-[0.2em] rounded-full">Curated Route</span>
+<h2 class="serif-heading text-5xl md:text-7xl text-on-primary italic tracking-tight leading-none">Flight Ranking: NYC to London</h2>
+<div class="flex flex-wrap gap-x-6 gap-y-2 text-on-primary/80 font-label text-xs uppercase tracking-widest pt-4">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">calendar_today</span> Oct 15-22, 2024</span>
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">group</span> 2 Adults</span>
+</div>
+</div>
+</section>
+<!-- Intro Section: Recommendation Basis -->
+<section class="px-6 py-12 section-split">
+<div class="max-w-2xl mx-auto space-y-6">
+<div class="flex flex-col gap-1">
+<span class="text-primary font-label text-[10px] font-bold uppercase tracking-[0.2em]">The Digital Curator's Note</span>
+<h3 class="serif-heading text-3xl text-on-surface">Basis for This Recommendation</h3>
+</div>
+<p class="font-body text-on-surface-variant leading-relaxed">
+                    To curate this ranking, we balanced the tension between <span class="text-primary italic">fiscal efficiency</span> and <span class="text-primary italic">temporal value</span>. We prioritize routes that minimize dead-time at layovers while maintaining a premium onboard experience. A flight is more than a transit; it's the prologue to your journey.
+                </p>
+<div class="grid grid-cols-3 gap-4 pt-4">
+<div class="space-y-2">
+<span class="material-symbols-outlined text-primary" data-icon="payments">payments</span>
+<div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Cost</div>
+</div>
+<div class="space-y-2">
+<span class="material-symbols-outlined text-primary" data-icon="schedule">schedule</span>
+<div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Speed</div>
+</div>
+<div class="space-y-2">
+<span class="material-symbols-outlined text-primary" data-icon="hourglass_empty">hourglass_empty</span>
+<div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Layovers</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Ranked List -->
+<section class="px-6 py-8 space-y-12 bg-surface">
+<!-- Rank 1: Icelandair -->
+<article class="relative">
+<div class="absolute -top-4 -left-2 z-20 bg-primary text-on-primary font-label font-black px-4 py-2 text-xl italic rounded-lg shadow-xl">RANK 01</div>
+<div class="bg-surface-container-lowest overflow-hidden rounded-xl shadow-sm group">
+<div class="h-48 overflow-hidden relative">
+<img alt="Airplane in Sky" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Minimalist shot of a white airplane tail and wing soaring through clear blue sky with soft white clouds below" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZcVNLQRkFOrZgUCbp4_DjVadh-eswGi-JYEuUa2pYFc8xAFu8deY8uZV5xOj5wSvY9X4AheNC85rR_ixsqJ8dOZVg63XnCwntEPyQiiRmGozDH85KHeYjNrDZTLBGu9o7NiL2-_6ut7Kwe9qT-bEMXkcOKhxL4HgFlrSGLcv7vNqxNHUNH1_OdUU_J80cy6Du98Yo27FdNMrP0F0bVlqrbZAVwbX9AjOfhwdb07iKSMyuXnizFVlm0Jx7_DLYOvp6YPYFviDYEmk"/>
+<div class="absolute top-4 right-4 px-3 py-1 bg-tertiary text-on-tertiary text-[10px] font-bold uppercase tracking-widest rounded-full">Best Overall Value</div>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-end">
+<h4 class="serif-heading text-2xl">Icelandair</h4>
+<span class="text-3xl font-headline italic text-primary">$1,240</span>
+</div>
+<div class="flex gap-6 border-t border-outline-variant/20 pt-4">
+<div class="flex flex-col">
+<span class="text-[9px] uppercase tracking-widest text-on-surface-variant">Duration</span>
+<span class="font-bold text-sm">11 hrs</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[9px] uppercase tracking-widest text-on-surface-variant">Layover</span>
+<span class="font-bold text-sm">2.5h KEF</span>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Rank 2: British Airways -->
+<article class="grid grid-cols-1 md:grid-cols-2 gap-0 bg-surface-container-low rounded-xl overflow-hidden">
+<div class="h-64 md:h-auto overflow-hidden">
+<img alt="New York Cityscape" class="w-full h-full object-cover" data-alt="High-angle view of Manhattan skyscrapers at sunset with the Empire State Building prominent in the center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBC8TQgGEQduMoauK6gRm5YF6-XQL4hrM2LT3FncVphgvpZYaIPRRJ8FrqO109e9Lj1tVDm9KiMEgKqGtHl7sWg3KsoqwTIxwF7z_E85ZL-rXqiZYMEjoEKPyAGLsvtRezpx8v3zN8ExQ91dVMzPbRbw0jB3B-x9LmsnA8dbeUQQmCWZAgpn8WeRrq-h1K4yU0UaV5QdnIZZmjPM9b7bQJyamau867-wQoNl8axzT9798DBPAWe4RCTLv33-d2FZfW4NC8BrKUa9-g"/>
+</div>
+<div class="p-8 flex flex-col justify-center space-y-4">
+<div class="flex flex-col gap-1">
+<span class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest">Rank 02</span>
+<h4 class="serif-heading text-2xl">British Airways</h4>
+<span class="inline-block text-secondary-fixed-dim text-[10px] font-bold uppercase tracking-widest">Best-Balanced Direct</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="space-y-1">
+<div class="text-[10px] uppercase tracking-widest text-on-surface-variant">Time &amp; Type</div>
+<div class="font-bold">8 hrs · Direct</div>
+</div>
+<div class="text-2xl font-headline italic text-on-surface">$1,700</div>
+</div>
+</div>
+</article>
+<!-- Rank 3: Virgin Atlantic -->
+<article class="p-6 bg-surface-container-highest rounded-xl relative overflow-hidden group">
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="space-y-2">
+<span class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest">Rank 03</span>
+<h4 class="serif-heading text-2xl">Virgin Atlantic</h4>
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-widest rounded">Fastest Premium</span>
+</div>
+<div class="flex flex-wrap items-center gap-8">
+<div class="text-center">
+<div class="text-[9px] uppercase tracking-widest text-on-surface-variant">Duration</div>
+<div class="font-bold text-lg">7.5 hrs</div>
+</div>
+<div class="text-center">
+<div class="text-[9px] uppercase tracking-widest text-on-surface-variant">Stops</div>
+<div class="font-bold text-lg">None</div>
+</div>
+<div class="text-right">
+<div class="text-[9px] uppercase tracking-widest text-on-surface-variant">From</div>
+<div class="text-2xl font-headline italic text-primary">$1,800</div>
+</div>
+</div>
+</div>
+<div class="absolute right-0 bottom-0 opacity-5 scale-150 pointer-events-none group-hover:rotate-12 transition-transform duration-1000">
+<span class="material-symbols-outlined text-[120px]">flight_takeoff</span>
+</div>
+</article>
+<!-- Rank 4: American Airlines -->
+<article class="p-6 bg-surface-container-low/50 border border-outline-variant/10 rounded-xl">
+<div class="flex justify-between items-start opacity-60">
+<div class="space-y-1">
+<span class="text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest">Rank 04</span>
+<h4 class="serif-heading text-xl">American Airlines</h4>
+<p class="text-[11px] text-error font-medium italic">Not meeting primary criteria</p>
+</div>
+<span class="text-xl font-headline italic">$1,560</span>
+</div>
+<div class="mt-4 flex gap-4 text-xs text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">timer</span> 13 hrs total</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">sync_alt</span> 4.5h layover</span>
+</div>
+</article>
+</section>
+<!-- Comparison Table -->
+<section class="px-6 py-12 section-split">
+<div class="max-w-4xl mx-auto space-y-8">
+<div class="text-center space-y-2">
+<h3 class="serif-heading text-3xl">At-a-Glance Comparison</h3>
+<div class="w-12 h-px bg-primary mx-auto"></div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/70">
+<th class="pb-4 font-bold">Rank</th>
+<th class="pb-4 font-bold">Airline</th>
+<th class="pb-4 font-bold">Cost</th>
+<th class="pb-4 font-bold">Time</th>
+<th class="pb-4 font-bold text-right">Layover</th>
+</tr>
+</thead>
+<tbody class="font-body text-sm">
+<tr class="border-t border-outline-variant/10">
+<td class="py-4 font-bold text-primary italic">01</td>
+<td class="py-4">Icelandair</td>
+<td class="py-4 font-bold">$1,240</td>
+<td class="py-4">11 hrs</td>
+<td class="py-4 text-right">2.5h</td>
+</tr>
+<tr class="border-t border-outline-variant/10">
+<td class="py-4 font-bold italic">02</td>
+<td class="py-4">British Airways</td>
+<td class="py-4 font-bold">$1,700</td>
+<td class="py-4">8 hrs</td>
+<td class="py-4 text-right">—</td>
+</tr>
+<tr class="border-t border-outline-variant/10">
+<td class="py-4 font-bold italic">03</td>
+<td class="py-4">Virgin Atlantic</td>
+<td class="py-4 font-bold">$1,800</td>
+<td class="py-4">7.5 hrs</td>
+<td class="py-4 text-right">—</td>
+</tr>
+<tr class="border-t border-outline-variant/10">
+<td class="py-4 font-bold italic">04</td>
+<td class="py-4">American Airlines</td>
+<td class="py-4 font-bold">$1,560</td>
+<td class="py-4">13 hrs</td>
+<td class="py-4 text-right">4.5h</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- CTA Buttons -->
+<section class="px-6 py-12 flex flex-col gap-4 max-w-md mx-auto">
+<a class="flex items-center justify-center gap-3 bg-primary text-on-primary py-4 px-6 rounded-lg text-sm font-label font-bold uppercase tracking-widest shadow-lg hover:brightness-110 transition-all active:scale-95" href="https://www.google.com/flights">
+<span class="material-symbols-outlined">search</span>
+                Search All Flights on Google Flights
+            </a>
+<a class="flex items-center justify-center gap-3 bg-surface-container-highest text-on-surface py-4 px-6 rounded-lg text-sm font-label font-bold uppercase tracking-widest hover:bg-surface-container-high transition-all active:scale-95" href="https://www.heathrow.com/">
+<span class="material-symbols-outlined">info</span>
+                View London Heathrow Airport Info
+            </a>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50">
+<div class="bg-[#fcf9f4]/80 dark:bg-stone-950/80 backdrop-blur-xl shadow-[0_-4px_24px_rgba(28,28,25,0.04)] h-20 flex justify-around items-center px-4 pb-4 pt-2">
+<div class="bg-[#f2eee8] dark:bg-stone-900 h-[1px] w-full absolute top-0"></div>
+<a class="flex flex-col items-center justify-center text-[#4b0900] dark:text-red-300 bg-[#f2eee8] dark:bg-stone-900 rounded-xl px-4 py-1.5 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="text-[10px] uppercase tracking-[0.1em] font-sans font-bold">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-500 hover:text-[#4b0900] dark:hover:text-red-400 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="auto_awesome_heart">auto_awesome</span>
+<span class="text-[10px] uppercase tracking-[0.1em] font-sans font-bold">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-500 hover:text-[#4b0900] dark:hover:text-red-400 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="text-[10px] uppercase tracking-[0.1em] font-sans font-bold">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#002020",
+                    "secondary": "#b9c9d3",
+                    "on-secondary-fixed": "#0e1d25",
+                    "surface-container-low": "#171c1f",
+                    "surface-container-lowest": "#0a0f12",
+                    "inverse-primary": "#00696b",
+                    "primary-fixed-dim": "#2ddbde",
+                    "tertiary-container": "#8c0013",
+                    "surface-container-high": "#262b2e",
+                    "on-surface": "#dfe3e7",
+                    "surface-container": "#1b2023",
+                    "surface-bright": "#353a3d",
+                    "on-tertiary": "#68000b",
+                    "on-tertiary-fixed": "#410004",
+                    "background": "#0f1417",
+                    "outline-variant": "#404849",
+                    "surface-container-highest": "#303539",
+                    "on-secondary-fixed-variant": "#3a4951",
+                    "tertiary-fixed-dim": "#ffb3ae",
+                    "on-primary": "#003738",
+                    "secondary-fixed": "#d5e5f0",
+                    "on-primary-container": "#00c3c6",
+                    "tertiary": "#ffb3ae",
+                    "on-tertiary-container": "#ff918a",
+                    "on-surface-variant": "#bfc8c9",
+                    "on-secondary-container": "#abbbc5",
+                    "error": "#ffb4ab",
+                    "primary-fixed": "#5af8fb",
+                    "on-error": "#690005",
+                    "on-tertiary-fixed-variant": "#930014",
+                    "surface-dim": "#0f1417",
+                    "primary-container": "#004b4d",
+                    "inverse-on-surface": "#2c3134",
+                    "tertiary-fixed": "#ffdad7",
+                    "outline": "#899293",
+                    "inverse-surface": "#dfe3e7",
+                    "on-primary-fixed-variant": "#004f51",
+                    "surface-variant": "#303539",
+                    "surface-tint": "#2ddbde",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#b9c9d3",
+                    "secondary-container": "#3c4b54",
+                    "primary": "#2ddbde",
+                    "error-container": "#93000a",
+                    "surface": "#0f1417",
+                    "on-background": "#dfe3e7",
+                    "on-secondary": "#23323b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f1417;
+        color: #dfe3e7;
+      }
+      .headline-font { font-family: 'Manrope', sans-serif; }
+      .precision-gradient {
+        background: linear-gradient(135deg, #2ddbde 0%, #004b4d 100%);
+      }
+      .glass-card {
+        background: rgba(38, 43, 46, 0.7);
+        backdrop-filter: blur(24px);
+      }
+      .recessed-area {
+        background-color: #171c1f;
+      }
+      /* Hide scrollbar but keep functionality */
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0f1417] flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/15">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a professional trader in a dark studio setting with soft cyan ambient light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC634k1JUaQ4fH4zy4ucGd4kmFKTMG7tVTr0iSdmbm5Rb_WlbXP_PE8oBtfiD7IGSYEXNkSqw_dtiXqYSulxV7m5y1gpKd76H-bR8izFwlRb_CYgc2ke7nGRZmCwPcDcB6nmAMA7oShmPFsOQrKoz1prDpO35aES-8Aat6L30WzbPEiz8hU-ObjmBpELk34jqiJlGtO96WyUBD7VaRy0q0Qsx0GgOwynkZWmL1czCjN7TECWs7TVmKskLmDzfDbgKq-sFQLCKVpCvA"/>
+</div>
+<span class="text-xl font-black text-[#2ddbde] font-['Manrope'] tracking-wide uppercase">TECH Ledger</span>
+</div>
+<button class="text-[#404849] hover:bg-[#303539] transition-colors duration-200 p-2 rounded-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="pt-20 px-6 space-y-8">
+<!-- Main Headline -->
+<section class="mt-4">
+<h1 class="headline-font text-3xl font-extrabold tracking-tight text-on-surface">TECH Price Alerts</h1>
+<p class="text-on-surface-variant text-sm mt-1">Real-time intelligence for TECH equity ticker.</p>
+</section>
+<!-- Triggered Notification Details -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="headline-font text-xs font-bold uppercase tracking-widest text-primary">Triggered Notification Details</h2>
+<span class="text-[10px] text-on-surface-variant/60 font-mono">LATEST ACTIVITY</span>
+</div>
+<!-- Bento Layout for Alerts -->
+<div class="grid grid-cols-1 gap-4">
+<!-- Alert 1: New High -->
+<div class="surface-container rounded-xl p-5 border-l-4 border-primary relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl" data-icon="trending_up">trending_up</span>
+</div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded uppercase tracking-tighter">Alert 1</span>
+<h3 class="headline-font text-xl font-bold mt-2">New High</h3>
+</div>
+<div class="text-right">
+<div class="text-2xl font-black text-primary">$218.00</div>
+<div class="text-[10px] text-on-surface-variant font-medium">+4.2% from open</div>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-6 max-w-[80%]">
+                        TECH has breached the critical resistance level. Momentum indicators suggest sustained volume support.
+                    </p>
+<button class="w-full precision-gradient text-on-primary-fixed font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="monitoring">monitoring</span>
+                        View TECH Chart
+                    </button>
+</div>
+<!-- Alert 2: Large Drop -->
+<div class="surface-container rounded-xl p-5 border-l-4 border-error relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl" data-icon="trending_down">trending_down</span>
+</div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="text-[10px] font-bold bg-error/10 text-error px-2 py-0.5 rounded uppercase tracking-tighter">Alert 2</span>
+<h3 class="headline-font text-xl font-bold mt-2">Large Drop</h3>
+</div>
+<div class="text-right">
+<div class="text-2xl font-black text-error">$211.50</div>
+<div class="text-[10px] text-on-surface-variant font-medium">-3.1% intraday</div>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-6 max-w-[80%]">
+                        Significant sell-off detected. Price currently testing the 50-day moving average support line.
+                    </p>
+<button class="w-full precision-gradient text-on-primary-fixed font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="monitoring">monitoring</span>
+                        View TECH Chart
+                    </button>
+</div>
+</div>
+</section>
+<!-- Price Movement Analysis -->
+<section class="space-y-4">
+<h2 class="headline-font text-xs font-bold uppercase tracking-widest text-primary">Price Movement Analysis</h2>
+<div class="recessed-area rounded-xl overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-[10px] uppercase tracking-widest text-on-surface-variant/70 border-b border-outline-variant/10">
+<th class="px-5 py-4 font-bold">Day</th>
+<th class="px-5 py-4 font-bold">Closing Price</th>
+<th class="px-5 py-4 font-bold text-right">Daily Change</th>
+</tr>
+</thead>
+<tbody class="text-sm font-medium">
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-5 py-4 text-on-surface">Monday</td>
+<td class="px-5 py-4 text-on-surface">$214.20</td>
+<td class="px-5 py-4 text-right text-primary">+1.2%</td>
+</tr>
+<!-- Highlighted New High Row -->
+<tr class="bg-primary/5 hover:bg-primary/10 transition-colors">
+<td class="px-5 py-4 text-primary font-bold">Tuesday</td>
+<td class="px-5 py-4 text-primary font-bold">$218.00</td>
+<td class="px-5 py-4 text-right">
+<span class="bg-primary text-on-primary-fixed text-[10px] px-2 py-0.5 rounded font-black">NEW HIGH</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-5 py-4 text-on-surface">Wednesday</td>
+<td class="px-5 py-4 text-on-surface">$216.40</td>
+<td class="px-5 py-4 text-right text-error">-0.7%</td>
+</tr>
+<!-- Highlighted Large Drop Row -->
+<tr class="bg-error/5 hover:bg-error/10 transition-colors">
+<td class="px-5 py-4 text-error font-bold">Thursday</td>
+<td class="px-5 py-4 text-error font-bold">$211.50</td>
+<td class="px-5 py-4 text-right">
+<span class="bg-error text-on-error text-[10px] px-2 py-0.5 rounded font-black">LARGE DROP</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-5 py-4 text-on-surface-variant">Friday (Est)</td>
+<td class="px-5 py-4 text-on-surface-variant">$212.10</td>
+<td class="px-5 py-4 text-right text-on-surface-variant">+0.3%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="space-y-4">
+<h2 class="headline-font text-xs font-bold uppercase tracking-widest text-primary">Quick Actions</h2>
+<div class="grid grid-cols-2 gap-4">
+<button class="surface-container border border-outline-variant/10 p-4 rounded-xl flex flex-col items-center gap-3 hover:bg-surface-container-highest transition-colors group">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+</div>
+<span class="text-xs font-bold tracking-tight">Manage Alert Rules</span>
+</button>
+<button class="surface-container border border-outline-variant/10 p-4 rounded-xl flex flex-col items-center gap-3 hover:bg-surface-container-highest transition-colors group">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<span class="text-xs font-bold tracking-tight">View Portfolio</span>
+</button>
+</div>
+</section>
+<!-- Data Visualization Placeholder (Editorial Touch) -->
+<section class="pb-8">
+<div class="h-32 w-full recessed-area rounded-xl p-4 flex flex-col justify-end relative overflow-hidden">
+<div class="absolute inset-0 opacity-20 flex items-end">
+<svg class="w-full h-24 stroke-primary fill-none" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M0,80 L40,75 L80,30 L120,40 L160,10 L200,60 L240,90 L280,70 L320,85 L360,40 L400,20" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex justify-between items-end relative z-10">
+<div class="space-y-1">
+<div class="text-[10px] font-bold text-primary uppercase tracking-widest">Volatility Index</div>
+<div class="text-2xl font-black text-on-surface">18.42 <span class="text-xs font-normal text-on-surface-variant font-mono">VIX</span></div>
+</div>
+<div class="text-right">
+<span class="text-[10px] font-mono text-on-surface-variant">UPDATED 2M AGO</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-lg bg-[#171c1f]/70 backdrop-blur-xl border-t border-[#404849]/15 shadow-[0_-10px_30px_rgba(10,15,18,0.4)] flex justify-around items-center h-20 pb-safe px-4">
+<a class="flex flex-col items-center justify-center text-[#2ddbde] font-bold active:scale-110 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="notifications" style="font-variation-settings: 'FILL' 1;">notifications</span>
+<span class="font-['Inter'] text-[10px] mt-1 uppercase tracking-tighter">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#404849] hover:text-[#2ddbde] transition-all active:scale-110 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-['Inter'] text-[10px] mt-1 uppercase tracking-tighter">Analysis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#404849] hover:text-[#2ddbde] transition-all active:scale-110 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Inter'] text-[10px] mt-1 uppercase tracking-tighter">Portfolio</span>
+</a>
+</nav>
+</body></html>

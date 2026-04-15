@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Earnings Insight - Salary Breakdown</title>
+<!-- Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#ffb690",
+                    "on-primary-fixed": "#001b3c",
+                    "on-primary-container": "#799dd6",
+                    "on-tertiary-fixed": "#341100",
+                    "background": "#f9f9fe",
+                    "surface": "#f9f9fe",
+                    "tertiary-container": "#592300",
+                    "on-secondary": "#ffffff",
+                    "primary-container": "#003366",
+                    "secondary-fixed-dim": "#8bd6b6",
+                    "on-background": "#1a1c1f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e2e2e7",
+                    "outline": "#737780",
+                    "surface-container-low": "#f4f3f8",
+                    "on-secondary-container": "#237157",
+                    "surface-container": "#eeedf2",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#f1f0f5",
+                    "inverse-primary": "#a7c8ff",
+                    "secondary-fixed": "#a6f2d1",
+                    "on-surface-variant": "#43474f",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#a6f2d1",
+                    "surface-bright": "#f9f9fe",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#a7c8ff",
+                    "on-secondary-fixed-variant": "#00513b",
+                    "primary": "#001e40",
+                    "surface-tint": "#3a5f94",
+                    "on-surface": "#1a1c1f",
+                    "on-primary-fixed-variant": "#1f477b",
+                    "secondary": "#1b6b51",
+                    "tertiary-fixed": "#ffdbca",
+                    "surface-container-high": "#e8e8ed",
+                    "primary-fixed": "#d5e3ff",
+                    "surface-variant": "#e2e2e7",
+                    "on-tertiary-container": "#d8885c",
+                    "tertiary": "#381300",
+                    "on-secondary-fixed": "#002116",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#c3c6d1",
+                    "inverse-surface": "#2f3034",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#dad9de",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#723610"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-gradient {
+            background: linear-gradient(135deg, #001e40 0%, #003366 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-6 h-16 w-full fixed top-0 z-50 backdrop-blur-xl bg-opacity-80 bg-[#F9F9FE] dark:bg-slate-950">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#001E40] dark:text-blue-100 transition-all duration-300 ease-in-out active:scale-95" data-icon="menu">menu</span>
+<h1 class="text-xl font-bold text-[#001E40] dark:text-white font-manrope font-bold tracking-tight">Earnings Insight</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/15">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Professional portrait of a financial advisor in a clean office setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY69zjA9Lnt8eNlfJQS3iruMKe-PzPSfn9eReI0GwT1il9VJOyS74DZ5vIqYJjgOJUkuiJfBbushtz5xsRVBxnLu7XK4kkTMKaUr9085p99qOTqfLZVhh-Gi0NnvJv-EdtK0kFnFpy5A_-YcQEAZQ6Jym63RHP1Tuk-fZc6rFpcZacAtAFqzsod1O4ldLaVsZQ2dGMVsoVx_UQEoc15vcdcrzpR8fz2T_lswPtTDAQTMPsxMq5f5_7lbZMe3At942SbmcXT6JyP3dB"/>
+</div>
+</header>
+<main class="pt-20 pb-28 px-4 max-w-md mx-auto space-y-6">
+<!-- Hero Earnings Section -->
+<section class="mt-4 space-y-1">
+<div class="flex items-center gap-2 mb-2">
+<img alt="Briefcase Icon" class="w-4 h-4 opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWnLyC4Jz1UUtttxvaVVAJBpvKfFh0Kq7e1Qd84lplghrc8LqyPYhUhmog4tmpjbUw6wbZIlIkF8zptcCysAptZimm0BB2tv4cMn1bM2QAle3pzipcXJDYvVmEc1CODxQJ1G_yaNLQgmEAIrABGjrgPAxKI6dh_zBjzSs5j_XupKx02755XkyxopZtFBWqAdHefGchLgHl97PavvqekloRyYd1xgMRaQFa7FNMeKGcmBqJkWz2Ajst6vx-b677Guy0ShEgHmReIeId"/>
+<span class="text-on-surface-variant font-label text-xs tracking-wider uppercase">Current Rate</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-5xl font-extrabold font-headline tracking-tight text-primary">$36.06</span>
+<span class="text-lg font-semibold text-on-surface-variant">/ hr</span>
+</div>
+<p class="text-sm text-on-surface-variant font-medium leading-relaxed">
+                Based on <span class="text-on-surface font-bold">$75,000/year</span> at 40 hrs/week.
+            </p>
+</section>
+<!-- Quick Actions -->
+<div class="grid grid-cols-2 gap-3">
+<a class="editorial-gradient text-white p-4 rounded-xl flex flex-col justify-between aspect-square transition-all duration-300 ease-in-out active:scale-95" href="https://www.paycheckcity.com/calculator/salary" target="_blank">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="payments">payments</span>
+<span class="font-headline font-bold text-sm leading-tight">Calculate Take-Home Pay</span>
+</a>
+<a class="bg-surface-container-lowest border border-outline-variant/15 p-4 rounded-xl flex flex-col justify-between aspect-square shadow-[0_-12px_40px_rgba(26,28,31,0.06)] transition-all duration-300 ease-in-out active:scale-95" href="https://www.irs.gov/individuals/tax-withholding-estimator" target="_blank">
+<span class="material-symbols-outlined text-secondary" data-icon="account_balance">account_balance</span>
+<span class="font-headline font-bold text-sm leading-tight text-primary">Federal Tax Estimator</span>
+</a>
+</div>
+<!-- Pay Breakdown Card -->
+<section class="bg-surface-container-lowest rounded-full overflow-hidden shadow-[0_12px_40px_rgba(26,28,31,0.04)]">
+<div class="p-6 bg-surface-container-low/50">
+<h2 class="font-headline font-bold text-lg text-primary">Pay Breakdown</h2>
+<p class="text-xs text-on-surface-variant mt-1">Gross earnings before deductions</p>
+</div>
+<div class="divide-y divide-outline-variant/10">
+<!-- Annual -->
+<div class="p-5 flex justify-between items-center group">
+<div class="space-y-0.5">
+<p class="text-xs font-bold font-label uppercase tracking-widest text-on-surface-variant">Annual</p>
+<p class="text-[10px] text-outline italic">Base salary amount</p>
+</div>
+<p class="text-xl font-headline font-bold text-primary">$75,000</p>
+</div>
+<!-- Monthly -->
+<div class="p-5 flex justify-between items-center bg-surface-container-low/30">
+<div class="space-y-0.5">
+<p class="text-xs font-bold font-label uppercase tracking-widest text-on-surface-variant">Monthly</p>
+<p class="text-[10px] text-outline italic">Annual ÷ 12</p>
+</div>
+<p class="text-xl font-headline font-bold text-primary">$6,250</p>
+</div>
+<!-- Semi-Monthly -->
+<div class="p-5 flex justify-between items-center">
+<div class="space-y-0.5">
+<p class="text-xs font-bold font-label uppercase tracking-widest text-on-surface-variant">Semi-Monthly</p>
+<p class="text-[10px] text-outline italic">24 pay periods</p>
+</div>
+<p class="text-xl font-headline font-bold text-primary">$3,125</p>
+</div>
+<!-- Bi-Weekly -->
+<div class="p-5 flex justify-between items-center bg-surface-container-low/30">
+<div class="space-y-0.5">
+<p class="text-xs font-bold font-label uppercase tracking-widest text-on-surface-variant">Bi-Weekly</p>
+<p class="text-[10px] text-outline italic">Every 2 weeks</p>
+</div>
+<p class="text-xl font-headline font-bold text-primary">$2,885</p>
+</div>
+<!-- Weekly -->
+<div class="p-5 flex justify-between items-center">
+<div class="space-y-0.5">
+<p class="text-xs font-bold font-label uppercase tracking-widest text-on-surface-variant">Weekly</p>
+<p class="text-[10px] text-outline italic">52 pay periods</p>
+</div>
+<p class="text-xl font-headline font-bold text-primary">$1,442</p>
+</div>
+<!-- Hourly -->
+<div class="p-5 flex justify-between items-center bg-secondary-container/10 border-l-4 border-secondary">
+<div class="space-y-0.5">
+<p class="text-xs font-bold font-label uppercase tracking-widest text-secondary">Hourly</p>
+<p class="text-[10px] text-on-secondary-container/70 italic">Based on 2,080 hrs</p>
+</div>
+<p class="text-xl font-headline font-bold text-secondary">$36.06</p>
+</div>
+</div>
+</section>
+<!-- Context Card -->
+<div class="bg-surface-container-low rounded-xl p-4 flex gap-4 items-start">
+<div class="bg-surface-container-lowest p-2 rounded-lg">
+<img alt="Geo Icon" class="w-5 h-5 opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvnKka-_pMmWHmuJ3XM6wo9apGLJU30vMW5PiFtkvi3IDTttHb4oQn5rllF85B5REPukAOyHHPi5wNaS4r1ebJMVGuqMNGINZp0s34tDO0WeP5Fphj1GmZO-43VDsK2jWqApzA98o2aH2UPywop9187r_Nmxj0kJ-PFTTMTXsV6yA0iVvuvkDRcJ1ecvT_K1CtFASxfab0Ff0_wjlxZan41tKnG0yBogaSSRmOu8movTrNzXVdVSnsneQgMr3bihDLGTcdXY43lG5i"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-primary">Location Context</h3>
+<p class="text-xs text-on-surface-variant leading-normal">Your purchasing power may vary significantly based on state tax laws and local cost of living indices.</p>
+</div>
+</div>
+<!-- Footer / Sources -->
+<footer class="pt-4 pb-12 border-t border-outline-variant/10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="info">info</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-outline">Sources</span>
+</div>
+<p class="text-[10px] text-on-surface-variant/70 leading-relaxed">
+                Data provided for estimation purposes only. National wage statistics sourced from the <a class="text-primary font-bold underline decoration-secondary/30" href="https://www.bls.gov">Bureau of Labor Statistics (BLS)</a>.
+            </p>
+</footer>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#FFFFFF] dark:bg-slate-900 rounded-t-3xl shadow-[0_-12px_40px_rgba(26,28,31,0.06)] border-t border-[#43474F]/10 dark:border-white/5">
+<a class="flex flex-col items-center justify-center text-[#43474F] dark:text-slate-500 px-4 py-1.5 transition-transform duration-200 active:scale-90 hover:text-[#001E40] dark:hover:text-white" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_balance">account_balance</span>
+<span class="font-inter text-[10px] font-semibold uppercase tracking-wider">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#43474F] dark:text-slate-500 px-4 py-1.5 transition-transform duration-200 active:scale-90 hover:text-[#001E40] dark:hover:text-white" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="font-inter text-[10px] font-semibold uppercase tracking-wider">Activity</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#43474F] dark:text-slate-500 px-4 py-1.5 transition-transform duration-200 active:scale-90 hover:text-[#001E40] dark:hover:text-white" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="bolt">bolt</span>
+<span class="font-inter text-[10px] font-semibold uppercase tracking-wider">Actions</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#F4F3F8] dark:bg-emerald-900/30 text-[#1B6B51] dark:text-emerald-300 rounded-2xl px-4 py-1.5 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="insert_chart" style="font-variation-settings: 'FILL' 1;">insert_chart</span>
+<span class="font-inter text-[10px] font-semibold uppercase tracking-wider">Insights</span>
+</a>
+</nav>
+</body></html>

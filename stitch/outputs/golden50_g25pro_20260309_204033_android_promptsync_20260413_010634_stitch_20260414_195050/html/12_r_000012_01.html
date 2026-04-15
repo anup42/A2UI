@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Architect - Project Performance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#354a53",
+                    "on-tertiary-container": "#feba85",
+                    "surface-container-low": "#f3f4f5",
+                    "primary-fixed-dim": "#8cd2dd",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#8cd2dd",
+                    "on-tertiary-fixed": "#2f1500",
+                    "primary": "#00444b",
+                    "tertiary-fixed": "#ffdcc3",
+                    "on-primary-container": "#8ed3df",
+                    "outline-variant": "#bec8ca",
+                    "outline": "#6f797a",
+                    "on-secondary-container": "#526772",
+                    "on-secondary-fixed": "#071e27",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#005d67",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#191c1d",
+                    "secondary-fixed": "#cfe6f2",
+                    "surface-bright": "#f8f9fa",
+                    "tertiary-fixed-dim": "#fcb883",
+                    "surface-container": "#edeeef",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#f8f9fa",
+                    "on-primary-fixed-variant": "#004f57",
+                    "surface-dim": "#d9dadb",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2e3132",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#b4cad6",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-tertiary-fixed-variant": "#693b11",
+                    "secondary-container": "#cfe6f2",
+                    "primary-fixed": "#a8eefa",
+                    "on-primary": "#ffffff",
+                    "on-surface-variant": "#3f484a",
+                    "secondary": "#4c616c",
+                    "background": "#f8f9fa",
+                    "surface-variant": "#e1e3e4",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#e7e8e9",
+                    "tertiary-container": "#79481d",
+                    "on-surface": "#191c1d",
+                    "inverse-on-surface": "#f0f1f2",
+                    "tertiary": "#5d3207",
+                    "on-primary-fixed": "#001f24",
+                    "surface-tint": "#186872"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        .glass-header { background: rgba(248, 249, 250, 0.7); backdrop-filter: blur(20px); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased pb-28">
+<!-- TopAppBar -->
+<header class="bg-slate-50/70 backdrop-blur-xl docked full-width top-0 sticky z-50 flex justify-between items-center px-6 py-3 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional architect profile portrait in minimalist studio lighting soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNRAgPxdxsCaLoB7KchAoJSOgIpFluZvgzFS_5IMXzqIrQOwN2T1P3sShIp5WSv2Vvz43WdeFMn0CCFAijCpF8Eh3C1rO5ZxynwzmhkS55xPMXLvwO5cJM9IPKjZEn2rUp96WTDnNwTAcLBsaJ3Xs7NFPSB-5L6CPOk7-b0mBqxXidAsfqc8poQg3McjNsyOQllHvvNm5xvsw1RO_Uy-ek_upinMkYfhyWXCYpztAxVOWFQkD0S3-_9jq6tkRDJSqj4S-1gwJM_Ho"/>
+</div>
+<h1 class="font-manrope tracking-tight font-black text-xl text-teal-900">Precision Architect</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-200/50 transition-colors scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-teal-900" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="px-6 py-8 max-w-md mx-auto space-y-8">
+<!-- Dashboard Summary -->
+<section class="space-y-4">
+<div class="space-y-1">
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Nov 6-10, 2023</p>
+<h2 class="text-3xl font-extrabold tracking-tight text-primary leading-tight">Project Performance Dashboard</h2>
+</div>
+<div class="p-6 bg-surface-container-lowest rounded-xl space-y-4 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
+<div class="flex items-start gap-4">
+<div class="bg-primary-fixed p-3 rounded-full">
+<span class="material-symbols-outlined text-on-primary-fixed" data-icon="assessment">assessment</span>
+</div>
+<div>
+<h3 class="font-bold text-lg text-primary">Weekly Summary</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Optimization achieved across 3 major streams. Project work distribution remains balanced with a peak in output during mid-week transitions.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 1: Daily Hours (Stacked Bar Chart Visual) -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h3 class="text-xl font-bold tracking-tight text-primary">Daily Hours by Project</h3>
+<span class="text-xs font-bold text-surface-tint">TOTAL: 33H</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl space-y-6">
+<div class="flex justify-between items-end h-48 gap-2">
+<!-- Monday -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full flex flex-col-reverse gap-1 h-full">
+<div class="h-[43%] bg-primary rounded-t-lg group-hover:opacity-80 transition-opacity" title="Alpha: 4h"></div>
+<div class="h-[32%] bg-primary-fixed rounded-sm group-hover:opacity-80 transition-opacity" title="Beta: 3h"></div>
+</div>
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Mon</span>
+</div>
+<!-- Tuesday -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full flex flex-col-reverse gap-1 h-full">
+<div class="h-[52%] bg-primary rounded-t-lg group-hover:opacity-80 transition-opacity" title="Alpha: 5h"></div>
+<div class="h-[30%] bg-tertiary-fixed-dim rounded-sm group-hover:opacity-80 transition-opacity" title="Gamma: 3h"></div>
+</div>
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Tue</span>
+</div>
+<!-- Wednesday -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full flex flex-col-reverse gap-1 h-full">
+<div class="h-[70%] bg-primary-fixed rounded-t-lg group-hover:opacity-80 transition-opacity" title="Beta: 6h"></div>
+</div>
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Wed</span>
+</div>
+<!-- Thursday -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full flex flex-col-reverse gap-1 h-full">
+<div class="h-[21%] bg-primary rounded-t-lg group-hover:opacity-80 transition-opacity" title="Alpha: 2h"></div>
+<div class="h-[52%] bg-tertiary-fixed-dim rounded-sm group-hover:opacity-80 transition-opacity" title="Gamma: 5h"></div>
+</div>
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Thu</span>
+</div>
+<!-- Friday -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full flex flex-col-reverse gap-1 h-full">
+<div class="h-[42%] bg-primary-fixed rounded-t-lg group-hover:opacity-80 transition-opacity" title="Beta: 4h"></div>
+<div class="h-[10%] bg-tertiary-fixed-dim rounded-sm group-hover:opacity-80 transition-opacity" title="Gamma: 1h"></div>
+</div>
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Fri</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-4 pt-4 border-t border-outline-variant/15">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary-fixed"></span>
+<span class="text-xs font-bold text-on-surface-variant">BETA</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-xs font-bold text-on-surface-variant">ALPHA</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim"></span>
+<span class="text-xs font-bold text-on-surface-variant">GAMMA</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Distribution (Donut Style Visual) -->
+<section class="grid grid-cols-1 gap-4">
+<h3 class="text-xl font-bold tracking-tight text-primary">Total Effort Distribution</h3>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] flex flex-col gap-6">
+<div class="relative w-40 h-40 mx-auto">
+<!-- Simplified Visual Pie Chart Representation -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#a8eefa" stroke-dasharray="39.4 60.6" stroke-dashoffset="0" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#00444b" stroke-dasharray="33.3 66.7" stroke-dashoffset="-39.4" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#fcb883" stroke-dasharray="27.3 72.7" stroke-dashoffset="-72.7" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-black text-primary">33h</span>
+<span class="text-[8px] font-bold tracking-tighter uppercase text-on-surface-variant">Total</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center p-3 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" data-icon="circle" style="font-variation-settings: 'FILL' 1;">circle</span>
+<span class="font-bold text-sm">Project Beta</span>
+</div>
+<div class="text-right">
+<div class="text-sm font-black text-primary">13h</div>
+<div class="text-[10px] font-bold text-surface-tint">39.4%</div>
+</div>
+</div>
+<div class="flex justify-between items-center p-3 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="circle" style="font-variation-settings: 'FILL' 1;">circle</span>
+<span class="font-bold text-sm">Project Alpha</span>
+</div>
+<div class="text-right">
+<div class="text-sm font-black text-primary">11h</div>
+<div class="text-[10px] font-bold text-surface-tint">33.3%</div>
+</div>
+</div>
+<div class="flex justify-between items-center p-3 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary-fixed-dim" data-icon="circle" style="font-variation-settings: 'FILL' 1;">circle</span>
+<span class="font-bold text-sm">Project Gamma</span>
+</div>
+<div class="text-right">
+<div class="text-sm font-black text-primary">9h</div>
+<div class="text-[10px] font-bold text-surface-tint">27.3%</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Task Status Bento Grid -->
+<section class="space-y-4">
+<h3 class="text-xl font-bold tracking-tight text-primary">Task Status Summary</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-primary-container text-on-primary-container p-6 rounded-xl flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-3xl" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<div class="text-3xl font-black">05</div>
+<div class="text-xs font-bold uppercase tracking-widest opacity-80">Completed</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="bg-secondary-fixed p-4 rounded-xl flex items-center justify-between">
+<div>
+<div class="text-xl font-black text-on-secondary-fixed">03</div>
+<div class="text-[10px] font-bold uppercase tracking-widest text-on-secondary-fixed-variant">Active</div>
+</div>
+<span class="material-symbols-outlined text-on-secondary-fixed-variant" data-icon="sync">sync</span>
+</div>
+<div class="bg-error-container p-4 rounded-xl flex items-center justify-between">
+<div>
+<div class="text-xl font-black text-on-error-container">01</div>
+<div class="text-[10px] font-bold uppercase tracking-widest text-on-error-container/70">Blocked</div>
+</div>
+<span class="material-symbols-outlined text-on-error-container" data-icon="block">block</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 4: Key Insight -->
+<section class="bg-primary text-on-primary p-8 rounded-3xl relative overflow-hidden">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-primary-container/30 rounded-full blur-3xl"></div>
+<div class="relative z-10 space-y-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed" data-icon="lightbulb">lightbulb</span>
+<span class="text-xs font-bold uppercase tracking-[0.2em] text-primary-fixed">Key Insight</span>
+</div>
+<h4 class="text-2xl font-extrabold leading-tight">Project Beta required 13 cumulative hours this week.</h4>
+<p class="text-sm leading-relaxed text-on-primary/80">Analysis indicates tasks are carrying over into the next cycle. Resource reallocation suggested for Nov 13-17.</p>
+<div class="pt-4">
+<button class="bg-primary-fixed text-on-primary-fixed px-6 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-opacity">
+                        Review Carry-over
+                    </button>
+</div>
+</div>
+<!-- Aesthetic Image Background Detail -->
+<div class="absolute bottom-0 right-0 opacity-10 pointer-events-none">
+<img class="w-48 h-48 object-cover rounded-tl-full" data-alt="abstract architectural blueprint with clean geometric lines and technical drawing style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtwLygTTBYVTqVDf6fbkLGUkWiieKvLYjmAt14OQsDIvs_p4-OZWzpmHwoE490pkdjxpLNxM6hy6-xQSjyzD3sTU2Pa_CsNNS9t4BHv17dBuR7cvMsQ5iZp99NxxbXsN4LLmIuzLYVEYWDNhC0kIRuexI_cdmiQ5Xa80yxCYlo23m8BhdUrkpZ0Zid-cuv1DMHgTzQOoUCpSXlsod-faesK_NFaMaNxIG3iE2XVM4TriBYu2M4Jr7sVXNfqEs0lHiVE70zlids8lo"/>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl">
+<a class="flex flex-col items-center justify-center bg-teal-900 text-white rounded-2xl px-6 py-2 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-manrope text-[10px] uppercase tracking-widest font-bold mt-1">Overview</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-4 py-2 hover:text-teal-700 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span class="font-manrope text-[10px] uppercase tracking-widest font-bold mt-1">Reports</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-4 py-2 hover:text-teal-700 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="lightbulb">lightbulb</span>
+<span class="font-manrope text-[10px] uppercase tracking-widest font-bold mt-1">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-4 py-2 hover:text-teal-700 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-manrope text-[10px] uppercase tracking-widest font-bold mt-1">Tasks</span>
+</a>
+</nav>
+</body></html>

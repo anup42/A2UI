@@ -2,7 +2,7 @@ run:
   run_id: test_sample_1000
   intents_file: intents.info
   output_dir: data/runs
-  stage3_prompt_file: prompts/genui_gen_mobile_flatspec_v10.md
+  stage3_prompt_file: prompts/genui_gen_mobile_flatspec_v11.md
   stage3_schema_file: schema/genui_flatspec.schema.json
   stage3_legacy_prompt_file: prompts/genui_gen.md
   stage3_legacy_schema_file: schema/genui.schema.json

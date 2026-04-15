@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"holdingsData": [{"ticker": "AAPL", "current_value": "$1,752.80", "day_change_usd": "+$21.80", "day_change_pct": "+1.26%"}, {"ticker": "GOOG", "current_value": "$11,252.50", "day_change_usd": "+$27.50", "day_change_pct": "+0.24%"}, {"ticker": "TSLA", "current_value": "$2,348.40", "day_change_usd": "-$69.00", "day_change_pct": "-2.85%"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title_stack", "summary_text", "holdings_card", "total_summary_card", "actions_card"]}, "title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["title_icon", "title_text"]}, "title_icon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_2_briefcase.svg"}, "children": []}, "title_text": {"type": "Text", "props": {"text": "Portfolio Snapshot: June 14, 2023", "variant": "h2"}, "children": []}, "summary_text": {"type": "Text", "props": {"text": "This summary reflects the value of your holdings at the market close on the specified date."}, "children": []}, "holdings_card": {"type": "Card", "props": {}, "children": ["holdings_stack"]}, "holdings_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["holdings_title", "holdings_table"]}, "holdings_title": {"type": "Text", "props": {"text": "Holdings Performance", "variant": "h3"}, "children": []}, "holdings_table": {"type": "Table", "props": {"columns": [{"key": "ticker", "label": "Ticker"}, {"key": "current_value", "label": "Current Value"}, {"key": "day_change_usd", "label": "Day's Change ($)"}, {"key": "day_change_pct", "label": "Day's Change (%)"}], "statePath": "/holdingsData", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "total_summary_card": {"type": "Card", "props": {}, "children": ["total_summary_stack"]}, "total_summary_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["total_summary_title", "total_summary_table"]}, "total_summary_title": {"type": "Text", "props": {"text": "Total Portfolio Summary", "variant": "h3"}, "children": []}, "total_summary_table": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "rows": [{"metric": "Total Value", "value": "$15,353.70"}, {"metric": "Total Day's Change", "value": "-$19.70 (-0.13%)"}]}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack_wrapper"]}, "actions_stack_wrapper": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["analytics_button", "trading_button"]}, "analytics_button": {"type": "Button", "props": {"label": "View Detailed Analytics", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/finance"}}}}, "trading_button": {"type": "Button", "props": {"label": "Access Trading Platform", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.fidelity.com/trading/overview"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

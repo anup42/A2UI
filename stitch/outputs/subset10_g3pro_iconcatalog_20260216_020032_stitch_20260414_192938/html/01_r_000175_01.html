@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#cfe6f2",
+                        "surface": "#fcf9f8",
+                        "inverse-primary": "#8ad3d7",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f6f3f2",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#ffbe95",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-high": "#ebe7e7",
+                        "primary-fixed-dim": "#8ad3d7",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#14696d",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary-fixed": "#311300",
+                        "inverse-surface": "#313030",
+                        "on-primary-fixed": "#002021",
+                        "tertiary": "#62330f",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-tertiary-fixed-variant": "#6b3a16",
+                        "on-secondary-container": "#526772",
+                        "on-background": "#1c1b1b",
+                        "tertiary-fixed-dim": "#ffb688",
+                        "surface-variant": "#e5e2e1",
+                        "secondary": "#4c616c",
+                        "secondary-fixed-dim": "#b4cad6",
+                        "outline": "#6f7979",
+                        "surface-container": "#f0edec",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#3f4949",
+                        "primary": "#00464a",
+                        "secondary-fixed": "#cfe6f2",
+                        "tertiary-fixed": "#ffdbc7",
+                        "outline-variant": "#bec8c9",
+                        "on-secondary-fixed-variant": "#354a53",
+                        "on-secondary-fixed": "#071e27",
+                        "primary-container": "#006064",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#a6eff3",
+                        "on-surface": "#1c1b1b",
+                        "on-primary-fixed-variant": "#004f53",
+                        "on-primary-container": "#8fd8dc",
+                        "surface-dim": "#dcd9d9",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary-container": "#7e4924",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-gradient {
+            background: linear-gradient(135deg, #00464a 0%, #006064 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-xl flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#006064] dark:text-[#4dd0e1]" data-icon="arrow_back">arrow_back</span>
+<h1 class="font-['Manrope'] font-bold tracking-tight text-xl text-[#1c1b1b] dark:text-[#fcf9f8]">Camera Discovery</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#3f4949] dark:text-[#bec8c9] hover:bg-[#f6f3f2]/50 p-2 rounded-full transition-colors" data-icon="tune">tune</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-lg mx-auto">
+<!-- Hero Section -->
+<section class="mb-10">
+<div class="inline-block px-3 py-1 mb-4 rounded-full bg-secondary-container text-on-secondary-container font-label text-[10px] uppercase tracking-widest font-bold">
+                Expert Curation
+            </div>
+<h2 class="font-headline text-4xl font-extrabold tracking-tighter text-on-surface mb-4 leading-tight">
+                Travel Light,<br/>Shoot Professional.
+            </h2>
+<p class="font-body text-on-surface-variant leading-relaxed opacity-80">
+                Top picks for travel photography under $1,500 with IBIS and weighing under 500g. Expertly selected for portability and performance.
+            </p>
+</section>
+<!-- Bento Stack Layout -->
+<div class="space-y-8">
+<!-- Card 1: Fujifilm -->
+<div class="group relative bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300">
+<div class="aspect-[4/3] overflow-hidden">
+<img alt="Fujifilm X-S20" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Modern silver Fujifilm mirrorless camera on a minimalist wooden table with soft natural light and shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDASISW7WHc4_FaUmAXavSWmKqmmvHT7wZvHgC4h9WZYjyLRusImRbqK-u-sQlwILy1nrYqIz8Cf-MBPKB6dtLyQaEq1xK9gILwlWMglTX_KANmVOZsbDNM5qGPxotqmo5j5Z_Hah5UZPANlv_10jMgW6qO6_CSEAxI0uKg1HYgQPik7_Weu57CY4Mfm9oKFC2_UjLDfvDvQqhjIfQKe2WIjwmkOy_HNiKBhh_2l2bSNGYgExFh3Y17h7oEvEmpfmgSmv0-K6CN6Pi8"/>
+<div class="absolute top-4 right-4 editorial-gradient text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        Best Color
+                    </div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline text-2xl font-bold text-on-surface">Fujifilm X-S20</h3>
+<span class="font-headline font-bold text-primary">$1,299</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant mb-6 italic">Best color science and battery life.</p>
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="speed">speed</span>
+<span class="font-label text-[10px] uppercase tracking-tighter opacity-60">Stabilization</span>
+<span class="font-headline font-bold text-sm">7.0 stops IBIS</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="weight">weight</span>
+<span class="font-label text-[10px] uppercase tracking-tighter opacity-60">Body Weight</span>
+<span class="font-headline font-bold text-sm">491g</span>
+</div>
+</div>
+<a class="flex items-center justify-center w-full editorial-gradient text-on-primary font-bold py-4 rounded-full transition-transform active:scale-95" href="https://fujifilm-x.com/global/products/cameras/x-s20/">
+                        View at Fujifilm
+                    </a>
+</div>
+</div>
+<!-- Card 2: Sony -->
+<div class="group relative bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300">
+<div class="aspect-[4/3] overflow-hidden">
+<img alt="Sony a6700" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Professional black Sony mirrorless camera body showing precision engineering in a dark technical studio setting with teal accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUXICqm1DIqb-T8A4IuAmHefaVdsNnNW_Y5-EaJnbHrpNHnKG_qlP3aDyZYfkK2jtxjLuiglEylmCHueWqaVVLdF5Z5ww35Z4mo7voaiQAp6C4EKfDg7Hnha6_DdywEIyHmfAyOUSAxJzsbyHbZuPr8lR62Pcq2rKaaTFg4LMBu5N81Ru5reL35eG9MWIgv1kl06Ps1TKqHZAFFvkpxAxKF3RftEk3OY-qW-3Qac9qn6L8wAB4oDbUSlYZiqubEweQ1rIRuTRSv2kL"/>
+<div class="absolute top-4 right-4 editorial-gradient text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        Best AF
+                    </div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline text-2xl font-bold text-on-surface">Sony a6700</h3>
+<span class="font-headline font-bold text-primary">$1,398</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant mb-6 italic">Best autofocus and lens selection.</p>
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="flash_on">flash_on</span>
+<span class="font-label text-[10px] uppercase tracking-tighter opacity-60">Stabilization</span>
+<span class="font-headline font-bold text-sm">5.0 stops IBIS</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="fitness_center">fitness_center</span>
+<span class="font-label text-[10px] uppercase tracking-tighter opacity-60">Body Weight</span>
+<span class="font-headline font-bold text-sm">493g</span>
+</div>
+</div>
+<a class="flex items-center justify-center w-full editorial-gradient text-on-primary font-bold py-4 rounded-full transition-transform active:scale-95" href="https://electronics.sony.com/imaging/interchangeable-lens-cameras/aps-c/p/ilce6700-b">
+                        View at Sony
+                    </a>
+</div>
+</div>
+<!-- Card 3: OM System -->
+<div class="group relative bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300">
+<div class="aspect-[4/3] overflow-hidden">
+<img alt="OM System OM-5" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Rugged small camera on a mossy rock in a foggy rainy forest environment highlighting weather sealing and durability" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB90-YmuOI0TYOzr6cM-3MT1al-DBeVzZ-OJtlDj9yFdzSPZM6YNFbfQH02sI-VwzkNf9-HaKtyF1SEeFSzJBE6TiUzyhIurf7sca9zdkBd5xbVaY4abTYUiEWFi3_HhhCK_ouMeEdm2rmuDsXbCCpXnuvuNb-THpPVg30lnx1nWMXqaBOCm3YLJU-UbT-bwto_Ec0jJ8vR8y-PZj0lKcMvMdaEADQYwWIYnlZIigk5fpnT9-4PH7-j1bVBd7NTkgGYKPnNEdHBRS8d"/>
+<div class="absolute top-4 right-4 editorial-gradient text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        Weather Sealed
+                    </div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline text-2xl font-bold text-on-surface">OM System OM-5</h3>
+<span class="font-headline font-bold text-primary">$1,199</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant mb-6 italic">Most compact with IP53 weather sealing.</p>
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="vibration">vibration</span>
+<span class="font-label text-[10px] uppercase tracking-tighter opacity-60">Stabilization</span>
+<span class="font-headline font-bold text-sm">6.5 stops IBIS</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="filter_drama">filter_drama</span>
+<span class="font-label text-[10px] uppercase tracking-tighter opacity-60">Body Weight</span>
+<span class="font-headline font-bold text-sm">414g</span>
+</div>
+</div>
+<a class="flex items-center justify-center w-full editorial-gradient text-on-primary font-bold py-4 rounded-full transition-transform active:scale-95" href="https://explore.omsystem.com/us/en/om-5">
+                        View at OM System
+                    </a>
+</div>
+</div>
+</div>
+<!-- Secondary Actions Section -->
+<section class="mt-12 space-y-4">
+<h4 class="font-label text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant opacity-60 px-2">Knowledge Base</h4>
+<a class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl group transition-colors hover:bg-surface-container-high" href="https://www.dpreview.com/products/compare/side-by-side?products=fujifilm_xs20&amp;products=sony_a6700&amp;products=omsystem_om5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="compare_arrows">compare_arrows</span>
+</div>
+<span class="font-headline font-bold text-on-surface">Compare all specs</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl group transition-colors hover:bg-surface-container-high" href="https://www.digitalcameraworld.com/buying-guides/best-travel-lenses">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="camera">camera</span>
+</div>
+<span class="font-headline font-bold text-on-surface">Travel Lens Guide</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</a>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 bg-[#fcf9f8] dark:bg-[#1c1b1b] shadow-[0_-12px_24px_rgba(28,27,27,0.06)] z-50">
+<div class="flex flex-col items-center justify-center text-[#006064] dark:text-[#4dd0e1] bg-[#006064]/5 dark:bg-[#4dd0e1]/5 rounded-xl py-1 px-4">
+<span class="material-symbols-outlined" data-icon="search" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-widest font-bold mt-1">Discover</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3f4949] dark:text-[#bec8c9] py-1 px-4 hover:text-[#006064] transition-colors">
+<span class="material-symbols-outlined" data-icon="compare_arrows">compare_arrows</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-widest font-bold mt-1">Compare</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3f4949] dark:text-[#bec8c9] py-1 px-4 hover:text-[#006064] transition-colors">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-widest font-bold mt-1">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3f4949] dark:text-[#bec8c9] py-1 px-4 hover:text-[#006064] transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-widest font-bold mt-1">Settings</span>
+</div>
+</nav>
+</body></html>

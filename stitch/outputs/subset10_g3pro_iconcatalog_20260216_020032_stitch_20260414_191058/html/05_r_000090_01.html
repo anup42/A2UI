@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Game Night Selection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1a1c1c",
+                        "tertiary": "#00190f",
+                        "secondary-fixed": "#ffdcc4",
+                        "tertiary-fixed": "#97f5cc",
+                        "secondary": "#934b00",
+                        "secondary-fixed-dim": "#ffb781",
+                        "tertiary-container": "#003021",
+                        "surface-container-low": "#f4f3f2",
+                        "surface-container-high": "#e9e8e7",
+                        "secondary-container": "#fd9844",
+                        "outline-variant": "#c3c7ce",
+                        "on-primary-fixed-variant": "#274969",
+                        "inverse-on-surface": "#f1f0f0",
+                        "on-tertiary-fixed": "#002115",
+                        "primary-fixed": "#cfe5ff",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#dadad9",
+                        "surface": "#faf9f8",
+                        "on-primary-container": "#7293b6",
+                        "on-error": "#ffffff",
+                        "background": "#faf9f8",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#42474d",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eeeeed",
+                        "on-tertiary-container": "#42a17d",
+                        "on-secondary-fixed": "#2f1400",
+                        "on-tertiary-fixed-variant": "#00513a",
+                        "surface-bright": "#faf9f8",
+                        "surface-container-highest": "#e3e2e1",
+                        "on-primary-fixed": "#001d34",
+                        "on-secondary-container": "#6b3500",
+                        "outline": "#73777e",
+                        "inverse-surface": "#2f3130",
+                        "on-surface": "#1a1c1c",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#001629",
+                        "inverse-primary": "#a8caef",
+                        "tertiary-fixed-dim": "#7bd8b1",
+                        "surface-tint": "#406182",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#703800",
+                        "primary-container": "#002b49",
+                        "primary-fixed-dim": "#a8caef",
+                        "surface-variant": "#e3e2e1",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .font-plus-jakarta-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-stone-50/70 dark:bg-slate-950/70 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-sky-900 dark:text-sky-400">menu</span>
+<h1 class="font-plus-jakarta-sans tracking-tight text-xl font-bold text-sky-900 dark:text-sky-100">Game Night Selection</h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high flex items-center justify-center">
+<img alt="User Profile" data-alt="Close-up portrait of a friendly man with a slight smile in soft studio lighting with a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATWzoRUlf1iuBlaBIv_ng5v7YEdr3Es0iV-VXVuSyKtYXBJ-3e34xjk9qwgmagmIDnPwpLYmUb9EsnWLuq3B72Ri0K6KWwRHKLryL9NjEj_reVz7Rob5sf7SIx2qekK73M6xHesjfYeblxCPcvOAbKk3dCnhT8bZihMsndmPTaeE44zh1viEXKveDAl05dGk2MtSzs9OOj3BG-ctdpZuFsNJ856WBobpNnGtLD_UrtdfNMR8eVVvZHNB-Hit6p9SZHuB4BN6i1d6rn"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto">
+<!-- Hero Section -->
+<section class="mb-10">
+<div class="mb-2">
+<span class="font-label text-xs font-bold tracking-widest text-secondary uppercase">Featured Collection</span>
+</div>
+<h2 class="font-headline text-3xl font-extrabold text-primary leading-tight mb-4">The Perfect Host's Guide</h2>
+<p class="text-on-surface-variant font-body leading-relaxed bg-surface-container-low p-5 rounded-xl">
+                Hosting a game night for six beginners requires games that are easy to teach, keep everyone involved, and move quickly. These selections are curated "gateway" games for a memorable social evening.
+            </p>
+</section>
+<!-- Game Cards Grid -->
+<div class="space-y-8">
+<!-- Card 1: Codenames -->
+<div class="group relative overflow-hidden bg-surface-container-lowest rounded-3xl transition-all duration-300">
+<div class="h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Mystery and espionage concept with a dark table, old maps, a fedora, and top secret files in moody lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACUnp2OeCet_bDGmMJEzYEdNc0Pq_nzlyveN8Aa-SA-_br_SkkIo4OptZ99lZcB4aYorgt2uP1n14mlOp0EI-5BLpIpnLjVM2NzXujapcbuG2WJoMicR55rvytXTfzrYDy8Mf2qCQaMAuSpEMuJAj1Zj5NpaAYChfQvn8oCkS24VidSGUiazQ9hA1Rhz_f33AMW12VN7RTM-Fh2whw58z-c3S36l_qGC_i5_m9faEy9feQnFBgNmBsrYzmg_GpKGENyOJoiBKM0CiV"/>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-3">
+<h3 class="font-headline text-2xl font-bold text-primary">Codenames</h3>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider">Top Rated</span>
+</div>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">
+                        Two rival spymasters give one-word clues to help their teams identify agents while avoiding the assassin.
+                    </p>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDk-7fZo2n4_qJtiqJuSSHx-iwM4uENKdczUK7Me7w9SnzlXDs4JTaJ6l9lpJYuAxy13bj_QpPcVgz7F7hx3FpFt6KUWrxNgO0HtUII82PZaD1nb6HjcyXsAnF7STLKv277gS4ZCnzBAgyX3E9kNw33vgGF-BZTTqACKLTM9lUDXLm9F-rTLgsvjvTOgRpb9V7Ll7HON19WYhkFquna5YT5pXGxXXhM8GmokT80Nu13wIW2t9vxF_ONAABniD3VctgxIAttRsjWYpLB"/>
+<span class="font-label text-xs font-semibold">2-8 Players</span>
+</div>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIH-yYf0GN8xXTGj8GNw4VQzDvvMmLRJump4LI4R9lsCn6svYL9easMrt9kMEoG0WmMlxdTeoJDscya12bNI4KbL1dC6bi1RWJP87HR1tvWwxj0klHHIUvDoaVFUk-DLiASaC-i8HADTIT8iZsprjRis6on5Sv0dmUso1Cdn7I-DC30v5Vc5jgJgEVTnLe7C1BDbWl8icpIUAd5NQXo9QzPkt3z_zvx_MEXQRfbSjcUl-BvNqJmX2KeZRI7d2BGbZCGXMh-B1N639k"/>
+<span class="font-label text-xs font-semibold">15 Min</span>
+</div>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNAQLB90BGbf8h3xojH3boP8e3JhstC243uZQd6qlkh5-aKqMIerPZdjgNbWNKfnuSLJjrwA31JIzMfGmUAkWtYKTH3PpiG-ZqKnP8aoxNHEKNtlQzyV3eDJH7_M7BrZNzSMfbtkYrsBXknc0H0pgsRp6sIqakICmd44ssVFKaLDE4oW7k2NBbtEytiOm0_Fr2kYdZTABxCR71nibQpgtQoDEnL_buzDu1BZhB-ysqMiLtp5cnUJXphO7xNnzZOVSBWW6kWLqcyglk"/>
+<span class="font-label text-xs font-semibold">Team Party</span>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 text-secondary font-bold text-sm group-hover:underline" href="https://boardgamegeek.com/boardgame/178900/codenames">
+                        View on BGG <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Card 2: Avalon -->
+<div class="group relative overflow-hidden bg-surface-container-lowest rounded-3xl transition-all duration-300">
+<div class="h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Medieval knight armor with a heavy sword on a stone background, dramatic cinematic lighting with warm highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw-Z4kXZCidrPBVoPijsSNDNwL9K5HEv2Y8XnUnX6NR1KrldIXURaryrIrfzYlSnSNKV89MOQ2sXw59MGRTBsV_Q2Suo8O_pSzA8lVxFBAHWKsaFa7cKwFIbPZ1pNn1WMKRxxvYhFLgyy_0hFcHMjHfpsjDI6fKHXYRQpGZOYrV6julzyIKEatyIVDDwiFHIEn9vdb4MKzgWXG1BL9TC3IGFj6Puv1n6do1XtBY4ThCGPDl9GX2IqwtL7NtVqy-s0653VB8bm5G_TB"/>
+</div>
+<div class="p-6">
+<h3 class="font-headline text-2xl font-bold text-primary mb-3">The Resistance: Avalon</h3>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">
+                        Players are loyal servants of Arthur or hidden minions of Mordred trying to sabotage quests in this classic social game.
+                    </p>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiEn93ha_ON9yVROLoyTmmxSZdIhL0t_Z93vMOPy8yZFX9kvzAD9FtyB2ngQlWbiagj9IXHm8JuHb4CPWAiZI-FhPo80ZV0PeBs98gm-41t4tjJEYizdiAhj0WYhLKyn-td65q6MJGL5h9SIueQ6Cst36QUEW_iSlFC3m6nJjrn_6OsL6bzbngx_gT4qVVJgMaEEhJSqC34WXj1oCPFozFDMglehY-OTBpdHWMJj9R13NWJPwa5HxeqzACDdYkwVKGaiG-5bs5Pfuk"/>
+<span class="font-label text-xs font-semibold">5-10 Players</span>
+</div>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCp--cf_N7GOSnxcv65514zPdrVF-NUvPXRL36obHNr3w0FELeYSu1Y5lSfqs1aFgKoRMR1bxv3kIHFdzek4Z7TnSf1UmBm8teb1XdxgSJu4Kj39GDvjEgyubR9F7RAfbkoRJVyE65nXpKP08Srtdk45dS5Bu4UeSex-IvCnNSCu3c1WjHqA2xZbhqhrX7rTF3Pa8SWsrdaKiiGZe4H8gelTgMnSCbonfZGh2Px_O3k7Bdlk9JW9mRRNQTv-8XTwxCo2K-TwMJSeo4"/>
+<span class="font-label text-xs font-semibold">30 Min</span>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 text-secondary font-bold text-sm group-hover:underline" href="https://boardgamegeek.com/boardgame/128882/the-resistance-avalon">
+                        View on BGG <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Card 3: Deception -->
+<div class="group relative overflow-hidden bg-surface-container-lowest rounded-3xl transition-all duration-300">
+<div class="h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Atmospheric noir detective desk with a magnifying glass, forensic evidence tags, and old documents under a single lamp" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0ylqMCcYynuqVUqnB82KrVgyZtSZRUdYGdvDuvYgaZ1OyHE3PI9fp2kGiXk0zEs0VMzSuydr71VSl7N761zO8036gxVVxRddWV_wnS_am3JiXdKJ4hFG0YThhE_nu5uqxBXkWfTzipuuxoAfRX7XNGzrBK5WYIhlF8qf4hZHJdM30cinsWQ738b903NZB8wggLB7ODIjIIPRPmbASYNOsUc-w6pLlXMREAZgNNMKyOHAbmThMl-_EXWCL2gt2BTnzXzUglG4Wub01"/>
+</div>
+<div class="p-6">
+<h3 class="font-headline text-2xl font-bold text-primary mb-3">Deception: Murder in HK</h3>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">
+                        Investigators try to solve a murder case using vague clues, but the killer is one of them, hiding in plain sight.
+                    </p>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3TzK6cMVerSDa4lsXmCMBuWk79rQNqBDG0z5RUXFA5ihusTNxYXaL5Bo85LNWcMxGCEHZgO88P7urHpwxANzoaxN4s8VR6hhE7zjJqTqp5mDZPQ2Q2SJXk1pjunvYNKoCljl5xHLMFq5KdUCvBwuuFeW-7waojvYOcz0zSwgqc-vQaqD6aDsTiTfsfm9ha-dzC9RC1foSzzfAL2gT3kgVcC6Wttzz5E5p8J7FhXweeeh5djSMU4TI_ig5hTwSuKKAzmMvgOMFXPi9"/>
+<span class="font-label text-xs font-semibold">4-12 Players</span>
+</div>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsceZI0WtM5TJzxoEm8D0fewbHCVKE0ezKO8dztCjrcIEQ8jN68INnr_wXG7xhgzX_qnEzH7j4w4wHMfEmVV0ehoHzGFEEFhNkBu2hjGVtKmnmnkOHS3MFZKLPqMDn8YZoD-LfUNBRidUxJ7lPL31pCYYnGv78kZ1Y6bfds0RreAhXK8MVNotup7NzM-ySYSTzICaQSJO1JfuoShyemE8mE75_PAuqku6Z2wi6eSFp2_1bjRazp6169Lc00JSPglTYG4X_vSSKrxmx"/>
+<span class="font-label text-xs font-semibold">20 Min</span>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 text-secondary font-bold text-sm group-hover:underline" href="https://boardgamegeek.com/boardgame/156129/deception-murder-in-hong-kong">
+                        View on BGG <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Card 4: Just One -->
+<div class="group relative overflow-hidden bg-surface-container-lowest rounded-3xl transition-all duration-300">
+<div class="h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Bright overhead shot of a group of diverse friends laughing around a table filled with colorful game pieces and cards" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoTGnJd3-tB1M21vi7TACqrIE91OkMz5s5EXENU3xse405jehQwC4oAqvIZSMUS1iHzQ4bIbYXy26DCknDIeoXriY56i5KEFlnhwa7Ik632xrzL5PS_NXYd3cbIig6m2W5PpIJNhFlSFljkaqFfPTx6dlaOx4tLS16VDb5Eux1hwzjpk-8595c20_1r0IjRmWSkmdBRRzbT9s9-3AX06WXec973E3Y7Zt6DKVh-2w3IoAHSMbead35-nZfC31s_5n9BAnlyFQ4Mq9D"/>
+</div>
+<div class="p-6">
+<h3 class="font-headline text-2xl font-bold text-primary mb-3">Just One</h3>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">
+                        A cooperative game where everyone writes one-word clues for a guesser, but duplicate clues are cancelled out.
+                    </p>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAseSgsRqTqoRkqoCW21lQs6jDIUPSFDN6q81Ag19WqED2Ssddsp0P3ViXqpSH-JPsdUYZPclZXQRUCIsGw3fUEHl3-vmyJY7yC5VIY_71gYg5YXB7xwR0-eJamHinvnHnb4WjT3S0chA5jJa8k-8nXg8tOwMy3I6AHFFawimZxACcPK6RYBohZNhUl9lNDzBGU1Jzglph0kblwimKK_L72-bx282PxogMHn01LyEBBlgYgiNmRaceJhrrjE_n2kSBc8GzI0phPZqrO"/>
+<span class="font-label text-xs font-semibold">3-7 Players</span>
+</div>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2">
+<img alt="" class="w-3.5 h-3.5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnCCYPGx56j825APaozKXFNUj7B_a1qpXeeo7IooCjJe4jEVbkqa3A73te_YY3kQgPqxZLXw8KS8bmYn4tvOUVonrDJmPkcirKvBgOEZS7xQ3OaC9-7SRsaJUp-dndEjnhH4oMI9WhlmzfsDvHu-47Ek--hxIKG-HOvWpfpln4OdBAeo7Z5I-3iTObdfr6K7M6KeA2qTK3XsS2tc7FmPUVBDa03CQ4Cwohx8k6GszSSg0Y8lPy8V-PeYz0d6bMj3qj4iYurj0aCJz6"/>
+<span class="font-label text-xs font-semibold">20 Min</span>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 text-secondary font-bold text-sm group-hover:underline" href="https://boardgamegeek.com/boardgame/254640/just-one">
+                        View on BGG <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Quick Actions Section -->
+<section class="mt-12 space-y-4">
+<h4 class="font-label text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Quick Actions</h4>
+<a class="flex items-center justify-between w-full p-5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-2xl shadow-lg transition-transform active:scale-95" href="https://boardgamegeek.com/boardgamecategory/1030/party-game">
+<span class="font-bold">Browse Top Party Games</span>
+<span class="material-symbols-outlined">chevron_right</span>
+</a>
+<a class="flex items-center justify-between w-full p-5 bg-secondary-fixed text-on-secondary-fixed rounded-2xl transition-transform active:scale-95" href="https://www.google.com/maps/search/board+game+stores+near+me">
+<span class="font-bold">Find Local Game Stores</span>
+<span class="material-symbols-outlined">map</span>
+</a>
+</section>
+<!-- Footer Source -->
+<footer class="mt-12 mb-8 text-center">
+<p class="text-xs text-on-surface-variant">Source: <a class="font-bold hover:text-secondary" href="https://boardgamegeek.com">BoardGameGeek</a></p>
+</footer>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-stone-50/70 dark:bg-slate-950/70 backdrop-blur-md shadow-[0_-4px_24px_rgba(0,0,0,0.04)] rounded-t-3xl">
+<div class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-5 py-2 hover:text-amber-500 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-manrope text-xs font-semibold">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-sky-900 dark:bg-sky-800 text-amber-400 rounded-2xl px-5 py-2 transition-transform scale-95 active:scale-90 cursor-pointer">
+<span class="material-symbols-outlined">style</span>
+<span class="font-manrope text-xs font-semibold">My Games</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-5 py-2 hover:text-amber-500 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-manrope text-xs font-semibold">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-5 py-2 hover:text-amber-500 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">person</span>
+<span class="font-manrope text-xs font-semibold">Profile</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#60b3b4",
+                        "secondary-container": "#dae2d5",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#002020",
+                        "surface-bright": "#f8f9fa",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#d5e5ef",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#3a4951",
+                        "on-surface-variant": "#43474a",
+                        "tertiary-fixed-dim": "#82d4d5",
+                        "surface-container-high": "#e7e8e9",
+                        "primary-fixed-dim": "#b9c9d3",
+                        "primary-container": "#2f3e46",
+                        "on-surface": "#191c1d",
+                        "tertiary": "#002b2c",
+                        "on-primary-container": "#99a9b2",
+                        "on-tertiary-fixed-variant": "#004f50",
+                        "tertiary-container": "#004344",
+                        "on-secondary-container": "#5d655a",
+                        "on-background": "#191c1d",
+                        "on-primary-fixed": "#0e1d25",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-secondary-fixed-variant": "#41493f",
+                        "surface": "#f8f9fa",
+                        "inverse-on-surface": "#f0f1f2",
+                        "outline-variant": "#c3c7ca",
+                        "tertiary-fixed": "#9ef1f1",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#c1c9bc",
+                        "inverse-primary": "#b9c9d3",
+                        "primary": "#192830",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e1e3e4",
+                        "secondary": "#596156",
+                        "outline": "#73787b",
+                        "inverse-surface": "#2e3132",
+                        "secondary-fixed": "#dde5d8",
+                        "on-error-container": "#93000a",
+                        "background": "#f8f9fa",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#161d15",
+                        "surface-tint": "#516169",
+                        "surface-container": "#edeeef",
+                        "surface-dim": "#d9dadb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface mb-24 overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-slate-50 dark:bg-[#192830] w-full top-0 sticky z-50">
+<div class="flex justify-between items-center px-6 py-4 w-full max-w-none">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#192830] dark:text-slate-50" data-icon="architecture">architecture</span>
+<h1 class="text-xl tracking-widest font-black text-[#192830] dark:text-white font-['Manrope'] uppercase">LEDGER</h1>
+</div>
+<div class="h-10 w-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border border-outline-variant/20">
+<img alt="User Profile" class="h-full w-full object-cover" data-alt="professional headshot of a minimalist architect in a black turtleneck against a grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeT2lnlYTBkgTcvwSEchjtlgsvRNzAX7dbIQlN5ccI3BJHkE28DMOe8-QZrRUL0fTyO9CJFzwWfzC8JQlZqL7E9NCfky1f6lc8Ai63l7kXAuncRKU9ulXhkQQSOVtUAY4mSVOXTzoy9xzgCpdtUrP0O_mbSGB-PYuO_mc5A3qQBw6v_CuxN025e9r4puHXiLqsWvXxrsT2BszeCWHWt7599So8ydrugxEd8L1ES-O_S4ytxVJmbuTezrDtXnMTnT9U-6j9ZTmEUlQ"/>
+</div>
+</div>
+<div class="bg-gradient-to-b from-slate-200 to-transparent dark:from-[#2f3e46] h-[1px]"></div>
+</header>
+<main class="max-w-md mx-auto px-6 py-8 space-y-12">
+<!-- Hero Section -->
+<section class="space-y-4">
+<div class="relative h-48 w-full rounded-lg overflow-hidden bg-primary-container">
+<img alt="Digital Networking" class="w-full h-full object-cover opacity-60 mix-blend-overlay" data-alt="Close-up of high-end smartphone displaying a minimalist digital card being tapped against another device in a luxury office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOuDrdzNauRV5-WQfglIIbBCUpwKphINwcSnKz6LW6_i4zOJ7y9VRixhZJkU8y3pQYwcE0jxsKXtqnZhA_TQ8a_L7-rHPLgHyfI3o3VF4YrV0XxK8alsxomx-FEoKz9YyP7HinXu4tlmh_msVI_uFNCqpYAoX4hJhc5KZPLRlYmSmpnME5MLvMjsw9PDeQremIP_Tp3rAC7jjxikUjk4En7g-GBGzV04i-OfHTP49OdIGpZ7qF3QaXBX9pUD3tcRmAFhyuMxuolnA"/>
+<div class="absolute inset-0 bg-gradient-to-tr from-primary to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<p class="text-white/60 text-[10px] uppercase tracking-[0.2em] font-semibold mb-1">Architecture of Identity</p>
+<h2 class="text-white text-2xl font-extrabold tracking-tight">Create Your vCard</h2>
+</div>
+</div>
+</section>
+<!-- Form Section: The Ledger Input -->
+<section class="space-y-10">
+<div class="space-y-8">
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-1">Full Name</label>
+<input class="w-full bg-surface-container-low border-b-2 border-outline outline-none px-0 py-2 focus:border-tertiary-container transition-colors bg-transparent text-lg font-medium tracking-tight" type="text" value="Alex Doe"/>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-1">Title</label>
+<input class="w-full bg-surface-container-low border-b-2 border-outline outline-none px-0 py-2 focus:border-tertiary-container transition-colors bg-transparent text-sm font-medium tracking-tight" type="text" value="Senior Product Manager"/>
+</div>
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-1">Company</label>
+<input class="w-full bg-surface-container-low border-b-2 border-outline outline-none px-0 py-2 focus:border-tertiary-container transition-colors bg-transparent text-sm font-medium tracking-tight" type="text" value="FutureTech Inc."/>
+</div>
+</div>
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-1">Phone Number</label>
+<input class="w-full bg-surface-container-low border-b-2 border-outline outline-none px-0 py-2 focus:border-tertiary-container transition-colors bg-transparent text-sm font-medium tracking-tight" type="tel" value="+1-555-0199"/>
+</div>
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-1">Email Address</label>
+<input class="w-full bg-surface-container-low border-b-2 border-outline outline-none px-0 py-2 focus:border-tertiary-container transition-colors bg-transparent text-sm font-medium tracking-tight" type="email" value="a.doe@futuretech.example.com"/>
+</div>
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.1em] font-bold text-on-surface-variant mb-1">Website</label>
+<input class="w-full bg-surface-container-low border-b-2 border-outline outline-none px-0 py-2 focus:border-tertiary-container transition-colors bg-transparent text-sm font-medium tracking-tight" type="text" value="www.futuretech.example.com"/>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-5 rounded-lg flex items-center justify-center gap-3 active:scale-95 transition-transform duration-150 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-lg" data-icon="qr_code_2">qr_code_2</span>
+<span class="font-bold uppercase tracking-widest text-sm">Generate QR Code</span>
+</button>
+</section>
+<!-- QR Display Section: The Monolith -->
+<section class="space-y-6 pt-6">
+<div class="bg-surface-container-low rounded-xl p-8 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+<div class="flex flex-col items-center text-center space-y-8">
+<div>
+<h3 class="text-xs uppercase tracking-[0.25em] font-black text-primary mb-2">Your QR Code</h3>
+<p class="text-on-surface-variant text-[11px] leading-relaxed max-w-[200px]">Scan with any camera app to save contact information immediately.</p>
+</div>
+<!-- QR Frame -->
+<div class="relative group">
+<div class="absolute -inset-4 bg-surface-container-lowest rounded-xl shadow-[0_40px_40px_rgba(0,0,0,0.04)]"></div>
+<div class="relative p-2 bg-white rounded-lg">
+<img alt="QR Code" class="w-48 h-48 object-contain" data-alt="A precision-rendered QR code with sharp edges, centered on a white background with subtle depth shadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAi3NaOS1DoTS2s_R5XceOedkGwsXSCvm1zGwifwNSfr4cNECWEYDiSAHmQ8FDzroHQkM-6ZrYJ0VkxtEvN9B2fOiSMIpCgJTOIbKVptZnZQpz_TK7-2YS3pNRbPxbHhL_WR88KJ14bEbpfpOb6nt_kLHhYYdkXB5AWnfRtPqoZRIrN96J10-TsF9Wp8F-jESn79RMED9_pLFLGd7RSObH5aVuHgWlsrMxqanBwjPnAUUHe6QtVAH-8S0wylQPngmdG8LVAhmvgQ8"/>
+</div>
+</div>
+<button class="bg-surface-container-high text-primary px-8 py-3 rounded-full flex items-center gap-2 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-base" data-icon="download">download</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Save Image to Device</span>
+</button>
+</div>
+</div>
+<!-- Contextual Insight -->
+<div class="flex gap-4 items-center bg-surface-container-lowest p-4 rounded-lg shadow-sm">
+<div class="h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden grayscale">
+<img alt="Scanning QR" class="w-full h-full object-cover" data-alt="High-contrast black and white photography of a person's hands holding a phone to scan a modern minimalist sign" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZkYu-Jva59ptTeBpC4IXjgM9eNSNuY2doIKXfwkhfKY4L4HJzDjMyYwGEwx2jJwc2FVdQg-3HKF48zKTXfv9yn-K9M6S4PQ0gGIJhaPU0xJUOfcn8FsJu0UVCZ9WG0FbDQgonCzcDIb_sz_rpUuIovOstOnz80lqCpb4lNCug06S3eTNxPUIVHfsgV_sdQ41zEvgGgAZ9NfFuukWMWLpjHTwV6je12MkJHpVrgzNzo0x1Uq-MYHaBHZ2UPjmefcIUJSI5l_LtbQk"/>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider font-bold text-tertiary-container mb-1">Architecture Pro Tip</p>
+<p class="text-[12px] text-on-surface-variant leading-tight">Digital cards reduce paper waste and ensure your details are never lost in a stack.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-stretch h-20 bg-white dark:bg-[#192830] shadow-[0_-40px_40px_rgba(0,0,0,0.04)]">
+<!-- Create (Active) -->
+<a class="flex flex-col items-center justify-center text-[#192830] dark:text-white border-l-4 border-[#004344] bg-slate-50 dark:bg-[#2f3e46] p-4 transition-all duration-300 ease-in-out flex-1" href="#">
+<span class="material-symbols-outlined" data-icon="add_card" style="font-variation-settings: 'FILL' 1;">add_card</span>
+<span class="font-['Manrope'] text-[10px] tracking-[0.05em] uppercase font-semibold mt-1">Create</span>
+</a>
+<!-- History -->
+<a class="flex flex-col items-center justify-center text-[#43474a] dark:text-slate-400 p-4 hover:bg-slate-50 dark:hover:bg-[#2f3e46] transition-all duration-300 ease-in-out flex-1" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Manrope'] text-[10px] tracking-[0.05em] uppercase font-semibold mt-1">History</span>
+</a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-[#43474a] dark:text-slate-400 p-4 hover:bg-slate-50 dark:hover:bg-[#2f3e46] transition-all duration-300 ease-in-out flex-1" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-[10px] tracking-[0.05em] uppercase font-semibold mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

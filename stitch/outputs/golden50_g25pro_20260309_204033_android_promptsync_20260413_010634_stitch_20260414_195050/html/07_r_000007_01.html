@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#fed2a2",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed-variant": "#394858",
+                    "surface-variant": "#e6e2dd",
+                    "inverse-on-surface": "#f4f0eb",
+                    "outline": "#75777d",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#d7e2ff",
+                    "on-primary-fixed": "#101b30",
+                    "secondary": "#785832",
+                    "on-secondary-container": "#795932",
+                    "secondary-fixed-dim": "#e9bf90",
+                    "inverse-primary": "#bbc6e2",
+                    "on-primary-container": "#828da7",
+                    "on-secondary-fixed": "#2b1700",
+                    "inverse-surface": "#31302d",
+                    "on-surface": "#1c1c19",
+                    "surface-container": "#f1ede8",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed-variant": "#5e411d",
+                    "on-tertiary-container": "#7e8ea0",
+                    "outline-variant": "#c5c6cd",
+                    "surface-container-highest": "#e6e2dd",
+                    "primary-container": "#1b263b",
+                    "surface": "#fdf9f4",
+                    "primary": "#051125",
+                    "secondary-fixed": "#ffddb9",
+                    "surface-container-high": "#ebe8e3",
+                    "tertiary-fixed": "#d3e4f8",
+                    "surface-bright": "#fdf9f4",
+                    "on-surface-variant": "#45474d",
+                    "surface-container-low": "#f7f3ee",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#bbc6e2",
+                    "surface-tint": "#545e76",
+                    "on-primary-fixed-variant": "#3c475d",
+                    "surface-dim": "#ddd9d5",
+                    "tertiary-fixed-dim": "#b8c8db",
+                    "background": "#fdf9f4",
+                    "on-background": "#1c1c19",
+                    "tertiary-container": "#172736",
+                    "on-tertiary-fixed": "#0c1d2b",
+                    "tertiary": "#021220"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"],
+                    "notoSerif": ["Noto Serif"],
+                    "manrope": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        .font-notoSerif { font-family: 'Noto Serif', serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface selection:bg-secondary-container">
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 bg-[#fdf9f4]/70 dark:bg-[#051125]/70 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#051125] dark:text-[#fdf9f4] hover:opacity-80 transition-opacity cursor-pointer">menu</span>
+<h1 class="font-notoSerif text-lg tracking-[0.2em] font-bold text-[#051125] dark:text-[#fdf9f4]">KYOTO EDITORIAL</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/15">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArLX9afNdwOFY6QJv7MvOdlv2WBaD4XXedQmP42tEmiOhED2dTOEVWGuAt3bwsCZSJCHGH9DFr_73pyTE4QKUSjv4vIGRFFhjUUpKPTEhfgljqcyVDUWPrGFXQq7RRtTPqOsfZ_j9xoxfugVddqZtpjOD_7CzX9-1q3YBlGgwEcQltfeoAEbnU-BHNrc5bNp_kPPgsKwIJNtkIR-g29WtEN67UhNVXG-XJkoDLvYRVBocKrPEj0WNw3Zo0RCn2Q89BZbqsSEowy0g"/>
+</div>
+</header>
+<main class="pt-16 pb-24">
+<!-- Hero Section -->
+<section class="relative h-[530px] w-full overflow-hidden">
+<img class="w-full h-full object-cover scale-105 transition-transform duration-1000" data-alt="Luxurious Japanese boutique hotel interior with soft warm lighting, minimalist wooden furniture, and views of a Zen garden through large windows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2pPijermqNIQy1G0urCdPl8BkHyneddpBTneqYG9gSPhWR2zVn_3Nt7QlwlWNRxWTCRu918gloGE_UcJsGm8dYIVghSaGyEGMfinKKJuf4BQ6Fj0V4ef-VhkKLW5VhuvB_6JMghUzGwgQLAzPaykdqJeS1DuuZnfK1CftnU1gSpfh0Ar7xUymIuQVaUqXIrs0IwVuH-MO9PYfn5k1s2mAwKytNsr0eTTWbWCCa8e5WB8NDtSuU71o50eMpA2iLRgGymwQlqLEPjg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full max-w-xl">
+<span class="font-manrope text-xs tracking-[0.3em] uppercase text-on-primary/60 mb-3 block">Top Hotel Pick</span>
+<h2 class="font-notoSerif text-4xl md:text-5xl text-on-primary leading-tight font-bold mb-4">Top Hotel Pick for Your Kyoto Stay</h2>
+<p class="font-manrope text-on-primary/80 text-lg leading-relaxed max-w-md">Sakura Inn Kyoto is the clear best choice for your 5-night stay, meeting all your requirements for budget, room type, and amenities.</p>
+</div>
+</section>
+<!-- Evaluation Criteria -->
+<section class="px-6 py-12 bg-surface">
+<div class="mb-8">
+<h3 class="font-notoSerif text-2xl text-primary mb-2">How Your Options Were Evaluated</h3>
+<div class="h-0.5 w-12 bg-secondary"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-5 rounded-lg border border-outline-variant/15 transition-all hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-secondary mb-3">payments</span>
+<p class="font-manrope font-bold text-sm mb-1 uppercase tracking-wider">Budget</p>
+<p class="text-xs text-on-surface-variant font-medium">&lt;$250 per night</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-lg border border-outline-variant/15 transition-all hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-secondary mb-3">king_bed</span>
+<p class="font-manrope font-bold text-sm mb-1 uppercase tracking-wider">Room</p>
+<p class="text-xs text-on-surface-variant font-medium">King Bed, Non-smoking</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-lg border border-outline-variant/15 transition-all hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-secondary mb-3">wifi</span>
+<p class="font-manrope font-bold text-sm mb-1 uppercase tracking-wider">Connectivity</p>
+<p class="text-xs text-on-surface-variant font-medium">Free High-Speed Wi-Fi</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-lg border border-outline-variant/15 transition-all hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-secondary mb-3">fitness_center</span>
+<p class="font-manrope font-bold text-sm mb-1 uppercase tracking-wider">Facilities</p>
+<p class="text-xs text-on-surface-variant font-medium">On-site Fitness Center</p>
+</div>
+</div>
+</section>
+<!-- Comparison Matrix -->
+<section class="px-6 py-12 bg-surface-container-high/30">
+<h3 class="font-notoSerif text-2xl text-primary mb-8 text-center italic">Selection Comparison</h3>
+<div class="space-y-6">
+<!-- Sakura Inn (Winner) -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-secondary shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-[0.2em] mb-1 block">Selected Choice</span>
+<h4 class="font-notoSerif text-xl font-bold">Sakura Inn Kyoto</h4>
+</div>
+<span class="bg-secondary-container text-on-secondary-fixed-variant text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider">Best Fit</span>
+</div>
+<div class="grid grid-cols-2 gap-y-3 gap-x-4">
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant">~$210/Night</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant">King Suite</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant">Free Gym</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant">Wifi Included</span>
+</div>
+</div>
+</div>
+<!-- Gion Ryokan -->
+<div class="bg-surface p-6 rounded-xl border border-outline-variant/10 opacity-80">
+<div class="flex justify-between items-start mb-4">
+<h4 class="font-notoSerif text-lg font-bold">Gion Traditional Ryokan</h4>
+</div>
+<div class="grid grid-cols-2 gap-y-3 gap-x-4">
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-red-400 text-sm">cancel</span>
+<span class="text-on-surface-variant/60">~$320/Night</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant/60">Futon Bed</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-red-400 text-sm">cancel</span>
+<span class="text-on-surface-variant/60">No Gym</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant/60">Wifi Included</span>
+</div>
+</div>
+</div>
+<!-- Kyoto Grand -->
+<div class="bg-surface p-6 rounded-xl border border-outline-variant/10 opacity-80">
+<div class="flex justify-between items-start mb-4">
+<h4 class="font-notoSerif text-lg font-bold">Kyoto Grand Hotel</h4>
+</div>
+<div class="grid grid-cols-2 gap-y-3 gap-x-4">
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant/60">~$245/Night</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-red-400 text-sm">cancel</span>
+<span class="text-on-surface-variant/60">Smoking Only</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant/60">Paid Gym</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface-variant/60">Wifi Included</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Gallery Shoji -->
+<section class="px-6 py-12">
+<h3 class="font-manrope font-bold text-xs uppercase tracking-[0.3em] text-secondary mb-6">Property Gallery</h3>
+<div class="grid grid-cols-2 gap-4 h-[400px]">
+<div class="col-span-1 h-full rounded-lg overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Stunning view of a traditional Kyoto shrine with orange torii gates surrounded by lush forest greenery in soft morning light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlo5bXokCEwViz6RMzrkxmO42_aAXZU5Rr0FdzippCHBCITFBFwkzwySZneIPA4W8uYkk2n0E2CTuDFKkarG7Imew6XkS1sSsZuM2oKkWFxxdefZonw-rINGi5A8su8qwqBFVcKNyyUyT5luOnyITM3_xUmOs5jb0kp5Y6_15R7AW-jrb3SVzCu8llawvLA3kDKmlRbttLmmRJRdrbQy76Js8Snb2w6jx6CwLskLH4_vJqmG8g1xc4fwcZ7TWErgpi49Tfi9QggGc"/>
+</div>
+<div class="col-span-1 grid grid-rows-2 gap-4 h-full">
+<div class="rounded-lg overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Modern high-end hotel fitness center with state-of-the-art treadmills and weights, featuring warm wood accents and city views." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcNCOTIGBUp42ABfDVndW7Km2lFjL5xETHU0XNTxB8k2KKCWrzneMgydYTqcBJIXosQwdxZ_9Ao_a82u0EUXwm0Ws4D1wVOIhXJidFyDmcEm4BjeF0JU8lj_gmlmiGjXXwuSjTsDlNGTA9ymag2KInbAfe47dAlnH5tP7-Hrt0rlsbjaupJ6CJxmoTx5ik3aEcya_fqsWt4k290acfCpicwFtkItd3P_Vy-JLapxlFfQVzJeLEflEvYSABnNjb8KtMTSAhZ8wj0lY"/>
+</div>
+<div class="rounded-lg overflow-hidden bg-primary-container flex items-center justify-center text-on-primary-container p-4 text-center">
+<p class="font-notoSerif italic text-lg leading-snug text-surface-container-lowest">"A perfect balance of tradition and modern comfort."</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Action -->
+<section class="px-6 py-8">
+<a class="w-full bg-primary text-on-primary py-5 rounded-lg flex items-center justify-center gap-3 font-manrope font-bold tracking-wider uppercase text-sm shadow-xl transition-transform active:scale-[0.98]" href="https://www.booking.com/searchresults.html?ss=Sakura+Inn+Kyoto">
+                Check Availability for Sakura Inn Kyoto
+                <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+<p class="text-center text-[10px] text-on-surface-variant mt-4 font-manrope tracking-widest uppercase opacity-60">Verified Editorial Recommendation</p>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full z-50 bg-[#fdf9f4]/70 dark:bg-[#051125]/70 backdrop-blur-xl flex justify-around items-center h-20 pb-safe px-4 w-full rounded-t-lg shadow-[0_-8px_32px_rgba(5,17,37,0.04)]">
+<a class="flex flex-col items-center justify-center text-[#051125] dark:text-[#fdf9f4] font-bold scale-95 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-manrope text-[10px] tracking-wider uppercase">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#051125]/40 dark:text-[#fdf9f4]/40 hover:text-[#785832] transition-colors scale-95 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">bookmark</span>
+<span class="font-manrope text-[10px] tracking-wider uppercase">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#051125]/40 dark:text-[#fdf9f4]/40 hover:text-[#785832] transition-colors scale-95 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-manrope text-[10px] tracking-wider uppercase">Profile</span>
+</a>
+</nav>
+</body></html>

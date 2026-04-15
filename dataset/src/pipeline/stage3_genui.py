@@ -366,7 +366,7 @@ def _truncate_tokens(text: str, max_tokens: int) -> tuple[str, bool]:
     return trimmed, True
 
 
-_LEADING_MARKDOWN_HEADING_RE = re.compile(r"^\s*(#{1,3})\s+(.*)$")
+_LEADING_MARKDOWN_HEADING_RE = re.compile(r"^\s*(#{1,6})\s+(.*)$")
 _BOLD_MARKDOWN_RE = re.compile(r"\*\*(.+?)\*\*")
 
 
@@ -387,6 +387,10 @@ def _normalize_text_markdown_for_ir(raw: str) -> tuple[str, str | None]:
             if heading_variant is None:
                 heading_variant = "h1" if level == 1 else ("h2" if level == 2 else "h3")
             current = heading_match.group(2).strip()
+        elif current.lstrip().startswith("#"):
+            # Code-snippet comments like "# Output:" should render as plain text,
+            # not markdown headers.
+            current = re.sub(r"^\s*#+\s*", "", current).strip()
 
         trimmed = current.lstrip()
         if trimmed.startswith("- "):
@@ -401,7 +405,7 @@ def _normalize_text_markdown_for_ir(raw: str) -> tuple[str, str | None]:
                 current = " • ".join(pieces)
 
         current = _BOLD_MARKDOWN_RE.sub(lambda m: m.group(1), current)
-        current = current.replace("```", "").replace("'''", "")
+        current = current.replace("```", "").replace("'''", "").replace("`", "")
         out_lines.append(current)
 
     normalized = "\n".join(out_lines).strip()
@@ -825,7 +829,7 @@ def run_stage3(
                 if not validator_ok:
                     schema_valid_lenient = True
 
-        final_regen_attempts = max(0, int(os.getenv("STAGE3_FINAL_REGEN_ATTEMPTS", "1")))
+        final_regen_attempts = max(0, int(os.getenv("STAGE3_FINAL_REGEN_ATTEMPTS", "3")))
         regen_attempt = 0
         while (
             (not parsed_ok or genui_json is None or not schema_valid_strict)
@@ -839,6 +843,9 @@ def run_stage3(
                 "Previous output was invalid or incomplete.\n"
                 "Regenerate the full flat-spec JSON from the source response.\n"
                 "Return ONLY one valid JSON object with root/state/elements.\n"
+                "The output MUST contain at least 8 elements with a root Stack, "
+                "heading Text elements (h2/h3), content elements, and at least one Button or Table. "
+                "A two-element fallback (Column + Text) is not acceptable.\n"
                 "Keep JSON compact and avoid literal markdown markers in text fields."
             )
 
@@ -898,6 +905,17 @@ def run_stage3(
                 errors.extend(schema_errors)
                 if not validator_ok:
                     schema_valid_lenient = True
+
+        # Reject specs that are too simple (fewer than 5 elements) -- treat as needing fallback.
+        if (
+            parsed_ok
+            and genui_json is not None
+            and flat_spec_mode
+            and isinstance(genui_json.get("elements"), dict)
+            and len(genui_json["elements"]) < 5
+        ):
+            errors.append("spec_too_simple: fewer than 5 elements")
+            parsed_ok = False
 
         if not parsed_ok or genui_json is None or not schema_valid_strict:
             # Final fallback: build a minimal valid output matching the configured schema mode.
@@ -979,6 +997,7 @@ def run_stage3(
             "intent": intent_value,
             "tags": tags_value,
             "intent_bucket": intent_bucket,
+            "response_text": response_text,
             "genui_json": genui_json,
             "assets": assets_list,
             "toon": toon,

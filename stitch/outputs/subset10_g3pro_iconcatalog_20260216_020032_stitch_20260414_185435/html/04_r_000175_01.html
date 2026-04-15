@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#9e3d00",
+                    "surface-container-high": "#eae7e8",
+                    "primary-container": "#0070eb",
+                    "error": "#ba1a1a",
+                    "outline": "#717786",
+                    "on-error": "#ffffff",
+                    "inverse-primary": "#adc6ff",
+                    "surface-bright": "#fcf8f9",
+                    "on-secondary-container": "#2d4c83",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#fefcff",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1b1b1c",
+                    "on-tertiary-container": "#fffbff",
+                    "on-surface-variant": "#414755",
+                    "secondary": "#405e96",
+                    "on-primary-fixed": "#001a41",
+                    "surface": "#fcf8f9",
+                    "surface-container-low": "#f6f3f4",
+                    "outline-variant": "#c1c6d7",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f3f0f1",
+                    "surface-dim": "#dcd9da",
+                    "primary": "#0058bc",
+                    "surface-container-highest": "#e5e2e3",
+                    "tertiary-container": "#c64f00",
+                    "surface-container-lowest": "#ffffff",
+                    "background": "#fcf8f9",
+                    "on-primary-fixed-variant": "#004493",
+                    "tertiary-fixed": "#ffdbcc",
+                    "surface-variant": "#e5e2e3",
+                    "secondary-fixed": "#d8e2ff",
+                    "on-secondary-fixed": "#001a41",
+                    "inverse-surface": "#303031",
+                    "tertiary-fixed-dim": "#ffb595",
+                    "on-secondary-fixed-variant": "#26467d",
+                    "surface-tint": "#005bc1",
+                    "secondary-container": "#a1befd",
+                    "primary-fixed-dim": "#adc6ff",
+                    "on-tertiary-fixed-variant": "#7c2e00",
+                    "surface-container": "#f0edee",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1b1b1c",
+                    "primary-fixed": "#d8e2ff",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#351000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-header {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf8f9]/80 backdrop-blur-xl flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface" data-icon="menu">menu</span>
+<span class="font-manrope font-black text-[#1b1b1c] tracking-tighter text-xl">Travel Camera Guide</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a travel photographer in soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD47HCtv8wHWky4ocpezeUe4UR64_l_QnRYKZy-MIBAcLgaddetz2Q7JzW6TeJTR6dKiBpgT1wCoFcBrXs3GkxAcphi_VvyD4mCQD086BGD7Qb6PsypL2J9K7gyugKhRuOoV4gzny_EM7AzMjRMB8J5cp2fwqQilT3rZC6xRBY11Eq1fctUqwf7HqmmREJVhjRHWQR7AlVfnbv_kxNAOEr4SlsrCz-FMEjMM3CJbHApSeSzZtjNfaSX2Q9LGq8OBmVKE6LSEBPqIFFa"/>
+</div>
+</nav>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Hero Summary Section -->
+<header class="mb-12">
+<div class="inline-block px-3 py-1 bg-surface-container-high rounded-full mb-4">
+<span class="text-[10px] font-bold uppercase tracking-widest text-primary font-label">2024 Travel Guide</span>
+</div>
+<h1 class="font-headline text-4xl font-bold tracking-tight mb-6 leading-tight">Precision Optics for the <span class="text-primary italic">Wanderer</span>.</h1>
+<div class="space-y-4 text-on-surface-variant leading-relaxed">
+<p>Choosing between <span class="font-bold text-on-surface">APS-C</span> and <span class="font-bold text-on-surface">Micro Four Thirds (MFT)</span> is the ultimate travel trade-off. APS-C offers superior dynamic range and depth, while MFT systems provide unmatched compactness and telephoto reach in a tiny footprint.</p>
+<p>For budgets under <span class="font-bold text-tertiary">$1,500</span>, we've curated the precision instruments that balance weight, stability, and sheer image quality.</p>
+</div>
+</header>
+<!-- Camera Cards -->
+<section class="space-y-10">
+<!-- Fujifilm X-S20 -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group">
+<div class="relative h-64">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Fuji X-S20 camera body on a rustic wooden table with soft morning sunlight casting long shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOWluXNNGAAOHSIJ_Q354reZWDkGqDy0K86VMQdKuO_7zXwIgBsb89AjKszqLXC5zhM_ea97DrElgPKrEfZ6RSWbY1nNFbGwsUV_ipHyixC9DRykqw4cJfWCXMJTmUdyd2zpCBo9zqV791fmHd_APiB1Bbrzuvg7eU5QEVp0mwX9eFk3ftbyZ7vLWqLM0PunTgfW3Q0XIfO3B8Lelca20uJGkaZTcshuXCeyu12iA75hrY2cYzgs2cXpCtGD16ymxSEU2CjB6kSrhe"/>
+<div class="absolute top-4 left-4">
+<span class="px-4 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-full tracking-wide">Best color science</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h2 class="font-headline text-2xl font-bold tracking-tight">Fujifilm X-S20</h2>
+<p class="text-primary font-bold text-lg">$1,299</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="camera">camera</span>
+</div>
+<!-- Specs Bento -->
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="weight">weight</span>
+<div>
+<p class="text-[10px] uppercase font-bold text-outline-variant leading-none mb-1">Weight</p>
+<p class="text-sm font-bold">491g</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="vibration">vibration</span>
+<div>
+<p class="text-[10px] uppercase font-bold text-outline-variant leading-none mb-1">Stabilization</p>
+<p class="text-sm font-bold">7.0 Stops</p>
+</div>
+</div>
+</div>
+<button class="w-full py-3 bg-primary text-on-primary rounded-lg font-bold text-sm tracking-wide active:scale-95 duration-200">
+                        View at Fujifilm
+                    </button>
+</div>
+</article>
+<!-- Sony a6700 -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group">
+<div class="relative h-64">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Modern Sony mirrorless camera against a clean grey studio background with sharp technological lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB1yN6232y3OnNS6BmErSokW20ZzCxrWg7k25goAaHMuYMDVb2G0lqvJJrzl1npbT-01eNLiX0I5yyesyi97GIt2Y2ALjJH845FT1DTcCmp5h2EjMCQyV-7lHcNFiSYGX1a1_scwnOa-k7X6v0JHQhyP3Qze2rLpwyEGg2c2Qh5xT7yzz06gT8ijmS5bmxqpLs-aSmVgDta_r8kq1yaSdv2zPpzPFvUrhER5C3EXMsU8-DLqOIbf-fFs0YdJI2mKNKDwSVZ6HZ1hXX"/>
+<div class="absolute top-4 left-4">
+<span class="px-4 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-full tracking-wide">Best autofocus</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h2 class="font-headline text-2xl font-bold tracking-tight">Sony a6700</h2>
+<p class="text-primary font-bold text-lg">$1,398</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="shutter_speed">shutter_speed</span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="weight">weight</span>
+<div>
+<p class="text-[10px] uppercase font-bold text-outline-variant leading-none mb-1">Weight</p>
+<p class="text-sm font-bold">493g</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="vibration">vibration</span>
+<div>
+<p class="text-[10px] uppercase font-bold text-outline-variant leading-none mb-1">Stabilization</p>
+<p class="text-sm font-bold">5.0 Stops</p>
+</div>
+</div>
+</div>
+<button class="w-full py-3 bg-primary text-on-primary rounded-lg font-bold text-sm tracking-wide active:scale-95 duration-200">
+                        View at Sony
+                    </button>
+</div>
+</article>
+<!-- OM System OM-5 -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group">
+<div class="relative h-64">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Compact OM System camera on a rocky mountain ledge with a foggy valley background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAi3vDoWQYKyaLMmaZ6bFvuNYxIHz1WFWEXxiEW_RaByKEVjiysPLV_pRcfRfnMJjRVuW2gdFZZvY9l2sSi9MCdEmeUdFKIk2tJyU2y-kDeE3eQlNcLCvrrwKawj42dLzKAAJ4OIvoYNBVd4t2Us_B1QecZYQPpC4fV5f_UTTFRhgPx4EtcEv1Kh1ozGtPL3lvjbL31lgUOAAnmYbC4mZgShYPSs55vZ-ZGc-yIMK28f2m5S-GRseN-OQ1CWXHQwDL_iqntdXqF8vL5"/>
+<div class="absolute top-4 left-4">
+<span class="px-4 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-full tracking-wide">Most compact</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h2 class="font-headline text-2xl font-bold tracking-tight">OM System OM-5</h2>
+<p class="text-primary font-bold text-lg">$1,199</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="landscape">landscape</span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="weight">weight</span>
+<div>
+<p class="text-[10px] uppercase font-bold text-outline-variant leading-none mb-1">Weight</p>
+<p class="text-sm font-bold">414g</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="vibration">vibration</span>
+<div>
+<p class="text-[10px] uppercase font-bold text-outline-variant leading-none mb-1">Stabilization</p>
+<p class="text-sm font-bold">6.5 Stops</p>
+</div>
+</div>
+</div>
+<button class="w-full py-3 bg-primary text-on-primary rounded-lg font-bold text-sm tracking-wide active:scale-95 duration-200">
+                        View at OM System
+                    </button>
+</div>
+</article>
+</section>
+<!-- Quick Actions & Footer -->
+<section class="mt-16 pt-12 border-t border-outline-variant/15">
+<h3 class="font-headline text-lg font-bold mb-6">Quick Actions</h3>
+<div class="space-y-3">
+<a class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="compare_arrows">compare_arrows</span>
+<span class="font-bold text-sm">Compare all specs</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="photo_camera_back">photo_camera_back</span>
+<span class="font-bold text-sm">Travel Lens Guide</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</a>
+</div>
+<div class="mt-12 text-center">
+<p class="text-[10px] uppercase font-bold tracking-widest text-outline-variant mb-2">Sources</p>
+<p class="text-xs text-on-surface-variant">DPReview, Manufacturer technical sheets, Lab tests 2024</p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-2 bg-[#fcf8f9]/80 backdrop-blur-xl z-50 shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] rounded-t-2xl">
+<div class="flex flex-col items-center justify-center text-gray-400 px-4 py-2 hover:text-[#0058bc] transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-inter text-[10px] uppercase tracking-widest font-bold">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-gray-400 px-4 py-2 hover:text-[#0058bc] transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-1" data-icon="bookmark">bookmark</span>
+<span class="font-inter text-[10px] uppercase tracking-widest font-bold">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#0058bc] bg-blue-50/50 rounded-xl px-4 py-2 active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-1" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-inter text-[10px] uppercase tracking-widest font-bold">Guides</span>
+</div>
+</nav>
+</body></html>

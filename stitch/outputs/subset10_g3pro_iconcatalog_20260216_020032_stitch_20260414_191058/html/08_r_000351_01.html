@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#2f1403",
+                    "on-primary-fixed-variant": "#224b63",
+                    "on-primary-fixed": "#001e2e",
+                    "error": "#ba1a1a",
+                    "inverse-surface": "#31302f",
+                    "error-container": "#ffdad6",
+                    "outline": "#71787b",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#f0bb9e",
+                    "outline-variant": "#c1c7cb",
+                    "surface-container-high": "#eae8e6",
+                    "tertiary-container": "#3d1f0b",
+                    "surface-container-highest": "#e5e2e0",
+                    "secondary-fixed-dim": "#a9cecc",
+                    "primary-fixed-dim": "#a4cbe8",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#f0edeb",
+                    "on-primary-container": "#6c92ad",
+                    "secondary": "#426464",
+                    "secondary-fixed": "#c4eae8",
+                    "on-error": "#ffffff",
+                    "surface": "#fcf9f7",
+                    "surface-container-low": "#f6f3f1",
+                    "secondary-container": "#c4eae8",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#230b00",
+                    "inverse-primary": "#a4cbe8",
+                    "on-secondary-fixed": "#00201f",
+                    "on-tertiary-fixed-variant": "#623e28",
+                    "surface-bright": "#fcf9f7",
+                    "on-primary": "#ffffff",
+                    "on-surface-variant": "#41484b",
+                    "on-secondary-fixed-variant": "#2a4c4c",
+                    "surface-variant": "#e5e2e0",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffdbc8",
+                    "background": "#fcf9f7",
+                    "surface-dim": "#dcd9d8",
+                    "on-surface": "#1b1c1b",
+                    "primary-fixed": "#c7e7ff",
+                    "on-background": "#1b1c1b",
+                    "surface-tint": "#3c637c",
+                    "on-secondary-container": "#486a6a",
+                    "inverse-on-surface": "#f3f0ee",
+                    "on-tertiary-container": "#b28469",
+                    "primary-container": "#002a3e",
+                    "primary": "#001420"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .editorial-shadow {
+            box-shadow: 0 40px 60px rgba(27, 28, 27, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-secondary-fixed">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f7] dark:bg-[#001420]">
+<nav class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface cursor-pointer">arrow_back</span>
+<h1 class="font-headline text-2xl tracking-tight font-bold text-[#001420] dark:text-[#fcf9f7]">Destination Archive</h1>
+</div>
+<span class="material-symbols-outlined text-on-surface cursor-pointer">more_vert</span>
+</nav>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-screen-md mx-auto">
+<!-- Hero Section -->
+<section class="mb-12">
+<span class="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3 block">Walking Tour Comparison</span>
+<h2 class="font-headline text-5xl leading-tight text-primary mb-6">January in the <br/><span class="italic text-on-primary-container">Indochinese Winter.</span></h2>
+<div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden editorial-shadow mb-8">
+<img class="w-full h-full object-cover" data-alt="Stunning aerial view of Hanoi Old Quarter at dawn with soft mist and traditional architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9t6SUEd7lri0HWhjnzGGtVxYSdmcH9ZQJ5ZSE98G26kBPszv_wcOsrTG02dEn_HstWv5zJdM0a96mILrHynSFXnYbCExhCmLv4Ef_Xk8D8wd0RqmPXte4ThDEbIZq3A3R-y6uUSn-BlN3z5i2NuuXWTvDp0_GKU_rdDMBFe1LYXtrgZMOp4hAA6P1vd6peRIEv58PjWqsoMwxNB3b2OLv4h0OvUFrtww6g82knmUsvFpSwEUx1M4UorhAdO-fwSXKUvJqoPA1rCaT"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6">
+<p class="text-surface font-headline text-2xl">Bangkok &amp; Hanoi</p>
+<p class="text-surface/80 font-label text-sm uppercase tracking-widest">Atmospheric Divergence</p>
+</div>
+</div>
+</section>
+<!-- Summary Card -->
+<section class="mb-16">
+<div class="bg-surface-container-lowest p-8 rounded-xl border-l-4 border-primary editorial-shadow">
+<p class="font-body text-lg leading-relaxed text-on-surface-variant">
+                    January offers a stark sensory contrast between these two hubs. Bangkok basks in its <span class="text-primary font-bold underline decoration-secondary-fixed">dry prime</span>, characterized by golden sunlight and warmth. Conversely, Hanoi embraces a <span class="italic">poetic winter</span>—cool, misty, and draped in a perpetual grey that turns walking tours into moody explorations of colonial history.
+                </p>
+</div>
+</section>
+<!-- Comparison Matrix -->
+<section class="mb-16">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-label text-sm uppercase tracking-widest font-extrabold">Climate Matrix</h3>
+<div class="h-px flex-grow mx-4 bg-outline-variant/30"></div>
+</div>
+<!-- Temperature -->
+<div class="mb-12">
+<div class="flex items-center gap-3 mb-4">
+<img alt="Temp Icon" class="w-5 h-5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB37xO8lOn6ZyOueDcXbLdkImVRmcWk_Vn96o-P-gtI4Ui8IiexcckXjHA6iHxO9rDKWtKFmHuTgc-3_KCS7WWaOJytH0MRVQ02vuHANMtBNLCUZ2LX5tmJj9HiLXJCuzyOJFTuzgMNpMqm671TK7xsI_WIt4QNZ4gYzRLniVqFR0pOmZUtSDuQtB1rppp5A_ac5RUosxeCuNxnAUHpfxaBjQnLmaWkqStdCoWWqQLR7VIqcRS5F66_V3SAlMM7lallyTz7Wi8cC6k-"/>
+<h4 class="font-headline text-xl">Temperature Range</h4>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-6 rounded-xl">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2 block">Bangkok</span>
+<p class="text-3xl font-headline text-primary">22-32°C</p>
+<p class="text-xs text-on-surface-variant mt-2">Sun-drenched days</p>
+</div>
+<div class="bg-secondary-fixed p-6 rounded-xl">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-secondary-container mb-2 block">Hanoi</span>
+<p class="text-3xl font-headline text-on-secondary-container">14-20°C</p>
+<p class="text-xs text-on-secondary-container/70 mt-2 italic">Misty crispness</p>
+</div>
+</div>
+</div>
+<!-- Humidity & Rainfall -->
+<div class="grid grid-cols-1 gap-6 mb-12">
+<!-- Humidity -->
+<div class="p-8 bg-surface-container-lowest rounded-xl border border-outline-variant/10 editorial-shadow">
+<div class="flex items-center gap-4 mb-6">
+<img alt="Humidity Icon" class="w-5 h-5 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmpWU1fktEsJ-WJJreSuyF2QW8U6AnJT-yLCYcmfZBsJcJm_MEhJy9Jdlbg-AWgIIWkkal54yIfQPSzg7NwbMSh_xxh_PUxYV8M3uGXQiw9-aKK7rOZLYiDCgyZgcvjRpfaA2H-xchNlhDHMI1o9v7nW9UoaATAhSgFXnTWdon5BygEqHASj4UTirrxqS8eShpGZEpK5E-2QdHJX6v5aVO5ijV64DsDPyDs8_2O5MMJxoGBl8ZvHdkmvfHpUHs4CTGO6ttAPhZVCks"/>
+<h4 class="font-headline text-xl">Atmospheric Moisture</h4>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<div>
+<p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Bangkok</p>
+<p class="text-lg font-bold">Moderate 60-70%</p>
+</div>
+<div class="w-24 h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%]"></div>
+</div>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Hanoi</p>
+<p class="text-lg font-bold">High 75-85%</p>
+</div>
+<div class="w-24 h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[85%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sky & Comfort -->
+<div class="bg-primary text-surface p-8 rounded-xl overflow-hidden relative">
+<div class="relative z-10">
+<div class="flex items-center gap-4 mb-6">
+<img alt="Weather Icon" class="w-5 h-5 invert opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVUrpUCUage4GeZWY6JQ4X-tR4CMY1v1wxTs7VWEKSqm-n8FdFkLd9QrmFRmKNKirNZRvnNnWFDPDlB1XaGqckB0AsnTcm46m0A2jJmi5Il-zIK9HENsD9IY3ItATzU25WHUfgC--euePY1sz2i4LinuFoyV70u1ff_y0QUyfowLuan53JpMS0YmCDL5s5u6FD3U-8qc-T27SNKJlpqImJH4LqbzV56rtQHE9VQzCwlqfSLle_EsY9I3P9LlncUcJj_XURop3t-k40"/>
+<h4 class="font-headline text-xl">Walking Comfort</h4>
+</div>
+<div class="space-y-8">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed"></span>
+<p class="font-label text-xs uppercase tracking-widest">Bangkok: Mostly Sunny</p>
+</div>
+<p class="text-surface/80 text-sm">Excellent morning conditions, though mid-day heat requires shade and hydration.</p>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed-dim"></span>
+<p class="font-label text-xs uppercase tracking-widest">Hanoi: Often Overcast</p>
+</div>
+<p class="text-surface/80 text-sm">Exceptional for long-distance urban exploration. The damp air keeps temperatures feeling constant.</p>
+</div>
+</div>
+</div>
+<!-- Abstract texture background -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-on-primary-container/20 rounded-full blur-3xl"></div>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="mb-16">
+<h3 class="font-label text-sm uppercase tracking-widest font-extrabold mb-6">Voyager Tools</h3>
+<div class="space-y-4">
+<a class="flex items-center justify-between p-5 bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-xl group" href="https://weather.com/weather/tenday/l/Bangkok+Thailand">
+<span class="font-medium text-on-surface">Check Bangkok 10-Day Forecast</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+<a class="flex items-center justify-between p-5 bg-surface-container-low hover:bg-surface-container-high transition-colors rounded-xl group" href="https://weather.com/weather/tenday/l/Hanoi+Vietnam">
+<span class="font-medium text-on-surface">Check Hanoi 10-Day Forecast</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+<a class="flex items-center justify-between p-5 bg-primary text-surface rounded-xl hover:bg-on-primary-container transition-colors shadow-lg" href="https://www.google.com/travel/flights">
+<span class="font-bold">Compare Flight Prices</span>
+<span class="material-symbols-outlined">flight_takeoff</span>
+</a>
+</div>
+</section>
+<!-- Sources -->
+<footer class="mb-12 pt-8 border-t border-outline-variant/30">
+<h4 class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">Bibliographic Sources</h4>
+<ul class="space-y-2 text-xs text-on-surface-variant/70 italic">
+<li>World Weather and Climate Information</li>
+<li>Tourism Authority of Thailand</li>
+<li>Vietnam National Authority of Tourism</li>
+</ul>
+</footer>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-3 pb-6 glass-nav bg-[#fcf9f7]/80 dark:bg-[#001420]/80 rounded-t-3xl shadow-[0_-4px_40px_rgba(27,28,27,0.04)]">
+<div class="flex flex-col items-center justify-center bg-[#c4eae8] dark:bg-[#002a3e] text-[#001420] dark:text-[#c4eae8] rounded-full px-6 py-2 transition-transform active:scale-95 cursor-pointer">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-sans text-[10px] font-medium uppercase tracking-widest mt-1">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#1b1c1b]/50 dark:text-[#fcf9f7]/50 px-6 py-2 hover:text-[#001420] dark:hover:text-[#fcf9f7] cursor-pointer">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-sans text-[10px] font-medium uppercase tracking-widest mt-1">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#1b1c1b]/50 dark:text-[#fcf9f7]/50 px-6 py-2 hover:text-[#001420] dark:hover:text-[#fcf9f7] cursor-pointer">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-sans text-[10px] font-medium uppercase tracking-widest mt-1">Bookings</span>
+</div>
+</nav>
+</body></html>

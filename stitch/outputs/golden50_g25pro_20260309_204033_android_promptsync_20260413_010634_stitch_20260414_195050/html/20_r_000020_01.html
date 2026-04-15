@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gion - A Day in Historic Higashiyama</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#410004",
+                    "tertiary": "#2e0002",
+                    "surface-variant": "#e6e2dd",
+                    "on-primary-fixed": "#101b30",
+                    "surface-container": "#f1ede8",
+                    "on-secondary-fixed-variant": "#693c00",
+                    "surface-dim": "#ddd9d5",
+                    "on-primary-container": "#828da7",
+                    "on-tertiary-container": "#ed5e59",
+                    "primary-fixed-dim": "#bbc6e2",
+                    "primary": "#051125",
+                    "on-tertiary-fixed-variant": "#8c171b",
+                    "inverse-primary": "#bbc6e2",
+                    "on-secondary": "#ffffff",
+                    "on-background": "#1c1c19",
+                    "primary-fixed": "#d7e2ff",
+                    "surface-container-highest": "#e6e2dd",
+                    "surface-bright": "#fdf9f4",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#3c475d",
+                    "secondary-fixed": "#ffdcbe",
+                    "error": "#ba1a1a",
+                    "tertiary-container": "#550006",
+                    "secondary": "#885210",
+                    "on-primary": "#ffffff",
+                    "outline": "#75777d",
+                    "on-surface": "#1c1c19",
+                    "on-secondary-container": "#774401",
+                    "secondary-container": "#fdb56c",
+                    "outline-variant": "#c5c6cd",
+                    "surface-container-low": "#f7f3ee",
+                    "tertiary-fixed": "#ffdad7",
+                    "inverse-on-surface": "#f4f0eb",
+                    "surface-tint": "#545e76",
+                    "surface": "#fdf9f4",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#31302d",
+                    "on-secondary-fixed": "#2c1600",
+                    "background": "#fdf9f4",
+                    "on-surface-variant": "#45474d",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#ebe8e3",
+                    "tertiary-fixed-dim": "#ffb3ad",
+                    "primary-container": "#1b263b",
+                    "secondary-fixed-dim": "#ffb870",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0px",
+                    "lg": "0px",
+                    "xl": "0px",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        h1, h2, h3 { font-family: 'Noto Serif', serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fdf9f4]/80 dark:bg-[#051125]/80 backdrop-blur-md flex items-center justify-between px-8 md:px-16 h-20 w-full">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-[#051125] dark:text-[#fdf9f4]">menu</span>
+</div>
+<div class="text-[#051125] dark:text-[#fdf9f4] font-noto-serif uppercase tracking-[0.2em] text-sm">Gion</div>
+<div class="flex items-center gap-6 hidden md:flex">
+<span class="text-[#051125]/50 dark:text-[#fdf9f4]/50 font-plus-jakarta uppercase tracking-widest text-[10px] hover:bg-[#e6e2dd]/20 transition-colors px-2 py-1">Explore</span>
+<span class="text-[#1B263B] dark:text-[#e6e2dd] font-plus-jakarta uppercase tracking-widest text-[10px] border-b border-[#1B263B] pb-1">Itinerary</span>
+<span class="text-[#051125]/50 dark:text-[#fdf9f4]/50 font-plus-jakarta uppercase tracking-widest text-[10px] hover:bg-[#e6e2dd]/20 transition-colors px-2 py-1">Profile</span>
+</div>
+<div class="md:hidden">
+<span class="material-symbols-outlined text-[#051125] dark:text-[#fdf9f4]">search</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-8 max-w-4xl mx-auto">
+<!-- Hero Section -->
+<section class="mb-16">
+<p class="font-label uppercase tracking-[0.2em] text-[10px] text-secondary mb-4">Itinerary</p>
+<h1 class="text-4xl md:text-6xl font-bold text-primary leading-tight mb-4 tracking-tight">A Day in Historic Higashiyama, Kyoto</h1>
+<div class="flex items-center gap-4 text-on-surface-variant mb-8">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label uppercase tracking-widest text-xs">Tuesday, November 5, 2024</span>
+</div>
+<div class="relative w-full aspect-[16/9] overflow-hidden group">
+<img class="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700" data-alt="Stunning aerial view of Kiyomizu-dera Temple wooden stage surrounded by vibrant red and orange autumn maple trees in Kyoto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJJrO-1rISuLcE33DncsF3txzoPISp1UnGO6a4oJ50egHvj4Edx5JnESRpfkrA-LLKqilcf7YGrUXl9ACd-PutAkmmhoY8TqRMuyvfvjErR6kOd2UBXviAigv4LvozDw_FYMExtbIjVx304endlp5PTpHGU6bg636GpYFEG8AdWJ00TFoLjcuv5x6G7SmZQJexQpJ6qLPPMOBW6c51bArSCovPZmt4ZxbBNiJP9blmsWxQxCHOY11XPGXMsNQb5fiZusUQB6MThjs"/>
+<div class="absolute inset-0 bg-primary/10"></div>
+</div>
+</section>
+<!-- Planning Notes -->
+<section class="mb-16 grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-4">
+<h2 class="text-sm font-label uppercase tracking-widest text-secondary border-b border-outline-variant/30 pb-4 mb-4">Planning Notes</h2>
+</div>
+<div class="md:col-span-8 space-y-6">
+<p class="text-lg leading-relaxed text-on-surface/80">
+                    Your journey through Higashiyama begins in <span class="font-bold text-primary">Gion</span>. This route is designed to maximize the ethereal morning light and the quiet magic of Kyoto's most preserved district.
+                </p>
+<ul class="space-y-4">
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary pt-1" data-icon="alarm">alarm</span>
+<span class="text-sm font-body tracking-wide">Early start recommended to avoid crowds at the temple gates.</span>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary pt-1" data-icon="forest">forest</span>
+<span class="text-sm font-body tracking-wide">Autumn foliage peaks around this time; expect vivid crimson maples.</span>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary pt-1" data-icon="steps">steps</span>
+<span class="text-sm font-body tracking-wide">Stone slopes and stairs ahead. Wear comfortable walking shoes.</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- Timeline -->
+<section class="space-y-24">
+<!-- Item 1 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 relative">
+<div class="md:col-span-3">
+<div class="sticky top-28">
+<p class="text-2xl font-headline text-primary">09:00 AM</p>
+<p class="font-label uppercase tracking-widest text-[10px] text-on-surface-variant mt-2">Morning Ascent</p>
+</div>
+</div>
+<div class="md:col-span-9">
+<div class="bg-surface-container-low p-0 group">
+<h3 class="text-2xl font-bold mb-4 px-8 pt-8">Kiyomizu-dera Temple</h3>
+<p class="text-on-surface-variant leading-relaxed px-8 pb-8">Experience the panoramic wooden stage that juts out over the hillside. The view of Kyoto city framed by seasonal colors is unparalleled.</p>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-3">
+<p class="text-2xl font-headline text-primary">11:00 AM</p>
+</div>
+<div class="md:col-span-9">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="aspect-square overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Charming narrow stone-paved street of Ninenzaka with traditional wooden machiya houses and blooming flowers in soft daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh7s2K85wYJQf5wSQaBNGtGr5fSeBL4adrZZzZEqOboWXsDMM2kh2Kqu0LyKFbwSESXfO4hQfVunlOhTuJ6OL6OKRKWFMvecaKBxhHLOa-QSHSCVOvzI726O3PjLamx0W3jdjz0RfZ1DnLuMGdlK7gx21yIMf9flz781KxYagwEUcpfDDu9kJrquRYbar3voApuMZ5eJTsWpT-jmjgRFXPalRuYWWHZv1xeyJND8SiV51yXbGEktFMmLuJUBDJxk71jqc8MqeNTVI"/>
+</div>
+<div class="flex flex-col justify-center">
+<h3 class="text-2xl font-bold mb-4">Historic Streets Walk</h3>
+<p class="text-on-surface-variant leading-relaxed mb-6">Wander through Sannenzaka and Ninenzaka. These stone-paved slopes are lined with traditional shops and teahouses.</p>
+<a class="text-secondary font-label uppercase tracking-widest text-xs border-b border-secondary/30 w-fit pb-1 hover:border-secondary transition-all" href="https://www.insidekyoto.com/kyoto-walking-itineraries">View Walking Map</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 3 - Simple Entry -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-3">
+<p class="text-2xl font-headline text-primary">12:30 PM</p>
+</div>
+<div class="md:col-span-9 border-l border-outline-variant/20 pl-8">
+<h3 class="text-2xl font-bold mb-2">Traditional Lunch</h3>
+<p class="text-on-surface-variant">Pause for Yudofu (tofu hot pot), handmade Soba, or Udon in a quiet courtyard setting.</p>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-3">
+<p class="text-2xl font-headline text-primary">02:00 PM</p>
+</div>
+<div class="md:col-span-9">
+<div class="bg-surface-container-low p-8">
+<h3 class="text-2xl font-bold mb-4">Kodai-ji Temple</h3>
+<p class="text-on-surface-variant leading-relaxed">Famous for its exquisite Zen rock gardens and bamboo grove. A more serene alternative to the busier temples.</p>
+</div>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-3">
+<p class="text-2xl font-headline text-primary">04:00 PM</p>
+</div>
+<div class="md:col-span-9">
+<h3 class="text-2xl font-bold mb-4">Yasaka Shrine</h3>
+<p class="text-on-surface-variant leading-relaxed">The vibrant vermilion gateway at the edge of Gion. Beautiful as the lanterns begin to glow at dusk.</p>
+</div>
+</div>
+<!-- Item 6 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-3">
+<p class="text-2xl font-headline text-primary">06:00 PM</p>
+</div>
+<div class="md:col-span-9">
+<div class="relative w-full aspect-video overflow-hidden mb-8">
+<img class="w-full h-full object-cover" data-alt="Night view of Hanamikoji Lane in Gion with glowing lanterns, dark wooden machiya, and wet cobblestones reflecting warm light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDDRRmU5NFj-yBSU8tu27UX3YM0ktcvjFAirA1aweZwJNTWkLlM_CeiHY32mS1TPQiKia5UdqH4e7nUh9JoSiPJktT9Q-yNetox8tdF_g_-PoIWA6M22bZBKYLiFsrO8EZQKMPVPcCXt6dNjjllb8r6BE9v_t5utgtGERbmMTttMUH5ahoZyK5CiNEqgzLGHzRqnovbK_cs809FjKIedD3lWx4k7IBEZrLI48DlpmF9IjIsmNnQGGSo8lutiYcPJ8U8OkQud5YCRo"/>
+</div>
+<h3 class="text-2xl font-bold mb-4">Gion Evening Stroll</h3>
+<p class="text-on-surface-variant leading-relaxed">Explore Hanamikoji Lane. Keep an eye out for geiko and maiko moving between appointments in this atmospheric district.</p>
+</div>
+</div>
+</section>
+<!-- Quick Actions & Links -->
+<section class="mt-32 pt-16 border-t border-outline-variant/20">
+<h2 class="text-sm font-label uppercase tracking-widest text-on-surface-variant mb-8 text-center">Resources &amp; Guides</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<a class="flex items-center justify-between p-6 bg-primary text-on-primary hover:bg-primary-container transition-colors group" href="https://www.kyotostation.com/kyoto-city-bus-subway-guide-route-map/">
+<span class="font-label uppercase tracking-widest text-xs">Kyoto Bus Map</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<a class="flex items-center justify-between p-6 bg-surface-container-highest text-primary hover:bg-surface-variant transition-colors group" href="https://www.insidekyoto.com/kyoto-walking-itineraries">
+<span class="font-label uppercase tracking-widest text-xs">Walking Course</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="directions_walk">directions_walk</span>
+</a>
+</div>
+<div class="mt-12 text-center">
+<p class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant/60">
+                    Sources: JNTO and Kyoto City Official Travel Guide
+                </p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full h-24 bg-[#fdf9f4]/80 dark:bg-[#051125]/80 backdrop-blur-md flex justify-around items-start px-16 pb-8 z-50">
+<div class="flex flex-col items-center gap-1 text-[#051125]/40 dark:text-[#fdf9f4]/40 pt-2 transition-all">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-plus-jakarta uppercase tracking-widest text-[10px]">Explore</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#051125] dark:text-[#fdf9f4] font-bold border-t-2 border-[#1B263B] pt-2 transition-all">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span class="font-plus-jakarta uppercase tracking-widest text-[10px]">Itinerary</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#051125]/40 dark:text-[#fdf9f4]/40 pt-2 transition-all">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-plus-jakarta uppercase tracking-widest text-[10px]">Profile</span>
+</div>
+</nav>
+</body></html>

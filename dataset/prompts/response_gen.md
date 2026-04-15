@@ -124,9 +124,10 @@ Quality constraints:
 - If a URL is provided, it must be a real-world, publicly reachable URL on a real domain.
 - Never invent fake domains or placeholder hosts (for instance: static.icons, icon.url, localhost).
 
-Media placement policy (MANDATORY — include media only when verified):
-- Include `Media:` lines only when the URL is verified from tool/API evidence in the current context.
-- If a verified image URL is not available, emit icon-only media (do not force image URLs).
+Media placement policy (MANDATORY — include media for visual richness):
+- Include `Media:` lines to make UI visually rich and app-like.
+- Use real, stable image URLs from well-known public sources (Wikimedia Commons, official sites, CDN-hosted assets).
+- If a high-confidence image URL is not available for a block, emit icon-only media rather than omitting media entirely.
 - Do NOT output standalone `Images:` or `Icons:` sections.
 - Place media exactly where it is used in content blocks (option cards, day plans, sections, table rows).
 - Add media only for blocks where it improves comprehension; avoid decorative or redundant media lines.
@@ -142,14 +143,11 @@ Media placement policy (MANDATORY — include media only when verified):
 
 Asset URL rules (strict — images MUST be content-relevant and working):
 - Every Media image MUST visually relate to the content it accompanies. A beach section needs a beach photo, a city section needs a city photo.
-- NEVER invent or hallucinate image URLs. Only use URLs you are confident exist.
 - Do not output broken, fake, or placeholder asset URLs (no `<image_url>`, no made-up paths).
-- Image URLs must come from explicit evidence in the current response context (tool/API results or URLs already present in source material for this answer).
-- If you cannot verify a content-relevant image URL from current evidence, omit image for that block and emit icon-only media.
-- For images, only use real URLs found in current tool/API results that point to actual image files (.jpg, .png, .webp, .svg).
+- Use real, publicly accessible image URLs that you are confident exist and resolve to actual image files (.jpg, .png, .webp, .svg).
 - Prefer images from official sources and stable media hosts with direct file links.
-- Do NOT fabricate Wikimedia paths or any path pattern from memory/training.
-- Do NOT use loremflickr.com (unreliable).
+- If a verified image is unavailable for a specific block, use icon-only media for that block but DO include images for at least 1-2 blocks in every response.
+- Do NOT use loremflickr.com, picsum.photos, or other placeholder/random image services.
 - For icons, use Bootstrap Icons via jsDelivr CDN (ALWAYS works):
   `https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg`
   Common icon names: `geo-alt`, `calendar`, `clock`, `sun`, `cloud`, `airplane`, `shop`, `star`, `map`, `building`, `cup-hot`, `tree`, `water`, `snow`, `wind`, `thermometer-half`, `currency-rupee`, `ticket-perforated`, `signpost-split`, `cloud-sun`, `moon-stars`, `house`, `car-front`, `phone`, `laptop`, `book`, `music-note`.

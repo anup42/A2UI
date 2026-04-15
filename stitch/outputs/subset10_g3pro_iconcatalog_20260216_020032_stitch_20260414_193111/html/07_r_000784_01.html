@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kyoto Family Itinerary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #fbf9f4;
+            color: #1b1c19;
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-serif { font-family: 'Noto Serif', serif; }
+        .font-sans { font-family: 'Manrope', sans-serif; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#757780",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#0f1b2c",
+                        "on-primary-fixed-variant": "#334573",
+                        "surface-container-low": "#f5f3ee",
+                        "surface-container-high": "#eae8e3",
+                        "inverse-primary": "#b3c6fb",
+                        "on-secondary-fixed-variant": "#613d3e",
+                        "on-primary-container": "#8496c9",
+                        "on-tertiary-container": "#8c98ad",
+                        "surface-variant": "#e4e2dd",
+                        "inverse-surface": "#30312e",
+                        "secondary": "#7b5455",
+                        "secondary-container": "#fecbcb",
+                        "secondary-fixed-dim": "#ecbaba",
+                        "on-tertiary-fixed": "#101c2c",
+                        "primary": "#011844",
+                        "inverse-on-surface": "#f2f1ec",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#d7e3fa",
+                        "secondary-fixed": "#ffdad9",
+                        "outline-variant": "#c5c6d0",
+                        "tertiary-container": "#243041",
+                        "background": "#fbf9f4",
+                        "on-background": "#1b1c19",
+                        "primary-fixed": "#dae2ff",
+                        "primary-container": "#1a2e5a",
+                        "surface-container": "#f0eee9",
+                        "on-secondary-fixed": "#2f1314",
+                        "surface": "#fbf9f4",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "on-secondary-container": "#7a5354",
+                        "surface-bright": "#fbf9f4",
+                        "on-surface": "#1b1c19",
+                        "primary-fixed-dim": "#b3c6fb",
+                        "surface-container-highest": "#e4e2dd",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dbdad5",
+                        "on-surface-variant": "#44464f",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#4b5d8c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#fbf9f4]/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(27,28,25,0.04)]">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary cursor-pointer" data-icon="menu">menu</span>
+<h1 class="font-serif text-2xl tracking-tight text-[#011844] dark:text-slate-100">Kyoto Family Itinerary</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border-2 border-white shadow-sm">
+<img alt="Profile picture of traveler" class="w-full h-full object-cover" data-alt="portrait of a smiling woman traveler with soft sunlight and blurred park background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDn279tBfjXopLs6OvxmkDAiT2qofR_jwAis5g5sJptM5pMmaZFHSpgvDruCyYZnDgVbannB9w_ka4_dBIZQrDxePPsHx6wCbDUnpmXBqy0av1FNLXrqLANJdCNtfAT82_w_jkfsIuQxnGiwDnRP9iRo528ZWR30sU3wF1cCwz8Jhx-Qe4d_lWc3eKGrj6IBZcaNa9rhHx2lcDW8_z59osX3Uj2PEHgfvGls3521Dw1pMTwaHdP2kLyfyVwn8s8RxLG24SiMj74xgVr"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto space-y-12">
+<!-- Hero Section & Summary -->
+<section class="relative">
+<div class="mb-6">
+<span class="font-sans text-[10px] uppercase tracking-widest font-bold text-secondary mb-1 block">Travel Journal</span>
+<h2 class="font-serif text-4xl text-primary leading-tight">Spring in the Ancient Capital</h2>
+<p class="text-on-surface-variant mt-2 font-medium">April 5 - 7 | Peak Sakura Season</p>
+</div>
+<div class="w-full aspect-[16/10] rounded-xl overflow-hidden mb-8 shadow-sm">
+<img alt="Kyoto during Cherry Blossom season" class="w-full h-full object-cover" data-alt="Stunning aerial view of Kyoto pagoda surrounded by pink cherry blossoms under a soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkRNjvfewDAeWDQn_H24Spj31nUxhqksQgjcu9FQruw1cTeTiGChT7qVRTssEn-ockbazrxrqQOX0r6R5wVal9XwS_oEFebzJ8gjyMwt5a8jztvMfk8jl8SBhH7GRCvVxP_ZHp0T41P3p_9M9yuLnFYmUtOO9c8yi2P5JOTEP9Luc0CvxxQVu6NMQoGunkphArKNIHCZ66eeR9lvrNegIf2XlDt5E129X7lnVE5yucD8OcimXI_iuH2jLJhIXsBKK1oncMYvI-5xhD"/>
+</div>
+<!-- Summary Card -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_24px_rgba(27,28,25,0.02)] border border-outline-variant/10">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-secondary" data-icon="auto_awesome">auto_awesome</span>
+<h3 class="font-serif text-xl text-primary">Overview</h3>
+</div>
+<p class="text-on-surface-variant leading-relaxed text-sm mb-4">
+                    A curated journey through Kyoto’s historical heart, designed for families. Experience manageable hikes, engaging street food, and serene temple gardens.
+                </p>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<div class="text-secondary font-bold text-[10px] uppercase tracking-wider mb-1">Ages</div>
+<div class="text-primary font-bold">8 &amp; 10 Years</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<div class="text-secondary font-bold text-[10px] uppercase tracking-wider mb-1">Limit</div>
+<div class="text-primary font-bold">30m Walks</div>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant italic">
+<span class="material-symbols-outlined text-[16px]" data-icon="lightbulb">lightbulb</span>
+                    Tip: Early starts are highly recommended to beat crowds.
+                </div>
+</div>
+</section>
+<!-- Day-by-Day Cards -->
+<section class="space-y-16">
+<!-- Day 1 -->
+<div class="relative">
+<div class="absolute -left-3 top-0 bottom-0 w-[1px] bg-outline-variant/20"></div>
+<div class="pl-6">
+<span class="font-sans text-[11px] uppercase tracking-widest font-extrabold text-secondary mb-2 block">Day One</span>
+<h3 class="font-serif text-2xl text-primary mb-4">Southern Higashiyama</h3>
+<div class="space-y-6">
+<!-- Stop 1 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/5">
+<div class="h-32 bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="The vibrant orange torii gates of Fushimi Inari Shrine winding through a forest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzLUOQyfmZ9OnxaLaI6bHpyPTRVadN-ysk7XgyFSOv9A1e9uO5bJPCoAveDGrzReys4X41VDORlNXDJldrxyhn5cVM3HzXpyvghM1z6E13WXCJBz94D5alx7vKhUKBe90QxdrAweZgN6t7ZL_qkNCMt1Nj0xCfzAspMYwIpNSikuc_FddbVCGJYBsZ709N77keaNYYuf8DOm_sH4FIXO8Wo2RhPd_ubMs45vngxkmybRpUqH9MFFsLJORO7Uzoxaj1_pVFtxDUsvHh"/>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-serif text-lg text-primary">Fushimi Inari</h4>
+<span class="bg-secondary/10 text-secondary px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tighter uppercase">Hiking</span>
+</div>
+<p class="text-sm text-on-surface-variant mb-4">Hike up to the Yotsutsuji intersection for panoramic views of the city. Manageable for kids!</p>
+<button class="w-full py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold transition-transform active:scale-95">Fushimi Inari Guide</button>
+</div>
+</div>
+<!-- Stop 2 -->
+<div class="bg-surface-container-low p-5 rounded-xl">
+<div class="flex gap-4">
+<div class="flex-1">
+<h4 class="font-serif text-lg text-primary mb-1">Kiyomizu-dera</h4>
+<p class="text-sm text-on-surface-variant">Iconic wooden stage and sacred water springs.</p>
+</div>
+<div class="w-16 h-16 rounded-lg bg-surface-container-highest overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="The grand wooden structure of Kiyomizu-dera temple overlooking autumn foliage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTVfOUfjZhFI13k8Qi2yosHwqQdfQKQrGoJ28QImxmm6kKqu5yaluKd6dD_SxnhjBzKfQPIUysr6A-0ludj49Ajtkt35kLrJNhtz-RyeKCb1KzciUQL-rrZI-SEa_zOaRrVSwk-njqs6jAwVZWP5xftCjDUMfWNL4NZq0tcjcIUX0R5J9PsPqMzfIJ_gm0F9OeX3IqYUWm_PeobLnbwGfTsT29Hu52FdIjVaYPCGkulCVHszR93KBM2vUkb8EHIggBTqBU6xjv5Aos"/>
+</div>
+</div>
+<div class="mt-4 p-3 bg-white/50 rounded-lg border border-secondary/10">
+<p class="text-xs text-on-surface italic">Don't miss the Ghibli store and traditional sweets on <strong>Ninenzaka</strong> slope.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Day 2 -->
+<div class="relative">
+<div class="absolute -left-3 top-0 bottom-0 w-[1px] bg-outline-variant/20"></div>
+<div class="pl-6">
+<span class="font-sans text-[11px] uppercase tracking-widest font-extrabold text-secondary mb-2 block">Day Two</span>
+<h3 class="font-serif text-2xl text-primary mb-4">Arashiyama District</h3>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/5">
+<div class="grid grid-cols-2 h-40">
+<img class="h-full w-full object-cover" data-alt="Towering green bamboo stalks in the Arashiyama Bamboo Grove with sunlight filtering through" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDD6QEdgcvnywj1Yigufc1SDlrzSn94wJ0zrWiKThn8K7UkT2TUfPH3K3r409GRkmLLgY5UpzDqAKs9_RsrOHOqx-Nv1c8EtfmkWfwxDX1PAEqR84dRY9dZfEJVdcH0vC-VTXFi2LXyqUwkcplrcnVsKv06WVBat3kz3JpZ9MXzBByy8Lwkjhzz8AScbETm15p186xUNYUzZcc4hi1SY03P-UAkwZsPooTMFzFQ8Y4g6LI_gWdn0p3tPS_XxLRoGp3o8SGvcFelpFx4"/>
+<img class="h-full w-full object-cover border-l border-white" data-alt="A Japanese macaque monkey sitting on a rock in Iwatayama Monkey Park with Kyoto city in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXXQPeiNyv3_tDVuDD2fFHcVr5Srr8KWa4FqN60rl5MHRxKi64qwET9M7cwuwdJ745BuhzLnaIF2-9q75sN5vECbLYGO_a9LOeWyKLlWZYdoHhCwXnTuqdlb9kxWNNNjdkE2D1LhJsk_DiDujUoLDZYJMrTHP89bIiOjYokm7tsj3cjg-oNpD2NXcFtn2600sXaL04u30ApC2H61vgMyA2Guh0vqPHvRTZB4nQk6m32KImwQxAROTVxuDBPKihUBSV6tzlCj5xqW_a"/>
+</div>
+<div class="p-5">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="pets">pets</span>
+<h4 class="font-serif text-lg text-primary">Bamboo &amp; Monkeys</h4>
+</div>
+<p class="text-sm text-on-surface-variant mb-5">Morning walk through the Bamboo Grove followed by the Iwatayama Monkey Park. Kids can safely feed monkeys from inside a hut.</p>
+<div class="bg-surface-container-low p-4 rounded-lg mb-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="restaurant">restaurant</span>
+<div>
+<div class="text-[10px] font-bold uppercase tracking-wider text-secondary">Lunch Recommendation</div>
+<div class="text-xs font-bold text-primary">Sanuki Udon &amp; Matcha Soft Serve</div>
+</div>
+</div>
+<button class="w-full py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold">Monkey Park Info</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Day 3 -->
+<div class="relative">
+<div class="absolute -left-3 top-0 bottom-0 w-[1px] bg-outline-variant/20"></div>
+<div class="pl-6">
+<span class="font-sans text-[11px] uppercase tracking-widest font-extrabold text-secondary mb-2 block">Day Three</span>
+<h3 class="font-serif text-2xl text-primary mb-4">North &amp; Central</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/5">
+<span class="material-symbols-outlined text-secondary mb-2" data-icon="temple_buddhist">temple_buddhist</span>
+<h4 class="font-serif text-md text-primary mb-1">Kinkaku-ji</h4>
+<p class="text-[11px] text-on-surface-variant">The Golden Pavilion reflected in its pond. Early morning visit best.</p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/5">
+<span class="material-symbols-outlined text-secondary mb-2" data-icon="castle">castle</span>
+<h4 class="font-serif text-md text-primary mb-1">Nijo Castle</h4>
+<p class="text-[11px] text-on-surface-variant">Explore the "nightingale floors" that chirp when walked upon.</p>
+</div>
+</div>
+<div class="mt-4 bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-outline-variant/5">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Busy indoor market stall with colorful Japanese seafood and street snacks in Nishiki Market" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWH2-1DV4pS-a6rHWxcI01m48vqK52LjIei2_-lR8TvjwM2QJbx5PFjcyiJb6UO8vYHy4b8FXDXUxTxbhsavAAPQs1EOBSk5-OBWoNsLly-RnFog_Xt57Fz10pb7yHCk4_m-Kwbavri4k9rGF1qili9pveQXpMBdiN4J5u328jSpL8Gt1KYIz8AwLYr4yNI5Ha5vOVS9NQ_h_3JEHUkkA3W9haLRllvM3VE2ebmhR7Bm_VukhcVzrX90Jx8tkNrfV9RtOS5xuFbCqe"/>
+</div>
+<h4 class="font-serif text-lg text-primary">Nishiki Market</h4>
+</div>
+<p class="text-sm text-on-surface-variant mb-4">Known as "Kyoto's Kitchen". Perfect for trying small bites of local seafood and sweets.</p>
+<button class="w-full py-2.5 bg-secondary-container text-on-secondary-container rounded-lg text-xs font-bold transition-transform active:scale-95">Nishiki Market Map</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="bg-primary-container text-on-primary-container rounded-2xl p-8">
+<h3 class="font-serif text-2xl mb-6 text-on-primary">Quick Resources</h3>
+<div class="space-y-3">
+<a class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors" href="#">
+<span class="font-bold text-sm">Hotel Rates &amp; Booking</span>
+<span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</a>
+<a class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors" href="#">
+<span class="font-bold text-sm">Official Kyoto Travel Guide</span>
+<span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</a>
+<a class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors" href="#">
+<span class="font-bold text-sm">JR West Train Status</span>
+<span class="material-symbols-outlined text-sm" data-icon="train">train</span>
+</a>
+</div>
+</section>
+<!-- Assumptions & Sources -->
+<section class="pb-12 text-center">
+<div class="h-px w-24 bg-outline-variant/30 mx-auto mb-8"></div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold mb-2">Technical Details</p>
+<p class="text-xs text-on-surface-variant/80 px-4 leading-relaxed italic">
+                Central Kyoto stay assumed for all transit calculations. Recommendations based on 2024 spring seasonal data and family travel best practices.
+            </p>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full bg-[#fbf9f4]/80 dark:bg-slate-900/80 backdrop-blur-lg z-50 rounded-t-3xl shadow-[0_-8px_32px_rgba(27,28,25,0.04)]">
+<div class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8">
+<!-- Active Tab: Itinerary -->
+<a class="flex flex-col items-center justify-center bg-[#7b5455]/10 dark:bg-pink-900/20 text-[#7b5455] dark:text-pink-300 rounded-xl px-4 py-1" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="auto_stories" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-bold">Itinerary</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex flex-col items-center justify-center text-[#011844]/50 dark:text-slate-500 px-4 py-1 hover:text-[#7b5455] transition-colors" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="map">map</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-bold">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#011844]/50 dark:text-slate-500 px-4 py-1 hover:text-[#7b5455] transition-colors" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="lightbulb">lightbulb</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-bold">Tips</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#011844]/50 dark:text-slate-500 px-4 py-1 hover:text-[#7b5455] transition-colors" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="person">person</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-bold">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

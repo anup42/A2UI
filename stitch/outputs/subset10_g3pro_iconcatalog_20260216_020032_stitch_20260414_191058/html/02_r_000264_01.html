@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#1a438e",
+                        "surface-dim": "#d9dadb",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#83fba5",
+                        "tertiary-fixed-dim": "#acc7ff",
+                        "on-secondary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "tertiary": "#00224f",
+                        "on-secondary-fixed-variant": "#005227",
+                        "on-secondary-fixed": "#00210c",
+                        "on-tertiary-fixed-variant": "#004491",
+                        "on-tertiary-container": "#6ea2ff",
+                        "tertiary-container": "#003777",
+                        "surface-container": "#edeeef",
+                        "surface-bright": "#f8f9fa",
+                        "secondary": "#006d36",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#001a40",
+                        "surface-container-high": "#e7e8e9",
+                        "surface": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-background": "#191c1d",
+                        "on-primary-fixed": "#001945",
+                        "secondary-container": "#83fba5",
+                        "inverse-primary": "#b0c6ff",
+                        "surface-tint": "#375ca8",
+                        "outline-variant": "#c4c6d3",
+                        "surface-variant": "#e1e3e4",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#7fa1f2",
+                        "on-surface-variant": "#434651",
+                        "inverse-surface": "#2e3132",
+                        "tertiary-fixed": "#d7e2ff",
+                        "surface-container-low": "#f3f4f5",
+                        "secondary-fixed-dim": "#66dd8b",
+                        "on-surface": "#191c1d",
+                        "primary-fixed-dim": "#b0c6ff",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#003580",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#002155",
+                        "on-secondary-container": "#00743a",
+                        "outline": "#747782",
+                        "primary-fixed": "#d9e2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-[60] bg-[#f8f9fa] dark:bg-slate-900 no-line separation via background tonal shift">
+<nav class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#003580] dark:text-blue-400">arrow_back</span>
+<div class="flex flex-col">
+<h1 class="font-['Manrope'] font-bold tracking-tight text-[#003580] dark:text-blue-400 leading-tight">SFO Rental Car Options</h1>
+<p class="text-xs font-label text-slate-500 font-medium tracking-wide">Dec 1 - Dec 5, 2024</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#003580] dark:text-blue-400">calendar_month</span>
+</div>
+</nav>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-8 space-y-10 pb-32">
+<!-- Summary Bento Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_40px_rgba(0,33,85,0.04)] relative overflow-hidden">
+<div class="relative z-10">
+<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold uppercase tracking-widest mb-6">
+                        Trip Logistics
+                    </span>
+<h2 class="font-headline text-3xl font-extrabold text-primary mb-2">Duration: 4 Days</h2>
+<p class="text-on-surface-variant font-medium leading-relaxed max-w-md">Budget allocation: $300 total, averaging approximately $75 per day for your San Francisco transit needs.</p>
+</div>
+<div class="absolute -right-8 -bottom-8 opacity-5">
+<span class="material-symbols-outlined text-[160px]" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-8 rounded-xl border border-outline-variant/15">
+<h3 class="font-headline text-lg font-bold text-primary mb-4">Core Assumptions</h3>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span class="text-sm font-medium">25+ years old</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span class="text-sm font-medium">Valid credit card</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span class="text-sm font-medium">US Resident</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-xl">check_circle</span>
+<span class="text-sm font-medium">Same location return</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- Rental Options Section -->
+<section class="space-y-8">
+<div class="flex justify-between items-end">
+<h2 class="font-headline text-2xl font-extrabold text-primary tracking-tight">Available Providers</h2>
+<div class="flex gap-2">
+<div class="w-8 h-1 rounded-full bg-primary-container"></div>
+<div class="w-2 h-1 rounded-full bg-surface-container-highest"></div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Option 1: Budget -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-[0_8px_48px_rgba(0,33,85,0.12)] transition-all duration-500 border-l-4 border-secondary">
+<div class="p-6 space-y-6">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<h3 class="font-headline text-xl font-bold">Budget Rent A Car</h3>
+<p class="text-xs font-label uppercase tracking-wider text-on-surface-variant font-semibold">Value-oriented agency</p>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold text-xl">$270 - $300</p>
+<p class="text-[10px] text-on-surface-variant font-bold">EST. TOTAL</p>
+</div>
+</div>
+<a class="block w-full py-4 text-center bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-bold tracking-tight hover:opacity-90 transition-opacity active:scale-[0.98]" href="https://www.budget.com/en/locations/us/ca/san-francisco/sfo" target="_blank">
+                            Check Rates
+                        </a>
+</div>
+</div>
+<!-- Option 2: Hertz -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_48px_rgba(0,33,85,0.08)] transition-all duration-500">
+<div class="p-6 space-y-6">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<h3 class="font-headline text-xl font-bold">Hertz</h3>
+<p class="text-xs font-label uppercase tracking-wider text-on-surface-variant font-semibold">Wide selection, loyalty rewards</p>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold text-xl">$290 - $320</p>
+<p class="text-[10px] text-on-surface-variant font-bold">EST. TOTAL</p>
+</div>
+</div>
+<a class="block w-full py-4 text-center bg-surface-container-high text-on-primary-fixed-variant rounded-xl font-bold tracking-tight hover:bg-surface-container-highest transition-colors active:scale-[0.98]" href="https://www.hertz.com/rentacar/location/unitedstates/california/sanfrancisco/SFO" target="_blank">
+                            Check Rates
+                        </a>
+</div>
+</div>
+<!-- Option 3: Enterprise -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_48px_rgba(0,33,85,0.08)] transition-all duration-500">
+<div class="p-6 space-y-6">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<h3 class="font-headline text-xl font-bold">Enterprise</h3>
+<p class="text-xs font-label uppercase tracking-wider text-on-surface-variant font-semibold">Customer service &amp; quality</p>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold text-xl">$300 - $340</p>
+<p class="text-[10px] text-on-surface-variant font-bold">EST. TOTAL</p>
+</div>
+</div>
+<a class="block w-full py-4 text-center bg-surface-container-high text-on-primary-fixed-variant rounded-xl font-bold tracking-tight hover:bg-surface-container-highest transition-colors active:scale-[0.98]" href="https://www.enterprise.com/en/car-rental/locations/us/ca/san-francisco-international-airport-2316.html" target="_blank">
+                            Check Rates
+                        </a>
+</div>
+</div>
+<!-- Option 4: Kayak -->
+<div class="bg-surface-container-low/50 rounded-xl overflow-hidden border border-dashed border-outline-variant transition-all duration-500">
+<div class="p-6 space-y-6">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<h3 class="font-headline text-xl font-bold">Kayak</h3>
+<div class="flex flex-wrap gap-2 mt-1">
+<span class="text-[9px] bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">Aggregator</span>
+<span class="text-[9px] bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">Best for strict budget</span>
+</div>
+</div>
+</div>
+<a class="block w-full py-4 text-center bg-white text-primary border border-primary/20 rounded-xl font-bold tracking-tight hover:bg-primary-fixed transition-colors active:scale-[0.98]" href="https://www.kayak.com/cars/SFO-a13852/2024-12-01/2024-12-05" target="_blank">
+                            Compare on Kayak
+                        </a>
+</div>
+</div>
+<!-- Option 5: Turo -->
+<div class="relative bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_48px_rgba(0,33,85,0.08)] transition-all duration-500 group">
+<div class="absolute inset-0 bg-gradient-to-br from-tertiary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="relative p-6 space-y-6">
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<h3 class="font-headline text-xl font-bold">Turo</h3>
+<p class="text-xs font-label uppercase tracking-wider text-on-surface-variant font-semibold">Peer-to-peer car sharing</p>
+</div>
+<span class="material-symbols-outlined text-primary-container">diversity_3</span>
+</div>
+<a class="block w-full py-4 text-center bg-primary text-white rounded-xl font-bold tracking-tight hover:bg-primary-container transition-colors active:scale-[0.98]" href="https://turo.com/us/en/search?country=US&amp;defaultZoomLevel=11&amp;endDate=12%2F05%2F2024&amp;endTime=10%3A00&amp;location=SFO&amp;locationType=Airport&amp;startDate=12%2F01%2F2024&amp;startTime=10%3A00" target="_blank">
+                            Search Turo
+                        </a>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions & Travel Map Concept -->
+<section class="space-y-6">
+<div class="bg-surface-container-high rounded-3xl overflow-hidden min-h-[240px] relative flex flex-col justify-end p-8">
+<img class="absolute inset-0 w-full h-full object-cover grayscale contrast-[0.9] opacity-40" data-alt="minimalist clean map showing San Francisco International Airport rental car center location with soft primary blue pins" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVJXzkiG2OljIUsAirvJjrzG1nkIaDRhnSO8tW41Se3MTjndW_K3No4odrGX-UrTV7_q7m4UbjEvSof0ZNzXGg3yEmXztT3NYhtDU323KmZQ0liLvELrj1b-yCWGeiinAesjeHRGk6JbPW2JiDtEab6hFzntrjXmjtwNIqZPKeuYk_yNwCOjaJHjxWln96JB_-T9hU0LWFzUrstS2DHhrytkLUFxKYluRoVQ3kM2Uun4KtbrkcPaJUdtMxPkuBYSJ5JCufpSlItWxF"/>
+<div class="relative z-10 space-y-4">
+<h3 class="font-headline text-2xl font-extrabold text-primary">SFO Ground Logistics</h3>
+<div class="flex flex-col sm:flex-row gap-4">
+<a class="inline-flex items-center justify-center gap-2 px-6 py-4 bg-surface-container-lowest text-primary rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all" href="https://www.flysfo.com/passengers/ground-transportation/rental-cars">
+<span class="material-symbols-outlined text-lg">info</span>
+                            Rental Car Center Info
+                        </a>
+<a class="inline-flex items-center justify-center gap-2 px-6 py-4 bg-surface-container-lowest text-primary rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all" href="https://511.org/">
+<span class="material-symbols-outlined text-lg">traffic</span>
+                            Check SFO Traffic
+                        </a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 bg-[#f3f4f5] dark:bg-slate-800/50">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 px-8 max-w-7xl mx-auto">
+<div class="space-y-4">
+<h4 class="font-['Manrope'] font-bold text-[#003580] dark:text-blue-400">Editorial Logistics</h4>
+<p class="font-['Inter'] text-sm tracking-normal text-slate-500 dark:text-slate-400">© 2024 Editorial Logistics. Precision travel curation.</p>
+</div>
+<div class="flex flex-wrap gap-x-6 gap-y-2 justify-start md:justify-end items-center">
+<a class="text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white transition-colors font-['Inter'] text-sm tracking-normal" href="#">Terms of Service</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white transition-colors font-['Inter'] text-sm tracking-normal" href="#">Privacy Policy</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white transition-colors font-['Inter'] text-sm tracking-normal" href="#">Carbon Offset Program</a>
+</div>
+</div>
+<div class="mt-8 px-8 max-w-7xl mx-auto opacity-40 text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">
+            Sources: FlySFO, Budget, Hertz, Enterprise, Kayak, Turo, 511.org
+        </div>
+</footer>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 glass-nav z-50 rounded-t-3xl shadow-[0_-4px_40px_rgba(0,33,85,0.06)] md:hidden">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 scale-110 duration-200 ease-out hover:text-[#003580]">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#003580] text-white rounded-xl px-4 py-1.5 scale-110 duration-200 ease-out">
+<span class="material-symbols-outlined mb-1">directions_car</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider">Bookings</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 scale-110 duration-200 ease-out hover:text-[#003580]">
+<span class="material-symbols-outlined mb-1">favorite</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 scale-110 duration-200 ease-out hover:text-[#003580]">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-['Inter'] text-[10px] font-semibold uppercase tracking-wider">Profile</span>
+</div>
+</nav>
+</body></html>

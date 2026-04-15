@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        .ledger-label { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
+        .glass-header { backdrop-filter: blur(20px); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "error-container": "#ffdad6",
+                "on-surface": "#191c1d",
+                "on-error": "#ffffff",
+                "background": "#f8f9fa",
+                "on-tertiary-fixed-variant": "#004f4f",
+                "tertiary-container": "#002323",
+                "on-surface-variant": "#43474e",
+                "outline-variant": "#c4c6cf",
+                "on-primary-container": "#6f88ad",
+                "primary-fixed-dim": "#afc8f0",
+                "on-primary-fixed-variant": "#2f486a",
+                "surface": "#f8f9fa",
+                "on-primary": "#ffffff",
+                "on-tertiary-fixed": "#002020",
+                "on-error-container": "#93000a",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-container": "#2c9494",
+                "surface-dim": "#d9dadb",
+                "surface-container-high": "#e7e8e9",
+                "on-secondary": "#ffffff",
+                "primary-fixed": "#d4e3ff",
+                "tertiary-fixed-dim": "#76d6d5",
+                "error": "#ba1a1a",
+                "on-tertiary": "#ffffff",
+                "on-secondary-fixed": "#0d1d2a",
+                "on-background": "#191c1d",
+                "surface-bright": "#f8f9fa",
+                "surface-container": "#edeeef",
+                "inverse-primary": "#afc8f0",
+                "outline": "#74777f",
+                "primary-container": "#001f3f",
+                "secondary-fixed-dim": "#b8c8da",
+                "inverse-on-surface": "#f0f1f2",
+                "surface-container-highest": "#e1e3e4",
+                "secondary": "#50606f",
+                "tertiary": "#000707",
+                "secondary-fixed": "#d4e4f6",
+                "surface-tint": "#476083",
+                "surface-variant": "#e1e3e4",
+                "secondary-container": "#d1e1f4",
+                "inverse-surface": "#2e3132",
+                "surface-container-low": "#f3f4f5",
+                "on-secondary-fixed-variant": "#394857",
+                "primary": "#000613",
+                "tertiary-fixed": "#93f2f2",
+                "on-secondary-container": "#556474",
+                "on-primary-fixed": "#001c3a"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+              },
+              "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["Manrope"],
+                "label": ["Inter"]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased pb-32">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-slate-50/70 dark:bg-slate-950/70 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="text-slate-900 dark:text-slate-50 hover:opacity-80 transition-opacity active:scale-95 duration-100">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-manrope tracking-tight font-bold text-lg text-slate-900 dark:text-slate-50">Mortgage Details</h1>
+</div>
+<button class="text-slate-900 dark:text-slate-50 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="bg-slate-200/50 dark:bg-slate-800/50 h-[1px] w-full"></div>
+</header>
+<main class="px-4 pt-6 space-y-6">
+<!-- Hero Section: Payment -->
+<section class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container p-8 text-on-primary">
+<div class="relative z-10">
+<p class="ledger-label text-on-primary-container text-xs mb-2">Estimated Monthly Payment</p>
+<h2 class="text-5xl font-extrabold tracking-tighter mb-4">$2,451.25</h2>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-sm font-medium opacity-90">Calculated for Principal &amp; Interest</span>
+</div>
+</div>
+<!-- Decorative abstraction -->
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-tertiary/10 rounded-full blur-3xl"></div>
+</section>
+<!-- Summary Grid -->
+<section class="grid grid-cols-3 gap-3">
+<div class="bg-surface-container-low p-4 rounded-xl">
+<p class="ledger-label text-[10px] text-on-surface-variant mb-1">Principal</p>
+<p class="font-bold text-primary">$420,000</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl">
+<p class="ledger-label text-[10px] text-on-surface-variant mb-1">Rate</p>
+<p class="font-bold text-primary">5.75%</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl">
+<p class="ledger-label text-[10px] text-on-surface-variant mb-1">Term</p>
+<p class="font-bold text-primary">30 Years</p>
+</div>
+</section>
+<!-- Image Header Context -->
+<div class="rounded-xl overflow-hidden h-40 w-full bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="Close-up of premium financial documents, a modern calculator, and a fountain pen on a clean slate desk in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAybEsSChzkYM7km7_gORXsNKlOM1gSqNi0B--ur28RNvOiOGP_4zXM8IyFqxtcEtlh1fRngHbs_MjHE45aXKpjdEzDxUuYMBknC_437aoEzLZnxTtGWrEf5DwPPUnk_xY3FuNBgWPe173Yjfn4GyhxaIVD4YcGJPUdlQbKsCcGKvd0791AJNIVJriBIF4k5yhJQ8TTMNsn9LzLvi-ZWSLU_88NiKS4iBKPWXrxnAZCQ5M3dt15ZqwY146szKswngXde1BsP8Uj-vI"/>
+</div>
+<!-- Calculation Context / Advisory -->
+<section class="bg-surface-container-highest p-5 rounded-xl border-l-4 border-tertiary-fixed">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="info">info</span>
+<div>
+<h3 class="font-bold text-sm mb-1">Calculation Context</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                        This estimate strictly covers Principal and Interest (P&amp;I). It does not include property taxes, homeowners insurance, or private mortgage insurance (PMI), which are standard components of a full escrow payment.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Formula Section -->
+<section class="space-y-4">
+<h3 class="ledger-label text-xs text-on-surface-variant font-bold">Standard Formula Explanation</h3>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_24px_rgba(0,6,19,0.04)]">
+<div class="text-center mb-6">
+<p class="text-xl font-mono text-primary tracking-widest">M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1 ]</p>
+</div>
+<div class="grid grid-cols-2 gap-4 text-xs font-medium">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-bold">M</span>
+<span>Total Monthly Payment</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-bold">P</span>
+<span>Principal ($420k)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-bold">i</span>
+<span>Monthly Interest Rate</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-bold">n</span>
+<span>Number of Months (360)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Breakdown Table -->
+<section class="space-y-4">
+<h3 class="ledger-label text-xs text-on-surface-variant font-bold">Total Loan Cost Breakdown</h3>
+<div class="bg-surface-container-low rounded-xl overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-primary text-on-primary">
+<th class="p-4 ledger-label text-[10px]">Component</th>
+<th class="p-4 ledger-label text-[10px] text-right">Estimated Value</th>
+</tr>
+</thead>
+<tbody class="text-sm font-medium">
+<tr class="bg-surface-container-lowest">
+<td class="p-4 text-on-surface-variant">Principal Amount</td>
+<td class="p-4 text-right text-primary">$420,000.00</td>
+</tr>
+<tr class="bg-surface-container-low">
+<td class="p-4 text-on-surface-variant">Total Interest Paid</td>
+<td class="p-4 text-right text-primary">$462,450.00</td>
+</tr>
+<tr class="bg-surface-container-lowest font-bold">
+<td class="p-4 text-primary">Lifetime Total Cost</td>
+<td class="p-4 text-right text-primary">$882,450.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Quick Action CTA -->
+<section class="pt-4">
+<a class="flex items-center justify-center gap-3 w-full py-5 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-xl transition-transform active:scale-[0.98]" href="https://www.bankrate.com/mortgages/mortgage-calculator/">
+<span class="material-symbols-outlined" data-icon="calculate">calculate</span>
+                Explore Scenarios with Calculator
+            </a>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-2 bg-slate-50/70 dark:bg-slate-950/70 backdrop-blur-xl border-t border-slate-200/20 dark:border-slate-800/20 shadow-[0_-4px_24px_rgba(0,6,19,0.04)] z-50">
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-6 py-2 hover:text-slate-900 dark:hover:text-slate-100 transition-transform active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-inter text-[10px] uppercase tracking-widest font-semibold mt-1">Overview</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-slate-200 dark:bg-slate-800 text-teal-600 dark:text-teal-400 rounded-lg px-6 py-2 transition-transform active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-inter text-[10px] uppercase tracking-widest font-semibold mt-1">Breakdown</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-6 py-2 hover:text-slate-900 dark:hover:text-slate-100 transition-transform active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+<span class="font-inter text-[10px] uppercase tracking-widest font-semibold mt-1">Resources</span>
+</button>
+</nav>
+</body></html>

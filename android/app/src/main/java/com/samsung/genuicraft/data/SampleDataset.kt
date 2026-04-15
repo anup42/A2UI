@@ -28,27 +28,19 @@ object SampleDatasets {
             expectedRecords = 50
         ),
         SampleDataset(
-            id = "golden50_g25pro_20260309_204033_android_promptsync_20260413_010634",
-            title = "Golden 50 Android Prompt Sync",
-            description = "Latest 50-item Android prompt-sync run rendered on device captures.",
-            assetFileName = "golden50_g25pro_20260309_204033_android_promptsync_20260413_010634_genui.jsonl",
-            sourceLabel = "golden50_g25pro_20260309_204033_android_promptsync_20260413_010634",
+            id = "golden50_g25pro_20260309_204033_stitch_compare_20260415",
+            title = "Golden 50 Stitch Compare (Latest)",
+            description = "Latest stitch-guided 50-item IR run with improved fallback handling and table extraction.",
+            assetFileName = "golden50_g25pro_20260309_204033_stitch_compare_20260415_genui.jsonl",
+            sourceLabel = "golden50_g25pro_20260309_204033_stitch_compare_20260415",
             expectedRecords = 50
         ),
         SampleDataset(
-            id = "golden50_g25pro_20260309_204033_stitch_recovery_20260414",
-            title = "Golden 50 Stitch Recovery",
-            description = "Stitch-guided recovery run with updated table routing, markdown cleanup, and refreshed Android captures.",
-            assetFileName = "golden50_g25pro_20260309_204033_stitch_recovery_20260414_genui.jsonl",
-            sourceLabel = "golden50_g25pro_20260309_204033_stitch_recovery_20260414",
-            expectedRecords = 50
-        ),
-        SampleDataset(
-            id = "subset10_android_promptsync_20260412_v10",
-            title = "Subset10 Android Prompt Sync v10",
-            description = "10-item Stage3 run using Android v10 flat-spec prompt sync (Stack/Table canonical output).",
-            assetFileName = "subset10_g3pro_iconcatalog_headings_20260216_091411_android_promptsync_20260412_v10_genui.jsonl",
-            sourceLabel = "subset10_android_promptsync_20260412_v10",
+            id = "subset10_latest_ir",
+            title = "Subset 10 Latest IR",
+            description = "Latest 10-item subset run synced from Android prompt updates.",
+            assetFileName = "subset10_g3pro_iconcatalog_headings_20260216_091411_latest_ir_genui.jsonl",
+            sourceLabel = "subset10_latest_ir",
             expectedRecords = 10
         )
     )

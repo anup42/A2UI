@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scholarly Editorial - GRE Quant Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#010d0d",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#b8cac9",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#465f88",
+                        "error": "#ba1a1a",
+                        "outline": "#74777f",
+                        "secondary-container": "#a1ebfe",
+                        "tertiary-container": "#142424",
+                        "surface-container-low": "#f3f4f5",
+                        "on-background": "#191c1d",
+                        "secondary-fixed-dim": "#87d2e4",
+                        "on-tertiary-container": "#7b8c8b",
+                        "tertiary-fixed": "#d4e6e5",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f0f1f2",
+                        "surface-container-high": "#e7e8e9",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#edeeef",
+                        "primary-container": "#002147",
+                        "outline-variant": "#c4c6cf",
+                        "primary": "#000a1e",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-secondary-container": "#136c7d",
+                        "on-secondary-fixed": "#001f26",
+                        "primary-fixed": "#d6e3ff",
+                        "secondary-fixed": "#a9edff",
+                        "on-secondary-fixed-variant": "#004e5b",
+                        "inverse-surface": "#2e3132",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#0e1e1e",
+                        "on-primary-container": "#708ab5",
+                        "surface-bright": "#f8f9fa",
+                        "on-surface": "#191c1d",
+                        "secondary": "#086878",
+                        "primary-fixed-dim": "#aec7f6",
+                        "background": "#f8f9fa",
+                        "on-primary-fixed": "#001b3d",
+                        "surface-variant": "#e1e3e4",
+                        "surface": "#f8f9fa",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#d9dadb",
+                        "inverse-primary": "#aec7f6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#44474e",
+                        "on-primary-fixed-variant": "#2d476f",
+                        "on-tertiary-fixed-variant": "#3a4a49"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; color: #191c1d; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass { backdrop-filter: blur(24px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="menu_book">menu_book</span>
+<span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Scholarly Editorial</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="text-teal-700 dark:text-teal-400 font-semibold hover:text-teal-600 transition-colors" href="#">Schedule</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-600 transition-colors" href="#">Resources</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-teal-600 transition-colors" href="#">Progress</a>
+</nav>
+<div class="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-sm font-medium">
+                Test: Oct 24
+            </div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto">
+<!-- Header Section -->
+<section class="mb-12">
+<h1 class="text-4xl md:text-5xl font-extrabold text-primary mb-2 tracking-tight">Your 5-Week GRE Quant Study Blueprint</h1>
+<p class="text-lg text-secondary font-medium flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+                Target Test Date: August 30, 2024
+            </p>
+</section>
+<!-- Bento Layout Start -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+<!-- Context Card -->
+<div class="lg:col-span-4 flex flex-col justify-between p-8 rounded-lg bg-surface-container-lowest shadow-sm border border-outline-variant/10">
+<div>
+<span class="label-md uppercase tracking-wider text-secondary font-bold mb-4 block">Preparation Strategy</span>
+<p class="text-xl leading-relaxed text-on-surface mb-6">Starting July 26, 2024, this intensive track balances deep concept mastery with timed practice sets.</p>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-lg bg-surface-container-low">
+<span class="material-symbols-outlined text-primary" data-icon="lightbulb">lightbulb</span>
+<span class="text-sm font-medium text-on-surface-variant">Focus on high-yield arithmetic and data analysis patterns.</span>
+</div>
+</div>
+<!-- Hero Image -->
+<div class="lg:col-span-8 rounded-lg overflow-hidden h-[300px] md:h-auto relative">
+<img class="w-full h-full object-cover" data-alt="minimalist study space with organized textbooks and a clean desk under soft natural light for focused atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJbkurdepkNKiabGjOWXuDRs8EuS4EGjvNQRWyVhCuiVk717wpF9DYYwep1Y-CAL-jAE-ZA9Z8eDjYEHZENr_DQeQaQX9NxiujVVbbHiAT_2qaN9FEAIB49XBra0IkgCDQ9q_kf8pkt3KjNPIf0t4gAMv7xA_cojtBMy1d3LEdVku4Ieyhh1bR7zt9y9t9YRqukvQSETld_Hz1ro_CCU7B0BTAHDurKXzp1PF7BrI8h1BGxseP67lRqheB1HlA5uB-buAZxypGl4Q"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent flex items-end p-8">
+<p class="text-white text-2xl font-bold">Concept Review + Practice Problems</p>
+</div>
+</div>
+<!-- Weekly Overview Card -->
+<div class="lg:col-span-12 p-8 rounded-lg bg-primary text-white">
+<h3 class="text-2xl font-bold mb-6">Phase 1: Foundation &amp; Strategy Breakdown</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-white/10">
+<th class="pb-4 font-bold uppercase tracking-widest text-[10px] opacity-70">Week</th>
+<th class="pb-4 font-bold uppercase tracking-widest text-[10px] opacity-70">Core Topic</th>
+<th class="pb-4 font-bold uppercase tracking-widest text-[10px] opacity-70">Saturday Focus</th>
+<th class="pb-4 font-bold uppercase tracking-widest text-[10px] opacity-70 text-right">Goal</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr>
+<td class="py-4 font-semibold">Week 1</td>
+<td class="py-4">Arithmetic Foundations</td>
+<td class="py-4">Mixed Drill Sets</td>
+<td class="py-4 text-right">Efficiency</td>
+</tr>
+<tr>
+<td class="py-4 font-semibold">Week 2</td>
+<td class="py-4">Algebra &amp; Functions</td>
+<td class="py-4">System Equations</td>
+<td class="py-4 text-right">Precision</td>
+</tr>
+<tr>
+<td class="py-4 font-semibold">Week 3</td>
+<td class="py-4">Geometry &amp; Coordinates</td>
+<td class="py-4">Composite Shapes</td>
+<td class="py-4 text-right">Visualization</td>
+</tr>
+<tr>
+<td class="py-4 font-semibold">Week 4</td>
+<td class="py-4">Data Interpretation</td>
+<td class="py-4">Chart Analysis</td>
+<td class="py-4 text-right">Analysis</td>
+</tr>
+<tr>
+<td class="py-4 font-semibold">Week 5</td>
+<td class="py-4">Comprehensive Review</td>
+<td class="py-4">Full Mock Test</td>
+<td class="py-4 text-right">Stamina</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Detailed Schedule: Vertical Stack -->
+<h2 class="text-3xl font-bold text-primary mb-8">Weekly Deep Dive</h2>
+<div class="space-y-12 mb-20">
+<!-- Week 1 -->
+<div class="group grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+<div class="md:col-span-4 sticky top-28">
+<div class="p-6 rounded-lg bg-surface-container-low transition-all group-hover:bg-secondary-container/20">
+<span class="text-secondary font-bold text-sm tracking-widest uppercase">Jul 26 - Aug 1</span>
+<h3 class="text-2xl font-bold mt-2">Week 1: Arithmetic</h3>
+<p class="text-on-surface-variant mt-2 text-sm leading-relaxed">Mastering number properties, fractions, decimals, and percents.</p>
+<div class="mt-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="checklist">checklist</span>
+<span class="text-xs font-bold text-secondary">7 Tasks Assigned</span>
+</div>
+</div>
+</div>
+<div class="md:col-span-8 space-y-4">
+<div class="flex items-center gap-4 p-5 bg-surface-container-lowest rounded-lg">
+<div class="w-12 h-12 flex items-center justify-center rounded-full bg-secondary/10 text-secondary font-bold">Fri</div>
+<div class="flex-1">
+<h4 class="font-bold">Number Properties &amp; Integers</h4>
+<p class="text-sm text-on-surface-variant">Primes, multiples, and divisibility rules.</p>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold bg-surface-container-high px-2 py-1 rounded">90 mins</span>
+</div>
+</div>
+<div class="flex items-center gap-4 p-5 bg-surface-container-lowest rounded-lg">
+<div class="w-12 h-12 flex items-center justify-center rounded-full bg-secondary/10 text-secondary font-bold">Sat</div>
+<div class="flex-1">
+<h4 class="font-bold">Fractions &amp; Decimals</h4>
+<p class="text-sm text-on-surface-variant">Mixed drills and mental math speed tests.</p>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold bg-surface-container-high px-2 py-1 rounded">120 mins</span>
+</div>
+</div>
+<div class="flex items-center gap-4 p-5 bg-surface-container-lowest rounded-lg">
+<div class="w-12 h-12 flex items-center justify-center rounded-full bg-secondary/10 text-secondary font-bold">Sun</div>
+<div class="flex-1">
+<h4 class="font-bold">Percentages &amp; Ratios</h4>
+<p class="text-sm text-on-surface-variant">Profit/Loss and multi-step ratio problems.</p>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold bg-surface-container-high px-2 py-1 rounded">90 mins</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Week 2 & 3 Combined Visual -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="bg-surface-container-low p-8 rounded-lg relative overflow-hidden">
+<div class="relative z-10">
+<span class="text-secondary font-bold text-xs uppercase tracking-widest">Aug 2 - Aug 8</span>
+<h3 class="text-2xl font-bold mt-2 mb-4">Week 2: Algebra</h3>
+<ul class="space-y-4">
+<li class="flex items-center gap-3 text-sm font-medium">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="calculate">calculate</span> Linear Equations &amp; Inequalities
+                            </li>
+<li class="flex items-center gap-3 text-sm font-medium">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="calculate">calculate</span> Quadratic Expressions
+                            </li>
+<li class="flex items-center gap-3 text-sm font-medium">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="calculate">calculate</span> Functions &amp; Graphs
+                            </li>
+</ul>
+</div>
+<div class="absolute bottom-[-20px] right-[-20px] opacity-10">
+<span class="material-symbols-outlined text-[160px]" data-icon="functions">functions</span>
+</div>
+</div>
+<div class="bg-primary text-white p-8 rounded-lg relative overflow-hidden">
+<div class="relative z-10">
+<span class="text-secondary-fixed-dim font-bold text-xs uppercase tracking-widest">Aug 9 - Aug 15</span>
+<h3 class="text-2xl font-bold mt-2 mb-4">Week 3: Geometry</h3>
+<p class="text-sm text-surface-container-high mb-6">Polygons, circles, and 3D solids focusing on area and volume properties.</p>
+<img class="w-full h-32 object-cover rounded shadow-lg" data-alt="clean blueprint of geometric shapes including triangles and circles with architectural measurements on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAt4yQt01bCt519e4a1U4TWx8Io28Y0QdRixAO1kqfURIlJDYflP4HYruHKOZnoXAYsl9pQwCATDrqnfmIX4DLgDT3548rSr4x71wCKdzc6-St9U7EW8Fgbx_ZiO9LMP_ADxi7uLaTbvQZMLSI6B2p9IARau8-HfQV9M-W9lLkLBmF6klVllm0485uzZpdSrWS_AxkkS4EBzKOqvLcfGF7ODdYzi-uouffLW0WZ_r-1HT0uK0thJKsLRrqeYw8jgTp_T5Svejz6_po"/>
+</div>
+</div>
+</div>
+<!-- Week 4 -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2">
+<div class="bg-surface-container-lowest p-8 rounded-lg shadow-sm border border-outline-variant/10 h-full">
+<span class="text-secondary font-bold text-xs uppercase tracking-widest">Aug 16 - Aug 22</span>
+<h3 class="text-2xl font-bold mt-2 mb-4">Week 4: Data Analysis</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div>
+<h4 class="font-bold text-primary mb-2">Descriptive Statistics</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Mean, median, mode, and standard deviation distributions.</p>
+</div>
+<div>
+<h4 class="font-bold text-primary mb-2">Probability &amp; Counting</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Combinations, permutations, and independent events.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-1">
+<img class="w-full h-full object-cover rounded-lg shadow-sm" data-alt="modern data visualization with glowing blue and teal lines representing statistical trends and analytical progress" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBODbz5iRBFIGkJyEBQAkas_cnxXWLfGSY2ytF-pbroFI58Rb57wPBWz5j81ieT8YboczqvEYnTq68ABJVO3CMpiq8Xunh39QZLwOKSdiSlRWMyTbQyVJre5HkeWcQVN6_ZCz5qJHDm9oSMMsiiW-gKwGoLBypNWlmYLFHn5WH8yPu67zsGBg0Za4006CPjRZGGt8csLZJvQP80qiQdkFwlJ0DLHDNX2xfVkYCz6i7eST9ewloqHB9qiXy6G4aNdrmsBwUAFZtU2R0"/>
+</div>
+</div>
+<!-- Week 5 Final Focus -->
+<div class="bg-surface-container-high/50 p-10 rounded-lg border-2 border-dashed border-outline-variant">
+<div class="text-center max-w-2xl mx-auto">
+<span class="bg-primary text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Final Sprint</span>
+<h3 class="text-3xl font-extrabold mt-4 text-primary">Week 5: Precision &amp; Stamina</h3>
+<p class="text-on-surface-variant mt-3 mb-8 italic">"The final week is about refining the mental map of your errors and managing time under pressure."</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="p-4 bg-white rounded shadow-sm">
+<span class="material-symbols-outlined text-secondary block mb-2" data-icon="alarm">alarm</span>
+<h5 class="font-bold text-sm">3 Full Tests</h5>
+</div>
+<div class="p-4 bg-white rounded shadow-sm">
+<span class="material-symbols-outlined text-secondary block mb-2" data-icon="book">book</span>
+<h5 class="font-bold text-sm">Error Journal Review</h5>
+</div>
+<div class="p-4 bg-white rounded shadow-sm">
+<span class="material-symbols-outlined text-secondary block mb-2" data-icon="timer">timer</span>
+<h5 class="font-bold text-sm">Pacing Drills</h5>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Actions Section -->
+<section class="mb-20">
+<h2 class="text-3xl font-bold text-primary mb-8 text-center">Quick Actions for Your Prep</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Option 1 -->
+<div class="group p-8 rounded-lg bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow border border-outline-variant/10">
+<div class="flex items-start justify-between mb-6">
+<div class="p-3 bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined text-3xl" data-icon="description">description</span>
+</div>
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Official Material</span>
+</div>
+<h4 class="text-xl font-bold mb-2">GRE Math Review PDF</h4>
+<p class="text-on-surface-variant mb-8 text-sm leading-relaxed">The authoritative guide from ETS covering every concept you'll see on the actual exam.</p>
+<a class="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors" href="https://www.ets.org/pdfs/gre/gre-math-review.pdf" target="_blank">
+                        Download PDF <span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+</a>
+</div>
+<!-- Option 2 -->
+<div class="group p-8 rounded-lg bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow border border-outline-variant/10">
+<div class="flex items-start justify-between mb-6">
+<div class="p-3 bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined text-3xl" data-icon="school">school</span>
+</div>
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Video Lessons</span>
+</div>
+<h4 class="text-xl font-bold mb-2">Khan Academy GRE Prep</h4>
+<p class="text-on-surface-variant mb-8 text-sm leading-relaxed">Interactive lessons mapped specifically to the GRE curriculum for visual learners.</p>
+<a class="w-full flex items-center justify-center gap-2 py-3 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary/5 transition-colors" href="https://www.khanacademy.org/test-prep/gre" target="_blank">
+                        Start Practicing <span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Sources Footer -->
+<footer class="mt-20 pt-8 border-t border-outline-variant/20 text-center">
+<p class="text-sm text-on-surface-variant mb-2">Curated for excellence in post-graduate education preparation.</p>
+<p class="text-xs font-medium">
+                Sources: <a class="text-secondary underline hover:text-secondary-fixed-dim" href="https://www.ets.org/gre.html">ETS Official GRE Site</a>
+</p>
+</footer>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-around items-center pt-3 pb-safe px-4 z-50 border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_24px_rgba(0,0,0,0.06)]">
+<div class="flex flex-col items-center justify-center text-teal-800 dark:text-teal-300 font-bold scale-90 active:scale-100 duration-150">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="text-[11px] font-medium uppercase tracking-wider Inter">Schedule</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all scale-90 active:scale-100 duration-150">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+<span class="text-[11px] font-medium uppercase tracking-wider Inter">Resources</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all scale-90 active:scale-100 duration-150">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="text-[11px] font-medium uppercase tracking-wider Inter">Progress</span>
+</div>
+</nav>
+</body></html>

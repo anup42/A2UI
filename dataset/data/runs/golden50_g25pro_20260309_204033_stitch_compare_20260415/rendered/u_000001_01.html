@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"siteDetails": [{"id": "colosseum", "name": "Colosseum", "image": "https://assets.google.com/r/000001_01_1_colosseum.jpg", "duration": "2 - 3 hours", "cost": "€44", "suitability": "High: The grand scale and gladiator history are fascinating for all ages. The 14-year-old will appreciate the historical context, while the 10-year-old will be captivated by the iconic structure.", "actionLabel": "Book Official Tickets", "actionUrl": "https://www.coopculture.it/en/products/ticket-colosseum-roman-forum-palatine_24h/"}, {"id": "forum", "name": "Roman Forum & Palatine Hill", "image": "https://assets.google.com/r/000001_01_2_800.jpg", "duration": "2 - 3 hours", "cost": "Included with Colosseum ticket", "suitability": "Moderate to High: As a sprawling ruin, it requires more imagination. The 14-year-old history enthusiast will find it engaging; a good guide or app will be helpful for the 10-year-old.", "actionLabel": "Explore the Site", "actionUrl": "https://colosseo.it/en/area/roman-forum/"}, {"id": "pantheon", "name": "Pantheon", "image": "https://assets.google.com/r/000001_01_3_pantheon_oculus.jpg", "duration": "30 - 60 minutes", "cost": "€10", "suitability": "Moderate: An architectural marvel, famous for its giant unsupported dome and oculus. It's a quick but awe-inspiring visit. Both kids will be impressed, but it's a less interactive experience.", "actionLabel": "Check Visitor Information", "actionUrl": "https://www.pantheonroma.com/en/home-eng/"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "intro_text", "planning_card", "comparison_title", "sites_list", "recommendation_card", "sources_card"]}, "title": {"type": "Text", "props": {"text": "Rome's Ancient Wonders: A Family Guide", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Here is a comparative guide to three essential historical sites in Rome, tailored to your family's trip in November. The plan considers your children's ages, interests, and budget, concluding with a recommendation.", "variant": "body"}, "children": []}, "planning_card": {"type": "Card", "props": {}, "children": ["planning_stack"]}, "planning_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["planning_title", "planning_text_1", "planning_text_2"]}, "planning_title": {"type": "Text", "props": {"text": "Planning Notes for Your November Trip", "variant": "h3"}, "children": []}, "planning_text_1": {"type": "Text", "props": {"text": "This comparison assumes ticket prices for non-EU citizens booking online in advance, which is strongly recommended to secure entry times and avoid long queues.", "variant": "body"}, "children": []}, "planning_text_2": {"type": "Text", "props": {"text": "The costs are estimated for your family of four (2 adults, 2 minors under 18). Your activity budget of €400 is sufficient for these main attractions.", "variant": "body"}, "children": []}, "comparison_title": {"type": "Text", "props": {"text": "Historical Site Comparison for a Family of Four", "variant": "h2"}, "children": []}, "sites_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["site_card_template"]}, "site_card_template": {"type": "Card", "props": {}, "children": ["site_stack"], "repeat": {"statePath": "/siteDetails", "key": "id"}}, "site_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["site_image", "site_content_stack"]}, "site_image": {"type": "Image", "props": {"url": {"$item": "image"}, "fit": "cover", "height": 180}, "children": []}, "site_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["site_name", "site_details_stack", "site_suitability_text", "action_button"]}, "site_name": {"type": "Text", "props": {"text": {"$item": "name"}, "variant": "h3"}, "children": []}, "site_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["duration_row", "cost_row"]}, "duration_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["duration_label", "duration_value"]}, "duration_label": {"type": "Text", "props": {"text": "Duration:", "variant": "label"}, "children": []}, "duration_value": {"type": "Text", "props": {"text": {"$item": "duration"}, "variant": "body"}, "children": []}, "cost_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["cost_label", "cost_value"]}, "cost_label": {"type": "Text", "props": {"text": "Cost:", "variant": "label"}, "children": []}, "cost_value": {"type": "Text", "props": {"text": {"$item": "cost"}, "variant": "body"}, "children": []}, "site_suitability_text": {"type": "Text", "props": {"text": {"$item": "suitability"}, "variant": "body"}, "children": []}, "action_button": {"type": "Button", "props": {"label": {"$item": "actionLabel"}, "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "actionUrl"}}}}}, "recommendation_card": {"type": "Card", "props": {}, "children": ["recommendation_stack"]}, "recommendation_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["recommendation_title", "recommendation_text"]}, "recommendation_title": {"type": "Text", "props": {"text": "Final Recommendation", "variant": "h3"}, "children": []}, "recommendation_text": {"type": "Text", "props": {"text": "For a family with a 10 and 14-year-old, the Colosseum combined with the Roman Forum & Palatine Hill offers the best value and experience. The sheer scale of the Colosseum is universally impressive, and the combined ticket is efficient. Start your day here to make the most of the visit.", "variant": "body"}, "children": []}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["sources_title", "sources_text"]}, "sources_title": {"type": "Text", "props": {"text": "Information Sources", "variant": "h3"}, "children": []}, "sources_text": {"type": "Text", "props": {"text": "All ticket prices and visitor information are based on the official websites linked for each attraction. Booking in advance is highly recommended.", "variant": "body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aperture Scan | Multi-Format Detection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#9f0519",
+                        "tertiary-container": "#7696fd",
+                        "on-secondary-fixed-variant": "#006638",
+                        "inverse-primary": "#006880",
+                        "primary-dim": "#00c0ea",
+                        "inverse-on-surface": "#52555c",
+                        "surface-container-highest": "#22262f",
+                        "tertiary": "#89a5ff",
+                        "primary-fixed-dim": "#00c0ea",
+                        "error": "#ff716c",
+                        "surface": "#0b0e14",
+                        "surface-tint": "#69daff",
+                        "inverse-surface": "#f9f9ff",
+                        "surface-container": "#161a21",
+                        "on-tertiary": "#00236d",
+                        "secondary": "#00fd93",
+                        "on-surface-variant": "#a9abb3",
+                        "surface-container-low": "#10131a",
+                        "primary-fixed": "#00cffc",
+                        "on-primary": "#004a5d",
+                        "on-primary-container": "#004050",
+                        "on-secondary-fixed": "#004624",
+                        "on-surface": "#ecedf6",
+                        "tertiary-fixed-dim": "#819fff",
+                        "on-secondary": "#005b31",
+                        "on-error": "#490006",
+                        "error-dim": "#d7383b",
+                        "on-tertiary-fixed": "#001345",
+                        "surface-bright": "#282c36",
+                        "surface-container-high": "#1c2028",
+                        "surface-dim": "#0b0e14",
+                        "secondary-dim": "#00ed89",
+                        "on-primary-fixed-variant": "#004a5c",
+                        "surface-container-lowest": "#000000",
+                        "tertiary-fixed": "#95adff",
+                        "tertiary-dim": "#7999ff",
+                        "on-background": "#ecedf6",
+                        "primary": "#69daff",
+                        "outline-variant": "#45484f",
+                        "on-secondary-container": "#e2ffe6",
+                        "secondary-container": "#006d3c",
+                        "primary-container": "#00cffc",
+                        "background": "#0b0e14",
+                        "on-error-container": "#ffa8a3",
+                        "secondary-fixed": "#00fd93",
+                        "surface-variant": "#22262f",
+                        "on-tertiary-container": "#001851",
+                        "on-primary-fixed": "#002a35",
+                        "outline": "#73757d",
+                        "on-tertiary-fixed-variant": "#00318e",
+                        "secondary-fixed-dim": "#00ed89"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .aperture-scan-line {
+            background: linear-gradient(to bottom, transparent, #69daff, transparent);
+            height: 40px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 90%; }
+        }
+        .glass-panel {
+            background: rgba(34, 38, 47, 0.4);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-slate-950 flex justify-between items-center px-6 py-4 w-full fixed top-0 z-50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-cyan-400" data-icon="sensors">sensors</span>
+<h1 class="text-cyan-400 font-manrope font-black tracking-tighter text-lg uppercase">APERTURE_SCAN</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-outline-variant/20 overflow-hidden">
+<img alt="User Profile" data-alt="close-up profile photo of a modern tech professional with a clean aesthetic and neutral lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-54U0fH9Jx3YPmt5lTqLJRQIqjwTzQj68_FY9GGJCHhZ70Ba4cv5kE7FwYH-TSLf-tBW5nC2ikgKOPXJjnxDpeObqmeZiq4DvahFKadzq8PsiBd1PtlYckATYPrRMy4mqJ-TmS5piYZZ89yQOLTqaDJqKyBlugQaARdg242J_FKeKtmJjl3FZ7mWPU2Jwj7bU3FT5nYnUcUay2Sr3s3T_fWNQm_nXZY9Fh7e7gAmdtNtlFz7LKZXAGdJ_OOsLar7bAuVGRXX51H4x"/>
+</div>
+</header>
+<main class="pt-20 pb-32 px-4 max-w-md mx-auto">
+<!-- System Status Header -->
+<div class="mb-8">
+<div class="flex items-center gap-2 mb-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-[10px] font-bold tracking-[0.2em] text-secondary font-headline uppercase">Telemetry Active</span>
+</div>
+<h2 class="text-2xl font-extrabold font-headline leading-tight text-on-surface tracking-tight">
+                Scanner initialized for multi-format detection
+            </h2>
+</div>
+<!-- Scanner Viewfinder Area -->
+<div class="relative w-full aspect-square mb-10 overflow-hidden rounded-lg group">
+<div class="absolute inset-0 bg-surface-container-low flex items-center justify-center border border-outline-variant/10">
+<!-- Grid Texture Overlay -->
+<div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, #69daff 1px, transparent 1px); background-size: 24px 24px;"></div>
+<!-- Viewfinder Corners -->
+<div class="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-primary"></div>
+<div class="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-primary"></div>
+<div class="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-primary"></div>
+<div class="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-primary"></div>
+<!-- Central Interface -->
+<div class="z-10 flex flex-col items-center">
+<div class="w-32 h-32 flex items-center justify-center bg-surface/80 rounded-full glass-panel relative border border-primary/20">
+<span class="material-symbols-outlined text-5xl text-primary" data-icon="center_focus_strong">center_focus_strong</span>
+<div class="aperture-scan-line"></div>
+</div>
+<div class="mt-6 px-4 py-1.5 bg-secondary-container/20 rounded-full border border-secondary/30">
+<p class="text-[10px] font-bold tracking-widest text-secondary uppercase">Awaiting Target...</p>
+</div>
+</div>
+<!-- Decorative Technical Labels -->
+<div class="absolute top-8 left-1/2 -translate-x-1/2 text-[8px] font-mono text-outline uppercase tracking-widest opacity-60">X-Axis Correction: 0.00ms</div>
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-[8px] font-mono text-outline uppercase tracking-widest opacity-60">Optic-Sync: Locked</div>
+</div>
+</div>
+<!-- Interactive Cards Grid -->
+<div class="space-y-4">
+<h3 class="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Scanner Modules</h3>
+<!-- Card 1: Google Lens -->
+<div class="group bg-surface-container-low p-4 rounded-md transition-all duration-300 hover:bg-surface-container border-l-2 border-primary">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-surface-container-highest rounded-sm border border-outline-variant/10 text-primary">
+<span class="material-symbols-outlined" data-icon="camera">camera</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface font-headline">Google Lens</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed mt-1">Universal visual search and code scanner</p>
+</div>
+</div>
+</div>
+<a class="mt-4 w-full py-2.5 bg-surface-container-lowest text-primary text-xs font-bold uppercase tracking-widest rounded-sm border border-primary/20 flex items-center justify-center gap-2 hover:bg-primary hover:text-on-primary transition-all" href="https://lens.google.com/">
+                    Launch Lens
+                    <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Card 2: Barcode Lookup -->
+<div class="group bg-surface-container-low p-4 rounded-md transition-all duration-300 hover:bg-surface-container border-l-2 border-secondary">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-surface-container-highest rounded-sm border border-outline-variant/10 text-secondary">
+<span class="material-symbols-outlined" data-icon="barcode_scanner">barcode_scanner</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface font-headline">Barcode Lookup</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed mt-1">Specialized retail price checker</p>
+</div>
+</div>
+</div>
+<a class="mt-4 w-full py-2.5 bg-surface-container-lowest text-secondary text-xs font-bold uppercase tracking-widest rounded-sm border border-secondary/20 flex items-center justify-center gap-2 hover:bg-secondary hover:text-on-secondary transition-all" href="https://www.barcodelookup.com/">
+                    Check Prices
+                    <span class="material-symbols-outlined text-sm" data-icon="shopping_cart">shopping_cart</span>
+</a>
+</div>
+<!-- Card 3: Web QR -->
+<div class="group bg-surface-container-low p-4 rounded-md transition-all duration-300 hover:bg-surface-container border-l-2 border-primary">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-surface-container-highest rounded-sm border border-outline-variant/10 text-primary">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface font-headline">Web QR</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed mt-1">Browser-based QR code decoder</p>
+</div>
+</div>
+</div>
+<a class="mt-4 w-full py-2.5 bg-surface-container-lowest text-primary text-xs font-bold uppercase tracking-widest rounded-sm border border-primary/20 flex items-center justify-center gap-2 hover:bg-primary hover:text-on-primary transition-all" href="https://webqr.com/">
+                    Open Web Scanner
+                    <span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+<!-- Card 4: UPC Item DB -->
+<div class="group bg-surface-container-low p-4 rounded-md transition-all duration-300 hover:bg-surface-container border-l-2 border-secondary">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-surface-container-highest rounded-sm border border-outline-variant/10 text-secondary">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface font-headline">UPC Item DB</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed mt-1">Extensive product database search</p>
+</div>
+</div>
+</div>
+<a class="mt-4 w-full py-2.5 bg-surface-container-lowest text-secondary text-xs font-bold uppercase tracking-widest rounded-sm border border-secondary/20 flex items-center justify-center gap-2 hover:bg-secondary hover:text-on-secondary transition-all" href="https://www.upcitemdb.com/">
+                    Search Database
+                    <span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</a>
+</div>
+</div>
+<!-- Quick Actions -->
+<section class="mt-12 mb-8">
+<div class="bg-surface-container p-6 rounded-md border border-outline-variant/10 relative overflow-hidden">
+<!-- Abstract BG for Troubleshooting -->
+<div class="absolute right-0 bottom-0 opacity-10">
+<span class="material-symbols-outlined text-8xl" data-icon="build_circle">build_circle</span>
+</div>
+<h3 class="text-lg font-extrabold font-headline mb-2">Technical Assistance</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-relaxed">Experiencing alignment issues or camera latency? Access the diagnostic guidelines.</p>
+<a class="inline-flex items-center gap-3 text-tertiary font-bold text-sm tracking-tight hover:underline" href="https://support.google.com/camera/answer/9937398?hl=en">
+                    Scanner Troubleshooting
+                    <span class="material-symbols-outlined" data-icon="arrow_outward">arrow_outward</span>
+</a>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center pt-2 pb-6 px-4 bg-slate-950 z-50">
+<button class="flex flex-col items-center justify-center bg-slate-800 text-cyan-400 rounded-sm px-3 py-1.5 border-l-2 border-emerald-400 scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="center_focus_strong">center_focus_strong</span>
+<span class="font-inter text-[10px] font-medium tracking-tight">SCAN</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-300 transition-colors">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+<span class="font-inter text-[10px] font-medium tracking-tight">ARCHIVE</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-300 transition-colors">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-inter text-[10px] font-medium tracking-tight">REGISTRY</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-300 transition-colors">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span class="font-inter text-[10px] font-medium tracking-tight">DIAGNOSTIC</span>
+</button>
+</nav>
+</body></html>

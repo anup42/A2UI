@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#fbf9f8",
+                        "primary": "#8d311c",
+                        "surface-tint": "#a13f29",
+                        "on-primary-container": "#ffe1da",
+                        "inverse-primary": "#ffb4a3",
+                        "surface-variant": "#e4e2e2",
+                        "primary-container": "#ad4831",
+                        "on-secondary-container": "#626753",
+                        "inverse-on-surface": "#f2f0f0",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#eae8e7",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#191d0e",
+                        "primary-fixed-dim": "#ffb4a3",
+                        "surface-container-highest": "#e4e2e2",
+                        "outline": "#87736b",
+                        "tertiary-container": "#686954",
+                        "secondary-fixed": "#e0e5cc",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#e9e9ce",
+                        "error-container": "#ffdad6",
+                        "secondary": "#5c614d",
+                        "secondary-container": "#e0e5cc",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#444937",
+                        "secondary-fixed-dim": "#c4c9b1",
+                        "tertiary-fixed-dim": "#c8c8af",
+                        "on-surface-variant": "#54433c",
+                        "surface-container-low": "#f5f3f3",
+                        "on-primary-fixed": "#3d0600",
+                        "tertiary-fixed": "#e5e4ca",
+                        "on-primary-fixed-variant": "#812814",
+                        "surface-container": "#efeded",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#1c1d0c",
+                        "on-tertiary-fixed-variant": "#474835",
+                        "inverse-surface": "#303030",
+                        "surface-bright": "#fbf9f8",
+                        "outline-variant": "#dac1b8",
+                        "on-surface": "#1b1c1c",
+                        "on-background": "#1b1c1c",
+                        "on-error": "#ffffff",
+                        "tertiary": "#50513d",
+                        "background": "#fbf9f8",
+                        "surface-dim": "#dbd9d9",
+                        "primary-fixed": "#ffdad2",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .arch-mask {
+            border-radius: 1.5rem 1.5rem 0.25rem 0.25rem;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fbf9f8]/80 dark:bg-stone-950/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#8d311c] dark:text-[#ad4831] hover:opacity-80 transition-opacity cursor-pointer">arrow_back</span>
+<h1 class="font-serif text-2xl tracking-tight font-bold text-[#8d311c] dark:text-[#ad4831]">Eternal Rome</h1>
+</div>
+<span class="material-symbols-outlined text-[#8d311c] dark:text-[#ad4831] hover:opacity-80 transition-opacity cursor-pointer">more_vert</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto space-y-12">
+<!-- Hero Section -->
+<section class="space-y-4">
+<h2 class="font-headline text-[2.75rem] leading-[1.1] font-bold text-primary tracking-tight">Rome's Ancient Wonders: A Family Guide</h2>
+<div class="h-1 w-24 bg-primary-container rounded-full"></div>
+</section>
+<!-- Planning Notes -->
+<section class="bg-surface-container-low rounded-xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex items-start gap-4">
+<div class="bg-primary-container/20 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+</div>
+<div class="space-y-3">
+<h3 class="font-headline text-xl font-bold text-on-surface">November Trip Planning</h3>
+<div class="space-y-2 text-on-surface-variant leading-relaxed">
+<p class="flex items-center gap-2"><span class="font-bold">Budget:</span> €400 total for family of 4</p>
+<p class="flex items-center gap-2 text-sm italic"><span class="material-symbols-outlined text-sm">info</span> Essential: Book tickets in advance to avoid long autumn queues.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Site Comparison Cards -->
+<section class="space-y-10">
+<div class="flex justify-between items-end">
+<h3 class="font-headline text-2xl font-bold text-on-surface">Ancient Landmarks</h3>
+<span class="text-sm font-semibold text-primary uppercase tracking-widest">3 Sites</span>
+</div>
+<!-- Colosseum -->
+<article class="space-y-4 group">
+<div class="relative overflow-hidden arch-mask h-64 shadow-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Cinematic wide shot of the Roman Colosseum at sunset, warm orange light hitting the ancient stone arches under a soft blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA4iR-cG5-DmVKTMfGx8RQvDvMZpGAHynbhbuhbdk1cebfQrWco0kH5jap5Ms8lNnx80RuBDzk576DuPlre3y8TRpLO8JFZClIxdFukGNaTJ3n9sTl4Dqq1ljg1P2mrR33XKBo4efdiop0XOKt794KlZYmT6MLNqNTF0nSNvL1zCew5DUcT6glTAHB2xdXoNvS0jIDQweQ6AuPKJ4MB8Hm8JWoL_19t9jDp2s9My284VAVzNCqpY9QUdWWN3VGOCwQxXcUfI-FOZo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<span class="bg-primary/90 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-2 inline-block">High Suitability</span>
+<h4 class="font-headline text-2xl font-bold">Colosseum</h4>
+</div>
+</div>
+<div class="flex justify-between items-center text-sm px-2">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-base">schedule</span>
+<span>2-3h</span>
+</div>
+<div class="font-bold text-primary">€44 Total</div>
+</div>
+<a class="block w-full text-center bg-gradient-to-r from-primary to-primary-container text-white py-4 rounded-full font-bold shadow-md hover:opacity-90 transition-all active:scale-95" href="https://www.coopculture.it/en/products/ticket-colosseum-roman-forum-palatine_24h/">
+                    Book Official Tickets
+                </a>
+</article>
+<!-- Roman Forum -->
+<article class="space-y-4 group">
+<div class="relative overflow-hidden arch-mask h-64 shadow-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Dramatic ruins of the Roman Forum with ancient white marble columns standing against a crisp Mediterranean morning sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA79fJb4wR0QkocFCzj-3AikBuwawfTxth61RituH6RXQk04gotmtw5m8ryWGzIXFksbHcUf-PF5wnmmOjU9S9dGYgVy-N-M7X5hnjmYZDufui_NMQb5FdMchfJE1ClyiISjTnMR7ZYvkxw2mcVF2_NbLKlLUkm4jlMlYPFeJhJZAXg0PtADq0rUQN4KnFi3eIE5IOrUcKX-7g8TgccTwd_wqL2ARGJ2pIAPOm-B-tmKEwEf-8OTGePb8dgHOvYebFlDIcvprC8YU0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<span class="bg-secondary/90 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-2 inline-block">Moderate to High</span>
+<h4 class="font-headline text-2xl font-bold text-white">Roman Forum &amp; Hill</h4>
+</div>
+</div>
+<div class="flex justify-between items-center text-sm px-2">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-base">schedule</span>
+<span>2-3h</span>
+</div>
+<div class="font-bold text-secondary">Included</div>
+</div>
+<a class="block w-full text-center bg-secondary-container text-on-secondary-container py-4 rounded-full font-bold hover:bg-secondary/10 transition-all active:scale-95" href="https://colosseo.it/en/area/roman-forum/">
+                    Explore the Site
+                </a>
+</article>
+<!-- Pantheon -->
+<article class="space-y-4 group">
+<div class="relative overflow-hidden arch-mask h-64 shadow-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Interior of the Pantheon looking up at the oculus with a beam of natural sunlight cutting through the smoky atmospheric interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzPeP6Z2SePM7t6smHRHkjKC2leIrzZrgBxC74NfXTfneVaWgDZtukJpvelkdIvNxilSwbAw6z-fNJwI-o2t6-q-lR7ODqZB_P1QW2f9iwJ6Qe5gy3rk__wLDPWbPgkfSLnzPF4JANrePBH1QNxY6udCyonr1Wc0nbu_eu6RhZDeLDdoSNQR0LaRm_L5TU_BBxpMPlJQabgDPDa83YQMTvaNlNkvBFTuKriy6MkqmgwWIlZLcD5WZf9JeDTHwKaeutB5Qd86HYt_I"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<span class="bg-stone-600/90 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-2 inline-block">Moderate Suitability</span>
+<h4 class="font-headline text-2xl font-bold">Pantheon</h4>
+</div>
+</div>
+<div class="flex justify-between items-center text-sm px-2">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-base">schedule</span>
+<span>30-60m</span>
+</div>
+<div class="font-bold text-primary">€10 Total</div>
+</div>
+<a class="block w-full text-center bg-surface-container-highest text-on-surface py-4 rounded-full font-bold hover:bg-surface-variant transition-all active:scale-95" href="https://www.pantheonroma.com/en/home-eng/">
+                    Check Visitor Information
+                </a>
+</article>
+</section>
+<!-- Recommendation Section -->
+<section class="bg-[#8d311c] text-white rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+<!-- Decorative Arch background element -->
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-white/5 rounded-full border border-white/10"></div>
+<div class="flex items-center gap-3">
+<div class="bg-white/20 p-2 rounded-full">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<h3 class="font-headline text-2xl font-bold">Top Recommendation</h3>
+</div>
+<div class="space-y-4">
+<div>
+<span class="text-[10px] uppercase tracking-widest opacity-80">Scheduled Date</span>
+<p class="font-headline text-xl font-bold">November 12th</p>
+</div>
+<div class="bg-white/10 h-px w-full"></div>
+<div class="space-y-2">
+<p class="font-bold text-lg">Colosseum &amp; Roman Forum</p>
+<p class="text-sm leading-relaxed opacity-90">
+                        This pairing offers the highest impact for families. It provides a memorable historical narrative with logistical simplicity—both sites are adjacent, minimizing travel stress during your November stay.
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-[#fbf9f8]/90 dark:bg-stone-900/90 backdrop-blur-xl rounded-t-2xl shadow-[0_-8px_32px_rgba(0,0,0,0.06)]">
+<div class="flex justify-around items-center px-4 py-3 w-full">
+<div class="flex flex-col items-center justify-center bg-[#8d311c] text-white rounded-full p-2 h-12 w-12 scale-110 duration-300 ease-out">
+<span class="material-symbols-outlined">explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-400 p-2 hover:text-[#8d311c] transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-sans text-[10px] tracking-widest uppercase mt-1">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-400 p-2 hover:text-[#8d311c] transition-colors">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-sans text-[10px] tracking-widest uppercase mt-1">Plans</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-400 p-2 hover:text-[#8d311c] transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="font-sans text-[10px] tracking-widest uppercase mt-1">Profile</span>
+</div>
+</div>
+</nav>
+</body></html>

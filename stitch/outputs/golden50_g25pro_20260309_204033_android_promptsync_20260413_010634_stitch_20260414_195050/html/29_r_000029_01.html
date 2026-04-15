@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SPEC_SHOWDOWN: Flagship Comparison</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#2f3133",
+                        "on-error": "#690005",
+                        "tertiary-container": "#003b3c",
+                        "background": "#121416",
+                        "surface-dim": "#121416",
+                        "on-primary-container": "#49abab",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "on-surface": "#e2e2e5",
+                        "primary-container": "#003b3b",
+                        "surface-container-lowest": "#0c0e10",
+                        "primary-fixed": "#93f2f2",
+                        "on-secondary-fixed": "#0d1d2a",
+                        "on-secondary-fixed-variant": "#394857",
+                        "outline-variant": "#44474a",
+                        "tertiary-fixed": "#5af8fb",
+                        "secondary-fixed": "#d4e4f6",
+                        "primary": "#76d6d5",
+                        "on-surface-variant": "#c5c6cb",
+                        "on-primary": "#003737",
+                        "surface-container": "#1e2022",
+                        "outline": "#8e9195",
+                        "secondary-fixed-dim": "#b8c8da",
+                        "secondary": "#b8c8da",
+                        "surface-variant": "#333537",
+                        "tertiary-fixed-dim": "#2ddbde",
+                        "on-background": "#e2e2e5",
+                        "on-secondary-container": "#a7b7c8",
+                        "on-tertiary-fixed-variant": "#004f51",
+                        "surface-container-highest": "#333537",
+                        "tertiary": "#2ddbde",
+                        "on-primary-fixed": "#002020",
+                        "inverse-surface": "#e2e2e5",
+                        "on-tertiary-fixed": "#002020",
+                        "surface-bright": "#37393b",
+                        "surface-tint": "#76d6d5",
+                        "error": "#ffb4ab",
+                        "primary-fixed-dim": "#76d6d5",
+                        "surface-container-high": "#282a2c",
+                        "on-tertiary": "#003738",
+                        "on-tertiary-container": "#00aeb1",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#1a1c1e",
+                        "on-secondary": "#223240",
+                        "error-container": "#93000a",
+                        "secondary-container": "#394857",
+                        "inverse-primary": "#006a6a",
+                        "surface": "#121416"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "0px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-glass {
+            background: rgba(18, 20, 22, 0.7);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#121416]/70 backdrop-blur-3xl flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#76d6d5]">analytics</span>
+<span class="text-lg font-black tracking-widest text-[#76d6d5] font-manrope uppercase">SPEC_SHOWDOWN</span>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-[#e2e2e5] hover:bg-[#37393b] transition-colors p-2 cursor-pointer">share</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Hero Section -->
+<section class="mb-12">
+<span class="text-label-sm font-bold tracking-[0.2em] text-primary uppercase block mb-4">Architectural Comparison</span>
+<h1 class="text-5xl font-extrabold tracking-tighter leading-none mb-6">Flagship Smartphone Showdown</h1>
+<div class="flex items-baseline gap-2 mb-8">
+<span class="text-2xl font-light text-on-surface-variant">iPhone 13 Pro</span>
+<span class="text-sm font-bold text-outline">VS</span>
+<span class="text-2xl font-light text-on-surface-variant">Pixel 6 Pro</span>
+</div>
+<p class="text-on-surface-variant text-lg leading-relaxed font-light">
+                This comparison provides a head-to-head look at two of 2021's top-tier smartphones, dissecting the engineering choices that define the modern flagship experience.
+            </p>
+</section>
+<!-- Product Visuals -->
+<div class="grid grid-cols-2 gap-px bg-outline-variant/20 mb-12">
+<div class="bg-surface-container aspect-[3/4] flex items-center justify-center overflow-hidden">
+<img class="object-cover w-full h-full opacity-80 hover:opacity-100 transition-opacity" data-alt="High-key studio product photography of iPhone 13 Pro in Graphite finish showing the triple camera array with sharp technical lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMFBS6ZnShv_CoRSP_h9Bz6qGwB4ljYQAucwvrPsRmBGnouToWNl_T7xDLQtXOv_n159QpVPaVPrseqKdJQKomfR8xaT1ySjny5U7IRZ7bmFfOqzCP8AuxDxOVikLpbw5XeqM7omNVyLjzUnj2TPsjb21Rn2P7c6PdBo_Ak3TIUOj1gbe3xsEgF_u8BYB1kf4kysAJD-o9ATEVXOgjmNymjj7XM1YVqwtrk9WOtp_r8urejzYasZuJw6nB5rTECPXZG__mjCq4LT0"/>
+</div>
+<div class="bg-surface-container aspect-[3/4] flex items-center justify-center overflow-hidden">
+<img class="object-cover w-full h-full opacity-80 hover:opacity-100 transition-opacity" data-alt="High-key studio product photography of Pixel 6 Pro showing the horizontal camera bar with sleek glass textures and moody shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5fV50FGmj38ZQ0CGqWC15COsXa2rpuENZlfZ8ugEg4yFOzK23_NjCB-b9z0529BE5ZZ7CXAIj00Y2zRccxmNckQf8igZ6uzIMKrbnx4aF_m3jeYrywkvcUtMgug0r8kc8AzjqAtaQ1AG9eLqrD_nK3hVzkalEm7O1877rC6tUlDnXHUkjEr-OpzlqidwoGfMyJmsYbF_ABnkt0Op_Ydl6bR4T1ZWnrdmRuiu6rPizN0M_oT7NzPv26cM6Z9hIyBDnuWKzyqllDnA"/>
+</div>
+</div>
+<!-- Note Section -->
+<section class="mb-12 p-6 bg-surface-container-lowest border-l-2 border-primary">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary">info</span>
+<div>
+<h4 class="text-sm font-bold tracking-widest uppercase mb-2">A Note on This Comparison</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                        Specifications are based on manufacturer data. Real-world battery life and performance may vary based on network conditions, usage patterns, and software optimization levels.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Comparison Cards -->
+<div class="space-y-4">
+<!-- Camera System -->
+<div class="bg-surface-container overflow-hidden">
+<div class="bg-surface-container-highest px-6 py-3 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary">photo_camera</span>
+<h3 class="text-xs font-bold tracking-widest uppercase">Main Camera System</h3>
+</div>
+</div>
+<div class="grid grid-cols-2">
+<div class="p-6 border-r border-outline-variant/10">
+<span class="text-[10px] font-bold text-outline uppercase block mb-1">Apple</span>
+<p class="text-lg font-bold">12MP Triple</p>
+<p class="text-xs text-on-surface-variant mt-1">Cinematic mode, LiDAR scanner, ProRes support.</p>
+</div>
+<div class="p-6 bg-surface-container-low">
+<span class="text-[10px] font-bold text-outline uppercase block mb-1">Google</span>
+<p class="text-lg font-bold">50MP Wide</p>
+<p class="text-xs text-on-surface-variant mt-1">Magic Eraser, Real Tone, 4x Optical Zoom.</p>
+</div>
+</div>
+</div>
+<!-- Display -->
+<div class="bg-surface-container overflow-hidden">
+<div class="bg-surface-container-highest px-6 py-3 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary">aspect_ratio</span>
+<h3 class="text-xs font-bold tracking-widest uppercase">Display Technology</h3>
+</div>
+</div>
+<div class="grid grid-cols-2">
+<div class="p-6 border-r border-outline-variant/10">
+<span class="text-[10px] font-bold text-outline uppercase block mb-1">iPhone 13 Pro</span>
+<p class="text-lg font-bold">6.1" OLED</p>
+<p class="text-xs text-on-surface-variant mt-1">Super Retina XDR, ProMotion 120Hz.</p>
+</div>
+<div class="p-6 bg-surface-container-low">
+<span class="text-[10px] font-bold text-outline uppercase block mb-1">Pixel 6 Pro</span>
+<p class="text-lg font-bold">6.7" LTPO</p>
+<p class="text-xs text-on-surface-variant mt-1">QHD+ Resolution, Smooth Display 120Hz.</p>
+</div>
+</div>
+</div>
+<!-- Processor -->
+<div class="bg-surface-container overflow-hidden">
+<div class="bg-surface-container-highest px-6 py-3 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary">memory</span>
+<h3 class="text-xs font-bold tracking-widest uppercase">Processor Architecture</h3>
+</div>
+</div>
+<div class="grid grid-cols-2">
+<div class="p-6 border-r border-outline-variant/10">
+<span class="text-[10px] font-bold text-outline uppercase block mb-1">A15 Bionic</span>
+<p class="text-lg font-bold">5nm Hexa-core</p>
+<p class="text-xs text-on-surface-variant mt-1">Industry-leading single-core performance.</p>
+</div>
+<div class="p-6 bg-surface-container-low">
+<span class="text-[10px] font-bold text-outline uppercase block mb-1">Google Tensor</span>
+<p class="text-lg font-bold">5nm Octa-core</p>
+<p class="text-xs text-on-surface-variant mt-1">Custom silicon optimized for ML and AI.</p>
+</div>
+</div>
+</div>
+<!-- Battery -->
+<div class="bg-surface-container overflow-hidden">
+<div class="bg-surface-container-highest px-6 py-3 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary">battery_charging_full</span>
+<h3 class="text-xs font-bold tracking-widest uppercase">Power Delivery</h3>
+</div>
+</div>
+<div class="grid grid-cols-2">
+<div class="p-6 border-r border-outline-variant/10">
+<span class="text-[10px] font-bold text-outline uppercase block mb-1">iPhone 13 Pro</span>
+<p class="text-lg font-bold">3095 mAh</p>
+<p class="text-xs text-on-surface-variant mt-1">Efficient software-hardware integration.</p>
+</div>
+<div class="p-6 bg-surface-container-low">
+<span class="text-[10px] font-bold text-outline uppercase block mb-1">Pixel 6 Pro</span>
+<p class="text-lg font-bold">5003 mAh</p>
+<p class="text-xs text-on-surface-variant mt-1">Massive capacity with 30W fast charging.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Actions -->
+<section class="mt-16 space-y-4">
+<a class="group block w-full bg-primary text-on-primary p-5 flex justify-between items-center transition-all hover:bg-primary-fixed-dim active:opacity-80" href="https://support.apple.com/kb/SP852">
+<span class="text-xs font-bold tracking-widest uppercase">View Full iPhone 13 Pro Technical Specs</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+<a class="group block w-full border border-outline/20 text-primary p-5 flex justify-between items-center transition-all hover:bg-surface-bright active:opacity-80" href="https://support.google.com/pixelphone/answer/7158570">
+<span class="text-xs font-bold tracking-widest uppercase">View Full Pixel 6 Pro Technical Specs</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</section>
+<!-- Sources -->
+<footer class="mt-20 pt-8 border-t border-outline-variant/20 mb-12">
+<h5 class="text-[10px] font-bold tracking-[0.3em] text-outline uppercase mb-4">Citations &amp; Reviews</h5>
+<div class="flex flex-wrap gap-x-8 gap-y-4">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 bg-tertiary"></div>
+<span class="text-xs font-medium text-on-surface-variant">GSMArena Laboratory Tests</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 bg-tertiary"></div>
+<span class="text-xs font-medium text-on-surface-variant">The Verge Editorial Review</span>
+</div>
+</div>
+</footer>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-16 pb-safe bg-[#1e2022]/70 backdrop-blur-3xl z-50">
+<div class="flex flex-col items-center justify-center text-[#76d6d5] bg-[#394857] p-2 scale-95 transition-transform duration-150 cursor-pointer">
+<span class="material-symbols-outlined">compare_arrows</span>
+<span class="font-manrope text-[10px] font-bold tracking-[0.1em] uppercase mt-1">COMPARE</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#8e9195] p-2 hover:text-[#e2e2e5] transition-colors cursor-pointer">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-manrope text-[10px] font-bold tracking-[0.1em] uppercase mt-1">ARCHIVE</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#8e9195] p-2 hover:text-[#e2e2e5] transition-colors cursor-pointer">
+<span class="material-symbols-outlined">person</span>
+<span class="font-manrope text-[10px] font-bold tracking-[0.1em] uppercase mt-1">PROFILE</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "outline": "#8f7066",
+                  "inverse-surface": "#343026",
+                  "error": "#ba1a1a",
+                  "error-container": "#ffdad6",
+                  "on-tertiary-fixed": "#291800",
+                  "on-primary-fixed-variant": "#802a00",
+                  "on-primary-fixed": "#380d00",
+                  "secondary-fixed-dim": "#bdc2ff",
+                  "surface-container-highest": "#e9e2d3",
+                  "tertiary-container": "#a06900",
+                  "tertiary-fixed-dim": "#ffb954",
+                  "surface-container-high": "#efe7d9",
+                  "outline-variant": "#e3bfb2",
+                  "surface-container-lowest": "#ffffff",
+                  "on-tertiary": "#ffffff",
+                  "surface-variant": "#e9e2d3",
+                  "on-secondary-fixed-variant": "#343d96",
+                  "on-surface-variant": "#5a4138",
+                  "on-primary": "#ffffff",
+                  "on-tertiary-fixed-variant": "#633f00",
+                  "on-secondary-fixed": "#000767",
+                  "inverse-primary": "#ffb59a",
+                  "surface-bright": "#fff8ef",
+                  "secondary-container": "#959efd",
+                  "surface-container-low": "#fbf3e4",
+                  "surface": "#fff8ef",
+                  "on-error": "#ffffff",
+                  "secondary-fixed": "#e0e0ff",
+                  "on-secondary": "#ffffff",
+                  "tertiary": "#805200",
+                  "secondary": "#4c56af",
+                  "on-primary-container": "#fffbff",
+                  "on-error-container": "#93000a",
+                  "primary-fixed-dim": "#ffb59a",
+                  "surface-container": "#f5edde",
+                  "on-tertiary-container": "#fffbff",
+                  "primary-container": "#cd4700",
+                  "primary": "#a43700",
+                  "on-secondary-container": "#27308a",
+                  "inverse-on-surface": "#f8f0e1",
+                  "surface-tint": "#a83900",
+                  "on-background": "#1e1b13",
+                  "surface-dim": "#e1d9cb",
+                  "on-surface": "#1e1b13",
+                  "primary-fixed": "#ffdbcf",
+                  "background": "#fff8ef",
+                  "tertiary-fixed": "#ffddb4"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "1.5rem",
+                  "full": "9999px"
+          },
+          "fontFamily": {
+                  "headline": ["Epilogue"],
+                  "body": ["Plus Jakarta Sans"],
+                  "label": ["Plus Jakarta Sans"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-nav {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .asymmetric-clip {
+      clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed leading-relaxed">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fff8ef]/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(30,27,19,0.08)]">
+<div class="flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-orange-700 dark:text-orange-500">menu</span>
+</div>
+<h1 class="text-xl font-black text-orange-800 dark:text-orange-400 font-['Epilogue'] tracking-tight">Game Night Guide</h1>
+<div class="w-6"></div> <!-- Spacer for center alignment -->
+</div>
+</header>
+<main class="pt-16 pb-32">
+<!-- Hero Section -->
+<section class="relative px-6 py-12 overflow-hidden bg-gradient-to-br from-primary to-primary-container text-on-primary asymmetric-clip">
+<div class="relative z-10 max-w-md mx-auto">
+<h2 class="font-headline text-4xl font-extrabold tracking-tighter leading-none mb-4">
+          Cooperative Games for Your Next Game Night
+        </h2>
+<p class="text-lg opacity-90 font-medium">
+          Recommendations for a group of four adults who enjoy strategy co-ops like Pandemic.
+        </p>
+</div>
+<!-- Decorative background element -->
+<div class="absolute -right-16 -bottom-16 w-64 h-64 bg-tertiary/20 rounded-full blur-3xl"></div>
+</section>
+<!-- Selection Logic / Filter Criteria -->
+<section class="px-6 -mt-8 relative z-20">
+<div class="bg-surface-container-low rounded-xl p-6 shadow-[0_8px_32px_rgba(30,27,19,0.08)] flex flex-wrap gap-4 justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="book">book</span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">2-hour playtime</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="airplane">flight</span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Learnable</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="alarm">alarm</span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Replayable</span>
+</div>
+</div>
+</section>
+<!-- Game List -->
+<section class="px-6 mt-10 space-y-10">
+<!-- Game 1: Horrified -->
+<div class="group">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(30,27,19,0.08)] transition-all duration-300 hover:-translate-y-1">
+<div class="relative h-56">
+<img alt="Horrified Board Game" class="w-full h-full object-cover" data-alt="Cinematic shot of classic movie monsters like Dracula and Frankenstein on a detailed board game layout with moody ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXody2Ksa3ke9CPnlq53kSZujcjnTIBIFz_E3NeoI_HCJ4DqmLmx6ZkSdR-op1orl2PpqBUErghAi0ygDVz8Z2XBrEdxYqCUGeNFsjs3oEK7dVQCAvD-rOqlXG6VkIQCoHqhbjVSlcKSNlsClutNYbQ4ZtCrOfJ0tAasSSzwXkAwErpk-wwJGMQYt67aovBqHGlSRTWzKs46nWE2pJvXLfKvnIc2IW3TSERcCORS4wOwbnVeGkri8DDKS3-XCGlRwQzqST1gTeyCw"/>
+<div class="absolute top-4 right-4 bg-surface-bright/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="controller">controller_gen</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface">60-75 min</span>
+</div>
+</div>
+<div class="p-6">
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-2">Horrified</h3>
+<p class="text-on-surface-variant mb-6 leading-relaxed">
+              Defend a village from classic monsters. A perfect step-up from Pandemic with unique monster abilities and atmospheric tension.
+            </p>
+<a class="inline-flex items-center justify-center w-full py-4 px-6 bg-secondary text-white font-bold rounded-full transition-colors hover:bg-secondary-container hover:text-on-secondary-container" href="https://boardgamegeek.com/boardgame/282524/horrified">
+              View on BoardGameGeek
+            </a>
+</div>
+</div>
+</div>
+<!-- Game 2: Spirit Island -->
+<div class="group">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(30,27,19,0.08)] transition-all duration-300 hover:-translate-y-1">
+<div class="relative h-56">
+<img alt="Spirit Island Board Game" class="w-full h-full object-cover" data-alt="Vibrant tropical island map board game with intricate wooden pieces and elemental tokens representing powerful nature spirits" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkA05w_cmNoXjk5iFSPRSmF3s6jCqeF2snoQ3O3tEnaitrTGhERAOKcTDs6FZ3IHqU0CxdRZ2JMbSQl2d1yKTxxkfC4KZIhElSiPDeKAxK3qwzUCHp5CDvP1rpyKfiypRfpjEJCXEtUxSl4gpB8Paw1mZQcs2JmwxDoxmn6H19OZC1mbG8n9ME7jAttIViw19e1vaseRv146rUY3a-gUFitI3BkxSgO27Q5KxgWGcN9vwNuo1GByo3PWTJ2qmp1wi9j8PaUnj5k8A"/>
+<div class="absolute top-4 right-4 bg-surface-bright/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="controller">controller_gen</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface">90-120 min</span>
+</div>
+</div>
+<div class="p-6">
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-2">Spirit Island</h3>
+<p class="text-on-surface-variant mb-6 leading-relaxed">
+              Protect your island as powerful spirits. A deeply strategic and complex cooperative experience that rewards long-term planning.
+            </p>
+<a class="inline-flex items-center justify-center w-full py-4 px-6 bg-secondary text-white font-bold rounded-full transition-colors hover:bg-secondary-container hover:text-on-secondary-container" href="https://boardgamegeek.com/boardgame/162886/spirit-island">
+              View on BoardGameGeek
+            </a>
+</div>
+</div>
+</div>
+<!-- Game 3: The Crew -->
+<div class="group">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(30,27,19,0.08)] transition-all duration-300 hover:-translate-y-1">
+<div class="relative h-56">
+<img alt="The Crew Card Game" class="w-full h-full object-cover" data-alt="Close-up of sleek space-themed playing cards on a dark tabletop with glowing neon accents reflecting off the surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_Xs4qpSe-zFrAdJKp9wm3PcYdJTYWRL3RwMo9vTMBW3t_HE0GqIpcivW0YBEaTKoMSkjItcOQTetSKrNpVYjhZRX7aeqn0AFydSWdz69mkVduRP2ChGPRJuCoBLRVuFTdmPZfbf44dpqHBSpoDIC5v_gY8L3GXUKEJ0OTRGMCU4DflnioEhN7DRgjDjdUXZgFUI2xiWCPtgowBQUpsKckChlm3Zzt4TaoCo57M27PZ3g6be8PZdb5ZOeBnuvNcqWkJ_JS7UAguR0"/>
+<div class="absolute top-4 right-4 bg-surface-bright/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="controller">controller_gen</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface">20-30 min</span>
+</div>
+</div>
+<div class="p-6">
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-2">The Crew: Planet Nine</h3>
+<p class="text-on-surface-variant mb-6 leading-relaxed">
+              Trick-taking space co-op. A highly addictive mission-based game that challenges your group's non-verbal communication skills.
+            </p>
+<a class="inline-flex items-center justify-center w-full py-4 px-6 bg-secondary text-white font-bold rounded-full transition-colors hover:bg-secondary-container hover:text-on-secondary-container" href="https://boardgamegeek.com/boardgame/284083/crew-quest-planet-nine">
+              View on BoardGameGeek
+            </a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 bg-[#fff8ef]/80 dark:bg-stone-900/80 backdrop-blur-xl rounded-t-[2rem] z-50 pb-safe shadow-[0_-8px_32px_rgba(30,27,19,0.08)]">
+<a class="flex flex-col items-center justify-center bg-orange-700 text-white rounded-full px-5 py-1.5 transition-all duration-300 translate-y-[-4px]" href="#">
+<span class="material-symbols-outlined" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[11px] font-semibold uppercase tracking-wider mt-0.5">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[11px] font-semibold uppercase tracking-wider mt-0.5">Favorites</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[11px] font-semibold uppercase tracking-wider mt-0.5">Groups</span>
+</a>
+</nav>
+</body></html>

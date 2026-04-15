@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "context_card", "checklist_title", "step1_card", "step2_card", "step3_card", "actions_title", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Resolving DaVinci Resolve Instability in the Fusion Page", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This guide provides a structured checklist to diagnose and resolve the specific crash you are experiencing with the 'Surface Tracker' node in DaVinci Resolve 18.5 on your Windows 11 system. The steps are ordered from software-specific settings to broader system-level checks.", "variant": "body"}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_stack"]}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["context_title", "context_text"]}, "context_title": {"type": "Text", "props": {"text": "System and Software Context", "variant": "h3"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "This response assumes you are running a stable, retail version of DaVinci Resolve 18.5 and not a beta release. It also presumes that your system components are not experiencing thermal throttling and that any overclocks might be a potential source of instability.", "variant": "body"}, "children": []}, "checklist_title": {"type": "Text", "props": {"text": "Comprehensive Troubleshooting Checklist", "variant": "h2"}, "children": []}, "step1_card": {"type": "Card", "props": {}, "children": ["step1_stack"]}, "step1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["step1_header_stack", "step1_intro", "step1_list"]}, "step1_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["step1_icon", "step1_title"]}, "step1_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_7_book.svg"}, "children": []}, "step1_title": {"type": "Text", "props": {"text": "Step 1: DaVinci Resolve Configuration", "variant": "h3"}, "children": []}, "step1_intro": {"type": "Text", "props": {"text": "These checks focus on settings within Resolve that directly impact performance and stability, especially for GPU-intensive tasks in Fusion.", "variant": "body"}, "children": []}, "step1_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step1_p1", "step1_p2", "step1_p3", "step1_p4", "step1_p5"]}, "step1_p1": {"type": "Text", "props": {"text": "GPU Processing Mode: Navigate to DaVinci Resolve > Preferences > Memory and GPU. Ensure 'GPU processing mode' is set to CUDA and that your NVIDIA RTX 4090 is the only GPU selected.", "variant": "body"}, "children": []}, "step1_p2": {"type": "Text", "props": {"text": "Increase Fusion Memory Cache: In the same preferences window, navigate to the Fusion tab. Try increasing the Fusion Memory Cache limit significantly.", "variant": "body"}, "children": []}, "step1_p3": {"type": "Text", "props": {"text": "Use Optimized Media: In the Media or Edit page, right-click the clip, select Generate Optimized Media, and wait for it to complete. Perform the Fusion tracking on the optimized version.", "variant": "body"}, "children": []}, "step1_p4": {"type": "Text", "props": {"text": "Project and Cache Settings: In File > Project Settings > Master Settings, ensure the Timeline resolution matches your source media and the cache format is set to a high-performance option like DNxHR HQX.", "variant": "body"}, "children": []}, "step1_p5": {"type": "Text", "props": {"text": "Software Version: Check the Blackmagic Design support website for a newer point release of DaVinci Resolve 18.5 or consider updating to the latest stable version (e.g., 18.6).", "variant": "body"}, "children": []}, "step2_card": {"type": "Card", "props": {}, "children": ["step2_stack"]}, "step2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["step2_header_stack", "step2_intro", "step2_list"]}, "step2_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["step2_icon", "step2_title"]}, "step2_icon": {"type": "Icon", "props": {"name": "../assets/r_000022_01_1_upc-scan.svg"}, "children": []}, "step2_title": {"type": "Text", "props": {"text": "Step 2: Media and Project Integrity", "variant": "h3"}, "children": []}, "step2_intro": {"type": "Text", "props": {"text": "This section helps determine if the issue is with a specific file or project database rather than the software or system itself.", "variant": "body"}, "children": []}, "step2_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step2_p1", "step2_p2", "step2_p3"]}, "step2_p1": {"type": "Text", "props": {"text": "Isolate the Media File: Try applying the Surface Tracker to a different 4K BRAW clip. If that works, the original clip may be corrupt. Also, try transcoding a short section to a different format.", "variant": "body"}, "children": []}, "step2_p2": {"type": "Text", "props": {"text": "Test in a New Project: Create a completely new, empty project. Import only the problematic BRAW clip and attempt the Surface Tracker operation. If this works, your original project database may have an issue.", "variant": "body"}, "children": []}, "step2_p3": {"type": "Text", "props": {"text": "Verify BRAW Playback: Ensure the clip plays without issue in the official Blackmagic RAW Player to confirm the file itself is not damaged.", "variant": "body"}, "children": []}, "step3_card": {"type": "Card", "props": {}, "children": ["step3_stack"]}, "step3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["step3_header_stack", "step3_intro", "step3_list"]}, "step3_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["step3_icon", "step3_title"]}, "step3_icon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_2_briefcase.svg"}, "children": []}, "step3_title": {"type": "Text", "props": {"text": "Step 3: GPU Driver and System Configuration", "variant": "h3"}, "children": []}, "step3_intro": {"type": "Text", "props": {"text": "These steps address potential conflicts between your powerful hardware and the operating system or driver settings.", "variant": "body"}, "children": []}, "step3_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step3_p1", "step3_p2", "step3_p3", "step3_p4"]}, "step3_p1": {"type": "Text", "props": {"text": "Experiment with GPU Drivers: Using DDU, perform a clean install of either the immediate previous NVIDIA Studio Driver or the absolute latest version.", "variant": "body"}, "children": []}, "step3_p2": {"type": "Text", "props": {"text": "NVIDIA Control Panel Settings: Open the NVIDIA Control Panel, go to Manage 3D Settings > Program Settings. Select DaVinci Resolve and set Power management mode to 'Prefer maximum performance'.", "variant": "body"}, "children": []}, "step3_p3": {"type": "Text", "props": {"text": "Disable Overclocking: If you have any CPU, GPU, or RAM overclocks (including XMP/EXPO profiles), disable them in your system's BIOS/UEFI and run at stock speeds.", "variant": "body"}, "children": []}, "step3_p4": {"type": "Text", "props": {"text": "Windows Power Plan: Go to Windows Settings > System > Power & battery and set the power mode to 'Best performance'.", "variant": "body"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["action_btn_1", "action_btn_2", "action_btn_3"]}, "action_btn_1": {"type": "Button", "props": {"label": "Visit Blackmagic Design Support"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.blackmagicdesign.com/support/family/davinci-resolve-and-fusion"}}}}, "action_btn_2": {"type": "Button", "props": {"label": "Download NVIDIA Studio Drivers"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nvidia.com/download/index.aspx"}}}}, "action_btn_3": {"type": "Button", "props": {"label": "Check DaVinci Resolve Forums"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://forum.blackmagicdesign.com/viewforum.php?f=21"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

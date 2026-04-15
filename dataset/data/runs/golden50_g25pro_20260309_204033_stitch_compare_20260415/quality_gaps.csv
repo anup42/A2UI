@@ -1,0 +1,51 @@
+ui_id,query_id,response_id,intent,category,ir_element_count,ir_byte_size,table_domains,table_cell_coverage,information_chunking_score,image_presence,icon_presence,markdown_leak_lines,fallback_generated,screenshot_exists,screenshot_path,gaps
+u_000001_01,q_000001,r_000001_01,Information Retrieval,Travel,32,6474,,0.3000,0.7632,1.0000,0.0000,0,0,1,rendered\u_000001_01.png,
+u_000002_01,q_000002,r_000002_01,Information Retrieval,Comparison,21,4116,comparison,0.8182,0.7810,0.0000,1.0000,0,0,1,rendered\u_000002_01.png,
+u_000003_01,q_000003,r_000003_01,Entertainment,Booking,37,7476,,0.0000,0.7923,1.0000,1.0000,0,0,1,rendered\u_000003_01.png,
+u_000004_01,q_000004,r_000004_01,Entertainment,Weather,16,3108,,0.0000,0.5865,1.0000,1.0000,0,0,1,rendered\u_000004_01.png,weak_table_coverage
+u_000005_01,q_000005,r_000005_01,product_lookup,Comparison,20,4416,comparison,0.8421,0.5678,1.0000,0.0000,0,0,1,rendered\u_000005_01.png,
+u_000006_01,q_000006,r_000006_01,product_lookup,Booking,46,7957,comparison,0.7059,0.8067,1.0000,1.0000,0,0,1,rendered\u_000006_01.png,
+u_000007_01,q_000007,r_000007_01,Booking,Booking,34,5610,comparison,0.5862,0.7148,1.0000,1.0000,0,0,1,rendered\u_000007_01.png,
+u_000008_01,q_000008,r_000008_01,Booking,Weather,62,11361,flight,0.3538,0.8789,1.0000,1.0000,0,0,1,rendered\u_000008_01.png,weak_table_coverage
+u_000009_01,q_000009,r_000009_01,weather,Weather,32,5949,comparison,0.5385,0.7231,1.0000,1.0000,0,0,1,rendered\u_000009_01.png,weak_table_coverage
+u_000010_01,q_000010,r_000010_01,weather,Weather,27,4741,,0.3750,0.5667,1.0000,0.0000,0,0,1,rendered\u_000010_01.png,
+u_000011_01,q_000011,r_000011_01,data visualisation,Booking,13,1999,generic,0.4706,0.3000,1.0000,0.0000,0,0,1,rendered\u_000011_01.png,weak_table_coverage;dense_text_layout
+u_000012_01,q_000012,r_000012_01,data visualisation,Comparison,35,6550,"generic,status",0.3235,0.7750,1.0000,1.0000,0,0,1,rendered\u_000012_01.png,weak_table_coverage
+u_000013_01,q_000013,r_000013_01,Planning,Weather,34,10588,"generic,schedule",0.6508,0.8485,1.0000,1.0000,0,0,1,rendered\u_000013_01.png,
+u_000014_01,q_000014,r_000014_01,Planning,Booking,69,11988,schedule,0.1846,0.9244,1.0000,1.0000,0,0,1,rendered\u_000014_01.png,weak_table_coverage
+u_000015_01,q_000015,r_000015_01,productivity,Weather,57,9168,schedule,0.7059,0.8837,0.0000,1.0000,0,0,1,rendered\u_000015_01.png,
+u_000016_01,q_000016,r_000016_01,productivity,Booking,41,6062,,0.0000,0.8147,0.0000,1.0000,0,0,1,rendered\u_000016_01.png,
+u_000017_01,q_000017,r_000017_01,Recipe,Weather,28,6604,generic,0.7500,0.7191,1.0000,1.0000,0,0,1,rendered\u_000017_01.png,
+u_000018_01,q_000018,r_000018_01,Recipe,Weather,14,6125,,0.7647,0.7000,0.0000,0.0000,0,0,1,rendered\u_000018_01.png,missing_media_signal
+u_000019_01,q_000019,r_000019_01,Localization,Travel,36,6832,booking,0.5172,0.8496,1.0000,0.0000,0,0,1,rendered\u_000019_01.png,weak_table_coverage
+u_000020_01,q_000020,r_000020_01,Localization,Travel,34,6673,schedule,0.5250,0.7508,1.0000,1.0000,0,0,1,rendered\u_000020_01.png,weak_table_coverage
+u_000021_01,q_000021,r_000021_01,Technical support,Travel,52,9007,generic,0.6364,0.9164,1.0000,0.0000,0,0,1,rendered\u_000021_01.png,
+u_000022_01,q_000022,r_000022_01,Technical support,Booking,46,8620,,0.0000,0.9146,0.0000,1.0000,0,0,1,rendered\u_000022_01.png,
+u_000023_01,q_000023,r_000023_01,Creating Writing,Comparison,38,6588,,0.0000,0.6789,0.0000,1.0000,0,0,1,rendered\u_000023_01.png,
+u_000024_01,q_000024,r_000024_01,Creating Writing,Comparison,44,7084,,0.0000,0.7846,1.0000,1.0000,0,0,1,rendered\u_000024_01.png,
+u_000025_01,q_000025,r_000025_01,Event Schedule,Weather,20,3973,schedule,0.5556,0.3502,1.0000,0.0000,0,0,1,rendered\u_000025_01.png,dense_text_layout
+u_000026_01,q_000026,r_000026_01,Event Schedule,Travel,31,6451,schedule,0.8286,0.7994,1.0000,1.0000,0,0,1,rendered\u_000026_01.png,
+u_000027_01,q_000027,r_000027_01,Research Analysis,Booking,29,5001,comparison,0.5909,0.7653,0.0000,1.0000,0,0,1,rendered\u_000027_01.png,
+u_000028_01,q_000028,r_000028_01,Research Analysis,Booking,25,5298,comparison,0.6667,0.7873,1.0000,0.0000,0,0,1,rendered\u_000028_01.png,
+u_000029_01,q_000029,r_000029_01,Comparison,Travel,34,8179,comparison,0.7143,0.6422,1.0000,1.0000,0,0,1,rendered\u_000029_01.png,
+u_000030_01,q_000030,r_000030_01,Comparison,Booking,33,7351,comparison,0.5455,0.7160,1.0000,1.0000,0,0,1,rendered\u_000030_01.png,weak_table_coverage
+u_000031_01,q_000031,r_000031_01,calculation,Comparison,30,5046,,0.5909,0.6378,1.0000,0.0000,0,0,1,rendered\u_000031_01.png,
+u_000032_01,q_000032,r_000032_01,calculation,Comparison,34,5664,schedule,0.6970,0.8453,1.0000,0.0000,0,0,1,rendered\u_000032_01.png,
+u_000033_01,q_000033,r_000033_01,Travel,Travel,39,8101,flight,0.6098,0.7082,1.0000,1.0000,0,0,1,rendered\u_000033_01.png,
+u_000034_01,q_000034,r_000034_01,Travel,Weather,48,8815,schedule,0.3810,0.9190,1.0000,0.0000,0,0,1,rendered\u_000034_01.png,weak_table_coverage
+u_000035_01,q_000035,r_000035_01,Navigation,Weather,21,4160,comparison,0.6897,0.3138,1.0000,1.0000,0,0,1,rendered\u_000035_01.png,dense_text_layout
+u_000036_01,q_000036,r_000036_01,Navigation,Travel,44,9427,,0.2222,0.6549,1.0000,1.0000,0,0,1,rendered\u_000036_01.png,
+u_000037_01,q_000037,r_000037_01,Education,Booking,53,9999,schedule,0.2970,0.8631,1.0000,0.0000,0,0,1,rendered\u_000037_01.png,weak_table_coverage
+u_000038_01,q_000038,r_000038_01,Education,Booking,36,6371,,0.0000,0.8944,1.0000,0.0000,0,0,1,rendered\u_000038_01.png,
+u_000039_01,q_000039,r_000039_01,Documentation,Comparison,36,6962,,0.0000,0.8816,0.0000,0.0000,0,0,1,rendered\u_000039_01.png,missing_media_signal
+u_000040_01,q_000040,r_000040_01,Documentation,Booking,53,9757,comparison,0.4516,0.9188,0.0000,1.0000,0,0,1,rendered\u_000040_01.png,weak_table_coverage
+u_000041_01,q_000041,r_000041_01,media playback,Booking,39,6551,comparison,0.4364,0.6368,1.0000,1.0000,0,0,1,rendered\u_000041_01.png,weak_table_coverage
+u_000042_01,q_000042,r_000042_01,media playback,Booking,26,5994,generic,0.6481,0.7712,1.0000,1.0000,0,0,1,rendered\u_000042_01.png,
+u_000043_01,q_000043,r_000043_01,qr scanner,Comparison,46,6928,status,0.3214,0.6705,1.0000,1.0000,0,0,1,rendered\u_000043_01.png,weak_table_coverage
+u_000044_01,q_000044,r_000044_01,qr scanner,Booking,31,5412,,0.0000,0.5611,1.0000,0.0000,0,0,1,rendered\u_000044_01.png,
+u_000045_01,q_000045,r_000045_01,status check,Travel,22,3971,status,0.7273,0.5408,1.0000,1.0000,0,0,1,rendered\u_000045_01.png,
+u_000046_01,q_000046,r_000046_01,status check,Booking,26,4197,status,0.5238,0.6178,1.0000,1.0000,0,0,1,rendered\u_000046_01.png,weak_table_coverage
+u_000047_01,q_000047,r_000047_01,notification,Comparison,27,5275,status,0.5682,0.7662,0.0000,1.0000,0,0,1,rendered\u_000047_01.png,
+u_000048_01,q_000048,r_000048_01,notification,Travel,26,4226,,0.6875,0.5847,1.0000,1.0000,0,0,1,rendered\u_000048_01.png,
+u_000049_01,q_000049,r_000049_01,widgets,Comparison,19,3374,generic,0.6400,0.4944,0.0000,1.0000,0,0,1,rendered\u_000049_01.png,
+u_000050_01,q_000050,r_000050_01,widgets,Weather,31,5005,weather,0.6897,0.5654,1.0000,1.0000,0,0,1,rendered\u_000050_01.png,

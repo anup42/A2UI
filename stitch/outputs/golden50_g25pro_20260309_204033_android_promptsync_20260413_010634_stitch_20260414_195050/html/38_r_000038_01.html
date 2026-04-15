@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Earth's Cracked Shell: Plate Tectonics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;800&amp;family=Public+Sans:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#fbf9f4",
+                    "secondary": "#7c5730",
+                    "primary": "#153434",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed": "#2c1600",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#e4e2dd",
+                    "on-primary-container": "#9ababa",
+                    "on-background": "#1b1c19",
+                    "on-secondary-container": "#79542d",
+                    "surface-tint": "#466464",
+                    "error": "#ba1a1a",
+                    "tertiary": "#243500",
+                    "primary-container": "#2d4b4b",
+                    "on-tertiary-fixed": "#141f00",
+                    "tertiary-fixed-dim": "#b8cf88",
+                    "on-tertiary-container": "#a6bd78",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#fdcb9b",
+                    "surface-dim": "#dbdad5",
+                    "outline": "#717878",
+                    "inverse-primary": "#accdcc",
+                    "on-tertiary": "#ffffff",
+                    "surface-bright": "#fbf9f4",
+                    "on-secondary-fixed-variant": "#61401b",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#002020",
+                    "tertiary-container": "#3a4c14",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#eae8e3",
+                    "on-surface-variant": "#414848",
+                    "background": "#fbf9f4",
+                    "surface-container-low": "#f5f3ee",
+                    "on-tertiary-fixed-variant": "#3b4d14",
+                    "secondary-fixed-dim": "#eebd8e",
+                    "primary-fixed": "#c8e9e8",
+                    "surface-container": "#f0eee9",
+                    "on-primary-fixed-variant": "#2e4c4c",
+                    "surface-variant": "#e4e2dd",
+                    "inverse-on-surface": "#f2f1ec",
+                    "secondary-fixed": "#ffdcbd",
+                    "on-surface": "#1b1c19",
+                    "inverse-surface": "#30312e",
+                    "tertiary-fixed": "#d4eca2",
+                    "primary-fixed-dim": "#accdcc",
+                    "outline-variant": "#c1c8c7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Public Sans"],
+                    "label": ["Public Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fbf9f4] dark:bg-[#1b1c19] opacity-80 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-6 h-16 w-full max-w-screen-xl mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#153434] dark:text-[#f5f3ee] active:scale-95 duration-150 cursor-pointer">menu</span>
+<span class="font-['Noto_Serif'] font-bold text-[#153434] dark:text-[#f5f3ee] text-xl tracking-tight">Geological Editorial</span>
+</div>
+<span class="material-symbols-outlined text-[#153434] dark:text-[#f5f3ee] active:scale-95 duration-150 cursor-pointer">search</span>
+</div>
+<div class="bg-[#f5f3ee] dark:bg-[#2d4b4b] h-[1px] w-full"></div>
+</header>
+<main class="pt-16 pb-24 max-w-screen-xl mx-auto">
+<!-- Hero Section -->
+<section class="relative w-full aspect-[4/5] md:aspect-[21/9] overflow-hidden">
+<img alt="Tectonic Plates Map" class="w-full h-full object-cover" data-alt="Detailed scientific map showing the global tectonic plate boundaries with highlighted fault lines and continental drift indicators in earthy tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3hNgTHzs0PHUjcZv7Pzv8lAWHxF-ZJsxF3XZzbIwd2ZBy-Hh21p9kPZeYMnxRH0OYHQ4EhMDJ0h1DbBKNBLjGtNB-qBH4tLbEGUM5Rb1hSkAA76skc82FR23gje3Jn8miPcFsRJTMYDWuBc6G8AzYy_uZqvmbmmtlVEDKRrGSUI3S3okixMeOK-umucDwuJpjCsJyKtLLk9hO5qPglXZ7VAn49ph3EUl8ZuJmfiaMe_jWSXcD0LFO4UnYXuRJfB0TEcVv8gAS41I"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 md:p-12 max-w-2xl">
+<h1 class="font-headline text-4xl md:text-6xl font-extrabold text-on-primary tracking-tight leading-tight mb-4">
+                    The Earth's Cracked Shell
+                </h1>
+<p class="font-body text-lg text-on-primary/90 font-light leading-relaxed">
+                    An Introduction to Plate Tectonics. Imagine the Earth as a giant, hard-boiled egg with a shell that has been cracked. These massive puzzle pieces are the Lithospheric Plates.
+                </p>
+</div>
+</section>
+<!-- Intro Content -->
+<section class="px-6 py-12 md:py-20 bg-surface-container-low">
+<div class="max-w-3xl mx-auto">
+<div class="flex items-center gap-3 mb-6 text-secondary font-semibold tracking-widest text-xs uppercase">
+<span class="material-symbols-outlined text-sm" data-icon="public">public</span>
+<span>Foundational Geology</span>
+</div>
+<h2 class="font-headline text-3xl font-bold mb-6 text-primary">How the Earth's Plates Interact</h2>
+<p class="text-on-surface-variant leading-relaxed text-lg mb-8">
+                    The lithosphere is divided into about a dozen major and many minor plates. These plates move relative to one another, driven by convection currents in the underlying mantle. This constant motion shapes our world, creating mountains, oceans, and defining the very ground we stand on.
+                </p>
+<div class="h-1 w-24 bg-primary-container rounded-full"></div>
+</div>
+</section>
+<!-- Feature Cards (Asymmetric Layout) -->
+<section class="px-6 py-12 space-y-12">
+<!-- Convergent -->
+<div class="flex flex-col md:flex-row gap-8 items-center bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-outline-variant/15">
+<div class="w-full md:w-1/2 aspect-square md:aspect-video rounded-md overflow-hidden">
+<img alt="Himalayan Mountains" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" data-alt="Stunning panoramic view of the snow-capped Himalayan peaks under a clear blue sky, showing immense geological vertical uplift and rock layers." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSbzOF74OmLW3_cpYrArNuloWl4RZbYtKsYm1PPL1jqNxVmkXxuCDrK3j6AQViDzaQKZqZMc7_Bhidk79bN_Yv1wLhfim41nYv0ODgJKxNgq-zQCJaV-9Mm_iUFvMRKajQTUSDj6pooMlxc7lcfq0SVIpJk8VlPTzAdTju8PEATHg3xlh2FzikyLlwSwq_k4yCBHcmF-3PNWyD7MV4ZxPex3so7t-o46BBkkLGFpghjw5iTDZsPTEA3cp0tHMSRVqjE_yXwqhu3Eg"/>
+</div>
+<div class="w-full md:w-1/2 md:pl-8">
+<div class="flex items-center gap-2 mb-4">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="join_inner">join_inner</span>
+</div>
+<span class="font-label font-bold text-primary tracking-wide text-sm">CONVERGENT</span>
+</div>
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-4">The Collision Course</h3>
+<p class="text-on-surface-variant leading-relaxed mb-6">
+                        When two plates move toward each other, they collide. This process, known as subduction or continental collision, created the majestic Himalayas as the Indian Plate pushed into the Eurasian Plate.
+                    </p>
+<div class="p-4 bg-surface-container-high rounded text-sm italic text-secondary border-l-4 border-secondary">
+                        "The crust is essentially folded and pushed upwards, forming some of the highest peaks on Earth."
+                    </div>
+</div>
+</div>
+<!-- Divergent -->
+<div class="flex flex-col md:flex-row-reverse gap-8 items-center bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-outline-variant/15">
+<div class="w-full md:w-1/2 aspect-square md:aspect-video rounded-md overflow-hidden">
+<img alt="Mid-Atlantic Ridge" class="w-full h-full object-cover" data-alt="Digital cross-section illustration of seafloor spreading at the Mid-Atlantic Ridge with magma rising through tectonic cracks into dark ocean depths." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVYwxbkizhlSHsA4lc3xAH7M9R2vkNlVzXP-f4jQ5FNSJVOrwIqSi_0O6rFZnxKqXwOhY-cM7Vle41XllrdyUX7CBQPEu4qXlFJFldQnEcUaw_Oehqu7AjJixqM_ub5hQopbYstJxHsREjf0O184uEnk5dEJ42fGYHuLleX9kg2XmLGBxnbF4EvUKqN6Lvkh2Mfe7IkhBcH1wcLcPGdb5Mb77qScAohzESItjprGCNJKUooAlcw_ts-1_pNdhPOehjf7vpBXkples"/>
+</div>
+<div class="w-full md:w-1/2 md:pr-8">
+<div class="flex items-center gap-2 mb-4">
+<div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="split_scene">split_scene</span>
+</div>
+<span class="font-label font-bold text-secondary tracking-wide text-sm">DIVERGENT</span>
+</div>
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-4">The Big Split</h3>
+<p class="text-on-surface-variant leading-relaxed mb-6">
+                        At divergent boundaries, plates pull apart. As the rift widens, molten rock (magma) rises from the mantle to fill the gap, creating new lithospheric crust. The Mid-Atlantic Ridge is a prime example of this "seafloor spreading."
+                    </p>
+<div class="flex gap-4">
+<div class="text-center p-3 bg-surface rounded flex-1">
+<span class="block text-primary font-bold text-xl">2.5 cm</span>
+<span class="text-[10px] text-outline uppercase font-semibold">Annual Spread</span>
+</div>
+<div class="text-center p-3 bg-surface rounded flex-1">
+<span class="block text-primary font-bold text-xl">Rift</span>
+<span class="text-[10px] text-outline uppercase font-semibold">Formation</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Transform -->
+<div class="flex flex-col md:flex-row gap-8 items-center bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-outline-variant/15">
+<div class="w-full md:w-1/2 aspect-square md:aspect-video rounded-md overflow-hidden">
+<img alt="San Andreas Fault" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" data-alt="Aerial photograph of the San Andreas Fault showing a stark, visible line cutting through a dry, arid landscape, illustrating crustal displacement." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0LUtVSiYjeepodG43BlRSqDGwaLQdBCXvp3OUetlH1Y8f0pw-0t2Ed8cRcvDYotUXIllSFuXIl6YNCvO_-C3wp3q_nP0GfXDCGijaAYRHXTgc0hnM7bbsBA3SAIEtMo-Nrl6AM6rYh3UK8ruJQEsf0_VOIUmBucWAfRBeayfg0tDnumQExTvn603POCecMgSdFX53bClfjZqfgxSm9uZ_gjoKrS0vIni4UboZ_U4FnWOW_ImloNv7GmiE1B9r_4nPbU-LsIszh60"/>
+</div>
+<div class="w-full md:w-1/2 md:pl-8">
+<div class="flex items-center gap-2 mb-4">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="sync_alt">sync_alt</span>
+</div>
+<span class="font-label font-bold text-primary-container tracking-wide text-sm">TRANSFORM</span>
+</div>
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-4">The Side-Swipe</h3>
+<p class="text-on-surface-variant leading-relaxed mb-6">
+                        Plates slide past each other horizontally. These boundaries don't usually create mountains or oceans, but they do generate massive amounts of stress. When this stress is suddenly released, it causes earthquakes, like those along California's San Andreas Fault.
+                    </p>
+<button class="flex items-center gap-2 bg-primary-container text-on-primary px-6 py-2 rounded-full font-label text-sm font-semibold hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+<span>Seismic Event Log</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Sources Section -->
+<section class="px-6 py-16 mb-12">
+<div class="max-w-3xl mx-auto border-t border-outline-variant/30 pt-12">
+<h4 class="font-headline text-xl font-bold text-primary mb-8">Academic Resources</h4>
+<div class="space-y-4">
+<a class="flex justify-between items-center p-5 bg-surface-container-lowest rounded-md group hover:bg-surface-container-high transition-colors" href="https://pubs.usgs.gov/gip/dynamic/dynamic.html">
+<div class="flex items-center gap-4">
+<img alt="Book Icon" class="w-6 h-6 opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCK3IVkb42jbA-IGCr1rAtunt3NERLQkoIsVHUWu7E-X4hBjT1UVWAPjjPIx5bL1IWnv7oiTeasqC9Qv5RbIQJodyTcXOlGTobMTvnKrtxQUHcQ16DcV0coFPqGXKWlPgWGd2bWEDL54vzebFq6Y38XH3hAXliX1b4pjlmRmwPmcMuLmCZW6itf2N2UpP5DeJDwun3XgWEhXBiAZHO-dwHFRA7JCfwlD59zqwhDGCaqtDDoDaljgdoOUzwPWV9CttglXSbvViOyymQ"/>
+<div>
+<span class="block font-bold text-on-surface group-hover:text-primary transition-colors">USGS: This Dynamic Earth</span>
+<span class="text-xs text-outline">The Story of Plate Tectonics</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<a class="flex justify-between items-center p-5 bg-surface-container-lowest rounded-md group hover:bg-surface-container-high transition-colors" href="https://science.nasa.gov/earth-science/solid-earth/plate-tectonics/">
+<div class="flex items-center gap-4">
+<img alt="Book Icon" class="w-6 h-6 opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDUhmslYhGlkNBe6ldbIMGYeUptIXTF3gdjYVgP25ZMl8WJ12JZv_y3IdcNtjdZmjd0S0WBZ8YsiF0AXf6y9RSP3K_SSr0xP_p9qsLI5ZA2OXKX_uxFqybfsAEovEol37FNnFwsOEkteQcH84m4EmnnDQSi7HSby4DQEo9Z_NluSi2zPrrXDAXf5e2Pd20rsFQ6rdq5Z4dvCgVUU9xBGTP6g_g4V3GxqJf6x-9pY8oegibQH4fhyckBtzxTy3Rb-omb-VHljzVZwU"/>
+<div>
+<span class="block font-bold text-on-surface group-hover:text-primary transition-colors">NASA Earth Science</span>
+<span class="text-xs text-outline">Solid Earth Observations</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<div class="mt-12 flex items-center justify-center gap-6">
+<div class="flex items-center gap-2 text-secondary text-xs font-semibold tracking-tighter">
+<img alt="Calendar Icon" class="w-4 h-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrqlzPRbeW78aP90KxIUdG0v5kztII1XNFEdAs6Glv4pEp6xpBZvMRSJ7OOSl8mLBBCXX5VEC9bwliMEwx_ZR6HGBLBMc3zturj5HbjU7t0pxk2nziZqXQESiYAAj1ge4lCI2xATWegy2oKi63MGNWVWtR-zYKf1J98xRhPKalsE3xUy8MiSn60WZdIFEYqhKVk70cFsvRt8lgp_KzA3POCsI-SdLGzHpwj2bffVXiC7m4rT_cN6S-_HvGpfw3aH34bwYd8dsDSKw"/>
+<span>LATEST UPDATED: OCT 2023</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-2 pb-6 bg-[#fbf9f4] dark:bg-[#1b1c19] opacity-80 backdrop-blur-md z-50 border-t border-[#c1c8c7]/15 shadow-[0_-4px_6px_-1px_rgba(27,28,25,0.06)]">
+<div class="flex flex-col items-center justify-center bg-[#eae8e3] dark:bg-[#2d4b4b] text-[#153434] dark:text-[#f5f3ee] rounded-xl px-3 py-1 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="layers">layers</span>
+<span class="font-['Public_Sans'] text-[10px] uppercase tracking-widest font-semibold mt-1">Strata</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#7c5730] dark:text-[#eae8e3] opacity-60 hover:bg-[#eae8e3] dark:hover:bg-[#2d4b4b] transition-colors active:scale-90 cursor-pointer p-2 rounded-xl">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-['Public_Sans'] text-[10px] uppercase tracking-widest font-semibold mt-1">Glossary</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#7c5730] dark:text-[#eae8e3] opacity-60 hover:bg-[#eae8e3] dark:hover:bg-[#2d4b4b] transition-colors active:scale-90 cursor-pointer p-2 rounded-xl">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+<span class="font-['Public_Sans'] text-[10px] uppercase tracking-widest font-semibold mt-1">Atlas</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#7c5730] dark:text-[#eae8e3] opacity-60 hover:bg-[#eae8e3] dark:hover:bg-[#2d4b4b] transition-colors active:scale-90 cursor-pointer p-2 rounded-xl">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-['Public_Sans'] text-[10px] uppercase tracking-widest font-semibold mt-1">Archive</span>
+</div>
+</nav>
+</body></html>

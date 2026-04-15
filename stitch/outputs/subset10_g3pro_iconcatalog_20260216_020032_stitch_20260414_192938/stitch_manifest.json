@@ -1,0 +1,29 @@
+{
+  "created_at": "2026-04-14T19:30:56.749Z",
+  "run_id": "subset10_g3pro_iconcatalog_20260216_020032",
+  "model_id": "GEMINI_3_PRO",
+  "project_id": "13134571715484789627",
+  "project_title": "A2UI subset10_g3pro_iconcatalog_20260216_020032 20260414_192938",
+  "total": 1,
+  "success": 1,
+  "failed": 0,
+  "output_dir": "stitch/outputs/subset10_g3pro_iconcatalog_20260216_020032_stitch_20260414_192938",
+  "records": [
+    {
+      "idx": 1,
+      "query_id": "q_000175",
+      "response_id": "r_000175_01",
+      "project_id": "13134571715484789627",
+      "screen_id": "3578a6c5516642b6ad49b37ae3901e6a",
+      "html_url": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzgwZDUzZGZjZmNjMzRkMTFiNzZlMGZhOTQwOTY0OTUyEgsSBxCLs5WOyAQYAZIBJAoKcHJvamVjdF9pZBIWQhQxMzEzNDU3MTcxNTQ4NDc4OTYyNw&filename=&opi=96797242",
+      "image_url": "https://lh3.googleusercontent.com/aida/ADBb0ugX4GJf0OMRyZ_A3JlTe7IpmTgm7ExJSgDKN6pNFxmWfGOz6Fu1SW4FJS6pFqMOMTTOWlUzlq-IDxQCduIoolD6-FDpDjipE8xKu1b82z_0bKQlIrCD-Gnq_0MKe-apdKDIgVswQhu0Yrqz5o3d-3ZcopbUrEYwJY65hgo7qm6475y454HbKq7yvod4hyuj3SetoRJijqoJ-uwgpbwTc9jUCicf7-fSolGSVijjNdvZQ1k_YUW-I5-kh3SJ",
+      "generated_via": "project.generate",
+      "html_saved": true,
+      "image_saved": true,
+      "html_error": null,
+      "image_error": null,
+      "latency_ms": 74685,
+      "status": "ok"
+    }
+  ]
+}

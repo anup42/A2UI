@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wealth Ledger - Salary Breakdown</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#edeeef",
+                        "surface-variant": "#e1e3e4",
+                        "on-background": "#191c1d",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#005312",
+                        "tertiary-fixed-dim": "#88d982",
+                        "surface-dim": "#d9dadb",
+                        "secondary-container": "#9cefdd",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#a9c7ff",
+                        "on-secondary-fixed": "#00201b",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-secondary-container": "#0b6f61",
+                        "surface-container-low": "#f3f4f5",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#002204",
+                        "primary-fixed": "#d6e3ff",
+                        "tertiary": "#001d03",
+                        "outline": "#747780",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-surface": "#2e3132",
+                        "secondary-fixed": "#9ff2e0",
+                        "outline-variant": "#c4c6d0",
+                        "on-surface-variant": "#43474f",
+                        "secondary": "#006b5d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#405f91",
+                        "surface": "#f8f9fa",
+                        "tertiary-container": "#003408",
+                        "on-tertiary-container": "#55a454",
+                        "inverse-primary": "#a9c7ff",
+                        "on-primary-container": "#7594ca",
+                        "surface-bright": "#f8f9fa",
+                        "on-primary-fixed": "#001b3d",
+                        "on-primary-fixed-variant": "#264778",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "secondary-fixed-dim": "#83d6c4",
+                        "on-secondary-fixed-variant": "#005046",
+                        "tertiary-fixed": "#a3f69c",
+                        "background": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "on-surface": "#191c1d",
+                        "primary": "#001736",
+                        "primary-container": "#002b5b",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .headline-md { font-size: 1.75rem; line-height: 2.25rem; }
+        .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface selection:bg-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</div>
+<span class="text-xl font-bold text-[#002B5B] dark:text-blue-400 font-headline tracking-tight">Wealth Ledger</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors duration-150 ease-in-out active:scale-95">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-lg mx-auto">
+<!-- Hero Section: Precision Editorial -->
+<section class="mb-8">
+<div class="mb-2">
+<span class="font-inter text-[11px] font-semibold tracking-wide uppercase text-secondary">Summary</span>
+</div>
+<h1 class="font-headline font-extrabold text-[#002B5B] dark:text-blue-400 text-4xl mb-4 leading-tight">Annual Salary Breakdown</h1>
+<div class="bg-gradient-to-br from-primary to-primary-container rounded-3xl p-8 text-on-primary shadow-lg relative overflow-hidden">
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-secondary rounded-full opacity-10 blur-3xl"></div>
+<div class="relative z-10">
+<p class="text-on-primary-container font-label text-sm uppercase tracking-widest mb-1">Total Compensation</p>
+<h2 class="font-headline font-extrabold text-5xl mb-6">$75,000</h2>
+<div class="flex flex-wrap gap-4">
+<div class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-md">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-xs font-semibold">40 hrs/week</span>
+</div>
+<div class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-md">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_today">calendar_today</span>
+<span class="text-xs font-semibold">52 weeks</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Wage Statistics Pill -->
+<div class="mb-10 flex justify-center">
+<div class="bg-secondary-fixed px-6 py-3 rounded-full flex items-center gap-3 shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed-variant" data-icon="payments">payments</span>
+<div>
+<p class="text-[10px] uppercase font-bold text-on-secondary-fixed-variant/60 leading-none">Hourly Wage</p>
+<p class="font-headline font-bold text-on-secondary-fixed-variant text-lg">$36.06 <span class="text-xs font-medium opacity-70">Pre-tax</span></p>
+</div>
+</div>
+</div>
+<!-- Breakdown Table: Tonal Depth over Borders -->
+<section class="mb-10">
+<div class="flex items-end justify-between mb-6">
+<h3 class="font-headline headline-md font-bold text-primary">Frequency breakdown</h3>
+<span class="material-symbols-outlined text-outline-variant" data-icon="info">info</span>
+</div>
+<div class="space-y-4">
+<!-- Data Row -->
+<div class="flex items-center justify-between p-5 bg-surface-container-lowest rounded-2xl transition-all duration-200 hover:bg-surface-bright group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="calendar_month">calendar_month</span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium text-xs">Annual</p>
+<p class="font-headline font-bold text-primary">Yearly Gross</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-lg text-primary">$75,000.00</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-5 bg-surface-container-lowest rounded-2xl transition-all duration-200 hover:bg-surface-bright group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center group-hover:bg-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-secondary" data-icon="event_note">event_note</span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium text-xs">Monthly</p>
+<p class="font-headline font-bold text-primary">Standard Pay</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-lg text-primary">$6,250.00</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-5 bg-surface-container-lowest rounded-2xl transition-all duration-200 hover:bg-surface-bright group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center group-hover:bg-tertiary-fixed transition-colors">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="split_screen">splitscreen</span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium text-xs">Semi-Monthly</p>
+<p class="font-headline font-bold text-primary">24 Pay Periods</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-lg text-primary">$3,125.00</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-5 bg-surface-container-lowest rounded-2xl transition-all duration-200 hover:bg-surface-bright group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-primary-container" data-icon="date_range">date_range</span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium text-xs">Bi-Weekly</p>
+<p class="font-headline font-bold text-primary">26 Pay Periods</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-lg text-primary">$2,884.62</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-5 bg-surface-container-lowest rounded-2xl transition-all duration-200 hover:bg-surface-bright group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center group-hover:bg-error-container transition-colors">
+<span class="material-symbols-outlined text-error" data-icon="view_week">view_week</span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium text-xs">Weekly</p>
+<p class="font-headline font-bold text-primary">52 Pay Periods</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-extrabold text-lg text-primary">$1,442.31</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions: Horizontal Scroll or Grid -->
+<section class="mb-10">
+<h3 class="font-headline headline-md font-bold text-primary mb-6">Financial actions</h3>
+<div class="grid grid-cols-2 gap-4">
+<a class="bg-surface-container-low p-5 rounded-3xl block transition-transform active:scale-95 group" href="https://www.paycheckcity.com/calculator/salary" target="_blank">
+<div class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center mb-4 text-on-primary">
+<img alt="" class="w-5 h-5 invert" data-alt="minimalist line art briefcase icon representing professional tools and career management" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvZdLtVGhjOUbEeCzL2mJBjvA9imQPlubs1JY87B5I1wMdb7dmUD7Q2nD80IlHvc5CFYiF_wJKs_OwY0LqXuywlpOv-PCG7euNr-AXji1YyVFFXsevz4wXKiOJeps39xn2XDGjRUpt3MPBjzTbiZ0r5Rybyd---t65U4Xy5hQTqspHO4TaKNbLfaqInljp_daXgrSaO8FgJim1GmJ9jFrTM_0upaJ5waONTt2JHlU3LXvibFvhSp9OiGJ5lzlInKdeOAOULWBeGGeF"/>
+</div>
+<p class="font-headline font-bold text-primary text-sm leading-tight group-hover:text-secondary transition-colors">Calculate Take-Home Pay</p>
+<div class="mt-2 text-[10px] text-on-surface-variant font-medium uppercase tracking-wider flex items-center gap-1">
+                        Open tool <span class="material-symbols-outlined text-[10px]" data-icon="arrow_outward">arrow_outward</span>
+</div>
+</a>
+<a class="bg-surface-container-low p-5 rounded-3xl block transition-transform active:scale-95 group" href="https://www.irs.gov/individuals/tax-withholding-estimator" target="_blank">
+<div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center mb-4 text-on-secondary">
+<img alt="" class="w-5 h-5 invert" data-alt="minimalist line art location marker icon symbolizing destination and goal tracking" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByv-ELLKKS7hiFm4VEaQFZz8xlHFGwU6zBvsBdQi0OmswCexkXUjoZ962AAXTI2sZPswGp3DUrrvG5wdTd5-d4dXRSqRqYMTzpIKgT9m2jmtknQavOft4Su5tUYGHcbn-ZSeBK75wTYmppRmsNx04Cpn8dabhW3RXBE8glV0bhwcLs7QHKLBXX6UuXf4Va3WDUy-ZkY54_WDVbf-2EfPduSP3-1KPb4HLzix7A_hMk7QXrRR9xDFegzh7rLp4QyORJXPTbfXBY7L5F"/>
+</div>
+<p class="font-headline font-bold text-primary text-sm leading-tight group-hover:text-secondary transition-colors">Federal Tax Estimator</p>
+<div class="mt-2 text-[10px] text-on-surface-variant font-medium uppercase tracking-wider flex items-center gap-1">
+                        Visit IRS <span class="material-symbols-outlined text-[10px]" data-icon="arrow_outward">arrow_outward</span>
+</div>
+</a>
+</div>
+</section>
+<!-- Sources Section -->
+<section class="mb-6 p-6 bg-surface-container rounded-3xl">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-outline" data-icon="verified">verified</span>
+<p class="text-xs font-bold uppercase tracking-widest text-outline">Verified Source</p>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-4">Salary data and estimates are based on industry standards provided by official agencies.</p>
+<a class="flex items-center justify-between text-primary font-bold text-sm" href="https://www.bls.gov/bls/blswage.htm" target="_blank">
+<span>U.S. Bureau of Labor Statistics</span>
+<span class="material-symbols-outlined" data-icon="open_in_new">open_in_new</span>
+</a>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl shadow-[0_-4px_24px_rgba(25,28,29,0.04)] rounded-t-3xl border-none">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2.5 hover:text-[#002B5B] dark:hover:text-blue-300 tap-highlight-transparent active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-inter text-[11px] font-semibold tracking-wide uppercase mt-1">Summary</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#9cefdd] dark:bg-teal-900/30 text-[#0b6f61] dark:text-teal-300 rounded-full px-5 py-2.5 tap-highlight-transparent active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<span class="font-inter text-[11px] font-semibold tracking-wide uppercase mt-1">Breakdown</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2.5 hover:text-[#002B5B] dark:hover:text-blue-300 tap-highlight-transparent active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="font-inter text-[11px] font-semibold tracking-wide uppercase mt-1">Actions</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2.5 hover:text-[#002B5B] dark:hover:text-blue-300 tap-highlight-transparent active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+<span class="font-inter text-[11px] font-semibold tracking-wide uppercase mt-1">Sources</span>
+</a>
+</nav>
+</body></html>

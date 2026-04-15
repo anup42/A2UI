@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Intelligence - System Health Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#eff4ff",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "inverse-primary": "#aec7f6",
+                        "secondary-container": "#d5e3fc",
+                        "primary-fixed-dim": "#aec7f6",
+                        "surface-tint": "#465f88",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#fd403a",
+                        "on-primary-fixed": "#001b3d",
+                        "inverse-surface": "#233144",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#410002",
+                        "on-background": "#0d1c2e",
+                        "tertiary-fixed-dim": "#ffb4ab",
+                        "surface-variant": "#d5e3fc",
+                        "on-tertiary-fixed-variant": "#93000b",
+                        "on-secondary-container": "#57657a",
+                        "tertiary": "#210001",
+                        "surface-container-highest": "#d5e3fc",
+                        "on-primary": "#ffffff",
+                        "outline": "#74777f",
+                        "surface-container": "#e6eeff",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "secondary": "#515f74",
+                        "tertiary-fixed": "#ffdad6",
+                        "primary": "#000a1e",
+                        "secondary-fixed": "#d5e3fc",
+                        "on-surface-variant": "#44474e",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "primary-container": "#002147",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#d6e3ff",
+                        "outline-variant": "#c4c6cf",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "inverse-on-surface": "#eaf1ff",
+                        "tertiary-container": "#4c0003",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#ccdbf3",
+                        "background": "#f8f9ff",
+                        "on-primary-container": "#708ab5",
+                        "on-surface": "#0d1c2e",
+                        "on-primary-fixed-variant": "#2d476f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(213, 227, 252, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .pulse-error {
+            box-shadow: 0 0 0 0 rgba(186, 26, 26, 0.4);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(186, 26, 26, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(186, 26, 26, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(186, 26, 26, 0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-slate-50 dark:bg-slate-950 shadow-sm dark:shadow-none flex items-center justify-between px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-blue-900 dark:text-blue-200" data-icon="analytics">analytics</span>
+<h1 class="text-lg font-bold text-blue-950 dark:text-white tracking-widest uppercase">Precision Intelligence</h1>
+</div>
+<div class="flex items-center">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-[10px] font-bold text-on-primary-container border border-outline-variant/20">
+                SA
+            </div>
+</div>
+</header>
+<main class="px-6 py-8 space-y-8">
+<!-- Hero Section: Critical Status -->
+<section class="space-y-4">
+<div class="flex flex-col gap-1">
+<span class="label-sm text-[10px] font-bold tracking-[0.15em] text-on-surface-variant uppercase">System Health Summary</span>
+<div class="flex items-center justify-between">
+<h2 class="text-3xl font-extrabold tracking-tight text-primary">PARTIAL OUTAGE</h2>
+<div class="flex h-3 w-3 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+</div>
+</div>
+<p class="text-[11px] font-medium text-on-surface-variant/80 tracking-wide">TIMESTAMP: 2024-05-20 08:00 UTC</p>
+</div>
+<!-- Executive Summary Card -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0px_12px_32px_rgba(13,28,46,0.06)] overflow-hidden relative">
+<div class="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 bg-error-container/20 rounded-full blur-3xl"></div>
+<div class="relative z-10 space-y-4">
+<div class="flex items-center gap-2 text-on-error-container">
+<span class="material-symbols-outlined text-sm" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-xs font-bold uppercase tracking-wider">Critical Alert</span>
+</div>
+<p class="text-sm leading-relaxed text-on-surface-variant">
+                        Overall system status is currently flagged as <span class="font-bold text-error">Partial Outage</span>. Architectural diagnostic indicates <span class="font-bold">3 non-operational components</span>. The primary vector of failure is the <span class="underline decoration-error/30 underline-offset-4">Core Database Cluster</span>, causing widespread data access failures.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Technical Detail Section -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-bold uppercase tracking-[0.1em] text-primary">Affected Services Detail</h3>
+<span class="text-[10px] font-semibold bg-surface-container-high px-2 py-1 rounded text-on-surface-variant">LIVE MONITORING</span>
+</div>
+<!-- Bento-style Service Grid -->
+<div class="grid grid-cols-1 gap-4">
+<!-- Service Item: Database -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex flex-col gap-4 border-l-4 border-error shadow-sm">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-primary tracking-tight">Database</h4>
+<p class="text-[10px] text-on-surface-variant uppercase font-medium">Core Infrastructure</p>
+</div>
+<span class="px-2 py-1 rounded bg-error/10 text-error text-[10px] font-bold uppercase tracking-tighter">MAJOR_OUTAGE</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-snug">Most critical issue. High-availability clusters failing to synchronize, causing widespread data access failures across all endpoints.</p>
+</div>
+<!-- Service Item: API -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex flex-col gap-4 border-l-4 border-tertiary shadow-sm">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-primary tracking-tight">API Gateway</h4>
+<p class="text-[10px] text-on-surface-variant uppercase font-medium">Access Layer</p>
+</div>
+<span class="px-2 py-1 rounded bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-tighter">DEGRADED</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-snug">Slow or intermittent responses detected. Latency is likely database-related as connection pools reach maximum saturation.</p>
+</div>
+<!-- Service Item: Payment -->
+<div class="bg-surface-container-lowest rounded-xl p-5 flex flex-col gap-4 border-l-4 border-tertiary shadow-sm">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-primary tracking-tight">Payment Gateway</h4>
+<p class="text-[10px] text-on-surface-variant uppercase font-medium">Transaction Service</p>
+</div>
+<span class="px-2 py-1 rounded bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-tighter">DEGRADED</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-snug">Transaction processing may be delayed. Synchronous verification loops are timing out due to upstream dependency lag.</p>
+</div>
+</div>
+</section>
+<!-- Visual Context -->
+<section class="space-y-4">
+<div class="w-full aspect-video rounded-xl overflow-hidden shadow-lg relative">
+<img alt="Data Center Status" class="w-full h-full object-cover grayscale opacity-80" data-alt="Technical view of server racks in a darkened data center with glowing red status indicator lights and blue ambient glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCc9sGdTME5Cod0mRnHlu2RnUl5Q85S9wit8kuUscpTVFXsfRwL8dc0RbMyNMWSC-1O_GOuiJs0EzJcuR0avNJzP3EowJ-mFSNck229MEi_kUK4HltrcfqCs4sR-FLFkHLHi3OCxtrheCDH3roJ-C-Qb0U09sh70w9ezdrGbbuZG3EtyMjXTFjjoJRjUDsIW-HrkVEGm6lLfYTWbvxNKO7zdRn-iiA10OPH2BbSzi0WxavgYgOoNeYqMiqgL7zEYjapUr_ShnnbAJ8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-white text-sm" data-icon="hub">hub</span>
+<span class="text-[10px] text-white/90 font-bold uppercase tracking-widest">Global Network Node: US-EAST-1</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="space-y-4">
+<h3 class="text-xs font-bold uppercase tracking-[0.15em] text-on-surface-variant px-1">Remediation Actions</h3>
+<div class="flex flex-col gap-3">
+<a class="flex items-center justify-between bg-primary bg-gradient-to-r from-primary to-primary-container text-white p-4 rounded-xl shadow-md active:scale-95 transition-transform" href="https://www.atlassian.com/incident-management/statuspage">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="monitor_heart">monitor_heart</span>
+<span class="text-sm font-bold tracking-wide">View Live Status Dashboard</span>
+</div>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward_ios">arrow_forward_ios</span>
+</a>
+<a class="flex items-center justify-between bg-surface-container-high text-on-surface p-4 rounded-xl active:scale-95 transition-transform border border-outline-variant/10" href="https://www.pagerduty.com/">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-sm font-bold tracking-wide">Incident Management Console</span>
+</div>
+<span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl shadow-[0px_-4px_20px_rgba(0,33,71,0.05)] border-t border-slate-200/20">
+<div class="flex flex-col items-center justify-center text-blue-900 dark:text-blue-100 bg-blue-50/50 dark:bg-blue-900/30 rounded-xl px-3 py-1.5 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-manrope text-[10px] font-semibold tracking-wider uppercase mt-0.5">Status</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1.5 hover:text-blue-700 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="list_alt">list_alt</span>
+<span class="font-manrope text-[10px] font-semibold tracking-wider uppercase mt-0.5">Logs</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1.5 hover:text-blue-700 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="dns">dns</span>
+<span class="font-manrope text-[10px] font-semibold tracking-wider uppercase mt-0.5">Assets</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1.5 hover:text-blue-700 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-manrope text-[10px] font-semibold tracking-wider uppercase mt-0.5">Admin</span>
+</div>
+</nav>
+</body></html>

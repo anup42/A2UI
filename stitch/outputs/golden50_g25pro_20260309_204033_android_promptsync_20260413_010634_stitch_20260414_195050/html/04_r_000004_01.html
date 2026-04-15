@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Neon &amp; Rain | Cyberpunk Noir Soundtrack</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-dim": "#ff51fa",
+                    "on-secondary-container": "#fff5f9",
+                    "primary": "#96f8ff",
+                    "inverse-on-surface": "#51555c",
+                    "primary-container": "#00f1fd",
+                    "on-error-container": "#ffa8a3",
+                    "on-tertiary-container": "#0b5800",
+                    "tertiary-container": "#2ff801",
+                    "surface-container-highest": "#20262f",
+                    "secondary": "#ff51fa",
+                    "tertiary-dim": "#2be800",
+                    "tertiary": "#8eff71",
+                    "on-secondary": "#400040",
+                    "secondary-fixed": "#ffbdf3",
+                    "on-background": "#f1f3fc",
+                    "primary-dim": "#00e2ed",
+                    "on-error": "#490006",
+                    "error-container": "#9f0519",
+                    "outline-variant": "#44484f",
+                    "surface-variant": "#20262f",
+                    "surface-tint": "#96f8ff",
+                    "on-tertiary-fixed": "#064200",
+                    "surface-container-lowest": "#000000",
+                    "error-dim": "#d7383b",
+                    "tertiary-fixed": "#2ff801",
+                    "inverse-surface": "#f8f9ff",
+                    "on-primary-container": "#00565a",
+                    "on-surface-variant": "#a8abb3",
+                    "surface-container-low": "#0f141a",
+                    "on-tertiary": "#0d6100",
+                    "outline": "#72757d",
+                    "primary-fixed": "#00f1fd",
+                    "primary-fixed-dim": "#00e2ed",
+                    "on-surface": "#f1f3fc",
+                    "secondary-fixed-dim": "#ffa6f3",
+                    "surface-container": "#151a21",
+                    "surface-bright": "#262c36",
+                    "background": "#0a0e14",
+                    "tertiary-fixed-dim": "#2be800",
+                    "on-primary": "#005f64",
+                    "surface-dim": "#0a0e14",
+                    "on-primary-fixed-variant": "#006065",
+                    "on-secondary-fixed": "#620061",
+                    "on-tertiary-fixed-variant": "#0d6200",
+                    "on-secondary-fixed-variant": "#920091",
+                    "error": "#ff716c",
+                    "on-primary-fixed": "#004145",
+                    "inverse-primary": "#006a6f",
+                    "secondary-container": "#a900a9",
+                    "surface": "#0a0e14",
+                    "surface-container-high": "#1b2028"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Inter"],
+                    "label": ["Space Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0a0e14;
+            color: #f1f3fc;
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at 50% 50%, rgba(21, 26, 33, 0.5) 0%, rgba(10, 14, 20, 1) 100%);
+        }
+        .rain-overlay {
+            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            opacity: 0.03;
+            pointer-events: none;
+        }
+        .glass-panel {
+            background: rgba(21, 26, 33, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(150, 248, 255, 0.1);
+        }
+        .neon-glow-cyan {
+            text-shadow: 0 0 10px rgba(150, 248, 255, 0.8), 0 0 20px rgba(150, 248, 255, 0.4);
+        }
+        .track-gradient:hover {
+            background: linear-gradient(90deg, rgba(150, 248, 255, 0.05) 0%, transparent 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-24">
+<div class="fixed inset-0 rain-overlay z-0"></div>
+<!-- Top Navigation Anchor -->
+<header class="bg-[#0a0e14]/80 backdrop-blur-xl text-[#96f8ff] font-['Space_Grotesk'] tracking-tighter uppercase fixed top-0 w-full z-50 border-b border-[#96f8ff]/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined active:scale-95 transition-transform cursor-pointer">menu</span>
+<h1 class="text-xl font-bold tracking-[0.2em] text-[#96f8ff] drop-shadow-[0_0_8px_rgba(150,248,255,0.5)]">Neon &amp; Rain</h1>
+</div>
+<div class="w-10 h-10 rounded-full border border-primary/30 overflow-hidden active:scale-95 transition-transform cursor-pointer">
+<img alt="User" class="w-full h-full object-cover" data-alt="Cybernetic portrait of a futuristic user with glowing ocular implants and dark sleek techwear clothing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASKkRW2sVcIAc_s7MHiEC6CV6v4f8fOm8H44_RKTZVHsv5pP9bnc4KuM6EOMAMWwkG892lqpY0ewpmVB87ZawrNf8j-ZpK_fomFcx8txGYaJUDgm34s6WVNr8CjhfhRN7mImDqfbd00TJQbrTSkYN4gM4QTw_ku2kr0QzhAzdOVV4Mu5wdUy1rT2ae_ksskg7WaKn671y_gvMqhbc2-hFNdzDzjq050JWWEvzzafhEq1CXUQrjeGwg3wzNS9s9bCbPEBUqnkrkVyE"/>
+</div>
+</header>
+<!-- Hero Section -->
+<section class="relative h-[574px] w-full flex flex-col justify-end overflow-hidden">
+<img alt="Hero" class="absolute inset-0 w-full h-full object-cover scale-110" data-alt="Cinematic wide shot of a futuristic sprawling cityscape at night viewed from high altitude with massive glowing skyscrapers and flying vehicles in heavy rain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhwCIJbaPdXEn_ofWilU0rxfN4BRuumOeYNXwYfegOPyv5xGAto1fGhkiwdVQZF_QTHEwSAFAR8XZGrJk_MS_UiVyvc-ioWn63eiIKU2nvwpalI03Ps5z19G9btULhlnTW4m1qXoi0gXlGajgS2D7UsvdbQ2K8ePZlYv3b3hKkz9kdudKVKAsCe87k62EeqQTyUjHbNU_kdUIlH5cE0s5mC8lrNHLYQ6g2d5MSlYjlOcKCtjK9Sqih9KYGttgmiJV6t07ppIr7lzI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0a0e14] via-[#0a0e14]/60 to-transparent"></div>
+<div class="relative z-10 px-6 pb-12">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full mb-4">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">electric_bolt</span>
+<span class="text-[10px] font-headline tracking-widest uppercase text-primary">System Online</span>
+</div>
+<h2 class="text-5xl font-headline font-bold leading-none tracking-tighter text-on-surface neon-glow-cyan mb-2">Neon &amp; Rain</h2>
+<p class="text-secondary font-headline text-lg tracking-wide opacity-90">A Cyberpunk Noir Soundtrack</p>
+</div>
+</section>
+<!-- Playlist Context Section -->
+<section class="px-6 -mt-8 relative z-20">
+<div class="glass-panel rounded-xl p-6 shadow-2xl">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+<span class="material-symbols-outlined text-primary text-3xl">terminal</span>
+</div>
+<div>
+<h3 class="font-headline text-sm font-bold tracking-widest uppercase text-on-surface mb-2">Playlist Context and Flow</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed font-body">
+                        A sonic descent into the sprawling underbelly of a rain-slicked metropolis. This collection mirrors the rhythmic pulse of high-tech machinery and the haunting echoes of digital ghosts lost in the chrome shadows.
+                    </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Accents (Asymmetric Grid) -->
+<section class="px-6 mt-12 grid grid-cols-2 gap-4">
+<div class="rounded-xl overflow-hidden h-48 border border-outline-variant/20 relative group">
+<img alt="Rainy Alley" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Narrow dark urban alleyway with glowing magenta and cyan neon signs reflecting on wet asphalt puddles during rain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF8QW2HQaX5awCF5y--ox1K2XbGh6PlEUYdFuHaLZa6iZnBHu-J5PkiHyUa4p8ql1WrdT86sC-RQ6x4WS-CF-HcM9zn2fXzeiIcIfucxXMFWvDmvxhzUr2YJLNkvmTPf9pf5K0lS4v0SgLoxr4_oPoDPd3ex3BU3GFXYfMHBIbRjE4fQ584-_uJaSa5FAaCbYxLVxdduA-YOu0tCP6B7DOQjQL0XXhze691xSEAUZGZFwz_8sNxi9ysG5LLOanva7uo4EgjFfKBvo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+</div>
+<div class="rounded-xl overflow-hidden h-48 border border-outline-variant/20 relative group mt-8">
+<img alt="Window Reflections" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Close up of a glass window pane with raindrops at night reflecting blurry neon city lights in orange and teal" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALTGXpCE1QkZ-Ts9Ijd3Dy-PQSvqwLH1DhCDJ_AZzXtAvYq1ijBdDdUMjCd9Zsn4BXLhAGaFIIGh4MAzMGZjMrU_vW2mlnmU3cENck8IYpg0cqGPA-gX35TD0dHr8Q4kfOoHphT_wN-kU24eb4sFvbEgMTs7Y1cbudqdLniWho2pt8kAWBIWjdCP-aXn6sbv675C11zZl8n8CyVMdC4Ab2BA4ByeTqxtqq1KnWcmqNeyjC10C9kgYUVR8ByzWC_Ajm0-8nL149c5c"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+</div>
+</section>
+<!-- Tracklist Section -->
+<section class="mt-12 px-6">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="font-headline text-2xl font-bold tracking-tighter">The Chrome &amp; Shadow</h3>
+<p class="font-label text-xs text-outline tracking-widest uppercase mt-1">10 Data Tracks | 48:12 duration</p>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-bold py-3 px-6 rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-[0_0_15px_rgba(150,248,255,0.4)]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span class="font-headline tracking-tighter">PLAY ALL</span>
+</button>
+</div>
+<div class="space-y-1">
+<!-- Track 1 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">01</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Digital Decay</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Synthetic Soul</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">04:22</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 2 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">02</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Chrome Skyline</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Neon Architects</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">03:58</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 3 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">03</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Raindrops on Glass</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Noir Dreams</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">05:10</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 4 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">04</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Binary Heartbeat</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">The Glitch</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">04:45</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 5 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">05</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Void Runner</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Cyber Ghost</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">03:30</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 6 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">06</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Electric Whisper</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Signal Loss</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">04:15</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 7 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">07</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Shadow Protocol</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Netrunner</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">05:40</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 8 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">08</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Midnight Matrix</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Neon Overdrive</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">04:02</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 9 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">09</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Cybernetic Echo</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Wired Souls</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">03:50</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+<!-- Track 10 -->
+<div class="flex items-center justify-between p-4 rounded-lg track-gradient transition-all border-b border-outline-variant/5 group">
+<div class="flex items-center gap-4">
+<span class="font-label text-outline text-xs w-4">10</span>
+<div>
+<h4 class="font-headline text-on-surface font-medium group-hover:text-primary transition-colors">Ultraviolet Rain</h4>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest">Final Wave</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-label text-outline">06:12</span>
+<span class="material-symbols-outlined text-secondary opacity-40 group-hover:opacity-100 cursor-pointer">play_circle</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Navigation Shell -->
+<nav class="bg-[#0a0e14]/90 backdrop-blur-2xl text-[#96f8ff] font-['Space_Grotesk'] text-[10px] uppercase tracking-widest fixed bottom-0 w-full z-50 rounded-t-lg border-t border-[#96f8ff]/15 shadow-[0_-8px_30px_rgba(150,248,255,0.05)] flex justify-around items-center h-20 px-4 pb-safe w-full">
+<div class="flex flex-col items-center justify-center text-[#44484f] opacity-60 hover:text-[#ff51fa] hover:opacity-100 transition-all active:bg-[#96f8ff]/5 cursor-pointer">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span>Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#96f8ff] drop-shadow-[0_0_10px_rgba(150,248,255,0.8)] hover:text-[#ff51fa] hover:opacity-100 transition-all active:bg-[#96f8ff]/5 cursor-pointer">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">library_music</span>
+<span>Library</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#44484f] opacity-60 hover:text-[#ff51fa] hover:opacity-100 transition-all active:bg-[#96f8ff]/5 cursor-pointer">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span>Settings</span>
+</div>
+</nav>
+<!-- Floating Action Button (Playlist Specific Context) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-secondary rounded-full shadow-[0_0_20px_rgba(255,81,250,0.5)] flex items-center justify-center text-on-secondary active:scale-90 transition-transform z-40">
+<span class="material-symbols-outlined">shuffle</span>
+</button>
+</body></html>

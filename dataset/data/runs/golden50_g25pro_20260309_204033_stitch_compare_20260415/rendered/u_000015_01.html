@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"timelineData": [{"phase": "1. Planning & Strategy", "activities": "Define goals, audience, topics, and select CMS.", "start": "2024-08-01", "end": "2024-08-14"}, {"phase": "2. Design & Branding", "activities": "Create wireframes, mockups, and get design approval.", "start": "2024-08-15", "end": "2024-08-30"}, {"phase": "3. Development & Setup", "activities": "Build theme, configure CMS, integrate tools.", "start": "2024-09-01", "end": "2024-09-20"}, {"phase": "4. Content Creation", "activities": "Write, edit, and upload 5+ initial articles.", "start": "2024-08-21", "end": "2024-10-04"}, {"phase": "5. Pre-Launch & Launch", "activities": "Final testing, promotion planning, and go-live.", "start": "2024-10-05", "end": "2024-10-15"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["main_title", "intro_text", "context_card", "timeline_section_title", "timeline_section_intro", "timeline_table_card", "tasks_section_title", "phase1_card", "phase2_card", "phase3_card", "phase4_card", "phase5_card", "quick_actions_card"]}, "main_title": {"type": "Text", "props": {"text": "Project Plan: New Company Blog Launch", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This plan outlines the key phases, tasks, and timeline for launching a new company blog, starting on August 1, 2024, with a target launch date of October 15, 2024.", "variant": "body"}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_stack"]}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["context_title", "context_body"]}, "context_title": {"type": "Text", "props": {"text": "Planning Context", "variant": "h3"}, "children": []}, "context_body": {"type": "Text", "props": {"text": "This project plan assumes a small, dedicated team consisting of a project lead, content writer(s), a designer, and a developer. It also presumes the use of a standard Content Management System (CMS) and that core company branding guidelines are already established.", "variant": "body"}, "children": []}, "timeline_section_title": {"type": "Text", "props": {"text": "Timeline and Task Breakdown", "variant": "h2"}, "children": []}, "timeline_section_intro": {"type": "Text", "props": {"text": "The project is divided into five distinct phases, with some activities running in parallel to ensure an efficient workflow.", "variant": "body"}, "children": []}, "timeline_table_card": {"type": "Card", "props": {}, "children": ["timeline_table_stack"]}, "timeline_table_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["timeline_table_title", "timeline_table"]}, "timeline_table_title": {"type": "Text", "props": {"text": "Phase and Milestone Timeline", "variant": "h3"}, "children": []}, "timeline_table": {"type": "Table", "props": {"columns": [{"key": "phase", "label": "Phase"}, {"key": "activities", "label": "Key Activities"}, {"key": "start", "label": "Start Date"}, {"key": "end", "label": "End Date"}], "statePath": "/timelineData", "domain": "schedule", "preferredPresentation": "table"}, "children": []}, "tasks_section_title": {"type": "Text", "props": {"text": "Detailed Task List by Phase", "variant": "h2"}, "children": []}, "phase1_card": {"type": "Card", "props": {}, "children": ["phase1_stack"]}, "phase1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["phase1_title", "phase1_task1", "phase1_task2", "phase1_task3", "phase1_task4"]}, "phase1_title": {"type": "Text", "props": {"text": "Phase 1: Planning & Strategy (Due by 2024-08-14)", "variant": "h3"}, "children": []}, "phase1_task1": {"type": "Text", "props": {"text": "• Define blog objectives and key performance indicators (KPIs)."}, "children": []}, "phase1_task2": {"type": "Text", "props": {"text": "• Identify and document the target audience and reader personas."}, "children": []}, "phase1_task3": {"type": "Text", "props": {"text": "• Establish 3-4 core content pillars or categories."}, "children": []}, "phase1_task4": {"type": "Text", "props": {"text": "• Select and confirm the CMS platform."}, "children": []}, "phase2_card": {"type": "Card", "props": {}, "children": ["phase2_stack"]}, "phase2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["phase2_title", "phase2_task1", "phase2_task2", "phase2_task3"]}, "phase2_title": {"type": "Text", "props": {"text": "Phase 2: Design & Branding (Due by 2024-08-30)", "variant": "h3"}, "children": []}, "phase2_task1": {"type": "Text", "props": {"text": "• Create low-fidelity wireframes for the blog homepage, article page, and category/archive pages."}, "children": []}, "phase2_task2": {"type": "Text", "props": {"text": "• Develop high-fidelity mockups incorporating company branding."}, "children": []}, "phase2_task3": {"type": "Text", "props": {"text": "• Obtain final sign-off on all design elements."}, "children": []}, "phase3_card": {"type": "Card", "props": {}, "children": ["phase3_stack"]}, "phase3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["phase3_title", "phase3_task1", "phase3_task2", "phase3_task3"]}, "phase3_title": {"type": "Text", "props": {"text": "Phase 3: Development & Technical Setup (Due by 2024-09-20)", "variant": "h3"}, "children": []}, "phase3_task1": {"type": "Text", "props": {"text": "• Set up the hosting environment and install the chosen CMS."}, "children": []}, "phase3_task2": {"type": "Text", "props": {"text": "• Ensure the site is fully responsive across desktop, tablet, and mobile devices."}, "children": []}, "phase3_task3": {"type": "Text", "props": {"text": "• Integrate the blog with an email marketing platform for newsletter subscriptions."}, "children": []}, "phase4_card": {"type": "Card", "props": {}, "children": ["phase4_stack"]}, "phase4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["phase4_title", "phase4_task1", "phase4_task2", "phase4_task3"]}, "phase4_title": {"type": "Text", "props": {"text": "Phase 4: Content Creation (Due by 2024-10-04)", "variant": "h3"}, "children": []}, "phase4_task1": {"type": "Text", "props": {"text": "• Assign and draft the 5 required launch articles."}, "children": []}, "phase4_task2": {"type": "Text", "props": {"text": "• Upload and format the final 5 articles into the CMS staging environment."}, "children": []}, "phase4_task3": {"type": "Text", "props": {"text": "• Optimize each article for on-page SEO (titles, meta descriptions, image alt text, internal links)."}, "children": []}, "phase5_card": {"type": "Card", "props": {}, "children": ["phase5_stack"]}, "phase5_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["phase5_title", "phase5_task1", "phase5_task2", "phase5_task3"]}, "phase5_title": {"type": "Text", "props": {"text": "Phase 5: Pre-Launch & Launch (Due by 2024-10-15)", "variant": "h3"}, "children": []}, "phase5_task1": {"type": "Text", "props": {"text": "• Conduct comprehensive end-to-end testing on the staging site."}, "children": []}, "phase5_task2": {"type": "Text", "props": {"text": "• Create a detailed launch promotion plan (e.g., email announcement, social media campaign)."}, "children": []}, "phase5_task3": {"type": "Text", "props": {"text": "• Deploy the blog to the live server on the target launch date."}, "children": []}, "quick_actions_card": {"type": "Card", "props": {}, "children": ["quick_actions_stack"]}, "quick_actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["quick_actions_title", "action1_stack", "action2_stack", "action3_stack"]}, "quick_actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "action1_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action1_icon", "action1_text"]}, "action1_icon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_2_briefcase.svg"}, "children": []}, "action1_text": {"type": "Text", "props": {"text": "Set up a project board in a tool like Trello, Asana, or Jira to track task progress."}, "children": []}, "action2_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action2_icon", "action2_text"]}, "action2_icon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_2_briefcase.svg"}, "children": []}, "action2_text": {"type": "Text", "props": {"text": "Schedule a recurring weekly check-in meeting for all project stakeholders."}, "children": []}, "action3_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action3_icon", "action3_text"]}, "action3_icon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_2_briefcase.svg"}, "children": []}, "action3_text": {"type": "Text", "props": {"text": "Create a shared document repository (e.g., Google Drive, Notion) for all project assets."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#064e5a",
+                        "on-primary-container": "#81bac8",
+                        "outline-variant": "#bfc8ca",
+                        "on-background": "#191c1d",
+                        "on-error-container": "#93000a",
+                        "secondary": "#4e6170",
+                        "on-secondary-container": "#546776",
+                        "on-primary-fixed": "#001f25",
+                        "surface-dim": "#d8dadb",
+                        "surface-container-highest": "#e1e3e4",
+                        "tertiary-fixed": "#a1f0f2",
+                        "secondary-fixed": "#d1e5f8",
+                        "on-tertiary-container": "#6fbebf",
+                        "surface": "#f8fafb",
+                        "on-tertiary-fixed-variant": "#004f51",
+                        "surface-container-low": "#f2f4f5",
+                        "surface-container": "#eceeef",
+                        "on-surface-variant": "#40484a",
+                        "on-surface": "#191c1d",
+                        "background": "#f8fafb",
+                        "tertiary-fixed-dim": "#85d4d5",
+                        "primary-container": "#004b57",
+                        "inverse-surface": "#2e3132",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#004c4e",
+                        "primary-fixed": "#b2ecfa",
+                        "secondary-container": "#d1e5f8",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#96d0de",
+                        "inverse-primary": "#96d0de",
+                        "surface-tint": "#2a6673",
+                        "on-tertiary-fixed": "#002021",
+                        "outline": "#70787b",
+                        "on-secondary-fixed-variant": "#364958",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#003435",
+                        "error": "#ba1a1a",
+                        "primary": "#00333c",
+                        "inverse-on-surface": "#eff1f2",
+                        "on-secondary-fixed": "#091d2b",
+                        "surface-variant": "#e1e3e4",
+                        "surface-container-high": "#e6e8e9",
+                        "secondary-fixed-dim": "#b5c9db",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f8fafb",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- Shared TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-[#f8fafb] dark:bg-slate-900 flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#004B57] dark:text-[#004B57]">analytics</span>
+<h1 class="text-xl font-bold text-[#004B57] dark:text-[#004B57] font-['Manrope'] tracking-tight">Revenue Insights</h1>
+</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-[#40484a] dark:text-slate-400">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional corporate headshot of a business analyst with a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAB_bj823XanLDcj-2ZN_7k1cEDl-hJCd0IoYJ85NZY6cdt6D2Q2rMKV8zKe2_7PO8QQVi8cnYoUJKo8PidLMGTIWuIcqe_71lnBnbLZ2fIQr4gP6tb7vmeIo4X5W8FXbWm_cJ2n0i00UAyLRG0mHlQJTRpuAjPwcRPetoK7tIBwQRSsgHHffUVrJU5F2JGFNCCdbv9veuasU0ksYtcl7GFmOJEdgTFD9lJXHgVgMNmTK0JeaEnKMv_uR4qJu7vQ5uNYj4j5cbIqFY"/>
+</div>
+</div>
+</header>
+<main class="px-6 py-4 flex flex-col gap-8 max-w-2xl mx-auto">
+<!-- Section 1: Summary Context -->
+<section class="mt-4">
+<h2 class="text-3xl font-extrabold tracking-tight text-primary mb-2">Q1 2023 Revenue Visualization</h2>
+<p class="text-on-surface-variant font-body leading-relaxed max-w-[90%]">
+                An editorial overview of fiscal performance across the first quarter. This narrative analysis distills complex transaction flows into actionable growth patterns.
+            </p>
+</section>
+<!-- Section 2: The Main Chart (Bento Style) -->
+<section class="flex flex-col gap-4">
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_24px_rgba(0,51,60,0.04)]">
+<div class="flex justify-between items-end mb-8">
+<div>
+<span class="font-label text-[10px] uppercase tracking-widest font-semibold text-outline mb-1 block">Primary Metric</span>
+<h3 class="text-xl font-bold font-headline text-primary">Q1 2023 Revenue</h3>
+</div>
+<div class="text-right">
+<span class="text-xs font-label font-bold text-tertiary-container bg-tertiary-fixed px-2 py-1 rounded-md">+24.2% YoY</span>
+</div>
+</div>
+<div class="relative w-full aspect-[3/2] rounded-lg overflow-hidden bg-surface-container-low mb-8 group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="minimalist bar chart showing upward revenue trends with deep teal and cyan bars on a clean white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzZ-cHw_HhPDn-BSxdxlAuYItI-ZCxTsw0Z5WgOBHG_jKVy_QiJUNxUkFhaJQJ9FWqQAONgByb5RJUiM4BniXcpwjtnhUHzcNft3DRPR8zA2HjBS1q3giHf3OLeku8_UJSFNyOuHXFezUj0CRSZrCM8id2_LKKO4M_d1gWac5bj6Z1PcSgT9dCXYdsD7P7YewCMbR-eGKzOZUGbp49Q2UIwTbKcMIAESJmNooRjXEXgT8zSfBdaQorbfWoFf36sdzjI3G9XpS4fPc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent pointer-events-none"></div>
+</div>
+<!-- Styled Data Table (Growth Emphasis) -->
+<div class="grid grid-cols-3 gap-1">
+<div class="bg-surface-container-low p-4 rounded-l-lg border-r border-surface-container">
+<span class="font-label text-[10px] uppercase tracking-wider text-outline block mb-1">JANUARY</span>
+<span class="text-lg font-extrabold font-headline text-primary">$12,500</span>
+</div>
+<div class="bg-surface-container p-4 border-r border-surface-container">
+<span class="font-label text-[10px] uppercase tracking-wider text-outline block mb-1">FEBRUARY</span>
+<span class="text-lg font-extrabold font-headline text-primary">$18,000</span>
+</div>
+<div class="bg-primary p-4 rounded-r-lg">
+<span class="font-label text-[10px] uppercase tracking-wider text-primary-fixed/60 block mb-1">MARCH</span>
+<span class="text-lg font-extrabold font-headline text-white">$15,750</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Detailed Data -->
+<section class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-5 rounded-xl flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">book</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Policy</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-snug">Fiscal reporting complies with standard IFRS guidelines for the 2023 cycle.</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">briefcase_meal</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Accounts</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-snug">Managed by the Enterprise Portfolio Division under Master Agreement 402.</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">info</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Method</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-snug">Data reflects net realized revenue post-discounts and credit adjustments.</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">link</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Source</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-snug">Verified transaction logs retrieved from secure API endpoint cluster alpha.</p>
+</div>
+</section>
+<!-- Section 4: Quick Actions -->
+<section class="flex flex-col gap-3 pt-4">
+<h4 class="font-label text-[10px] uppercase tracking-[0.2em] font-bold text-outline">Executive Actions</h4>
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-white py-4 px-6 rounded-md font-bold flex justify-between items-center transition-all active:scale-[0.98]">
+<span>Export Chart as PNG</span>
+<span class="material-symbols-outlined">download</span>
+</button>
+<button class="w-full bg-transparent border border-outline/20 text-primary py-4 px-6 rounded-md font-bold flex justify-between items-center hover:bg-surface-container-low transition-all active:scale-[0.98]">
+<span>View Data in Spreadsheet</span>
+<span class="material-symbols-outlined text-on-surface-variant">table_chart</span>
+</button>
+<button class="w-full bg-transparent text-primary py-4 px-6 rounded-md font-bold flex justify-between items-center transition-all active:scale-[0.98]">
+<span class="underline decoration-2 underline-offset-4">Create New Visualization</span>
+<span class="material-symbols-outlined">add_chart</span>
+</button>
+</section>
+<!-- Insight Toast -->
+<div class="mt-4 bg-tertiary-container p-4 rounded-xl flex items-center gap-4">
+<div class="bg-on-tertiary-container/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-on-tertiary-container">auto_awesome</span>
+</div>
+<p class="text-sm font-medium text-on-tertiary-container">AI Insight: Growth is primarily driven by account expansions in February.</p>
+</div>
+</main>
+<!-- Shared BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-around items-center px-4 py-3 pb-safe shadow-[0_-4px_24px_rgba(0,75,87,0.08)] rounded-t-[1.5rem] z-50">
+<a class="flex flex-col items-center justify-center bg-[#004B57] text-white rounded-[0.75rem] px-5 py-2 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-semibold mt-1">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#40484a] dark:text-slate-400 px-5 py-2 transition-all active:scale-90 duration-200 hover:bg-[#f2f4f5]" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-semibold mt-1">Reports</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#40484a] dark:text-slate-400 px-5 py-2 transition-all active:scale-90 duration-200 hover:bg-[#f2f4f5]" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-semibold mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

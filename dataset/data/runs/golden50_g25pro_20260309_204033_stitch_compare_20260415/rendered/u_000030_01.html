@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "rootStack", "state": {"comparisonData": [{"aspect": "Core Principle", "value": "To find and buy stocks trading for less than their intrinsic or book value, essentially buying a dollar for fifty cents.", "growth": "To find and buy stocks in companies with the potential to grow their revenue and earnings at a much faster rate than the overall market."}, {"aspect": "Risk vs. Reward Profile", "value": "Generally lower risk with moderate, steady returns. The \"margin of safety\" (buying below intrinsic value) aims to protect the downside.", "growth": "Higher risk with the potential for very high returns. These stocks can be volatile and are sensitive to growth expectation shortfalls."}, {"aspect": "Time Horizon", "value": "Typically medium to long-term. The investor must wait for the market to recognize the company's true worth, which can take years.", "growth": "Can range from short to long-term. Investors may hold as long as the high growth continues, but may also sell if growth slows."}, {"aspect": "Key Metrics", "value": "Price-to-Earnings (P/E) Ratio, Price-to-Book (P/B) Ratio, Dividend Yield.", "growth": "Revenue Growth Rate, Earnings Per Share (EPS) Growth, Price-to-Sales (P/S) Ratio."}, {"aspect": "Company Archetype", "value": "Mature, established companies in stable industries with consistent cash flow and dividends. Often market leaders that are temporarily out of favor.", "growth": "Young or innovative companies in expanding industries (e.g., tech, biotech). They often reinvest profits for growth instead of paying dividends."}]}, "elements": {"rootStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["mainTitle", "introText", "contextCard", "conceptsStack", "comparisonTitle", "comparisonTable", "nextStepsTitle", "nextStepsStack", "sourcesTitle", "sourcesStack"]}, "mainTitle": {"type": "Text", "props": {"text": "Value vs. Growth Investing: A Strategic Breakdown", "variant": "h2"}, "children": []}, "introText": {"type": "Text", "props": {"text": "This analysis provides a structured comparison of two fundamental stock market investment strategies. It outlines their core philosophies, risk profiles, and the types of companies they target, offering a clear framework for understanding their key differences.", "variant": "body"}, "children": []}, "contextCard": {"type": "Card", "props": {}, "children": ["contextStack"]}, "contextStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["contextTitle", "contextText"]}, "contextTitle": {"type": "Text", "props": {"text": "Context for This Analysis", "variant": "h3"}, "children": []}, "contextText": {"type": "Text", "props": {"text": "The characteristics described for each strategy represent common or traditional approaches. In practice, many investors employ a hybrid strategy (like \"Growth at a Reasonable Price\" or GARP), and the lines between value and growth can sometimes blur.", "variant": "body"}, "children": []}, "conceptsStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "lg", "align": "stretch"}, "children": ["valueCard", "growthCard"]}, "valueCard": {"type": "Card", "props": {"flex": 1}, "children": ["valueCardStack"]}, "valueCardStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["valueImage", "valueTitleStack", "valueText"]}, "valueImage": {"type": "Image", "props": {"url": "../assets/r_000030_01_1_magnifying_glass_stock_market.jpg", "fit": "cover", "height": 150}, "children": []}, "valueTitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["valueIcon", "valueTitle"]}, "valueIcon": {"type": "Icon", "props": {"name": "../assets/r_000030_01_3_safe.svg"}, "children": []}, "valueTitle": {"type": "Text", "props": {"text": "Value Investing", "variant": "h3"}, "children": []}, "valueText": {"type": "Text", "props": {"text": "Find and buy stocks trading for less than their intrinsic or book value, essentially buying a dollar for fifty cents.", "variant": "body"}, "children": []}, "growthCard": {"type": "Card", "props": {"flex": 1}, "children": ["growthCardStack"]}, "growthCardStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["growthImage", "growthTitleStack", "growthText"]}, "growthImage": {"type": "Image", "props": {"url": "../assets/r_000030_01_2_rocket_chart.jpg", "fit": "cover", "height": 150}, "children": []}, "growthTitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["growthIcon", "growthTitle"]}, "growthIcon": {"type": "Icon", "props": {"name": "../assets/r_000030_01_4_graph-up-arrow.svg"}, "children": []}, "growthTitle": {"type": "Text", "props": {"text": "Growth Investing", "variant": "h3"}, "children": []}, "growthText": {"type": "Text", "props": {"text": "Find and buy stocks in companies with the potential to grow their revenue and earnings much faster than the overall market.", "variant": "body"}, "children": []}, "comparisonTitle": {"type": "Text", "props": {"text": "Investment Philosophy Comparison", "variant": "h2"}, "children": []}, "comparisonTable": {"type": "Table", "props": {"columns": [{"key": "aspect", "label": "Aspect"}, {"key": "value", "label": "Value Investing"}, {"key": "growth", "label": "Growth Investing"}], "statePath": "/comparisonData", "domain": "comparison", "preferredPresentation": "table"}, "children": []}, "nextStepsTitle": {"type": "Text", "props": {"text": "Next Steps for Investors", "variant": "h2"}, "children": []}, "nextStepsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["button1", "button2", "button3"]}, "button1": {"type": "Button", "props": {"label": "Read an in-depth guide on Value Investing", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.investopedia.com/terms/v/valueinvesting.asp"}}}}, "button2": {"type": "Button", "props": {"label": "Explore the fundamentals of Growth Investing", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.investopedia.com/terms/g/growthinvesting.asp"}}}}, "button3": {"type": "Button", "props": {"label": "Compare Value vs. Growth ETFs", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.forbes.com/advisor/investing/growth-etfs-vs-value-etfs/"}}}}, "sourcesTitle": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sourceButton1", "sourceButton2"]}, "sourceButton1": {"type": "Button", "props": {"label": "Fidelity. Value vs. growth stocks: What's the difference?.", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.fidelity.com/learning-center/trading-investing/trading/value-investing-vs-growth-investing"}}}}, "sourceButton2": {"type": "Button", "props": {"label": "Charles Schwab. Growth vs. Value Stocks: What's the Difference?.", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.schwab.com/learn/story/growth-vs-value-stocks-which-is-right-for-you"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "rootStack", "state": {"events": [{"id": "evt1", "time": "09:00 - 10:00", "event": "Q4 Planning Session", "location": "Virtual", "directionsUrl": null}, {"id": "evt2", "time": "12:30 - 13:30", "event": "Lunch with Marketing Team", "location": "Oak & Ivy Restaurant", "directionsUrl": "https://www.google.com/maps/search/?api=1&query=Oak+%26+Ivy+Restaurant"}, {"id": "evt3", "time": "15:00 - 15:30", "event": "Dentist Check-up", "location": "Maple Dental Clinic, 455 Pine Ave", "directionsUrl": "https://www.google.com/maps/search/?api=1&query=Maple+Dental+Clinic+455+Pine+Ave"}, {"id": "evt4", "time": "17:00 - 17:45", "event": "Final Project Sync", "location": "Virtual", "directionsUrl": null}]}, "elements": {"rootStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["titleText", "heroImage", "contextCard", "summaryCard", "eventsSectionStack", "actionsCard"]}, "titleText": {"type": "Text", "props": {"text": "Your Day Ahead: Wednesday, December 6", "variant": "h2"}, "children": []}, "heroImage": {"type": "Image", "props": {"url": "../assets/r_000048_01_3_calendar_desk.jpg"}, "children": []}, "contextCard": {"type": "Card", "props": {}, "children": ["contextStack"]}, "contextStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["contextIcon", "contextText"]}, "contextIcon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_8_info-circle.svg"}, "children": []}, "contextText": {"type": "Text", "props": {"text": "This summary was generated at 7:30 AM based on your calendar for today, Wednesday, December 6, 2023.", "variant": "caption"}, "children": []}, "summaryCard": {"type": "Card", "props": {}, "children": ["summaryStack"]}, "summaryStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["summaryTitle", "summaryBody"]}, "summaryTitle": {"type": "Text", "props": {"text": "Today's Schedule Summary", "variant": "h3"}, "children": []}, "summaryBody": {"type": "Text", "props": {"text": "Good morning. You have 4 events scheduled for today, with your first meeting at 9:00 AM. Note that two events require travel: your lunch meeting and your dentist appointment."}, "children": []}, "eventsSectionStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["eventsTitle", "eventsRepeater"]}, "eventsTitle": {"type": "Text", "props": {"text": "Event Breakdown", "variant": "h3"}, "children": []}, "eventsRepeater": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["eventCard"], "repeat": {"statePath": "/events", "key": "id"}}, "eventCard": {"type": "Card", "props": {}, "children": ["eventCardStack"]}, "eventCardStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["eventHeaderStack", "eventTitle", "eventLocation", "directionsButton"]}, "eventHeaderStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["eventIcon", "eventTime"]}, "eventIcon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_4_alarm.svg"}, "children": []}, "eventTime": {"type": "Text", "props": {"text": {"$item": "time"}, "variant": "label"}, "children": []}, "eventTitle": {"type": "Text", "props": {"text": {"$item": "event"}, "variant": "h3"}, "children": []}, "eventLocation": {"type": "Text", "props": {"text": {"$item": "location"}, "variant": "body"}, "children": []}, "directionsButton": {"type": "Button", "props": {"label": "Get Directions", "variant": "primary"}, "children": [], "visible": {"$item": "directionsUrl", "exists": true}, "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "directionsUrl"}}}}}, "actionsCard": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actionsTitle", "openCalendarButton"]}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "openCalendarButton": {"type": "Button", "props": {"label": "Open Full Calendar"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://calendar.google.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Resolving DaVinci Resolve Instability</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tap-highlight-transparent {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#7c2e00",
+                        "on-primary-fixed-variant": "#004e60",
+                        "primary": "#00647c",
+                        "surface-container-highest": "#dae2fd",
+                        "on-primary-container": "#fafdff",
+                        "primary-fixed": "#b7eaff",
+                        "on-surface-variant": "#414754",
+                        "secondary-fixed": "#d5e3fc",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-container": "#c64f00",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#001f28",
+                        "secondary-container": "#d5e3fc",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "outline": "#717786",
+                        "inverse-on-surface": "#eef0ff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#4cd6ff",
+                        "outline-variant": "#c1c6d7",
+                        "inverse-primary": "#4cd6ff",
+                        "on-tertiary-fixed": "#351000",
+                        "tertiary": "#9e3d00",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f2f3ff",
+                        "surface": "#faf8ff",
+                        "primary-container": "#007f9c",
+                        "surface-tint": "#00677f",
+                        "inverse-surface": "#283044",
+                        "surface-container-high": "#e2e7ff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d2d9f4",
+                        "on-surface": "#131b2e",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "on-background": "#131b2e",
+                        "surface-variant": "#dae2fd",
+                        "on-secondary-container": "#57657a",
+                        "secondary": "#515f74",
+                        "surface-container": "#eaedff",
+                        "tertiary-fixed": "#ffdbcc",
+                        "background": "#faf8ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex items-center justify-between px-6 h-16 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-4">
+<button class="text-cyan-700 dark:text-cyan-400 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-manrope font-bold tracking-tight text-slate-900 dark:text-slate-50">Troubleshoot: Video Export</h1>
+</div>
+<button class="text-slate-500 dark:text-slate-400 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<div class="bg-slate-200/20 dark:bg-slate-800/20 h-px w-full"></div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Hero Section -->
+<section class="mb-10">
+<h2 class="text-4xl font-extrabold tracking-tight text-on-surface mb-4 leading-tight">Resolving DaVinci Resolve Instability</h2>
+<p class="text-lg text-on-surface-variant leading-relaxed mb-6">
+                Analyzing and resolving persistent crashes during Surface Tracker operations on Windows 11 environments. This clinical guide targets kernel-level and software-specific triggers.
+            </p>
+<div class="w-full h-48 rounded-xl overflow-hidden bg-surface-container-high relative">
+<img class="w-full h-full object-cover mix-blend-overlay opacity-60" data-alt="Close up of a professional video editing workstation with a high-resolution monitor showing a complex color grading timeline in a dark studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm5rxk22JL7oUGiGyRLbM8jB8ODdykC-_5aJqLzgNgDBbR9Up_uDHix4LoGnSNOg5JS6slBjJKrnVjzoL8CToOt37XsSzBqEdKx4JURhAWRwKxWTI_MUdblbaLQyCDJWaSBWMP9Ct7x_-osFdocgLcMp7qbzMun0jmzBDAAflImZvECS1zqv5-1tyCwdPkPmLwMx3zCfbXkUCd_UYpblcmpcvMmwP535COWwkYZcWQQyiOrp5GVapeQUxJ_-PS8HlNRYjZT1XfImA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+</div>
+</section>
+<!-- Context Section -->
+<section class="mb-12">
+<div class="bg-surface-container-low p-6 rounded-xl border-l-4 border-primary">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">info</span>
+<h3 class="font-headline font-bold text-on-surface">System Assumptions</h3>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                    This troubleshooting path assumes use of **Resolve 18.5**. Environment monitoring shows no signs of thermal throttling or overheating. Configuration is treated as a baseline for high-performance workstation stability.
+                </p>
+</div>
+</section>
+<!-- Troubleshooting Steps -->
+<div class="space-y-16">
+<!-- Step 1: Configuration -->
+<section class="relative pl-8">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-full"></div>
+<div class="flex items-center gap-3 mb-6">
+<img alt="Icon" class="w-6 h-6 opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAieQy5k7GI2Mi1c6ZHEFiw9m6KzKe115NAri3kISDTNHQDQffgrRLuRFF12sMOV0NAL8VOFy4tXR_l0CFi2AF70EXGtfas2zpn0uZBUjDkB5u9feL3vdIiULVvIFij0ixNJBioD8FIGb4yS78JVmd_UCl9pyVJwGs7FPn1w3-PqUb25pL9f7tDd0lMlgCHCD1S_wVr-XISSXXe8ZuUSzWiCCIBfI67WuhjgeeeMridKGFvhl4wfCx6_gKhv3FwzasxIs4QvlIh3OU"/>
+<h3 class="text-xl font-bold tracking-tight uppercase text-primary">Step 1: Configuration</h3>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden">
+<ul class="divide-y divide-outline-variant/10">
+<li class="p-4 flex items-start gap-4">
+<span class="mt-1 material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">fiber_manual_record</span>
+<div>
+<p class="font-bold text-on-surface">GPU Mode</p>
+<p class="text-sm text-on-surface-variant">Switch to Manual and ensure "CUDA" is selected for NVIDIA hardware.</p>
+</div>
+</li>
+<li class="p-4 flex items-start gap-4">
+<span class="mt-1 material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">fiber_manual_record</span>
+<div>
+<p class="font-bold text-on-surface">Fusion Cache</p>
+<p class="text-sm text-on-surface-variant">Clear all render cache files and set Fusion RAM Cache to "Auto".</p>
+</div>
+</li>
+<li class="p-4 flex items-start gap-4">
+<span class="mt-1 material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">fiber_manual_record</span>
+<div>
+<p class="font-bold text-on-surface">Optimized Media</p>
+<p class="text-sm text-on-surface-variant">Regenerate optimized media if project resolution differs from source.</p>
+</div>
+</li>
+<li class="p-4 flex items-start gap-4">
+<span class="mt-1 material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">fiber_manual_record</span>
+<div>
+<p class="font-bold text-on-surface">Software Version</p>
+<p class="text-sm text-on-surface-variant">Verify build number 18.5 is consistent across collaborative DBs.</p>
+</div>
+</li>
+</ul>
+</div>
+</section>
+<!-- Step 2: Media & Integrity -->
+<section class="relative pl-8">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-outline-variant rounded-full"></div>
+<div class="flex items-center gap-3 mb-6">
+<img alt="Icon" class="w-6 h-6 opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb3uTiBrs0Pryz3xwlZ87no8g3ApxnJd_glc20kStTLzcIw7UY1yf3NyXhB4ld9YzFtcNp8YAWhgb29oU0E8Wa5GyixeT1jW1ll7bUwpgxi_cx_xbanFXZ8UXiI4-oyl1-1zcx61B5zGP3ReEMMdg8GZrcK8DLHxenxVZClRjCsZpHvcOtj4AWG9Mk7qkNEZllGtlg9SybiPzgZVyhv-bEXG6T29SikJiozbY-q4BCjLpTcFrDFJR71gTFygsXQeBBU37-Em5a5pw"/>
+<h3 class="text-xl font-bold tracking-tight uppercase text-on-surface-variant">Step 2: Media &amp; Integrity</h3>
+</div>
+<div class="grid gap-4">
+<div class="bg-surface-container-lowest p-5 rounded-xl">
+<div class="flex items-center justify-between mb-3">
+<span class="text-[11px] font-bold uppercase tracking-widest text-primary">Procedure</span>
+<span class="material-symbols-outlined text-outline-variant">check_circle</span>
+</div>
+<p class="text-on-surface leading-snug">Isolate media files on a high-speed NVMe drive to rule out I/O bottlenecks during Surface Tracking.</p>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl">
+<div class="flex items-center justify-between mb-3">
+<span class="text-[11px] font-bold uppercase tracking-widest text-primary">Validation</span>
+<span class="material-symbols-outlined text-outline-variant">check_circle</span>
+</div>
+<p class="text-on-surface leading-snug">Test a clean project with a single BRAW clip. If stability persists, the issue is likely global system configuration.</p>
+</div>
+</div>
+</section>
+<!-- Step 3: System & GPU -->
+<section class="relative pl-8">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-outline-variant rounded-full"></div>
+<div class="flex items-center gap-3 mb-6">
+<img alt="Icon" class="w-6 h-6 opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDga306JP4jWFu71fcQ5e766kdwVmso7eZlVPXjdkv92QLvj70edCRMorjGc0HVaIZi-Zks1k4SFDjtxoNArx0vry4TstqpjaVSI1QD9U6qdrFmXJc4A5srhDM27zRBCCwAhDIBA8liaCkoc91jbkVgm2Eh0tTKJMiAwfKQgvQlljV54uA9tCklwvJaTL5mmHt_pHoRxDG-GS7NTY98ugqC5Ejpwp39SiLzi21eLxGJTb-e6aGvspVpcIysg1wteRllUZ-lKAUVrfA"/>
+<h3 class="text-xl font-bold tracking-tight uppercase text-on-surface-variant">Step 3: System &amp; GPU</h3>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl">
+<div class="w-10 h-10 rounded-lg bg-inverse-surface flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">settings_input_component</span>
+</div>
+<div>
+<p class="font-bold">NVIDIA Studio Drivers</p>
+<p class="text-xs text-on-surface-variant">Install v536.40 or later. Use DDU for clean install.</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl">
+<div class="w-10 h-10 rounded-lg bg-inverse-surface flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+<div>
+<p class="font-bold">Power Management</p>
+<p class="text-xs text-on-surface-variant">Set Windows Power Plan to 'High Performance'.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Quick Actions -->
+<section class="mt-20 mb-10">
+<h4 class="text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-6 text-center">External Support &amp; Resources</h4>
+<div class="flex flex-col gap-3">
+<a class="flex items-center justify-center gap-3 py-4 px-6 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-md active:scale-[0.98] transition-all" href="#">
+<span>Blackmagic Support</span>
+<span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+<a class="flex items-center justify-center gap-3 py-4 px-6 bg-surface-container-high text-primary font-bold rounded-md active:scale-[0.98] transition-all" href="#">
+<span>NVIDIA Drivers</span>
+<span class="material-symbols-outlined text-sm">download</span>
+</a>
+<a class="flex items-center justify-center gap-3 py-4 px-6 bg-surface-container-high text-primary font-bold rounded-md active:scale-[0.98] transition-all" href="#">
+<span>Resolve Forums</span>
+<span class="material-symbols-outlined text-sm">forum</span>
+</a>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_-4px_12px_rgba(0,0,0,0.05)] border-t border-slate-200/30 dark:border-slate-800/30 z-50 rounded-t-xl h-20 px-4 pb-safe flex justify-around items-center">
+<button class="flex flex-col items-center justify-center text-cyan-700 dark:text-cyan-300 relative after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:w-1 after:h-4 after:bg-cyan-600 after:rounded-full tap-highlight-transparent">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-manrope text-[11px] font-medium uppercase tracking-wider mt-1">Guide</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 opacity-70 hover:text-cyan-600 dark:hover:text-cyan-200 tap-highlight-transparent">
+<span class="material-symbols-outlined">checklist</span>
+<span class="font-manrope text-[11px] font-medium uppercase tracking-wider mt-1">Steps</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 opacity-70 hover:text-cyan-600 dark:hover:text-cyan-200 tap-highlight-transparent">
+<span class="material-symbols-outlined">library_books</span>
+<span class="font-manrope text-[11px] font-medium uppercase tracking-wider mt-1">Resources</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 opacity-70 hover:text-cyan-600 dark:hover:text-cyan-200 tap-highlight-transparent">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-manrope text-[11px] font-medium uppercase tracking-wider mt-1">Support</span>
+</button>
+</nav>
+</body></html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Code Scanner - Precision Utility</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#3f4469",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#582300",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e3e1ea",
+                        "on-secondary-fixed": "#13183b",
+                        "inverse-on-surface": "#f2eff8",
+                        "primary": "#142588",
+                        "surface-container-high": "#e9e7f0",
+                        "secondary-fixed-dim": "#bfc4f0",
+                        "surface-bright": "#fbf8ff",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#303037",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#dfe0ff",
+                        "tertiary-container": "#7b3400",
+                        "primary-fixed-dim": "#bbc3ff",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#cdd1ff",
+                        "inverse-primary": "#bbc3ff",
+                        "on-tertiary-fixed": "#331100",
+                        "surface-tint": "#4755b6",
+                        "outline": "#767683",
+                        "on-tertiary-fixed-variant": "#773200",
+                        "surface-container": "#efedf6",
+                        "surface-container-low": "#f5f2fb",
+                        "on-surface-variant": "#454652",
+                        "on-surface": "#1b1b21",
+                        "background": "#fbf8ff",
+                        "tertiary-fixed-dim": "#ffb68f",
+                        "primary-container": "#303f9f",
+                        "on-primary-fixed-variant": "#2d3c9c",
+                        "on-primary-container": "#aab4ff",
+                        "outline-variant": "#c6c5d4",
+                        "on-background": "#1b1b21",
+                        "on-secondary-container": "#54597f",
+                        "secondary": "#575c82",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#000d5f",
+                        "surface-dim": "#dbd9e2",
+                        "surface-container-highest": "#e3e1ea",
+                        "tertiary-fixed": "#ffdbca",
+                        "secondary-fixed": "#dfe0ff",
+                        "surface": "#fbf8ff",
+                        "on-tertiary-container": "#ffa26e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.75rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-shutter {
+            background: rgba(48, 63, 159, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-low text-on-surface antialiased pb-24">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-[#f5f2fb] dark:bg-[#1b1b21]">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity active:scale-95 duration-150 text-[#142588] dark:text-[#dfe0ff]">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-manrope font-bold tracking-tight text-[#1b1b21] dark:text-white text-lg">Code Scanner</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-[#142588] font-bold text-xs border border-outline-variant/20">
+                JD
+            </div>
+</div>
+<div class="bg-[#e3e1ea] dark:bg-[#2b2b31] h-[1px] w-full"></div>
+</header>
+<main class="px-6 py-8 space-y-8">
+<!-- Intro Section: Multi-Format Status -->
+<section class="relative">
+<div class="bg-surface-container-lowest rounded-full p-6 shadow-[0_8px_24px_rgba(27,27,33,0.04)] border border-outline-variant/10">
+<div class="flex items-start gap-4">
+<div class="p-3 bg-primary-fixed rounded-xl text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sensors</span>
+</div>
+<div>
+<h2 class="text-on-surface font-extrabold text-xl tracking-tight">Scanner Initialized</h2>
+<p class="text-on-surface-variant text-sm mt-1 leading-relaxed">System ready for multi-format detection. Supports QR, UPC, and EAN protocols with sub-millisecond latency.</p>
+<div class="flex gap-2 mt-3">
+<span class="px-2 py-1 bg-surface-container-highest rounded-lg text-[10px] font-bold uppercase tracking-widest text-on-secondary-container">QR Code</span>
+<span class="px-2 py-1 bg-surface-container-highest rounded-lg text-[10px] font-bold uppercase tracking-widest text-on-secondary-container">UPC/EAN</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Scanner Frame -->
+<section class="relative aspect-square w-full max-w-md mx-auto">
+<!-- Viewfinder Brackets -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="relative w-4/5 h-4/5">
+<!-- Corners -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary-fixed"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary-fixed"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary-fixed"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary-fixed"></div>
+<!-- Scan Line -->
+<div class="absolute top-1/2 left-0 w-full h-[1.5px] bg-primary-container shadow-[0_0_15px_#303f9f] opacity-60"></div>
+<!-- Placeholder Visual -->
+<div class="absolute inset-4 rounded-full overflow-hidden opacity-40">
+<img class="w-full h-full object-cover grayscale brightness-50" data-alt="abstract tech scan background with glowing blue laser lines and dark geometric patterns reflecting a high-precision digital environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxR5be-pEpox7SzXY1ucS3ol4bH1k8fhyAHHdfFl8IUG9g2vPxw2PqjEXU1hGqYHS8DBiS7vEudH_gIoj6_pzZ2_sr1QFjZ9YfpV46917OaNkvHbTzIq-4YQfEC3qAlplpX-mF_lWVKfiEAuf2hFwW14kDrthdnDJK7P9KdIwbKgi9C8HXP-u5XujevVIiqRrbLEMS8Nlv_J-fbdscOawYkPRrd60PENsy1oOXmwDxLNQljF5fFFQy6u9267LHwVgGLkkv375L5_Vg"/>
+</div>
+</div>
+</div>
+<!-- Shutter Button Floating -->
+<div class="absolute bottom-[-24px] left-1/2 -translate-x-1/2">
+<button class="glass-shutter w-16 h-16 rounded-full flex items-center justify-center text-white shadow-[0_8px_24px_rgba(20,37,136,0.2)] active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
+</button>
+</div>
+</section>
+<!-- Structured Options Section -->
+<section class="pt-8 space-y-4">
+<div class="flex items-baseline justify-between mb-2">
+<h3 class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">External Engines</h3>
+<span class="w-12 h-[1px] bg-outline-variant/30"></span>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<!-- Card 1: Google Lens -->
+<div class="bg-surface-container-lowest p-5 rounded-full border border-outline-variant/10 shadow-sm flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">camera</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface leading-tight">Google Lens</h4>
+<p class="text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Visual Search Engine</p>
+</div>
+</div>
+<button class="px-4 py-2 bg-primary rounded-full text-white text-xs font-bold hover:opacity-90 active:scale-95 transition-all">Launch Lens</button>
+</div>
+<!-- Card 2: Barcode Lookup -->
+<div class="bg-surface-container-lowest p-5 rounded-full border border-outline-variant/10 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">barcode_scanner</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface leading-tight">Barcode Lookup</h4>
+<p class="text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Product Database API</p>
+</div>
+</div>
+<button class="px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold active:scale-95 transition-all">Search DB</button>
+</div>
+<!-- Card 3: Web QR -->
+<div class="bg-surface-container-lowest p-5 rounded-full border border-outline-variant/10 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">qr_code_2</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface leading-tight">Web QR</h4>
+<p class="text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Cloud Validation</p>
+</div>
+</div>
+<button class="px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold active:scale-95 transition-all">Verify URL</button>
+</div>
+<!-- Card 4: UPC Item DB -->
+<div class="bg-surface-container-lowest p-5 rounded-full border border-outline-variant/10 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface leading-tight">UPC Item DB</h4>
+<p class="text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Global Retail Ledger</p>
+</div>
+</div>
+<button class="px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold active:scale-95 transition-all">Scan Item</button>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="flex justify-center pb-8">
+<button class="flex items-center gap-2 text-on-surface-variant text-[12px] font-bold uppercase tracking-widest hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">help</span>
+                Scanner Troubleshooting
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-[#e3e1ea] dark:bg-[#1b1b21] flex justify-around items-center px-4 py-3 pb-safe shadow-[0_-8px_24px_rgba(27,27,33,0.06)]">
+<!-- Active Tab: Scan -->
+<button class="flex flex-col items-center justify-center bg-[#303f9f] text-white rounded-xl px-5 py-2 active:scale-90 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-widest mt-1">Scan</span>
+</button>
+<!-- Inactive Tab: History -->
+<button class="flex flex-col items-center justify-center text-[#54597f] dark:text-[#c6c5d4] px-5 py-2 hover:text-[#142588] dark:hover:text-white transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined">history</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-widest mt-1">History</span>
+</button>
+<!-- Inactive Tab: Favorites -->
+<button class="flex flex-col items-center justify-center text-[#54597f] dark:text-[#c6c5d4] px-5 py-2 hover:text-[#142588] dark:hover:text-white transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined">star</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-widest mt-1">Favorites</span>
+</button>
+</nav>
+</body></html>

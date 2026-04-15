@@ -167,6 +167,7 @@ def main() -> int:
         raise SystemExit(f"Run dir not found: {run_dir}")
 
     queries = {row.get("query_id"): row for row in iter_jsonl(run_dir / "queries.jsonl")}
+    responses = {row.get("response_id"): row for row in iter_jsonl(run_dir / "responses.jsonl")}
     rows = iter_jsonl(run_dir / "genui.jsonl")
     if not rows:
         raise SystemExit(f"No records found in {run_dir / 'genui.jsonl'}")
@@ -185,6 +186,9 @@ def main() -> int:
         response_id = str(row.get("response_id") or "").strip()
         query_text = str((queries.get(query_id) or {}).get("query_text") or "").strip()
         response_text = str(row.get("response_text") or "").strip()
+        if not response_text:
+            response_row = responses.get(response_id) or {}
+            response_text = str(response_row.get("response_text") or "").strip()
         intent = str(row.get("intent") or "").strip()
         metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
         validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}

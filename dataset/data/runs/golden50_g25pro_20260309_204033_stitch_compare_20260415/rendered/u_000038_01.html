@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title_text", "intro_card", "interaction_title", "interaction_text", "convergent_card", "divergent_card", "transform_card", "sources_card"]}, "title_text": {"type": "Text", "props": {"text": "The Earth's Cracked Shell: An Introduction to Plate Tectonics", "variant": "h2"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["intro_text_1", "intro_text_2", "intro_image"]}, "intro_text_1": {"type": "Text", "props": {"text": "Imagine the Earth is like a giant, hard-boiled egg. If you were to tap the eggshell, it would crack into several large pieces. The Earth's hard outer layer, called the lithosphere, is a lot like that.", "variant": "body"}, "children": []}, "intro_text_2": {"type": "Text", "props": {"text": "It's broken into huge slabs of rock called tectonic plates. These plates are constantly moving on a softer layer beneath them. This movement is what we call the theory of plate tectonics.", "variant": "body"}, "children": []}, "intro_image": {"type": "Image", "props": {"url": "../assets/r_000038_01_1_tectonic_map.jpg", "fit": "cover"}, "children": []}, "interaction_title": {"type": "Text", "props": {"text": "How the Earth's Plates Interact", "variant": "h2"}, "children": []}, "interaction_text": {"type": "Text", "props": {"text": "The most exciting action happens at the edges of these plates, which we call plate boundaries. There are three main ways the plates can interact with each other.", "variant": "body"}, "children": []}, "convergent_card": {"type": "Card", "props": {}, "children": ["convergent_stack"]}, "convergent_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["convergent_title", "convergent_text_1", "convergent_text_2", "convergent_image"]}, "convergent_title": {"type": "Text", "props": {"text": "Convergent Boundaries: The Collision Course", "variant": "h3"}, "children": []}, "convergent_text_1": {"type": "Text", "props": {"text": "This is where two plates are moving towards each other and collide. When two plates carrying continents smash together, the rock has nowhere to go but up, forming massive mountain ranges.", "variant": "body"}, "children": []}, "convergent_text_2": {"type": "Text", "props": {"text": "Real-World Example: The Himalayan Mountains were formed (and are still growing) because the Indian Plate is crashing into the Eurasian Plate.", "variant": "body"}, "children": []}, "convergent_image": {"type": "Image", "props": {"url": "../assets/r_000038_01_2_himalayas.jpg", "fit": "cover"}, "children": []}, "divergent_card": {"type": "Card", "props": {}, "children": ["divergent_stack"]}, "divergent_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["divergent_title", "divergent_text_1", "divergent_text_2", "divergent_image"]}, "divergent_title": {"type": "Text", "props": {"text": "Divergent Boundaries: The Big Split", "variant": "h3"}, "children": []}, "divergent_text_1": {"type": "Text", "props": {"text": "This is where two plates are pulling away from each other. As the plates separate, hot, molten rock (magma) from deep within the Earth rises up to fill the gap, creating new crust.", "variant": "body"}, "children": []}, "divergent_text_2": {"type": "Text", "props": {"text": "Real-World Example: The Mid-Atlantic Ridge is where the North American and Eurasian plates are pulling apart, which makes the Atlantic Ocean get wider by a few centimeters every year.", "variant": "body"}, "children": []}, "divergent_image": {"type": "Image", "props": {"url": "../assets/r_000038_01_3_seafloor_spreading.jpg", "fit": "cover"}, "children": []}, "transform_card": {"type": "Card", "props": {}, "children": ["transform_stack"]}, "transform_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["transform_title", "transform_text_1", "transform_text_2", "transform_image"]}, "transform_title": {"type": "Text", "props": {"text": "Transform Boundaries: The Side-Swipe", "variant": "h3"}, "children": []}, "transform_text_1": {"type": "Text", "props": {"text": "This is where two plates slide horizontally past one another. They often get stuck, building up stress. When they suddenly slip, it releases a massive amount of energy as an earthquake.", "variant": "body"}, "children": []}, "transform_text_2": {"type": "Text", "props": {"text": "Real-World Example: The San Andreas Fault in California is a famous transform boundary where the Pacific Plate grinds past the North American Plate, causing many earthquakes.", "variant": "body"}, "children": []}, "transform_image": {"type": "Image", "props": {"url": "../assets/r_000038_01_4_san_andreas_fault.jpg", "fit": "cover"}, "children": []}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "source_1_stack", "source_2_stack"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source_1_stack": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between", "align": "center", "gap": "md"}, "children": ["source_1_text", "source_1_button"]}, "source_1_text": {"type": "Text", "props": {"text": "USGS: This Dynamic Earth: The Story of Plate Tectonics", "variant": "body"}, "children": []}, "source_1_button": {"type": "Button", "props": {"label": "Read More", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://pubs.usgs.gov/gip/dynamic/dynamic.html"}}}}, "source_2_stack": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between", "align": "center", "gap": "md"}, "children": ["source_2_text", "source_2_button"]}, "source_2_text": {"type": "Text", "props": {"text": "NASA Science: Plate Tectonics", "variant": "body"}, "children": []}, "source_2_button": {"type": "Button", "props": {"label": "Read More", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://science.nasa.gov/earth-science/solid-earth/plate-tectonics/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {"dailyHours": [{"date": "2023-11-06", "total": "7h", "alpha": "4h", "beta": "3h", "gamma": "-"}, {"date": "2023-11-07", "total": "8h", "alpha": "5h", "beta": "-", "gamma": "3h"}, {"date": "2023-11-08", "total": "6h", "alpha": "-", "beta": "6h", "gamma": "-"}, {"date": "2023-11-09", "total": "7h", "alpha": "2h", "beta": "-", "gamma": "5h"}, {"date": "2023-11-10", "total": "5h", "alpha": "-", "beta": "4h", "gamma": "1h"}], "effortDistribution": [{"project": "Project Beta", "hours": "13 hours", "percentage": "39.4%"}, {"project": "Project Alpha", "hours": "11 hours", "percentage": "33.3%"}, {"project": "Project Gamma", "hours": "9 hours", "percentage": "27.3%"}], "taskStatus": [{"status": "Completed", "count": 5}, {"status": "In Progress", "count": 3}, {"status": "Blocked", "count": 1}]}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["main_title", "intro_text", "section_title_viz", "daily_hours_card", "effort_dist_card", "task_status_card", "insight_card", "section_title_images", "images_stack"]}, "main_title": {"type": "Text", "props": {"text": "Project Performance Dashboard: Nov 6-10, 2023", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This dashboard provides a visual summary of project management data for the week, detailing work distribution across projects and overall task progress.", "variant": "body"}, "children": []}, "section_title_viz": {"type": "Text", "props": {"text": "Weekly Data Visualizations and Analysis", "variant": "h2"}, "children": []}, "daily_hours_card": {"type": "Card", "props": {}, "children": ["daily_hours_content_stack"]}, "daily_hours_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["daily_hours_header", "daily_hours_desc", "daily_hours_table"]}, "daily_hours_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["daily_hours_icon", "daily_hours_title"]}, "daily_hours_icon": {"type": "Icon", "props": {"name": "../assets/r_000012_01_3_bar-chart-line-fill.svg"}, "children": []}, "daily_hours_title": {"type": "Text", "props": {"text": "Daily Hours by Project (Stacked Bar Chart)", "variant": "h3"}, "children": []}, "daily_hours_desc": {"type": "Text", "props": {"text": "This chart shows the total hours logged each day, broken down by the contributing project. The busiest days were Monday, Tuesday, and Thursday.", "variant": "body"}, "children": []}, "daily_hours_table": {"type": "Table", "props": {"columns": [{"key": "date", "label": "Date"}, {"key": "total", "label": "Total Hours"}, {"key": "alpha", "label": "Alpha"}, {"key": "beta", "label": "Beta"}, {"key": "gamma", "label": "Gamma"}], "statePath": "/dailyHours", "domain": "generic"}, "children": []}, "effort_dist_card": {"type": "Card", "props": {}, "children": ["effort_dist_content_stack"]}, "effort_dist_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["effort_dist_header", "effort_dist_desc", "effort_dist_table"]}, "effort_dist_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["effort_dist_icon", "effort_dist_title"]}, "effort_dist_icon": {"type": "Icon", "props": {"name": "../assets/r_000012_01_4_pie-chart-fill.svg"}, "children": []}, "effort_dist_title": {"type": "Text", "props": {"text": "Total Effort Distribution by Project (Pie Chart)", "variant": "h3"}, "children": []}, "effort_dist_desc": {"type": "Text", "props": {"text": "This chart illustrates the proportion of total weekly hours dedicated to each project. Project Beta consumed the largest share of the team's time.", "variant": "body"}, "children": []}, "effort_dist_table": {"type": "Table", "props": {"columns": [{"key": "project", "label": "Project"}, {"key": "hours", "label": "Hours"}, {"key": "percentage", "label": "Percentage"}], "statePath": "/effortDistribution", "domain": "generic"}, "children": []}, "task_status_card": {"type": "Card", "props": {}, "children": ["task_status_content_stack"]}, "task_status_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["task_status_header", "task_status_desc", "task_status_table"]}, "task_status_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["task_status_icon", "task_status_title"]}, "task_status_icon": {"type": "Icon", "props": {"name": "../assets/r_000012_01_5_table.svg"}, "children": []}, "task_status_title": {"type": "Text", "props": {"text": "Task Status Summary", "variant": "h3"}, "children": []}, "task_status_desc": {"type": "Text", "props": {"text": "The following table provides a count of tasks categorized by their final status at the end of the week.", "variant": "body"}, "children": []}, "task_status_table": {"type": "Table", "props": {"columns": [{"key": "status", "label": "Status"}, {"key": "count", "label": "Task Count"}], "statePath": "/taskStatus", "domain": "status"}, "children": []}, "insight_card": {"type": "Card", "props": {}, "children": ["insight_content_stack"]}, "insight_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["insight_header", "insight_text"]}, "insight_header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["insight_icon", "insight_title"]}, "insight_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_8_info-circle.svg"}, "children": []}, "insight_title": {"type": "Text", "props": {"text": "Key Insight: Project Beta", "variant": "h3"}, "children": []}, "insight_text": {"type": "Text", "props": {"text": "Project Beta required the most hours this week (13 hours), and while one task was completed mid-week, the project concluded the period with another task still 'In Progress', indicating that significant work will carry over.", "variant": "body"}, "children": []}, "section_title_images": {"type": "Text", "props": {"text": "Images", "variant": "h2"}, "children": []}, "images_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["image_dashboard", "image_charts"]}, "image_dashboard": {"type": "Image", "props": {"url": "../assets/r_000012_01_1_dashboard.jpg", "fit": "cover"}, "children": []}, "image_charts": {"type": "Image", "props": {"url": "../assets/r_000012_01_2_charts.jpg", "fit": "cover"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

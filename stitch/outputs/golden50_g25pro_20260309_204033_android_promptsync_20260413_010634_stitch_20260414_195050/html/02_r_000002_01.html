@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Sales Insights - Quarterly Performance</title>
+<!-- Fonts: Manrope for headlines, Inter for body/labels -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffdadb",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#006f66",
+                    "primary-fixed": "#d8e3fb",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#6bd8cb",
+                    "on-error-container": "#93000a",
+                    "secondary-container": "#86f2e4",
+                    "tertiary": "#330009",
+                    "on-primary-fixed-variant": "#3c475a",
+                    "on-tertiary-fixed-variant": "#92002a",
+                    "tertiary-fixed-dim": "#ffb2b7",
+                    "on-surface": "#191c1e",
+                    "surface": "#f7f9fb",
+                    "surface-container-high": "#e6e8ea",
+                    "background": "#f7f9fb",
+                    "on-tertiary-fixed": "#40000d",
+                    "on-surface-variant": "#45474c",
+                    "surface-container-highest": "#e0e3e5",
+                    "outline": "#75777d",
+                    "on-tertiary-container": "#ff4e69",
+                    "tertiary-container": "#590016",
+                    "surface-container": "#eceef0",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#111c2d",
+                    "on-secondary-fixed-variant": "#005049",
+                    "outline-variant": "#c5c6cd",
+                    "on-secondary-fixed": "#00201d",
+                    "inverse-surface": "#2d3133",
+                    "on-background": "#191c1e",
+                    "surface-dim": "#d8dadc",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#091426",
+                    "surface-variant": "#e0e3e5",
+                    "surface-container-low": "#f2f4f6",
+                    "primary-container": "#1e293b",
+                    "on-primary-container": "#8590a6",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#bcc7de",
+                    "error-container": "#ffdad6",
+                    "secondary": "#006a61",
+                    "secondary-fixed": "#89f5e7",
+                    "surface-bright": "#f7f9fb",
+                    "surface-tint": "#545f73",
+                    "primary-fixed-dim": "#bcc7de"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#091426] dark:bg-[#091426] flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#86f2e4] cursor-pointer">menu</span>
+<span class="font-['Manrope'] font-bold text-xl text-white">Sales Insights</span>
+</div>
+<div class="flex items-center">
+<img alt="Profile" class="w-8 h-8 rounded-full border border-primary-container" data-alt="Close up of a professional executive profile photo with neutral background and soft corporate lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbwBuadJlcCtRQOpRQ9nMII_FUZRV6PLdoD8FZdn_VBLfUkhY1p8tBfCKL8baQAHTyQQSQtCALCJyDkzwuibGatg-NEbqWoL_7aOlEfIijicsGF3cdHdKh2o-FYN2KFFly42v7U400y7hlSxDQLQ4SKFP59FDu3gohMuzZq5jMV2OkB_682qhoicBAhVxj_mBiD_S4G-bIWxjXQHDLqYr2jJEYkeata5n42spb0ZqSnmLBAOxSlsUZu86NbpUwJds8JM-XNWMqK0s"/>
+</div>
+</nav>
+<main class="pt-20 px-4 space-y-6 max-w-md mx-auto">
+<!-- Header / Metric Ribbon -->
+<header class="pt-2">
+<h2 class="text-on-surface font-headline font-semibold text-lg tracking-tight mb-1">Quarterly Performance</h2>
+<p class="text-on-surface-variant text-sm font-body">Reporting Period: Q1 - Q2 FY24</p>
+</header>
+<!-- Summary Cards: Asymmetric Bento Style -->
+<section class="grid grid-cols-2 gap-4">
+<div class="col-span-2 bg-primary-container rounded-xl p-5 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary opacity-10 rounded-full -mr-16 -mt-16"></div>
+<p class="text-on-primary-container text-[10px] font-label uppercase tracking-widest mb-1">Total Sales Growth</p>
+<div class="flex items-end gap-2">
+<span class="text-secondary-container text-4xl font-headline font-extrabold">+23.2%</span>
+<span class="material-symbols-outlined text-secondary-container pb-1" data-weight="fill">trending_up</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-[0px_4px_12px_rgba(9,20,38,0.04)]">
+<p class="text-on-surface-variant text-[10px] font-label uppercase tracking-wider mb-2">Top Performer</p>
+<p class="text-primary font-headline font-bold text-lg">Cold Brew</p>
+<div class="mt-2 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container w-[85%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-[0px_4px_12px_rgba(9,20,38,0.04)]">
+<p class="text-on-surface-variant text-[10px] font-label uppercase tracking-wider mb-2">Lead Source</p>
+<p class="text-primary font-headline font-bold text-lg">Mobile App</p>
+<div class="mt-2 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed-dim w-[62%]"></div>
+</div>
+</div>
+</section>
+<!-- Category Trends Chart: Visual Representation -->
+<section class="bg-surface-container-low rounded-xl p-5">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline font-semibold text-primary">Category Trends</h3>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">bar_chart</span>
+</div>
+<div class="space-y-6">
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-medium text-primary">Cold Beverages</span>
+<span class="text-sm font-bold text-secondary">+91.4%</span>
+</div>
+<div class="h-10 w-full bg-surface-container-lowest rounded-lg flex items-center px-1">
+<div class="h-8 bg-secondary-container rounded-md flex items-center justify-center transition-all" style="width: 91.4%">
+<span class="text-[10px] font-bold text-on-secondary-container">GROWTH</span>
+</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-medium text-primary">Hot Beverages</span>
+<span class="text-sm font-bold text-on-tertiary-container">-16.7%</span>
+</div>
+<div class="h-10 w-full bg-surface-container-lowest rounded-lg flex items-center px-1">
+<div class="h-8 bg-tertiary-container rounded-md flex items-center justify-center opacity-80" style="width: 40%">
+<span class="text-[10px] font-bold text-on-tertiary">DECLINE</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Sales Breakdown Table: Card-Based -->
+<section class="space-y-3">
+<div class="flex justify-between items-center px-2">
+<h3 class="font-headline font-semibold text-primary">Drink Sales Breakdown</h3>
+<img alt="Search" class="w-5 h-5 opacity-40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl8PMKkrx-uKl4Yodv7rC-U-DzyJXprEE2PnlagSLfK96T_qEuGnmkbr3GWLxgTSVrkG2nCsRZ6vyr8dwjoybfq49mv1S0AX8jGAMbUYI_8kJiaa1JB6l2yh5i8iWHLsvfuD089iFgBGlecl5HVDbKatfcmqJbPgN4HAPM3LazzOs3IGv1L1gL8NWVYhVeW8z5Pui0lYyLwZ5CT-U2KN9oeJhn78ulQxFQ7aB_mvmdiE8AuQwjfi92cLQRjWJB-jDza389OvrFHco"/>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_12px_32px_rgba(9,20,38,0.06)]">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-4 py-3 text-[10px] font-label text-on-surface-variant tracking-wider uppercase">Item</th>
+<th class="px-2 py-3 text-[10px] font-label text-on-surface-variant tracking-wider uppercase text-right">Q1/Q2</th>
+<th class="px-4 py-3 text-[10px] font-label text-on-surface-variant tracking-wider uppercase text-right">Var %</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<tr>
+<td class="px-4 py-4">
+<span class="text-sm font-semibold text-primary block">Cold Brew</span>
+</td>
+<td class="px-2 py-4 text-right">
+<span class="text-xs text-on-surface-variant block">12.4k → 23.8k</span>
+</td>
+<td class="px-4 py-4 text-right">
+<span class="px-2 py-1 bg-secondary-container/30 text-on-secondary-container rounded text-xs font-bold">+91.9%</span>
+</td>
+</tr>
+<tr>
+<td class="px-4 py-4">
+<span class="text-sm font-semibold text-primary block">Iced Latte</span>
+</td>
+<td class="px-2 py-4 text-right">
+<span class="text-xs text-on-surface-variant block">18.1k → 21.0k</span>
+</td>
+<td class="px-4 py-4 text-right">
+<span class="px-2 py-1 bg-secondary-container/30 text-on-secondary-container rounded text-xs font-bold">+16.0%</span>
+</td>
+</tr>
+<tr>
+<td class="px-4 py-4">
+<span class="text-sm font-semibold text-primary block">Espresso</span>
+</td>
+<td class="px-2 py-4 text-right">
+<span class="text-xs text-on-surface-variant block">9.2k → 8.8k</span>
+</td>
+<td class="px-4 py-4 text-right">
+<span class="px-2 py-1 bg-tertiary-container text-on-tertiary rounded text-xs font-bold">-4.3%</span>
+</td>
+</tr>
+<tr>
+<td class="px-4 py-4">
+<span class="text-sm font-semibold text-primary block">Cappuccino</span>
+</td>
+<td class="px-2 py-4 text-right">
+<span class="text-xs text-on-surface-variant block">14.5k → 12.1k</span>
+</td>
+<td class="px-4 py-4 text-right">
+<span class="px-2 py-1 bg-tertiary-container text-on-tertiary rounded text-xs font-bold">-16.5%</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Key Highlights Section -->
+<section class="bg-primary text-white rounded-2xl p-6 relative">
+<div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 24px 24px;"></div>
+<div class="flex items-center gap-2 mb-4">
+<img alt="Info" class="w-5 h-5 brightness-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC25CE0i_K37cUehhraakCCoW0pbLeHLJ8r_eOhY_C1V-nbYPyBlqfemLsmsOZ7zETNQzbhSbXi2qW9PW-_-ZV2xctxNWi9XsPiJ6od1M5RJkY0mI-pISOKbIHHw0tY2FD4KOC-8BhbUnYgZ-_1w5FP7LWhm7eOrBRcVu0fVtWtFM51F9f-n48jQCiAaylwOA2AbkaXSOQT_2gUnaQ4QlzRq9V6ZBw7hGnoqNR9CrspsVgSaTjHbc_EJ3y8xdf7gsdQCB0qlSwrHO0"/>
+<h3 class="font-headline font-bold text-lg">Key Highlights</h3>
+</div>
+<ul class="space-y-4">
+<li class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary-container">workspace_premium</span>
+</div>
+<div>
+<p class="text-sm font-bold">Top Volume</p>
+<p class="text-xs text-on-primary-container">Cold Brew leads the quarter with 23,800 units sold.</p>
+</div>
+</li>
+<li class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary-container">show_chart</span>
+</div>
+<div>
+<p class="text-sm font-bold">Highest Growth</p>
+<p class="text-xs text-on-primary-container">Iced Category saw a +91.4% surge attributed to summer campaigns.</p>
+</div>
+</li>
+</ul>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-[#091426] dark:bg-[#091426] shadow-[0px_-12px_32px_rgba(9,20,38,0.06)] border-t border-[#1e293b] z-50">
+<!-- Dashboard (Active) -->
+<a class="flex flex-col items-center justify-center text-[#86f2e4] bg-[#1e293b] rounded-xl px-4 py-1.5 transition-all scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-weight="fill">dashboard</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wider uppercase mt-1">Dashboard</span>
+</a>
+<!-- Products -->
+<a class="flex flex-col items-center justify-center text-slate-400 p-2 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wider uppercase mt-1">Products</span>
+</a>
+<!-- Trends -->
+<a class="flex flex-col items-center justify-center text-slate-400 p-2 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wider uppercase mt-1">Trends</span>
+</a>
+<!-- Reports -->
+<a class="flex flex-col items-center justify-center text-slate-400 p-2 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-['Inter'] text-[10px] font-medium tracking-wider uppercase mt-1">Reports</span>
+</a>
+</nav>
+</body></html>

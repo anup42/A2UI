@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"timelineData": [{"month": "September", "focus": "Foundation & Legal", "deliverable": "Business Registered & Packaging Finalized"}, {"month": "October", "focus": "E-commerce Build & Content", "deliverable": "Functional Online Store (Private) & Product Photos"}, {"month": "November", "focus": "Marketing & Launch", "deliverable": "Public Store Launch & First Sale Processed"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "intro", "assumptionsCard", "timelineCard", "roadmapTitle", "month1Card", "month2Card", "month3Card", "actionsTitle", "actionsStack"]}, "title": {"type": "Text", "props": {"text": "Your 3-Month Candle Business Launch Plan", "variant": "h2"}, "children": []}, "intro": {"type": "Text", "props": {"text": "This plan provides a structured, month-by-month guide to take your handmade candle business from concept to first sale. It covers the essential operational, legal, and marketing steps required for a successful launch by your target date of November 30, 2024."}, "children": []}, "assumptionsCard": {"type": "Card", "props": {}, "children": ["assumptionsStack"]}, "assumptionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["assumptionsTitle", "assumptionsText"]}, "assumptionsTitle": {"type": "Text", "props": {"text": "Planning Context and Key Assumptions", "variant": "h3"}, "children": []}, "assumptionsText": {"type": "Text", "props": {"text": "This plan assumes you are operating as a sole proprietor based in the United States. It presumes you have a modest starting budget to cover platform fees, business registration, and initial packaging/shipping supply orders. The tasks outlined are designed to be managed by one person."}, "children": []}, "timelineCard": {"type": "Card", "props": {}, "children": ["timelineStack"]}, "timelineStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["timelineTitle", "timelineTable"]}, "timelineTitle": {"type": "Text", "props": {"text": "Launch Timeline at a Glance", "variant": "h3"}, "children": []}, "timelineTable": {"type": "Table", "props": {"columns": [{"key": "month", "label": "Month (2024)"}, {"key": "focus", "label": "Primary Focus"}, {"key": "deliverable", "label": "Key Deliverable"}], "statePath": "/timelineData", "domain": "schedule", "preferredPresentation": "table"}, "children": []}, "roadmapTitle": {"type": "Text", "props": {"text": "Month-by-Month Launch Roadmap", "variant": "h2"}, "children": []}, "month1Card": {"type": "Card", "props": {}, "children": ["month1Stack"]}, "month1Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["month1TitleStack", "month1Image", "month1Desc", "month1TasksTitle", "month1TasksStack"]}, "month1TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["month1Icon", "month1Title"]}, "month1Icon": {"type": "Icon", "props": {"name": "../assets/r_000014_01_7_calendar-week.svg"}, "children": []}, "month1Title": {"type": "Text", "props": {"text": "Month 1: September 2024 - Foundation & Legal", "variant": "h3"}, "children": []}, "month1Image": {"type": "Image", "props": {"url": "../assets/r_000014_01_3_handmade_candle_lifestyle.jpg", "fit": "cover"}, "children": []}, "month1Desc": {"type": "Text", "props": {"text": "The goal for this month is to establish the legal and operational groundwork for your business. This ensures you are compliant and have a solid brand foundation before building your online presence."}, "children": []}, "month1TasksTitle": {"type": "Text", "props": {"text": "Key Tasks:", "variant": "h3"}, "children": []}, "month1TasksStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["month1Task1", "month1Task2", "month1Task3", "month1Task4"]}, "month1Task1": {"type": "Text", "props": {"text": "Legal & Finance: Register your business name (a \"Doing Business As\" or DBA is a common starting point). Research any local permits required for home-based businesses. Open a dedicated business bank account to keep finances separate."}, "children": []}, "month1Task2": {"type": "Text", "props": {"text": "Product Finalization: Conduct comprehensive burn tests for all 10 candle designs to ensure safety, scent throw, and consistent quality. Finalize your packaging design, including warning labels, branding, and shipping protection. Place orders for all packaging materials."}, "children": []}, "month1Task3": {"type": "Text", "props": {"text": "Brand Identity: Finalize your logo, brand colors, and fonts."}, "children": []}, "month1Task4": {"type": "Text", "props": {"text": "Digital Presence: Secure social media handles (e.g., Instagram, TikTok, Pinterest) that match your business name."}, "children": []}, "month2Card": {"type": "Card", "props": {}, "children": ["month2Stack"]}, "month2Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["month2TitleStack", "month2Image", "month2Desc", "month2TasksTitle", "month2TasksStack"]}, "month2TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["month2Icon", "month2Title"]}, "month2Icon": {"type": "Icon", "props": {"name": "../assets/r_000014_01_8_shop.svg"}, "children": []}, "month2Title": {"type": "Text", "props": {"text": "Month 2: October 2024 - E-commerce Build & Content Creation", "variant": "h3"}, "children": []}, "month2Image": {"type": "Image", "props": {"url": "../assets/r_000014_01_4_ecommerce_website_laptop.jpg", "fit": "cover"}, "children": []}, "month2Desc": {"type": "Text", "props": {"text": "The focus shifts to building your digital storefront and creating the visual assets needed to market your products effectively."}, "children": []}, "month2TasksTitle": {"type": "Text", "props": {"text": "Key Tasks:", "variant": "h3"}, "children": []}, "month2TasksStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["month2Task1", "month2Task2", "month2Task3", "month2Task4"]}, "month2Task1": {"type": "Text", "props": {"text": "E-commerce Platform: Choose your platform (e.g., Shopify for brand control or Etsy for its existing marketplace). Set up your account, configure payment gateways, and establish shipping rates and zones."}, "children": []}, "month2Task2": {"type": "Text", "props": {"text": "Product Listings: Take high-quality, well-lit photographs and short videos of your candles. Write compelling, descriptive, and keyword-rich product titles and descriptions."}, "children": []}, "month2Task3": {"type": "Text", "props": {"text": "Inventory Production: Begin producing your initial stock for launch. Focus on creating a small but sufficient quantity of each of the 10 designs."}, "children": []}, "month2Task4": {"type": "Text", "props": {"text": "Content Planning: Develop a social media content calendar for November. Start creating \"coming soon\" and behind-the-scenes content to build anticipation."}, "children": []}, "month3Card": {"type": "Card", "props": {}, "children": ["month3Stack"]}, "month3Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["month3TitleStack", "month3Image", "month3Desc", "month3TasksTitle", "month3TasksStack"]}, "month3TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["month3Icon", "month3Title"]}, "month3Icon": {"type": "Icon", "props": {"name": "../assets/r_000014_01_9_rocket-takeoff.svg"}, "children": []}, "month3Title": {"type": "Text", "props": {"text": "Month 3: November 2024 - Marketing, Launch & First Sale", "variant": "h3"}, "children": []}, "month3Image": {"type": "Image", "props": {"url": "../assets/r_000014_01_5_socialmedia_flatlay_product.jpg", "fit": "cover"}, "children": []}, "month3Desc": {"type": "Text", "props": {"text": "This is the final push to launch. The focus is on marketing, final operational checks, and opening your store to the public."}, "children": []}, "month3TasksTitle": {"type": "Text", "props": {"text": "Key Tasks:", "variant": "h3"}, "children": []}, "month3TasksStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["month3Task1", "month3Task2", "month3Task3", "month3Task4"]}, "month3Task1": {"type": "Text", "props": {"text": "Marketing Execution: Begin actively posting on your social media channels according to your content calendar. Engage with potential customers and accounts in your niche."}, "children": []}, "month3Task2": {"type": "Text", "props": {"text": "Final Checks: Perform a full test of your website's checkout process with a friend or family member to ensure it is seamless. Organize your shipping station with all necessary materials (boxes, tape, labels)."}, "children": []}, "month3Task3": {"type": "Text", "props": {"text": "Store Launch (Target: Mid-November): Set your online store live and announce the grand opening across all your channels. Consider a simple launch day promotion, like free shipping on orders over a certain amount."}, "children": []}, "month3Task4": {"type": "Text", "props": {"text": "Post-Launch Operations: Monitor sales and website analytics. Fulfill your first orders promptly and professionally. Follow up with customers to encourage reviews and feedback."}, "children": []}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["action1Card", "action2Card"]}, "action1Card": {"type": "Card", "props": {}, "children": ["action1Stack"]}, "action1Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["action1TitleStack", "action1Desc", "action1Attr", "action1Button"]}, "action1TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action1Icon", "action1Title"]}, "action1Icon": {"type": "Icon", "props": {"name": "../assets/r_000008_01_5_clipboard-check.svg"}, "children": []}, "action1Title": {"type": "Text", "props": {"text": "Compare E-commerce Platforms", "variant": "h3"}, "children": []}, "action1Desc": {"type": "Text", "props": {"text": "A detailed breakdown of the pros and cons of Etsy vs. Shopify to help you decide."}, "children": []}, "action1Attr": {"type": "Text", "props": {"text": "Key Attribute: Marketplace vs. Standalone", "variant": "caption"}, "children": []}, "action1Button": {"type": "Button", "props": {"label": "See Comparison", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nerdwallet.com/article/small-business/shopify-vs-etsy"}}}}, "action2Card": {"type": "Card", "props": {}, "children": ["action2Stack"]}, "action2Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["action2TitleStack", "action2Desc", "action2Attr", "action2Button"]}, "action2TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action2Icon", "action2Title"]}, "action2Icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_7_book.svg"}, "children": []}, "action2Title": {"type": "Text", "props": {"text": "Small Business Registration Guide", "variant": "h3"}, "children": []}, "action2Desc": {"type": "Text", "props": {"text": "Official guidance from the U.S. Small Business Administration (SBA) on how to register your business."}, "children": []}, "action2Attr": {"type": "Text", "props": {"text": "Key Attribute: Federal and State Steps", "variant": "caption"}, "children": []}, "action2Button": {"type": "Button", "props": {"label": "Read the Guide", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.sba.gov/business-guide/launch-your-business/register-your-business"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

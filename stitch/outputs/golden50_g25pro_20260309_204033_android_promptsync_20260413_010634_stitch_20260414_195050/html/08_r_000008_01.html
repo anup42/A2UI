@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Transatlantic Multi-City Flight Plan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-error-container": "#93000a",
+                "error-container": "#ffdad6",
+                "inverse-surface": "#303030",
+                "on-error": "#ffffff",
+                "on-tertiary-container": "#c1c3b0",
+                "surface-container-highest": "#e4e2e1",
+                "primary-container": "#8d311c",
+                "secondary-fixed-dim": "#c4c9b1",
+                "on-surface-variant": "#56423d",
+                "primary-fixed": "#ffdad2",
+                "outline-variant": "#ddc0ba",
+                "on-surface": "#1b1c1b",
+                "background": "#fbf9f8",
+                "on-primary-container": "#ffae9b",
+                "error": "#ba1a1a",
+                "on-secondary-container": "#626753",
+                "tertiary-fixed": "#e2e4d0",
+                "on-secondary-fixed-variant": "#444936",
+                "secondary": "#5c614d",
+                "surface": "#fbf9f8",
+                "surface-container-low": "#f5f3f2",
+                "on-primary": "#ffffff",
+                "tertiary-container": "#4e5142",
+                "on-secondary": "#ffffff",
+                "secondary-container": "#e0e5cc",
+                "on-background": "#1b1c1b",
+                "surface-tint": "#a03f29",
+                "primary-fixed-dim": "#ffb4a3",
+                "on-primary-fixed": "#3d0600",
+                "on-primary-fixed-variant": "#812814",
+                "surface-variant": "#e4e2e1",
+                "outline": "#8a726c",
+                "surface-bright": "#fbf9f8",
+                "on-secondary-fixed": "#191d0e",
+                "tertiary": "#373a2c",
+                "surface-container": "#efedec",
+                "inverse-on-surface": "#f2f0ef",
+                "surface-container-high": "#e9e8e7",
+                "primary": "#6e1a07",
+                "tertiary-fixed-dim": "#c6c8b5",
+                "on-tertiary-fixed-variant": "#454839",
+                "inverse-primary": "#ffb4a3",
+                "secondary-fixed": "#e0e5cc",
+                "on-tertiary-fixed": "#1a1d11",
+                "on-tertiary": "#ffffff",
+                "surface-dim": "#dbdad9",
+                "surface-container-lowest": "#ffffff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {},
+            "fontFamily": {
+                "headline": ["Noto Serif"],
+                "body": ["Plus Jakarta Sans"],
+                "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-noto { font-family: 'Noto Serif', serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface pb-24">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#fbf9f8] dark:bg-[#1b1c1b] flex justify-between items-center px-6 h-16 shadow-[0_40px_40px_-5px_rgba(27,28,27,0.05)] transition-all ease-in-out duration-300">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#6e1a07] dark:text-[#ddc0ba]">menu</span>
+<h1 class="font-['Noto_Serif'] font-bold text-[#6e1a07] dark:text-[#ddc0ba] italic text-xl tracking-tight">The Modern Archivist</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User Profile" data-alt="professional portrait of a person with a warm smile and soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJW5TQRvHZ7hw1H3kP4PWaAWqKL50WiAgUSInMqUv2W1OkLg2HVigJXCLuXkizNqk8-WZory-okJGBGmt7zGbC3bvKc8e0ICGT1BcwXLhawwfIuPnj-WEs3yOqfJtRB7VXPiwMBWBPZACHh5zzTTOZIv6T9bjVmyrYRJfya5ZUQAXXp1RuG2sfdsS-vb4jy_6EblP1eqi5i9QPcywY2Dtb85zzlJ4EaHSlw2mtwfFzwPR0nOAt7pmeLsIwZ_IbYWQ76WjI4AzyPOo"/>
+</div>
+</header>
+<main class="pt-20 px-6 max-w-lg mx-auto">
+<!-- Hero Section -->
+<section class="mt-8 mb-12">
+<div class="mb-4">
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Official Archive No. 8274</span>
+<h2 class="font-noto text-4xl text-primary leading-tight mt-2 font-bold">Your Transatlantic Multi-City Flight Plan</h2>
+</div>
+<div class="flex gap-2 mb-6">
+<span class="bg-secondary-container text-on-secondary-fixed-variant px-4 py-1 rounded-full text-xs font-medium">May 2025</span>
+<span class="bg-secondary-container text-on-secondary-fixed-variant px-4 py-1 rounded-full text-xs font-medium">2 Adults</span>
+<span class="bg-secondary-container text-on-secondary-fixed-variant px-4 py-1 rounded-full text-xs font-medium">Economy</span>
+</div>
+</section>
+<!-- The Route Mosaic -->
+<section class="mb-12 relative">
+<div class="grid grid-cols-6 grid-rows-2 gap-3 h-80">
+<div class="col-span-4 row-span-1 rounded-xl overflow-hidden relative group">
+<img alt="NY" class="w-full h-full object-cover grayscale-[0.3] hover:grayscale-0 transition-all duration-700" data-alt="dramatic wide angle shot of New York City skyline and Brooklyn Bridge at dusk with amber lights reflecting on water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDD-jo3gajJJslQiYW9YcuR3VcajEo470tj7gk9LKGyjvlEa_3iI-ttwEH5vgCRKCN7-lQu13vGXA8x8VPXXmHBNNQg8PI9n4MtZqZOlQwgteS_P4jGqEHp6sXaEoFH8eIMcJnqpA6po9eE0LNoq36DLOCWPDI4w9Do_0E8DempdrtFF-wGs08fpKCctPFuOTZo71LKaG7DmWK-z-EFBMbn_FiWW4fi6SiSF5AYkWbXE2F9csM6S74Cuw2z0S0MbFqbHZtnSwPD9FY"/>
+<div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold tracking-widest uppercase">JFK</div>
+</div>
+<div class="col-span-2 row-span-2 rounded-xl overflow-hidden relative">
+<img alt="LDN" class="w-full h-full object-cover grayscale-[0.3]" data-alt="Tower Bridge in London during a misty morning with soft pastel sky and vintage architectural details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXBWsun5dD4E-ybJ5JIukZ8mbNAyqrrqECeLKswuZ9j6cA0OJtq_gZ4s_d3yDiYIYyB7GWkXzHRnvLHIdHs8L7Tg-9yOkjFHSvh42BAmarH2JEF0NllgsezgsUUHTrFvQfPZopa2Pd8Z6a3E2dBs430jeGU25HIvQfDOm-PeljITKxHlekxg-d9r8-rh2-FQlrsZrMd4oHsX00MaVCFPeOAaZlXeqmIrELRZSVHIrFtQRVNOJGXHk_V0XCmQmp-OTxepssHzwkkaQ"/>
+<div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold tracking-widest uppercase">LHR</div>
+</div>
+<div class="col-span-4 row-span-1 rounded-xl overflow-hidden relative">
+<img alt="ROM" class="w-full h-full object-cover grayscale-[0.3]" data-alt="the Roman Colosseum at golden hour with long shadows and warm sun rays hitting the ancient stone texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8LIs7zzJmhzG_K30VpQwwT7sATcKCxZ2G1G4y6Jtsa6CbVwjaK-HM3no9nB5jKbJU9Rd9lDJMIO4O-gHkoPobzQPYR3e8sbLpHNDxoJD-F2G8qAEyWHb8rx2ogkZgT1AHkJYjWisyvKJhBjrN-YnFnU0ud-Vr_cXqQSBgR_iWO1a7JBLxLyj0VmxSr-99TV9zdLlW_9o4cXdwVdBK3WubSx6X1v3Wf2rNylUq8JdzVBFK1lyBRluweQlns6k3OVK0I0uWhFYGA90"/>
+<div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold tracking-widest uppercase">FCO</div>
+</div>
+</div>
+<!-- Route Indicator Overlay -->
+<div class="mt-6 flex items-center justify-between px-2">
+<div class="text-center">
+<p class="font-bold text-primary text-lg">JFK</p>
+<p class="text-[10px] text-secondary uppercase tracking-tighter">New York</p>
+</div>
+<div class="flex-grow flex items-center justify-center relative">
+<div class="h-[1px] w-full bg-outline-variant/30"></div>
+<span class="material-symbols-outlined absolute text-primary text-sm">flight_takeoff</span>
+</div>
+<div class="text-center">
+<p class="font-bold text-primary text-lg">LHR</p>
+<p class="text-[10px] text-secondary uppercase tracking-tighter">London</p>
+</div>
+<div class="flex-grow flex items-center justify-center relative">
+<div class="h-[1px] w-full bg-outline-variant/30"></div>
+<span class="material-symbols-outlined absolute text-primary text-sm">flight_takeoff</span>
+</div>
+<div class="text-center">
+<p class="font-bold text-primary text-lg">FCO</p>
+<p class="text-[10px] text-secondary uppercase tracking-tighter">Rome</p>
+</div>
+</div>
+</section>
+<!-- Planning Context -->
+<section class="mb-12 bg-surface-container-low p-6 rounded-xl">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">info</span>
+<div>
+<h3 class="font-noto text-lg text-primary font-bold mb-1">Archivist's Advisory</h3>
+<p class="text-sm text-secondary leading-relaxed">U.S. citizens require a passport valid for at least 6 months beyond the stay. Effective 2025, an approved ETIAS authorization is mandatory for entry into the Schengen Area (Italy).</p>
+</div>
+</div>
+</section>
+<!-- Sample Itineraries - Editorial Comparison -->
+<section class="mb-12">
+<h3 class="font-noto text-2xl text-primary font-bold mb-6">Curated Combinations</h3>
+<!-- Option 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl mb-4 border-b-4 border-primary-container/20">
+<div class="flex justify-between items-center mb-4">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-secondary text-lg">hub</span>
+<span class="text-xs font-bold uppercase tracking-widest text-secondary">Star Alliance Expert</span>
+</div>
+<p class="text-primary font-bold">$1,420<span class="text-[10px] text-secondary font-normal uppercase ml-1">/pp</span></p>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<div>
+<p class="text-xs font-bold">United / Lufthansa</p>
+<p class="text-[10px] text-secondary">Non-stop Transatlantic</p>
+</div>
+<span class="material-symbols-outlined text-primary">done_all</span>
+</div>
+<div class="h-[1px] bg-outline-variant/10"></div>
+<div class="flex justify-between items-center">
+<div>
+<p class="text-xs font-bold">Air Canada</p>
+<p class="text-[10px] text-secondary">Via Toronto (1.5h layover)</p>
+</div>
+<p class="text-xs font-medium text-secondary">Best Value</p>
+</div>
+</div>
+</div>
+<!-- Option 2 -->
+<div class="bg-surface-container-low p-5 rounded-xl opacity-80">
+<div class="flex justify-between items-center mb-4">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-secondary text-lg">stars</span>
+<span class="text-xs font-bold uppercase tracking-widest text-secondary">Premium Alliance</span>
+</div>
+<p class="text-primary font-bold">$1,850<span class="text-[10px] text-secondary font-normal uppercase ml-1">/pp</span></p>
+</div>
+<p class="text-xs text-secondary">Swiss International &amp; Austrian Airlines focus. Optimal scheduling for ROM arrival.</p>
+</div>
+</section>
+<!-- Pre-Booking Checklist -->
+<section class="mb-12">
+<h3 class="font-noto text-2xl text-primary font-bold mb-6">Verification Checklist</h3>
+<div class="space-y-6">
+<!-- Travel Documents -->
+<div>
+<h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary mb-4">Travel Documents</h4>
+<ul class="space-y-4">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-sm">fact_check</span>
+<span class="text-sm">Passport validity check (&gt;6 mo)</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-sm">fact_check</span>
+<span class="text-sm">ETIAS Status (Verified/Pending)</span>
+</li>
+</ul>
+</div>
+<!-- Airline Policies -->
+<div>
+<h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary mb-4">Airline Policies</h4>
+<ul class="space-y-4">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-sm">luggage</span>
+<span class="text-sm">1 Checked bag included (50lbs)</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-sm">published_with_changes</span>
+<span class="text-sm">Standard Fare flexibility applied</span>
+</li>
+</ul>
+</div>
+<!-- Logistics -->
+<div>
+<h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary mb-4">Flight Logistics</h4>
+<ul class="space-y-4">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-sm">schedule</span>
+<span class="text-sm">Layover times restricted to &lt;4h</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-sm">badge</span>
+<span class="text-sm">Passenger name matches passport exactly</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="flex flex-col gap-4 mb-16">
+<button class="bg-primary text-on-primary py-4 rounded-lg font-body text-sm font-semibold shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity">
+                Open Flight Finder
+            </button>
+<button class="bg-secondary-container text-on-secondary-container py-4 rounded-lg font-body text-sm font-semibold hover:opacity-90 transition-opacity">
+                Visit EU Travel Site
+            </button>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center pt-2 pb-6 px-4 bg-[#fbf9f8]/80 dark:bg-[#1b1c1b]/80 backdrop-blur-xl z-50 rounded-t-xl border-t border-[#ddc0ba]/15">
+<div class="flex flex-col items-center justify-center text-[#6e1a07] dark:text-[#ddc0ba] font-bold bg-[#e0e5cc]/50 rounded-full px-4 py-1 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-widest">Itinerary</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#5c614d] dark:text-[#919584] hover:text-[#8d311c] transition-colors duration-300 active:scale-95">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-widest">Checklist</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#5c614d] dark:text-[#919584] hover:text-[#8d311c] transition-colors duration-300 active:scale-95">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-widest">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#5c614d] dark:text-[#919584] hover:text-[#8d311c] transition-colors duration-300 active:scale-95">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-widest">Profile</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JavaScript Variable Declaration | Architectural Scholar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .syntax-keyword { color: #4cd6fb; }
+        .syntax-comment { color: #747780; }
+        .syntax-string { color: #a9c7ff; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "surface-container-highest": "#dfe3e7",
+                        "surface": "#f6fafe",
+                        "on-secondary-container": "#57657a",
+                        "on-background": "#171c1f",
+                        "on-primary-fixed": "#001b3d",
+                        "surface-container-low": "#f0f4f8",
+                        "tertiary-container": "#00313d",
+                        "on-tertiary-fixed-variant": "#004e5f",
+                        "on-surface": "#171c1f",
+                        "on-primary-container": "#7594ca",
+                        "tertiary": "#001b22",
+                        "primary-container": "#002b5b",
+                        "surface-container-high": "#e4e9ed",
+                        "primary-fixed-dim": "#a9c7ff",
+                        "tertiary-fixed-dim": "#4cd6fb",
+                        "on-surface-variant": "#43474f",
+                        "on-primary-fixed-variant": "#264778",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed": "#001f27",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#f6fafe",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#d5e3fc",
+                        "on-tertiary-container": "#00a1c1",
+                        "surface-dim": "#d6dade",
+                        "surface-container": "#eaeef2",
+                        "surface-tint": "#405f91",
+                        "background": "#f6fafe",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "inverse-surface": "#2c3134",
+                        "secondary-fixed": "#d5e3fc",
+                        "on-error-container": "#93000a",
+                        "secondary": "#515f74",
+                        "outline": "#747780",
+                        "surface-variant": "#dfe3e7",
+                        "inverse-primary": "#a9c7ff",
+                        "primary": "#001736",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "outline-variant": "#c4c6d0",
+                        "tertiary-fixed": "#b3ebff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#edf1f5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface selection:bg-tertiary-fixed-dim selection:text-primary min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#f6fafe]/80 backdrop-blur-xl flex items-center justify-between px-6 py-4 max-w-none">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 duration-200 text-[#001736]">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="text-xl font-black text-[#001736] tracking-tighter">Architectural Scholar</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="professional portrait of a young software engineer in a minimal architectural studio setting, soft daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlkQJb2stJKj6fgWxOv-Aq8WGPqoyR41-BX3AeIrmkgEYRGnGI8plHMZzZVqv_dcod-O0AdIvxpw3R8McWKBXr0fcoWbbWG8XJHGqTkrawOaQ8l6jukOuiheY1xFSSFKl9244BfMv2GMFbg8INyNCJb1z62wRSyuVVl5JZjUcCfTuYK3TRLj9TFhNnP614-0pL0wdtimBmC6hqwra-aWg9XLqXmS1Vc4lpX04P48Zvn0QowocG4sqWA-JlYsxErdpCD0XmoRaR3gY"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto space-y-16">
+<!-- Header & Intro -->
+<section class="space-y-6">
+<div class="inline-block px-3 py-1 bg-primary-container text-tertiary-fixed-dim rounded-lg text-[10px] font-bold uppercase tracking-[0.2em]">
+                Documentation v3.2
+            </div>
+<h2 class="text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-none">
+                JavaScript Variable Declaration: <span class="text-on-primary-container">var, let, and const</span>
+</h2>
+<p class="text-body-lg text-on-surface-variant leading-relaxed opacity-90 max-w-prose">
+                Understanding the mechanics of scope and hoisting in JavaScript isn't just academic—it's the bedrock of modern architectural integrity. These three keywords define how your data flows through the lifecycle of an application.
+            </p>
+</section>
+<!-- Core Characteristics (Asymmetric Cards) -->
+<section class="space-y-8">
+<div class="flex items-center justify-between">
+<h3 class="text-xs font-bold text-tertiary-fixed-dim uppercase tracking-widest">Core Characteristics</h3>
+<div class="h-[1px] flex-grow ml-6 bg-outline-variant/15"></div>
+</div>
+<div class="grid gap-6">
+<!-- var Card -->
+<div class="group bg-surface-container-lowest p-8 rounded-lg transition-all duration-300 hover:bg-surface-container-low shadow-sm">
+<div class="flex items-start justify-between mb-6">
+<div class="bg-surface-container-high p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="box-arrow-in-down-right">arrow_downward</span>
+</div>
+<span class="text-xs font-mono text-outline">Legacy Support</span>
+</div>
+<h4 class="text-2xl font-bold text-primary mb-4">var</h4>
+<ul class="space-y-3">
+<li class="flex gap-3 text-sm text-on-surface-variant">
+<span class="text-tertiary-fixed-dim font-bold">Scope:</span> Function or Global.
+                        </li>
+<li class="flex gap-3 text-sm text-on-surface-variant">
+<span class="text-tertiary-fixed-dim font-bold">Hoisting:</span> Yes, initialized as undefined.
+                        </li>
+<li class="flex gap-3 text-sm text-on-surface-variant italic opacity-60">
+                            Re-declaration is permitted.
+                        </li>
+</ul>
+</div>
+<!-- let Card -->
+<div class="group bg-primary text-on-primary p-8 rounded-lg transition-all duration-300 hover:bg-primary-container shadow-xl translate-x-2">
+<div class="flex items-start justify-between mb-6">
+<div class="bg-primary-container p-3 rounded-lg text-tertiary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="braces">dentistry</span>
+</div>
+<span class="text-xs font-mono text-primary-fixed-dim">ES6 Standard</span>
+</div>
+<h4 class="text-2xl font-bold mb-4">let</h4>
+<ul class="space-y-3">
+<li class="flex gap-3 text-sm text-primary-fixed">
+<span class="text-tertiary-fixed-dim font-bold">Scope:</span> Block-level.
+                        </li>
+<li class="flex gap-3 text-sm text-primary-fixed">
+<span class="text-tertiary-fixed-dim font-bold">Hoisting:</span> No (Temporal Dead Zone).
+                        </li>
+<li class="flex gap-3 text-sm text-primary-fixed">
+                            Re-assignment is permitted.
+                        </li>
+</ul>
+</div>
+<!-- const Card -->
+<div class="group bg-surface-container-lowest p-8 rounded-lg transition-all duration-300 hover:bg-surface-container-low shadow-sm">
+<div class="flex items-start justify-between mb-6">
+<div class="bg-surface-container-high p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+</div>
+<span class="text-xs font-mono text-outline">Immutable Reference</span>
+</div>
+<h4 class="text-2xl font-bold text-primary mb-4">const</h4>
+<ul class="space-y-3">
+<li class="flex gap-3 text-sm text-on-surface-variant">
+<span class="text-tertiary-fixed-dim font-bold">Scope:</span> Block-level.
+                        </li>
+<li class="flex gap-3 text-sm text-on-surface-variant">
+<span class="text-tertiary-fixed-dim font-bold">Hoisting:</span> No.
+                        </li>
+<li class="flex gap-3 text-sm text-on-surface-variant">
+<span class="text-error font-bold">Re-assignment:</span> Not permitted.
+                        </li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Feature Comparison (Tonal Grid) -->
+<section class="space-y-6">
+<h3 class="text-xs font-bold text-tertiary-fixed-dim uppercase tracking-widest">Feature Comparison</h3>
+<div class="overflow-x-auto">
+<table class="w-full border-separate border-spacing-y-2">
+<thead>
+<tr class="text-left text-[10px] font-bold text-outline uppercase tracking-widest">
+<th class="px-4 py-2">Keyword</th>
+<th class="px-4 py-2">Scope</th>
+<th class="px-4 py-2">Hoisting</th>
+<th class="px-4 py-2">Re-assign</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="bg-surface-container-low rounded-lg">
+<td class="px-4 py-4 font-mono font-bold text-primary rounded-l-lg">var</td>
+<td class="px-4 py-4 text-on-surface-variant">Function</td>
+<td class="px-4 py-4 text-on-surface-variant">Yes</td>
+<td class="px-4 py-4 text-on-surface-variant rounded-r-lg">Yes</td>
+</tr>
+<tr class="bg-surface-container-lowest rounded-lg">
+<td class="px-4 py-4 font-mono font-bold text-primary rounded-l-lg">let</td>
+<td class="px-4 py-4 text-on-surface-variant">Block</td>
+<td class="px-4 py-4 text-on-surface-variant">No</td>
+<td class="px-4 py-4 text-on-surface-variant rounded-r-lg">Yes</td>
+</tr>
+<tr class="bg-surface-container-low rounded-lg">
+<td class="px-4 py-4 font-mono font-bold text-primary rounded-l-lg">const</td>
+<td class="px-4 py-4 text-on-surface-variant">Block</td>
+<td class="px-4 py-4 text-on-surface-variant">No</td>
+<td class="px-4 py-4 text-error font-bold rounded-r-lg">No</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Critical Use Case: Asynchronous Loops -->
+<section class="space-y-8 bg-surface-container-lowest -mx-6 px-6 py-12">
+<div class="max-w-prose mx-auto space-y-4 text-center">
+<h3 class="text-2xl font-bold text-primary">Asynchronous Loops</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                    A classic architectural pitfall occurs when using closures inside loops. The <code class="bg-surface-container-high px-1 rounded">var</code> keyword's functional scope often leads to unexpected behaviors.
+                </p>
+</div>
+<div class="space-y-6">
+<!-- Problem Block -->
+<div class="bg-primary text-primary-fixed rounded-lg overflow-hidden">
+<div class="px-4 py-2 bg-on-background/20 flex justify-between items-center">
+<span class="text-[10px] font-bold tracking-widest uppercase opacity-60">The Problem with var</span>
+<span class="material-symbols-outlined text-sm" data-icon="error">error</span>
+</div>
+<pre class="p-6 font-mono text-xs leading-relaxed overflow-x-auto"><span class="syntax-keyword">for</span> (<span class="syntax-keyword">var</span> i = <span class="syntax-string">0</span>; i &lt; <span class="syntax-string">3</span>; i++) {
+  <span class="syntax-keyword">setTimeout</span>(() =&gt; {
+    <span class="syntax-keyword">console</span>.<span class="syntax-keyword">log</span>(i); <span class="syntax-comment">// Prints 3, 3, 3</span>
+  }, <span class="syntax-string">1000</span>);
+}</pre>
+</div>
+<!-- Solution Block -->
+<div class="bg-primary text-primary-fixed rounded-lg overflow-hidden border-b-2 border-tertiary-fixed-dim">
+<div class="px-4 py-2 bg-on-background/20 flex justify-between items-center">
+<span class="text-[10px] font-bold tracking-widest uppercase opacity-60">The Solution with let</span>
+<span class="material-symbols-outlined text-sm text-tertiary-fixed-dim" data-icon="check_circle">check_circle</span>
+</div>
+<pre class="p-6 font-mono text-xs leading-relaxed overflow-x-auto"><span class="syntax-keyword">for</span> (<span class="syntax-keyword">let</span> i = <span class="syntax-string">0</span>; i &lt; <span class="syntax-string">3</span>; i++) {
+  <span class="syntax-keyword">setTimeout</span>(() =&gt; {
+    <span class="syntax-keyword">console</span>.<span class="syntax-keyword">log</span>(i); <span class="syntax-comment">// Prints 0, 1, 2</span>
+  }, <span class="syntax-string">1000</span>);
+}</pre>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="flex flex-col items-center gap-8 py-4">
+<button class="w-full bg-primary text-on-primary py-4 px-8 rounded-lg font-bold flex items-center justify-center gap-3 transition-transform active:scale-95 group shadow-lg shadow-primary/10">
+                Read Full JavaScript Guide
+                <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<!-- Sources -->
+<div class="w-full border-t border-outline-variant/15 pt-8">
+<p class="text-[10px] font-bold text-outline uppercase tracking-[0.2em] mb-4">Official Documentation</p>
+<div class="grid grid-cols-1 gap-4">
+<a class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors group" href="#">
+<span class="text-sm font-semibold text-primary">MDN: var statement</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="open_in_new">open_in_new</span>
+</a>
+<a class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors group" href="#">
+<span class="text-sm font-semibold text-primary">MDN: let statement</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="open_in_new">open_in_new</span>
+</a>
+<a class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors group" href="#">
+<span class="text-sm font-semibold text-primary">MDN: const statement</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#f6fafe]/80 backdrop-blur-xl z-50 border-t border-[#c4c6d0]/15 shadow-[0_-8px_32px_rgba(23,28,31,0.04)] rounded-t-xl">
+<div class="flex flex-col items-center justify-center bg-gradient-to-br from-[#001736] to-[#002b5b] text-[#4cd6fb] rounded-lg px-6 py-1.5 active:translate-y-0.5 duration-150 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-['Manrope'] font-semibold text-[10px] uppercase tracking-widest mt-1">Learn</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#171c1f]/60 px-6 py-1.5 hover:text-[#001736] active:translate-y-0.5 duration-150 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="code">code</span>
+<span class="font-['Manrope'] font-semibold text-[10px] uppercase tracking-widest mt-1">Practice</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#171c1f]/60 px-6 py-1.5 hover:text-[#001736] active:translate-y-0.5 duration-150 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+<span class="font-['Manrope'] font-semibold text-[10px] uppercase tracking-widest mt-1">Library</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Event Check-in - Scanner</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-variant": "#e1e3e4",
+                "inverse-surface": "#2e3132",
+                "inverse-primary": "#a8cbe2",
+                "surface-container-high": "#e7e8e9",
+                "on-secondary-fixed-variant": "#004f4f",
+                "on-primary-container": "#7093a9",
+                "on-tertiary-container": "#ff4f4a",
+                "on-primary-fixed-variant": "#274b5e",
+                "surface-container-low": "#f2f4f5",
+                "on-secondary": "#ffffff",
+                "outline": "#72787c",
+                "tertiary": "#310002",
+                "on-error": "#ffffff",
+                "tertiary-fixed": "#ffdad6",
+                "secondary-fixed": "#a0f0f0",
+                "outline-variant": "#c2c7cc",
+                "on-tertiary-fixed": "#410003",
+                "primary": "#001520",
+                "inverse-on-surface": "#eff1f2",
+                "on-primary": "#ffffff",
+                "error-container": "#ffdad6",
+                "secondary-fixed-dim": "#84d4d3",
+                "secondary": "#006a6a",
+                "secondary-container": "#9deeed",
+                "primary-container": "#002b3d",
+                "surface-container": "#eceeef",
+                "on-secondary-fixed": "#002020",
+                "primary-fixed": "#c4e7ff",
+                "on-primary-fixed": "#001e2c",
+                "error": "#ba1a1a",
+                "tertiary-fixed-dim": "#ffb3ac",
+                "on-background": "#191c1d",
+                "tertiary-container": "#580005",
+                "background": "#f8f9fa",
+                "surface-container-lowest": "#ffffff",
+                "surface-tint": "#406377",
+                "surface-dim": "#d8dadb",
+                "on-surface-variant": "#42484c",
+                "surface-container-highest": "#e1e3e4",
+                "on-tertiary": "#ffffff",
+                "surface": "#f8f9fa",
+                "on-error-container": "#93000a",
+                "on-tertiary-fixed-variant": "#930010",
+                "on-secondary-container": "#0b6e6e",
+                "surface-bright": "#f8f9fa",
+                "on-surface": "#191c1d",
+                "primary-fixed-dim": "#a8cbe2"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .scanner-line {
+            height: 2px;
+            background: #006a6a;
+            box-shadow: 0 0 8px #9deeed;
+            position: absolute;
+            width: 100%;
+            top: 50%;
+        }
+        .mask-overlay {
+            background: rgba(0, 21, 32, 0.6);
+            backdrop-filter: blur(2px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopAppBar Predicted Component -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/20 dark:border-slate-800/20">
+<div class="flex justify-between items-center px-6 h-16 w-full max-w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-50">qr_code_scanner</span>
+<h1 class="font-manrope font-bold text-lg tracking-tight text-slate-900 dark:text-slate-50">Event Check-in</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors p-2 rounded-lg active:scale-95 duration-150 ease-out">
+<span class="material-symbols-outlined text-slate-500">settings</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-16 pb-24 min-h-screen">
+<!-- Main Content Area: Immersive Scanner -->
+<section class="relative h-[442px] md:h-[530px] overflow-hidden bg-primary-container">
+<img alt="Camera View" class="w-full h-full object-cover opacity-60" data-alt="Close-up POV of a smartphone screen displaying a technical QR code scanning interface held over a blurred event background with warm lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg8PMzCIrZqOHl91F1JFzI-qx0z4SvGCLSJaTEpCgc3THwpP91ZULs8oFB4P1R4_Dre-vdyMmcHmfF48TLs-vjJQJd4G8LQtf1blDSBgrF1IBDhJAxahp8i6xFjUvw7lkorLCX-8qOyCQJF_HvHfm03gGWQ6dW4n9aNvUNvXBe_Jyx80x8ZDEStKGpEJNSZj9Yu0y3bh5wDHkxszLM_9b5Je3qa0mwGOIjKRT7LBafLxrnNskO9PEm3gW4yP4psWbywdVbYuszbXE"/>
+<!-- Scanner Overlay UI -->
+<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+<!-- Corner Frame -->
+<div class="relative w-64 h-64 md:w-80 md:h-80">
+<!-- Corners -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-secondary"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-secondary"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-secondary"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-secondary"></div>
+<!-- Scan Line -->
+<div class="scanner-line"></div>
+</div>
+<p class="mt-8 font-label text-[11px] font-semibold uppercase tracking-wider text-secondary-fixed bg-primary/40 px-4 py-2 rounded-full backdrop-blur-md">
+                    Position the QR code inside the frame
+                </p>
+</div>
+</section>
+<!-- Operational Context Card & Quick Actions -->
+<div class="max-w-4xl mx-auto px-6 -mt-8 relative z-10">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Info Section -->
+<div class="md:col-span-8 space-y-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_32px_rgba(25,28,29,0.06)]">
+<div class="flex items-start gap-4">
+<div class="bg-secondary-container p-3 rounded-lg">
+<span class="material-symbols-outlined text-on-secondary-container">verified_user</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">Staff Operational Mode</h3>
+<p class="text-on-surface-variant text-sm mt-1 leading-relaxed">
+                                    Scanner active. Database synchronization is real-time. Please ensure the camera lens is clean for optimal surgical-grade precision in high-density entry points.
+                                </p>
+</div>
+</div>
+</div>
+<!-- Quick Actions Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container rounded-lg border border-transparent hover:border-outline-variant/30 transition-all active:scale-95 group">
+<span class="material-symbols-outlined text-primary mb-3 group-hover:scale-110 transition-transform">group</span>
+<span class="font-label text-xs font-bold uppercase tracking-tight text-on-surface">Attendee List</span>
+</button>
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container rounded-lg border border-transparent hover:border-outline-variant/30 transition-all active:scale-95 group">
+<span class="material-symbols-outlined text-primary mb-3 group-hover:scale-110 transition-transform">keyboard</span>
+<span class="font-label text-xs font-bold uppercase tracking-tight text-on-surface">Manual Entry</span>
+</button>
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container rounded-lg border border-transparent hover:border-outline-variant/30 transition-all active:scale-95 group">
+<span class="material-symbols-outlined text-primary mb-3 group-hover:scale-110 transition-transform">help</span>
+<span class="font-label text-xs font-bold uppercase tracking-tight text-on-surface">Get Support</span>
+</button>
+</div>
+</div>
+<!-- Transition Guide / Status Preview -->
+<div class="md:col-span-4 space-y-4">
+<h4 class="font-label text-[11px] font-black uppercase tracking-widest text-on-surface-variant px-1">Logic Feedback Guide</h4>
+<!-- Success State Card -->
+<div class="bg-secondary-container/30 border-l-4 border-secondary p-4 rounded-r-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<div class="font-bold text-sm text-on-secondary-container">Jane Smith</div>
+<div class="text-[10px] uppercase font-bold text-on-secondary-fixed-variant">Access Granted • VIP</div>
+</div>
+</div>
+</div>
+<!-- Error State Card -->
+<div class="bg-error-container/30 border-l-4 border-error p-4 rounded-r-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+<div>
+<div class="font-bold text-sm text-on-error-container">Invalid Code</div>
+<div class="text-[10px] uppercase font-bold text-on-error-container">Duplicate Scan Detected</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-high p-4 rounded-lg flex items-center justify-between">
+<span class="font-label text-[10px] font-bold text-on-surface-variant uppercase">Device Status</span>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-[10px] font-bold text-on-surface uppercase">Online</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Predicted Component -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-xl border-t border-slate-200/10 dark:border-slate-800/10 shadow-[0_-12px_32px_rgba(25,28,29,0.04)] pb-safe">
+<div class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3">
+<!-- Active Tab: Scanner -->
+<a class="flex flex-col items-center justify-center bg-teal-600 dark:bg-teal-500 text-white rounded-lg px-6 py-2 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="center_focus_strong">center_focus_strong</span>
+<span class="font-inter text-[11px] font-semibold uppercase tracking-wider mt-1">Scanner</span>
+</a>
+<!-- Inactive Tab: Attendees -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-6 py-2 hover:text-slate-900 dark:hover:text-slate-100 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-inter text-[11px] font-semibold uppercase tracking-wider mt-1">Attendees</span>
+</a>
+<!-- Inactive Tab: Manual -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-6 py-2 hover:text-slate-900 dark:hover:text-slate-100 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="keyboard">keyboard</span>
+<span class="font-inter text-[11px] font-semibold uppercase tracking-wider mt-1">Manual</span>
+</a>
+</div>
+</nav>
+<!-- FAB (Suppressed based on Transactional/Focused logic, but here it fits as a context action for Flash if needed) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary text-white shadow-xl flex items-center justify-center active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">flashlight_on</span>
+</button>
+</body></html>

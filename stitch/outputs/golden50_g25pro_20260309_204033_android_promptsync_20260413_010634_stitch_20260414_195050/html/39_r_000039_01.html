@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Handling Flexible Function Arguments in Python</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#75d5e2",
+                    "surface-container": "#eceeef",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#f8fafb",
+                    "on-primary-fixed-variant": "#074f54",
+                    "surface-dim": "#d8dadb",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2e3132",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#bbc8d0",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-tertiary-fixed-variant": "#004f56",
+                    "primary-fixed": "#b1edf2",
+                    "secondary-container": "#d7e4ec",
+                    "on-primary": "#ffffff",
+                    "on-surface-variant": "#3f4949",
+                    "background": "#f8fafb",
+                    "secondary": "#546067",
+                    "surface-variant": "#e1e3e4",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#006069",
+                    "surface-container-high": "#e6e8e9",
+                    "on-surface": "#191c1d",
+                    "inverse-on-surface": "#eff1f2",
+                    "tertiary": "#00474e",
+                    "on-primary-fixed": "#002022",
+                    "surface-tint": "#2a676c",
+                    "on-tertiary-container": "#7bdbe8",
+                    "on-secondary-fixed-variant": "#3c494f",
+                    "surface-container-low": "#f2f4f5",
+                    "primary-fixed-dim": "#96d1d6",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#96d1d6",
+                    "primary": "#00464b",
+                    "on-tertiary-fixed": "#001f23",
+                    "tertiary-fixed": "#92f1fe",
+                    "on-primary-container": "#9bd6db",
+                    "outline-variant": "#bec8c9",
+                    "outline": "#6f7979",
+                    "on-secondary-container": "#5a666d",
+                    "on-secondary-fixed": "#111d23",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#205e63",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#d7e4ec",
+                    "on-background": "#191c1d",
+                    "surface-bright": "#f8fafb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope", "sans-serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Space Grotesk", "sans-serif"],
+                    "mono": ["JetBrains Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .code-block {
+            font-family: 'JetBrains Mono', monospace;
+            tab-size: 4;
+        }
+        /* No-Line Rule: boundaries created through tonal shifts */
+        body {
+            background-color: #f8fafb; /* surface */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#f8fafb]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#006064] active:scale-95 duration-200 cursor-pointer" data-icon="menu">menu</span>
+<h1 class="font-headline font-black text-xl tracking-tight text-[#006064]">PyScholar</h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a professional developer in a soft lit studio environment, minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYO1ASFIV2LD1Xw8wN3s89WWlZ0A7b16K8ZaqCurTS2GSW3RQ7SBK4h5OqppnpXQUtsCXsDcaR0FwRyUCbOrLlnVPXb3Ov0GZWt-kN4Zqrqfxeh4PQj4_pslbMON70LXwFiPVodFIki8vm_6AfGruPzheq19QSRv4NPCZI0s44q497vrEYYA7mwYxei8MM54CHBHgKhyPAgLX-15M569LN0NnIfYzfucCbeuJzBL8wUwWrJ041_HdP-kgbaZiL_4A7SuF2YUweslA"/>
+</div>
+</header>
+<main class="pt-20 pb-24 px-4 space-y-6 max-w-2xl mx-auto">
+<!-- Header Section -->
+<section class="mt-4">
+<h2 class="font-headline font-extrabold text-3xl text-primary tracking-tight leading-tight">
+                Handling Flexible Function Arguments in Python
+            </h2>
+<p class="mt-3 text-on-surface-variant font-body leading-relaxed">
+                Master the art of writing versatile functions that can accept an arbitrary number of inputs.
+            </p>
+</section>
+<!-- Introduction Card -->
+<div class="bg-surface-container-low rounded-lg p-6 space-y-4">
+<div class="flex items-start gap-4">
+<div class="p-2 bg-primary-container rounded-full">
+<img alt="Note" class="w-5 h-5 brightness-0 invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyA3RmpdVN7F-KeBlLEYO1UhlthdgEjYkVQxzy-IFjovTpdiifFbsPmev-hPRvQE7dC9o6pZdTvVI9l52bPxxJ8qSlemC9sRwUM6vowUFEK8--PX23uQl8-lNiwqvFw94KFqBTLA6bVv4MqzHeFgwmyM_1MSG-iogkTSda9WsCyF5yZ9-vqw_uofDVyujdEcFf4X2UluDciCmJLbWe2rsUo6dkeV5caAmQP6flhAyifGtm9q1P0JzGIkda8v_v5f09fqlrPwoDdVk"/>
+</div>
+<div>
+<h3 class="font-label font-bold text-sm uppercase tracking-wider text-primary">Key Conventions</h3>
+<p class="mt-2 text-on-surface leading-relaxed">
+                        In Python, <code class="bg-surface-container px-1.5 py-0.5 rounded font-mono text-sm">*args</code> and <code class="bg-surface-container px-1.5 py-0.5 rounded font-mono text-sm">**kwargs</code> are naming conventions for passing a variable number of arguments to a function. They allow for highly flexible and reusable code structures.
+                    </p>
+</div>
+</div>
+</div>
+<!-- *args Section -->
+<section class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-6 bg-tertiary rounded-full"></div>
+<h3 class="font-headline font-bold text-xl text-on-surface">Positional Arguments: *args</h3>
+</div>
+<p class="text-on-surface-variant leading-relaxed">
+                Use <code class="font-mono font-bold text-tertiary">*args</code> to accept any number of positional arguments as a tuple. Perfect for mathematical aggregations.
+            </p>
+<div class="bg-inverse-surface rounded-lg p-5 overflow-x-auto shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<span class="text-tertiary-fixed-dim font-label text-xs uppercase tracking-widest">sum_all_numbers.py</span>
+<img alt="Code Scan" class="w-4 h-4 opacity-50 invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY1TblJu6Rt31Zq1rs6yPSiyRj7ELYRUjCiZpeA6CSm3TTUD09FSijuhFry67NydneJjnsSkb9VqIx_3Q_zvcf1xRhmM1Hg-UvRlbabXmAQBjZyLvETd-NNm939YFzuu2R1sh6XwUruHKjNy9lirx9SVJNx6GPmypK_fqEdNNPYSkHRRA0Prv9OFv9TrmCBfC-AvTCcQUrNGDIzifHImwlUnaYE1GHDHXbXdWztY0F7dHhfQQmhz35H-404WyjUPryAzQ6gPRosRA"/>
+</div>
+<pre class="code-block text-sm leading-relaxed text-surface-bright"><span class="text-primary-fixed">def</span> <span class="text-tertiary-fixed-dim">sum_all_numbers</span>(*args):
+    total = 0
+    <span class="text-primary-fixed">for</span> n <span class="text-primary-fixed">in</span> args:
+        total += n
+    <span class="text-primary-fixed">return</span> total
+
+<span class="text-outline-variant"># Output: 15</span>
+<span class="text-tertiary-fixed-dim">print</span>(sum_all_numbers(1, 2, 3, 4, 5))</pre>
+</div>
+</section>
+<!-- **kwargs Section -->
+<section class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-6 bg-primary rounded-full"></div>
+<h3 class="font-headline font-bold text-xl text-on-surface">Keyword Arguments: **kwargs</h3>
+</div>
+<p class="text-on-surface-variant leading-relaxed">
+                Use <code class="font-mono font-bold text-primary">**kwargs</code> to capture named arguments as a dictionary. Ideal for building flexible user profiles or configuration settings.
+            </p>
+<div class="bg-inverse-surface rounded-lg p-5 overflow-x-auto shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<span class="text-tertiary-fixed-dim font-label text-xs uppercase tracking-widest">user_profile.py</span>
+<img alt="Code Scan" class="w-4 h-4 opacity-50 invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDU618Pfs0gyq75UCuW4VJRSEDWIAkGieg3VdJRXy_KI_E9K2EXmz-Q104V_6DxKFRye3dGQ_KxxZBu5Otam4KjsLk7-9vtnyDF_SFViJxJFcwc3X9ddVQLGJ2mOJZyWWouoHWIFk3D-4vR8F_HvMjbS-0HiQA8PM_tg3GUhJiRHD1t61tAsOZDaN3p2hAMdZKXBJ8As5sWjfi0MXgXnKWiaW8gfB8D0YbSLgfMp5Q2ljvJw9wwLCO-v5WZhmdySkhhEwhQaVsTK_M"/>
+</div>
+<pre class="code-block text-sm leading-relaxed text-surface-bright"><span class="text-primary-fixed">def</span> <span class="text-tertiary-fixed-dim">display_user_profile</span>(**kwargs):
+    <span class="text-primary-fixed">for</span> key, value <span class="text-primary-fixed">in</span> kwargs.items():
+        <span class="text-tertiary-fixed-dim">print</span>(<span class="text-primary-fixed-dim">f</span><span class="text-on-tertiary-container">"{key}: {value}"</span>)
+
+<span class="text-outline-variant"># Example Usage:</span>
+display_user_profile(name=<span class="text-on-tertiary-container">"Alex"</span>, role=<span class="text-on-tertiary-container">"Dev"</span>)</pre>
+</div>
+</section>
+<!-- Combining Arguments -->
+<section class="bg-surface-container-lowest rounded-lg p-6 space-y-4 shadow-[0_40px_60px_rgba(25,28,29,0.04)]">
+<h3 class="font-headline font-bold text-xl text-on-surface">The Order of Operations</h3>
+<p class="text-on-surface-variant leading-relaxed text-sm">
+                When combining multiple argument types, strictly follow this hierarchy to avoid <span class="font-bold text-error">SyntaxErrors</span>:
+            </p>
+<ol class="space-y-3 font-label text-sm text-on-surface">
+<li class="flex items-center gap-3">
+<span class="bg-surface-container text-primary w-6 h-6 rounded-full flex items-center justify-center font-bold">1</span>
+                    Standard Positional Arguments
+                </li>
+<li class="flex items-center gap-3">
+<span class="bg-surface-container text-primary w-6 h-6 rounded-full flex items-center justify-center font-bold">2</span>
+                    Variable Positional (*args)
+                </li>
+<li class="flex items-center gap-3">
+<span class="bg-surface-container text-primary w-6 h-6 rounded-full flex items-center justify-center font-bold">3</span>
+                    Keyword Arguments (**kwargs)
+                </li>
+</ol>
+<div class="bg-inverse-surface rounded-lg p-5 overflow-x-auto mt-4">
+<pre class="code-block text-sm text-surface-bright leading-relaxed"><span class="text-primary-fixed">def</span> <span class="text-tertiary-fixed-dim">create_report</span>(title, *tags, **metadata):
+    <span class="text-tertiary-fixed-dim">print</span>(<span class="text-on-tertiary-container">"Title:"</span>, title)
+    <span class="text-outline-variant"># ... processing tags and metadata</span></pre>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="pt-4">
+<a class="group flex items-center justify-between bg-gradient-to-r from-primary to-primary-container text-on-primary p-5 rounded-lg active:scale-95 transition-all duration-200 shadow-md" href="https://docs.python.org/3/tutorial/controlflow.html#arbitrary-argument-lists">
+<div class="flex flex-col">
+<span class="font-headline font-bold text-lg">Official Documentation</span>
+<span class="font-label text-xs opacity-80 uppercase tracking-widest mt-1">Python Control Flow Guide</span>
+</div>
+<span class="material-symbols-outlined text-3xl group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</section>
+<!-- Sources / Footer -->
+<footer class="pt-8 pb-12 space-y-3 text-center">
+<p class="font-label text-xs text-outline tracking-wider uppercase">Reference Sources</p>
+<a class="block text-sm font-medium text-primary hover:underline transition-all" href="https://docs.python.org/3/tutorial/controlflow.html#more-on-defining-functions">
+                Python 3 Documentation: Defining Functions
+            </a>
+<div class="w-12 h-1 bg-surface-container mx-auto rounded-full mt-4"></div>
+</footer>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 bg-[#f8fafb]/90 backdrop-blur-2xl flex justify-around items-center px-4 pb-2 z-50 rounded-t-3xl shadow-[0_-4px_40px_rgba(25,28,29,0.04)]">
+<a class="flex flex-col items-center justify-center bg-[#b1edf2] text-[#00464b] rounded-full px-5 py-1.5 transition-all duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wider">Lessons</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#191c1d]/60 hover:bg-[#f2f4f5] transition-colors rounded-full px-4 py-1.5" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="terminal">terminal</span>
+<span class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wider">Exercises</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#191c1d]/60 hover:bg-[#f2f4f5] transition-colors rounded-full px-4 py-1.5" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="person">person</span>
+<span class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+</body></html>

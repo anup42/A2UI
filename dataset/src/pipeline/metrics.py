@@ -69,7 +69,13 @@ _INTENT_SECTION_REQUIRED = {
 
 
 def _normalize_text(text: str) -> str:
-    return re.sub(r"\s+", " ", text.strip().lower())
+    value = text.strip().lower()
+    # Strip bold/italic markdown markers
+    value = value.replace("**", "").replace("__", "").replace("*", "").replace("_", " ")
+    # Strip pipe characters from table remnants
+    value = value.replace("|", " ")
+    # Collapse whitespace
+    return re.sub(r"\s+", " ", value).strip()
 
 
 def _normalize_intent(intent: str | None) -> str:

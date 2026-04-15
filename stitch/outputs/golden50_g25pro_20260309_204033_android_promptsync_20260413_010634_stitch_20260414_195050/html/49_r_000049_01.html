@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Portfolio Snapshot | Architect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#c8cdec",
+                    "background": "#f8f9fa",
+                    "surface-dim": "#d1dce0",
+                    "on-primary-fixed-variant": "#4953ac",
+                    "on-primary": "#f9f6ff",
+                    "on-secondary-fixed-variant": "#495f69",
+                    "on-tertiary-fixed-variant": "#515771",
+                    "on-secondary-fixed": "#2d424c",
+                    "surface-container": "#eaeff1",
+                    "surface-bright": "#f8f9fa",
+                    "surface": "#f8f9fa",
+                    "surface-container-high": "#e3e9ec",
+                    "on-primary-fixed": "#2c358e",
+                    "error": "#9f403d",
+                    "inverse-primary": "#929bfa",
+                    "secondary-container": "#cfe6f2",
+                    "tertiary-fixed": "#d6dbfb",
+                    "on-surface-variant": "#586064",
+                    "on-primary-container": "#3f48a1",
+                    "inverse-surface": "#0c0f10",
+                    "surface-container-low": "#f1f4f6",
+                    "error-dim": "#4e0309",
+                    "primary-fixed-dim": "#ced1ff",
+                    "secondary-fixed-dim": "#c1d8e4",
+                    "on-surface": "#2b3437",
+                    "on-tertiary": "#faf8ff",
+                    "outline": "#737c7f",
+                    "primary-fixed": "#e0e0ff",
+                    "on-secondary": "#f2faff",
+                    "tertiary": "#585e78",
+                    "secondary-fixed": "#cfe6f2",
+                    "tertiary-container": "#d6dbfb",
+                    "on-tertiary-container": "#474d67",
+                    "secondary": "#4d626c",
+                    "surface-container-highest": "#dbe4e7",
+                    "tertiary-dim": "#4c526c",
+                    "on-tertiary-fixed": "#353b53",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#fff7f6",
+                    "primary-dim": "#4049a2",
+                    "on-background": "#2b3437",
+                    "error-container": "#fe8983",
+                    "surface-tint": "#4c56af",
+                    "surface-variant": "#dbe4e7",
+                    "outline-variant": "#abb3b7",
+                    "secondary-dim": "#415660",
+                    "primary-container": "#e0e0ff",
+                    "inverse-on-surface": "#9b9d9e",
+                    "on-error-container": "#752121",
+                    "on-secondary-container": "#40555f",
+                    "primary": "#4c56af"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#f8f9fa] dark:bg-slate-950 flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="minimalist professional avatar of a man with clean features and modern glasses in a corporate style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9j7hHnBp1ZcfF_JHWZWvJ9BgZcBYxW-nDKn0nMcUSk8kWPf6nabvFFyTSNB8Fd_eezPj7gU9nI4MpahSIW5x4DWSHPEVKcwrwpHrYKSyVg10OT9TNULY7bYaJJ5nzdRbmS6WmdL9m_XM48prE6gVXoGmT1w8K6Es346qaJcT-5qZKPXy49NLhJw6T41a3nDVnd0bGYhmRpk43qN1tVeSf6r1kf1toNyDpWsNs8kqmfBGuwXRgcwi7ixMIOZje3i1KgmwYo9STEm4"/>
+</div>
+<span class="text-xl font-bold tracking-tighter text-[#2b3437] dark:text-slate-100">Architect</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#586064] hover:bg-[#eaeff1] dark:hover:bg-slate-800 transition-colors active:scale-95 duration-200 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</nav>
+<main class="mt-20 px-6 max-w-md mx-auto space-y-8">
+<!-- Header & Date -->
+<header class="space-y-1">
+<p class="text-on-surface-variant font-medium text-sm tracking-wide uppercase">June 14, 2023</p>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface">Snapshot</h1>
+</header>
+<!-- Total Portfolio Summary Card -->
+<section class="relative overflow-hidden bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-outline-variant/15">
+<div class="absolute top-0 right-0 p-6 opacity-10">
+<img alt="Portfolio Icon" class="w-16 h-16" data-alt="abstract architectural sketch of high-end office buildings with clean lines and geometric precision" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiHlwmhwO15Q3X50X2NVhtHxROa7kSevnZ7n6rBsRfd805uBGtybk01k4MEFUUVDJOCHjDRtASQ0ntiFv66V76LRyqcBghxTYxpumpjwhcm6qQhRapHTnxoPjsUtZ1OGYpmr1RaINVBWK0VoMOTiNEt0OKaITcVaVpOwngajisRtH1Fife70OlMkfANmenb_7yLq94_TKrQn2nLnuoiPtQzfuwEFBVz9UX-N8DjozHOcLOQ-l9-jEB19CSCD1xNpDuZG9g9eEb9bQ"/>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-on-surface-variant font-semibold text-xs uppercase tracking-widest">Total Value</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-4xl font-extrabold tracking-tighter text-on-surface">$15,353.70</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-error font-bold text-lg">-$19.70</span>
+<span class="text-error font-medium text-sm bg-error-container/20 px-2 py-0.5 rounded-full">-0.13%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Holdings Performance Section -->
+<section class="space-y-6">
+<div class="flex justify-between items-end">
+<h2 class="text-xl font-bold tracking-tight text-on-surface">Holdings</h2>
+<span class="text-on-surface-variant text-xs font-medium uppercase tracking-widest">Performance</span>
+</div>
+<div class="space-y-3">
+<!-- AAPL -->
+<div class="bg-surface-container-low p-5 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center shadow-sm">
+<span class="text-xs font-bold text-primary">AAPL</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Apple Inc.</p>
+<p class="text-on-surface-variant text-xs font-medium">$1,752.80</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-tertiary font-bold">+$21.80</p>
+<p class="text-tertiary text-xs font-medium">+1.26%</p>
+</div>
+</div>
+<!-- GOOG -->
+<div class="bg-surface-container-low p-5 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center shadow-sm">
+<span class="text-xs font-bold text-primary">GOOG</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Alphabet Inc.</p>
+<p class="text-on-surface-variant text-xs font-medium">$11,252.50</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-tertiary font-bold">+$27.50</p>
+<p class="text-tertiary text-xs font-medium">+0.24%</p>
+</div>
+</div>
+<!-- TSLA -->
+<div class="bg-surface-container-low p-5 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center shadow-sm">
+<span class="text-xs font-bold text-primary">TSLA</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Tesla, Inc.</p>
+<p class="text-on-surface-variant text-xs font-medium">$2,348.40</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-error font-bold">-$69.00</p>
+<p class="text-error text-xs font-medium">-2.85%</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions Section -->
+<section class="space-y-4 pt-4">
+<h2 class="text-sm font-bold text-on-surface-variant uppercase tracking-[0.2em] px-1">Quick Actions</h2>
+<div class="grid grid-cols-1 gap-4">
+<a class="flex items-center justify-between w-full bg-primary text-on-primary p-4 rounded-xl font-bold transition-all hover:bg-primary-dim active:scale-[0.98] group" href="https://www.google.com/finance" target="_blank">
+<div class="flex items-center gap-3">
+<img alt="Analytics Icon" class="w-5 h-5 invert" data-alt="sleek professional icon of a shopping bag with a checkmark in high-contrast navy and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9AjZy9DMlUAzK9bhAjT3kyjo1xU43MM_2STemOUPNkz9aQis6qoswdZiAQlS2zhBIPwyKOHSJ9flP97J2tH8d6YdjlD1twlcTaszJMT7Qe7w6iuL3TX8S4hshbOl9za8CklGaLiyaODiWV5vuUzrAuybAIXhm3Za02pTYIOCrI0UH6gciDN2geYgQ2GJSmCMeV92DTFlT50nxRLP7X-rodUywCBKsxHo2IqgD7xpi89JSIFiom2xP5KSGsK1r2OCP735nrf4U4XY"/>
+<span>View Detailed Analytics</span>
+</div>
+<span class="material-symbols-outlined text-on-primary opacity-50 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</a>
+<a class="flex items-center justify-between w-full bg-secondary-container text-on-secondary-container p-4 rounded-xl font-bold transition-all hover:opacity-90 active:scale-[0.98] group" href="https://www.fidelity.com/trading/overview" target="_blank">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Access Trading Platform</span>
+</div>
+<span class="material-symbols-outlined opacity-50 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</a>
+</div>
+</section>
+<footer class="pt-8 pb-12 text-center">
+<p class="text-on-surface-variant text-[10px] uppercase tracking-widest leading-loose">Data accurate as of close of market<br/>June 14, 2023 • 4:00 PM EST</p>
+</footer>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-[#ffffff]/80 dark:bg-slate-900/80 backdrop-blur-lg flex justify-around items-center pt-3 pb-6 px-4 border-t border-[#abb3b7]/15 shadow-2xl">
+<a class="flex flex-col items-center justify-center text-[#4c56af] dark:text-[#4c56af] font-bold hover:opacity-80 transition-opacity active:translate-y-0.5 duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-['Inter'] font-medium text-[10px] uppercase tracking-widest mt-1">Portfolio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#586064] dark:text-slate-400 hover:opacity-80 transition-opacity active:translate-y-0.5 duration-150" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-['Inter'] font-medium text-[10px] uppercase tracking-widest mt-1">Market</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#586064] dark:text-slate-400 hover:opacity-80 transition-opacity active:translate-y-0.5 duration-150" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-['Inter'] font-medium text-[10px] uppercase tracking-widest mt-1">Analytics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#586064] dark:text-slate-400 hover:opacity-80 transition-opacity active:translate-y-0.5 duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Inter'] font-medium text-[10px] uppercase tracking-widest mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

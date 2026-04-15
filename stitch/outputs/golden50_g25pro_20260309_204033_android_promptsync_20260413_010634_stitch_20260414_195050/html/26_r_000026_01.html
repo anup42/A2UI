@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Be+Vietnam+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#f3eff6",
+                        "on-surface-variant": "#acaab0",
+                        "surface-container": "#19191e",
+                        "outline-variant": "#48474c",
+                        "on-primary-container": "#005d5d",
+                        "on-background": "#f3eff6",
+                        "on-error-container": "#ffa8a3",
+                        "secondary": "#ff51fa",
+                        "surface": "#0e0e12",
+                        "secondary-fixed": "#ffbdf3",
+                        "surface-container-highest": "#25252b",
+                        "on-secondary-fixed": "#620061",
+                        "inverse-on-surface": "#55545a",
+                        "primary": "#c1fffe",
+                        "surface-variant": "#25252b",
+                        "error": "#ff716c",
+                        "tertiary": "#ac89ff",
+                        "error-container": "#9f0519",
+                        "on-secondary": "#400040",
+                        "secondary-fixed-dim": "#ffa6f3",
+                        "surface-container-high": "#1f1f25",
+                        "primary-fixed": "#00f5f5",
+                        "tertiary-container": "#7000ff",
+                        "error-dim": "#d7383b",
+                        "inverse-surface": "#fcf8fe",
+                        "on-primary": "#006767",
+                        "outline": "#76757a",
+                        "surface-tint": "#c1fffe",
+                        "primary-dim": "#00e6e6",
+                        "inverse-primary": "#006a6a",
+                        "background": "#0e0e12",
+                        "on-tertiary-fixed-variant": "#4700a7",
+                        "secondary-dim": "#ff51fa",
+                        "surface-container-low": "#131318",
+                        "primary-container": "#00ffff",
+                        "tertiary-fixed-dim": "#b190ff",
+                        "on-secondary-container": "#fff5f9",
+                        "on-primary-fixed-variant": "#006262",
+                        "on-tertiary-container": "#f8f1ff",
+                        "surface-dim": "#0e0e12",
+                        "on-primary-fixed": "#004343",
+                        "tertiary-fixed": "#bda1ff",
+                        "surface-container-lowest": "#000000",
+                        "on-secondary-fixed-variant": "#920091",
+                        "surface-bright": "#2c2b32",
+                        "tertiary-dim": "#874cff",
+                        "on-tertiary": "#290067",
+                        "primary-fixed-dim": "#00e6e6",
+                        "on-error": "#490006",
+                        "secondary-container": "#a900a9",
+                        "on-tertiary-fixed": "#1f0052"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Space Grotesk"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(37, 37, 43, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .neon-glow-primary {
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+        .neon-glow-secondary {
+            text-shadow: 0 0 10px rgba(255, 81, 250, 0.6);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0e0e12; }
+        ::-webkit-scrollbar-thumb { background: #25252b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #48474c; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary-fixed">
+<!-- Top Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e12]/60 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="text-2xl font-black tracking-widest text-[#00FFFF] drop-shadow-[0_0_8px_rgba(0,255,255,0.8)] font-headline">NEON PULSE</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#f3eff6] hover:opacity-80 transition-opacity active:scale-95 duration-200">menu</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User Profile" data-alt="close-up portrait of a young person with neon face paint under blacklight, vibrant pink and cyan highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJCXV3ltSiELFmEkOHDFujFlNHK6HA8bqCj13OsG2fvM_nfROksa6LwjFlxtvQjycTE8GIoLRGaLK2D0xvLJiNIbrz9vYVh5XT-_umlipwQNQhD1bhWQrzPV1yFW1Z4pN-l1ZnYNaqNu99mFHy6n6FJSsDD1HEWGzDGXt0gIZFumc_Z90gJvKFIc4NNmGBxkuZwB_wn6s7TssPbZMUeh1xU8R4xunYWQXZRNUkHjuChzLarex9bQWNa18wDu6AMd2FgwlUBu5Y9Qw"/>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto">
+<!-- Hero Header Section -->
+<header class="relative rounded-xl overflow-hidden mb-12">
+<div class="absolute inset-0 z-10 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
+<img alt="Ethereal Beats Festival" class="w-full h-[400px] object-cover" data-alt="massive outdoor festival stage at night with huge LED screens showing abstract liquid patterns and intense cyan lasers cutting through haze" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-P0iWTWG7Hy7A0on7kdtD0-spEhPGE2e3OEc-koX9DVVDGxQH9a76EDqRqWLDKN7M2jn9sFk5bfqmYjapRQ0ncfJrLptMHCKD4zItIjOeHACxThR7q4IcEFWW2_tVojhiXivk-_1eBEwUhALDB6zNadOWyTFAl55wO-YCEjEj40NSt9F7ssNOM6A7_HAWYyrPcyXYwJu864OvBlBWLfdaxkrv4aZ4qBBVFaAXHj6SrodRz-bz-dGBo_Nrov2eM56zQyqVrQAher0"/>
+<div class="absolute bottom-0 left-0 z-20 p-8 md:p-12 w-full">
+<h1 class="font-headline font-bold text-5xl md:text-7xl mb-4 tracking-tighter leading-none neon-glow-primary">
+                    ETHEREAL <br/>BEATS
+                </h1>
+<div class="max-w-2xl">
+<p class="text-lg md:text-xl text-on-surface-variant font-medium leading-relaxed">
+                        Welcome to your bespoke journey. Immerse yourself in the sonic landscapes of <span class="text-primary font-bold">The Wandering Stars</span>, the explosive energy of <span class="text-secondary font-bold">Solar Flare</span>, and the organic textures of <span class="text-tertiary font-bold">Echo Bloom</span>.
+                    </p>
+</div>
+</div>
+</header>
+<!-- Conflict Warning Section -->
+<section class="mb-12">
+<div class="p-8 rounded-lg bg-error/10 border-l-4 border-error relative overflow-hidden group">
+<div class="absolute -right-12 -top-12 opacity-10 rotate-12 transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-[160px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+<h2 class="font-headline font-bold text-2xl uppercase tracking-widest text-error">Critical Conflict Warning</h2>
+</div>
+<p class="text-on-surface text-lg mb-6 max-w-3xl leading-relaxed">
+<strong class="text-error-dim">20:00 - 21:15 OVERLAP:</strong> You have a major scheduling crunch. <span class="font-bold">Solar Flare</span> is finishing their peak set while both <span class="font-bold text-secondary">The Wandering Stars</span> and <span class="font-bold text-tertiary">Echo Bloom</span> begin their performances at opposite ends of the festival grounds.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<span class="px-4 py-1 rounded-full bg-error-container text-on-surface font-headline text-xs uppercase tracking-widest">Action Required</span>
+<span class="px-4 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-headline text-xs uppercase tracking-widest">20:10 Decision Point</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Schedule Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Quick Actions & Visuals -->
+<div class="lg:col-span-4 space-y-8 order-2 lg:order-1">
+<div class="bg-surface-container-low p-6 rounded-lg space-y-6">
+<h3 class="font-headline font-bold text-xl uppercase tracking-widest text-primary">Quick Actions</h3>
+<a class="flex items-center justify-between w-full p-4 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-headline font-bold uppercase tracking-wider hover:opacity-90 transition-all active:scale-95" href="https://www.lollapalooza.com/map">
+<span>View Festival Map</span>
+<span class="material-symbols-outlined">map</span>
+</a>
+</div>
+<div class="rounded-lg overflow-hidden relative h-64 group">
+<img alt="Festival Spirit" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="overhead shot of a vast festival crowd with glowing wristbands and phone lights creating a sea of sparkles in the dark night" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8AlBn982V8RNB2H3B5vq4Jb0muhXiwROgoTArG_NGhUxMhM6d-Zb2hV2ZYjixbpkb1LYJfVeasy6SlRiYxyTTFz0uX3laRIcWm4RXMLBamcAgyj2T9dLL_ZrzKKc4Gr6l0hyayKXrE0byTBsZTiHR5y_GGZ1_ss8fp1TXN0jXbZ-cz5Kc2-9fB3auTauWzK9aF6GqIC8l_PB8JoaRdjcDFhFvfHBhguajob9NiIXTScN5XdsvVzGppENJRrqOR_6hxZNQCzeMusw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+<div class="absolute bottom-4 left-4">
+<span class="font-headline font-bold text-on-surface uppercase tracking-tighter text-xl">Join the Vibe</span>
+</div>
+</div>
+<div class="bg-surface-container-highest p-6 rounded-lg border-l-2 border-secondary/30">
+<h4 class="font-headline font-bold text-secondary uppercase text-sm tracking-widest mb-2">Pro Tip</h4>
+<p class="text-on-surface-variant text-sm italic">"The walk from Grove Stage to Main Stage takes approximately 12 minutes. Plan your DECISION POINT accordingly."</p>
+</div>
+</div>
+<!-- Right Column: Timeline Schedule -->
+<div class="lg:col-span-8 order-1 lg:order-2">
+<div class="space-y-6 relative before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-[2px] before:bg-outline-variant/30">
+<!-- 17:00 Item -->
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 w-10 h-10 rounded-full bg-surface-container-high border-4 border-background flex items-center justify-center z-10">
+<span class="w-2 h-2 rounded-full bg-on-surface-variant"></span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-lg transition-all hover:bg-surface-container-high group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline text-primary text-sm font-bold tracking-widest uppercase">17:00 - 18:30</span>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="text-xs uppercase font-headline tracking-widest">Grove Stage</span>
+</div>
+</div>
+<h3 class="font-headline font-bold text-2xl text-on-surface group-hover:text-primary transition-colors">Forest Dwellers</h3>
+<p class="text-on-surface-variant mt-2">Deep melodic techno to set the afternoon mood.</p>
+</div>
+</div>
+<!-- 18:30 Item -->
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 w-10 h-10 rounded-full bg-surface-container-high border-4 border-background flex items-center justify-center z-10">
+<span class="w-2 h-2 rounded-full bg-on-surface-variant"></span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-lg transition-all hover:bg-surface-container-high">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline text-on-surface-variant text-sm font-bold tracking-widest uppercase">18:30 - 19:00</span>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">restaurant</span>
+<span class="text-xs uppercase font-headline tracking-widest">Grove Stage Area</span>
+</div>
+</div>
+<h3 class="font-headline font-bold text-xl text-on-surface">Get Food / Secure Spot</h3>
+<p class="text-on-surface-variant mt-1 text-sm italic">Grab a quick bite near the Grove and push towards the front for the next act.</p>
+</div>
+</div>
+<!-- 19:00 Item -->
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 w-10 h-10 rounded-full bg-surface-container-high border-4 border-background flex items-center justify-center z-10">
+<span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_10px_rgba(255,81,250,0.5)]"></span>
+</div>
+<div class="glass-card p-6 rounded-lg border-l-4 border-secondary transition-all hover:translate-x-1">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline text-secondary text-sm font-bold tracking-widest uppercase">19:00 - 20:10</span>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">bolt</span>
+<span class="text-xs uppercase font-headline tracking-widest">Grove Stage</span>
+</div>
+</div>
+<h3 class="font-headline font-bold text-3xl text-on-surface mb-2 tracking-tight">Solar Flare</h3>
+<p class="text-on-surface-variant font-medium">High-octane electronic performance. The peak of the early night.</p>
+</div>
+</div>
+<!-- 20:10 DECISION POINT -->
+<div class="relative pl-12 py-4">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-error shadow-[0_0_20px_rgba(255,113,108,0.6)] flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-white text-xl">shuffle</span>
+</div>
+<div class="bg-gradient-to-r from-error/20 to-transparent p-6 rounded-xl border border-error/30">
+<h3 class="font-headline font-bold text-2xl text-error uppercase tracking-widest mb-1">DECISION POINT</h3>
+<p class="text-on-surface text-sm uppercase tracking-widest font-headline">20:10 sharp • Leave Grove Stage NOW</p>
+</div>
+</div>
+<!-- Branching Options -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-12">
+<!-- Option A -->
+<div class="bg-surface-container-highest p-5 rounded-lg border-t-2 border-tertiary/50">
+<div class="flex justify-between mb-3">
+<span class="bg-tertiary/20 text-tertiary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">Option A</span>
+<span class="text-on-surface-variant text-[10px] uppercase font-headline">20:15 - 21:15</span>
+</div>
+<h4 class="font-headline font-bold text-lg text-on-surface mb-1">Echo Bloom</h4>
+<div class="flex items-center gap-1 text-on-surface-variant text-xs mb-3">
+<span class="material-symbols-outlined text-sm">waves</span>
+<span>River Tent</span>
+</div>
+<p class="text-on-surface-variant text-xs leading-relaxed italic">Stay for atmospheric visuals and intimate vibes.</p>
+</div>
+<!-- Option B -->
+<div class="bg-surface-container-highest p-5 rounded-lg border-t-2 border-primary/50">
+<div class="flex justify-between mb-3">
+<span class="bg-primary/20 text-primary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">Option B</span>
+<span class="text-on-surface-variant text-[10px] uppercase font-headline">20:25 - 21:30</span>
+</div>
+<h4 class="font-headline font-bold text-lg text-on-surface mb-1">The Wandering Stars</h4>
+<div class="flex items-center gap-1 text-on-surface-variant text-xs mb-3">
+<span class="material-symbols-outlined text-sm">star</span>
+<span>Main Stage</span>
+</div>
+<p class="text-on-surface-variant text-xs leading-relaxed italic">Head for the grand spectacle and full band setup.</p>
+</div>
+</div>
+<!-- 21:15 Finale -->
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 w-10 h-10 rounded-full bg-primary shadow-[0_0_15px_rgba(0,255,255,0.4)] border-4 border-background flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-on-primary-fixed text-lg">celebration</span>
+</div>
+<div class="bg-surface-container p-8 rounded-lg border-2 border-primary/20 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline text-primary text-sm font-bold tracking-widest uppercase">21:15 - 21:30</span>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+<span class="text-xs uppercase font-headline tracking-widest">Main Stage</span>
+</div>
+</div>
+<h3 class="font-headline font-bold text-4xl text-on-surface tracking-tighter">Festival Finale</h3>
+<p class="text-on-surface-variant mt-2 font-medium">Breathtaking pyrotechnics and a coordinated light show synchronized with a special mystery track.</p>
+</div>
+</div>
+<!-- Finale Visual -->
+<div class="pl-12">
+<div class="rounded-lg overflow-hidden h-48">
+<img alt="Festival Finale Lights" class="w-full h-full object-cover" data-alt="dramatic wide shot of a festival stage during a finale with golden fireworks bursting in the sky and purple searchlights beaming upwards" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXKZNxFjtyA35evG7aiA1sFxLUd9TQPVJw6bZEyCOtFpGljbWwmOOSy_mRu_WbCBROeLZWR8FtQdGEbyxs984RqZJczfpdf-f1y8GVfwzFKCEYFgM1naGq8hYqSaGMkJoNhqWkN3RpCXw19Ghxe_F3cq3MruClsf0topkv6UExXhUpb-CaV5lRJkIYrsL0TuqmZ4qoczGNgtJJH42KdfFto6WYVC6q0fjifva0wOG3iIDTqLjxnYwDX1Di1fE6zDXG6LpMGbCv9EE"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full h-24 flex justify-around items-center px-8 pb-4 bg-[#0e0e12]/60 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-4px_20px_rgba(255,81,250,0.08)]">
+<a class="flex flex-col items-center justify-center bg-gradient-to-br from-[#c1fffe] to-[#00ffff] text-[#0e0e12] rounded-full px-6 py-2 scale-110 shadow-[0_0_15px_rgba(0,255,255,0.5)] transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-headline text-[10px] uppercase tracking-[0.1em] mt-1">Schedule</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#f3eff6] opacity-60 hover:opacity-100 transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-headline text-[10px] uppercase tracking-[0.1em] mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#f3eff6] opacity-60 hover:opacity-100 transition-all active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-headline text-[10px] uppercase tracking-[0.1em] mt-1">Discover</span>
+</a>
+</nav>
+</body></html>

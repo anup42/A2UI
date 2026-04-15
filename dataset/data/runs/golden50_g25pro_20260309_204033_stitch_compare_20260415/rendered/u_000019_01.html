@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "intro_text", "pricing_card", "selections_title", "options_stack", "comparison_title", "comparison_table", "gallery_title", "gallery_stack", "actions_title", "map_button"]}, "title": {"type": "Text", "props": {"text": "Hotel Recommendations Near Liverpool Street", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Here are three hotel options for your business trip to London from October 21-24, 2024. Each selection is located within a 15-minute walk of Liverpool Street Station and is chosen to meet your requirements.", "variant": "body"}, "children": []}, "pricing_card": {"type": "Card", "props": {}, "children": ["pricing_stack"]}, "pricing_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["pricing_title", "pricing_body"]}, "pricing_title": {"type": "Text", "props": {"text": "A Note on Pricing and Availability", "variant": "h3"}, "children": []}, "pricing_body": {"type": "Text", "props": {"text": "The prices listed are estimates based on typical rates for an October stay and are subject to change. It is recommended to book in advance to secure the best rates. Please use the provided links to verify the final pricing.", "variant": "body"}, "children": []}, "selections_title": {"type": "Text", "props": {"text": "Business-Ready Hotel Selections", "variant": "h2"}, "children": []}, "options_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["option1_card", "option2_card", "option3_card"]}, "option1_card": {"type": "Card", "props": {}, "children": ["option1_stack"]}, "option1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option1_title", "option1_subtitle", "option1_body", "option1_button"]}, "option1_title": {"type": "Text", "props": {"text": "citizenM London Shoreditch", "variant": "h3"}, "children": []}, "option1_subtitle": {"type": "Text", "props": {"text": "Tech-forward hotel with a vibrant co-working lobby | Approx. 10-minute walk", "variant": "caption"}, "children": []}, "option1_body": {"type": "Text", "props": {"text": "This hotel is ideal for the modern business traveler, featuring app-controlled room settings, a comfortable king-size bed, and a compact but functional workspace. The lobby is designed as a dynamic co-working space.", "variant": "body"}, "children": []}, "option1_button": {"type": "Button", "props": {"label": "Check Rates & Availability", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.citizenm.com/hotels/united-kingdom/london/london-shoreditch-hotel"}}}}, "option2_card": {"type": "Card", "props": {}, "children": ["option2_stack"]}, "option2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option2_title", "option2_subtitle", "option2_body", "option2_button"]}, "option2_title": {"type": "Text", "props": {"text": "The Hoxton, Shoreditch", "variant": "h3"}, "children": []}, "option2_subtitle": {"type": "Text", "props": {"text": "Stylish boutique hotel with a creative atmosphere | Approx. 10-minute walk", "variant": "caption"}, "children": []}, "option2_body": {"type": "Text", "props": {"text": "Known for its trendy design, The Hoxton offers rooms with a dedicated desk. It provides a boutique experience with free Wi-Fi and a lively environment for networking or unwinding after work.", "variant": "body"}, "children": []}, "option2_button": {"type": "Button", "props": {"label": "Check Rates & Availability", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://thehoxton.com/london/shoreditch/"}}}}, "option3_card": {"type": "Card", "props": {}, "children": ["option3_stack"]}, "option3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["option3_title", "option3_subtitle", "option3_body", "option3_button"]}, "option3_title": {"type": "Text", "props": {"text": "Point A Hotel London Liverpool Street", "variant": "h3"}, "children": []}, "option3_subtitle": {"type": "Text", "props": {"text": "Smart, budget-friendly choice in a prime location | Approx. 5-minute walk", "variant": "caption"}, "children": []}, "option3_body": {"type": "Text", "props": {"text": "This hotel offers a compact and efficient stay. Rooms feature a comfortable bed, power showers, and a small fold-down desk. Its proximity to the station is a major advantage for convenience.", "variant": "body"}, "children": []}, "option3_button": {"type": "Button", "props": {"label": "Check Rates & Availability", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.pointahotels.com/our-hotels/london-liverpool-street"}}}}, "comparison_title": {"type": "Text", "props": {"text": "Quick Feature Comparison", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "hotelName", "label": "Hotel Name"}, {"key": "price", "label": "Est. Price / Night"}, {"key": "walk", "label": "Walk to Station"}, {"key": "feature", "label": "Key Business Feature"}], "rows": [{"hotelName": "citizenM London Shoreditch", "price": "£180 - £210", "walk": "10 min", "feature": "Excellent co-working style lobby and tech-integrated rooms."}, {"hotelName": "The Hoxton, Shoreditch", "price": "£190 - £220", "walk": "10 min", "feature": "Designer rooms with dedicated desks and a vibrant atmosphere."}, {"hotelName": "Point A Hotel Liverpool St", "price": "£150 - £180", "walk": "5 min", "feature": "Unbeatable location and value with essential workspace."}], "domain": "booking", "preferredPresentation": "table"}, "children": []}, "gallery_title": {"type": "Text", "props": {"text": "Gallery", "variant": "h2"}, "children": []}, "gallery_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000019_01_1_modern_hotel_room_desk.jpg", "fit": "cover"}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000019_01_2_shoreditch_london.jpg", "fit": "cover"}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000019_01_3_hotel_lobby_workspace.jpg", "fit": "cover"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "map_button": {"type": "Button", "props": {"label": "View Hotels on Map", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/maps/search/Hotels+near+Liverpool+Street+Station,+London/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

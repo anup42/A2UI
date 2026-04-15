@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Archive | Narrative Tech &amp; Science</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-serif {
+            font-family: 'Newsreader', serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#5edbc1",
+                      "on-secondary": "#ffffff",
+                      "tertiary": "#006b5b",
+                      "surface-tint": "#9a442d",
+                      "error-container": "#ffdad6",
+                      "outline": "#88726d",
+                      "secondary-container": "#dae1e1",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#f5f3ef",
+                      "on-background": "#1b1c1a",
+                      "tertiary-container": "#19a992",
+                      "on-tertiary-container": "#00362d",
+                      "secondary-fixed-dim": "#c1c8c7",
+                      "tertiary-fixed": "#7df7dd",
+                      "on-error-container": "#93000a",
+                      "inverse-on-surface": "#f2f0ed",
+                      "surface-container-high": "#eae8e4",
+                      "on-primary": "#ffffff",
+                      "outline-variant": "#dbc1ba",
+                      "surface-container": "#efeeea",
+                      "primary-container": "#e07a5f",
+                      "on-secondary-fixed": "#161d1d",
+                      "primary": "#9a442d",
+                      "on-secondary-container": "#5d6464",
+                      "surface-container-highest": "#e4e2de",
+                      "secondary-fixed": "#dde4e3",
+                      "primary-fixed": "#ffdbd2",
+                      "inverse-surface": "#30312e",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed": "#00201a",
+                      "on-secondary-fixed-variant": "#414848",
+                      "on-primary-container": "#5b1604",
+                      "surface-bright": "#fbf9f5",
+                      "primary-fixed-dim": "#ffb4a1",
+                      "background": "#fbf9f5",
+                      "on-primary-fixed": "#3c0800",
+                      "on-surface": "#1b1c1a",
+                      "secondary": "#596060",
+                      "surface-variant": "#e4e2de",
+                      "surface": "#fbf9f5",
+                      "surface-dim": "#dbdad6",
+                      "inverse-primary": "#ffb4a1",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#55423e",
+                      "on-primary-fixed-variant": "#7c2e19",
+                      "on-tertiary-fixed-variant": "#005144",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Newsreader"],
+                      "body": ["Manrope"],
+                      "label": ["Manrope"]
+              }
+            },
+          }
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- TopAppBar Section -->
+<header class="fixed top-0 w-full z-50 bg-[#fbf9f5]/80 backdrop-blur-md shadow-sm">
+<div class="flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#1b1c1a]">menu</span>
+<h1 class="font-serif text-2xl tracking-tighter Newsreader font-bold text-[#9a442d]">The Archive</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/20">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="Professional portrait of a male curator in a minimalist studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClF7mTts7AM9L6YuZk1xUTkTb2QKT-A01mUmFGP_ErZ8EE-v82ERMyP5gMdRc4_uaKV3KOCxAOji_wLeJRR6jzR-XUlbuvBUpPFBccNQHSMvMXGF_lWj1AvgPavGE0kEAOCiifgXRFvs9TJJZP934OYu_sHf_L-80wIMLs0yVj5EPWtGzBomWbKZg1tA5LrUwEgfv0mbIsDcssYw-2RQO_2kkfBz0zDy7pm4PLCHD-RINYDUAY_xRvHXyJfEsr2_Lg3NsCQoT5iqs"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto space-y-12">
+<!-- Editorial Header -->
+<section class="space-y-4">
+<span class="text-primary font-bold tracking-widest text-[10px] uppercase font-label">Curated Collection</span>
+<h2 class="font-serif text-5xl font-bold tracking-tight leading-none text-on-surface">Narrative Tech &amp; Science</h2>
+<div class="h-1 w-12 bg-primary"></div>
+</section>
+<!-- A Note on Your Listening Criteria -->
+<section class="bg-surface-container-low p-8 rounded-xl border-l-4 border-primary/20 space-y-4">
+<h3 class="font-serif text-2xl font-semibold text-on-surface">A Note on Your Listening Criteria</h3>
+<p class="text-on-surface-variant leading-relaxed font-body">
+                This selection is architected for the intentional listener. We prioritize <span class="text-primary font-semibold italic">structured, deep-dive storytelling</span> that balances technical complexity with human narrative. Each entry is selected based on a 25-40 minute target, ensuring a complete journey during a focused session.
+            </p>
+<div class="flex flex-wrap gap-3 pt-2">
+<span class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">25-40 MINS</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">DEEP DIVE</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">NARRATIVE</span>
+</div>
+</section>
+<!-- Hero Context Image -->
+<div class="aspect-[16/9] w-full rounded-xl overflow-hidden shadow-sm">
+<img alt="Podcast Studio" class="w-full h-full object-cover grayscale-[20%] contrast-110" data-alt="A professional podcast recording studio with high-end microphones, acoustic foam panels, and warm ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoqF5cNKSqFgCjz5ywJUMkMdLYj-efBWad7ApGA5_mixCkZw6A8O_Dwwx88g9ujItNZtZ8VFozHJDkSc53QfQr_CfPdOZLhBph1Ib8Iifs8rUESGupcTMQcVLiPJFhgO_Fhityg2oVVzPZuNIY0fXtJRSLjgBmyxMuQTaFYLB1z7h7AK9Vd3e5r5a4EE4Joq6GtnLVgoiQH8-IgPzkEPUdSr9urLWw384FyhuKSavSVtzLx_xlwSKHgmd85jUDIZbJuznLIJ09d0w"/>
+</div>
+<!-- Top Picks for Your Playlist -->
+<section class="space-y-8">
+<div class="flex justify-between items-end border-b border-outline-variant/15 pb-4">
+<h3 class="font-serif text-3xl font-bold">Top Picks for Your Playlist</h3>
+<span class="material-symbols-outlined text-primary">auto_stories</span>
+</div>
+<!-- Podcast Entry 1 -->
+<article class="group">
+<div class="flex flex-col md:flex-row gap-6 items-start">
+<div class="w-full md:w-1/3 aspect-square rounded-lg overflow-hidden bg-surface-container">
+<img alt="99% Invisible Theme" class="w-full h-full object-cover" data-alt="Modern architectural detail showing geometric shadows on a concrete wall with sharp minimalist lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ2Sc69b10uJd8-HZC3nJIIWCjCyCbiG67d6mZcENSaVDGW63kFh2QWieQEjHgnw_6ZiNYXEkauihMUMuuwtXGufBr_SRMbWl2YhMjCcbAjgTUyjmWLQDxLRDK7KQ3FlPex7MEVfFi0L3QlZwRMm3qJFuKvQ4oKmFG7RppwXHSjkPLpmytUly_JHDQztWc5zqGWqUfllQPIIaMzvNMDFRhlwozngaUYsAo1oQ26uZNFKLnJPbVJx36H3Dvr60sGqX25UGKp7HjDqk"/>
+</div>
+<div class="flex-1 space-y-3">
+<div class="flex justify-between items-center">
+<h4 class="font-serif text-2xl font-bold group-hover:text-primary transition-colors">99% Invisible</h4>
+<span class="text-xs font-bold text-primary italic">Architecture</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed">Explores the hidden design and architecture that shapes our world.</p>
+<p class="text-xs text-on-surface italic"><strong class="font-bold uppercase text-[10px] tracking-wider not-italic mr-2">Best for:</strong>Making complex topics accessible.</p>
+<a class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-primary-container transition-colors mt-2" href="https://99percentinvisible.org/">
+                            Listen Now
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Podcast Entry 2 -->
+<article class="group">
+<div class="flex flex-col md:flex-row gap-6 items-start">
+<div class="w-full md:w-1/3 aspect-square rounded-lg overflow-hidden bg-surface-container">
+<img alt="Science Lab" class="w-full h-full object-cover" data-alt="Close-up of glass laboratory equipment with colorful chemical reactions under dramatic spotlighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6giA2Woqm4UZejlHSaYIIWP-H1TPaj6tScQO_ixcKpjeduXpbFRXiskWrjGAvkK0fNvGG10qOvFRQYmlX5wwkvSCW7dGjuggL1jGGr3W_glJThlewbtP4wgTnI622z6bxfhA8oUV05c9ZeR5NAGMmoPe2g3h6ASxdEKdgRcS0wXsndpVqPMilQnUPcohf0tYZxehk_d3gy6fZYb5quf1qDY5vncbdp53-SKf30CusEespEPVpyB2gHtsECOMehxTF_H9f1iVzVis"/>
+</div>
+<div class="flex-1 space-y-3">
+<div class="flex justify-between items-center">
+<h4 class="font-serif text-2xl font-bold group-hover:text-primary transition-colors">Radiolab</h4>
+<span class="text-xs font-bold text-primary italic">Philosophy</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed">Investigates big questions in science, philosophy, and the human experience.</p>
+<p class="text-xs text-on-surface italic"><strong class="font-bold uppercase text-[10px] tracking-wider not-italic mr-2">Best for:</strong>Deep scientific storytelling.</p>
+<a class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-primary-container transition-colors mt-2" href="https://radiolab.org/podcasts">
+                            Listen Now
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Podcast Entry 3 -->
+<article class="group">
+<div class="flex flex-col md:flex-row gap-6 items-start">
+<div class="w-full md:w-1/3 aspect-square rounded-lg overflow-hidden bg-surface-container">
+<img alt="Circuit Board" class="w-full h-full object-cover" data-alt="Detailed view of a green glowing circuit board with intricate copper pathways and digital components" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvr25dPyWju7QtBBanXqOJf6SdwviY8NFEovn-eIv8JVpOJsjbOLjeS5OQjnoTgMq5UX0QvJoASgL9JjToBvT7e3incB1PiPSaD6v6YzFWPUXFUFBe-WGr183aSYviL0Ot3ceompXGO9IbT-WYRPr5E1N_uz__wARbYJRHDDKjDCoBl9vDr8cST8bKPAqYf6pI3AjTUdlvf0eBlYl8coSFCNdCfMHouVosXTnozxe_p600_6HJLZQQq2jasUxaHaKrB-LRgFzgyVU"/>
+</div>
+<div class="flex-1 space-y-3">
+<div class="flex justify-between items-center">
+<h4 class="font-serif text-2xl font-bold group-hover:text-primary transition-colors">Darknet Diaries</h4>
+<span class="text-xs font-bold text-primary italic">Cybersecurity</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed">True stories from the dark side of the internet.</p>
+<p class="text-xs text-on-surface italic"><strong class="font-bold uppercase text-[10px] tracking-wider not-italic mr-2">Best for:</strong>Gripping tech narratives.</p>
+<a class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-primary-container transition-colors mt-2" href="https://darknetdiaries.com/">
+                            Listen Now
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+</article>
+</section>
+<!-- Comparison Table Section -->
+<section class="space-y-6">
+<h3 class="font-serif text-2xl font-bold">How the Recommendations Compare</h3>
+<div class="overflow-x-auto -mx-6 px-6">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="py-4 px-4 text-[10px] uppercase tracking-widest font-bold text-primary border-b border-outline-variant/15">Podcast</th>
+<th class="py-4 px-4 text-[10px] uppercase tracking-widest font-bold text-primary border-b border-outline-variant/15">Primary Focus</th>
+<th class="py-4 px-4 text-[10px] uppercase tracking-widest font-bold text-primary border-b border-outline-variant/15">Typical Length</th>
+<th class="py-4 px-4 text-[10px] uppercase tracking-widest font-bold text-primary border-b border-outline-variant/15">Storytelling Style</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="py-4 px-4 font-bold font-serif text-lg">99% Invisible</td>
+<td class="py-4 px-4 text-on-surface-variant">Design &amp; Architecture</td>
+<td class="py-4 px-4 text-on-surface-variant">25-35m</td>
+<td class="py-4 px-4 text-on-surface-variant">Essayist / Documentary</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="py-4 px-4 font-bold font-serif text-lg">Radiolab</td>
+<td class="py-4 px-4 text-on-surface-variant">Science &amp; Humanity</td>
+<td class="py-4 px-4 text-on-surface-variant">40-60m</td>
+<td class="py-4 px-4 text-on-surface-variant">Sound-rich / Dialectic</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="py-4 px-4 font-bold font-serif text-lg">Darknet Diaries</td>
+<td class="py-4 px-4 text-on-surface-variant">Tech &amp; Cybersecurity</td>
+<td class="py-4 px-4 text-on-surface-variant">45-60m</td>
+<td class="py-4 px-4 text-on-surface-variant">Suspenseful Narrative</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="grid grid-cols-1 gap-4 pt-8 border-t border-outline-variant/20">
+<button class="w-full flex items-center justify-center gap-3 py-4 rounded-xl border border-outline-variant/30 text-on-surface font-bold uppercase tracking-widest text-xs hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary">headphones</span>
+                Explore Podcasts on Spotify
+            </button>
+<button class="w-full flex items-center justify-center gap-3 py-4 rounded-xl border border-outline-variant/30 text-on-surface font-bold uppercase tracking-widest text-xs hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary">podcasts</span>
+                Explore Podcasts on Apple
+            </button>
+</section>
+</main>
+<!-- BottomNavBar Section -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-[#fbf9f5]/80 backdrop-blur-md border-t border-[#dbc1ba]/15 shadow-[0_-12px_40px_rgba(27,28,26,0.06)]">
+<div class="flex justify-around items-center h-20 pb-safe px-4">
+<div class="flex flex-col items-center justify-center text-[#9a442d] scale-110">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-sans text-[10px] uppercase tracking-widest Manrope font-medium mt-1">Library</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#1b1c1a]/60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-sans text-[10px] uppercase tracking-widest Manrope font-medium mt-1">Discover</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#1b1c1a]/60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">bookmarks</span>
+<span class="font-sans text-[10px] uppercase tracking-widest Manrope font-medium mt-1">Curations</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#1b1c1a]/60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-sans text-[10px] uppercase tracking-widest Manrope font-medium mt-1">Settings</span>
+</div>
+</div>
+</nav>
+</body></html>

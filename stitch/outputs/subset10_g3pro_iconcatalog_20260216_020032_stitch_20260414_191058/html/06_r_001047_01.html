@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wedding Day Timeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#5b5e6a",
+                        "surface-container-high": "#e8e8e8",
+                        "primary-container": "#f7e7ce",
+                        "error": "#ba1a1a",
+                        "outline": "#7d766c",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#d3c5ad",
+                        "surface-bright": "#f9f9f9",
+                        "on-secondary-container": "#2a4486",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#726753",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "on-tertiary-container": "#666874",
+                        "on-surface-variant": "#4b463d",
+                        "secondary": "#435b9f",
+                        "on-primary-fixed": "#221b0b",
+                        "surface": "#f9f9f9",
+                        "surface-container-low": "#f3f3f4",
+                        "outline-variant": "#cec5ba",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f1",
+                        "surface-dim": "#dadada",
+                        "primary": "#685d4a",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-container": "#e7e8f7",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f9f9f9",
+                        "on-primary-fixed-variant": "#4f4533",
+                        "tertiary-fixed": "#e0e1f0",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-secondary-fixed": "#00174a",
+                        "inverse-surface": "#2f3131",
+                        "tertiary-fixed-dim": "#c4c6d4",
+                        "on-secondary-fixed-variant": "#2a4386",
+                        "surface-tint": "#685d4a",
+                        "secondary-container": "#9cb4fe",
+                        "primary-fixed-dim": "#d3c5ad",
+                        "on-tertiary-fixed-variant": "#444652",
+                        "surface-container": "#eeeeee",
+                        "secondary-fixed-dim": "#b3c5ff",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1a1c1c",
+                        "primary-fixed": "#f0e0c8",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#181b26"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9;
+        }
+        .serif-text {
+            font-family: 'Noto Serif', serif;
+        }
+        /* Custom scrollbar suppression for cleaner editorial feel */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#F7E7CE]/80 dark:bg-stone-900/80 backdrop-blur-md shadow-[0_12px_32px_-4px_rgba(104,93,74,0.08)] flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#685d4a] cursor-pointer" data-icon="menu">menu</span>
+<h1 class="font-['Noto_Serif'] text-2xl tracking-tighter text-[#685d4a] dark:text-[#F7E7CE] font-bold">Our Special Day</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-fixed overflow-hidden ring-2 ring-primary/20">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a smiling elegant woman wearing a soft lace wedding dress in warm golden hour sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj2p0s8s8YuSgRxZ6w_l1YyvZYbeJmwLC96ScT7nNZ1AgcrPWmENsPrKqfBJtLZ0xUIrd5y2qtKCs0u6Hb1FMcMlI7AFUst3nOY_u8YHB0Hj7f9DMNnN_pknBwyLDyh93Gker1jZDaWpBSxcGJW5UbNCB4CPQyLKh_S43qSzizT7G0rCiTj15PrBRpYdeLC08K3opQ8mWcr3-feOmqe6PbvKOuHF5q3jqWIN2jm9fd6zk56s1QZ3INpfdR1fm7fsxFapN4b3lBOkI9"/>
+</div>
+</header>
+<main class="mt-20 px-6 max-w-lg mx-auto">
+<!-- Editorial Hero Header -->
+<section class="py-8 space-y-2">
+<p class="font-label text-primary uppercase tracking-[0.2rem] text-xs font-semibold">The Schedule</p>
+<h2 class="font-headline text-4xl text-on-surface font-bold tracking-tight">Saturday, June 15, 2025</h2>
+<div class="pt-4 border-l-2 border-primary-fixed-dim pl-4 italic text-on-surface-variant">
+                "30-minute ceremony at the same venue. A day of love, laughter, and lasting memories."
+            </div>
+</section>
+<!-- Quick Actions Horizontal Scroll -->
+<section class="mb-10 -mx-6 px-6 flex gap-4 overflow-x-auto pb-4">
+<a class="flex-shrink-0 bg-surface-container-lowest shadow-sm px-6 py-3 rounded-lg border border-outline-variant/15 flex items-center gap-2 hover:bg-primary-container transition-colors" href="https://www.weddingwire.com/wedding-ideas/wedding-timeline" target="_blank">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="auto_awesome">auto_awesome</span>
+<span class="text-xs font-semibold text-primary uppercase tracking-wider">Wedding Wire Guide</span>
+</a>
+<a class="flex-shrink-0 bg-surface-container-lowest shadow-sm px-6 py-3 rounded-lg border border-outline-variant/15 flex items-center gap-2 hover:bg-primary-container transition-colors" href="https://www.theknot.com/wedding-timeline" target="_blank">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="event_note">event_note</span>
+<span class="text-xs font-semibold text-primary uppercase tracking-wider">The Knot Tools</span>
+</a>
+<a class="flex-shrink-0 bg-surface-container-lowest shadow-sm px-6 py-3 rounded-lg border border-outline-variant/15 flex items-center gap-2 hover:bg-primary-container transition-colors" href="https://www.brides.com/story/wedding-timeline-guide" target="_blank">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="menu_book">menu_book</span>
+<span class="text-xs font-semibold text-primary uppercase tracking-wider">Brides.com Samples</span>
+</a>
+</section>
+<!-- Vertical Timeline Content -->
+<div class="relative">
+<!-- Timeline Connector Line -->
+<div class="absolute left-3 top-2 bottom-0 w-[1px] bg-primary-fixed-dim"></div>
+<div class="space-y-8 pb-12">
+<!-- Event 1 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="photo_camera" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-bold text-secondary uppercase tracking-widest">2:00 PM - 2:30 PM</span>
+<span class="bg-primary-container text-on-primary-container text-[10px] px-2 py-0.5 rounded-full font-bold">30 MIN</span>
+</div>
+<h3 class="font-headline text-xl text-on-surface font-bold">First Look</h3>
+<p class="text-sm text-on-surface-variant mt-1">Private moment between the couple; includes a 30 min buffer for intimacy and touch-ups.</p>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="groups">groups</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-bold text-secondary uppercase tracking-widest">2:30 PM - 3:30 PM</span>
+</div>
+<h3 class="font-headline text-xl text-on-surface font-bold">Formal Photos</h3>
+<p class="text-sm text-on-surface-variant mt-1">Wedding party and family portraits. Ends 30 minutes before the ceremony begins.</p>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="music_note">music_note</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10">
+<span class="text-xs font-bold text-primary uppercase tracking-widest block mb-2">3:30 PM - 4:00 PM</span>
+<h3 class="font-headline text-xl text-on-surface font-bold">Guest Arrival</h3>
+<p class="text-sm text-on-surface-variant mt-1">Prelude music starts. The couple remains hidden from view as guests are seated.</p>
+</div>
+</div>
+<!-- Event 4 (Main Event) -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<div class="bg-primary-fixed rounded-lg p-6 shadow-lg transform -rotate-1">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-black text-on-primary-fixed-variant uppercase tracking-[0.15rem]">4:00 PM - 4:30 PM</span>
+</div>
+<h3 class="font-headline text-2xl text-on-primary-fixed font-bold">The Ceremony</h3>
+<p class="text-sm text-on-primary-fixed-variant mt-2 leading-relaxed">Exchange of vows and rings. 30-minute duration at the primary venue.</p>
+</div>
+</div>
+<!-- Event 5 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-outline-variant flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="ink_pen">ink_pen</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-2">4:30 PM - 4:45 PM</span>
+<h3 class="font-headline text-xl text-on-surface font-bold">Transition Buffer</h3>
+<p class="text-sm text-on-surface-variant mt-1">Movement to cocktail area; signing of the marriage license.</p>
+</div>
+</div>
+<!-- Event 6 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="local_bar" style="font-variation-settings: 'FILL' 1;">local_bar</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10">
+<span class="text-xs font-bold text-secondary uppercase tracking-widest block mb-2">4:45 PM - 5:45 PM</span>
+<h3 class="font-headline text-xl text-on-surface font-bold">Cocktail Hour</h3>
+<p class="text-sm text-on-surface-variant mt-1">Drinks and appetizers served. Candid photography capturing the atmosphere.</p>
+</div>
+</div>
+<!-- Event 7 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="chair">chair</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-4">
+<span class="text-xs font-bold text-primary uppercase tracking-widest block mb-1">5:45 PM - 6:00 PM</span>
+<h3 class="font-headline text-lg text-on-surface font-bold">Seating Transition</h3>
+</div>
+</div>
+<!-- Event 8 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="celebration">celebration</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10">
+<span class="text-xs font-bold text-secondary uppercase tracking-widest block mb-2">6:00 PM - 6:15 PM</span>
+<h3 class="font-headline text-xl text-on-surface font-bold">Grand Entrance</h3>
+<p class="text-sm text-on-surface-variant mt-1">Formal introductions of the wedding party and the couple.</p>
+</div>
+</div>
+<!-- Event 9 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="restaurant" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10">
+<span class="text-xs font-bold text-primary uppercase tracking-widest block mb-2">6:15 PM - 7:15 PM</span>
+<h3 class="font-headline text-xl text-on-surface font-bold">Dinner Service</h3>
+<div class="mt-3 overflow-hidden rounded-lg">
+<img class="w-full h-32 object-cover" data-alt="Exquisitely set wedding reception long table with white florals, gold cutlery, and soft candlelight in a rustic hall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPSSOFiIdORxqvM5Mp7iTLx-WvEUDzWKgjz24bjc_p1DG6eKU0MiSj4-eFOnyOeupJP-wi_EfzkXAUd4tBloHeiq7zZpoYZI4OOLitsqYu59BL36dL3VeVE6O3paenzI2iU1-73CxPwnCnyLqhv_UnwegnpThKqmOe3gE_7bztaoJztbA65kFItzty7qEn8LL5RkZGf4VMWgDnlbUV6tAS56NgDYG-cXUd-3iAGF01FGenTPXxRwHrF1uN7AjR7IhMhOmGXvYNg4cI"/>
+</div>
+</div>
+</div>
+<!-- Event 10 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="record_voice_over">record_voice_over</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10">
+<span class="text-xs font-bold text-secondary uppercase tracking-widest block mb-2">7:15 PM - 7:45 PM</span>
+<h3 class="font-headline text-xl text-on-surface font-bold">Speeches &amp; Toasts</h3>
+<p class="text-sm text-on-surface-variant mt-1">Words of love and wisdom from key family members and friends.</p>
+</div>
+</div>
+<!-- Event 11 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10">
+<span class="text-xs font-bold text-primary uppercase tracking-widest block mb-2">7:45 PM - 8:15 PM</span>
+<h3 class="font-headline text-xl text-on-surface font-bold">First Dance</h3>
+<p class="text-sm text-on-surface-variant mt-1">Traditional first dance followed by parent dances.</p>
+</div>
+</div>
+<!-- Event 12 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center ring-4 ring-background">
+<span class="material-symbols-outlined text-[14px] text-white" data-icon="nightlife">nightlife</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-5 shadow-sm border border-outline-variant/10 border-dashed border-2">
+<span class="text-xs font-bold text-secondary uppercase tracking-widest block mb-2">8:15 PM - 10:00 PM</span>
+<h3 class="font-headline text-xl text-on-surface font-bold">Open Dancing</h3>
+<p class="text-sm text-on-surface-variant mt-1 italic">Note: Cake cutting break at approx. 8:45 PM.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 bg-[#F7E7CE]/80 dark:bg-stone-900/80 backdrop-blur-md flex justify-around items-center px-4 pb-safe z-50 rounded-t-lg shadow-[0_-8px_24px_-4px_rgba(104,93,74,0.05)]">
+<a class="flex flex-col items-center justify-center bg-[#685d4a] text-white rounded-lg px-3 py-1.5 transform translate-y-0.5 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-['Inter'] uppercase tracking-[0.05rem] text-[10px] font-semibold mt-1">Timeline</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-3 py-1.5 hover:bg-stone-200/50 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Inter'] uppercase tracking-[0.05rem] text-[10px] font-semibold mt-1">Guests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-3 py-1.5 hover:bg-stone-200/50 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="font-['Inter'] uppercase tracking-[0.05rem] text-[10px] font-semibold mt-1">Vendors</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 px-3 py-1.5 hover:bg-stone-200/50 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter'] uppercase tracking-[0.05rem] text-[10px] font-semibold mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

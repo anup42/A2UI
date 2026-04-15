@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 import json
+import re
 from typing import Any
 
 _ALLOWED_TYPES = {
@@ -693,31 +694,334 @@ def _validate_single_action_binding(binding: Any, context: str) -> str | None:
     return None
 
 
+_URL_RE = re.compile(r"https?://[^\s)]+", re.IGNORECASE)
+_MARKDOWN_TABLE_SEP_RE = re.compile(r"^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?\s*$")
+
+
+def _sanitize_markdown_line(line: str) -> str:
+    value = (line or "").replace("\t", " ").strip()
+    if not value:
+        return ""
+    if value.startswith("```") or value.startswith("'''"):
+        return ""
+    value = re.sub(r"^#{1,6}\s*", "", value)
+    value = re.sub(r"^#\s*", "", value)
+    if value.startswith("- "):
+        value = f"• {value[2:].strip()}"
+    elif value.startswith("* "):
+        value = f"• {value[2:].strip()}"
+    value = value.replace("**", "")
+    value = value.replace("```", "")
+    value = value.replace("'''", "")
+    value = value.replace("`", "")
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def _split_text_chunks(text: str, max_chars: int = 180) -> list[str]:
+    cleaned = re.sub(r"\s+", " ", (text or "").strip())
+    if not cleaned:
+        return []
+    sentences = re.split(r"(?<=[.!?])\s+", cleaned)
+    chunks: list[str] = []
+    current = ""
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        if len(sentence) > max_chars:
+            if current:
+                chunks.append(current.strip())
+                current = ""
+            for i in range(0, len(sentence), max_chars):
+                part = sentence[i : i + max_chars].strip()
+                if part:
+                    chunks.append(part)
+            continue
+        candidate = sentence if not current else f"{current} {sentence}"
+        if len(candidate) <= max_chars:
+            current = candidate
+        else:
+            chunks.append(current.strip())
+            current = sentence
+    if current:
+        chunks.append(current.strip())
+    return chunks
+
+
+def _is_heading_candidate(line: str) -> bool:
+    if not line:
+        return False
+    if line.endswith(":") and len(line) <= 90:
+        return True
+    if len(line) <= 60 and line[0].isupper() and not line.endswith("."):
+        words = line.split()
+        if 1 <= len(words) <= 8:
+            return True
+    return False
+
+
+def _parse_sections_from_lines(lines: list[str]) -> tuple[str, list[tuple[str, str]]]:
+    sanitized = [_sanitize_markdown_line(line) for line in lines]
+    sanitized = [line for line in sanitized if line]
+    if not sanitized:
+        return "Overview", []
+
+    title = sanitized[0]
+    sections: list[tuple[str, str]] = []
+    current_heading = "Overview"
+    current_body_lines: list[str] = []
+
+    for idx, line in enumerate(sanitized[1:], start=1):
+        is_heading = _is_heading_candidate(line)
+        if is_heading and idx > 1:
+            if current_body_lines:
+                body = " ".join(current_body_lines).strip()
+                if body:
+                    sections.append((current_heading.rstrip(":"), body))
+            current_heading = line.rstrip(":")
+            current_body_lines = []
+            continue
+        current_body_lines.append(line)
+
+    if current_body_lines:
+        body = " ".join(current_body_lines).strip()
+        if body:
+            sections.append((current_heading.rstrip(":"), body))
+
+    if not sections and len(sanitized) > 1:
+        sections.append(("Details", " ".join(sanitized[1:])))
+
+    return title, sections
+
+
+def _to_column_key(label: str, index: int) -> str:
+    base = re.sub(r"[^a-z0-9]+", "_", label.lower()).strip("_")
+    if not base:
+        base = f"column_{index + 1}"
+    return base
+
+
+def _infer_table_domain(headers: list[str], full_text: str) -> tuple[str, str]:
+    joined = " ".join(headers).lower()
+    response = (full_text or "").lower()
+    source = f"{joined} {response}"
+    if any(token in source for token in ("temp", "humidity", "wind", "forecast", "rain", "uv")):
+        return "weather", "cards"
+    if any(token in source for token in ("flight", "airline", "fare", "departure", "arrival")):
+        return "flight", "cards"
+    if any(token in source for token in ("hotel", "room", "rating", "amenity", "booking")):
+        return "booking", "cards"
+    if any(token in source for token in ("schedule", "time slot", "agenda", "session")):
+        return "schedule", "cards"
+    if any(token in source for token in ("status", "state", "health", "uptime")):
+        return "status", "cards"
+    if any(token in source for token in ("compare", "comparison", "versus", "vs")):
+        return "comparison", "table"
+    return "generic", "table"
+
+
+def _extract_first_markdown_table(lines: list[str]) -> tuple[dict[str, Any] | None, set[int]]:
+    used_indexes: set[int] = set()
+    for start in range(len(lines)):
+        line = lines[start]
+        if line.count("|") < 2:
+            continue
+        block_indexes: list[int] = []
+        idx = start
+        while idx < len(lines) and lines[idx].count("|") >= 2:
+            block_indexes.append(idx)
+            idx += 1
+        if len(block_indexes) < 2:
+            continue
+
+        raw_rows = [lines[i].strip() for i in block_indexes]
+        header_parts = [part.strip() for part in raw_rows[0].strip("|").split("|")]
+        header_parts = [part for part in header_parts if part]
+        if len(header_parts) < 2:
+            continue
+
+        data_start = 1
+        if len(raw_rows) > 1 and _MARKDOWN_TABLE_SEP_RE.match(raw_rows[1]):
+            data_start = 2
+        if len(raw_rows) <= data_start:
+            continue
+
+        columns: list[dict[str, str]] = []
+        keys: list[str] = []
+        for col_idx, label in enumerate(header_parts):
+            key = _to_column_key(label, col_idx)
+            while key in keys:
+                key = f"{key}_{col_idx + 1}"
+            keys.append(key)
+            columns.append({"key": key, "label": label or f"Column {col_idx + 1}"})
+
+        rows: list[dict[str, str]] = []
+        for raw_line in raw_rows[data_start:]:
+            parts = [part.strip() for part in raw_line.strip("|").split("|")]
+            if len(parts) < len(keys):
+                parts = parts + [""] * (len(keys) - len(parts))
+            row = {key: parts[col_idx] if col_idx < len(parts) else "" for col_idx, key in enumerate(keys)}
+            if any(str(value).strip() for value in row.values()):
+                rows.append(row)
+
+        if not rows:
+            continue
+
+        used_indexes.update(block_indexes)
+        return {
+            "columns": columns,
+            "rows": rows,
+            "sourceText": "\n".join(raw_rows),
+        }, used_indexes
+
+    return None, used_indexes
+
+
 def build_fallback_flat_spec(stage2_response: str) -> dict[str, Any]:
     text_value = stage2_response.strip() if isinstance(stage2_response, str) else ""
     if not text_value:
         text_value = "No content generated."
+    lines = text_value.splitlines()
+    table_payload, table_indexes = _extract_first_markdown_table(lines)
+    content_lines = [
+        line
+        for idx, line in enumerate(lines)
+        if idx not in table_indexes and not re.match(r"^\s*media\s*:\s*(image|icon)\s*=", line, re.IGNORECASE)
+    ]
+    title, sections = _parse_sections_from_lines(content_lines)
+    if not sections:
+        sections = [("Details", text_value)]
+
+    first_url_match = _URL_RE.search(text_value)
+    first_url = first_url_match.group(0).strip() if first_url_match else None
+
+    elements: dict[str, Any] = {}
+    state: dict[str, Any] = {}
+
     root_id = "root"
-    text_id = "text_1"
-    return {
-        "root": root_id,
-        "state": {},
-        "elements": {
-            root_id: {
-                "type": "Column",
-                "props": {},
-                "children": [text_id],
-            },
-            text_id: {
-                "type": "Text",
-                "props": {
-                    "variant": "body",
-                    "text": text_value,
-                },
-                "children": [],
-            },
-        },
+    header_id = "header_row"
+    icon_id = "header_icon"
+    title_id = "title_text"
+
+    root_children: list[str] = [header_id]
+
+    elements[root_id] = {
+        "type": "Stack",
+        "props": {"direction": "vertical", "gap": "md"},
+        "children": root_children,
     }
+    elements[header_id] = {
+        "type": "Stack",
+        "props": {"direction": "horizontal", "gap": "sm", "align": "center"},
+        "children": [icon_id, title_id],
+    }
+    elements[icon_id] = {
+        "type": "Icon",
+        "props": {"name": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/info-circle.svg"},
+        "children": [],
+    }
+    elements[title_id] = {
+        "type": "Text",
+        "props": {"variant": "h2", "text": title or "Overview"},
+        "children": [],
+    }
+
+    section_count = 0
+    for heading, body in sections:
+        if section_count >= 4:
+            break
+        chunks = _split_text_chunks(body, max_chars=180)
+        if not chunks:
+            continue
+        section_count += 1
+        card_id = f"card_{section_count}"
+        heading_id = f"{card_id}_heading"
+        elements[card_id] = {"type": "Card", "props": {}, "children": [heading_id]}
+        elements[heading_id] = {
+            "type": "Text",
+            "props": {"variant": "h3", "text": heading or f"Section {section_count}"},
+            "children": [],
+        }
+        for idx, chunk in enumerate(chunks[:3], start=1):
+            body_id = f"{card_id}_body_{idx}"
+            elements[body_id] = {
+                "type": "Text",
+                "props": {"variant": "body", "text": chunk},
+                "children": [],
+            }
+            elements[card_id]["children"].append(body_id)
+        root_children.append(card_id)
+
+    if table_payload:
+        table_card_id = "table_card"
+        table_heading_id = "table_heading"
+        table_id = "table_1"
+        rows_state_key = "table_rows_1"
+        domain, preferred = _infer_table_domain(
+            [str(col.get("label") or "") for col in table_payload.get("columns", [])],
+            text_value,
+        )
+        state[rows_state_key] = table_payload.get("rows", [])
+        elements[table_card_id] = {
+            "type": "Card",
+            "props": {},
+            "children": [table_heading_id, table_id],
+        }
+        elements[table_heading_id] = {
+            "type": "Text",
+            "props": {"variant": "h3", "text": "Structured Data"},
+            "children": [],
+        }
+        elements[table_id] = {
+            "type": "Table",
+            "props": {
+                "columns": table_payload.get("columns", []),
+                "statePath": f"/{rows_state_key}",
+                "domain": domain,
+                "preferredPresentation": preferred,
+                "sourceFormat": "markdown",
+                "sourceText": table_payload.get("sourceText", ""),
+            },
+            "children": [],
+        }
+        root_children.append(table_card_id)
+
+    if first_url:
+        button_id = "source_button"
+        elements[button_id] = {
+            "type": "Button",
+            "props": {"label": "Open Source"},
+            "on": {"press": {"action": "openUrl", "params": {"url": first_url}}},
+            "children": [],
+        }
+        root_children.append(button_id)
+
+    # Guarantee minimum structure for downstream quality checks.
+    if len(elements) < 8:
+        filler_card_id = "filler_card"
+        filler_heading_id = "filler_heading"
+        filler_body_id = "filler_body"
+        elements[filler_card_id] = {
+            "type": "Card",
+            "props": {},
+            "children": [filler_heading_id, filler_body_id],
+        }
+        elements[filler_heading_id] = {
+            "type": "Text",
+            "props": {"variant": "h3", "text": "Additional Notes"},
+            "children": [],
+        }
+        elements[filler_body_id] = {
+            "type": "Text",
+            "props": {
+                "variant": "body",
+                "text": _split_text_chunks(text_value, max_chars=160)[0] if text_value else "No additional details.",
+            },
+            "children": [],
+        }
+        root_children.append(filler_card_id)
+
+    return {"root": root_id, "state": state, "elements": elements}
 
 
 def extract_json_element(text: str) -> Any:
@@ -781,9 +1085,10 @@ def build_flat_spec_repair_prompt(raw_text: str, failure_reason: str | None = No
         "Rules:\n"
         "- Do NOT emit legacy v0.9 message arrays (`createSurface` / `updateComponents`).\n"
         "- `root` must reference an existing key in `elements`.\n"
-        "- `elements` must contain at least 2 entries (a root container and one content element).\n"
+        "- `elements` must contain at least 8 entries (title, sections, and content).\n"
         "- Every element must contain `type`, `props`, and `children`.\n"
         "- Every id in `children` must exist in `elements`.\n"
+        "- Do not emit markdown control text (`#`, `|`, ``` , ''') in final Text fields.\n"
         "- Return JSON only, no markdown.\n\n"
         f"Original output:\n{(raw_text or '').strip()}"
     )

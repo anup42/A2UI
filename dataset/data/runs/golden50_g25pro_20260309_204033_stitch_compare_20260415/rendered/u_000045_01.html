@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"shipmentTimeline": [{"date": "2023-11-01 15:30 GMT", "status": "Label created, waiting for package", "location": "Warsaw, Poland"}, {"date": "2023-11-02 10:10 GMT", "status": "Package received by carrier", "location": "Warsaw, Poland"}, {"date": "2023-11-03 04:55 GMT", "status": "Departed from international sorting center", "location": "Frankfurt, Germany"}, {"date": "2023-11-04 11:20 EST", "status": "Arrived at customs", "location": "New York, USA"}, {"date": "2023-11-05 09:00 EST", "status": "Cleared customs and is in transit", "location": "New York, USA"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "summary_text", "timeline_heading", "timeline_table", "final_status_heading", "final_status_card", "images_heading", "image_gallery", "actions_heading", "actions_card"]}, "title": {"type": "Text", "props": {"text": "Package Journey Summary for ZA889123PL", "variant": "h2"}, "children": []}, "summary_text": {"type": "Text", "props": {"text": "Your package originated in Poland and has successfully traveled through Germany, arriving in the USA. It has cleared customs in New York and is now moving through the domestic network towards its final destination."}, "children": []}, "timeline_heading": {"type": "Text", "props": {"text": "Shipment Timeline Overview", "variant": "h2"}, "children": []}, "timeline_table": {"type": "Table", "props": {"columns": [{"key": "date", "label": "Date & Time"}, {"key": "status", "label": "Status"}, {"key": "location", "label": "Location"}], "statePath": "/shipmentTimeline", "domain": "status", "preferredPresentation": "table"}, "children": []}, "final_status_heading": {"type": "Text", "props": {"text": "Final Status and Location", "variant": "h2"}, "children": []}, "final_status_card": {"type": "Card", "props": {"padding": 16}, "children": ["final_status_stack"]}, "final_status_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["status_icon", "status_text_stack"]}, "status_icon": {"type": "Icon", "props": {"name": "../assets/r_000027_01_1_check-circle.svg"}, "children": []}, "status_text_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["status_text", "location_text"]}, "status_text": {"type": "Text", "props": {"text": "Cleared customs and is in transit to local facility", "variant": "h3"}, "children": []}, "location_text": {"type": "Text", "props": {"text": "Last known location: New York, USA"}, "children": []}, "images_heading": {"type": "Text", "props": {"text": "Images", "variant": "h2"}, "children": []}, "image_gallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000045_01_1_logistics.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000045_01_2_warehouse.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000045_01_3_delivery_van.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_card": {"type": "Card", "props": {"padding": 16}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["action_description", "track_button"]}, "action_description": {"type": "Text", "props": {"text": "Track on a universal parcel tracking site for more details."}, "children": []}, "track_button": {"type": "Button", "props": {"label": "Track with 17Track", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.17track.net/en/track?nums=ZA889123PL"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

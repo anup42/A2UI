@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"scheduleData": [{"time": "09:00 - 10:00", "core_ml": "Advanced Neural Architectures - Dr. Eva Rostova", "applications": "AI in Drug Discovery - Dr. Ben Carter", "ethics": "Governing General AI - Prof. Anya Sharma"}, {"time": "10:00 - 10:30", "core_ml": "Coffee Break", "applications": "Coffee Break", "ethics": "Coffee Break"}, {"time": "10:30 - 11:30", "core_ml": "Probabilistic Programming Primer - Dr. Kenji Tanaka", "applications": "Generative Art & Design - Maria Flores", "ethics": "(No Session Scheduled)"}, {"time": "11:30 - 13:00", "core_ml": "Lunch Break", "applications": "Lunch Break", "ethics": "Lunch Break"}, {"time": "13:00 - 14:00", "core_ml": "Scaling Language Models - Dr. Sam Chen", "applications": "Autonomous Vehicle Navigation - Leo Grant", "ethics": "Bias Mitigation in Practice - Dr. Imani Adebayo"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "image_gallery", "notes_card", "schedule_card", "actions_card"]}, "title": {"type": "Text", "props": {"text": "AI Forward 2024: October 25th Schedule", "variant": "h2"}, "children": []}, "image_gallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000025_01_1_conference.jpg", "fit": "cover"}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000025_01_2_robot.jpg", "fit": "cover"}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000025_01_3_business.jpg", "fit": "cover"}, "children": []}, "notes_card": {"type": "Card", "props": {}, "children": ["notes_stack"]}, "notes_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["notes_title", "notes_body"]}, "notes_title": {"type": "Text", "props": {"text": "Schedule Notes and Breaks", "variant": "h3"}, "children": []}, "notes_body": {"type": "Text", "props": {"text": "This schedule is based on the provided session list for October 25th, 2024. Gaps in the timeline have been filled with standard conference breaks. Time slots without a listed session are marked accordingly."}, "children": []}, "schedule_card": {"type": "Card", "props": {}, "children": ["schedule_stack"]}, "schedule_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["schedule_title", "schedule_table"]}, "schedule_title": {"type": "Text", "props": {"text": "Conference Track Grid: October 25th", "variant": "h3"}, "children": []}, "schedule_table": {"type": "Table", "props": {"statePath": "/scheduleData", "columns": [{"key": "time", "label": "Time Slot"}, {"key": "core_ml", "label": "Core ML"}, {"key": "applications", "label": "Applications"}, {"key": "ethics", "label": "Ethics"}], "domain": "schedule", "preferredPresentation": "table"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "button_agenda", "button_register", "button_speakers"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "button_agenda": {"type": "Button", "props": {"label": "View Full Conference Agenda", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://example.com/ai-forward-2024/agenda"}}}}, "button_register": {"type": "Button", "props": {"label": "Register for AI Forward 2024", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://example.com/ai-forward-2024/register"}}}}, "button_speakers": {"type": "Button", "props": {"label": "Speaker Biographies", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://example.com/ai-forward-2024/speakers"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

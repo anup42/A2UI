@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SFO Car Rentals - Options</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#001b3d",
+                    "surface-bright": "#f8f9fa",
+                    "secondary": "#006b5d",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#83d6c4",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#a9c7ff",
+                    "on-tertiary-fixed-variant": "#005312",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#9ff2e0",
+                    "on-secondary-fixed": "#00201b",
+                    "on-surface-variant": "#43474f",
+                    "inverse-on-surface": "#f0f1f2",
+                    "surface-dim": "#d9dadb",
+                    "outline": "#747780",
+                    "surface-container": "#edeeef",
+                    "on-primary-container": "#7594ca",
+                    "surface-container-high": "#e7e8e9",
+                    "surface-variant": "#e1e3e4",
+                    "on-tertiary-fixed": "#002204",
+                    "primary": "#001736",
+                    "on-primary-fixed-variant": "#264778",
+                    "on-background": "#191c1d",
+                    "surface-container-low": "#f3f4f5",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-secondary-fixed-variant": "#005046",
+                    "tertiary": "#001d03",
+                    "primary-container": "#002b5b",
+                    "tertiary-fixed": "#a3f69c",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#191c1d",
+                    "inverse-surface": "#2e3132",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#003408",
+                    "surface-tint": "#405f91",
+                    "outline-variant": "#c4c6d0",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#d6e3ff",
+                    "inverse-primary": "#a9c7ff",
+                    "surface": "#f8f9fa",
+                    "secondary-container": "#9cefdd",
+                    "on-tertiary-container": "#55a454",
+                    "background": "#f8f9fa",
+                    "tertiary-fixed-dim": "#88d982",
+                    "on-secondary-container": "#0b6f61"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24 md:pb-0">
+<!-- Top Navigation Anchor -->
+<header class="bg-[#f8f9fa] dark:bg-slate-950 flex items-center justify-between px-6 py-4 w-full sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#002B5B] dark:text-blue-400 p-2 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors rounded-full" data-icon="arrow_back">arrow_back</button>
+<h1 class="font-manrope text-xl font-bold text-[#191c1d] dark:text-slate-100 tracking-tight">SFO Rental Options</h1>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="text-[#002B5B] dark:text-blue-400 font-bold" href="#">Explore</a>
+<a class="text-[#191c1d]/60 dark:text-slate-400 hover:text-[#002B5B] transition-colors" href="#">Bookings</a>
+<a class="text-[#191c1d]/60 dark:text-slate-400 hover:text-[#002B5B] transition-colors" href="#">Saved</a>
+<a class="text-[#191c1d]/60 dark:text-slate-400 hover:text-[#002B5B] transition-colors" href="#">Account</a>
+</nav>
+</div>
+<button class="material-symbols-outlined text-[#002B5B] dark:text-blue-400 p-2 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors rounded-full" data-icon="tune">tune</button>
+</header>
+<main class="max-w-6xl mx-auto px-6 py-8">
+<!-- Hero Trip Summary Section -->
+<section class="mb-10 p-8 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-lg overflow-hidden relative">
+<div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<span class="inline-block px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold uppercase tracking-widest mb-4">Current Search</span>
+<h2 class="text-3xl md:text-4xl font-extrabold mb-2 leading-tight">Standard Sedan</h2>
+<div class="flex flex-wrap items-center gap-y-2 gap-x-6 text-primary-fixed-dim/80 font-medium">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+<span>Dec 1 - Dec 5 (4 days)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>San Francisco Intl Airport (SFO)</span>
+</div>
+</div>
+</div>
+<div class="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/10 min-w-[240px]">
+<div class="text-white/60 text-xs font-medium uppercase tracking-wider mb-1">Target Budget</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold">$300</span>
+<span class="text-white/70">$75 / day</span>
+</div>
+<div class="mt-4 h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-3/4 rounded-full"></div>
+</div>
+<p class="text-[10px] mt-2 text-white/50 italic">Within range of local market average</p>
+</div>
+</div>
+<!-- Decorative image element -->
+<div class="absolute -right-20 -bottom-20 opacity-20 w-80 h-80 pointer-events-none grayscale brightness-150">
+<img class="w-full h-full object-contain" data-alt="Modern sleek silver sedan parked on a clean concrete surface with dramatic city shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJA39vDlZyjxiNiwCMCZKnt847pclnAuDpM4oMcex1ilKr-3m1XNyozubnmTsDFmHc8isyqcWREFntysDvK67rqts7NgxRVIT0OTG1NF4g3s7RQ7hmt_pOaYccrPhVhrbYVT7kZOYLyYdBgpMwr41wqwq7FR5LiugKH64lKLKbKMjmNlH1Lt14Ksgax-qycQEVQ-bKx2t3GEp4isvq83v8AYj2EBjqFLBtdDS7-2PsdZSejypvzuk7RO8R_jzMk0bTj0cJlKNxOyax"/>
+</div>
+</section>
+<!-- Main Options Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+<!-- Option 1: Budget -->
+<div class="bg-surface-container-lowest rounded-xl p-6 transition-all hover:translate-y-[-4px] flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-6">
+<div class="bg-surface-container-high rounded-lg px-4 py-3">
+<h3 class="font-bold text-lg text-primary tracking-tight">Budget Rent A Car</h3>
+<p class="text-xs text-on-surface-variant font-medium">Value-oriented agency</p>
+</div>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="space-y-4 mb-8">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant text-sm">Estimated Total</span>
+<span class="font-bold text-xl text-primary">$270 - $300</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Perfect for travelers focused on maximizing value without compromising on vehicle reliability.</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all active:scale-95">Check Rates at Budget</button>
+</div>
+<!-- Option 2: Hertz (Featured) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 ring-2 ring-primary ring-offset-4 ring-offset-surface transition-all hover:translate-y-[-4px] flex flex-col justify-between relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-primary text-on-primary text-[10px] font-black uppercase px-4 py-1.5 tracking-tighter rounded-bl-xl">Top Choice</div>
+<div>
+<div class="flex justify-between items-start mb-6">
+<div class="bg-primary/5 rounded-lg px-4 py-3">
+<h3 class="font-bold text-lg text-primary tracking-tight">Hertz</h3>
+<p class="text-xs text-on-surface-variant font-medium">Wide selection &amp; loyalty rewards</p>
+</div>
+</div>
+<div class="space-y-4 mb-8">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant text-sm">Estimated Total</span>
+<span class="font-bold text-xl text-primary">$290 - $320</span>
+</div>
+<ul class="text-sm space-y-2">
+<li class="flex items-center gap-2 text-secondary font-medium">
+<span class="material-symbols-outlined text-sm">check_circle</span> Skip the counter
+                            </li>
+<li class="flex items-center gap-2 text-secondary font-medium">
+<span class="material-symbols-outlined text-sm">check_circle</span> Gold Plus Rewards
+                            </li>
+</ul>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all active:scale-95">Check Rates at Hertz</button>
+</div>
+<!-- Option 3: Enterprise -->
+<div class="bg-surface-container-lowest rounded-xl p-6 transition-all hover:translate-y-[-4px] flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-6">
+<div class="bg-surface-container-high rounded-lg px-4 py-3">
+<h3 class="font-bold text-lg text-primary tracking-tight">Enterprise Rent-A-Car</h3>
+<p class="text-xs text-on-surface-variant font-medium">Service &amp; vehicle quality</p>
+</div>
+</div>
+<div class="space-y-4 mb-8">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant text-sm">Estimated Total</span>
+<span class="font-bold text-xl text-primary">$300 - $340</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Consistently ranked #1 for customer satisfaction at SFO. Premium fleet of late-model sedans.</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all active:scale-95">Check Rates at Enterprise</button>
+</div>
+</div>
+<!-- Marketplace Bento Section -->
+<h3 class="text-2xl font-bold mb-6 text-primary tracking-tight">Marketplace Comparisons</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+<!-- Kayak -->
+<div class="bg-surface-container-low rounded-xl p-8 flex flex-col md:flex-row items-center gap-8 group">
+<div class="flex-1">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-3xl text-primary" data-icon="travel_explore">travel_explore</span>
+<h4 class="text-2xl font-bold text-primary">Kayak</h4>
+</div>
+<p class="text-on-surface-variant mb-6 font-medium">Aggregating hundreds of travel sites to ensure you stay within your $300 budget.</p>
+<button class="bg-white text-primary border border-outline-variant px-6 py-2.5 rounded-full font-bold text-sm hover:bg-primary hover:text-white transition-all">Compare on Kayak</button>
+</div>
+<div class="w-full md:w-48 h-32 rounded-lg bg-surface-container-high overflow-hidden shadow-inner">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Aerial view of a complex highway interchange with moving car light trails at dusk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfNmcNIP21ob7TY7xZi0LZQeQA-pyXeVbB2jnXs7SjwOjiPG5s4S7MWGjqZcREm12mCufO2tuXVwajCYR6K-O91hDkjQ4GhywOlI5m-V2f_K8oy_952CXOs-Vb6lkNjmgeY2CruwpL4t0uE0ln55ZHaJCpYpIcLbwiUZwp44OfFRyBHsNJcUIggQyhIV5ZDfnMgv_lOxZ_aLscfGH0IokLeAdaZBNkeUkvJgSGcdJEofmrTOdAGfeD5r7pZBLJuI-qWmn3rQSxl1rJ"/>
+</div>
+</div>
+<!-- Turo -->
+<div class="bg-secondary-container rounded-xl p-8 flex flex-col md:flex-row items-center gap-8 group">
+<div class="flex-1">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-3xl text-on-secondary-container" data-icon="car_sharing">car_rental</span>
+<h4 class="text-2xl font-bold text-on-secondary-container">Turo</h4>
+</div>
+<p class="text-on-secondary-container/80 mb-6 font-medium">Peer-to-peer car sharing. Find unique local vehicles with convenient SFO delivery options.</p>
+<button class="bg-on-secondary-container text-white px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-all">Search Turo SFO</button>
+</div>
+<div class="w-full md:w-48 h-32 rounded-lg bg-on-secondary-container/10 overflow-hidden shadow-inner">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Side profile of a luxury white sports car parked on a quiet residential street" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoENnUFI0LSNnKe97FayyDv-aSwuaGLG3gOggJ2ColJObA-b9-uRHAWkbPnIx_rOFWn3sIQ79wY9J6jLwOzSyMzm9zUsTPBQiwRHrMdUt_6AcxSpEYSMFphKF20IabbbRjwZQZ2n5KPF2-XGvYPLaxJBpq8VDtMB6VdVglnqbhgvdYRwz6JWdIBrAAlia-7gOsyH4f6cae6ai1ij1OXchSXNMTjdKnHU4CeyphMmqCdtXWT1Gp5jPuV_MNVZ2P1Wxqtb8bc7Rd-XCd"/>
+</div>
+</div>
+</div>
+<!-- Resources Section -->
+<div class="bg-surface-container-lowest rounded-xl p-8 mb-16 border-l-4 border-primary">
+<h3 class="text-lg font-bold mb-6 text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">info</span> Passenger Resources
+            </h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<a class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container transition-colors group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">apartment</span>
+</div>
+<div>
+<span class="block font-bold text-primary">SFO Rental Car Center Info</span>
+<span class="text-xs text-on-surface-variant">Shuttle locations &amp; floor maps</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+<a class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container transition-colors group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">traffic</span>
+</div>
+<div>
+<span class="block font-bold text-primary">Check SFO Traffic</span>
+<span class="text-xs text-on-surface-variant">Real-time Bay Area road conditions</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+</main>
+<!-- Footer Disclaimer -->
+<footer class="bg-surface-container-high py-12 px-6">
+<div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
+<div class="max-w-md">
+<h4 class="font-bold text-primary mb-4 uppercase text-xs tracking-widest">Pricing Assumptions</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                    Estimates are based on a driver aged 25+, US resident, with a valid credit card. Rates include typical SFO airport fees and taxes but exclude optional insurance, GPS, or fuel prepayments. Actual rates may vary at the time of booking.
+                </p>
+</div>
+<div class="flex gap-12">
+<div>
+<h4 class="font-bold text-primary mb-4 uppercase text-xs tracking-widest">Support</h4>
+<ul class="text-sm text-on-surface-variant space-y-2">
+<li><a class="hover:text-primary" href="#">Help Center</a></li>
+<li><a class="hover:text-primary" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-primary mb-4 uppercase text-xs tracking-widest">Legal</h4>
+<ul class="text-sm text-on-surface-variant space-y-2">
+<li><a class="hover:text-primary" href="#">Privacy</a></li>
+<li><a class="hover:text-primary" href="#">Terms</a></li>
+</ul>
+</div>
+</div>
+</div>
+</footer>
+<!-- Bottom Navigation Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.04)] border-t-[0.5px] border-slate-200 dark:border-slate-800">
+<div class="flex flex-col items-center justify-center bg-[#002b5b] dark:bg-blue-600 text-white rounded-full px-5 py-1.5 transition-all">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-inter text-[10px] font-medium uppercase tracking-wider">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-1.5 hover:text-[#002B5B]">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="font-inter text-[10px] font-medium uppercase tracking-wider">Bookings</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-1.5 hover:text-[#002B5B]">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="font-inter text-[10px] font-medium uppercase tracking-wider">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-1.5 hover:text-[#002B5B]">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-inter text-[10px] font-medium uppercase tracking-wider">Account</span>
+</div>
+</nav>
+</body></html>

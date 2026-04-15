@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nighthawk R7000 Troubleshooting Guide</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#cce8e9",
+                        "on-primary-fixed-variant": "#004f53",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#e6f6ff",
+                        "inverse-primary": "#8ad3d7",
+                        "secondary-fixed-dim": "#b0cccd",
+                        "on-background": "#071e27",
+                        "on-secondary-container": "#4d6769",
+                        "on-surface": "#071e27",
+                        "surface-container-high": "#d5ecf8",
+                        "tertiary-fixed-dim": "#ffb688",
+                        "on-primary-fixed": "#002021",
+                        "on-tertiary-container": "#ffbe95",
+                        "primary": "#00464a",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#cfe6f2",
+                        "inverse-surface": "#1e333c",
+                        "surface-bright": "#f3faff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#006064",
+                        "surface-dim": "#c7dde9",
+                        "background": "#f3faff",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#8fd8dc",
+                        "on-secondary-fixed": "#041f21",
+                        "on-secondary-fixed-variant": "#314b4d",
+                        "secondary-container": "#c9e5e6",
+                        "error-container": "#ffdad6",
+                        "secondary": "#496364",
+                        "surface-container-highest": "#cfe6f2",
+                        "tertiary-container": "#7e4924",
+                        "outline-variant": "#bec8c9",
+                        "surface-container": "#dbf1fe",
+                        "inverse-on-surface": "#dff4ff",
+                        "primary-fixed-dim": "#8ad3d7",
+                        "outline": "#6f7979",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#6b3a16",
+                        "tertiary": "#62330f",
+                        "primary-fixed": "#a6eff3",
+                        "surface-tint": "#14696d",
+                        "on-error-container": "#93000a",
+                        "surface": "#f3faff",
+                        "tertiary-fixed": "#ffdbc7",
+                        "on-tertiary-fixed": "#311300",
+                        "on-surface-variant": "#3f4949"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-[#f3faff] dark:bg-[#071e27] flex items-center px-4 h-16 w-full justify-between transition-colors duration-200 ease-in-out">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#00464a] dark:text-[#a6eff3]">arrow_back</span>
+<h1 class="text-[#00464a] dark:text-[#a6eff3] font-['Manrope'] font-bold tracking-tight text-lg">Support Guide</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#3f4949] dark:text-[#bec8c9]">search</span>
+<span class="material-symbols-outlined text-[#3f4949] dark:text-[#bec8c9]">more_vert</span>
+</div>
+</header>
+<main class="px-5 pt-4 max-w-2xl mx-auto">
+<!-- Hero Section -->
+<section class="mb-8">
+<div class="relative w-full aspect-video rounded-lg overflow-hidden mb-6 bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Close up of a modern high-performance wifi router with multiple antennas on a sleek technical workspace with blue accent lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe__IweBqlDEpYz09GJDV6CjGXGa4j-4zXNTQ3SPkfG-jGs4CC9kMYQp_tbhztrADfOnPNwQHm3xPwKGKiTiwTBhr34ORSVR2cxfM6NrhajKoLH2UTERNNH2mMyozHqmWWnTexToX0YGgLQFvGTFOcHakeJhFPfmBu0_l45LF6nkyhPCnNauq-u0jhUqThqb6VlOIGGI5FPWGkyB7_Mq8PVdswdEiKjyZx-FVeL9xiufPy7HSnKJTcPKjEN2RmktMEP2XqHR5Mlko"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
+</div>
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-3">Systematic Troubleshooting for Your Nighthawk R7000</h2>
+<p class="text-body-lg text-on-surface-variant leading-relaxed">
+                Restore your network stability with a structured diagnostic approach. This guide covers isolation, verification, and hardware reset protocols.
+            </p>
+</section>
+<!-- Troubleshooting Context -->
+<section class="mb-10 p-6 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">info</span>
+<span class="font-bold text-primary tracking-wide text-sm uppercase">Prerequisites &amp; Scope</span>
+</div>
+<div class="space-y-3 text-on-surface-variant text-sm">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-base">router</span>
+<p>Designed for Netgear Nighthawk R7000 and Comcast/Xfinity Modem setups.</p>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-base">lock_open</span>
+<p>Ensure you have admin credentials (typically 'admin' and 'password' by default).</p>
+</div>
+</div>
+</section>
+<!-- Step-by-Step Diagnostic Guide -->
+<div class="space-y-6">
+<!-- Step 1 -->
+<div class="p-6 rounded-lg bg-surface-container-lowest shadow-[0_4px_24px_rgba(7,30,39,0.04)]">
+<span class="text-tertiary font-bold text-xs tracking-widest uppercase mb-2 block">Step 01</span>
+<h3 class="text-xl font-bold text-on-surface mb-4">Isolate the Router</h3>
+<p class="text-on-surface-variant mb-4">Disconnect the R7000 from the modem. Connect your laptop directly to the modem via Ethernet to verify ISP signal.</p>
+<img class="w-full h-40 object-cover rounded-lg mb-4" data-alt="Close up of a blue ethernet cable being plugged into a port on a modern networking device with shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-xVpk-Hff68c8qQ4l7xNBHXXMwEODe2-K6MNwm14pULOrw_mBSEehCqFaav3FzUVQ_lTx8DpV4klQ-ofG8qwk_5tU8EFj6FBa8btVl_CWpxBuzJhaCHZkkmcVwzpDd9yFJ17PzGX6daEzQviRJn_-M4YEONM_N_6MwZuYWADhRxc06KikwuuBghZhUACQVSXwxp7hckwWx_cDD6yg1AiUQ16ms_WLNBPts_9la4QI_gppnqqoWVP7mqvUkYKZr47xcGBqBqP1uAg"/>
+<ul class="space-y-2">
+<li class="flex gap-3 text-sm text-on-surface">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+                        Verify internet speed directly from modem
+                    </li>
+<li class="flex gap-3 text-sm text-on-surface">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+                        Bypass all wireless interference
+                    </li>
+</ul>
+</div>
+<!-- Step 2 -->
+<div class="p-6 rounded-lg bg-surface-container-lowest shadow-[0_4px_24px_rgba(7,30,39,0.04)]">
+<span class="text-tertiary font-bold text-xs tracking-widest uppercase mb-2 block">Step 02</span>
+<h3 class="text-xl font-bold text-on-surface mb-4">Power Cycle Sequence</h3>
+<p class="text-on-surface-variant mb-4">The order of operations is critical for proper IP assignment.</p>
+<div class="space-y-4">
+<div class="flex items-center gap-4 bg-surface-container p-3 rounded-lg">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">1</span>
+<span class="text-sm">Power off both units for 60 seconds</span>
+</div>
+<div class="flex items-center gap-4 bg-surface-container p-3 rounded-lg">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">2</span>
+<span class="text-sm">Power on Modem only; wait for sync</span>
+</div>
+<div class="flex items-center gap-4 bg-surface-container p-3 rounded-lg">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">3</span>
+<span class="text-sm">Power on R7000; check WAN light</span>
+</div>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="p-6 rounded-lg bg-surface-container-lowest shadow-[0_4px_24px_rgba(7,30,39,0.04)]">
+<span class="text-tertiary font-bold text-xs tracking-widest uppercase mb-2 block">Step 03</span>
+<h3 class="text-xl font-bold text-on-surface mb-4">Admin Panel Access</h3>
+<p class="text-on-surface-variant mb-4">Navigate to <code class="bg-inverse-surface text-inverse-on-surface px-2 py-0.5 rounded text-xs">192.168.1.1</code> in your browser.</p>
+<ul class="space-y-2 text-sm">
+<li>• Check "Advanced" tab for firmware updates.</li>
+<li>• Verify if 'Access Control' is accidentally blocking devices.</li>
+</ul>
+</div>
+<!-- Image Interstitial -->
+<div class="rounded-lg overflow-hidden bg-surface-container-highest h-48">
+<img class="w-full h-full object-cover opacity-80 mix-blend-multiply" data-alt="Sleek modern home network setup with a router and modem arranged neatly on a wooden shelf with soft ambient light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvxTSoc12z0sLA4GuPhyEIJi8jWfsSuxM2BFbIM6yPptqlJ5tubCzYav_kvo35tNuhaq8LBre0E9RSRVX10TQsTr1vZRvOMRB-BAXJdV01vmaeZzaQpZk-xhIYmlPxlwxCTGqkDWoOhFbFxVKhGyuLM40UMbUskehsqCnRZx3CV8Zd2sIqZHtN1Lz8V8meetATlX0hH1dhzkN7uUhDmpY9XsqTDkeWLOLgMLLqK5HqBekEPhzNhxu8Uqxp26VSVgqcaO8CZRvJyZs"/>
+</div>
+<!-- Step 4 -->
+<div class="p-6 rounded-lg bg-surface-container-lowest shadow-[0_4px_24px_rgba(7,30,39,0.04)]">
+<span class="text-tertiary font-bold text-xs tracking-widest uppercase mb-2 block">Step 04</span>
+<h3 class="text-xl font-bold text-on-surface mb-4">Channel Optimization</h3>
+<p class="text-on-surface-variant mb-4">Interference from neighbors can drop connections. Switch from 'Auto' to a fixed channel.</p>
+<div class="grid grid-cols-2 gap-3">
+<div class="border border-outline-variant/20 p-3 rounded text-center">
+<div class="text-primary font-bold">2.4GHz</div>
+<div class="text-xs text-on-surface-variant italic">Channels 1, 6, 11</div>
+</div>
+<div class="border border-outline-variant/20 p-3 rounded text-center">
+<div class="text-primary font-bold">5GHz</div>
+<div class="text-xs text-on-surface-variant italic">Channels 36, 44, 149</div>
+</div>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="p-6 rounded-lg bg-surface-container-lowest shadow-[0_4px_24px_rgba(7,30,39,0.04)]">
+<span class="text-tertiary font-bold text-xs tracking-widest uppercase mb-2 block">Step 05</span>
+<h3 class="text-xl font-bold text-on-surface mb-4">Hardware Reset</h3>
+<div class="p-4 bg-error-container/30 border-l-4 border-error rounded-r-lg mb-4">
+<p class="text-on-error-container text-xs font-medium">WARNING: This clears all custom settings, passwords, and static IPs.</p>
+</div>
+<p class="text-on-surface-variant text-sm mb-4">Hold the 'Reset' button with a paperclip for 30 seconds while the unit is powered on.</p>
+</div>
+</div>
+<!-- Diagnostic Action Summary Table -->
+<section class="mt-12 mb-12">
+<h3 class="text-lg font-bold text-on-surface mb-6">Diagnostic Summary</h3>
+<div class="space-y-1">
+<div class="grid grid-cols-3 bg-primary text-on-primary p-3 rounded-t-lg text-[10px] font-bold uppercase tracking-widest">
+<div>Stage</div>
+<div>Action</div>
+<div>Goal</div>
+</div>
+<div class="grid grid-cols-3 bg-surface-container-high p-4 text-sm border-b border-outline-variant/10">
+<div class="font-bold">Primary</div>
+<div class="text-on-surface-variant">Bypass</div>
+<div class="text-on-surface-variant">Verify ISP</div>
+</div>
+<div class="grid grid-cols-3 bg-surface-container-high p-4 text-sm border-b border-outline-variant/10">
+<div class="font-bold">Secondary</div>
+<div class="text-on-surface-variant">Cycle</div>
+<div class="text-on-surface-variant">Clear Cache</div>
+</div>
+<div class="grid grid-cols-3 bg-surface-container-high p-4 text-sm rounded-b-lg">
+<div class="font-bold">Final</div>
+<div class="text-on-surface-variant">Reset</div>
+<div class="text-on-surface-variant">Factory State</div>
+</div>
+</div>
+</section>
+<!-- Footer/Resources -->
+<section class="mb-20 pt-8 border-t border-outline-variant/20">
+<h4 class="text-sm font-bold text-on-surface-variant mb-4">Official Sources</h4>
+<div class="space-y-4">
+<a class="flex items-center justify-between group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">link</span>
+<span class="text-sm font-medium">Netgear Support Knowledge Base</span>
+</div>
+<span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+</a>
+<a class="flex items-center justify-between group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">link</span>
+<span class="text-sm font-medium">Comcast/Xfinity Modem Specs</span>
+</div>
+<span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+</a>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/85 dark:bg-[#071e27]/85 backdrop-blur-md z-50 border-t border-[#bec8c9]/20 shadow-[0_-4px_24px_rgba(7,30,39,0.04)]">
+<button class="flex flex-col items-center justify-center bg-[#cfe6f2] dark:bg-[#14696d] text-[#00464a] dark:text-white rounded-2xl px-5 py-1 scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-['Manrope'] text-[11px] font-medium uppercase tracking-wider mt-1">Guide</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#3f4949] dark:text-[#bec8c9] px-5 py-1 hover:text-[#006064] dark:hover:text-[#a6eff3] scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-['Manrope'] text-[11px] font-medium uppercase tracking-wider mt-1">Resources</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#3f4949] dark:text-[#bec8c9] px-5 py-1 hover:text-[#006064] dark:hover:text-[#a6eff3] scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-['Manrope'] text-[11px] font-medium uppercase tracking-wider mt-1">Contact</span>
+</button>
+</nav>
+</body></html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .soul-gradient {
+            background: linear-gradient(135deg, #00464a 0%, #006064 100%);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdbc7",
+                        "background": "#f7f9fb",
+                        "surface-dim": "#d8dadc",
+                        "on-surface": "#191c1e",
+                        "primary-fixed": "#a6eff3",
+                        "on-background": "#191c1e",
+                        "surface-tint": "#14696d",
+                        "on-secondary-container": "#57657a",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary-container": "#ffbe95",
+                        "primary-container": "#006064",
+                        "primary": "#00464a",
+                        "primary-fixed-dim": "#8ad3d7",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eceef0",
+                        "on-primary-container": "#8fd8dc",
+                        "secondary": "#515f74",
+                        "secondary-fixed": "#d5e3fc",
+                        "on-error": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-container": "#d5e3fc",
+                        "tertiary": "#62330f",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#8ad3d7",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "on-tertiary-fixed-variant": "#6b3a16",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#3f4949",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb688",
+                        "outline-variant": "#bec8c9",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary-container": "#7e4924",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "on-primary-fixed-variant": "#004f53",
+                        "on-tertiary-fixed": "#311300",
+                        "on-primary-fixed": "#002021",
+                        "inverse-surface": "#2d3133",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "outline": "#6f7979"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-slate-50 dark:bg-slate-900 flex justify-between items-center px-6 h-16 w-full fixed top-0 z-50 border-none">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-cyan-900 dark:text-cyan-400" data-icon="analytics">analytics</span>
+<h1 class="text-xl font-extrabold text-cyan-900 dark:text-cyan-500 font-manrope tracking-tight">Survey Analysis</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400" data-icon="search">search</span>
+</button>
+</div>
+</header>
+<main class="pt-20 px-4 max-w-md mx-auto space-y-6">
+<!-- 1. Analysis Context Card -->
+<section class="bg-surface-container-low rounded-xl p-6">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-primary-container flex items-center justify-center shrink-0">
+<img alt="Newspaper Icon" class="w-6 h-6 invert" data-alt="Stylized newspaper icon representing survey reporting and formal analysis context" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC52k893fKKz3cGMHMN8BQieDTObvvqprCPfTXRwQeTfXXfsQ3skxsYPc9K6BABCX7S0EUTIQ7cfT884CUnuN1rjBpuwuAycoy_r9SFC1qSxS8D23WkdbAnf2IUASBGVg2syXfQmBMqMJAqL913Fb4etXwjY-NBEFkhUoOG6JB6wIJe6e-d1dAkIjINQLtuKn1JPB4xu1EdLGorFYW7boDteW7zevPGRh4BNPhwKci8LTe6W9MF3Lr2vak_Zf8n-vBlYMci0OwopSE"/>
+</div>
+<div class="space-y-1">
+<h2 class="text-primary font-headline font-bold text-lg leading-tight">Analysis Context</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+                        Executive summary based on a structured sample of <span class="font-bold text-primary">10 user records</span>. Initial findings indicate a sharp generational pivot in platform dominance compared to broader national averages.
+                    </p>
+</div>
+</div>
+</section>
+<!-- 2. Platform Preference Table/Chart (Architectural Grid) -->
+<section class="space-y-4">
+<div class="flex items-baseline justify-between px-1">
+<h3 class="text-primary font-headline font-bold uppercase tracking-widest text-xs">Platform Distribution</h3>
+<span class="text-on-surface-variant font-label text-[10px]">BY AGE COHORT</span>
+</div>
+<div class="space-y-3">
+<!-- 18-24 Cohort -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<span class="font-headline font-bold text-sm text-secondary">18-24</span>
+<span class="font-label text-xs text-on-surface-variant">n=4</span>
+</div>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs font-medium">
+<span>TikTok</span>
+<span class="text-primary">75%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs font-medium">
+<span>Instagram</span>
+<span class="text-secondary">25%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 25%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- 25-34 Cohort -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<span class="font-headline font-bold text-sm text-secondary">25-34</span>
+<span class="font-label text-xs text-on-surface-variant">n=3</span>
+</div>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs font-medium">
+<span>Instagram</span>
+<span class="text-primary">66.7%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 66.7%"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs font-medium">
+<span>LinkedIn</span>
+<span class="text-secondary">33.3%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 33.3%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- 35-44 Cohort -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<span class="font-headline font-bold text-sm text-secondary">35-44</span>
+<span class="font-label text-xs text-on-surface-variant">n=3</span>
+</div>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs font-medium">
+<span>Facebook</span>
+<span class="text-primary">66.7%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 66.7%"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs font-medium">
+<span>LinkedIn</span>
+<span class="text-secondary">33.3%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 33.3%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. Most Popular Platform Highlights (Editorial Bento) -->
+<section class="space-y-4">
+<h3 class="text-primary font-headline font-bold uppercase tracking-widest text-xs px-1">Market Leaders</h3>
+<div class="grid grid-cols-1 gap-4">
+<!-- TikTok -->
+<div class="soul-gradient rounded-xl p-6 relative overflow-hidden group">
+<div class="relative z-10 flex flex-col h-full justify-between gap-4">
+<div class="flex justify-between items-start">
+<div class="bg-white/10 p-2 rounded-lg backdrop-blur-md">
+<img alt="Success Icon" class="w-6 h-6 invert" data-alt="White checkmark circle icon indicating primary market leadership and dominance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1EwlEXSnOM4InWLOR1KsuvDCnLXnX8KdptXaSOXyu9IpDTmnUZTqCYiD6WD9SizNaZFYlZEIjBpmhW2uSKuLVQjz7iRTUc83k6l_fZjCiaaqA7hHGJ3By4vs6qmnu5RmHzWufNz8viTN1vtyWT4ZEMD249GZxFjaXbU0EbS5e2pQcag9qPp6xYItg9ogjfteNdWjfB2C4LhYm9cqAcJE733DO6jVQ18_ri1HDae6qAlEr_xNrN1FH8fCzYaR_bIYnTYL4kQ534e0"/>
+</div>
+<span class="text-on-primary font-headline font-extrabold text-3xl opacity-90">75%</span>
+</div>
+<div>
+<p class="text-on-primary/60 font-label text-[10px] uppercase tracking-wider">18-24 Demographic</p>
+<h4 class="text-on-primary font-headline font-bold text-xl">TikTok</h4>
+</div>
+</div>
+<!-- Aesthetic Background Accent -->
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
+</div>
+<!-- 2-Column Row for Others -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Instagram -->
+<div class="bg-surface-container-high rounded-xl p-5 border border-outline-variant/10">
+<img alt="Content Icon" class="w-5 h-5 mb-4 text-primary" data-alt="Blue book icon representing narrative content and visual storytelling through Instagram" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbL2InrT1Hut5yPiOs1bbG13z8o4vcljMvxmDLSQwUIDDFtC2ZuUx0AEiqKZHRKzEiVVTldW19TDo-1yaqRXkScYUEl7qH6iAujIsdKle4r_uGJarW5-P1SQByfLDpSepc0ieCeUJTfebBq6vvRQizQby4mtK97-1tz0m_3H9npL27lkgQrIx00Zc9cnZjPERsedakzk9wi01NOO05uOZPoS1ZPxvDckIqrNnP4DS6jOvqiKForML7mlYiahj4zVt20-02nbVdoPs"/>
+<p class="text-primary font-headline font-extrabold text-2xl">66.7%</p>
+<h4 class="text-secondary font-headline font-semibold text-sm">Instagram</h4>
+<p class="text-on-surface-variant font-label text-[10px] mt-1">Age 25-34</p>
+</div>
+<!-- Facebook -->
+<div class="bg-surface-container-high rounded-xl p-5 border border-outline-variant/10">
+<img alt="Metrics Icon" class="w-5 h-5 mb-4 text-primary" data-alt="Blue calculator icon representing demographic calculation and traditional social reach" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSX2fTyF7DqcMknTvNZHJoyn8IAFyFLUvJlkyoebxUHqKsF23fCPZ4uQFffOfiz8TOV_J0YBzVD5hBaT8KKY2Jl2MB1rvVH38PWWIYjq_H5FZOQJmxOv7_4mEcmaBoZbAD5YyHZLjEagAy935c11RWEq9bswrzEAKALJhUmjMXMU8QqF-1DTWwYZlFWYrP4uX9Mvt_yOLyxEdFr7rnTdTR4_CBB06Wy5V2bURyXiMyWMhFxuMqLL4ODAmxPb0Yc380ceymDcyAmDE"/>
+<p class="text-primary font-headline font-extrabold text-2xl">66.7%</p>
+<h4 class="text-secondary font-headline font-semibold text-sm">Facebook</h4>
+<p class="text-on-surface-variant font-label text-[10px] mt-1">Age 35-44</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Overall Trend Note -->
+<section class="bg-tertiary-fixed rounded-xl p-5 flex items-center gap-4">
+<div class="bg-on-tertiary-fixed-variant/10 p-2 rounded-lg">
+<img alt="Trend Up Icon" class="w-6 h-6" data-alt="Upward trending graph icon representing growth and data trajectory in analysis" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNh56tHFvkjdVhPYctAegE-YMacy3SnR2WXfGQi9FTo890Ze9Nq-bSXcW9kXcOrCQD9lm4S-h4MdGj20UnYStDG0U24fQ0edWkaYq_C7zHktUu6H6P2nPS4NjaefxqI2_xB7K2vMXOMRyb9qiKswBUjvBw-yNzWlQYQd6wlBsQ1_AWSBRNm0fcQgYPl75wPQp_Ui3-zfaJjI1jwMAI3iCHTzufNjdnC8HQLxKjEmO2FgGpNt2SsTHx6NYYsEH_X_W4r9WB4Z4y138"/>
+</div>
+<div>
+<h5 class="text-on-tertiary-fixed font-headline font-bold text-sm">Platform Fragmentation</h5>
+<p class="text-on-tertiary-fixed-variant text-xs font-medium">Preference shifts linearly with age, showing a move from short-form video to static community-based feeds.</p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 shadow-[0_-4px_24px_rgba(25,28,30,0.06)] z-50 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-3 py-1 hover:text-cyan-700 dark:hover:text-cyan-300 transition-transform duration-150 scale-95" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+<span class="font-manrope text-[11px] font-semibold">Overview</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-3 py-1 hover:text-cyan-700 dark:hover:text-cyan-300 transition-transform duration-150 scale-95" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="language">language</span>
+<span class="font-manrope text-[11px] font-semibold">Platforms</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-cyan-50 dark:bg-cyan-900/30 text-cyan-900 dark:text-cyan-200 rounded-xl px-3 py-1 transition-transform duration-150 scale-95" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="groups">groups</span>
+<span class="font-manrope text-[11px] font-semibold">Demographics</span>
+</a>
+</nav>
+</body></html>
