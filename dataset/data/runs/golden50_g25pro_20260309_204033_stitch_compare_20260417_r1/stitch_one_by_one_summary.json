@@ -1,0 +1,10 @@
+{
+  "base_run": "golden50_g25pro_20260309_204033_android_promptsync_20260413_010634",
+  "new_run": "golden50_g25pro_20260309_204033_stitch_compare_20260417_r1",
+  "total": 50,
+  "improved": 15,
+  "regressed": 0,
+  "changed_same_count": 1,
+  "same": 34,
+  "remaining_gap_rows": 19
+}

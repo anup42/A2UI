@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"salesData": [{"drink": "Cold Brew", "category": "Cold", "q1_sales": 900, "q2_sales": 1850, "change": "+105.56%"}, {"drink": "Iced Latte", "category": "Cold", "q1_sales": 850, "q2_sales": 1500, "change": "+76.47%"}, {"drink": "Espresso", "category": "Hot", "q1_sales": 1200, "q2_sales": 1150, "change": "-4.17%"}, {"drink": "Cappuccino", "category": "Hot", "q1_sales": 1100, "q2_sales": 1000, "change": "-9.09%"}, {"drink": "Hot Chocolate", "category": "Hot", "q1_sales": 700, "q2_sales": 350, "change": "-50.00%"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "breakdown_title", "sales_table", "highlights_title", "highlights_card", "trends_title", "trends_card", "icon_title", "icon_stack"]}, "title": {"type": "Text", "props": {"text": "Quarterly Drink Sales Performance Analysis", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This report analyzes the sales performance of five key drinks between the first and second quarters, highlighting individual product growth and overall category trends based on the provided data.", "variant": "body"}, "children": []}, "breakdown_title": {"type": "Text", "props": {"text": "Drink-by-Drink Sales Breakdown (Q1 vs. Q2)", "variant": "h2"}, "children": []}, "sales_table": {"type": "Table", "props": {"columns": [{"key": "drink", "label": "Drink"}, {"key": "category", "label": "Category"}, {"key": "q1_sales", "label": "Q1 Sales"}, {"key": "q2_sales", "label": "Q2 Sales"}, {"key": "change", "label": "Sales Change (%)"}], "statePath": "/salesData", "domain": "comparison", "preferredPresentation": "table"}, "children": []}, "highlights_title": {"type": "Text", "props": {"text": "Q2 Performance Highlights", "variant": "h2"}, "children": []}, "highlights_card": {"type": "Card", "props": {}, "children": ["highlights_stack"]}, "highlights_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["highlight_1", "highlight_2"]}, "highlight_1": {"type": "Text", "props": {"text": "Top Performer by Volume: Cold Brew was the best-selling drink in Q2, with 1,850 units sold.", "variant": "body"}, "children": []}, "highlight_2": {"type": "Text", "props": {"text": "Highest Percentage Growth: Cold Brew also exhibited the highest growth, increasing sales by over 105% from Q1 to Q2.", "variant": "body"}, "children": []}, "trends_title": {"type": "Text", "props": {"text": "Overall Category Trends: Hot vs. Cold Drinks", "variant": "h2"}, "children": []}, "trends_card": {"type": "Card", "props": {}, "children": ["trends_stack"]}, "trends_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["trends_text_1", "trends_text_2"]}, "trends_text_1": {"type": "Text", "props": {"text": "The data reveals a significant seasonal shift in customer preference. The Cold drink category experienced explosive growth of 91.4% from Q1 to Q2, driven by the strong performance of both Cold Brew and Iced Latte.", "variant": "body"}, "children": []}, "trends_text_2": {"type": "Text", "props": {"text": "In contrast, the Hot drink category saw a combined sales decline of 16.7%. This powerful surge in cold beverage sales more than compensated for the drop in hot drinks, leading to a healthy 23.2% increase in total sales.", "variant": "body"}, "children": []}, "icon_title": {"type": "Text", "props": {"text": "Related Icons", "variant": "h3"}, "children": []}, "icon_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "lg", "align": "center"}, "children": ["icon_1", "icon_2", "icon_3", "icon_4"]}, "icon_1": {"type": "Icon", "props": {"name": "../assets/r_000002_01_1_camera.svg"}, "children": []}, "icon_2": {"type": "Icon", "props": {"name": "../assets/r_000002_01_2_briefcase.svg"}, "children": []}, "icon_3": {"type": "Icon", "props": {"name": "../assets/r_000001_01_8_info-circle.svg"}, "children": []}, "icon_4": {"type": "Icon", "props": {"name": "../assets/r_000002_01_4_search.svg"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

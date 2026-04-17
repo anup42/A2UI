@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"flightData": [{"id": "1", "rank": "1", "airline": "Icelandair", "cost": "$1,240", "time": "11 hours", "layover": "2.5 hours", "justification": "This option is ranked first as it offers the best overall value. It is by far the most affordable choice, saving you $460 compared to the next cheapest option that meets your criteria. While the travel time is longer than the direct flights, the 2.5-hour layover is well within your 3-hour preference, making it an excellent choice for budget-conscious travelers."}, {"id": "2", "rank": "2", "airline": "British Airways", "cost": "$1,700", "time": "8 hours", "layover": "0 hours (Direct)", "justification": "For those prioritizing a faster, more direct journey, this is the best-balanced option. As a non-stop flight, it eliminates the hassle of connections and offers a quick 8-hour travel time. It strikes a great balance between speed and cost, being more affordable than the slightly faster Virgin Atlantic flight."}, {"id": "3", "rank": "3", "airline": "Virgin Atlantic", "cost": "$1,800", "time": "7.5 hours", "layover": "0 hours (Direct)", "justification": "This is the fastest flight available, getting you to London in just 7.5 hours. However, this premium speed comes at the highest cost. The 30-minute time savings over British Airways may not be worth the additional $100 for two travelers unless speed is your absolute top priority."}, {"id": "4", "rank": "4", "airline": "American Airlines", "cost": "$1,560", "time": "13 hours", "layover": "4.5 hours", "justification": "This option is ranked last because it fails to meet your core requirement of a layover under 3 hours. The 4.5-hour layover, combined with the longest total travel time and a mid-range price, makes it the least appealing choice among the flights provided."}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "image_banner", "recommendation_card", "options_title", "options_list", "comparison_title", "comparison_table", "actions_title", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Flight Ranking for Your NYC to London Trip", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "Here is a ranked comparison of your flight options for two adults traveling from New York to London (October 15-22, 2024). The ranking is based on your stated priorities of a good balance between total cost, shortest travel time, and a layover of less than three hours.", "variant": "body"}, "children": []}, "image_banner": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image_nyc", "image_airplane", "image_london"]}, "image_nyc": {"type": "Image", "props": {"url": "../assets/r_000033_01_3_newyork_manhattan.jpg", "fit": "cover", "flex": 1}, "children": []}, "image_airplane": {"type": "Image", "props": {"url": "../assets/r_000033_01_2_airplane_sky.jpg", "fit": "cover", "flex": 1}, "children": []}, "image_london": {"type": "Image", "props": {"url": "../assets/r_000033_01_1_london_towerbridge.jpg", "fit": "cover", "flex": 1}, "children": []}, "recommendation_card": {"type": "Card", "props": {}, "children": ["recommendation_stack"]}, "recommendation_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["recommendation_title", "recommendation_text_1", "recommendation_text_2"]}, "recommendation_title": {"type": "Text", "props": {"text": "Basis for This Recommendation", "variant": "h3"}, "children": []}, "recommendation_text_1": {"type": "Text", "props": {"text": "This analysis is based on the flight data you provided. The total cost is calculated for two adult passengers.", "variant": "body"}, "children": []}, "recommendation_text_2": {"type": "Text", "props": {"text": "It is always recommended to verify current prices and availability directly with the airlines or a flight aggregator, as fares can change frequently. This comparison assumes these are round-trip, economy-class fares and does not account for potential extra fees.", "variant": "body"}, "children": []}, "options_title": {"type": "Text", "props": {"text": "Ranked Flight Options", "variant": "h2"}, "children": []}, "options_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["option_card_template"], "repeat": {"statePath": "/flightData", "key": "id"}}, "option_card_template": {"type": "Card", "props": {}, "children": ["option_card_stack"]}, "option_card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["option_header_stack", "option_details_stack", "option_justification"]}, "option_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["option_rank", "option_airline"]}, "option_rank": {"type": "Text", "props": {"text": {"$template": "#${/rank}"}, "variant": "h2"}, "children": []}, "option_airline": {"type": "Text", "props": {"text": {"$item": "airline"}, "variant": "h3"}, "children": []}, "option_details_stack": {"type": "Stack", "props": {"direction": "horizontal", "justify": "around", "gap": "md"}, "children": ["cost_stack", "time_stack", "layover_stack"]}, "cost_stack": {"type": "Stack", "props": {"direction": "vertical", "align": "center", "gap": "sm"}, "children": ["cost_icon", "cost_label", "cost_value"]}, "cost_icon": {"type": "Icon", "props": {"name": "../assets/r_000007_01_3_cash-coin.svg"}, "children": []}, "cost_label": {"type": "Text", "props": {"text": "Total Cost", "variant": "label"}, "children": []}, "cost_value": {"type": "Text", "props": {"text": {"$item": "cost"}, "variant": "body"}, "children": []}, "time_stack": {"type": "Stack", "props": {"direction": "vertical", "align": "center", "gap": "sm"}, "children": ["time_icon", "time_label", "time_value"]}, "time_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "time_label": {"type": "Text", "props": {"text": "Travel Time", "variant": "label"}, "children": []}, "time_value": {"type": "Text", "props": {"text": {"$item": "time"}, "variant": "body"}, "children": []}, "layover_stack": {"type": "Stack", "props": {"direction": "vertical", "align": "center", "gap": "sm"}, "children": ["layover_icon", "layover_label", "layover_value"]}, "layover_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_5_airplane.svg"}, "children": []}, "layover_label": {"type": "Text", "props": {"text": "Layover", "variant": "label"}, "children": []}, "layover_value": {"type": "Text", "props": {"text": {"$item": "layover"}, "variant": "body"}, "children": []}, "option_justification": {"type": "Text", "props": {"text": {"$item": "justification"}, "variant": "body"}, "children": []}, "comparison_title": {"type": "Text", "props": {"text": "At-a-Glance Comparison", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "rank", "label": "Rank"}, {"key": "airline", "label": "Airline"}, {"key": "cost", "label": "Total Cost (2 Adults)"}, {"key": "time", "label": "Total Travel Time"}, {"key": "layover", "label": "Layover Duration"}, {"key": "justification", "label": "Justification"}], "statePath": "/flightData", "domain": "flight", "preferredPresentation": "table"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["action_button_1", "action_button_2"]}, "action_button_1": {"type": "Button", "props": {"label": "Search All Flights on Google Flights", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/flights"}}}}, "action_button_2": {"type": "Button", "props": {"label": "View London Heathrow Airport Info", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.heathrow.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

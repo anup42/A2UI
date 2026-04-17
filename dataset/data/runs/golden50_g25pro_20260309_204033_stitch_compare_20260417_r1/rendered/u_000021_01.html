@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "rootStack", "state": {}, "elements": {"rootStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["titleText", "introText", "imageStack", "contextCard", "guideTitle", "guideIntro", "step1Card", "step2Card", "step3Card", "step4Card", "step5Card", "step6Card", "summaryTitle", "summaryTable", "sourcesTitle", "sourcesStack"]}, "titleText": {"type": "Text", "props": {"text": "Systematic Troubleshooting for Your Nighthawk R7000", "variant": "h2"}, "children": []}, "introText": {"type": "Text", "props": {"text": "This guide provides a step-by-step process to diagnose the intermittent internet disconnects with your Netgear Nighthawk R7000 router. The goal is to isolate the cause of the issue before contacting Comcast support."}, "children": []}, "imageStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000021_01_1_router.jpg", "fit": "cover"}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000021_01_2_ethernet_cable.jpg", "fit": "cover"}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000021_01_3_modem_router.jpg", "fit": "cover"}, "children": []}, "contextCard": {"type": "Card", "props": {}, "children": ["contextStack"]}, "contextStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["contextTitle", "contextText"]}, "contextTitle": {"type": "Text", "props": {"text": "Troubleshooting Context", "variant": "h3"}, "children": []}, "contextText": {"type": "Text", "props": {"text": "This guide assumes you have a separate modem provided by Comcast and your Netgear R7000 router. The steps are ordered from least to most disruptive. You will need your router's admin credentials."}, "children": []}, "guideTitle": {"type": "Text", "props": {"text": "Step-by-Step Diagnostic Guide", "variant": "h2"}, "children": []}, "guideIntro": {"type": "Text", "props": {"text": "Follow these steps in order to systematically identify the point of failure."}, "children": []}, "step1Card": {"type": "Card", "props": {}, "children": ["step1Stack"]}, "step1Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step1Title", "step1Desc", "step1Text1", "step1Text2"]}, "step1Title": {"type": "Text", "props": {"text": "Step 1: Isolate the Router from the Network", "variant": "h3"}, "children": []}, "step1Desc": {"type": "Text", "props": {"text": "This is the most critical step to determine if the router is the source of the problem."}, "children": []}, "step1Text1": {"type": "Text", "props": {"text": "When the disconnect occurs, unplug the Ethernet cable from your router's WAN port and plug it directly into your MacBook Pro's Ethernet port."}, "children": []}, "step1Text2": {"type": "Text", "props": {"text": "Observe the connection. If disconnects stop, the router is likely the problem. If they continue, the issue is likely the modem or Comcast service."}, "children": []}, "step2Card": {"type": "Card", "props": {}, "children": ["step2Stack"]}, "step2Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step2Title", "step2Desc", "step2Text1", "step2Text2"]}, "step2Title": {"type": "Text", "props": {"text": "Step 2: Check Router Logs for Clues", "variant": "h3"}, "children": []}, "step2Desc": {"type": "Text", "props": {"text": "Your router keeps a log of events, which can contain error messages that coincide with the disconnects."}, "children": []}, "step2Text1": {"type": "Text", "props": {"text": "Access your router's admin panel (usually http://www.routerlogin.net or 192.168.1.1). Navigate to 'Advanced' > 'Administration' > 'Logs'."}, "children": []}, "step2Text2": {"type": "Text", "props": {"text": "Look for critical errors or messages related to 'WAN port', 'DHCP', or 'Internet connection' around the time of the disconnects."}, "children": []}, "step3Card": {"type": "Card", "props": {}, "children": ["step3Stack"]}, "step3Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step3Title", "step3Desc", "step3Text1"]}, "step3Title": {"type": "Text", "props": {"text": "Step 3: Update Router Firmware", "variant": "h3"}, "children": []}, "step3Desc": {"type": "Text", "props": {"text": "Outdated firmware can cause performance and stability issues."}, "children": []}, "step3Text1": {"type": "Text", "props": {"text": "In the admin panel, go to 'Advanced' > 'Administration' > 'Firmware Update'. Check for and install new firmware if available."}, "children": []}, "step4Card": {"type": "Card", "props": {}, "children": ["step4Stack"]}, "step4Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step4Title", "step4Desc", "step4Text1", "step4Text2"]}, "step4Title": {"type": "Text", "props": {"text": "Step 4: Change DNS Server Settings", "variant": "h3"}, "children": []}, "step4Desc": {"type": "Text", "props": {"text": "Sometimes, an ISP's DNS servers can be unreliable. Switching to a public DNS provider is a good troubleshooting step."}, "children": []}, "step4Text1": {"type": "Text", "props": {"text": "In the admin panel, go to 'Basic' > 'Internet'. Under 'Domain Name Server (DNS) Address', select 'Use These DNS Servers'."}, "children": []}, "step4Text2": {"type": "Text", "props": {"text": "Enter public DNS servers like Google (8.8.8.8, 8.8.4.4) or Cloudflare (1.1.1.1, 1.0.0.1), apply changes, and monitor."}, "children": []}, "step5Card": {"type": "Card", "props": {}, "children": ["step5Stack"]}, "step5Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step5Title", "step5Desc", "step5Text1"]}, "step5Title": {"type": "Text", "props": {"text": "Step 5: Check for Overheating", "variant": "h3"}, "children": []}, "step5Desc": {"type": "Text", "props": {"text": "Ensure the router has adequate ventilation. If it's hot to the touch, it may be overheating, causing intermittent failures."}, "children": []}, "step5Text1": {"type": "Text", "props": {"text": "Make sure the router is in an open area, not in a cabinet, and that ventilation holes are not blocked by dust."}, "children": []}, "step6Card": {"type": "Card", "props": {}, "children": ["step6Stack"]}, "step6Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step6Title", "step6Desc", "step6Text1"]}, "step6Title": {"type": "Text", "props": {"text": "Step 6: Perform a Factory Reset", "variant": "h3"}, "children": []}, "step6Desc": {"type": "Text", "props": {"text": "This is a final step if all else fails. A factory reset will erase all your custom settings."}, "children": []}, "step6Text1": {"type": "Text", "props": {"text": "With the router on, use a paperclip to press and hold the 'Reset' button for about 10 seconds. You will need to reconfigure it from scratch."}, "children": []}, "summaryTitle": {"type": "Text", "props": {"text": "Diagnostic Action Summary", "variant": "h2"}, "children": []}, "summaryTable": {"type": "Table", "props": {"columns": [{"key": "stage", "label": "Stage"}, {"key": "action", "label": "Action"}, {"key": "goal", "label": "Goal"}], "rows": [{"stage": "Isolation", "action": "Connect a computer directly to the modem", "goal": "Confirm if the router is the source of the problem."}, {"stage": "Investigation", "action": "Review the router's system logs", "goal": "Find specific error messages that correlate with the disconnects."}, {"stage": "Maintenance", "action": "Update the router to the latest firmware", "goal": "Apply bug fixes and stability improvements from the manufacturer."}, {"stage": "Configuration", "action": "Change router's DNS servers to a public provider", "goal": "Rule out issues with the ISP's default DNS service."}, {"stage": "Environment", "action": "Check router for overheating and ensure proper ventilation", "goal": "Eliminate hardware failure due to excessive heat."}, {"stage": "Final Resort", "action": "Perform a factory reset on the router", "goal": "Clear any corrupted configurations and return to a known-good state."}], "domain": "generic", "preferredPresentation": "table"}, "children": []}, "sourcesTitle": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sourceButton1", "sourceButton2"]}, "sourceButton1": {"type": "Button", "props": {"label": "Netgear Nighthawk R7000 Support Page", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.netgear.com/support/product/r7000.aspx"}}}}, "sourceButton2": {"type": "Button", "props": {"label": "Comcast Internet Troubleshooting Guide", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.xfinity.com/support/internet"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

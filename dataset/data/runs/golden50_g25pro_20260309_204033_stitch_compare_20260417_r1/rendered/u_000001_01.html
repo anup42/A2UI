@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "rootStack", "state": {"sites": [{"id": "colosseum", "siteName": "Colosseum", "duration": "Est. Visit: 2 - 3 hours", "suitability": "High: The grand scale and gladiator history are fascinating for all ages. The 14-year-old will appreciate the historical context, while the 10-year-old will be captivated by the iconic structure.", "cost": "Family Cost: €44", "actionLabel": "Book Official Tickets", "actionUrl": "https://www.coopculture.it/en/products/ticket-colosseum-roman-forum-palatine_24h/", "imageUrl": "../assets/r_000001_01_1_colosseum.jpg"}, {"id": "forum", "siteName": "Roman Forum & Palatine Hill", "duration": "Est. Visit: 2 - 3 hours", "suitability": "Moderate to High: As a sprawling ruin, it requires more imagination. The 14-year-old history enthusiast will find it engaging; a good guide or app will be helpful for the 10-year-old.", "cost": "Family Cost: Included", "actionLabel": "Explore the Site", "actionUrl": "https://colosseo.it/en/area/roman-forum/", "imageUrl": "../assets/r_000001_01_2_800.jpg"}, {"id": "pantheon", "siteName": "Pantheon", "duration": "Est. Visit: 30 - 60 minutes", "suitability": "Moderate: An architectural marvel, famous for its giant unsupported dome and oculus. It's a quick but awe-inspiring visit. Both kids will be impressed, but it's a less interactive experience.", "cost": "Family Cost: €10", "actionLabel": "Check Visitor Information", "actionUrl": "https://www.pantheonroma.com/en/home-eng/", "imageUrl": "../assets/r_000001_01_3_pantheon_oculus.jpg"}]}, "elements": {"rootStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["mainTitle", "introText", "planningCard", "comparisonTitle", "comparisonStack", "recommendationCard", "sourcesTitle", "sourcesStack"]}, "mainTitle": {"type": "Text", "props": {"text": "Rome's Ancient Wonders: A Family Guide", "variant": "h2"}, "children": []}, "introText": {"type": "Text", "props": {"text": "Here is a comparative guide to three essential historical sites in Rome, tailored to your family's trip in November. The plan considers your children's ages, interests, and budget.", "variant": "body"}, "children": []}, "planningCard": {"type": "Card", "props": {}, "children": ["planningStack"]}, "planningStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["planningTitle", "planningText"]}, "planningTitle": {"type": "Text", "props": {"text": "Planning Notes for Your November Trip", "variant": "h3"}, "children": []}, "planningText": {"type": "Text", "props": {"text": "This comparison assumes ticket prices for non-EU citizens booking online in advance. The costs are estimated for your family of four (2 adults, 2 minors under 18). Your activity budget of €400 is sufficient.", "variant": "body"}, "children": []}, "comparisonTitle": {"type": "Text", "props": {"text": "Historical Site Comparison", "variant": "h2"}, "children": []}, "comparisonStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["siteCard"], "repeat": {"statePath": "/sites", "key": "id"}}, "siteCard": {"type": "Card", "props": {}, "children": ["siteStack"]}, "siteStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["siteName", "siteImage", "siteSuitability", "siteDetailsStack", "siteActionButton"]}, "siteName": {"type": "Text", "props": {"text": {"$item": "siteName"}, "variant": "h3"}, "children": []}, "siteImage": {"type": "Image", "props": {"url": {"$item": "imageUrl"}, "fit": "cover", "height": 150}, "children": []}, "siteSuitability": {"type": "Text", "props": {"text": {"$item": "suitability"}, "variant": "body"}, "children": []}, "siteDetailsStack": {"type": "Stack", "props": {"direction": "horizontal", "justify": "between"}, "children": ["siteDuration", "siteCost"]}, "siteDuration": {"type": "Text", "props": {"text": {"$item": "duration"}, "variant": "caption"}, "children": []}, "siteCost": {"type": "Text", "props": {"text": {"$item": "cost"}, "variant": "caption"}, "children": []}, "siteActionButton": {"type": "Button", "props": {"label": {"$item": "actionLabel"}, "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": {"$item": "actionUrl"}}}}}, "recommendationCard": {"type": "Card", "props": {}, "children": ["recommendationStack"]}, "recommendationStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["recommendationTitle", "recommendationText1", "recommendationText2"]}, "recommendationTitle": {"type": "Text", "props": {"text": "Recommendation for November 12th", "variant": "h2"}, "children": []}, "recommendationText1": {"type": "Text", "props": {"text": "For your first full day in Rome, I recommend visiting the Colosseum and the Roman Forum.", "variant": "body"}, "children": []}, "recommendationText2": {"type": "Text", "props": {"text": "This combination is the perfect introduction to ancient Rome. Starting with these high-impact sites while the family is energetic will create a memorable first impression and is a logistically simple choice.", "variant": "body"}, "children": []}, "sourcesTitle": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sourceButton1", "sourceButton2", "sourceButton3"]}, "sourceButton1": {"type": "Button", "props": {"label": "CoopCulture Official Ticket Vendor", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.coopculture.it/en/"}}}}, "sourceButton2": {"type": "Button", "props": {"label": "Pantheon Official Website", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.pantheonroma.com/en/home-eng/"}}}}, "sourceButton3": {"type": "Button", "props": {"label": "Rome Official Tourism Website", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.turismoroma.it/en"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

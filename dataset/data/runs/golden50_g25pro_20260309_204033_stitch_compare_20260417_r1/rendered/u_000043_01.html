@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "context_card", "transition_card", "table_card", "images_card", "icons_card", "actions_card"]}, "title": {"type": "Text", "props": {"text": "Event Check-in QR Scanner Interface", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This outlines the user interface components and states for a QR code scanner designed for efficient event attendee check-in. The design focuses on clarity, speed, and immediate feedback for the event staff operating the app."}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_stack"]}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["context_title", "context_text"]}, "context_title": {"type": "Text", "props": {"text": "Operational Context for Scanning", "variant": "h3"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "This interface design assumes the user is an event staff member logged into a dedicated event management app. It is also assumed that the app has been granted camera permissions on the device and has access to a live attendee database for QR code validation. The primary goal is to minimize the time per check-in."}, "children": []}, "transition_card": {"type": "Card", "props": {}, "children": ["transition_stack"]}, "transition_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["transition_title", "transition_text"]}, "transition_title": {"type": "Text", "props": {"text": "UI State Transition Details", "variant": "h3"}, "children": []}, "transition_text": {"type": "Text", "props": {"text": "The scanner screen transitions between three primary states to provide clear feedback. The camera view remains active in the background, ready to scan the next code after a brief confirmation or error message."}, "children": []}, "table_card": {"type": "Card", "props": {}, "children": ["table_stack"]}, "table_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["table_title", "state_table"]}, "table_title": {"type": "Text", "props": {"text": "UI State Transition Table", "variant": "h3"}, "children": []}, "state_table": {"type": "Table", "props": {"columns": [{"key": "ui_state", "label": "UI State"}, {"key": "visuals", "label": "Key Visuals"}, {"key": "feedback", "label": "On-Screen Text and Feedback"}], "rows": [{"ui_state": "Ready to Scan", "visuals": "Full-screen live camera view. A semi-transparent dark overlay with a clear, centered square frame. A subtle, continuous scanning line animation may be present inside the frame.", "feedback": "Position the QR code inside the frame"}, {"ui_state": "Check-in Success", "visuals": "The camera view freezes momentarily and is covered by a green success overlay. A large checkmark icon is displayed prominently.", "feedback": "Check-in Successful!\nJane Smith"}, {"ui_state": "Invalid Code", "visuals": "The camera view freezes momentarily and is covered by a red error overlay. A large warning icon (e.g., an 'X' or '!') is displayed.", "feedback": "Invalid Code\nAttendee not found. Please try again or check the guest list."}], "domain": "status", "preferredPresentation": "table"}, "children": []}, "images_card": {"type": "Card", "props": {}, "children": ["images_stack"]}, "images_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["images_title", "images_container"]}, "images_title": {"type": "Text", "props": {"text": "Images", "variant": "h2"}, "children": []}, "images_container": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000043_01_1_event_check-in.jpg", "fit": "cover"}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000043_01_2_phone_qr-scanner.jpg", "fit": "cover"}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000043_01_3_phone_success_check.jpg", "fit": "cover"}, "children": []}, "icons_card": {"type": "Card", "props": {}, "children": ["icons_stack"]}, "icons_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["icons_title", "icon1_row", "icon2_row", "icon3_row", "icon4_row", "icon5_row"]}, "icons_title": {"type": "Text", "props": {"text": "Icons", "variant": "h2"}, "children": []}, "icon1_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["icon1", "icon1_label"]}, "icon1": {"type": "Icon", "props": {"name": "../assets/r_000022_01_1_upc-scan.svg"}, "children": []}, "icon1_label": {"type": "Text", "props": {"text": "QR Scan Frame"}, "children": []}, "icon2_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["icon2", "icon2_label"]}, "icon2": {"type": "Icon", "props": {"name": "../assets/r_000027_01_1_check-circle.svg"}, "children": []}, "icon2_label": {"type": "Text", "props": {"text": "Success Checkmark"}, "children": []}, "icon3_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["icon3", "icon3_label"]}, "icon3": {"type": "Icon", "props": {"name": "../assets/r_000043_01_6_exclamation-triangle.svg"}, "children": []}, "icon3_label": {"type": "Text", "props": {"text": "Error Warning"}, "children": []}, "icon4_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["icon4", "icon4_label"]}, "icon4": {"type": "Icon", "props": {"name": "../assets/r_000043_01_7_qr-code-scan.svg"}, "children": []}, "icon4_label": {"type": "Text", "props": {"text": "Qr Code Scan"}, "children": []}, "icon5_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["icon5", "icon5_label"]}, "icon5": {"type": "Icon", "props": {"name": "../assets/r_000002_01_1_camera.svg"}, "children": []}, "icon5_label": {"type": "Text", "props": {"text": "Camera"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["actions_title", "button1", "button2", "button3"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "button1": {"type": "Button", "props": {"label": "View Attendee List"}, "children": []}, "button2": {"type": "Button", "props": {"label": "Manual Check-in"}, "children": []}, "button3": {"type": "Button", "props": {"label": "Scanning Help & Support"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

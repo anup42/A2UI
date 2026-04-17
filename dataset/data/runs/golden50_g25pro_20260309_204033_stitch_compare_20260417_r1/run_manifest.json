@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-04-16T20:45:48Z",
+  "run_id": "golden50_g25pro_20260309_204033_stitch_compare_20260417_r1",
+  "stage": 4,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "5fb7c5ace62ee6b562afc7a9ec00b29a50947624",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "gemini_2_5_pro",
+    "provider": "gemini",
+    "model": "gemini-2.5-pro"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "3cf45b8dc3d92f5428a6bfd4f1c8bc2c28a52d582c50a651644ba2f2f56ce95f",
+      "configs\\models.yaml": "55f33e13327bfdc8281b4638c0e8cb97e83f5ced68a73f1cae3365560e62a51d"
+    },
+    "combined_sha256": "e546af2dc1d62e1d44a0b5391c26d52b7af0eec952396d91ac9b7cafa0746af7"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260417_r1",
+    "queries_path": "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260417_r1\\queries.jsonl",
+    "responses_path": "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260417_r1\\responses.jsonl",
+    "genui_path": "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260417_r1\\genui.jsonl",
+    "metrics_path": "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260417_r1\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260417_r1\\aggregates.json",
+    "artifacts_dir": "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260417_r1\\artifacts",
+    "manifest_path": "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260417_r1\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "4",
+      "--model",
+      "gemini_2_5_pro",
+      "--run_id",
+      "golden50_g25pro_20260309_204033_stitch_compare_20260417_r1"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+  }
+}

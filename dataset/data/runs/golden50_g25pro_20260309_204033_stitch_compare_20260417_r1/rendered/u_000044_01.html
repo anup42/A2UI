@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"form": {"fullName": "Alex Doe", "title": "Senior Product Manager", "company": "FutureTech Inc.", "phone": "+1-555-0199", "email": "a.doe@futuretech.example.com", "website": "www.futuretech.example.com"}, "showQRCode": false}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro", "formCard", "qrCodeCard", "galleryCard", "quickActionsCard"]}, "title": {"type": "Text", "props": {"text": "Digital Business Card Generator", "variant": "h2"}, "children": []}, "intro": {"type": "Text", "props": {"text": "This interface allows you to create a vCard QR code for your contact details. Fill in the fields below to generate a scannable code that can be easily shared and saved to a phone's contact list."}, "children": []}, "formCard": {"type": "Card", "props": {}, "children": ["formStack"]}, "formStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["formTitle", "formIntro", "fullNameField", "titleField", "companyField", "phoneField", "emailField", "websiteField", "generateButton"]}, "formTitle": {"type": "Text", "props": {"text": "Create Your vCard", "variant": "h3"}, "children": []}, "formIntro": {"type": "Text", "props": {"text": "Enter your professional details into the form to generate your personalized QR code."}, "children": []}, "fullNameField": {"type": "TextField", "props": {"label": "Full Name", "value": {"$bindState": "/form/fullName"}}, "children": []}, "titleField": {"type": "TextField", "props": {"label": "Title", "value": {"$bindState": "/form/title"}}, "children": []}, "companyField": {"type": "TextField", "props": {"label": "Company", "value": {"$bindState": "/form/company"}}, "children": []}, "phoneField": {"type": "TextField", "props": {"label": "Phone Number", "value": {"$bindState": "/form/phone"}}, "children": []}, "emailField": {"type": "TextField", "props": {"label": "Email Address", "value": {"$bindState": "/form/email"}}, "children": []}, "websiteField": {"type": "TextField", "props": {"label": "Website", "value": {"$bindState": "/form/website"}}, "children": []}, "generateButton": {"type": "Button", "props": {"label": "Generate QR Code", "variant": "primary"}, "children": [], "on": {"press": {"action": "setState", "params": {"/showQRCode": true}}}}, "qrCodeCard": {"type": "Card", "props": {}, "children": ["qrCodeStack"], "visible": {"$state": "/showQRCode", "eq": true}}, "qrCodeStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16, "align": "center"}, "children": ["qrCodeTitle", "qrCodeIntro", "qrCodeImage", "saveButton"]}, "qrCodeTitle": {"type": "Text", "props": {"text": "Your QR Code", "variant": "h3"}, "children": []}, "qrCodeIntro": {"type": "Text", "props": {"text": "Scan the code below with a smartphone camera to add the contact to your address book."}, "children": []}, "qrCodeImage": {"type": "Image", "props": {"url": "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AN%3ADoe%3BAlex%3B%3B%3B%0AFN%3AAlex%20Doe%0ATITLE%3ASenior%20Product%20Manager%0AORG%3AFutureTech%20Inc.%0ATEL%3BTYPE%3DWORK%2CVOICE%3A%2B1-555-0199%0AEMAIL%3Aa.doe%40futuretech.example.com%0AURL%3Ahttp%3A%2F%2Fwww.futuretech.example.com%0AEND%3AVCARD"}, "children": []}, "saveButton": {"type": "Button", "props": {"label": "Save Image to Device"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AN%3ADoe%3BAlex%3B%3B%3B%0AFN%3AAlex%20Doe%0ATITLE%3ASenior%20Product%20Manager%0AORG%3AFutureTech%20Inc.%0ATEL%3BTYPE%3DWORK%2CVOICE%3A%2B1-555-0199%0AEMAIL%3Aa.doe%40futuretech.example.com%0AURL%3Ahttp%3A%2F%2Fwww.futuretech.example.com%0AEND%3AVCARD"}}}}, "galleryCard": {"type": "Card", "props": {}, "children": ["galleryStack"]}, "galleryStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["galleryTitle", "galleryImageStack"]}, "galleryTitle": {"type": "Text", "props": {"text": "Images", "variant": "h2"}, "children": []}, "galleryImageStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap", "justify": "around"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000044_01_1_qr_scan.jpg", "fit": "cover", "width": 150, "height": 100}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000044_01_2_networking_phone.jpg", "fit": "cover", "width": 150, "height": 100}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000044_01_3_business_card.jpg", "fit": "cover", "width": 150, "height": 100}, "children": []}, "quickActionsCard": {"type": "Card", "props": {}, "children": ["quickActionsStack"]}, "quickActionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["quickActionsTitle", "newQrButton"]}, "quickActionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "newQrButton": {"type": "Button", "props": {"label": "Create a New QR Code"}, "children": [], "on": {"press": {"action": "setState", "params": {"/showQRCode": false, "/form": {"fullName": "", "title": "", "company": "", "phone": "", "email": "", "website": ""}}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

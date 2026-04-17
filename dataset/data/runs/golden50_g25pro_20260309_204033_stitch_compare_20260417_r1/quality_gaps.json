@@ -1,0 +1,1151 @@
+{
+  "summary": {
+    "run_id": "golden50_g25pro_20260309_204033_stitch_compare_20260417_r1",
+    "records": 50,
+    "gap_counts": {
+      "dense_text_layout": 3,
+      "missing_media_signal": 2,
+      "weak_table_coverage": 15
+    },
+    "category_counts": {
+      "Booking": 17,
+      "Comparison": 11,
+      "Travel": 10,
+      "Weather": 12
+    },
+    "category_gap_counts": {
+      "Booking": {
+        "dense_text_layout": 1,
+        "weak_table_coverage": 7
+      },
+      "Comparison": {
+        "missing_media_signal": 1,
+        "weak_table_coverage": 2
+      },
+      "Travel": {
+        "weak_table_coverage": 2
+      },
+      "Weather": {
+        "dense_text_layout": 2,
+        "missing_media_signal": 1,
+        "weak_table_coverage": 4
+      }
+    },
+    "generated_at": "2026-04-16T20:48:05.490910+00:00"
+  },
+  "records": [
+    {
+      "ui_id": "u_000001_01",
+      "query_id": "q_000001",
+      "response_id": "r_000001_01",
+      "intent": "Information Retrieval",
+      "category": "Travel",
+      "ir_element_count": 28,
+      "ir_byte_size": 6114,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.175,
+      "information_chunking_score": 0.7712707182320442,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000001_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000002_01",
+      "query_id": "q_000002",
+      "response_id": "r_000002_01",
+      "intent": "Information Retrieval",
+      "category": "Comparison",
+      "ir_element_count": 21,
+      "ir_byte_size": 4116,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.8181818181818182,
+      "information_chunking_score": 0.781,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000002_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000003_01",
+      "query_id": "q_000003",
+      "response_id": "r_000003_01",
+      "intent": "Entertainment",
+      "category": "Booking",
+      "ir_element_count": 37,
+      "ir_byte_size": 7476,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.7922561429635145,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000003_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000004_01",
+      "query_id": "q_000004",
+      "response_id": "r_000004_01",
+      "intent": "Entertainment",
+      "category": "Weather",
+      "ir_element_count": 16,
+      "ir_byte_size": 3108,
+      "table_domains": [],
+      "has_table": true,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.5864661654135339,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000004_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000005_01",
+      "query_id": "q_000005",
+      "response_id": "r_000005_01",
+      "intent": "product_lookup",
+      "category": "Comparison",
+      "ir_element_count": 20,
+      "ir_byte_size": 4416,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.8421052631578947,
+      "information_chunking_score": 0.5678191489361701,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000005_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000006_01",
+      "query_id": "q_000006",
+      "response_id": "r_000006_01",
+      "intent": "product_lookup",
+      "category": "Booking",
+      "ir_element_count": 46,
+      "ir_byte_size": 7957,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.7058823529411765,
+      "information_chunking_score": 0.8067287043664997,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000006_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000007_01",
+      "query_id": "q_000007",
+      "response_id": "r_000007_01",
+      "intent": "Booking",
+      "category": "Booking",
+      "ir_element_count": 34,
+      "ir_byte_size": 5610,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.5862068965517241,
+      "information_chunking_score": 0.714765100671141,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000007_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000008_01",
+      "query_id": "q_000008",
+      "response_id": "r_000008_01",
+      "intent": "Booking",
+      "category": "Weather",
+      "ir_element_count": 62,
+      "ir_byte_size": 11361,
+      "table_domains": [
+        "flight"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.35384615384615387,
+      "information_chunking_score": 0.8789355322338831,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000008_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000009_01",
+      "query_id": "q_000009",
+      "response_id": "r_000009_01",
+      "intent": "weather",
+      "category": "Weather",
+      "ir_element_count": 32,
+      "ir_byte_size": 5949,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.5384615384615384,
+      "information_chunking_score": 0.7231057062675398,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000009_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000010_01",
+      "query_id": "q_000010",
+      "response_id": "r_000010_01",
+      "intent": "weather",
+      "category": "Weather",
+      "ir_element_count": 27,
+      "ir_byte_size": 4741,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.375,
+      "information_chunking_score": 0.5666666666666667,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000010_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000011_01",
+      "query_id": "q_000011",
+      "response_id": "r_000011_01",
+      "intent": "data visualisation",
+      "category": "Booking",
+      "ir_element_count": 13,
+      "ir_byte_size": 1999,
+      "table_domains": [
+        "generic"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.47058823529411764,
+      "information_chunking_score": 0.30000000000000004,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000011_01.png",
+      "gaps": [
+        "weak_table_coverage",
+        "dense_text_layout"
+      ]
+    },
+    {
+      "ui_id": "u_000012_01",
+      "query_id": "q_000012",
+      "response_id": "r_000012_01",
+      "intent": "data visualisation",
+      "category": "Comparison",
+      "ir_element_count": 35,
+      "ir_byte_size": 6550,
+      "table_domains": [
+        "generic",
+        "status"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.3235294117647059,
+      "information_chunking_score": 0.7749747729566094,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000012_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000013_01",
+      "query_id": "q_000013",
+      "response_id": "r_000013_01",
+      "intent": "Planning",
+      "category": "Weather",
+      "ir_element_count": 34,
+      "ir_byte_size": 10588,
+      "table_domains": [
+        "generic",
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.6507936507936508,
+      "information_chunking_score": 0.8484507042253522,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000013_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000014_01",
+      "query_id": "q_000014",
+      "response_id": "r_000014_01",
+      "intent": "Planning",
+      "category": "Booking",
+      "ir_element_count": 69,
+      "ir_byte_size": 11988,
+      "table_domains": [
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.18461538461538463,
+      "information_chunking_score": 0.9244077721586372,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000014_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000015_01",
+      "query_id": "q_000015",
+      "response_id": "r_000015_01",
+      "intent": "productivity",
+      "category": "Weather",
+      "ir_element_count": 57,
+      "ir_byte_size": 9168,
+      "table_domains": [
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.7058823529411765,
+      "information_chunking_score": 0.8837209302325582,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000015_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000016_01",
+      "query_id": "q_000016",
+      "response_id": "r_000016_01",
+      "intent": "productivity",
+      "category": "Booking",
+      "ir_element_count": 41,
+      "ir_byte_size": 6062,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.8146811070998796,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000016_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000017_01",
+      "query_id": "q_000017",
+      "response_id": "r_000017_01",
+      "intent": "Recipe",
+      "category": "Weather",
+      "ir_element_count": 28,
+      "ir_byte_size": 6604,
+      "table_domains": [
+        "generic"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.75,
+      "information_chunking_score": 0.7191489361702128,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000017_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000018_01",
+      "query_id": "q_000018",
+      "response_id": "r_000018_01",
+      "intent": "Recipe",
+      "category": "Weather",
+      "ir_element_count": 15,
+      "ir_byte_size": 6505,
+      "table_domains": [
+        "generic"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.7647058823529411,
+      "information_chunking_score": 0.45744680851063835,
+      "image_presence": 0.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000018_01.png",
+      "gaps": [
+        "missing_media_signal"
+      ]
+    },
+    {
+      "ui_id": "u_000019_01",
+      "query_id": "q_000019",
+      "response_id": "r_000019_01",
+      "intent": "Localization",
+      "category": "Travel",
+      "ir_element_count": 36,
+      "ir_byte_size": 6832,
+      "table_domains": [
+        "booking"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.5172413793103449,
+      "information_chunking_score": 0.8496291301416048,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000019_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000020_01",
+      "query_id": "q_000020",
+      "response_id": "r_000020_01",
+      "intent": "Localization",
+      "category": "Travel",
+      "ir_element_count": 34,
+      "ir_byte_size": 6673,
+      "table_domains": [
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.525,
+      "information_chunking_score": 0.7507723995880535,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000020_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000021_01",
+      "query_id": "q_000021",
+      "response_id": "r_000021_01",
+      "intent": "Technical support",
+      "category": "Travel",
+      "ir_element_count": 52,
+      "ir_byte_size": 9007,
+      "table_domains": [
+        "generic"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.6363636363636364,
+      "information_chunking_score": 0.9163749513807857,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000021_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000022_01",
+      "query_id": "q_000022",
+      "response_id": "r_000022_01",
+      "intent": "Technical support",
+      "category": "Booking",
+      "ir_element_count": 47,
+      "ir_byte_size": 8290,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.9297124600638977,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000022_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000023_01",
+      "query_id": "q_000023",
+      "response_id": "r_000023_01",
+      "intent": "Creating Writing",
+      "category": "Comparison",
+      "ir_element_count": 38,
+      "ir_byte_size": 6588,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.6789473684210526,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000023_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000024_01",
+      "query_id": "q_000024",
+      "response_id": "r_000024_01",
+      "intent": "Creating Writing",
+      "category": "Comparison",
+      "ir_element_count": 44,
+      "ir_byte_size": 7084,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.7845944103612815,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000024_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000025_01",
+      "query_id": "q_000025",
+      "response_id": "r_000025_01",
+      "intent": "Event Schedule",
+      "category": "Weather",
+      "ir_element_count": 20,
+      "ir_byte_size": 3973,
+      "table_domains": [
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.5555555555555556,
+      "information_chunking_score": 0.35015772870662465,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000025_01.png",
+      "gaps": [
+        "dense_text_layout"
+      ]
+    },
+    {
+      "ui_id": "u_000026_01",
+      "query_id": "q_000026",
+      "response_id": "r_000026_01",
+      "intent": "Event Schedule",
+      "category": "Travel",
+      "ir_element_count": 31,
+      "ir_byte_size": 6451,
+      "table_domains": [
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.8285714285714286,
+      "information_chunking_score": 0.7994248741912293,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000026_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000027_01",
+      "query_id": "q_000027",
+      "response_id": "r_000027_01",
+      "intent": "Research Analysis",
+      "category": "Booking",
+      "ir_element_count": 29,
+      "ir_byte_size": 5001,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.5909090909090909,
+      "information_chunking_score": 0.7652733118971061,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000027_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000028_01",
+      "query_id": "q_000028",
+      "response_id": "r_000028_01",
+      "intent": "Research Analysis",
+      "category": "Booking",
+      "ir_element_count": 25,
+      "ir_byte_size": 5298,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.6666666666666666,
+      "information_chunking_score": 0.7873270211216314,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000028_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000029_01",
+      "query_id": "q_000029",
+      "response_id": "r_000029_01",
+      "intent": "Comparison",
+      "category": "Travel",
+      "ir_element_count": 34,
+      "ir_byte_size": 8179,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.7142857142857143,
+      "information_chunking_score": 0.6422136422136422,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000029_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000030_01",
+      "query_id": "q_000030",
+      "response_id": "r_000030_01",
+      "intent": "Comparison",
+      "category": "Booking",
+      "ir_element_count": 33,
+      "ir_byte_size": 7351,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.5454545454545454,
+      "information_chunking_score": 0.7159956474428727,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000030_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000031_01",
+      "query_id": "q_000031",
+      "response_id": "r_000031_01",
+      "intent": "calculation",
+      "category": "Comparison",
+      "ir_element_count": 30,
+      "ir_byte_size": 5046,
+      "table_domains": [],
+      "has_table": true,
+      "table_cell_coverage": 0.5909090909090909,
+      "information_chunking_score": 0.6377799415774099,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000031_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000032_01",
+      "query_id": "q_000032",
+      "response_id": "r_000032_01",
+      "intent": "calculation",
+      "category": "Comparison",
+      "ir_element_count": 34,
+      "ir_byte_size": 5664,
+      "table_domains": [
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.696969696969697,
+      "information_chunking_score": 0.8452674897119341,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000032_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000033_01",
+      "query_id": "q_000033",
+      "response_id": "r_000033_01",
+      "intent": "Travel",
+      "category": "Travel",
+      "ir_element_count": 39,
+      "ir_byte_size": 8101,
+      "table_domains": [
+        "flight"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.6097560975609756,
+      "information_chunking_score": 0.70824295010846,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000033_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000034_01",
+      "query_id": "q_000034",
+      "response_id": "r_000034_01",
+      "intent": "Travel",
+      "category": "Weather",
+      "ir_element_count": 48,
+      "ir_byte_size": 8815,
+      "table_domains": [
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.38095238095238093,
+      "information_chunking_score": 0.9189907038512616,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000034_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000035_01",
+      "query_id": "q_000035",
+      "response_id": "r_000035_01",
+      "intent": "Navigation",
+      "category": "Weather",
+      "ir_element_count": 21,
+      "ir_byte_size": 4160,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.6896551724137931,
+      "information_chunking_score": 0.3137755102040817,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000035_01.png",
+      "gaps": [
+        "dense_text_layout"
+      ]
+    },
+    {
+      "ui_id": "u_000036_01",
+      "query_id": "q_000036",
+      "response_id": "r_000036_01",
+      "intent": "Navigation",
+      "category": "Travel",
+      "ir_element_count": 36,
+      "ir_byte_size": 8104,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.2777777777777778,
+      "information_chunking_score": 0.6486129458388374,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000036_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000037_01",
+      "query_id": "q_000037",
+      "response_id": "r_000037_01",
+      "intent": "Education",
+      "category": "Booking",
+      "ir_element_count": 59,
+      "ir_byte_size": 11128,
+      "table_domains": [
+        "schedule"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.297029702970297,
+      "information_chunking_score": 0.8703761268262357,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000037_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000038_01",
+      "query_id": "q_000038",
+      "response_id": "r_000038_01",
+      "intent": "Education",
+      "category": "Booking",
+      "ir_element_count": 36,
+      "ir_byte_size": 6371,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.8944033790918691,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000038_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000039_01",
+      "query_id": "q_000039",
+      "response_id": "r_000039_01",
+      "intent": "Documentation",
+      "category": "Comparison",
+      "ir_element_count": 36,
+      "ir_byte_size": 6962,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.8816367940480216,
+      "image_presence": 0.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000039_01.png",
+      "gaps": [
+        "missing_media_signal"
+      ]
+    },
+    {
+      "ui_id": "u_000040_01",
+      "query_id": "q_000040",
+      "response_id": "r_000040_01",
+      "intent": "Documentation",
+      "category": "Booking",
+      "ir_element_count": 53,
+      "ir_byte_size": 9757,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.45161290322580644,
+      "information_chunking_score": 0.918834547346514,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000040_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000041_01",
+      "query_id": "q_000041",
+      "response_id": "r_000041_01",
+      "intent": "media playback",
+      "category": "Booking",
+      "ir_element_count": 39,
+      "ir_byte_size": 6551,
+      "table_domains": [
+        "comparison"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.43636363636363634,
+      "information_chunking_score": 0.6368062317429406,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000041_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000042_01",
+      "query_id": "q_000042",
+      "response_id": "r_000042_01",
+      "intent": "media playback",
+      "category": "Booking",
+      "ir_element_count": 26,
+      "ir_byte_size": 5994,
+      "table_domains": [
+        "generic"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.6481481481481481,
+      "information_chunking_score": 0.7711757269279393,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000042_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000043_01",
+      "query_id": "q_000043",
+      "response_id": "r_000043_01",
+      "intent": "qr scanner",
+      "category": "Comparison",
+      "ir_element_count": 46,
+      "ir_byte_size": 6928,
+      "table_domains": [
+        "status"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.32142857142857145,
+      "information_chunking_score": 0.6705263157894736,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000043_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000044_01",
+      "query_id": "q_000044",
+      "response_id": "r_000044_01",
+      "intent": "qr scanner",
+      "category": "Booking",
+      "ir_element_count": 31,
+      "ir_byte_size": 5412,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.0,
+      "information_chunking_score": 0.5610859728506787,
+      "image_presence": 1.0,
+      "icon_presence": 0.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000044_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000045_01",
+      "query_id": "q_000045",
+      "response_id": "r_000045_01",
+      "intent": "status check",
+      "category": "Travel",
+      "ir_element_count": 22,
+      "ir_byte_size": 3971,
+      "table_domains": [
+        "status"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.7272727272727273,
+      "information_chunking_score": 0.5407725321888412,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000045_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000046_01",
+      "query_id": "q_000046",
+      "response_id": "r_000046_01",
+      "intent": "status check",
+      "category": "Booking",
+      "ir_element_count": 26,
+      "ir_byte_size": 4197,
+      "table_domains": [
+        "status"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.5238095238095238,
+      "information_chunking_score": 0.6177884615384616,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000046_01.png",
+      "gaps": [
+        "weak_table_coverage"
+      ]
+    },
+    {
+      "ui_id": "u_000047_01",
+      "query_id": "q_000047",
+      "response_id": "r_000047_01",
+      "intent": "notification",
+      "category": "Comparison",
+      "ir_element_count": 27,
+      "ir_byte_size": 5275,
+      "table_domains": [
+        "status"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.5681818181818182,
+      "information_chunking_score": 0.76625,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000047_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000048_01",
+      "query_id": "q_000048",
+      "response_id": "r_000048_01",
+      "intent": "notification",
+      "category": "Travel",
+      "ir_element_count": 26,
+      "ir_byte_size": 4226,
+      "table_domains": [],
+      "has_table": false,
+      "table_cell_coverage": 0.6875,
+      "information_chunking_score": 0.5847255369928401,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000048_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000049_01",
+      "query_id": "q_000049",
+      "response_id": "r_000049_01",
+      "intent": "widgets",
+      "category": "Comparison",
+      "ir_element_count": 19,
+      "ir_byte_size": 3374,
+      "table_domains": [
+        "generic"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.64,
+      "information_chunking_score": 0.49444444444444446,
+      "image_presence": 0.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000049_01.png",
+      "gaps": []
+    },
+    {
+      "ui_id": "u_000050_01",
+      "query_id": "q_000050",
+      "response_id": "r_000050_01",
+      "intent": "widgets",
+      "category": "Weather",
+      "ir_element_count": 31,
+      "ir_byte_size": 5005,
+      "table_domains": [
+        "weather"
+      ],
+      "has_table": true,
+      "table_cell_coverage": 0.6896551724137931,
+      "information_chunking_score": 0.5653846153846154,
+      "image_presence": 1.0,
+      "icon_presence": 1.0,
+      "markdown_leak_lines": 0,
+      "fallback_generated": false,
+      "screenshot_exists": true,
+      "screenshot_path": "rendered\\u_000050_01.png",
+      "gaps": []
+    }
+  ]
+}

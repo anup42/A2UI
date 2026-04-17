@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "context_card", "overview_card", "images_title", "images_stack", "schedule_title", "week1_card", "week2_card", "week3_card", "week4_card", "week5_card", "actions_card", "sources_card"]}, "title": {"type": "Text", "props": {"text": "Your 5-Week GRE Quant Study Blueprint", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This study plan is designed to systematically cover all major GRE Quantitative Reasoning topics over four weeks, with a final week dedicated to full-length practice and consolidation. The schedule is structured around your availability, leading up to your test date on August 30, 2024.", "variant": "body"}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_stack"]}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["context_title", "context_text"]}, "context_title": {"type": "Text", "props": {"text": "Study Plan Context", "variant": "h2"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "This plan starts on Friday, July 26, 2024. It assumes you have access to a primary GRE preparation resource and supplemental online question banks. The daily time is best spent with a mix of concept review, solving practice problems, and analyzing your errors. Adjust the focus on sub-topics based on your personal strengths and weaknesses.", "variant": "body"}, "children": []}, "overview_card": {"type": "Card", "props": {}, "children": ["overview_stack"]}, "overview_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["overview_title", "overview_table"]}, "overview_title": {"type": "Text", "props": {"text": "Weekly Focus Overview", "variant": "h2"}, "children": []}, "overview_table": {"type": "Table", "props": {"columns": [{"key": "week", "label": "Week"}, {"key": "dates", "label": "Dates"}, {"key": "topic", "label": "Primary Topic"}, {"key": "saturday", "label": "Saturday Focus (3 hrs)"}, {"key": "goal", "label": "End-of-Week Goal"}], "rows": [{"week": "1", "dates": "Jul 26 - Aug 1", "topic": "Arithmetic", "saturday": "Deep Dive: Fractions, Decimals, Percentages", "goal": "Master core number properties and calculations."}, {"week": "2", "dates": "Aug 2 - Aug 8", "topic": "Algebra", "saturday": "Word Problems & Systems of Equations", "goal": "Solve equations, inequalities, and functions efficiently."}, {"week": "3", "dates": "Aug 9 - Aug 15", "topic": "Geometry", "saturday": "Coordinate Geometry & 3D Shapes", "goal": "Understand spatial relationships and formulas."}, {"week": "4", "dates": "Aug 16 - Aug 22", "topic": "Data Analysis", "saturday": "Probability & Combinatorics", "goal": "Interpret data and calculate statistical measures."}, {"week": "5", "dates": "Aug 23 - Aug 29", "topic": "Final Review", "saturday": "In-depth Test 1 Error Analysis", "goal": "Build stamina and refine test-taking strategy."}], "domain": "schedule", "preferredPresentation": "table"}, "children": []}, "images_title": {"type": "Text", "props": {"text": "Study Resources", "variant": "h2"}, "children": []}, "images_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap", "justify": "start"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000037_01_2_studying_books.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000037_01_3_graph_chart.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000037_01_4_geometry_diagrams.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "schedule_title": {"type": "Text", "props": {"text": "Detailed Weekly Study Schedule", "variant": "h2"}, "children": []}, "week1_card": {"type": "Card", "props": {}, "children": ["week1_stack"]}, "week1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["week1_title", "week1_details"]}, "week1_title": {"type": "Text", "props": {"text": "Week 1: Arithmetic (July 26 - August 1)", "variant": "h3"}, "children": []}, "week1_details": {"type": "Text", "props": {"text": "• Friday (90 min): Number Properties, Integers, Divisibility Rules.\n• Saturday (3 hrs): Fractions, Decimals, Percentages, and Ratio/Proportion.\n• Monday (90 min): Exponents and Roots.\n• Tuesday (90 min): Rates and Work Problems.\n• Wednesday (90 min): General review of all Arithmetic topics.\n• Thursday (90 min): Timed quiz on Arithmetic and review mistakes.", "variant": "body"}, "children": []}, "week2_card": {"type": "Card", "props": {}, "children": ["week2_stack"]}, "week2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["week2_title", "week2_details"]}, "week2_title": {"type": "Text", "props": {"text": "Week 2: Algebra (August 2 - August 8)", "variant": "h3"}, "children": []}, "week2_details": {"type": "Text", "props": {"text": "• Friday (90 min): Operations with Algebraic Expressions, Rules of Exponents.\n• Saturday (3 hrs): Solving Linear & Quadratic Equations, Systems of Equations, and Inequalities.\n• Monday (90 min): Functions and their properties.\n• Tuesday (90 min): Advanced Word Problems.\n• Wednesday (90 min): General review of all Algebra topics.\n• Thursday (90 min): Timed quiz on Algebra and detailed error analysis.", "variant": "body"}, "children": []}, "week3_card": {"type": "Card", "props": {}, "children": ["week3_stack"]}, "week3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["week3_title", "week3_details"]}, "week3_title": {"type": "Text", "props": {"text": "Week 3: Geometry (August 9 - August 15)", "variant": "h3"}, "children": []}, "week3_details": {"type": "Text", "props": {"text": "• Friday (90 min): Lines, Angles, Triangles, and Quadrilaterals.\n• Saturday (3 hrs): Circles, Polygons, and 3D Figures.\n• Monday (90 min): Coordinate Geometry.\n• Tuesday (90 min): Mixed Geometry problem-solving session.\n• Wednesday (90 min): General review of all Geometry topics and formulas.\n• Thursday (90 min): Timed quiz on Geometry and review all mistakes.", "variant": "body"}, "children": []}, "week4_card": {"type": "Card", "props": {}, "children": ["week4_stack"]}, "week4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["week4_title", "week4_details"]}, "week4_title": {"type": "Text", "props": {"text": "Week 4: Data Analysis (August 16 - August 22)", "variant": "h3"}, "children": []}, "week4_details": {"type": "Text", "props": {"text": "• Friday (90 min): Statistics (Mean, Median, Mode, Range).\n• Saturday (3 hrs): Advanced Statistics and Probability.\n• Monday (90 min): Combinatorics (Permutations and Combinations).\n• Tuesday (90 min): Data Interpretation (Graphs, Charts, Tables).\n• Wednesday (90 min): General review of all Data Analysis topics.\n• Thursday (90 min): Timed quiz on Data Analysis and review errors.", "variant": "body"}, "children": []}, "week5_card": {"type": "Card", "props": {}, "children": ["week5_stack"]}, "week5_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["week5_title", "week5_details"]}, "week5_title": {"type": "Text", "props": {"text": "Week 5: Final Review & Practice Tests (August 23 - August 29)", "variant": "h3"}, "children": []}, "week5_details": {"type": "Text", "props": {"text": "• Friday (90 min): Take a full-length ETS POWERPREP Online Practice Test 1.\n• Saturday (3 hrs): Perform a deep, comprehensive review of Test 1.\n• Monday (90 min): Targeted practice on your weakest 2-3 topics.\n• Tuesday (90 min): Take a second full-length Practice Test.\n• Wednesday (90 min): Review Test 2, focusing on patterns in your mistakes.\n• Thursday (90 min): Light review of formulas and key strategies. Rest.", "variant": "body"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "action1_card", "action2_card"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions for Your Prep", "variant": "h2"}, "children": []}, "action1_card": {"type": "Card", "props": {}, "children": ["action1_stack"]}, "action1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["action1_title", "action1_desc", "action1_chip", "action1_button"]}, "action1_title": {"type": "Text", "props": {"text": "GRE Math Review", "variant": "h3"}, "children": []}, "action1_desc": {"type": "Text", "props": {"text": "A comprehensive guide covering all quant topics.", "variant": "body"}, "children": []}, "action1_chip": {"type": "Text", "props": {"text": "Official PDF", "variant": "chip"}, "children": []}, "action1_button": {"type": "Button", "props": {"label": "Download PDF", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "../assets/r_000037_01_1_gre-math-review.pdf"}}}}, "action2_card": {"type": "Card", "props": {}, "children": ["action2_stack"]}, "action2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["action2_title", "action2_desc", "action2_chip", "action2_button"]}, "action2_title": {"type": "Text", "props": {"text": "Khan Academy GRE Prep", "variant": "h3"}, "children": []}, "action2_desc": {"type": "Text", "props": {"text": "Free video lessons and practice questions.", "variant": "body"}, "children": []}, "action2_chip": {"type": "Text", "props": {"text": "Online Course", "variant": "chip"}, "children": []}, "action2_button": {"type": "Button", "props": {"label": "Start Practicing", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.khanacademy.org/test-prep/gre"}}}}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["sources_title", "source1_stack"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["source1_title", "source1_desc", "source1_button"]}, "source1_title": {"type": "Text", "props": {"text": "ETS Official GRE Site", "variant": "h3"}, "children": []}, "source1_desc": {"type": "Text", "props": {"text": "The official source for test information, registration, and the free POWERPREP practice tests essential for your final week.", "variant": "body"}, "children": []}, "source1_button": {"type": "Button", "props": {"label": "Visit Site", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.ets.org/gre.html"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

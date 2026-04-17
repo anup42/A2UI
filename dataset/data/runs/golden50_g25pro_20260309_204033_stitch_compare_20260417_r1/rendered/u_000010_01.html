@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"forecastData": [{"id": "day1", "date": "2024-09-15", "weatherSummary": "A cool start with a chance of morning showers clearing to a partly cloudy day.", "temp": "8-16°C", "wind": "25 kph", "clothing": "Wear layers: a long-sleeve shirt, a fleece or sweater, and a light waterproof jacket for the morning.", "imageUrl": "../assets/r_000010_01_1_melbourne_cloudy.jpg"}, {"id": "day2", "date": "2024-09-16", "weatherSummary": "The best day of the forecast. Mild, sunny, and clear with a light breeze.", "temp": "11-19°C", "wind": "15 kph", "clothing": "A t-shirt or long-sleeve shirt with a light jacket for the cooler parts of the day. Sunglasses are essential.", "imageUrl": "../assets/r_000010_01_2_melbourne_sunny.jpg"}, {"id": "day3", "date": "2024-09-17", "weatherSummary": "Cold, wet, and windy. High chance of rain and strong gusts make for challenging outdoor conditions.", "temp": "7-14°C", "wind": "40 kph", "clothing": "A reliable waterproof and windproof jacket is crucial. Wear warm layers underneath and waterproof shoes.", "imageUrl": "../assets/r_000010_01_3_melbourne_rain.jpg"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "intro_card", "forecast_heading", "forecast_list", "actions_card"]}, "title": {"type": "Text", "props": {"text": "Melbourne 3-Day Walking Forecast & Attire Guide", "variant": "h2"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["intro_heading", "intro_body"]}, "intro_heading": {"type": "Text", "props": {"text": "Planning for Melbourne's Changeable Weather", "variant": "h3"}, "children": []}, "intro_body": {"type": "Text", "props": {"text": "This analysis assumes you will be undertaking moderate outdoor walking activities. Recommendations prioritize comfort and practicality, focusing on a layering strategy to adapt to Melbourne's famously variable conditions."}, "children": []}, "forecast_heading": {"type": "Text", "props": {"text": "Daily Weather and Clothing Recommendations", "variant": "h2"}, "children": []}, "forecast_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["forecast_card_template"], "repeat": {"statePath": "/forecastData", "key": "id"}}, "forecast_card_template": {"type": "Card", "props": {}, "children": ["card_content_stack"]}, "card_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["forecast_image", "forecast_details_stack"]}, "forecast_image": {"type": "Image", "props": {"url": {"$item": "imageUrl"}, "fit": "cover", "height": 150}, "children": []}, "forecast_details_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["forecast_date", "forecast_summary", "metrics_stack", "clothing_details"]}, "forecast_date": {"type": "Text", "props": {"text": {"$item": "date"}, "variant": "h3"}, "children": []}, "forecast_summary": {"type": "Text", "props": {"text": {"$item": "weatherSummary"}}, "children": []}, "metrics_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "lg"}, "children": ["temp_stack", "wind_stack"]}, "temp_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["temp_label", "temp_value"]}, "temp_label": {"type": "Text", "props": {"text": "Temp:", "variant": "label"}, "children": []}, "temp_value": {"type": "Text", "props": {"text": {"$item": "temp"}}, "children": []}, "wind_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["wind_label", "wind_value"]}, "wind_label": {"type": "Text", "props": {"text": "Wind:", "variant": "label"}, "children": []}, "wind_value": {"type": "Text", "props": {"text": {"$item": "wind"}}, "children": []}, "clothing_details": {"type": "Text", "props": {"text": {"$item": "clothing"}}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_heading", "live_forecast_button", "source_caption"]}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "live_forecast_button": {"type": "Button", "props": {"label": "Check Live Melbourne Forecast", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.bom.gov.au/vic/forecasts/melbourne.shtml"}}}}, "source_caption": {"type": "Text", "props": {"text": "Source: Bureau of Meteorology (BOM)", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

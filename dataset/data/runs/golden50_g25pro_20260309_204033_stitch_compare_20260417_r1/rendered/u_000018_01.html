@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"toppingIngredients": [{"id": "t1", "ingredient": "Cauliflower", "quantity": "1 large head (approx. 1000g / 2.2 lbs), cut into florets"}, {"id": "t2", "ingredient": "Full-Fat Canned Coconut Milk", "quantity": "120 ml / 1/2 cup"}, {"id": "t3", "ingredient": "Nutritional Yeast", "quantity": "25g / 1/4 cup"}, {"id": "t4", "ingredient": "Minced Garlic", "quantity": "2 cloves"}, {"id": "t5", "ingredient": "Olive Oil", "quantity": "30 ml / 2 tbsp"}, {"id": "t6", "ingredient": "Salt", "quantity": "1 tsp, or to taste"}, {"id": "t7", "ingredient": "Black Pepper", "quantity": "1/2 tsp, or to taste"}], "fillingIngredients": [{"id": "f1", "ingredient": "Olive Oil", "quantity": "30 ml / 2 tbsp"}, {"id": "f2", "ingredient": "Yellow Onion", "quantity": "1 large (approx. 220g), finely chopped"}, {"id": "f3", "ingredient": "Carrots", "quantity": "2 medium (approx. 200g), diced"}, {"id": "f4", "ingredient": "Cremini Mushrooms", "quantity": "225g / 8 oz, chopped"}, {"id": "f5", "ingredient": "Minced Garlic", "quantity": "3 cloves"}, {"id": "f6", "ingredient": "Dry Brown or Green Lentils", "quantity": "200g / 1 cup, rinsed"}, {"id": "f7", "ingredient": "Gluten-Free Vegetable Broth", "quantity": "720 ml / 3 cups"}, {"id": "f8", "ingredient": "Tomato Paste", "quantity": "30g / 2 tbsp"}, {"id": "f9", "ingredient": "Dried Thyme", "quantity": "1 tsp"}, {"id": "f10", "ingredient": "Dried Rosemary", "quantity": "1 tsp, crushed"}, {"id": "f11", "ingredient": "Smoked Paprika", "quantity": "1/2 tsp"}, {"id": "f12", "ingredient": "Coconut Aminos", "quantity": "30 ml / 2 tbsp (ensure soy-free)"}, {"id": "f13", "ingredient": "Frozen Peas", "quantity": "150g / 1 cup"}, {"id": "f14", "ingredient": "Cornstarch (or Arrowroot Powder)", "quantity": "2 tbsp, mixed with 4 tbsp cold water to make a slurry"}], "steps": [{"id": "s1", "title": "Prepare the Cauliflower Topping", "description": "Place the cauliflower florets in a large pot and cover with water. Bring to a boil and cook for 10-15 minutes, or until fork-tender. Drain very well. Transfer the drained cauliflower to a food processor or use an immersion blender. Add the coconut milk, nutritional yeast, minced garlic, olive oil, salt, and pepper. Blend until completely smooth and creamy. Set aside."}, {"id": "s2", "title": "Preheat Oven and Sauté Vegetables", "description": "Preheat your oven to 400°F (200°C). In a large pot or Dutch oven, heat 2 tbsp of olive oil over medium-high heat. Add the chopped onion and carrots, cooking for 5-7 minutes until softened. Add the chopped mushrooms and cook for another 5-7 minutes, until they have released their liquid and started to brown. Stir in the 3 cloves of minced garlic and cook for one minute more until fragrant."}, {"id": "s3", "title": "Cook the Lentil Filling", "description": "Stir the tomato paste, dried thyme, rosemary, and smoked paprika into the vegetable mixture. Cook for 1 minute. Add the rinsed lentils and the vegetable broth. Bring to a boil, then reduce the heat to a simmer. Cover and cook for 20-25 minutes, or until the lentils are tender but not mushy."}, {"id": "s4", "title": "Thicken and Finish the Filling", "description": "Stir in the coconut aminos. Slowly pour in the cornstarch slurry while stirring constantly. Continue to simmer for 1-2 minutes until the gravy has thickened. Remove from heat and stir in the frozen peas. Season with additional salt and pepper to taste."}, {"id": "s5", "title": "Assemble and Bake", "description": "Spread the lentil filling evenly in the bottom of a 9x13 inch baking dish. Carefully spoon the creamy cauliflower topping over the filling and spread it out to the edges. Create decorative peaks with a fork if desired. Bake for 20-25 minutes, or until the filling is bubbly and the cauliflower topping is lightly golden. For a more browned top, broil for the last 2-3 minutes, watching carefully."}, {"id": "s6", "title": "Rest and Serve", "description": "Let the shepherd's pie rest for at least 10 minutes before serving. This allows the filling to set. Garnish with fresh parsley if desired and serve warm."}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["title", "description", "recipe_tabs"]}, "title": {"type": "Text", "props": {"text": "Gluten-Free, Soy-Free Vegan Shepherd's Pie", "variant": "h2"}, "children": []}, "description": {"type": "Text", "props": {"text": "A hearty and comforting classic, reimagined to be completely plant-based, gluten-free, and soy-free. This shepherd's pie features a rich lentil and vegetable filling topped with a creamy cauliflower mash."}, "children": []}, "recipe_tabs": {"type": "Tabs", "props": {"tabs": [{"title": "Ingredients", "child": "ingredients_section"}, {"title": "Instructions", "child": "instructions_section"}]}, "children": []}, "ingredients_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["topping_header", "topping_table", "filling_header", "filling_table"]}, "topping_header": {"type": "Text", "props": {"text": "Cauliflower Topping Ingredients", "variant": "h3"}, "children": []}, "topping_table": {"type": "Table", "props": {"columns": [{"key": "quantity", "label": "Quantity"}, {"key": "ingredient", "label": "Ingredient"}], "statePath": "/toppingIngredients", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "filling_header": {"type": "Text", "props": {"text": "Lentil Filling Ingredients", "variant": "h3"}, "children": []}, "filling_table": {"type": "Table", "props": {"columns": [{"key": "quantity", "label": "Quantity"}, {"key": "ingredient", "label": "Ingredient"}], "statePath": "/fillingIngredients", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "instructions_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["instructions_list"]}, "instructions_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step_card"], "repeat": {"statePath": "/steps", "key": "id"}}, "step_card": {"type": "Card", "props": {}, "children": ["step_content"]}, "step_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step_title", "step_description"]}, "step_title": {"type": "Text", "props": {"text": {"$template": "Step {$index + 1}: {$item.title}"}, "variant": "h3"}, "children": []}, "step_description": {"type": "Text", "props": {"text": {"$item": "description"}}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

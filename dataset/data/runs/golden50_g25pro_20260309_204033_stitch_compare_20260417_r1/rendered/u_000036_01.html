@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "rootStack", "state": {"itineraryDays": [{"id": "day1", "dayTitle": "Day 1: The Northern Coast | San Francisco to Carmel-by-the-Sea", "drivingTime": "~2 hours 30 minutes (125 miles)", "scenicStop": "Pigeon Point Lighthouse. This historic 115-foot lighthouse offers a classic coastal California photo opportunity against the cliffs and ocean.", "hike": "Point Lobos State Natural Reserve. The Sea Lion Point Trail (0.6-mile loop) provides dramatic ocean views, access to tide pools, and abundant wildlife photography chances.", "overnight": "Carmel-by-the-Sea. A charming town known for its European-style village, art galleries, and beautiful beach."}, {"id": "day2", "dayTitle": "Day 2: The Heart of Big Sur | Carmel-by-the-Sea to Cambria", "drivingTime": "~2 hours 30 minutes (90 miles)", "scenicStop": "Bixby Creek Bridge. The most iconic landmark on Highway 1. Park in the designated pullouts on the north side of the bridge for the best and safest photographic angles.", "hike": "Partington Cove Trail. This 1-mile round-trip hike descends through a 60-foot tunnel to a secluded, rocky cove, offering a unique perspective of the Big Sur coast.", "overnight": "Cambria. A quaint coastal village with a relaxed atmosphere, perfect for resting after a day of breathtaking views."}, {"id": "day3", "dayTitle": "Day 3: The Central Coast Transition | Cambria to Santa Barbara", "drivingTime": "~3 hours (130 miles)", "scenicStop": "Elephant Seal Vista Point. Just north of San Simeon, this viewpoint offers incredible opportunities to photograph the massive northern elephant seals that haul out on the beach year-round.", "hike": "Fiscalini Ranch Preserve Bluff Trail. Before leaving Cambria, walk a portion of this easy 1-mile coastal trail for stunning views of the rocky shoreline and tide pools.", "overnight": "Santa Barbara. Known as \"The American Riviera,\" this city features beautiful Spanish-style architecture, a palm-lined waterfront, and a mountainous backdrop."}, {"id": "day4", "dayTitle": "Day 4: The Southern Approach | Santa Barbara to Los Angeles", "drivingTime": "~2 hours (100 miles)", "scenicStop": "Point Dume State Beach & Preserve. Located in Malibu, this promontory offers panoramic views of the coast, Zuma Beach, and Paradise Cove. It's a prime spot for sunset photography.", "hike": "Point Dume Nature Preserve Trail. A short, sandy loop trail (approx. 1 mile) takes you to the top of the bluff for the best vantage points.", "overnight": "Final Destination: Los Angeles. Conclude your trip by arriving in the LA area, for example, near the iconic Santa Monica Pier."}]}, "elements": {"rootStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "introText", "planningCard", "guideTitle", "itineraryList", "actionsTitle", "checkConditionsButton", "imagesTitle", "imageGallery", "sourcesTitle", "sourcesStack"]}, "title": {"type": "Text", "props": {"text": "Pacific Coast Highway Photography Itinerary: SF to LA in 4 Days", "variant": "h2"}, "children": []}, "introText": {"type": "Text", "props": {"text": "This itinerary outlines a 4-day road trip from San Francisco to Los Angeles, focusing on photography and scenic coastal views. The plan is paced to keep daily driving under 4 hours, allowing ample time for exploration and capturing the stunning California coastline.", "variant": "body"}, "children": []}, "planningCard": {"type": "Card", "props": {}, "children": ["planningStack"]}, "planningStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["planningTitle", "planningText"]}, "planningTitle": {"type": "Text", "props": {"text": "Trip Planning Context", "variant": "h3"}, "children": []}, "planningText": {"type": "Text", "props": {"text": "This plan assumes you are traveling when Highway 1 is fully open. This route, particularly through Big Sur, is subject to periodic closures due to landslides. It is critical to check road conditions immediately before and during your trip.", "variant": "body"}, "children": []}, "guideTitle": {"type": "Text", "props": {"text": "Daily Driving and Photography Guide", "variant": "h2"}, "children": []}, "itineraryList": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["dayCardTemplate"], "repeat": {"statePath": "/itineraryDays", "key": "id"}}, "dayCardTemplate": {"type": "Card", "props": {}, "children": ["dayStack"]}, "dayStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["dayTitle", "drivingTimeStack", "scenicStopStack", "hikeStack", "overnightStack"]}, "dayTitle": {"type": "Text", "props": {"text": {"$item": "dayTitle"}, "variant": "h3"}, "children": []}, "drivingTimeStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["drivingIcon", "drivingText"]}, "drivingIcon": {"type": "Icon", "props": {"name": "../assets/r_000035_01_7_compass.svg"}, "children": []}, "drivingText": {"type": "Text", "props": {"text": {"$item": "drivingTime"}, "variant": "body"}, "children": []}, "scenicStopStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["cameraIcon", "scenicStopText"]}, "cameraIcon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_1_camera.svg"}, "children": []}, "scenicStopText": {"type": "Text", "props": {"text": {"$item": "scenicStop"}, "variant": "body"}, "children": []}, "hikeStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["hikeIcon", "hikeText"]}, "hikeIcon": {"type": "Icon", "props": {"name": "../assets/r_000036_01_2_house.svg"}, "children": []}, "hikeText": {"type": "Text", "props": {"text": {"$item": "hike"}, "variant": "body"}, "children": []}, "overnightStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["overnightIcon", "overnightText"]}, "overnightIcon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "overnightText": {"type": "Text", "props": {"text": {"$item": "overnight"}, "variant": "body"}, "children": []}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "checkConditionsButton": {"type": "Button", "props": {"label": "Check CA Highway 1 Road Conditions", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://roads.dot.ca.gov/"}}}}, "imagesTitle": {"type": "Text", "props": {"text": "Images", "variant": "h2"}, "children": []}, "imageGallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["image1", "image2", "image3", "image4"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000036_01_4_bixby-bridge.jpg", "height": 150, "width": 200, "fit": "cover"}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000036_01_5_mcway-falls.jpg", "height": 150, "width": 200, "fit": "cover"}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000036_01_6_elephant-seal.jpg", "height": 150, "width": 200, "fit": "cover"}, "children": []}, "image4": {"type": "Image", "props": {"url": "../assets/r_000036_01_7_malibu-coast.jpg", "height": 150, "width": 200, "fit": "cover"}, "children": []}, "sourcesTitle": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["parksButton", "caltransButton"]}, "parksButton": {"type": "Button", "props": {"label": "California Department of Parks and Recreation", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.parks.ca.gov/"}}}}, "caltransButton": {"type": "Button", "props": {"label": "Caltrans (California Department of Transportation)", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://dot.ca.gov/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

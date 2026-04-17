@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "image_stack", "planning_card", "itinerary_card", "actions_card", "sources_card"]}, "title": {"type": "Text", "props": {"text": "A Day in Historic Higashiyama, Kyoto", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This itinerary provides a relaxed, single-day walking tour through Kyoto's most preserved district, Higashiyama, for your visit on Tuesday, November 5, 2024. The plan focuses on iconic historical sites and traditional atmosphere."}, "children": []}, "image_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "between"}, "children": ["image1", "image2", "image3"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000020_01_1_kiyomizu-dera_autumn.jpg", "fit": "cover", "height": 150}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000020_01_2_ninenzaka_kyoto.jpg", "fit": "cover", "height": 150}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000020_01_3_gion_night.jpg", "fit": "cover", "height": 150}, "children": []}, "planning_card": {"type": "Card", "props": {}, "children": ["planning_stack"]}, "planning_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["planning_title", "planning_text"]}, "planning_title": {"type": "Text", "props": {"text": "Planning Notes for Your November 5th Visit", "variant": "h3"}, "children": []}, "planning_text": {"type": "Text", "props": {"text": "This plan assumes you are starting from the Gion district. November is peak autumn foliage season, so start early to avoid crowds. Wear comfortable walking shoes for the hilly, stone-paved streets. All locations are connected by scenic walks."}, "children": []}, "itinerary_card": {"type": "Card", "props": {}, "children": ["itinerary_stack"]}, "itinerary_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["itinerary_title", "itinerary_table"]}, "itinerary_title": {"type": "Text", "props": {"text": "Higashiyama District Itinerary for a Relaxed Pace", "variant": "h3"}, "children": []}, "itinerary_table": {"type": "Table", "props": {"columns": [{"key": "time", "label": "Time of Day"}, {"key": "activity", "label": "Activity"}, {"key": "details", "label": "Location & Key Details"}], "rows": [{"time": "9:00 AM", "activity": "Kiyomizu-dera Temple", "details": "Arrive early to experience this iconic temple built on the side of a mountain. Famous for its wooden stage offering panoramic views of Kyoto."}, {"time": "11:00 AM", "activity": "Historic Streets Walk", "details": "Descend from the temple via the beautifully preserved Sannenzaka and Ninenzaka stone stairways. These streets are lined with traditional shops and teahouses."}, {"time": "12:30 PM", "activity": "Traditional Lunch", "details": "Find a local restaurant in the area between Ninenzaka and Kodai-ji. Suggested meal: Yudofu (simmered tofu, a Kyoto specialty) or a simple Soba/Udon noodle set."}, {"time": "2:00 PM", "activity": "Kodai-ji Temple", "details": "A serene Zen Buddhist temple known for its rock gardens and rich history. It is often less crowded than Kiyomizu-dera, offering a peaceful break."}, {"time": "4:00 PM", "activity": "Yasaka Shrine", "details": "Walk to the end of the historic path to reach Yasaka Shrine, a vibrant and important shrine located at the edge of Gion. It's always open and beautiful as dusk approaches."}, {"time": "6:00 PM onwards", "activity": "Gion Evening Stroll", "details": "Explore the famous Gion district. Walk down Hanamikoji Lane for a chance to see geiko or maiko. Enjoy dinner in one of the many traditional restaurants in Gion or nearby Pontocho Alley."}], "domain": "schedule", "preferredPresentation": "table"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["actions_title", "action1_stack", "action2_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "action1_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action1_icon", "action1_text_stack", "action1_button"]}, "action1_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_5_map.svg"}, "children": []}, "action1_text_stack": {"type": "Stack", "props": {"direction": "vertical", "flex": 1}, "children": ["action1_title", "action1_desc"]}, "action1_title": {"type": "Text", "props": {"text": "Kyoto Bus Map"}, "children": []}, "action1_desc": {"type": "Text", "props": {"text": "For planning short bus rides to/from your starting point in Gion.", "variant": "caption"}, "children": []}, "action1_button": {"type": "Button", "props": {"label": "View Map", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.kyotostation.com/kyoto-city-bus-subway-guide-route-map/"}}}}, "action2_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["action2_text_stack", "action2_button"]}, "action2_text_stack": {"type": "Stack", "props": {"direction": "vertical", "flex": 1}, "children": ["action2_title", "action2_desc"]}, "action2_title": {"type": "Text", "props": {"text": "Higashiyama Walking Course"}, "children": []}, "action2_desc": {"type": "Text", "props": {"text": "An overview of the general walking route covered in this itinerary.", "variant": "caption"}, "children": []}, "action2_button": {"type": "Button", "props": {"label": "See Guide", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.insidekyoto.com/kyoto-walking-itineraries"}}}}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["sources_title", "source1_text", "source2_text"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source1_text": {"type": "Text", "props": {"text": "Japan National Tourism Organization (JNTO): Official travel guide for Kyoto."}, "children": []}, "source2_text": {"type": "Text", "props": {"text": "Kyoto City Official Travel Guide: Detailed information on attractions, events, and transport within Kyoto."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

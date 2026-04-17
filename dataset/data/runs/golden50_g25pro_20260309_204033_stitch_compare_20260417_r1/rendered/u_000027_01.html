@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title_text", "intro_text", "context_card", "preference_card", "popular_card"]}, "title_text": {"type": "Text", "props": {"text": "Social Media Preferences by Age: Survey Analysis", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This report summarizes the analysis of the provided user survey data, breaking down social media platform preferences by age group and identifying the most popular platform for each demographic."}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_stack"]}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["context_header_stack", "context_body_text"]}, "context_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["context_icon", "context_header_text"]}, "context_icon": {"type": "Icon", "props": {"name": "../assets/r_000027_01_5_newspaper.svg"}, "children": []}, "context_header_text": {"type": "Text", "props": {"text": "Analysis Context", "variant": "h3"}, "children": []}, "context_body_text": {"type": "Text", "props": {"text": "This analysis is based solely on the 10 user records provided. The findings reflect trends within this specific dataset and should not be considered representative of the general population due to the small sample size."}, "children": []}, "preference_card": {"type": "Card", "props": {}, "children": ["preference_stack"]}, "preference_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["preference_header_stack", "preference_table"]}, "preference_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["preference_icon", "preference_header_text"]}, "preference_icon": {"type": "Icon", "props": {"name": "../assets/r_000027_01_4_graph-up.svg"}, "children": []}, "preference_header_text": {"type": "Text", "props": {"text": "Platform Preference Percentage by Age Group", "variant": "h3"}, "children": []}, "preference_table": {"type": "Table", "props": {"columns": [{"key": "age_group", "label": "Age Group"}, {"key": "tiktok", "label": "TikTok"}, {"key": "instagram", "label": "Instagram"}, {"key": "facebook", "label": "Facebook"}, {"key": "linkedin", "label": "LinkedIn"}], "rows": [{"age_group": "18-24", "tiktok": "75.0%", "instagram": "25.0%", "facebook": "0.0%", "linkedin": "0.0%"}, {"age_group": "25-34", "tiktok": "0.0%", "instagram": "66.7%", "facebook": "0.0%", "linkedin": "33.3%"}, {"age_group": "35-44", "tiktok": "0.0%", "instagram": "0.0%", "facebook": "66.7%", "linkedin": "33.3%"}], "domain": "comparison", "preferredPresentation": "table"}, "children": []}, "popular_card": {"type": "Card", "props": {}, "children": ["popular_stack"]}, "popular_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["popular_header_text", "popular_intro_text", "popular_list_stack"]}, "popular_header_text": {"type": "Text", "props": {"text": "Most Popular Platform per Age Group", "variant": "h3"}, "children": []}, "popular_intro_text": {"type": "Text", "props": {"text": "Based on the survey data, the single most preferred social media platform for each age group is as follows:"}, "children": []}, "popular_list_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["popular_item_1_stack", "popular_item_2_stack", "popular_item_3_stack"]}, "popular_item_1_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["popular_item_1_icon", "popular_item_1_text"]}, "popular_item_1_icon": {"type": "Icon", "props": {"name": "../assets/r_000027_01_1_check-circle.svg"}, "children": []}, "popular_item_1_text": {"type": "Text", "props": {"text": "18-24 Age Group: TikTok is the most popular platform, preferred by 75% of users in this cohort."}, "children": []}, "popular_item_2_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["popular_item_2_icon", "popular_item_2_text"]}, "popular_item_2_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_7_book.svg"}, "children": []}, "popular_item_2_text": {"type": "Text", "props": {"text": "25-34 Age Group: Instagram is the most popular platform, with a 66.7% preference rate."}, "children": []}, "popular_item_3_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["popular_item_3_icon", "popular_item_3_text"]}, "popular_item_3_icon": {"type": "Icon", "props": {"name": "../assets/r_000027_01_3_calculator.svg"}, "children": []}, "popular_item_3_text": {"type": "Text", "props": {"text": "35-44 Age Group: Facebook is the most popular platform, also with a 66.7% preference rate."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

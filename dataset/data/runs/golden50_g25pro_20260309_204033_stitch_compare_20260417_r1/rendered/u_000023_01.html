@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"emailSubject": "Following up - Senior Data Analyst Interview with Alex Chen", "emailBody": "Dear Dr. Reed,\n\nThank you again for taking the time to speak with me yesterday, October 26th, about the Senior Data Analyst position at Innovate Solutions Inc. I thoroughly enjoyed our conversation and learning more about the team's innovative approach to data.\n\nI am particularly excited about the opportunity and wanted to reiterate my strong interest in the role. Our discussion about the upcoming 'Project Phoenix' data migration was especially insightful. It resonated with my past work, and I am confident that my experience in designing and executing large-scale ETL pipelines would allow me to contribute significantly to the project's success and help ensure a seamless transition.\n\nI am very enthusiastic about the possibility of joining your team and contributing to Innovate Solutions Inc. Please let me know if there is any additional information I can provide. I look forward to hearing from you regarding the next steps in the hiring process.\n\nBest regards,\n\nAlex Chen\n(555) 123-4567\nalex.chen@email.com\nlinkedin.com/in/alexchen"}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["main_title", "intro_text", "email_card", "actions_card"]}, "main_title": {"type": "Text", "props": {"text": "Post-Interview Follow-Up Draft", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This template provides a complete, professional follow-up email tailored to the specific details of your interview for the Senior Data Analyst position."}, "children": []}, "email_card": {"type": "Card", "props": {}, "children": ["email_card_stack"]}, "email_card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["email_title_stack", "subject_section", "divider", "email_body_stack"]}, "email_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["email_title", "position_icon_stack", "date_icon_stack"]}, "email_title": {"type": "Text", "props": {"text": "Email Template: Senior Data Analyst", "variant": "h3"}, "children": []}, "position_icon_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["briefcase_icon", "position_text"]}, "briefcase_icon": {"type": "Icon", "props": {"name": "../assets/r_000002_01_2_briefcase.svg"}, "children": []}, "position_text": {"type": "Text", "props": {"text": "Innovate Solutions Inc.", "variant": "caption"}, "children": []}, "date_icon_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["calendar_icon", "date_text"]}, "calendar_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "date_text": {"type": "Text", "props": {"text": "October 26th", "variant": "caption"}, "children": []}, "subject_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["subject_label", "subject_text"]}, "subject_label": {"type": "Text", "props": {"text": "Subject:", "variant": "label"}, "children": []}, "subject_text": {"type": "Text", "props": {"text": {"$state": "/emailSubject"}}, "children": []}, "divider": {"type": "Divider", "props": {}, "children": []}, "email_body_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["greeting", "para1", "para2", "para3", "closing", "signature_stack"]}, "greeting": {"type": "Text", "props": {"text": "Dear Dr. Reed,"}, "children": []}, "para1": {"type": "Text", "props": {"text": "Thank you again for taking the time to speak with me yesterday, October 26th, about the Senior Data Analyst position at Innovate Solutions Inc. I thoroughly enjoyed our conversation and learning more about the team's innovative approach to data."}, "children": []}, "para2": {"type": "Text", "props": {"text": "I am particularly excited about the opportunity and wanted to reiterate my strong interest in the role. Our discussion about the upcoming 'Project Phoenix' data migration was especially insightful. It resonated with my past work, and I am confident that my experience in designing and executing large-scale ETL pipelines would allow me to contribute significantly to the project's success and help ensure a seamless transition."}, "children": []}, "para3": {"type": "Text", "props": {"text": "I am very enthusiastic about the possibility of joining your team and contributing to Innovate Solutions Inc. Please let me know if there is any additional information I can provide. I look forward to hearing from you regarding the next steps in the hiring process."}, "children": []}, "closing": {"type": "Text", "props": {"text": "Best regards,"}, "children": []}, "signature_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sig_name", "sig_phone", "sig_email", "sig_linkedin_stack"]}, "sig_name": {"type": "Text", "props": {"text": "Alex Chen"}, "children": []}, "sig_phone": {"type": "Text", "props": {"text": "(555) 123-4567"}, "children": []}, "sig_email": {"type": "Text", "props": {"text": "alex.chen@email.com"}, "children": []}, "sig_linkedin_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["link_icon", "sig_linkedin"]}, "link_icon": {"type": "Icon", "props": {"name": "../assets/r_000011_01_5_link-45deg.svg"}, "children": []}, "sig_linkedin": {"type": "Text", "props": {"text": "linkedin.com/in/alexchen"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_card_stack"]}, "actions_card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title_stack", "actions_button_stack"]}, "actions_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["actions_title", "info_icon"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "info_icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_8_info-circle.svg"}, "children": []}, "actions_button_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["copy_subject_button", "copy_body_button"]}, "copy_subject_button": {"type": "Button", "props": {"label": "Copy Subject Line"}, "children": []}, "copy_body_button": {"type": "Button", "props": {"label": "Copy Email Body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

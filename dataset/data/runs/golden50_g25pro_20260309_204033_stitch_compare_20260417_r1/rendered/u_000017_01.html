@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"ingredients": [{"quantity": "2 1/4 cups", "ingredient": "all-purpose flour"}, {"quantity": "1 teaspoon", "ingredient": "baking soda"}, {"quantity": "1/2 teaspoon", "ingredient": "salt"}, {"quantity": "1 cup (2 sticks)", "ingredient": "unsalted butter, softened"}, {"quantity": "3/4 cup", "ingredient": "packed light brown sugar"}, {"quantity": "1/2 cup", "ingredient": "granulated white sugar"}, {"quantity": "1 large", "ingredient": "egg, room temperature"}, {"quantity": "2 teaspoons", "ingredient": "vanilla extract"}, {"quantity": "2 cups", "ingredient": "semi-sweet chocolate chips"}], "steps": [{"id": "1", "title": "Prepare Oven and Pans", "instruction": "Preheat your oven to 375°F (190°C). Line two large baking sheets with parchment paper."}, {"id": "2", "title": "Combine Dry Ingredients", "instruction": "In a medium bowl, whisk together the all-purpose flour, baking soda, and salt. Set this mixture aside."}, {"id": "3", "title": "Cream Butter and Sugars", "instruction": "In a large bowl, use an electric mixer to beat the softened butter, packed brown sugar, and granulated sugar on medium speed until the mixture is light and fluffy, about 2-3 minutes."}, {"id": "4", "title": "Add Wet Ingredients", "instruction": "Add the room temperature egg and vanilla extract to the butter mixture. Beat until fully combined, scraping down the sides of the bowl as needed."}, {"id": "5", "title": "Combine Wet and Dry", "instruction": "Reduce the mixer speed to low and gradually add the flour mixture to the wet ingredients. Mix only until the flour is just incorporated. Be careful not to overmix."}, {"id": "6", "title": "Add Chocolate Chips", "instruction": "Gently stir in the semi-sweet chocolate chips with a spatula."}, {"id": "7", "title": "Portion and Bake", "instruction": "Drop rounded tablespoons of dough onto the prepared baking sheets, placing them about 2 inches apart to allow for spreading."}, {"id": "8", "title": "Bake", "instruction": "Bake for 9 to 11 minutes, or until the edges are lightly golden brown and the centers look soft and slightly underdone."}, {"id": "9", "title": "Cool", "instruction": "Let the cookies cool on the baking sheet for 5 minutes. This allows them to set. Then, transfer them to a wire rack to cool completely."}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title_stack", "hero_image", "intro_card", "recipe_tabs", "gallery_card"]}, "title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["title_icon", "title"]}, "title_icon": {"type": "Icon", "props": {"name": "../assets/r_000017_01_6_cup-hot.svg"}, "children": []}, "title": {"type": "Text", "props": {"text": "Classic No-Chill Soft Chocolate Chip Cookies", "variant": "h2"}, "children": []}, "hero_image": {"type": "Image", "props": {"url": "../assets/r_000017_01_1_chocolatechipcookies.jpg", "fit": "cover"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["intro_text_1", "intro_heading", "intro_text_2", "intro_text_3"]}, "intro_text_1": {"type": "Text", "props": {"text": "This is a straightforward recipe for classic chocolate chip cookies that yields a soft, chewy texture without requiring any dough chilling. It's perfect for beginners and delivers delicious results.", "variant": "body"}, "children": []}, "intro_heading": {"type": "Text", "props": {"text": "Recipe Notes for Perfect Texture", "variant": "h3"}, "children": []}, "intro_text_2": {"type": "Text", "props": {"text": "For the best results, ensure your butter is softened to room temperature, not melted. Melted butter will cause the cookies to spread too much.", "variant": "body"}, "children": []}, "intro_text_3": {"type": "Text", "props": {"text": "Similarly, a room temperature egg incorporates more easily into the batter, creating a more uniform texture. This recipe makes approximately 2 dozen cookies.", "variant": "body"}, "children": []}, "recipe_tabs": {"type": "Tabs", "props": {"tabs": [{"title": "Ingredients", "child": "ingredients_tab_content"}, {"title": "Instructions", "child": "instructions_tab_content"}]}, "children": []}, "ingredients_tab_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["ingredients_heading_stack", "ingredients_table"]}, "ingredients_heading_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["ingredients_icon", "ingredients_heading"]}, "ingredients_icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_9_list-check.svg"}, "children": []}, "ingredients_heading": {"type": "Text", "props": {"text": "The Ultimate Soft & Chewy Recipe", "variant": "h3"}, "children": []}, "ingredients_table": {"type": "Table", "props": {"columns": [{"key": "quantity", "label": "Quantity"}, {"key": "ingredient", "label": "Ingredient"}], "statePath": "/ingredients", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "instructions_tab_content": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["instructions_heading", "instructions_list"]}, "instructions_heading": {"type": "Text", "props": {"text": "Step-by-Step Instructions", "variant": "h3"}, "children": []}, "instructions_list": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step_card_template"], "repeat": {"statePath": "/steps", "key": "id"}}, "step_card_template": {"type": "Card", "props": {}, "children": ["step_content_stack"]}, "step_content_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step_heading", "step_instruction"]}, "step_heading": {"type": "Text", "props": {"text": {"$template": "Step {{$item.id}}: {{$item.title}}"}, "variant": "h3"}, "children": []}, "step_instruction": {"type": "Text", "props": {"text": {"$item": "instruction"}, "variant": "body"}, "children": []}, "gallery_card": {"type": "Card", "props": {}, "children": ["gallery_stack"]}, "gallery_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "justify": "around", "wrap": "wrap"}, "children": ["gallery_image_1", "gallery_image_2"]}, "gallery_image_1": {"type": "Image", "props": {"url": "../assets/r_000017_01_2_softcookies.jpg", "fit": "contain"}, "children": []}, "gallery_image_2": {"type": "Image", "props": {"url": "../assets/r_000017_01_3_cookiedough.jpg", "fit": "contain"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

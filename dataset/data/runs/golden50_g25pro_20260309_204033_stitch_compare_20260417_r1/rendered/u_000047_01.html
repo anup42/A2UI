@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root_stack", "state": {"priceData": [{"day": "Monday", "date": "2023-11-06", "closingPrice": "$210.50", "dailyChange": "-", "periodHigh": "$210.50", "alertTriggered": "None"}, {"day": "Tuesday", "date": "2023-11-07", "closingPrice": "$218.00", "dailyChange": "+3.56%", "periodHigh": "$218.00", "alertTriggered": "New High"}, {"day": "Wednesday", "date": "2023-11-08", "closingPrice": "$211.50", "dailyChange": "-2.98%", "periodHigh": "$218.00", "alertTriggered": "Large Drop (>2.5%)"}, {"day": "Thursday", "date": "2023-11-09", "closingPrice": "$216.75", "dailyChange": "+2.48%", "periodHigh": "$218.00", "alertTriggered": "None"}]}, "elements": {"root_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["main_title", "intro_text", "notifications_title", "alert1_card", "alert2_card", "analysis_title", "analysis_intro", "price_table", "actions_title", "actions_stack"]}, "main_title": {"type": "Text", "props": {"text": "Generated Stock Price Alerts for TECH", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This response details the two push notifications that would have been generated for the stock 'TECH' based on the provided price data and alert rules for the period of November 6-9, 2023."}, "children": []}, "notifications_title": {"type": "Text", "props": {"text": "Triggered Notification Details", "variant": "h2"}, "children": []}, "alert1_card": {"type": "Card", "props": {}, "children": ["alert1_stack"]}, "alert1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["alert1_header_stack", "alert1_title_text", "alert1_body_text", "alert1_button"]}, "alert1_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["alert1_icon", "alert1_header_text"]}, "alert1_icon": {"type": "Icon", "props": {"name": "../assets/r_000030_01_4_graph-up-arrow.svg"}, "children": []}, "alert1_header_text": {"type": "Text", "props": {"text": "Alert 1: New High", "variant": "h3"}, "children": []}, "alert1_title_text": {"type": "Text", "props": {"text": "Title: TECH: New High Alert"}, "children": []}, "alert1_body_text": {"type": "Text", "props": {"text": "Body: TECH reached a new 4-day high, closing at $218.00 on Tuesday, Nov 7. This alert was triggered because the price surpassed the previous high of $210.50."}, "children": []}, "alert1_button": {"type": "Button", "props": {"label": "View TECH Chart", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/finance/quote/QQQ:NASDAQ"}}}}, "alert2_card": {"type": "Card", "props": {}, "children": ["alert2_stack"]}, "alert2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["alert2_header_stack", "alert2_title_text", "alert2_body_text", "alert2_button"]}, "alert2_header_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["alert2_icon", "alert2_header_text"]}, "alert2_icon": {"type": "Icon", "props": {"name": "../assets/r_000047_01_4_graph-down-arrow.svg"}, "children": []}, "alert2_header_text": {"type": "Text", "props": {"text": "Alert 2: Large Drop", "variant": "h3"}, "children": []}, "alert2_title_text": {"type": "Text", "props": {"text": "Title: TECH: Large Drop Alert"}, "children": []}, "alert2_body_text": {"type": "Text", "props": {"text": "Body: TECH dropped 2.98% from the previous day, closing at $211.50 on Wednesday, Nov 8. This alert was triggered because the drop exceeded the 2.5% threshold."}, "children": []}, "alert2_button": {"type": "Button", "props": {"label": "View TECH Chart", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/finance/quote/QQQ:NASDAQ"}}}}, "analysis_title": {"type": "Text", "props": {"text": "Price Movement Analysis", "variant": "h2"}, "children": []}, "analysis_intro": {"type": "Text", "props": {"text": "The following table breaks down the daily price movements and the conditions that triggered each alert."}, "children": []}, "price_table": {"type": "Table", "props": {"columns": [{"key": "day", "label": "Day"}, {"key": "date", "label": "Date"}, {"key": "closingPrice", "label": "Closing Price"}, {"key": "dailyChange", "label": "Daily Change (%)"}, {"key": "periodHigh", "label": "Period High"}, {"key": "alertTriggered", "label": "Alert Triggered"}], "statePath": "/priceData", "domain": "status", "preferredPresentation": "table"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["manage_button", "portfolio_button"]}, "manage_button": {"type": "Button", "props": {"label": "Manage Alert Rules", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/finance/"}}}}, "portfolio_button": {"type": "Button", "props": {"label": "View Portfolio", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/finance/portfolio/watchlist"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"laptopComparison": [{"model": "Lenovo Ideapad 5 Pro", "price": "Yes ($1350)", "ram": "Yes (16GB)", "storage": "Yes (1024GB)", "gpu": "Yes (RTX 3050)", "screen": "Yes (16\")", "color": "Yes (100% sRGB)", "meetsCriteria": "Yes"}, {"model": "Acer Swift X", "price": "Yes ($1099)", "ram": "Yes (16GB)", "storage": "No (512GB)", "gpu": "Yes (RTX 3050 Ti)", "screen": "Yes (14\")", "color": "Yes (100% sRGB)", "meetsCriteria": "No"}, {"model": "Dell XPS 15", "price": "No ($1650)", "ram": "Yes (16GB)", "storage": "Yes (1024GB)", "gpu": "Yes (RTX 4050)", "screen": "Yes (15.6\")", "color": "Yes (100% Adobe RGB)", "meetsCriteria": "No"}, {"model": "HP Spectre x360", "price": "Yes ($1450)", "ram": "Yes (16GB)", "storage": "Yes (1024GB)", "gpu": "No (Integrated)", "screen": "No (13.5\")", "color": "Yes (100% DCI-P3)", "meetsCriteria": "No"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title", "summary_card", "criteria_card", "comparison_card", "actions_card"]}, "title": {"type": "Text", "props": {"text": "Recommended Laptop for Graphic Design Students", "variant": "h2"}, "children": []}, "summary_card": {"type": "Card", "props": {}, "children": ["summary_stack"]}, "summary_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["summary_image_stack", "summary_text"]}, "summary_image_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["lenovo_image", "workspace_image"]}, "lenovo_image": {"type": "Image", "props": {"url": "../assets/r_000005_01_1_lenovo_laptop.jpg", "fit": "cover"}, "children": []}, "workspace_image": {"type": "Image", "props": {"url": "../assets/r_000005_01_2_graphic_design_desk.jpg", "fit": "cover"}, "children": []}, "summary_text": {"type": "Text", "props": {"text": "Based on your requirements, the Lenovo Ideapad 5 Pro is the only model from the list that meets all your criteria for a graphic design student's laptop. It falls within your budget and has the necessary specifications for demanding creative work, including a dedicated GPU, ample RAM and storage, and a color-accurate screen.", "variant": "body"}, "children": []}, "criteria_card": {"type": "Card", "props": {}, "children": ["criteria_stack"]}, "criteria_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["criteria_title", "criteria_text"]}, "criteria_title": {"type": "Text", "props": {"text": "Evaluation Criteria Notes", "variant": "h3"}, "children": []}, "criteria_text": {"type": "Text", "props": {"text": "For this analysis, a \"dedicated GPU\" is considered any NVIDIA or AMD model, while integrated solutions like Intel Iris Xe are excluded. Color gamuts such as 100% Adobe RGB and 100% DCI-P3 are considered to meet or exceed the \"99% sRGB or better\" requirement, as they represent a wider range of colors.", "variant": "body"}, "children": []}, "comparison_card": {"type": "Card", "props": {}, "children": ["comparison_stack"]}, "comparison_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["comparison_title", "comparison_table"]}, "comparison_title": {"type": "Text", "props": {"text": "Model Comparison Against Your Requirements", "variant": "h3"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "model", "label": "Model"}, {"key": "price", "label": "Price (<$1500)"}, {"key": "ram", "label": "RAM (>=16GB)"}, {"key": "storage", "label": "Storage (>=1TB)"}, {"key": "gpu", "label": "GPU (Dedicated)"}, {"key": "screen", "label": "Screen (14\"-16\")"}, {"key": "color", "label": "Color (>=99% sRGB)"}, {"key": "meetsCriteria", "label": "Meets All Criteria"}], "statePath": "/laptopComparison", "domain": "comparison", "preferredPresentation": "table"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_button"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "actions_button": {"type": "Button", "props": {"label": "Search for Lenovo Ideapad 5 Pro", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/search?q=Lenovo+Ideapad+5+Pro"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

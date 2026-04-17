@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"costBreakdown": [{"item": "Activities & Attractions", "cost": "$150 - $200", "notes": "Based on booking standard online tickets for the listed attractions."}, {"item": "Food & Dining", "cost": "$400 - $450", "notes": "Avg. $80-90/day, mixing café, bakery, and casual restaurant meals."}, {"item": "Local Transport", "cost": "$40 - $50", "notes": "For a weekly Navigo pass or multiple ticket carnets."}, {"item": "Total Per Person", "cost": "$590 - $700", "notes": ""}, {"item": "Total for Family of 4", "cost": "$2360 - $2800", "notes": "This leaves a comfortable buffer within your $3000 budget."}], "dailyItinerary": [{"dayDate": "Day 1: Mon, Aug 12", "morningActivity": "Island Discovery: Explore Île de la Cité. View the exterior of Notre Dame Cathedral, then visit Sainte-Chapelle to see the stunning stained glass windows. A short walk past the Conciergerie completes the tour.", "afternoonActivity": "River Cruise & Ice Cream: Take a relaxing 1-hour Seine River cruise with Bateaux-Mouches or a similar company. Afterwards, treat the family to famous Berthillon ice cream on Île Saint-Louis.", "diningIdea": "Crêperies: Find a casual crêperie in the Latin Quarter for both savory (galettes) and sweet crêpes. A simple ham and cheese galette is a great picky-eater option."}, {"dayDate": "Day 2: Tue, Aug 13", "morningActivity": "Louvre Museum Highlights: Use a pre-booked timed entry. Focus on a \"treasure hunt\" for key pieces: the Mona Lisa, the Venus de Milo, and the Egyptian antiquities wing. Keep the visit to 2-3 hours to avoid overload.", "afternoonActivity": "Tuileries Garden Fun: Walk from the Louvre to the adjacent Tuileries Garden. Let the kids burn off energy at the playground, rent a toy sailboat to push on the Grand Bassin pond, or enjoy the seasonal funfair (if running).", "diningIdea": "Boulangerie Picnic: Grab fresh \"jambon-beurre\" (ham and butter) baguettes, pastries, and drinks from a bakery to enjoy a simple picnic lunch in the Tuileries Garden."}, {"dayDate": "Day 3: Wed, Aug 14", "morningActivity": "Eiffel Tower Ascent: Take the elevator to the top of the Eiffel Tower (book tickets weeks or even months in advance). The views are unforgettable. Spend time exploring the Champ de Mars park at the base afterwards.", "afternoonActivity": "Science & Discovery: Travel to the Parc de la Villette to visit the Cité des Sciences et de l'Industrie. The Cité des Enfants section has dedicated, interactive exhibits for different age groups (the 5-12 years section is perfect).", "diningIdea": "Steak Frites: A classic French bistro meal. Most restaurants serve a simple steak with a side of french fries, which is usually a hit with children. Many bistros can be found near the Champ de Mars."}, {"dayDate": "Day 4: Thu, Aug 15", "morningActivity": "Montmartre Exploration: Take the funicular up to the Sacré-Cœur Basilica (free entry). Afterwards, wander through the Place du Tertre to see the street artists at work. Enjoy the charming, village-like atmosphere of the neighborhood.", "afternoonActivity": "Musée d'Orsay: Visit this beautiful museum housed in a former train station. It's more manageable than the Louvre and features famous Impressionist art by Monet, Degas, and Van Gogh that is often recognizable and appealing to kids.", "diningIdea": "Italian Fare: Paris has many excellent Italian restaurants. A simple Margherita pizza or pasta with butter and cheese is a reliable choice for a picky eater. Look for a \"pizzeria\" in the Saint-Germain area near the Musée d'Orsay."}, {"dayDate": "Day 5: Fri, Aug 16", "morningActivity": "Luxembourg Gardens: Spend the morning at the Jardin du Luxembourg. It features a fantastic playground (Ludo Jardin, small entry fee), pony rides, an old-fashioned carousel, and the famous tradition of renting model sailboats.", "afternoonActivity": "Shopping & Sweet Treats: Head to one of the grand department stores like Galeries Lafayette for some light souvenir shopping and a visit to the rooftop for a final, free panoramic view of Paris. End the trip with a treat from a famous pâtisserie like Ladurée.", "diningIdea": "Croque Monsieur: This classic French toasted ham and cheese sandwich is available at nearly every café and brasserie. It's a simple, warm, and filling option for a final Parisian lunch."}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro1", "intro2", "imageGallery", "planningCard", "budgetCard", "itineraryCard"]}, "title": {"type": "Text", "props": {"text": "Your Relaxed 5-Day Paris Family Adventure", "variant": "h2"}, "children": []}, "intro1": {"type": "Text", "props": {"text": "This itinerary is designed for a family of four, with two children aged 8 and 11, focusing on a relaxed pace with a mix of iconic landmarks and engaging, kid-friendly activities.", "variant": "body"}, "children": []}, "intro2": {"type": "Text", "props": {"text": "It operates within a $3000 USD budget for activities, local transport, and food from August 12 to August 16, 2024. All activities conclude well before the 9 PM daily deadline.", "variant": "body"}, "children": []}, "imageGallery": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap", "justify": "center"}, "children": ["image1", "image2", "image3", "image4"]}, "image1": {"type": "Image", "props": {"url": "../assets/r_000013_01_1_eiffel-tower_paris.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image2": {"type": "Image", "props": {"url": "../assets/r_000013_01_2_louvre.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image3": {"type": "Image", "props": {"url": "../assets/r_000013_01_3_seine-river_paris.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "image4": {"type": "Image", "props": {"url": "../assets/r_000013_01_4_montmartre_paris.jpg", "fit": "cover", "height": 150, "flex": 1}, "children": []}, "planningCard": {"type": "Card", "props": {"padding": 16}, "children": ["planningStack"]}, "planningStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["planningTitle", "planningText1", "planningText2"]}, "planningTitle": {"type": "Text", "props": {"text": "Planning Context for Your Trip", "variant": "h2"}, "children": []}, "planningText1": {"type": "Text", "props": {"text": "To create this itinerary, we've assumed a central accommodation location with easy access to the Paris Métro system. The budget allocates approximately $600 USD per day, which is feasible for the suggested mid-range dining, public transport, and pre-booked attractions.", "variant": "body"}, "children": []}, "planningText2": {"type": "Text", "props": {"text": "Transportation will primarily rely on multi-day Navigo Découverte passes or carnets of T+ tickets, which are cost-effective for families. All ticket prices are estimates and should be verified and booked online in advance to secure entry and potentially lower prices.", "variant": "body"}, "children": []}, "budgetCard": {"type": "Card", "props": {"padding": 16}, "children": ["budgetStack"]}, "budgetStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["budgetTitleContainer", "budgetText", "decisionTitle", "decisionList", "costTitle", "costTable"]}, "budgetTitleContainer": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["budgetIcon", "budgetTitle"]}, "budgetIcon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_9_list-check.svg"}, "children": []}, "budgetTitle": {"type": "Text", "props": {"text": "Budget and Ticketing Guide", "variant": "h2"}, "children": []}, "budgetText": {"type": "Text", "props": {"text": "Managing your budget and time requires advance planning, especially during the peak month of August.", "variant": "body"}, "children": []}, "decisionTitle": {"type": "Text", "props": {"text": "Decision Framework for Tickets:", "variant": "h3"}, "children": []}, "decisionList": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 8}, "children": ["decisionItem1", "decisionItem2", "decisionItem3", "decisionItem4"]}, "decisionItem1": {"type": "Text", "props": {"text": "1. Identify Must-See Attractions: For high-demand sites like the Eiffel Tower and the Louvre, booking is not optional; it's essential."}, "children": []}, "decisionItem2": {"type": "Text", "props": {"text": "2. Check Official Websites First: Always book directly from the official attraction website to avoid third-party markups and ensure valid entry."}, "children": []}, "decisionItem3": {"type": "Text", "props": {"text": "3. Book Timed-Entry Slots: This minimizes waiting in long queues, which is crucial for keeping children engaged and happy."}, "children": []}, "decisionItem4": {"type": "Text", "props": {"text": "4. Consider the Paris Museum Pass: Evaluate if the pass is cost-effective for your chosen itinerary. For this specific plan, buying individual tickets is likely more economical."}, "children": []}, "costTitle": {"type": "Text", "props": {"text": "Example Cost Breakdown (Per Person Estimates):", "variant": "h3"}, "children": []}, "costTable": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Item"}, {"key": "cost", "label": "Estimated Cost (5 Days)"}, {"key": "notes", "label": "Notes"}], "statePath": "/costBreakdown", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "itineraryCard": {"type": "Card", "props": {"padding": 16}, "children": ["itineraryStack"]}, "itineraryStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["itineraryTitleContainer", "itineraryTable"]}, "itineraryTitleContainer": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["itineraryIcon", "itineraryTitle"]}, "itineraryIcon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_calendar-event.svg"}, "children": []}, "itineraryTitle": {"type": "Text", "props": {"text": "Daily Itinerary: Paris for Families", "variant": "h2"}, "children": []}, "itineraryTable": {"type": "Table", "props": {"columns": [{"key": "dayDate", "label": "Day & Date"}, {"key": "morningActivity", "label": "Morning Activity (Approx. 10 AM - 1 PM)"}, {"key": "afternoonActivity", "label": "Afternoon Activity (Approx. 3 PM - 6 PM)"}, {"key": "diningIdea", "label": "Kid-Friendly Dining Idea"}], "statePath": "/dailyItinerary", "domain": "schedule", "preferredPresentation": "table"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

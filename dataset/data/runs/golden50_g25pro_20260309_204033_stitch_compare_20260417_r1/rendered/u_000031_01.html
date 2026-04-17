@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "rootStack", "state": {}, "elements": {"rootStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["titleText", "resultCard", "contextCard", "formulaCard", "breakdownCard", "actionsCard"]}, "titleText": {"type": "Text", "props": {"text": "Your Estimated Monthly Mortgage Payment", "variant": "h2"}, "children": []}, "resultCard": {"type": "Card", "props": {}, "children": ["resultStack"]}, "resultStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "align": "center"}, "children": ["resultValue", "resultLabel", "summaryText"]}, "resultValue": {"type": "Text", "props": {"text": "$2,451.25", "variant": "h1"}, "children": []}, "resultLabel": {"type": "Text", "props": {"text": "Monthly Payment (Principal & Interest)", "variant": "caption"}, "children": []}, "summaryText": {"type": "Text", "props": {"text": "Based on the figures provided, this is the calculated monthly payment for your mortgage, covering only principal and interest. The following sections provide a detailed breakdown."}, "children": []}, "contextCard": {"type": "Card", "props": {}, "children": ["contextStack"]}, "contextStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["contextTitle", "contextImage", "contextText"]}, "contextTitle": {"type": "Text", "props": {"text": "Calculation Context", "variant": "h3"}, "children": []}, "contextImage": {"type": "Image", "props": {"url": "../assets/r_000031_01_4_house_sale.jpg", "fit": "cover"}, "children": []}, "contextText": {"type": "Text", "props": {"text": "This calculation is for the principal and interest (P&I) portion of a mortgage payment only. It does not account for additional costs that are typically included in a monthly mortgage payment, such as property taxes, homeowner's insurance (escrow), or any applicable homeowners association (HOA) fees. These additional costs will increase the total monthly payment amount."}, "children": []}, "formulaCard": {"type": "Card", "props": {}, "children": ["formulaStack"]}, "formulaStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["formulaTitle", "formulaImage", "formulaIntroText", "formulaCodeCard", "variablesTable", "finalCalcText"]}, "formulaTitle": {"type": "Text", "props": {"text": "Mortgage Payment Formula Explained", "variant": "h3"}, "children": []}, "formulaImage": {"type": "Image", "props": {"url": "../assets/r_000031_01_5_finance_documents.jpg", "fit": "cover"}, "children": []}, "formulaIntroText": {"type": "Text", "props": {"text": "The standard formula used to calculate the monthly payment (M) for a fixed-rate mortgage is:"}, "children": []}, "formulaCodeCard": {"type": "Card", "props": {}, "children": ["formulaCodeText"]}, "formulaCodeText": {"type": "Text", "props": {"text": "M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1 ]"}, "children": []}, "variablesTable": {"type": "Table", "props": {"columns": [{"key": "variable", "label": "Variable"}, {"key": "description", "label": "Description"}, {"key": "value", "label": "Value"}], "rows": [{"variable": "P", "description": "Principal loan amount", "value": "$420,000"}, {"variable": "i", "description": "Monthly interest rate (5.75% / 12)", "value": "0.00479167"}, {"variable": "n", "description": "Total number of payments (30 * 12)", "value": "360"}]}, "children": []}, "finalCalcText": {"type": "Text", "props": {"text": "Plugging in the values: M = $2,451.25"}, "children": []}, "breakdownCard": {"type": "Card", "props": {}, "children": ["breakdownStack"]}, "breakdownStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["breakdownTitle", "breakdownText", "breakdownTable"]}, "breakdownTitle": {"type": "Text", "props": {"text": "Total Loan Cost Breakdown", "variant": "h3"}, "children": []}, "breakdownText": {"type": "Text", "props": {"text": "This table summarizes the total amount you will pay over the 30-year life of the loan, separating the principal from the interest."}, "children": []}, "breakdownTable": {"type": "Table", "props": {"columns": [{"key": "component", "label": "Component"}, {"key": "amount", "label": "Amount"}], "rows": [{"component": "Principal Loan Amount", "amount": "$420,000.00"}, {"component": "Monthly Payment (P&I)", "amount": "$2,451.25"}, {"component": "Total Interest Paid", "amount": "$462,450.00"}, {"component": "Total Lifetime Payments", "amount": "$882,450.00"}]}, "children": []}, "actionsCard": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actionsTitle", "actionButton"]}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionButton": {"type": "Button", "props": {"label": "Explore Scenarios with a Mortgage Calculator", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumerfinance.gov/owning-a-home/mortgage-calculator/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>
