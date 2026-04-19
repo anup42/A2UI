@@ -1,0 +1,10 @@
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=Information Retrieval created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=Entertainment created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=product_lookup created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=Booking created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=weather created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=data visualisation created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=Planning created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=productivity created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=Recipe created=1 total=1
+2026-04-18 23:31:33 INFO dataset: Stage1 intent=Localization created=1 total=1

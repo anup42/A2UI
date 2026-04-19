@@ -3785,13 +3785,21 @@ private fun RenderIcon(
             .build()
     }
     val iconSize = resolveIconSize(props)
+    val basePadding = asDp(props["padding"]) ?: asDp(props["iconPadding"]) ?: 4.dp
+    val horizontalPadding =
+        asDp(props["paddingHorizontal"]) ?: asDp(props["iconPaddingHorizontal"]) ?: basePadding
+    val verticalPadding =
+        asDp(props["paddingVertical"]) ?: asDp(props["iconPaddingVertical"]) ?: basePadding
+    val iconModifier = modifier
+        .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+        .size(iconSize)
     var failed by remember(url) { mutableStateOf(false) }
     if (failed) {
         Icon(
             imageVector = Icons.Filled.Image,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = modifier.size(iconSize)
+            modifier = iconModifier
         )
     } else {
         AsyncImage(
@@ -3803,7 +3811,7 @@ private fun RenderIcon(
             imageLoader = imageLoader,
             contentDescription = null,
             contentScale = ContentScale.Fit,
-            modifier = modifier.size(iconSize),
+            modifier = iconModifier,
             onSuccess = { failed = false },
             onError = { failed = true }
         )

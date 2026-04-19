@@ -1,4 +1,4 @@
-run:
+﻿run:
   run_id: test_sample_1000
   intents_file: intents.info
   output_dir: data/runs
@@ -6,15 +6,15 @@ run:
   stage3_schema_file: schema/genui_flatspec.schema.json
   stage3_legacy_prompt_file: prompts/genui_gen.md
   stage3_legacy_schema_file: schema/genui.schema.json
-  k_queries_per_intent: 87
+  k_queries_per_intent: 400
   n_responses_per_query: 1
   genui_candidates_per_response: 1
   max_repair_attempts: 1
   parallelism: 2
   rate_limit_qps: 1.0
   seed: 42
-  batch_size_queries: 500
-  stage1_intent_batch_size: 1
+  batch_size_queries: 1
+  stage1_intent_batch_size: 32
   response_temperatures:
   - 0.7
   response_max_tokens: 4096
@@ -23,17 +23,17 @@ run:
   genui_batch_size: 1
   response_group_by_intent: true
   response_batch_fallback_per_query: true
-  query_max_tokens: 20240
+  query_max_tokens: 2048
   genui_max_tokens: 8192
   genui_prompt_max_tokens: 60000
   cache_dir: data/cache
   artifact_dir: artifacts
   dry_run: false
   call_sleep_seconds: 1
-  max_queries_total: 2000
+  max_queries_total: 10000
   max_responses_total: 2000
   max_genui_total: 2000
-  stage1_max_failures_per_intent: 3
+  stage1_max_failures_per_intent: 50
   stage1_fill_missing_with_fallback: false
   max_attempts: 6
 render:
@@ -95,3 +95,10 @@ evaluation:
     missing_ids_rate: -1.0
     intent_expectation_pass: 1.2
     intent_score: 0.8
+
+
+
+
+
+
+

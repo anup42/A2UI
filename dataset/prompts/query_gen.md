@@ -23,7 +23,7 @@ Hard rules (must follow):
 4) Include all necessary constraints inside the query_text: budget, preferences, units, counts, and any required inputs.
 5) Avoid duplicates and near-duplicates across the batch.
 6) Do not mention GenUICraft, UI-IR, A2UI, TOON, JSON/schema, datasets, prompts, or “as an AI”.
-7) Cover multiple real-world domains (finance, travel, health, shopping, education, productivity, local services).
+7) Cover multiple real-world domains (finance, travel, health, shopping, education, productivity, legal, housing, career, local services).
 8) Vary length (short/medium/long) and difficulty (easy/medium/hard).
 
 Intent-specific shaping (apply whichever matches {intent}):
@@ -46,6 +46,25 @@ Intent-specific shaping (apply whichever matches {intent}):
   - Include constraints (dates, duration, budget, interests, pace, companions, constraints).
 - Productivity / scheduling / reminders:
   - Include exact date/time/timezone, duration, participants, agenda, and constraints.
+- Finance:
+  - Prefer budgeting, allocation, or risk-analysis tasks using inline numbers/tables.
+  - Avoid live-price lookups unless the query provides the needed price data inline.
+- Healthcare:
+  - Keep it non-emergency and informational.
+  - Include age/context/symptoms/goals and constraints (allergies, medications, budget, time).
+- Legal:
+  - Include jurisdiction, scenario facts, dates, and desired outcome.
+  - Prefer checklist/comparison/document-prep framing over definitive legal verdicts.
+- Real estate:
+  - Include city+country, budget, property type, size/bedroom constraints, commute/school priorities, and timeline.
+- Career:
+  - Include role, experience level, skills, target location, compensation target, and transition constraints.
+- Food and dining:
+  - Include cuisine preferences, dietary restrictions, party size, budget, and timing.
+- Home services:
+  - Include issue details, property type/size, urgency, budget, and service constraints.
+- Automotive:
+  - Include vehicle model/year/mileage, symptoms/usage pattern, budget, and decision constraints.
 
 Output format:
 Return ONLY valid JSON (no markdown).

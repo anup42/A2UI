@@ -1,0 +1,99 @@
+﻿run:
+  run_id: test_sample_1000
+  intents_file: intents.info
+  output_dir: data/runs
+  stage3_prompt_file: prompts/genui_gen_mobile_flatspec_v11.md
+  stage3_schema_file: schema/genui_flatspec.schema.json
+  stage3_legacy_prompt_file: prompts/genui_gen.md
+  stage3_legacy_schema_file: schema/genui.schema.json
+  k_queries_per_intent: 87
+  n_responses_per_query: 1
+  genui_candidates_per_response: 1
+  max_repair_attempts: 1
+  parallelism: 2
+  rate_limit_qps: 1.0
+  seed: 42
+  batch_size_queries: 500
+  stage1_intent_batch_size: 1
+  response_temperatures:
+  - 0.7
+  response_max_tokens: 4096
+  response_batch_size: 1
+  query_batch_size: 1
+  genui_batch_size: 1
+  response_group_by_intent: true
+  response_batch_fallback_per_query: true
+  query_max_tokens: 20240
+  genui_max_tokens: 8192
+  genui_prompt_max_tokens: 60000
+  cache_dir: data/cache
+  artifact_dir: artifacts
+  dry_run: false
+  call_sleep_seconds: 1
+  max_queries_total: 2000
+  max_responses_total: 2000
+  max_genui_total: 2000
+  stage1_max_failures_per_intent: 3
+  stage1_fill_missing_with_fallback: false
+  max_attempts: 6
+render:
+  primary_renderer: json_render
+  comparison_renderers:
+  - lit
+  renderers:
+    json_render:
+      output_dir: rendered
+      assets_dir: renderer/json_render
+      payload_format: flat_spec
+      render_log: render.jsonl
+    lit:
+      output_dir: rendered_lit
+      assets_dir: renderer/lit
+      payload_format: messages
+      render_log: render_lit.jsonl
+  render_images: true
+  image_format: png
+  use_http_server: true
+  viewport:
+    width: 412
+    height: 915
+  timeout_ms: 15000
+  wait_ms: 200
+  parallel_workers: 1
+stage5:
+  output_dir: stage5_rendered
+  render_images: true
+  image_format: png
+  use_http_server: true
+  viewport:
+    width: 1280
+    height: 720
+  timeout_ms: 15000
+  wait_ms: 200
+benchmark:
+  fixed_subset_size: 10
+  fixed_seed: 123
+evaluation:
+  weights:
+    schema_valid_strict: 5.0
+    content_coverage: 3.0
+    lint_score: 2.0
+    dup_rate: -1.0
+    component_count_capped: 0.4
+    unique_component_types: 0.6
+    container_to_text_ratio: 0.8
+    information_chunking_score: 1.0
+    ui_modularity_score: 0.8
+    ui_decomposition_score: 1.0
+    action_coverage: 1.5
+    url_as_text_rate: -1.0
+    table_pattern_detected: 0.8
+    table_cell_coverage: 1.0
+    section_heading_coverage: 0.8
+    markdown_leakage_rate: -1.0
+    dangling_components_rate: -1.0
+    missing_ids_rate: -1.0
+    intent_expectation_pass: 1.2
+    intent_score: 0.8
+
+

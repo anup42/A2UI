@@ -52,7 +52,11 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "set per your Google project tier"
+      max_output_tokens: 65535
+      availability: available
+      checked_at: "2026-04-18"
+      source: "vertex_generatecontent_range_probe"
+      note: "rate limits remain project-tier specific"
   - name: gemini_2_5_flash
     provider: gemini
     model: gemini-2.5-flash
@@ -61,7 +65,11 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "set per your Google project tier"
+      max_output_tokens: 65536
+      availability: available
+      checked_at: "2026-04-18"
+      source: "vertex_generatecontent_range_probe"
+      note: "rate limits remain project-tier specific"
   - name: gemini_2_5_pro
     provider: gemini
     model: gemini-2.5-pro
@@ -70,7 +78,11 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "set per your Google project tier"
+      max_output_tokens: 65536
+      availability: available
+      checked_at: "2026-04-18"
+      source: "vertex_generatecontent_range_probe"
+      note: "rate limits remain project-tier specific"
   - name: gemma_3_27b
     provider: gemini
     model: gemma-3-27b-it
@@ -79,7 +91,11 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "set per your Google project tier"
+      max_output_tokens: null
+      availability: not_found
+      checked_at: "2026-04-18"
+      source: "vertex_generatecontent_range_probe"
+      note: "model id not found or not accessible for this Vertex project/key"
   - name: gemini_3_flash
     provider: gemini
     model: gemini-3-flash-preview
@@ -88,7 +104,11 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "set per your Google project tier"
+      max_output_tokens: 65536
+      availability: available
+      checked_at: "2026-04-18"
+      source: "vertex_generatecontent_range_probe"
+      note: "rate limits remain project-tier specific"
   - name: gemini_3_pro
     provider: gemini
     model: gemini-3-pro-preview
@@ -97,7 +117,11 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "set per your Google project tier"
+      max_output_tokens: null
+      availability: not_found
+      checked_at: "2026-04-18"
+      source: "vertex_generatecontent_range_probe"
+      note: "model id not found or not accessible for this Vertex project/key"
   - name: gemini_3_1_pro
     provider: gemini
     model: gemini-3.1-pro-preview
@@ -106,7 +130,11 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "set per your Google project tier"
+      max_output_tokens: 65536
+      availability: available
+      checked_at: "2026-04-18"
+      source: "vertex_generatecontent_range_probe"
+      note: "rate limits remain project-tier specific"
   - name: gauss_default
     provider: gauss
     model: GAUSS_MODEL_ID
