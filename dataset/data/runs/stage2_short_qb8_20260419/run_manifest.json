@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-04-19T18:11:42Z",
+  "run_id": "stage2_short_qb8_20260419",
+  "stage": 2,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "56824726da5f140c73082629626d2dc37f57dd57",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "gemini_3_flash",
+    "provider": "gemini",
+    "model": "gemini-3-flash-preview"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "50726c9d06158b41362d59e70b7832fdc6bb1ba46589c41f71c4a621cb60f7c1",
+      "configs\\models.yaml": "8c57c3d671fc43b956c90b1c60ac8695680bc89db52d385e2cb323a22e21e133"
+    },
+    "combined_sha256": "26c92f197de5a6958284437971faf372059efef5532f6d6edec9cf77f4c9b0d4"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\stage2_short_qb8_20260419",
+    "queries_path": "data\\runs\\stage2_short_qb8_20260419\\queries.jsonl",
+    "responses_path": "data\\runs\\stage2_short_qb8_20260419\\responses.jsonl",
+    "genui_path": "data\\runs\\stage2_short_qb8_20260419\\genui.jsonl",
+    "metrics_path": "data\\runs\\stage2_short_qb8_20260419\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\stage2_short_qb8_20260419\\aggregates.json",
+    "artifacts_dir": "data\\runs\\stage2_short_qb8_20260419\\artifacts",
+    "manifest_path": "data\\runs\\stage2_short_qb8_20260419\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "2",
+      "--model",
+      "gemini_3_flash",
+      "--run_id",
+      "stage2_short_qb8_20260419"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+  }
+}

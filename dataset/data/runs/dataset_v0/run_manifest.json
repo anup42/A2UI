@@ -1,8 +1,8 @@
 {
   "manifest_version": 1,
-  "generated_at": "2026-04-18T18:45:09Z",
+  "generated_at": "2026-04-19T18:35:06Z",
   "run_id": "dataset_v0",
-  "stage": 1,
+  "stage": 2,
   "repo": {
     "release_version": "0.1.0",
     "components": {
@@ -17,7 +17,7 @@
       "genui_schema": "v0.9",
       "min_manifest_version": 1
     },
-    "git_commit": "6016fb6e1b82f241b5b207ae781676436d6d7dc8",
+    "git_commit": "56824726da5f140c73082629626d2dc37f57dd57",
     "git_branch": "new_ir_changes_20260331",
     "git_dirty": true
   },
@@ -28,10 +28,10 @@
   },
   "config": {
     "files": {
-      "configs\\run.yaml": "f205a358b50f3f717d066c5490088cce24eac1d90321bfb356fc3cc4750f30e0",
+      "configs\\run.yaml": "ed7adf4aad5c246d3555ae4507e66d7cd3d6dfe0170f41aae9ec8618e993937a",
       "configs\\models.yaml": "8c57c3d671fc43b956c90b1c60ac8695680bc89db52d385e2cb323a22e21e133"
     },
-    "combined_sha256": "0c759b4e699ef5cd353f12d6cfa867fe5a41cf9d23ca3d28cda039593c962abd"
+    "combined_sha256": "5f8368dc82e6047afa9216311bfa1d39911c19f356c94fbb21fe795f70f59b62"
   },
   "paths": {
     "run_dir": "data\\runs\\dataset_v0",
@@ -47,7 +47,7 @@
     "argv": [
       "src/main.py",
       "--stage",
-      "1",
+      "2",
       "--model",
       "gemini_3_flash",
       "--run_id",
