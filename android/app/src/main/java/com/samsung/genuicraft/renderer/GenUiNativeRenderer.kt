@@ -3168,14 +3168,28 @@ object GenUiNativeRenderer {
         sourceDir: File?,
         assetUrlMap: Map<String, String>
     ): String {
+        val resolved = NativePayloadParser.resolveAssetUrl(raw, sourceDir)
+        if (isLocalAssetReference(raw) || isLocalAssetReference(resolved)) {
+            return resolved
+        }
         if (assetUrlMap.isNotEmpty()) {
             resolveAssetFromMap(raw, assetUrlMap)?.let { return it }
         }
-        val resolved = NativePayloadParser.resolveAssetUrl(raw, sourceDir)
         if (assetUrlMap.isNotEmpty()) {
             resolveAssetFromMap(resolved, assetUrlMap)?.let { return it }
         }
         return resolved
+    }
+
+    private fun isLocalAssetReference(value: String): Boolean {
+        val normalized = value.replace("\\", "/").trim()
+        if (normalized.isBlank()) return false
+        return normalized.startsWith("file:", ignoreCase = true) ||
+            normalized.startsWith("content:", ignoreCase = true) ||
+            normalized.startsWith("/assets/") ||
+            normalized.startsWith("assets/") ||
+            normalized.startsWith("../assets/") ||
+            normalized.startsWith("./assets/")
     }
 
     private fun resolveAssetFromMap(

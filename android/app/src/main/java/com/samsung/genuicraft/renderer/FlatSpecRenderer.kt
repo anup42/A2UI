@@ -1505,6 +1505,34 @@ private fun isComparisonFeatureHeader(label: String): Boolean {
     return keywords.any { keyword -> token.contains(keyword) }
 }
 
+private fun isComparisonEntityHeader(label: String): Boolean {
+    if (label.isBlank()) return false
+    val token = normalizeTableHeaderForMatch(label)
+    val keywords = listOf(
+        "model",
+        "product",
+        "item",
+        "option",
+        "name",
+        "plan",
+        "package",
+        "provider",
+        "service",
+        "tool",
+        "device",
+        "site",
+        "destination",
+        "hotel",
+        "route",
+        "airline",
+        "project",
+        "task",
+        "drink",
+        "recipe"
+    )
+    return keywords.any { keyword -> token.contains(keyword) }
+}
+
 private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val weatherSignals = headers.count(::isWeatherHeaderLabel)
     val flightSignals = headers.count(::isFlightHeaderLabel)
@@ -1514,6 +1542,7 @@ private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val scheduleSignals = headers.count(::isScheduleHeaderLabel)
     val statusSignals = headers.count(::isStatusHeaderLabel)
     val featureLike = isComparisonFeatureHeader(headers.firstOrNull().orEmpty())
+    val entityLike = isComparisonEntityHeader(headers.firstOrNull().orEmpty())
     return when {
         weatherSignals >= 2 -> "weather"
         strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
@@ -1521,13 +1550,16 @@ private fun inferTableDomainFromHeaders(headers: List<String>): String {
         scheduleSignals >= 2 && statusSignals >= 1 -> "status"
         scheduleSignals >= 2 -> "schedule"
         featureLike && headers.size >= 3 -> "comparison"
+        entityLike && headers.size >= 4 -> "comparison"
         else -> "generic"
     }
 }
 
 private fun shouldPreferComparisonCards(headers: List<String>, compactScreen: Boolean): Boolean {
     if (!compactScreen || headers.size < 3) return false
-    return isComparisonFeatureHeader(headers.firstOrNull().orEmpty())
+    val firstHeader = headers.firstOrNull().orEmpty()
+    return isComparisonFeatureHeader(firstHeader) ||
+        (headers.size >= 4 && isComparisonEntityHeader(firstHeader))
 }
 
 internal fun extractFlatTableModel(
@@ -2628,7 +2660,7 @@ private fun pickResponsiveTableTemplate(
     if (columnCount >= 2 && timeLike && eventLike) {
         return ResponsiveTableCardTemplate.SCHEDULE
     }
-    if (columnCount == 3) {
+    if (columnCount >= 3) {
         val firstValues = rows.mapNotNull { row ->
             row.getOrNull(0)?.trim()?.takeIf { it.isNotBlank() }
         }
@@ -2757,9 +2789,9 @@ private fun renderBookingRowsIfPossible(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(10.dp),
                 colors = genUiCardColors(GenUiCardTone.Neutral),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -2855,9 +2887,9 @@ private fun ResponsiveComparisonRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
@@ -2931,9 +2963,9 @@ private fun ResponsiveComparisonColumnCards(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(10.dp),
                 colors = genUiCardColors(GenUiCardTone.Neutral),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -2985,9 +3017,9 @@ private fun ResponsiveScheduleRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
@@ -3060,9 +3092,9 @@ private fun ResponsiveGenericRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
@@ -3351,8 +3383,9 @@ private fun RenderResponsiveTableRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(10.dp),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
@@ -3449,6 +3482,7 @@ private fun RenderCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         shape = RoundedCornerShape(12.dp)
     ) {

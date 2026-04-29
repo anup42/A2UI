@@ -50,9 +50,27 @@ Valid (flat-spec):
 }
 ```
 
+## Stitch-style compact mobile patterns
+- Favor a mobile app screen, not a document: one clear title, 1 compact hero/status/result card, then structured cards or tables.
+- Preserve hierarchy with short headings, chips, metric rows, and compact cards instead of long prose blocks.
+- For dashboards/calculations/status results, use 2-4 KPI/metric cards plus one compact details Table.
+- For product/place/booking/travel options, use one repeated card pattern when that is smaller than duplicated elements.
+- For comparison data, emit one compact `Table`; renderer will choose cards or horizontal table based on metadata and columns.
+- Keep IR small: do not duplicate the same fact in summary text and table rows.
+
 ## Asset URL policy
 - If no Assets mapping is provided, preserve media URLs exactly as given.
 - Never invent placeholder paths like `/image.jpg` or `/asset/foo.png`.
+
+## Media preservation rules (compact)
+- If the response text contains verified `Images:` or `Media: Image=<url>` entries, the UI MUST include at least one `Image` element.
+- Preserve representative image URLs, but do not create a separate element for every URL when that bloats the UI.
+- Use one hero Image for the screen and up to three additional item/gallery Images when they directly improve understanding.
+- If the response contains item-specific image URLs for 2-4 primary options, attach those images to the matching cards. If there are more than 4 options, attach images to the top 3 representative cards only.
+- If the response contains `Icons:` or `Media: Icon=<url>`, include at least one `Icon` when it helps identify status/category/actions, and use up to four icons for compact labels or section headers. Do not add decorative icons to every row.
+- Do not fabricate an `Image` element from icon-only media.
+- Place hero images at the top of the relevant section or Card.
+- Place icons inline next to headings or labels using a horizontal Stack.
 
 ## Dynamic fields
 Allowed dynamic value expressions in props:
@@ -89,14 +107,19 @@ Allowed dynamic value expressions in props:
     - `domain`: `weather | flight | booking | schedule | status | comparison | generic`
     - `preferredPresentation`: `cards | table`
     - optional `sourceFormat`: `markdown | csv | tsv | html | plain`
-    - optional `sourceText`: raw table text from source response
+    - optional `sourceText`: raw table text from source response, only when rows/columns cannot preserve the data
 - Do NOT expand compact table payloads into `header_row`, `body_rows`, `row_template`, or per-cell elements.
+- Do NOT include both `sourceText` and full row data unless source text is essential for traceability.
 - Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
 - Weather/climate outputs must include a dedicated metrics table.
 - Flight comparisons should include explicit airline/time/fare columns.
+- Comparison tables:
+  - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`.
+  - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
 - Defaults:
   - weather/flight/booking/schedule/status => `preferredPresentation: "cards"`
-  - comparison/generic => `preferredPresentation: "table"`
+  - comparison => `preferredPresentation: "cards"` for entity rows and `"table"` for feature matrices
+  - generic => `preferredPresentation: "table"`
 - If table parsing is partial, keep compact `Table` with best-effort columns/rows; do not degrade to prose-only output.
 
 ## Watch bindings
@@ -109,10 +132,6 @@ Allowed dynamic value expressions in props:
 - Keep title, media, body, and CTA together inside each card.
 - Use `Stack` for flex layout and positioning intent (direction, align, justify, gap, spacing, size).
 - Use only flex-style positioning props; absolute positioning is unsupported.
-- Convert `Media: Image=<url>` into `Image` elements.
-- Convert `Media: Icon=<url>` into `Icon` elements.
-- If response contains `Media: Image=<url>`, preserve it as an `Image` element.
-- Do not fabricate an `Image` element from icon-only media.
 - Convert links/CTAs to `Button` with `openUrl`.
 - Keep `Tags: A | B | C` lines: emit chips via `Text` with `variant: "chip"`.
 - For hotel/restaurant/place result sets, prefer one card template with `repeat` over a state array.
