@@ -73,9 +73,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
-import com.samsung.genuicraft.GenUiCardTone
 import com.samsung.genuicraft.GenUiTokens
-import com.samsung.genuicraft.genUiCardColors
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.samsung.genuicraft.renderer.native.NativeTextFormatter
@@ -2714,6 +2712,11 @@ private fun ResponsiveFieldBlock(
     }
 }
 
+@Composable
+private fun flatSpecCardColors() = CardDefaults.cardColors(
+    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+)
+
 private fun findTableColumnIndex(
     headers: List<String>,
     keywords: List<String>,
@@ -2789,9 +2792,9 @@ private fun renderBookingRowsIfPossible(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = genUiCardColors(GenUiCardTone.Neutral),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = flatSpecCardColors(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -2887,9 +2890,9 @@ private fun ResponsiveComparisonRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(10.dp),
-        colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -2963,9 +2966,9 @@ private fun ResponsiveComparisonColumnCards(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = genUiCardColors(GenUiCardTone.Neutral),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = flatSpecCardColors(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -3017,9 +3020,9 @@ private fun ResponsiveScheduleRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(10.dp),
-        colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -3092,9 +3095,9 @@ private fun ResponsiveGenericRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(10.dp),
-        colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -3383,9 +3386,9 @@ private fun RenderResponsiveTableRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
-        shape = RoundedCornerShape(10.dp),
-        colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -3482,9 +3485,9 @@ private fun RenderCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        shape = RoundedCornerShape(12.dp)
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier
