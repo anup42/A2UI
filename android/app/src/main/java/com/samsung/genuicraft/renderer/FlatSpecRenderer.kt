@@ -10,6 +10,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -427,6 +434,84 @@ private val DefaultComputedFunctions: Map<String, FlatComputedFunction> = mapOf(
 private fun toStringKeyMap(value: Any?): Map<String, Any?>? {
     val map = value as? Map<*, *> ?: return null
     return map.entries.associate { (k, v) -> k.toString() to v }
+}
+
+private fun accessibilityMap(props: Map<String, Any?>): Map<String, Any?> {
+    return toStringKeyMap(props["accessibility"])
+        ?: toStringKeyMap(props["a11y"])
+        ?: emptyMap()
+}
+
+private fun accessibilityString(
+    props: Map<String, Any?>,
+    vararg keys: String
+): String? {
+    val nested = accessibilityMap(props)
+    keys.forEach { key ->
+        nested[key]?.toString()?.trim()?.takeIf { it.isNotBlank() }?.let { return it }
+        props[key]?.toString()?.trim()?.takeIf { it.isNotBlank() }?.let { return it }
+    }
+    return null
+}
+
+private fun accessibilityLabel(
+    props: Map<String, Any?>,
+    fallback: String? = null
+): String? {
+    return accessibilityString(
+        props,
+        "label",
+        "ariaLabel",
+        "accessibilityLabel",
+        "contentDescription",
+        "description",
+        "alt"
+    ) ?: fallback?.trim()?.takeIf { it.isNotBlank() }
+}
+
+private fun isAccessibilityDecorative(props: Map<String, Any?>): Boolean {
+    val value = accessibilityMap(props)["decorative"] ?: props["decorative"] ?: props["ariaHidden"]
+    return when (value) {
+        is Boolean -> value
+        is String -> value.equals("true", ignoreCase = true) || value.equals("decorative", ignoreCase = true)
+        else -> false
+    }
+}
+
+private fun Modifier.accessibilitySemantics(
+    props: Map<String, Any?>,
+    fallbackLabel: String? = null,
+    semanticRole: Role? = null,
+    state: String? = null,
+    mergeDescendants: Boolean = false,
+    isHeading: Boolean = false
+): Modifier {
+    if (isAccessibilityDecorative(props)) {
+        return this
+    }
+    val label = accessibilityLabel(props, fallbackLabel)
+    val effectiveState = state ?: accessibilityString(props, "stateDescription", "state")
+    val hasSemantics = !label.isNullOrBlank() ||
+        !effectiveState.isNullOrBlank() ||
+        semanticRole != null ||
+        isHeading
+    if (!hasSemantics) {
+        return this
+    }
+    return semantics(mergeDescendants = mergeDescendants) {
+        if (!label.isNullOrBlank()) {
+            contentDescription = label
+        }
+        if (!effectiveState.isNullOrBlank()) {
+            stateDescription = effectiveState
+        }
+        if (semanticRole != null) {
+            role = semanticRole
+        }
+        if (isHeading) {
+            heading()
+        }
+    }
 }
 
 private fun normalizePointer(path: String): String {
@@ -2069,7 +2154,15 @@ private fun RenderTableLayout(
                 rows = tableRows,
                 baseMinDp = if (cardsRequested) 128 else 120
             ).dp
-            Box(modifier = contentModifier) {
+            Box(
+                modifier = contentModifier.semantics {
+                    contentDescription = tableAccessibilitySummary(
+                        headers = tableModel.headers,
+                        rows = tableRows,
+                        horizontalScroll = horizontalScrollEnabled
+                    )
+                }
+            ) {
                 Column(
                     modifier = if (horizontalScrollEnabled) {
                         Modifier.widthIn(min = minTableWidth)
@@ -2717,6 +2810,39 @@ private fun flatSpecCardColors() = CardDefaults.cardColors(
     containerColor = MaterialTheme.colorScheme.surfaceContainerLow
 )
 
+private fun tableAccessibilitySummary(
+    headers: List<String>,
+    rows: List<List<String>>,
+    horizontalScroll: Boolean = false
+): String {
+    val rowLabel = if (rows.size == 1) "row" else "rows"
+    val columnLabel = if (headers.size == 1) "column" else "columns"
+    return buildString {
+        append("Table with ${rows.size} $rowLabel and ${headers.size} $columnLabel")
+        if (horizontalScroll) {
+            append(". Scroll horizontally to view all columns")
+        }
+    }
+}
+
+private fun tableRowAccessibilitySummary(
+    headers: List<String>,
+    row: List<String>,
+    rowIndex: Int? = null
+): String {
+    val pairs = (0 until maxOf(headers.size, row.size)).mapNotNull { index ->
+        val value = row.getOrNull(index).orEmpty().trim()
+        if (value.isBlank()) {
+            null
+        } else {
+            val label = tableHeaderLabel(headers, index)
+            "$label: $value"
+        }
+    }
+    val prefix = rowIndex?.let { "Row ${it + 1}. " }.orEmpty()
+    return prefix + pairs.joinToString(". ")
+}
+
 private fun findTableColumnIndex(
     headers: List<String>,
     keywords: List<String>,
@@ -2791,7 +2917,11 @@ private fun renderBookingRowsIfPossible(
             }.take(4)
 
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentDescription = tableRowAccessibilitySummary(headers, row)
+                    },
                 shape = RoundedCornerShape(16.dp),
                 colors = flatSpecCardColors(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -2889,7 +3019,10 @@ private fun ResponsiveComparisonRowCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .padding(vertical = 2.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row)
+            },
         shape = RoundedCornerShape(16.dp),
         colors = flatSpecCardColors(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -2965,7 +3098,19 @@ private fun ResponsiveComparisonColumnCards(
             if (items.isEmpty()) return@forEach
 
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = buildString {
+                            append(columnTitle)
+                            items.forEach { (feature, value) ->
+                                append(". ")
+                                append(feature)
+                                append(": ")
+                                append(value)
+                            }
+                        }
+                    },
                 shape = RoundedCornerShape(16.dp),
                 colors = flatSpecCardColors(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -3019,7 +3164,10 @@ private fun ResponsiveScheduleRowCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .padding(vertical = 2.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row)
+            },
         shape = RoundedCornerShape(16.dp),
         colors = flatSpecCardColors(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -3094,7 +3242,10 @@ private fun ResponsiveGenericRowCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .padding(vertical = 2.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row)
+            },
         shape = RoundedCornerShape(16.dp),
         colors = flatSpecCardColors(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -3136,7 +3287,13 @@ private fun RenderResponsiveTableRows(
         headers.size >= 3 &&
         isComparisonFeatureHeader(headers.firstOrNull().orEmpty())
     if (featureMatrixStyle) {
-        Column(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = tableAccessibilitySummary(headers, rows)
+                }
+        ) {
             ResponsiveComparisonColumnCards(
                 headers = headers,
                 rows = rows,
@@ -3146,7 +3303,11 @@ private fun RenderResponsiveTableRows(
         return
     }
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
         rows.forEach { row ->
@@ -3266,7 +3427,15 @@ private fun RenderDirectTable(
         modifier = tableModifier,
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
-        Box(modifier = contentModifier) {
+        Box(
+            modifier = contentModifier.semantics {
+                contentDescription = tableAccessibilitySummary(
+                    headers = headers,
+                    rows = table.rows,
+                    horizontalScroll = horizontalScrollEnabled
+                )
+            }
+        ) {
             Column(
                 modifier = if (horizontalScrollEnabled) {
                     Modifier.widthIn(min = minTableWidth)
@@ -3276,7 +3445,12 @@ private fun RenderDirectTable(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = "Header. ${headers.joinToString(". ")}"
+                        },
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     headers.forEachIndexed { index, label ->
@@ -3290,13 +3464,18 @@ private fun RenderDirectTable(
                             text = parseBoldMarkdown(label),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = columnModifier
+                            modifier = columnModifier.semantics { heading() }
                         )
                     }
                 }
                 table.rows.forEachIndexed { index, row ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                            .semantics(mergeDescendants = true) {
+                                contentDescription = tableRowAccessibilitySummary(headers, row, index)
+                            },
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         headers.indices.forEach { columnIndex ->
@@ -3385,7 +3564,10 @@ private fun RenderResponsiveTableRowCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .padding(vertical = 2.dp)
+            .semantics {
+                contentDescription = "Row ${rowIndex + 1}"
+            },
         shape = RoundedCornerShape(16.dp),
         colors = flatSpecCardColors(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -3484,7 +3666,11 @@ private fun RenderCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .accessibilitySemantics(
+                props = props,
+                mergeDescendants = false
+            ),
         colors = flatSpecCardColors(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(16.dp)
@@ -3554,28 +3740,38 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         "h1" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-            modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .accessibilitySemantics(props = props, isHeading = true)
         )
         "h2" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            modifier = modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+            modifier = modifier
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+                .accessibilitySemantics(props = props, isHeading = true)
         )
         "h3" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            modifier = modifier
+                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .accessibilitySemantics(props = props, isHeading = true)
         )
         "caption", "label" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp)
+            modifier = modifier
+                .padding(horizontal = 16.dp, vertical = 2.dp)
+                .accessibilitySemantics(props = props)
         )
         "chip" -> Surface(
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.secondaryContainer,
-            modifier = modifier.padding(2.dp)
+            modifier = modifier
+                .padding(2.dp)
+                .accessibilitySemantics(props = props, fallbackLabel = rawText)
         ) {
             Text(
                 text = markdown.content,
@@ -3587,7 +3783,9 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         else -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp)
+            modifier = modifier
+                .padding(horizontal = 16.dp, vertical = 2.dp)
+                .accessibilitySemantics(props = props)
         )
     }
 }
@@ -3605,6 +3803,19 @@ private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Mod
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = buildString {
+                    append("Code block")
+                    codeBlock.language?.trim()?.takeIf { it.isNotBlank() }?.let { language ->
+                        append(", ")
+                        append(language)
+                    }
+                    codeBlock.code.trim().takeIf { it.isNotBlank() }?.let { code ->
+                        append(". ")
+                        append(code)
+                    }
+                }
+            }
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
             val languageLabel = codeBlock.language?.trim().orEmpty()
@@ -3763,17 +3974,29 @@ private fun RenderImage(
     }
     imageModifier = imageModifier.clip(RoundedCornerShape(12.dp))
     val clickableModifier = if (actionUrl.isNotBlank()) {
-        imageModifier.clickable { onOpenUrl(actionUrl) }
+        imageModifier.clickable(
+            role = Role.Button,
+            onClickLabel = accessibilityString(props, "onClickLabel", "actionLabel") ?: "Open image"
+        ) { onOpenUrl(actionUrl) }
     } else {
         imageModifier
     }
     var failed by remember(url) { mutableStateOf(false) }
     var activeUrl by remember(url) { mutableStateOf(url) }
     var fallbackAttempted by remember(url) { mutableStateOf(false) }
-    val placeholderBg = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f)
+    val imageLabel = accessibilityLabel(props, props["alt"]?.toString() ?: "Image")
+    val placeholderBg = MaterialTheme.colorScheme.surfaceContainerHighest
 
     Box(
-        modifier = clickableModifier.background(placeholderBg),
+        modifier = clickableModifier
+            .background(placeholderBg)
+            .accessibilitySemantics(
+                props = props,
+                fallbackLabel = imageLabel,
+                semanticRole = Role.Button.takeIf { actionUrl.isNotBlank() },
+                state = "Image unavailable".takeIf { failed },
+                mergeDescendants = true
+            ),
         contentAlignment = Alignment.Center
     ) {
         if (failed) {
@@ -3791,8 +4014,7 @@ private fun RenderImage(
                     .allowHardware(false)
                     .build(),
                 imageLoader = imageLoader,
-                contentDescription = props["alt"]?.toString()
-                    ?: (props["accessibility"] as? Map<*, *>)?.get("label")?.toString(),
+                contentDescription = null,
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize(),
                 onSuccess = { failed = false },
@@ -3847,10 +4069,15 @@ private fun RenderIcon(
         .padding(horizontal = horizontalPadding, vertical = verticalPadding)
         .size(iconSize)
     var failed by remember(url) { mutableStateOf(false) }
+    val iconDescription = if (isAccessibilityDecorative(props)) {
+        null
+    } else {
+        accessibilityLabel(props)
+    }
     if (failed) {
         Icon(
             imageVector = Icons.Filled.Image,
-            contentDescription = null,
+            contentDescription = iconDescription?.let { "$it unavailable" },
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = iconModifier
         )
@@ -3862,7 +4089,7 @@ private fun RenderIcon(
                 .allowHardware(false)
                 .build(),
             imageLoader = imageLoader,
-            contentDescription = null,
+            contentDescription = iconDescription,
             contentScale = ContentScale.Fit,
             modifier = iconModifier,
             onSuccess = { failed = false },
@@ -3892,12 +4119,26 @@ private fun RenderButton(
         .let { base ->
             if (label.length > 20) base.fillMaxWidth() else base
         }
+        .accessibilitySemantics(
+            props = props,
+            fallbackLabel = label,
+            semanticRole = Role.Button,
+            state = "Disabled".takeIf { actionCandidate == null }
+        )
     if (variant == "borderless" || variant == "text" || variant == "outlined") {
-        OutlinedButton(onClick = onClick, modifier = buttonModifier) {
+        OutlinedButton(
+            onClick = onClick,
+            enabled = actionCandidate != null,
+            modifier = buttonModifier
+        ) {
             Text(text = label)
         }
     } else {
-        Button(onClick = onClick, modifier = buttonModifier) {
+        Button(
+            onClick = onClick,
+            enabled = actionCandidate != null,
+            modifier = buttonModifier
+        ) {
             Text(text = label)
         }
     }
@@ -3988,18 +4229,25 @@ private fun RenderModal(
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
+    val title = props["title"]?.toString().orEmpty().ifBlank { "Modal" }
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .accessibilitySemantics(
+                props = props,
+                fallbackLabel = title
+            ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             Text(
-                text = props["title"]?.toString().orEmpty().ifBlank { "Modal" },
+                text = title,
                 style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                modifier = Modifier
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .semantics { heading() }
             )
             val ids = buildList {
                 props["trigger"]?.toString()?.takeIf { it.isNotBlank() }?.let(::add)
@@ -4096,18 +4344,29 @@ private fun RenderCheckBox(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .toggleable(
+                value = isChecked,
+                role = Role.Checkbox,
+                onValueChange = { next ->
+                    if (!bindPath.isNullOrBlank()) {
+                        onSetState(bindPath, next)
+                    } else {
+                        localChecked = next
+                    }
+                }
+            )
+            .accessibilitySemantics(
+                props = props,
+                fallbackLabel = label,
+                state = if (isChecked) "Checked" else "Not checked",
+                mergeDescendants = true
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
             checked = isChecked,
-            onCheckedChange = { next ->
-                if (!bindPath.isNullOrBlank()) {
-                    onSetState(bindPath, next)
-                } else {
-                    localChecked = next
-                }
-            }
+            onCheckedChange = null
         )
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
@@ -4154,9 +4413,13 @@ private fun RenderChoicePicker(
                         if (!bindPath.isNullOrBlank()) {
                             onSetState(bindPath, next.toList())
                         }
+                    },
+                    modifier = Modifier.semantics {
+                        contentDescription = optionLabel
+                        stateDescription = if (active) "Selected" else "Not selected"
                     }
                 ) {
-                    Text(if (active) "$optionLabel*" else optionLabel)
+                    Text(optionLabel)
                 }
             }
         }
@@ -4197,6 +4460,10 @@ private fun RenderSlider(
         Slider(
             value = current,
             valueRange = min..max,
+            modifier = Modifier.semantics {
+                contentDescription = label.ifBlank { "Slider" }
+                stateDescription = "${current.roundToInt()} of ${max.roundToInt()}"
+            },
             onValueChange = { next ->
                 if (!bindPath.isNullOrBlank()) {
                     onSetState(bindPath, next)
@@ -4208,6 +4475,7 @@ private fun RenderSlider(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RenderDateTimeInput(
     props: Map<String, Any?>,
@@ -4222,6 +4490,8 @@ private fun RenderDateTimeInput(
     val resolvedValue = FlatExprResolver.resolveString(props["value"], state, repeatScope, computedFunctions)
     var localValue by remember(label) { mutableStateOf(resolvedValue) }
     val value = if (!bindPath.isNullOrBlank()) resolvedValue else localValue
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     OutlinedTextField(
         value = value,
@@ -4236,6 +4506,14 @@ private fun RenderDateTimeInput(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    coroutineScope.launch {
+                        bringIntoViewRequester.bringIntoView()
+                    }
+                }
+            }
     )
 }
 
@@ -4247,12 +4525,22 @@ private fun RenderVideo(
 ) {
     val url = props["url"]?.toString().orEmpty()
     if (url.isBlank()) return
+    val label = accessibilityLabel(props, "Video")
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onOpenUrl(url) },
+            .clickable(
+                role = Role.Button,
+                onClickLabel = accessibilityString(props, "onClickLabel", "actionLabel") ?: "Open video"
+            ) { onOpenUrl(url) }
+            .accessibilitySemantics(
+                props = props,
+                fallbackLabel = label,
+                semanticRole = Role.Button,
+                mergeDescendants = true
+            ),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Text(
@@ -4272,12 +4560,22 @@ private fun RenderAudioPlayer(
     val url = props["url"]?.toString().orEmpty()
     if (url.isBlank()) return
     val description = props["description"]?.toString().orEmpty().ifBlank { "Audio" }
+    val label = accessibilityLabel(props, description)
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onOpenUrl(url) },
+            .clickable(
+                role = Role.Button,
+                onClickLabel = accessibilityString(props, "onClickLabel", "actionLabel") ?: "Open audio"
+            ) { onOpenUrl(url) }
+            .accessibilitySemantics(
+                props = props,
+                fallbackLabel = label,
+                semanticRole = Role.Button,
+                mergeDescendants = true
+            ),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Text(

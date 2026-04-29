@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -82,7 +84,18 @@ internal object NativeWeatherUiRenderer {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = weatherRowAccessibilityLabel(
+                                period = todayLabel,
+                                date = todayDate,
+                                temperature = todayTemperature,
+                                condition = todayCondition,
+                                metrics = todayRow.metrics,
+                                sanitizeDisplayText = sanitizeDisplayText
+                            )
+                        },
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Primary),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -176,7 +189,18 @@ internal object NativeWeatherUiRenderer {
                     val dateText = sanitizeDisplayText(row.date.orEmpty()).ifBlank { null }
                     val conditionText = sanitizeDisplayText(row.condition.orEmpty()).ifBlank { null }
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics(mergeDescendants = true) {
+                                contentDescription = weatherRowAccessibilityLabel(
+                                    period = periodText,
+                                    date = dateText,
+                                    temperature = temperature,
+                                    condition = conditionText,
+                                    metrics = row.metrics,
+                                    sanitizeDisplayText = sanitizeDisplayText
+                                )
+                            },
                         shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                         colors = genUiCardColors(GenUiCardTone.Neutral),
                         elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -267,6 +291,41 @@ internal object NativeWeatherUiRenderer {
                 }
             }
         }
+    }
+
+    private fun weatherRowAccessibilityLabel(
+        period: String,
+        date: String?,
+        temperature: String,
+        condition: String?,
+        metrics: List<Pair<String, String>>,
+        sanitizeDisplayText: (String) -> String
+    ): String {
+        return buildString {
+            sanitizeDisplayText(period).takeIf { it.isNotBlank() }?.let { append(it) }
+            date?.let(sanitizeDisplayText)?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append(value)
+            }
+            sanitizeDisplayText(temperature).takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append(value)
+            }
+            condition?.let(sanitizeDisplayText)?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append(value)
+            }
+            metrics.forEach { (label, value) ->
+                val cleanLabel = sanitizeDisplayText(label)
+                val cleanValue = sanitizeDisplayText(value)
+                if (cleanLabel.isNotBlank() && cleanValue.isNotBlank()) {
+                    if (isNotEmpty()) append(". ")
+                    append(cleanLabel)
+                    append(": ")
+                    append(cleanValue)
+                }
+            }
+        }.ifBlank { "Weather forecast item" }
     }
 
     @OptIn(ExperimentalLayoutApi::class)

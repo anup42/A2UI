@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -72,7 +74,20 @@ internal object NativeFlightUiRenderer {
                 val hasTimeRow = departDisplay != null || arriveDisplay != null || duration != null
 
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = flightRowAccessibilityLabel(
+                                airline = airline,
+                                fareValue = fareValue,
+                                fareMeta = fareMeta,
+                                depart = departDisplay,
+                                arrive = arriveDisplay,
+                                duration = duration,
+                                stopLabel = stopLabel,
+                                statusLabel = statusLabel
+                            )
+                        },
                     shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                     colors = genUiCardColors(GenUiCardTone.Neutral),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
@@ -215,6 +230,51 @@ internal object NativeFlightUiRenderer {
                 }
             }
         }
+    }
+
+    private fun flightRowAccessibilityLabel(
+        airline: String,
+        fareValue: String?,
+        fareMeta: String?,
+        depart: String?,
+        arrive: String?,
+        duration: String?,
+        stopLabel: String?,
+        statusLabel: String?
+    ): String {
+        return buildString {
+            airline.takeIf { it.isNotBlank() }?.let { append(it) }
+            depart?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append("Depart ")
+                append(value)
+            }
+            arrive?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append("Arrive ")
+                append(value)
+            }
+            duration?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append(value)
+            }
+            stopLabel?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append(value)
+            }
+            statusLabel?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append(value)
+            }
+            fareValue?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(". ")
+                append(value)
+            }
+            fareMeta?.takeIf { it.isNotBlank() }?.let { value ->
+                if (isNotEmpty()) append(" ")
+                append(value)
+            }
+        }.ifBlank { "Flight option" }
     }
 
     @Composable
