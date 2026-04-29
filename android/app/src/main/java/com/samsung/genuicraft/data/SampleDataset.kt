@@ -29,10 +29,18 @@ object SampleDatasets {
         ),
         SampleDataset(
             id = "golden50_g25pro_20260309_204033_stitch_compare_20260415",
-            title = "Golden 50 Stitch Compare (Latest)",
-            description = "Latest stitch-guided 50-item IR run with improved fallback handling and table extraction.",
+            title = "Golden 50 Stitch Compare (20260415)",
+            description = "Previous stitch-guided 50-item IR run with improved fallback handling and table extraction.",
             assetFileName = "golden50_g25pro_20260309_204033_stitch_compare_20260415_genui.jsonl",
             sourceLabel = "golden50_g25pro_20260309_204033_stitch_compare_20260415",
+            expectedRecords = 50
+        ),
+        SampleDataset(
+            id = "golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4",
+            title = "Golden 50 Stitch Hybrid (Latest)",
+            description = "Latest stitch-guided 50-item IR set with renderer fixes, Android captures, and compact hybrid selection.",
+            assetFileName = "golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4_genui.jsonl",
+            sourceLabel = "golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4",
             expectedRecords = 50
         ),
         SampleDataset(
