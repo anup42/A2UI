@@ -121,10 +121,16 @@ Allowed dynamic value expressions in props:
   - Include metadata:
     - `domain`: `weather | flight | booking | schedule | status | comparison | generic`
     - `preferredPresentation`: `cards | table`
+    - optional `primaryColumn`: key/label used as the row title in portrait card layouts
+    - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
+    - optional `numericColumns`: keys/labels for numeric, currency, score, or unit columns
     - optional `sourceFormat`: `markdown | csv | tsv | html | plain`
     - optional `sourceText`: raw table text from source response, only when rows/columns cannot preserve the data
 - Do NOT expand compact table payloads into `header_row`, `body_rows`, `row_template`, or per-cell elements.
 - Do NOT include both `sourceText` and full row data unless source text is essential for traceability.
+- Do NOT create separate portrait and landscape IR; emit one compact `Table`. Android adapts the visual:
+  - portrait `<600dp`: entity rows become cards, key-value rows become fact panels, schedules become timeline cards, metrics become KPI cards
+  - landscape/tablet: table-first layout with horizontal scroll and sticky first column when needed
 - Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
 - Weather/climate outputs must include a dedicated metrics table.
 - Flight comparisons should include explicit airline/time/fare columns.
@@ -244,6 +250,9 @@ Content:
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
   - `domain` optional (`weather|flight|booking|schedule|status|comparison|generic`)
   - `preferredPresentation` optional (`cards|table`)
+  - `primaryColumn` optional (key/label for portrait card title)
+  - `highlightColumns` optional (list/string of 1-2 important key/label values)
+  - `numericColumns` optional (list/string of numeric/currency/score/unit columns)
   - `sourceFormat` optional (`markdown|csv|tsv|html|plain`)
   - `sourceText` optional raw table text
 - `Image` props: `url` (required), `fit` optional (`cover|contain`)

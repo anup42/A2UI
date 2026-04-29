@@ -1,6 +1,7 @@
 package com.samsung.genuicraft.renderer
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.clickable
@@ -60,6 +61,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -74,6 +77,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
@@ -135,6 +140,26 @@ internal enum class FlatTableRenderMode {
     RESPONSIVE_CARD_ROWS
 }
 
+internal enum class FlatTableShape {
+    ENTITY_ROW,
+    FEATURE_MATRIX,
+    KEY_VALUE,
+    SCHEDULE_TIMELINE,
+    NUMERIC_METRICS,
+    GENERIC_GRID
+}
+
+private enum class AdaptiveTablePresentation {
+    TABLE,
+    HORIZONTAL_TABLE,
+    STICKY_HORIZONTAL_TABLE,
+    ENTITY_CARDS,
+    FEATURE_CARDS,
+    KEY_VALUE_PANEL,
+    TIMELINE_CARDS,
+    METRIC_CARDS
+}
+
 internal data class FlatTableModel(
     val headerRowId: String,
     val bodyContainerId: String?,
@@ -147,6 +172,7 @@ internal data class FlatTableModel(
     val isFlight: Boolean,
     val domain: String,
     val preferredPresentation: String,
+    val shape: FlatTableShape,
     val cardMappingStatus: String,
     val renderMode: FlatTableRenderMode
 )
@@ -161,6 +187,10 @@ internal data class FlatDirectTableModel(
     val rows: List<List<String>>,
     val domain: String,
     val preferredPresentation: String,
+    val shape: FlatTableShape,
+    val primaryColumn: String?,
+    val highlightColumns: Set<String>,
+    val numericColumns: Set<String>,
     val renderMode: FlatTableRenderMode
 )
 
@@ -1645,6 +1675,99 @@ private fun shouldPreferComparisonCards(headers: List<String>, compactScreen: Bo
         (headers.size >= 4 && isComparisonEntityHeader(firstHeader))
 }
 
+private fun stringSetFromTableProp(value: Any?): Set<String> {
+    return when (value) {
+        is List<*> -> value.mapNotNull { item -> item?.toString()?.trim()?.takeIf { it.isNotBlank() } }.toSet()
+        is String -> value
+            .split(',', '|')
+            .mapNotNull { item -> item.trim().takeIf { it.isNotBlank() } }
+            .toSet()
+        else -> emptySet()
+    }
+}
+
+private fun normalizeColumnToken(value: String): String = normalizeTableHeaderForMatch(value)
+
+private fun columnIndexForToken(columns: List<FlatDirectTableColumn>, token: String): Int? {
+    val normalized = normalizeColumnToken(token)
+    if (normalized.isBlank()) return null
+    return columns.indexOfFirst { column ->
+        normalizeColumnToken(column.key) == normalized ||
+            normalizeColumnToken(column.label) == normalized
+    }.takeIf { it >= 0 }
+}
+
+private fun numericColumnIndexes(
+    columns: List<FlatDirectTableColumn>,
+    rows: List<List<String>>,
+    explicitTokens: Set<String>
+): Set<Int> {
+    val explicitIndexes = explicitTokens.mapNotNull { token -> columnIndexForToken(columns, token) }.toSet()
+    if (explicitIndexes.isNotEmpty()) return explicitIndexes
+    return columns.indices.filter { index ->
+        val header = normalizeTableHeaderForMatch(columns[index].label)
+        val headerLooksNumeric = listOf(
+            "price",
+            "cost",
+            "fare",
+            "rate",
+            "amount",
+            "total",
+            "score",
+            "rating",
+            "percent",
+            "change",
+            "value",
+            "revenue",
+            "sales",
+            "count",
+            "qty",
+            "quantity"
+        ).any { header.contains(it) }
+        val values = rows.mapNotNull { row -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() } }
+        val numericValues = values.count(::looksLikeNumericTableValue)
+        headerLooksNumeric || (values.size >= 2 && numericValues >= values.size / 2)
+    }.toSet()
+}
+
+private fun looksLikeNumericTableValue(value: String): Boolean {
+    val normalized = value.trim()
+    if (normalized.isBlank()) return false
+    return Regex("""^[₹$€£]?\s*[-+]?\d[\d,]*(?:\.\d+)?\s*(?:%|x|k|K|m|M|bn|hrs?|hours?|mins?|minutes?|days?|°[CF]?)?$""")
+        .containsMatchIn(normalized)
+}
+
+private fun detectTableShape(
+    headers: List<String>,
+    rows: List<List<String>>,
+    domain: String
+): FlatTableShape {
+    val columnCount = maxOf(headers.size, rows.maxOfOrNull { row -> row.size } ?: 0)
+    val firstHeader = headers.firstOrNull().orEmpty()
+    val firstHeaderToken = normalizeTableHeaderForMatch(firstHeader)
+    val firstColumnValues = rows.mapNotNull { row -> row.getOrNull(0)?.trim()?.takeIf { it.isNotBlank() } }
+    val compactFirstColumn = firstColumnValues.isNotEmpty() &&
+        firstColumnValues.all { value -> value.length <= 44 }
+    val numericLikeColumns = headers.indices.count { index ->
+        rows.mapNotNull { row -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() } }
+            .let { values -> values.size >= 2 && values.count(::looksLikeNumericTableValue) >= values.size / 2 }
+    }
+    return when {
+        columnCount <= 2 &&
+            firstHeaderToken in setOf("metric", "feature", "field", "label", "item", "name", "attribute", "key") ->
+            FlatTableShape.KEY_VALUE
+        columnCount <= 2 && domain == "generic" -> FlatTableShape.KEY_VALUE
+        domain in setOf("schedule", "status") -> FlatTableShape.SCHEDULE_TIMELINE
+        isComparisonFeatureHeader(firstHeader) && columnCount >= 3 -> FlatTableShape.FEATURE_MATRIX
+        domain == "comparison" && isComparisonFeatureHeader(firstHeader) -> FlatTableShape.FEATURE_MATRIX
+        numericLikeColumns >= 2 && columnCount <= 4 -> FlatTableShape.NUMERIC_METRICS
+        domain in CARD_FIRST_TABLE_DOMAINS -> FlatTableShape.ENTITY_ROW
+        domain == "comparison" && compactFirstColumn -> FlatTableShape.ENTITY_ROW
+        isComparisonEntityHeader(firstHeader) && columnCount >= 3 -> FlatTableShape.ENTITY_ROW
+        else -> FlatTableShape.GENERIC_GRID
+    }
+}
+
 internal fun extractFlatTableModel(
     containerChildren: List<String>,
     containerProps: Map<String, Any?>,
@@ -1748,6 +1871,32 @@ internal fun extractFlatTableModel(
             domain in CARD_FIRST_TABLE_DOMAINS -> "cards"
         else -> explicitPreferredPresentation
     }
+    val shape = detectTableShape(
+        headers = headers,
+        rows = collectResolvedTableRows(
+            tableModel = FlatTableModel(
+                headerRowId = headerRowId,
+                bodyContainerId = bodyContainerId,
+                rowTemplateId = rowTemplateId,
+                staticRowIds = staticRowIds,
+                headers = headers,
+                columns = columns,
+                rows = rows,
+                isWeather = isWeather,
+                isFlight = isFlight,
+                domain = domain,
+                preferredPresentation = preferredPresentation,
+                shape = FlatTableShape.GENERIC_GRID,
+                cardMappingStatus = "not_applicable",
+                renderMode = FlatTableRenderMode.TABLE
+            ),
+            elements = elements,
+            state = state,
+            repeatedRowScopes = bodyElement?.repeat?.let { buildRepeatScopes(it, state) }.orEmpty(),
+            repeatScope = null
+        ),
+        domain = domain
+    )
     val cardMappingStatus = when (domain) {
         "comparison" -> "pending_runtime_mapping"
         in CARD_FIRST_TABLE_DOMAINS -> "pending_runtime_mapping"
@@ -1776,6 +1925,7 @@ internal fun extractFlatTableModel(
         isFlight = isFlight,
         domain = domain,
         preferredPresentation = preferredPresentation,
+        shape = shape,
         cardMappingStatus = cardMappingStatus,
         renderMode = renderMode
     )
@@ -2298,12 +2448,21 @@ internal fun extractDirectTableModel(
             domain in CARD_FIRST_TABLE_DOMAINS -> "cards"
         else -> explicitPreferredPresentation
     }
+    val shape = detectTableShape(headerLabels, resolvedRows, domain)
+    val primaryColumn = props["primaryColumn"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+    val highlightColumns = stringSetFromTableProp(props["highlightColumns"])
+    val numericColumns = stringSetFromTableProp(props["numericColumns"])
     val renderMode = when {
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
-        domain == "comparison" && shouldPreferComparisonCards(headerLabels, compactScreen) -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        domain in setOf("schedule", "status") -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
+        compactScreen && shape in setOf(
+            FlatTableShape.ENTITY_ROW,
+            FlatTableShape.FEATURE_MATRIX,
+            FlatTableShape.KEY_VALUE,
+            FlatTableShape.SCHEDULE_TIMELINE,
+            FlatTableShape.NUMERIC_METRICS
+        ) -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         compactScreen && columns.size >= 4 -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
         else -> FlatTableRenderMode.TABLE
     }
@@ -2312,6 +2471,10 @@ internal fun extractDirectTableModel(
         rows = resolvedRows,
         domain = domain,
         preferredPresentation = preferredPresentation,
+        shape = shape,
+        primaryColumn = primaryColumn,
+        highlightColumns = highlightColumns,
+        numericColumns = numericColumns,
         renderMode = renderMode
     )
 }
@@ -3323,6 +3486,573 @@ private fun RenderResponsiveTableRows(
     }
 }
 
+private fun selectAdaptiveTablePresentation(
+    table: FlatDirectTableModel,
+    screenWidthDp: Int,
+    isLandscape: Boolean,
+    autoHorizontalScroll: Boolean,
+    cardsRequested: Boolean
+): AdaptiveTablePresentation {
+    val regularOrLandscape = isLandscape || screenWidthDp >= 600
+    val columnCount = table.columns.size
+    val featureMatrix = table.shape == FlatTableShape.FEATURE_MATRIX
+    if (regularOrLandscape) {
+        return when {
+            autoHorizontalScroll && featureMatrix -> AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE
+            autoHorizontalScroll || columnCount >= 5 -> AdaptiveTablePresentation.HORIZONTAL_TABLE
+            else -> AdaptiveTablePresentation.TABLE
+        }
+    }
+    return when (table.shape) {
+        FlatTableShape.KEY_VALUE -> AdaptiveTablePresentation.KEY_VALUE_PANEL
+        FlatTableShape.SCHEDULE_TIMELINE -> AdaptiveTablePresentation.TIMELINE_CARDS
+        FlatTableShape.FEATURE_MATRIX -> {
+            if (table.preferredPresentation == "table" || columnCount >= 5) {
+                AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE
+            } else {
+                AdaptiveTablePresentation.FEATURE_CARDS
+            }
+        }
+        FlatTableShape.ENTITY_ROW -> AdaptiveTablePresentation.ENTITY_CARDS
+        FlatTableShape.NUMERIC_METRICS -> AdaptiveTablePresentation.METRIC_CARDS
+        FlatTableShape.GENERIC_GRID -> when {
+            cardsRequested && columnCount <= 3 -> AdaptiveTablePresentation.ENTITY_CARDS
+            autoHorizontalScroll -> AdaptiveTablePresentation.HORIZONTAL_TABLE
+            else -> AdaptiveTablePresentation.TABLE
+        }
+    }
+}
+
+@Composable
+private fun RenderKeyValueTablePanel(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier
+) {
+    if (rows.isEmpty()) return
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+            rows.forEachIndexed { index, row ->
+                val label = row.getOrNull(0).orEmpty().trim().ifBlank { tableHeaderLabel(headers, 0) }
+                val value = row.getOrNull(1).orEmpty().trim()
+                if (label.isBlank() && value.isBlank()) return@forEachIndexed
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 7.dp)
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = "$label: $value"
+                        },
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(label),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(0.42f)
+                    )
+                    Text(
+                        text = parseBoldMarkdown(value),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(0.58f)
+                    )
+                }
+                if (index < rows.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenderFeatureMatrixEntityCards(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    spacing: Dp = 8.dp
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        ResponsiveComparisonColumnCards(headers = headers, rows = rows, spacing = spacing)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RenderEntityTableCards(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    spacing: Dp = 8.dp,
+    primaryColumn: String?,
+    highlightColumns: Set<String>,
+    onOpenUrl: (String) -> Unit
+) {
+    if (rows.isEmpty()) return
+    val primaryIndex = primaryColumn?.let { token ->
+        headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
+            .takeIf { it >= 0 }
+    } ?: 0
+    val explicitHighlightIndexes = highlightColumns.mapNotNull { token ->
+        headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
+            .takeIf { it >= 0 }
+    }.filterNot { it == primaryIndex }
+    val inferredHighlightIndexes = explicitHighlightIndexes.ifEmpty {
+        headers.indices
+            .filterNot { it == primaryIndex }
+            .filter { index ->
+                val header = normalizeTableHeaderForMatch(headers[index])
+                header.contains("price") ||
+                    header.contains("cost") ||
+                    header.contains("fare") ||
+                    header.contains("rating") ||
+                    header.contains("status") ||
+                    header.contains("date") ||
+                    header.contains("time")
+            }
+            .take(2)
+            .ifEmpty { headers.indices.filterNot { it == primaryIndex }.take(2) }
+    }.take(2)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        rows.forEachIndexed { rowIndex, row ->
+            val title = row.getOrNull(primaryIndex).orEmpty().trim().ifBlank { "Item ${rowIndex + 1}" }
+            val actionUrl = row.firstOrNull(::isLikelyHttpUrl)
+            val bodyIndexes = headers.indices.filterNot { index ->
+                index == primaryIndex || index in inferredHighlightIndexes || row.getOrNull(index).orEmpty().isBlank()
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+                    },
+                shape = RoundedCornerShape(16.dp),
+                colors = flatSpecCardColors(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(title),
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                        inferredHighlightIndexes.forEach { index ->
+                            val value = row.getOrNull(index).orEmpty().trim()
+                            if (value.isNotBlank()) {
+                                Surface(
+                                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                    color = MaterialTheme.colorScheme.primaryContainer
+                                ) {
+                                    Text(
+                                        text = parseBoldMarkdown(value),
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        bodyIndexes.take(6).forEach { index ->
+                            val value = row.getOrNull(index).orEmpty().trim()
+                            if (value.isBlank() || isLikelyHttpUrl(value)) return@forEach
+                            Surface(
+                                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                color = MaterialTheme.colorScheme.surfaceContainerHighest
+                            ) {
+                                Text(
+                                    text = parseBoldMarkdown("${tableHeaderLabel(headers, index)}: $value"),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+                                )
+                            }
+                        }
+                    }
+                    if (!actionUrl.isNullOrBlank()) {
+                        Button(onClick = { onOpenUrl(actionUrl) }) {
+                            Text("Open")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RenderMetricTableCards(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    spacing: Dp = 8.dp,
+    numericColumns: Set<Int>
+) {
+    if (rows.isEmpty()) return
+    FlowRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        horizontalArrangement = Arrangement.spacedBy(spacing),
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        rows.forEachIndexed { rowIndex, row ->
+            val title = row.getOrNull(0).orEmpty().trim().ifBlank { "Metric ${rowIndex + 1}" }
+            val valueIndex = numericColumns.firstOrNull { it != 0 && row.getOrNull(it).orEmpty().isNotBlank() }
+                ?: row.indices.firstOrNull { it != 0 && row.getOrNull(it).orEmpty().isNotBlank() }
+            val value = valueIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .widthIn(min = 142.dp)
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+                    },
+                shape = RoundedCornerShape(16.dp),
+                colors = flatSpecCardColors(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(title),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = parseBoldMarkdown(value),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenderAdaptiveTableGrid(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    horizontalScrollEnabled: Boolean,
+    stickyFirstColumn: Boolean,
+    numericColumns: Set<Int>
+) {
+    if (headers.isEmpty() || rows.isEmpty()) return
+    val columnMinWidthsDp = estimateTableColumnMinWidthsDp(
+        headers = headers,
+        rows = rows,
+        baseMinDp = if (horizontalScrollEnabled) 120 else 96
+    )
+    val minTableWidth = estimateTableMinWidthDp(
+        headers = headers,
+        rows = rows,
+        baseMinDp = if (horizontalScrollEnabled) 120 else 96
+    ).dp
+    val tableColor = MaterialTheme.colorScheme.surfaceContainerLow
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        if (horizontalScrollEnabled) {
+            HorizontalTableScrollHint()
+        }
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = tableAccessibilitySummary(
+                        headers = headers,
+                        rows = rows,
+                        horizontalScroll = horizontalScrollEnabled
+                    )
+                },
+            shape = RoundedCornerShape(16.dp),
+            color = tableColor
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                if (stickyFirstColumn && headers.size > 1) {
+                    RenderStickyFirstColumnTable(
+                        headers = headers,
+                        rows = rows,
+                        columnMinWidthsDp = columnMinWidthsDp,
+                        scrollState = scrollState,
+                        numericColumns = numericColumns
+                    )
+                } else {
+                    val contentModifier = if (horizontalScrollEnabled) {
+                        Modifier
+                            .widthIn(min = minTableWidth)
+                            .horizontalScroll(scrollState)
+                    } else {
+                        Modifier.fillMaxWidth()
+                    }
+                    Column(
+                        modifier = contentModifier.padding(vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        RenderTableGridRow(
+                            headers = headers,
+                            row = headers,
+                            rowIndex = -1,
+                            columnMinWidthsDp = columnMinWidthsDp,
+                            numericColumns = numericColumns,
+                            weighted = !horizontalScrollEnabled,
+                            isHeader = true
+                        )
+                        rows.forEachIndexed { index, row ->
+                            RenderTableGridRow(
+                                headers = headers,
+                                row = row,
+                                rowIndex = index,
+                                columnMinWidthsDp = columnMinWidthsDp,
+                                numericColumns = numericColumns,
+                                weighted = !horizontalScrollEnabled,
+                                isHeader = false
+                            )
+                        }
+                    }
+                }
+                if (horizontalScrollEnabled) {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Transparent,
+                                        tableColor.copy(alpha = 0.92f)
+                                    )
+                                )
+                            )
+                            .semantics {}
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HorizontalTableScrollHint() {
+    Text(
+        text = "Swipe horizontally to view all columns",
+        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(horizontal = 8.dp)
+    )
+}
+
+@Composable
+private fun RenderStickyFirstColumnTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    columnMinWidthsDp: List<Int>,
+    scrollState: androidx.compose.foundation.ScrollState,
+    numericColumns: Set<Int>
+) {
+    val firstWidth = (columnMinWidthsDp.firstOrNull() ?: 128).coerceIn(112, 184).dp
+    val trailingWidths = columnMinWidthsDp.drop(1)
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        RenderStickyTableRow(
+            headers = headers,
+            row = headers,
+            rowIndex = -1,
+            firstWidth = firstWidth,
+            trailingWidths = trailingWidths,
+            scrollState = scrollState,
+            numericColumns = numericColumns,
+            isHeader = true
+        )
+        rows.forEachIndexed { index, row ->
+            RenderStickyTableRow(
+                headers = headers,
+                row = row,
+                rowIndex = index,
+                firstWidth = firstWidth,
+                trailingWidths = trailingWidths,
+                scrollState = scrollState,
+                numericColumns = numericColumns,
+                isHeader = false
+            )
+        }
+    }
+}
+
+@Composable
+private fun RenderStickyTableRow(
+    headers: List<String>,
+    row: List<String>,
+    rowIndex: Int,
+    firstWidth: Dp,
+    trailingWidths: List<Int>,
+    scrollState: androidx.compose.foundation.ScrollState,
+    numericColumns: Set<Int>,
+    isHeader: Boolean
+) {
+    val backgroundColor = tableGridRowColor(isHeader, rowIndex)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(backgroundColor)
+            .semantics(mergeDescendants = true) {
+                contentDescription = if (isHeader) {
+                    "Header. ${headers.joinToString(". ")}"
+                } else {
+                    tableRowAccessibilitySummary(headers, row, rowIndex)
+                }
+            },
+        verticalAlignment = Alignment.Top
+    ) {
+        TableGridCell(
+            text = row.getOrNull(0).orEmpty(),
+            isHeader = isHeader,
+            isNumeric = 0 in numericColumns,
+            modifier = Modifier.width(firstWidth)
+        )
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .horizontalScroll(scrollState)
+        ) {
+            headers.drop(1).forEachIndexed { offset, _ ->
+                val columnIndex = offset + 1
+                TableGridCell(
+                    text = row.getOrNull(columnIndex).orEmpty(),
+                    isHeader = isHeader,
+                    isNumeric = columnIndex in numericColumns,
+                    modifier = Modifier.widthIn(min = (trailingWidths.getOrNull(offset) ?: 120).dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenderTableGridRow(
+    headers: List<String>,
+    row: List<String>,
+    rowIndex: Int,
+    columnMinWidthsDp: List<Int>,
+    numericColumns: Set<Int>,
+    weighted: Boolean,
+    isHeader: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(tableGridRowColor(isHeader, rowIndex))
+            .semantics(mergeDescendants = true) {
+                contentDescription = if (isHeader) {
+                    "Header. ${headers.joinToString(". ")}"
+                } else {
+                    tableRowAccessibilitySummary(headers, row, rowIndex)
+                }
+            },
+        horizontalArrangement = Arrangement.spacedBy(0.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        headers.indices.forEach { columnIndex ->
+            val cellModifier = if (weighted) {
+                Modifier.weight(1f)
+            } else {
+                Modifier.widthIn(min = (columnMinWidthsDp.getOrNull(columnIndex) ?: 120).dp)
+            }
+            TableGridCell(
+                text = row.getOrNull(columnIndex).orEmpty(),
+                isHeader = isHeader,
+                isNumeric = columnIndex in numericColumns,
+                modifier = cellModifier
+            )
+        }
+    }
+}
+
+@Composable
+private fun TableGridCell(
+    text: String,
+    isHeader: Boolean,
+    isNumeric: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = parseBoldMarkdown(text),
+        style = if (isHeader) {
+            MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
+        } else {
+            MaterialTheme.typography.bodySmall
+        },
+        color = if (isHeader) {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
+        textAlign = if (isNumeric) TextAlign.End else TextAlign.Start,
+        maxLines = if (isHeader) 2 else 3,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+            .padding(horizontal = 10.dp, vertical = if (isHeader) 9.dp else 8.dp)
+            .then(if (isHeader) Modifier.semantics { heading() } else Modifier)
+    )
+}
+
+@Composable
+private fun tableGridRowColor(isHeader: Boolean, rowIndex: Int): Color {
+    return when {
+        isHeader -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.055f)
+        rowIndex >= 0 && rowIndex % 2 == 1 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.025f)
+        else -> Color.Transparent
+    }
+}
+
 @Composable
 private fun RenderDirectTable(
     props: Map<String, Any?>,
@@ -3330,16 +4060,18 @@ private fun RenderDirectTable(
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp
-    val compactScreen = screenWidthDp <= 480
-    val table = extractDirectTableModel(props, state, compactScreen) ?: return
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val compactPortrait = screenWidthDp < 600 && !isLandscape
+    val table = extractDirectTableModel(props, state, compactPortrait) ?: return
     val headers = table.columns.map { column -> column.label }
     val cardsRequested =
         table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
             table.renderMode == FlatTableRenderMode.BOOKING_CARDS
 
-    if (table.renderMode == FlatTableRenderMode.WEATHER_CARDS) {
+    if (compactPortrait && table.renderMode == FlatTableRenderMode.WEATHER_CARDS) {
         val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
         if (!weatherRows.isNullOrEmpty()) {
             NativeWeatherUiRenderer.RenderWeatherRows(
@@ -3359,14 +4091,14 @@ private fun RenderDirectTable(
             return
         }
     }
-    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS) {
+    if (compactPortrait && table.renderMode == FlatTableRenderMode.FLIGHT_CARDS) {
         val flightRows = NativeFlightSemantics.buildFlightRows(headers, table.rows)
         if (!flightRows.isNullOrEmpty()) {
             NativeFlightUiRenderer.RenderFlightRows(flightRows)
             return
         }
     }
-    if (table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
+    if (compactPortrait && table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
         val rendered = renderBookingRowsIfPossible(
             headers = headers,
             rows = table.rows,
@@ -3379,130 +4111,63 @@ private fun RenderDirectTable(
 
     val spacing = 8.dp
     val autoHorizontalScroll = shouldUseHorizontalTableScroll(
-        compactScreen = compactScreen,
+        compactScreen = compactPortrait,
         screenWidthDp = screenWidthDp,
         headers = headers,
         rows = table.rows
     )
-    val effectiveRenderMode = when {
-        table.renderMode == FlatTableRenderMode.RESPONSIVE_CARD_ROWS -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        cardsRequested && autoHorizontalScroll && table.columns.size <= 3 -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        cardsRequested && autoHorizontalScroll -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        cardsRequested -> FlatTableRenderMode.TABLE
-        table.renderMode == FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        autoHorizontalScroll && table.columns.size <= 3 -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        autoHorizontalScroll -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        else -> FlatTableRenderMode.TABLE
-    }
-    if (effectiveRenderMode == FlatTableRenderMode.RESPONSIVE_CARD_ROWS) {
-        RenderResponsiveTableRows(
+    val presentation = selectAdaptiveTablePresentation(
+        table = table,
+        screenWidthDp = screenWidthDp,
+        isLandscape = isLandscape,
+        autoHorizontalScroll = autoHorizontalScroll,
+        cardsRequested = cardsRequested
+    )
+    val tableModifier = applyStackModifier(modifier, props, "vertical")
+    when (presentation) {
+        AdaptiveTablePresentation.KEY_VALUE_PANEL -> RenderKeyValueTablePanel(
             headers = headers,
             rows = table.rows,
-            modifier = applyStackModifier(modifier, props, "vertical"),
+            modifier = tableModifier
+        )
+        AdaptiveTablePresentation.TIMELINE_CARDS -> RenderResponsiveTableRows(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
             spacing = spacing
         )
-        return
-    }
-    val horizontalScrollEnabled = effectiveRenderMode == FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-    val tableModifier = applyStackModifier(modifier, props, "vertical")
-    val columnMinWidthsDp = estimateTableColumnMinWidthsDp(
-        headers = headers,
-        rows = table.rows,
-        baseMinDp = if (horizontalScrollEnabled) 120 else 96
-    )
-    val minTableWidth = estimateTableMinWidthDp(
-        headers = headers,
-        rows = table.rows,
-        baseMinDp = if (horizontalScrollEnabled) 120 else 96
-    ).dp
-    val contentModifier = if (horizontalScrollEnabled) {
-        Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-    } else {
-        Modifier.fillMaxWidth()
-    }
-
-    Column(
-        modifier = tableModifier,
-        verticalArrangement = Arrangement.spacedBy(spacing)
-    ) {
-        Box(
-            modifier = contentModifier.semantics {
-                contentDescription = tableAccessibilitySummary(
-                    headers = headers,
-                    rows = table.rows,
-                    horizontalScroll = horizontalScrollEnabled
-                )
-            }
-        ) {
-            Column(
-                modifier = if (horizontalScrollEnabled) {
-                    Modifier.widthIn(min = minTableWidth)
-                } else {
-                    Modifier.fillMaxWidth()
-                },
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                        .semantics(mergeDescendants = true) {
-                            contentDescription = "Header. ${headers.joinToString(". ")}"
-                        },
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    headers.forEachIndexed { index, label ->
-                        val minColumnWidth = columnMinWidthsDp.getOrNull(index) ?: if (horizontalScrollEnabled) 120 else 96
-                        val columnModifier = if (horizontalScrollEnabled) {
-                            Modifier.widthIn(min = minColumnWidth.dp)
-                        } else {
-                            Modifier.weight(1f)
-                        }
-                        Text(
-                            text = parseBoldMarkdown(label),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = columnModifier.semantics { heading() }
-                        )
-                    }
-                }
-                table.rows.forEachIndexed { index, row ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 2.dp)
-                            .semantics(mergeDescendants = true) {
-                                contentDescription = tableRowAccessibilitySummary(headers, row, index)
-                            },
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        headers.indices.forEach { columnIndex ->
-                            val value = row.getOrNull(columnIndex).orEmpty()
-                            val minColumnWidth = columnMinWidthsDp.getOrNull(columnIndex) ?: if (horizontalScrollEnabled) 120 else 96
-                            val columnModifier = if (horizontalScrollEnabled) {
-                                Modifier.widthIn(min = minColumnWidth.dp)
-                            } else {
-                                Modifier.weight(1f)
-                            }
-                            Text(
-                                text = parseBoldMarkdown(value),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = columnModifier
-                            )
-                        }
-                    }
-                    if (index < table.rows.lastIndex) {
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                    }
-                }
-            }
-        }
+        AdaptiveTablePresentation.FEATURE_CARDS -> RenderFeatureMatrixEntityCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            spacing = spacing
+        )
+        AdaptiveTablePresentation.ENTITY_CARDS -> RenderEntityTableCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            spacing = spacing,
+            primaryColumn = table.primaryColumn,
+            highlightColumns = table.highlightColumns,
+            onOpenUrl = onOpenUrl
+        )
+        AdaptiveTablePresentation.METRIC_CARDS -> RenderMetricTableCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            spacing = spacing,
+            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
+        )
+        AdaptiveTablePresentation.TABLE,
+        AdaptiveTablePresentation.HORIZONTAL_TABLE,
+        AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE -> RenderAdaptiveTableGrid(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            horizontalScrollEnabled = presentation != AdaptiveTablePresentation.TABLE,
+            stickyFirstColumn = presentation == AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE,
+            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
+        )
     }
 }
 
