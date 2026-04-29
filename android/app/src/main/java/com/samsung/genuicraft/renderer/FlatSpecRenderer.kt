@@ -1614,7 +1614,20 @@ private fun isStatusHeaderLabel(label: String): Boolean {
 private fun isComparisonFeatureHeader(label: String): Boolean {
     if (label.isBlank()) return false
     val token = label.lowercase()
-    val keywords = listOf("feature", "metric", "criteria", "attribute", "spec", "dimension", "parameter")
+    val keywords = listOf(
+        "feature",
+        "metric",
+        "criteria",
+        "criterion",
+        "attribute",
+        "spec",
+        "dimension",
+        "parameter",
+        "category",
+        "aspect",
+        "factor",
+        "topic"
+    )
     return keywords.any { keyword -> token.contains(keyword) }
 }
 
@@ -1735,6 +1748,70 @@ private fun looksLikeNumericTableValue(value: String): Boolean {
     if (normalized.isBlank()) return false
     return Regex("""^[₹$€£]?\s*[-+]?\d[\d,]*(?:\.\d+)?\s*(?:%|x|k|K|m|M|bn|hrs?|hours?|mins?|minutes?|days?|°[CF]?)?$""")
         .containsMatchIn(normalized)
+}
+
+private fun looksLikeRankHeader(label: String): Boolean {
+    val token = normalizeTableHeaderForMatch(label)
+    return token in setOf("rank", "id", "number", "no") || label.trim() == "#"
+}
+
+private fun looksLikeLongDetailHeader(label: String): Boolean {
+    val token = normalizeTableHeaderForMatch(label)
+    return listOf("note", "notes", "description", "detail", "details", "justification", "reason", "summary", "remarks")
+        .any { keyword -> token.contains(keyword) }
+}
+
+private fun isCompactTableBadgeValue(value: String): Boolean {
+    val normalized = value.trim()
+    if (normalized.isBlank() || isLikelyHttpUrl(normalized)) return false
+    if (normalized.contains('\n')) return false
+    if (Regex("""[.!?]\s+""").containsMatchIn(normalized)) return false
+    return normalized.length <= 34
+}
+
+private fun isCompactHighlightColumn(rows: List<List<String>>, index: Int): Boolean {
+    val values = rows.mapNotNull { row -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() } }
+    if (values.isEmpty()) return false
+    val compactCount = values.count(::isCompactTableBadgeValue)
+    return compactCount >= maxOf(1, values.size * 2 / 3)
+}
+
+private fun inferEntityPrimaryColumnIndex(headers: List<String>, primaryColumn: String?): Int {
+    primaryColumn?.let { token ->
+        val explicit = headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
+        if (explicit >= 0) return explicit
+    }
+    val first = headers.firstOrNull().orEmpty()
+    if (looksLikeRankHeader(first) && headers.size > 1) {
+        val nextEntity = headers.drop(1).indexOfFirst { header ->
+            isComparisonEntityHeader(header) || normalizeTableHeaderForMatch(header) in setOf("airline", "carrier", "name", "title")
+        }
+        if (nextEntity >= 0) return nextEntity + 1
+        return 1
+    }
+    return 0
+}
+
+private fun shouldUseNativeFlightCards(headers: List<String>): Boolean {
+    val normalized = headers.map(::normalizeTableHeaderForMatch)
+    val routeSignals = normalized.count { header ->
+        header.contains("depart") ||
+            header.contains("departure") ||
+            header.contains("arrive") ||
+            header.contains("arrival") ||
+            header.contains("origin") ||
+            header.contains("destination") ||
+            header.contains("from") ||
+            header.contains("to")
+    }
+    val rankedComparisonSignals = normalized.count { header ->
+        header.contains("rank") ||
+            header.contains("cost") ||
+            header.contains("layover") ||
+            header.contains("justification") ||
+            header.contains("reason")
+    }
+    return routeSignals >= 2 && rankedComparisonSignals < 2
 }
 
 private fun detectTableShape(
@@ -2072,6 +2149,11 @@ private fun RenderStack(
         children.size in 2..3 &&
         hasMediaChild &&
         hasLongTextChild
+    val forceVerticalCardRow = direction == "horizontal" &&
+        compactScreen &&
+        !wrap &&
+        children.size >= 2 &&
+        childElements.all { child -> child.type.equals("card", ignoreCase = true) }
     val forceVerticalButtonStack = autoWrapButtonRow && hasLongButtonLabel
     val stackModifier = applyStackModifier(modifier, props, direction)
 
@@ -2083,7 +2165,7 @@ private fun RenderStack(
             "around" -> Arrangement.SpaceAround
             else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Start
         }
-        if (forceVerticalButtonStack) {
+        if (forceVerticalButtonStack || forceVerticalCardRow) {
             Column(
                 modifier = stackModifier,
                 verticalArrangement = Arrangement.spacedBy(gap)
@@ -2900,6 +2982,45 @@ private fun tableHeaderLabel(headers: List<String>, index: Int): String {
     return headers.getOrNull(index)?.trim().orEmpty().ifBlank { "Column ${index + 1}" }
 }
 
+private fun shouldPromoteTimelineSecondTitle(firstHeader: String, secondHeader: String): Boolean {
+    val first = normalizeTableHeaderForMatch(firstHeader)
+    val second = normalizeTableHeaderForMatch(secondHeader)
+    if (first.isBlank() || second.isBlank()) return false
+    if (second == "date" || second == "dates" || second.contains("date ")) return false
+    return first.contains("time") ||
+        first.contains("slot") ||
+        first.contains("date") ||
+        (first == "day" && !second.contains("date")) ||
+        (first.contains("day") && first.contains("date"))
+}
+
+private fun shouldPrefixTimelineTitle(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized == "total" ||
+        normalized == "status" ||
+        normalized == "current status" ||
+        normalized == "core ml" ||
+        normalized == "applications" ||
+        normalized == "ethics"
+}
+
+private fun formatTimelineTitle(label: String, value: String): String {
+    val cleanValue = value.trim()
+    if (cleanValue.isBlank()) return ""
+    val cleanLabel = label.trim()
+    val normalizedLabel = normalizeTableHeaderForMatch(cleanLabel)
+    if ((normalizedLabel == "day" || normalizedLabel == "week") &&
+        cleanValue.all { char -> char.isDigit() }
+    ) {
+        return "$cleanLabel $cleanValue"
+    }
+    return if (cleanLabel.isNotBlank() && shouldPrefixTimelineTitle(cleanLabel)) {
+        "$cleanLabel: $cleanValue"
+    } else {
+        cleanValue
+    }
+}
+
 private fun pickResponsiveTableTemplate(
     headers: List<String>,
     rows: List<List<String>>
@@ -3290,26 +3411,57 @@ private fun ResponsiveComparisonColumnCards(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     items.forEach { (feature, value) ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            Text(
-                                text = parseBoldMarkdown(feature),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.weight(0.44f)
-                            )
-                            Text(
-                                text = parseBoldMarkdown(value),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(0.56f)
-                            )
-                        }
+                        FeatureMatrixField(feature = feature, value = value)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeatureMatrixField(
+    feature: String,
+    value: String
+) {
+    val longPair = feature.length > 18 || value.length > 48 || value.contains('\n')
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.58f))
+            .padding(horizontal = 9.dp, vertical = 7.dp),
+        verticalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        if (longPair) {
+            Text(
+                text = parseBoldMarkdown(feature),
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = parseBoldMarkdown(value),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = parseBoldMarkdown(feature),
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(0.42f)
+                )
+                Text(
+                    text = parseBoldMarkdown(value),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(0.58f)
+                )
             }
         }
     }
@@ -3320,9 +3472,21 @@ private fun ResponsiveScheduleRowCard(
     headers: List<String>,
     row: List<String>
 ) {
-    val timeValue = row.getOrNull(0).orEmpty().trim()
-    val titleValue = row.getOrNull(1).orEmpty().trim().ifBlank { tableHeaderLabel(headers, 1) }
-    val detailValue = row.getOrNull(2).orEmpty().trim()
+    val cellCount = maxOf(headers.size, row.size)
+    val cells = (0 until cellCount).map { index ->
+        Triple(index, tableHeaderLabel(headers, index), row.getOrNull(index).orEmpty().trim())
+    }.filter { (_, _, value) -> value.isNotBlank() }
+    if (cells.isEmpty()) return
+
+    val promoteSecond = cells.size > 1 &&
+        shouldPromoteTimelineSecondTitle(cells[0].second, cells[1].second)
+    val titleCellIndex = if (promoteSecond) 1 else 0
+    val badgeCell = if (promoteSecond) cells.firstOrNull() else null
+    val titleCell = cells.getOrNull(titleCellIndex) ?: cells.first()
+    val titleValue = formatTimelineTitle(titleCell.second, titleCell.third)
+    val bodyCells = cells.filterNot { (index, _, _) ->
+        index == titleCell.first || index == badgeCell?.first
+    }
 
     Card(
         modifier = Modifier
@@ -3338,50 +3502,84 @@ private fun ResponsiveScheduleRowCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (timeValue.isNotBlank()) {
-                    Surface(
-                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(timeValue),
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                        )
-                    }
+            val badgeValue = badgeCell?.third.orEmpty()
+            val titleIsLong = titleValue.length > 64 || titleValue.contains('\n')
+            if (badgeValue.isNotBlank() && titleIsLong) {
+                Surface(
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(badgeValue),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
                 }
                 Text(
                     text = parseBoldMarkdown(titleValue),
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-            }
-            if (detailValue.isNotBlank()) {
-                Text(
-                    text = parseBoldMarkdown(detailValue),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    if (badgeValue.isNotBlank()) {
+                        Surface(
+                            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Text(
+                                text = parseBoldMarkdown(badgeValue),
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                    Text(
+                        text = parseBoldMarkdown(titleValue),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
-            val trailingCount = maxOf(headers.size, row.size)
-            (3 until trailingCount).forEach { index ->
-                ResponsiveFieldBlock(
-                    label = tableHeaderLabel(headers, index),
-                    value = row.getOrNull(index).orEmpty(),
-                    modifier = Modifier.fillMaxWidth()
-                )
+            bodyCells.forEach { (_, label, value) ->
+                FeatureMatrixField(feature = label, value = value)
             }
+        }
+    }
+}
+
+@Composable
+private fun RenderTimelineTableCards(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    spacing: Dp = 8.dp
+) {
+    if (rows.isEmpty()) return
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        rows.forEach { row ->
+            if (row.all { value -> value.trim().isEmpty() }) {
+                return@forEach
+            }
+            ResponsiveScheduleRowCard(headers = headers, row = row)
         }
     }
 }
@@ -3506,17 +3704,12 @@ private fun selectAdaptiveTablePresentation(
     return when (table.shape) {
         FlatTableShape.KEY_VALUE -> AdaptiveTablePresentation.KEY_VALUE_PANEL
         FlatTableShape.SCHEDULE_TIMELINE -> AdaptiveTablePresentation.TIMELINE_CARDS
-        FlatTableShape.FEATURE_MATRIX -> {
-            if (table.preferredPresentation == "table" || columnCount >= 5) {
-                AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE
-            } else {
-                AdaptiveTablePresentation.FEATURE_CARDS
-            }
-        }
+        FlatTableShape.FEATURE_MATRIX -> AdaptiveTablePresentation.FEATURE_CARDS
         FlatTableShape.ENTITY_ROW -> AdaptiveTablePresentation.ENTITY_CARDS
         FlatTableShape.NUMERIC_METRICS -> AdaptiveTablePresentation.METRIC_CARDS
         FlatTableShape.GENERIC_GRID -> when {
             cardsRequested && columnCount <= 3 -> AdaptiveTablePresentation.ENTITY_CARDS
+            autoHorizontalScroll && columnCount <= 3 -> AdaptiveTablePresentation.ENTITY_CARDS
             autoHorizontalScroll -> AdaptiveTablePresentation.HORIZONTAL_TABLE
             else -> AdaptiveTablePresentation.TABLE
         }
@@ -3607,14 +3800,12 @@ private fun RenderEntityTableCards(
     onOpenUrl: (String) -> Unit
 ) {
     if (rows.isEmpty()) return
-    val primaryIndex = primaryColumn?.let { token ->
-        headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
-            .takeIf { it >= 0 }
-    } ?: 0
+    val primaryIndex = inferEntityPrimaryColumnIndex(headers, primaryColumn)
     val explicitHighlightIndexes = highlightColumns.mapNotNull { token ->
         headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
             .takeIf { it >= 0 }
-    }.filterNot { it == primaryIndex }
+    }.filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers.getOrNull(it).orEmpty()) }
+        .filter { index -> isCompactHighlightColumn(rows, index) }
     val inferredHighlightIndexes = explicitHighlightIndexes.ifEmpty {
         headers.indices
             .filterNot { it == primaryIndex }
@@ -3628,8 +3819,14 @@ private fun RenderEntityTableCards(
                     header.contains("date") ||
                     header.contains("time")
             }
+            .filter { index -> isCompactHighlightColumn(rows, index) }
             .take(2)
-            .ifEmpty { headers.indices.filterNot { it == primaryIndex }.take(2) }
+            .ifEmpty {
+                headers.indices
+                    .filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers.getOrNull(it).orEmpty()) }
+                    .filter { index -> isCompactHighlightColumn(rows, index) }
+                    .take(2)
+            }
     }.take(2)
     Column(
         modifier = modifier
@@ -3645,6 +3842,10 @@ private fun RenderEntityTableCards(
             val bodyIndexes = headers.indices.filterNot { index ->
                 index == primaryIndex || index in inferredHighlightIndexes || row.getOrNull(index).orEmpty().isBlank()
             }
+            val (shortBodyIndexes, detailBodyIndexes) = bodyIndexes.partition { index ->
+                val value = row.getOrNull(index).orEmpty()
+                isCompactTableBadgeValue(value) && !looksLikeLongDetailHeader(headers.getOrNull(index).orEmpty())
+            }
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -3659,30 +3860,32 @@ private fun RenderEntityTableCards(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(title),
-                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f)
-                        )
-                        inferredHighlightIndexes.forEach { index ->
-                            val value = row.getOrNull(index).orEmpty().trim()
-                            if (value.isNotBlank()) {
-                                Surface(
-                                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                    color = MaterialTheme.colorScheme.primaryContainer
-                                ) {
-                                    Text(
-                                        text = parseBoldMarkdown(value),
-                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                    )
+                    Text(
+                        text = parseBoldMarkdown(title),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (inferredHighlightIndexes.isNotEmpty()) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            inferredHighlightIndexes.forEach { index ->
+                                val value = row.getOrNull(index).orEmpty().trim()
+                                if (value.isNotBlank()) {
+                                    Surface(
+                                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                        color = MaterialTheme.colorScheme.primaryContainer
+                                    ) {
+                                        Text(
+                                            text = parseBoldMarkdown("${tableHeaderLabel(headers, index)}: $value"),
+                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -3691,7 +3894,7 @@ private fun RenderEntityTableCards(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        bodyIndexes.take(6).forEach { index ->
+                        shortBodyIndexes.take(6).forEach { index ->
                             val value = row.getOrNull(index).orEmpty().trim()
                             if (value.isBlank() || isLikelyHttpUrl(value)) return@forEach
                             Surface(
@@ -3706,6 +3909,13 @@ private fun RenderEntityTableCards(
                                 )
                             }
                         }
+                    }
+                    detailBodyIndexes.take(3).forEach { index ->
+                        ResponsiveFieldBlock(
+                            label = tableHeaderLabel(headers, index),
+                            value = row.getOrNull(index).orEmpty(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                     if (!actionUrl.isNullOrBlank()) {
                         Button(onClick = { onOpenUrl(actionUrl) }) {
@@ -4091,7 +4301,7 @@ private fun RenderDirectTable(
             return
         }
     }
-    if (compactPortrait && table.renderMode == FlatTableRenderMode.FLIGHT_CARDS) {
+    if (compactPortrait && table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && shouldUseNativeFlightCards(headers)) {
         val flightRows = NativeFlightSemantics.buildFlightRows(headers, table.rows)
         if (!flightRows.isNullOrEmpty()) {
             NativeFlightUiRenderer.RenderFlightRows(flightRows)
@@ -4130,7 +4340,7 @@ private fun RenderDirectTable(
             rows = table.rows,
             modifier = tableModifier
         )
-        AdaptiveTablePresentation.TIMELINE_CARDS -> RenderResponsiveTableRows(
+        AdaptiveTablePresentation.TIMELINE_CARDS -> RenderTimelineTableCards(
             headers = headers,
             rows = table.rows,
             modifier = tableModifier,
