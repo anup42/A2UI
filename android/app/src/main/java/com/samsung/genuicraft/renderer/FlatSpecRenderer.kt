@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -1814,6 +1815,18 @@ private fun shouldUseNativeFlightCards(headers: List<String>): Boolean {
     return routeSignals >= 2 && rankedComparisonSignals < 2
 }
 
+private fun looksLikeMultiLegFlightTable(headers: List<String>): Boolean {
+    val normalized = headers.map(::normalizeTableHeaderForMatch)
+    val legSignals = normalized.count { header ->
+        header.contains("leg") ||
+            Regex("""\b[a-z]{3}\s*[/-]\s*[a-z]{3}\b""").containsMatchIn(header)
+    }
+    val carrierSignals = normalized.count { header ->
+        header.contains("carrier") || header.contains("airline")
+    }
+    return legSignals >= 2 && carrierSignals >= 1
+}
+
 private fun detectTableShape(
     headers: List<String>,
     rows: List<List<String>>,
@@ -2127,8 +2140,8 @@ private fun RenderStack(
         !wrap &&
         allButtonChildren &&
         children.size >= 2
-    val hasMediaChild = childElements.any { child ->
-        child.type.equals("icon", ignoreCase = true) || child.type.equals("image", ignoreCase = true)
+    val hasImageChild = childElements.any { child ->
+        child.type.equals("image", ignoreCase = true)
     }
     val hasLongTextChild = childElements.any { child ->
         if (!child.type.equals("text", ignoreCase = true)) return@any false
@@ -2147,8 +2160,14 @@ private fun RenderStack(
         compactScreen &&
         !wrap &&
         children.size in 2..3 &&
-        hasMediaChild &&
+        hasImageChild &&
         hasLongTextChild
+    val compactIconTextRow = direction == "horizontal" &&
+        compactScreen &&
+        !wrap &&
+        children.size == 2 &&
+        childElements.getOrNull(0)?.type?.equals("icon", ignoreCase = true) == true &&
+        childElements.getOrNull(1)?.type?.equals("text", ignoreCase = true) == true
     val forceVerticalCardRow = direction == "horizontal" &&
         compactScreen &&
         !wrap &&
@@ -2164,6 +2183,36 @@ private fun RenderStack(
             "between" -> Arrangement.SpaceBetween
             "around" -> Arrangement.SpaceAround
             else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Start
+        }
+        if (compactIconTextRow) {
+            Row(
+                modifier = stackModifier,
+                horizontalArrangement = Arrangement.spacedBy(gap),
+                verticalAlignment = Alignment.Top
+            ) {
+                RenderElement(
+                    elementId = children[0],
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
+                )
+                RenderElement(
+                    elementId = children[1],
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            return
         }
         if (forceVerticalButtonStack || forceVerticalCardRow) {
             Column(
@@ -2339,6 +2388,15 @@ private fun RenderTableLayout(
         }
     }
     if (tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS) {
+        if (looksLikeMultiLegFlightTable(tableModel.headers)) {
+            RenderFlightItineraryTableCards(
+                headers = tableModel.headers,
+                rows = tableRows,
+                modifier = tableModifier,
+                spacing = spacing
+            )
+            return
+        }
         val flightRows = NativeFlightSemantics.buildFlightRows(tableModel.headers, tableRows)
         if (!flightRows.isNullOrEmpty()) {
             NativeFlightUiRenderer.RenderFlightRows(flightRows)
@@ -3985,6 +4043,175 @@ private fun RenderMetricTableCards(
     }
 }
 
+private fun flightCarrierColumnIndex(headers: List<String>): Int {
+    val explicit = headers.indexOfFirst { header ->
+        val normalized = normalizeTableHeaderForMatch(header)
+        normalized.contains("carrier") || normalized.contains("airline")
+    }
+    return explicit.takeIf { it >= 0 } ?: 0
+}
+
+private fun flightLegColumnIndexes(headers: List<String>): List<Int> {
+    return headers.indices.filter { index ->
+        val normalized = normalizeTableHeaderForMatch(headers[index])
+        normalized.contains("leg") ||
+            Regex("""\b[a-z]{3}\s*[/-]\s*[a-z]{3}\b""").containsMatchIn(normalized)
+    }
+}
+
+private fun flightLegBadge(header: String, index: Int): String {
+    val prefix = header.substringBefore(":").trim()
+    return prefix.takeIf { it.isNotBlank() && it.length <= 12 } ?: "Leg ${index + 1}"
+}
+
+private fun flightLegRoute(header: String): String {
+    val route = header.substringAfter(":", missingDelimiterValue = "").trim()
+    return route.takeIf { it.isNotBlank() } ?: header.trim()
+}
+
+@Composable
+private fun FlightLegTimelineRow(
+    badge: String,
+    route: String,
+    carrier: String
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.62f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Surface(
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Text(
+                    text = badge,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = parseBoldMarkdown(route),
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = parseBoldMarkdown(carrier),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenderFlightItineraryTableCards(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    spacing: Dp = 10.dp
+) {
+    if (rows.isEmpty()) return
+    val carrierIndex = flightCarrierColumnIndex(headers)
+    val legIndexes = flightLegColumnIndexes(headers)
+    if (legIndexes.isEmpty()) return
+    val detailIndexes = headers.indices.filterNot { index ->
+        index == carrierIndex || index in legIndexes
+    }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        rows.forEachIndexed { rowIndex, row ->
+            val carrier = row.getOrNull(carrierIndex).orEmpty().trim().ifBlank { "Flight option ${rowIndex + 1}" }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+                    },
+                shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                colors = flatSpecCardColors(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(9.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.FlightTakeoff,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(8.dp).size(20.dp)
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                text = parseBoldMarkdown(carrier),
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Multi-city itinerary",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    legIndexes.forEachIndexed { legOrder, columnIndex ->
+                        val legCarrier = row.getOrNull(columnIndex).orEmpty().trim()
+                        if (legCarrier.isBlank()) return@forEachIndexed
+                        FlightLegTimelineRow(
+                            badge = flightLegBadge(headers.getOrNull(columnIndex).orEmpty(), legOrder),
+                            route = flightLegRoute(headers.getOrNull(columnIndex).orEmpty()),
+                            carrier = legCarrier
+                        )
+                    }
+
+                    detailIndexes.forEach { index ->
+                        val value = row.getOrNull(index).orEmpty().trim()
+                        if (value.isBlank()) return@forEach
+                        FeatureMatrixField(
+                            feature = tableHeaderLabel(headers, index),
+                            value = value
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun RenderAdaptiveTableGrid(
     headers: List<String>,
@@ -4307,6 +4534,15 @@ private fun RenderDirectTable(
             NativeFlightUiRenderer.RenderFlightRows(flightRows)
             return
         }
+    }
+    if (compactPortrait && table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeMultiLegFlightTable(headers)) {
+        RenderFlightItineraryTableCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = applyStackModifier(modifier, props, "vertical"),
+            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp
+        )
+        return
     }
     if (compactPortrait && table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
         val rendered = renderBookingRowsIfPossible(
