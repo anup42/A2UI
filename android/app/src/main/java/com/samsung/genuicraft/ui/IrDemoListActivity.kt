@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -236,8 +235,7 @@ private fun IrDemoItemCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(GenUiTokens.RadiusXl),
         colors = genUiCardColors(GenUiCardTone.Neutral),
-        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
-        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
     ) {
         Column(
             modifier = Modifier

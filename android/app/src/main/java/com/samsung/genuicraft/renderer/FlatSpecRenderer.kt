@@ -3436,14 +3436,30 @@ private fun RenderCard(
     val allChildren = children.ifEmpty {
         props["child"]?.toString()?.let { listOf(it) } ?: emptyList()
     }
+    val contentPaddingAll = asDp(props["contentPadding"]) ?: asDp(props["padding"])
+    val contentPaddingHorizontal = asDp(props["contentPaddingHorizontal"])
+        ?: asDp(props["paddingHorizontal"])
+        ?: contentPaddingAll
+        ?: 10.dp
+    val contentPaddingVertical = asDp(props["contentPaddingVertical"])
+        ?: asDp(props["paddingVertical"])
+        ?: contentPaddingAll
+        ?: 10.dp
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = contentPaddingHorizontal,
+                    vertical = contentPaddingVertical
+                )
+        ) {
             RenderChildren(
                 children = allChildren,
                 elements = elements,
