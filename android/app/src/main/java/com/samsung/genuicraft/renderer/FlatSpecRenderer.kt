@@ -1851,10 +1851,10 @@ private fun detectTableShape(
         domain in setOf("schedule", "status") -> FlatTableShape.SCHEDULE_TIMELINE
         isComparisonFeatureHeader(firstHeader) && columnCount >= 3 -> FlatTableShape.FEATURE_MATRIX
         domain == "comparison" && isComparisonFeatureHeader(firstHeader) -> FlatTableShape.FEATURE_MATRIX
-        numericLikeColumns >= 2 && columnCount <= 4 -> FlatTableShape.NUMERIC_METRICS
         domain in CARD_FIRST_TABLE_DOMAINS -> FlatTableShape.ENTITY_ROW
         domain == "comparison" && compactFirstColumn -> FlatTableShape.ENTITY_ROW
         isComparisonEntityHeader(firstHeader) && columnCount >= 3 -> FlatTableShape.ENTITY_ROW
+        numericLikeColumns >= 2 && columnCount <= 4 -> FlatTableShape.NUMERIC_METRICS
         else -> FlatTableShape.GENERIC_GRID
     }
 }
