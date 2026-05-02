@@ -205,7 +205,13 @@ internal data class FlatDirectTableModel(
     val primaryColumn: String?,
     val highlightColumns: Set<String>,
     val numericColumns: Set<String>,
+    val entityMedia: Map<String, TableEntityMedia>,
     val renderMode: FlatTableRenderMode
+)
+
+internal data class TableEntityMedia(
+    val image: String,
+    val alt: String
 )
 
 typealias FlatComputedFunction = (Map<String, Any?>) -> Any?
@@ -1275,6 +1281,21 @@ private fun asDp(value: Any?): androidx.compose.ui.unit.Dp? {
     return number.dp
 }
 
+internal fun asFlatSpacingDp(value: Any?): androidx.compose.ui.unit.Dp? {
+    val numeric = asDp(value)
+    if (numeric != null) return numeric
+    val token = value?.toString()?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
+    return when (token) {
+        "none", "zero" -> 0.dp
+        "xs", "extra-small", "extra_small" -> 4.dp
+        "sm", "small" -> 8.dp
+        "md", "medium" -> 16.dp
+        "lg", "large" -> 20.dp
+        "xl", "extra-large", "extra_large" -> 24.dp
+        else -> null
+    }
+}
+
 internal fun extractMediaUrlToken(
     value: Any?,
     depth: Int = 0
@@ -2079,9 +2100,9 @@ private fun applyStackModifier(
     direction: String
 ): Modifier {
     var out = base
-    val marginAll = asDp(props["margin"])
-    val marginHorizontal = asDp(props["marginHorizontal"]) ?: marginAll
-    val marginVertical = asDp(props["marginVertical"]) ?: marginAll
+    val marginAll = asFlatSpacingDp(props["margin"])
+    val marginHorizontal = asFlatSpacingDp(props["marginHorizontal"]) ?: marginAll
+    val marginVertical = asFlatSpacingDp(props["marginVertical"]) ?: marginAll
     if (marginHorizontal != null || marginVertical != null) {
         out = out.padding(
             horizontal = marginHorizontal ?: 0.dp,
@@ -2089,9 +2110,9 @@ private fun applyStackModifier(
         )
     }
 
-    val paddingAll = asDp(props["padding"])
-    val paddingHorizontal = asDp(props["paddingHorizontal"]) ?: paddingAll
-    val paddingVertical = asDp(props["paddingVertical"]) ?: paddingAll
+    val paddingAll = asFlatSpacingDp(props["padding"])
+    val paddingHorizontal = asFlatSpacingDp(props["paddingHorizontal"]) ?: paddingAll
+    val paddingVertical = asFlatSpacingDp(props["paddingVertical"]) ?: paddingAll
     if (paddingHorizontal != null || paddingVertical != null) {
         out = out.padding(
             horizontal = paddingHorizontal ?: 0.dp,
@@ -2118,10 +2139,10 @@ private fun applyStackModifier(
 }
 
 private fun hasHorizontalContainerPadding(props: Map<String, Any?>): Boolean =
-    props.containsKey("padding") ||
-        props.containsKey("paddingHorizontal") ||
-        props.containsKey("contentPadding") ||
-        props.containsKey("contentPaddingHorizontal")
+    asFlatSpacingDp(props["padding"]) != null ||
+        asFlatSpacingDp(props["paddingHorizontal"]) != null ||
+        asFlatSpacingDp(props["contentPadding"]) != null ||
+        asFlatSpacingDp(props["contentPaddingHorizontal"]) != null
 
 private fun isPaddedContainerElement(element: FlatElement?): Boolean {
     if (element == null || !hasHorizontalContainerPadding(element.props)) return false
@@ -2675,6 +2696,7 @@ internal fun extractDirectTableModel(
     val primaryColumn = props["primaryColumn"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
     val highlightColumns = stringSetFromTableProp(props["highlightColumns"])
     val numericColumns = stringSetFromTableProp(props["numericColumns"])
+    val entityMedia = extractTableEntityMedia(props)
     val renderMode = when {
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
@@ -2700,8 +2722,68 @@ internal fun extractDirectTableModel(
         primaryColumn = primaryColumn,
         highlightColumns = highlightColumns,
         numericColumns = numericColumns,
+        entityMedia = entityMedia,
         renderMode = renderMode
     )
+}
+
+internal fun extractTableEntityMedia(props: Map<String, Any?>): Map<String, TableEntityMedia> {
+    val raw = toStringKeyMap(props["entityMedia"]) ?: return emptyMap()
+    val out = linkedMapOf<String, TableEntityMedia>()
+    raw.forEach { (rawKey, rawValue) ->
+        val key = rawKey.trim().takeIf { it.isNotBlank() } ?: return@forEach
+        val media = when (rawValue) {
+            is String -> TableEntityMedia(
+                image = rawValue.trim(),
+                alt = key.replace('_', ' ')
+            )
+            else -> {
+                val mediaProps = toStringKeyMap(rawValue) ?: return@forEach
+                val image = resolveMediaUrlCandidate(mediaProps, IMAGE_PROP_KEYS)
+                    .ifBlank { extractMediaUrlToken(mediaProps["path"]).orEmpty() }
+                    .trim()
+                if (image.isBlank()) return@forEach
+                val alt = listOf("alt", "label", "title", "name")
+                    .firstNotNullOfOrNull { candidate ->
+                        mediaProps[candidate]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+                    }
+                    ?: key.replace('_', ' ')
+                TableEntityMedia(image = image, alt = alt)
+            }
+        }
+        if (media.image.isBlank()) return@forEach
+        tableEntityMediaLookupKeys(key).forEach { lookupKey ->
+            out.putIfAbsent(lookupKey, media)
+        }
+    }
+    return out
+}
+
+private fun tableEntityMediaLookupKeys(value: String): Set<String> {
+    val normalized = normalizeTableHeaderForMatch(value)
+    val compact = normalized.replace(" ", "")
+    val underscore = normalized.replace(" ", "_")
+    return setOf(value.trim().lowercase(), normalized, compact, underscore)
+        .filter { it.isNotBlank() }
+        .toSet()
+}
+
+private fun entityMediaForColumn(
+    columns: List<FlatDirectTableColumn>,
+    headers: List<String>,
+    columnIndex: Int,
+    entityMedia: Map<String, TableEntityMedia>
+): TableEntityMedia? {
+    if (entityMedia.isEmpty()) return null
+    val candidates = linkedSetOf<String>()
+    columns.getOrNull(columnIndex)?.let { column ->
+        candidates += tableEntityMediaLookupKeys(column.key)
+        candidates += tableEntityMediaLookupKeys(column.label)
+    }
+    headers.getOrNull(columnIndex)?.let { header ->
+        candidates += tableEntityMediaLookupKeys(header)
+    }
+    return candidates.firstNotNullOfOrNull { key -> entityMedia[key] }
 }
 
 private fun resolveDirectTableColumns(
@@ -3504,7 +3586,9 @@ private fun ResponsiveComparisonRowCard(
 private fun ResponsiveComparisonColumnCards(
     headers: List<String>,
     rows: List<List<String>>,
-    spacing: Dp
+    spacing: Dp,
+    columns: List<FlatDirectTableColumn> = emptyList(),
+    entityMedia: Map<String, TableEntityMedia> = emptyMap()
 ) {
     if (headers.size < 3 || rows.isEmpty()) return
     val featureHeader = headers.firstOrNull().orEmpty().ifBlank { "Feature" }
@@ -3523,6 +3607,12 @@ private fun ResponsiveComparisonColumnCards(
                 if (feature.isBlank() || value.isBlank()) null else feature to value
             }.take(8)
             if (items.isEmpty()) return@forEach
+            val media = entityMediaForColumn(
+                columns = columns,
+                headers = headers,
+                columnIndex = columnIndex,
+                entityMedia = entityMedia
+            )
 
             Card(
                 modifier = Modifier
@@ -3545,9 +3635,12 @@ private fun ResponsiveComparisonColumnCards(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    if (media != null) {
+                        ComparisonEntityMediaTile(media = media)
+                    }
                     Text(
                         text = parseBoldMarkdown(columnTitle),
                         style = MaterialTheme.typography.titleSmall,
@@ -3563,6 +3656,20 @@ private fun ResponsiveComparisonColumnCards(
 }
 
 @Composable
+private fun ComparisonEntityMediaTile(media: TableEntityMedia) {
+    RenderImage(
+        props = mapOf(
+            "url" to media.image,
+            "alt" to media.alt,
+            "fit" to "cover",
+            "height" to 104
+        ),
+        onOpenUrl = {},
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
 private fun FeatureMatrixField(
     feature: String,
     value: String
@@ -3573,8 +3680,8 @@ private fun FeatureMatrixField(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.58f))
-            .padding(horizontal = 9.dp, vertical = 7.dp),
-        verticalArrangement = Arrangement.spacedBy(3.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         if (longPair) {
             Text(
@@ -3921,7 +4028,9 @@ private fun RenderFeatureMatrixEntityCards(
     headers: List<String>,
     rows: List<List<String>>,
     modifier: Modifier = Modifier,
-    spacing: Dp = 8.dp
+    spacing: Dp = 8.dp,
+    columns: List<FlatDirectTableColumn> = emptyList(),
+    entityMedia: Map<String, TableEntityMedia> = emptyMap()
 ) {
     Column(
         modifier = modifier
@@ -3931,7 +4040,13 @@ private fun RenderFeatureMatrixEntityCards(
             },
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
-        ResponsiveComparisonColumnCards(headers = headers, rows = rows, spacing = spacing)
+        ResponsiveComparisonColumnCards(
+            headers = headers,
+            rows = rows,
+            spacing = spacing,
+            columns = columns,
+            entityMedia = entityMedia
+        )
     }
 }
 
@@ -5133,7 +5248,9 @@ private fun RenderDirectTable(
             headers = headers,
             rows = table.rows,
             modifier = tableModifier,
-            spacing = spacing
+            spacing = spacing,
+            columns = table.columns,
+            entityMedia = table.entityMedia
         )
         AdaptiveTablePresentation.ENTITY_CARDS -> RenderEntityTableCards(
             headers = headers,
@@ -5333,13 +5450,13 @@ private fun RenderCard(
     } else {
         10.dp
     }
-    val contentPaddingAll = asDp(props["contentPadding"]) ?: asDp(props["padding"])
-    val contentPaddingHorizontal = asDp(props["contentPaddingHorizontal"])
-        ?: asDp(props["paddingHorizontal"])
+    val contentPaddingAll = asFlatSpacingDp(props["contentPadding"]) ?: asFlatSpacingDp(props["padding"])
+    val contentPaddingHorizontal = asFlatSpacingDp(props["contentPaddingHorizontal"])
+        ?: asFlatSpacingDp(props["paddingHorizontal"])
         ?: contentPaddingAll
         ?: defaultContentPadding
-    val contentPaddingVertical = asDp(props["contentPaddingVertical"])
-        ?: asDp(props["paddingVertical"])
+    val contentPaddingVertical = asFlatSpacingDp(props["contentPaddingVertical"])
+        ?: asFlatSpacingDp(props["paddingVertical"])
         ?: contentPaddingAll
         ?: defaultContentPadding
     Card(
@@ -5417,8 +5534,8 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         normalizedVariantSource.contains("chip") -> "chip"
         else -> normalizedVariantSource
     }
-    val horizontalPadding = asDp(props["textPaddingHorizontal"])
-        ?: asDp(props["paddingHorizontal"])
+    val horizontalPadding = asFlatSpacingDp(props["textPaddingHorizontal"])
+        ?: asFlatSpacingDp(props["paddingHorizontal"])
         ?: LocalFlatSpecTextHorizontalPadding.current
     when (variant) {
         "h1" -> Text(
@@ -5750,11 +5867,11 @@ private fun RenderIcon(
             .build()
     }
     val iconSize = resolveIconSize(props)
-    val basePadding = asDp(props["padding"]) ?: asDp(props["iconPadding"]) ?: 4.dp
+    val basePadding = asFlatSpacingDp(props["padding"]) ?: asFlatSpacingDp(props["iconPadding"]) ?: 4.dp
     val horizontalPadding =
-        asDp(props["paddingHorizontal"]) ?: asDp(props["iconPaddingHorizontal"]) ?: basePadding
+        asFlatSpacingDp(props["paddingHorizontal"]) ?: asFlatSpacingDp(props["iconPaddingHorizontal"]) ?: basePadding
     val verticalPadding =
-        asDp(props["paddingVertical"]) ?: asDp(props["iconPaddingVertical"]) ?: basePadding
+        asFlatSpacingDp(props["paddingVertical"]) ?: asFlatSpacingDp(props["iconPaddingVertical"]) ?: basePadding
     val iconModifier = modifier
         .padding(horizontal = horizontalPadding, vertical = verticalPadding)
         .size(iconSize)

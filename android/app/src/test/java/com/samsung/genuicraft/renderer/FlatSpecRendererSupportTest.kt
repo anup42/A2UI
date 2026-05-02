@@ -73,6 +73,51 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun asFlatSpacingDp_supportsSymbolicPaddingTokens() {
+        assertEquals(16f, asFlatSpacingDp("md")!!.value, 0.01f)
+        assertEquals(24f, asFlatSpacingDp("xl")!!.value, 0.01f)
+        assertEquals(7f, asFlatSpacingDp(7)!!.value, 0.01f)
+    }
+
+    @Test
+    fun extractDirectTableModel_keepsComparisonEntityMediaCompact() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "feature", "label" to "Feature"),
+                mapOf("key" to "drip", "label" to "Drip Coffee Machine"),
+                mapOf("key" to "french_press", "label" to "French Press")
+            ),
+            "rows" to listOf(
+                mapOf(
+                    "feature" to "Avg. Brew Time",
+                    "drip" to "4-8 minutes",
+                    "french_press" to "4-5 minutes"
+                )
+            ),
+            "domain" to "comparison",
+            "preferredPresentation" to "table",
+            "entityMedia" to mapOf(
+                "drip" to mapOf(
+                    "image" to "../assets/drip.svg",
+                    "alt" to "Drip coffee maker"
+                ),
+                "french_press" to "../assets/french_press.svg"
+            )
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals("../assets/drip.svg", model!!.entityMedia["drip"]?.image)
+        assertEquals("Drip coffee maker", model.entityMedia["drip"]?.alt)
+        assertEquals("../assets/french_press.svg", model.entityMedia["frenchpress"]?.image)
+    }
+
+    @Test
     fun deriveImageFallbackUrl_returnsSeededFallbackForWikimediaWeatherLikeImages() {
         val sourceUrl =
             "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Bangalore_skyline.jpg/1280px-Bangalore_skyline.jpg"
@@ -504,21 +549,21 @@ class FlatSpecRendererSupportTest {
             """
             {
               "root": "main",
-              "state": { "rows": [ { "id": "a", "opt": "A", "price": "${'$'}100", "dur": "2h", "stops": "0" } ] },
+              "state": { "rows": [ { "id": "a", "code": "A", "alpha": "Red", "beta": "Blue", "gamma": "Green" } ] },
               "elements": {
                 "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["table"] },
                 "table": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["header", "rows"] },
                 "header": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["h1", "h2", "h3", "h4"] },
-                "h1": { "type": "Text", "props": { "text": "Option" }, "children": [] },
-                "h2": { "type": "Text", "props": { "text": "Price" }, "children": [] },
-                "h3": { "type": "Text", "props": { "text": "Duration" }, "children": [] },
-                "h4": { "type": "Text", "props": { "text": "Stops" }, "children": [] },
+                "h1": { "type": "Text", "props": { "text": "Code" }, "children": [] },
+                "h2": { "type": "Text", "props": { "text": "Alpha" }, "children": [] },
+                "h3": { "type": "Text", "props": { "text": "Beta" }, "children": [] },
+                "h4": { "type": "Text", "props": { "text": "Gamma" }, "children": [] },
                 "rows": { "type": "Stack", "props": { "direction": "vertical" }, "repeat": { "statePath": "/rows", "key": "id" }, "children": ["row"] },
                 "row": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["c1", "c2", "c3", "c4"] },
-                "c1": { "type": "Text", "props": { "text": { "${'$'}item": "opt" } }, "children": [] },
-                "c2": { "type": "Text", "props": { "text": { "${'$'}item": "price" } }, "children": [] },
-                "c3": { "type": "Text", "props": { "text": { "${'$'}item": "dur" } }, "children": [] },
-                "c4": { "type": "Text", "props": { "text": { "${'$'}item": "stops" } }, "children": [] }
+                "c1": { "type": "Text", "props": { "text": { "${'$'}item": "code" } }, "children": [] },
+                "c2": { "type": "Text", "props": { "text": { "${'$'}item": "alpha" } }, "children": [] },
+                "c3": { "type": "Text", "props": { "text": { "${'$'}item": "beta" } }, "children": [] },
+                "c4": { "type": "Text", "props": { "text": { "${'$'}item": "gamma" } }, "children": [] }
               }
             }
             """.trimIndent()
@@ -698,13 +743,13 @@ class FlatSpecRendererSupportTest {
     fun extractDirectTableModel_usesHorizontalScrollForWideGenericCompactTable() {
         val props = mapOf<String, Any?>(
             "columns" to listOf(
-                mapOf("key" to "option", "label" to "Option"),
-                mapOf("key" to "price", "label" to "Price"),
-                mapOf("key" to "duration", "label" to "Duration"),
-                mapOf("key" to "stops", "label" to "Stops")
+                mapOf("key" to "code", "label" to "Code"),
+                mapOf("key" to "alpha", "label" to "Alpha"),
+                mapOf("key" to "beta", "label" to "Beta"),
+                mapOf("key" to "gamma", "label" to "Gamma")
             ),
             "rows" to listOf(
-                mapOf("option" to "A", "price" to "INR 5,200", "duration" to "2h", "stops" to "0")
+                mapOf("code" to "A", "alpha" to "Red", "beta" to "Blue", "gamma" to "Green")
             ),
             "domain" to "generic",
             "preferredPresentation" to "table"

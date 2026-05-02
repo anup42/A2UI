@@ -196,6 +196,32 @@ def _iter_components(genui_json: Any) -> list[dict[str, Any]]:
     return components
 
 
+def _has_table_entity_media(genui_json: Any) -> bool:
+    if not isinstance(genui_json, dict):
+        return False
+    elements = genui_json.get("elements")
+    if not isinstance(elements, dict):
+        return False
+    for element in elements.values():
+        if not isinstance(element, dict):
+            continue
+        if str(element.get("type") or "").strip().lower() != "table":
+            continue
+        props = element.get("props") if isinstance(element.get("props"), dict) else {}
+        entity_media = props.get("entityMedia")
+        if not isinstance(entity_media, dict):
+            continue
+        for value in entity_media.values():
+            if isinstance(value, str) and value.strip():
+                return True
+            if isinstance(value, dict):
+                for key in ("image", "url", "src", "source", "path"):
+                    candidate = value.get(key)
+                    if isinstance(candidate, str) and candidate.strip():
+                        return True
+    return False
+
+
 def _build_component_index(components: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     index: dict[str, dict[str, Any]] = {}
     for comp in components:
@@ -1019,6 +1045,8 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
                 image_presence = 1.0
         elif comp_type == "Icon":
             icon_presence = 1.0
+        elif comp_type == "Table" and _has_table_entity_media(genui_json):
+            image_presence = 1.0
 
     # Reference integrity (dangling nodes / missing ids)
     ref_integrity = _compute_reference_integrity(components)

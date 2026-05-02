@@ -144,6 +144,7 @@ Media placement policy (MANDATORY — include media for visual richness):
 - For playlist/music/entertainment blocks, prefer icon-only media (`music-note`, `music-note-beamed`, or `play-circle`) unless a verified album/cover image URL is available in the current context.
 - For travel/place/food blocks, ALWAYS include both image and icon for every block.
 - For general/comparison/recommendation blocks, use icon-only media unless a verified, directly relevant image URL is available for the specific option or section.
+- For product comparison option rows, use verified/direct option images only when they clearly match the exact product type; otherwise prefer icon-only or no media. Never add a separate comparison gallery.
 
 Asset URL rules (strict — images MUST be content-relevant and working):
 - Every Media image MUST visually relate to the content it accompanies. A beach section needs a beach photo, a city section needs a city photo.

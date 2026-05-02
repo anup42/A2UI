@@ -127,6 +127,7 @@ Allowed dynamic value expressions in props:
     - optional `primaryColumn`: key/label used as the row title in portrait card layouts
     - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
     - optional `numericColumns`: keys/labels for numeric, currency, score, or unit columns
+    - optional `entityMedia`: map of compared column keys/labels to `{ "image": "../assets/...", "alt": "..." }`; use only verified/local media and keep it attached to the `Table`
     - optional playlist-only `title`, `subtitle`, `mood`, `genre` for renderer-generated playlist hero metadata
     - optional `sourceFormat`: `markdown | csv | tsv | html | plain`
     - optional `sourceText`: raw table text from source response, only when rows/columns cannot preserve the data
@@ -140,7 +141,7 @@ Allowed dynamic value expressions in props:
 - Flight comparisons should include explicit airline/time/fare columns.
 - Playlist/music responses should emit one compact `Table` with columns like `trackNumber`, `artist`, `title`, and optional `mood`/`genre`; set `domain: "playlist"`, `preferredPresentation: "cards"`, and optional table props `title`, `subtitle`, `mood`, `genre`.
 - Comparison tables:
-  - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`.
+  - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`. If verified/local images are available for compared entities, attach them in `props.entityMedia`; do not create trailing media cards.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
 - Defaults:
   - weather/flight/booking/playlist/schedule/status => `preferredPresentation: "cards"`
@@ -260,6 +261,7 @@ Content:
   - `primaryColumn` optional (key/label for portrait card title)
   - `highlightColumns` optional (list/string of 1-2 important key/label values)
   - `numericColumns` optional (list/string of numeric/currency/score/unit columns)
+  - `entityMedia` optional for comparison/feature-matrix tables: map entity column key/label to `{ "image": "../assets/...", "alt": "..." }`; renderer shows these inside entity cards
   - `title`, `subtitle`, `mood`, `genre` optional for playlist/music table hero metadata
   - `sourceFormat` optional (`markdown|csv|tsv|html|plain`)
   - `sourceText` optional raw table text
