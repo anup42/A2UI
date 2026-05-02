@@ -199,6 +199,7 @@ typealias FlatComputedFunction = (Map<String, Any?>) -> Any?
 
 private val LocalFlatSpecAssetResolver = staticCompositionLocalOf<(String) -> String> { { raw -> raw } }
 private val LocalFlatSpecComputedFunctions = staticCompositionLocalOf<Map<String, FlatComputedFunction>> { emptyMap() }
+private val LocalFlatSpecTextHorizontalPadding = staticCompositionLocalOf { 16.dp }
 private const val WATCH_ACTION_BUDGET = 32
 private val IMAGE_PROP_KEYS = listOf("url", "src", "image", "source", "name")
 private val ICON_PROP_KEYS = listOf("name", "icon", "source", "url", "src")
@@ -2065,6 +2066,20 @@ private fun applyStackModifier(
     return out
 }
 
+private fun hasHorizontalContainerPadding(props: Map<String, Any?>): Boolean =
+    props.containsKey("padding") ||
+        props.containsKey("paddingHorizontal") ||
+        props.containsKey("contentPadding") ||
+        props.containsKey("contentPaddingHorizontal")
+
+private fun isPaddedContainerElement(element: FlatElement?): Boolean {
+    if (element == null || !hasHorizontalContainerPadding(element.props)) return false
+    return when (element.type.trim().lowercase()) {
+        "stack", "column", "row", "list", "container", "box" -> true
+        else -> false
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RenderStack(
@@ -2175,6 +2190,11 @@ private fun RenderStack(
         childElements.all { child -> child.type.equals("card", ignoreCase = true) }
     val forceVerticalButtonStack = autoWrapButtonRow && hasLongButtonLabel
     val stackModifier = applyStackModifier(modifier, props, direction)
+    val childTextHorizontalPadding = if (hasHorizontalContainerPadding(props)) {
+        0.dp
+    } else {
+        LocalFlatSpecTextHorizontalPadding.current
+    }
 
     if (direction == "horizontal") {
         val horizontalArrangement: Arrangement.Horizontal = when (justify) {
@@ -2185,90 +2205,98 @@ private fun RenderStack(
             else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Start
         }
         if (compactIconTextRow) {
-            Row(
-                modifier = stackModifier,
-                horizontalArrangement = Arrangement.spacedBy(gap),
-                verticalAlignment = Alignment.Top
-            ) {
-                RenderElement(
-                    elementId = children[0],
-                    elements = elements,
-                    state = state,
-                    repeatScope = repeatScope,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath
-                )
-                RenderElement(
-                    elementId = children[1],
-                    elements = elements,
-                    state = state,
-                    repeatScope = repeatScope,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath,
-                    modifier = Modifier.weight(1f)
-                )
+            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
+                Row(
+                    modifier = stackModifier,
+                    horizontalArrangement = Arrangement.spacedBy(gap),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    RenderElement(
+                        elementId = children[0],
+                        elements = elements,
+                        state = state,
+                        repeatScope = repeatScope,
+                        onOpenUrl = onOpenUrl,
+                        onSetState = onSetState,
+                        onAction = onAction,
+                        activePath = activePath
+                    )
+                    RenderElement(
+                        elementId = children[1],
+                        elements = elements,
+                        state = state,
+                        repeatScope = repeatScope,
+                        onOpenUrl = onOpenUrl,
+                        onSetState = onSetState,
+                        onAction = onAction,
+                        activePath = activePath,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
             return
         }
         if (forceVerticalButtonStack || forceVerticalCardRow) {
-            Column(
-                modifier = stackModifier,
-                verticalArrangement = Arrangement.spacedBy(gap)
-            ) {
-                RenderChildren(
-                    children = children,
-                    elements = elements,
-                    state = state,
-                    repeatScope = repeatScope,
-                    repeatedChildScopes = repeatedChildScopes,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath
-                )
+            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
+                Column(
+                    modifier = stackModifier,
+                    verticalArrangement = Arrangement.spacedBy(gap)
+                ) {
+                    RenderChildren(
+                        children = children,
+                        elements = elements,
+                        state = state,
+                        repeatScope = repeatScope,
+                        repeatedChildScopes = repeatedChildScopes,
+                        onOpenUrl = onOpenUrl,
+                        onSetState = onSetState,
+                        onAction = onAction,
+                        activePath = activePath
+                    )
+                }
             }
             return
         }
         if (forceVerticalMediaTextRow) {
-            Column(
-                modifier = stackModifier,
-                verticalArrangement = Arrangement.spacedBy(gap)
-            ) {
-                RenderChildren(
-                    children = children,
-                    elements = elements,
-                    state = state,
-                    repeatScope = repeatScope,
-                    repeatedChildScopes = repeatedChildScopes,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath
-                )
+            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
+                Column(
+                    modifier = stackModifier,
+                    verticalArrangement = Arrangement.spacedBy(gap)
+                ) {
+                    RenderChildren(
+                        children = children,
+                        elements = elements,
+                        state = state,
+                        repeatScope = repeatScope,
+                        repeatedChildScopes = repeatedChildScopes,
+                        onOpenUrl = onOpenUrl,
+                        onSetState = onSetState,
+                        onAction = onAction,
+                        activePath = activePath
+                    )
+                }
             }
             return
         }
         if (wrap || autoWrapButtonRow) {
-            FlowRow(
-                modifier = stackModifier,
-                horizontalArrangement = horizontalArrangement,
-                verticalArrangement = Arrangement.spacedBy(gap)
-            ) {
-                RenderChildren(
-                    children = children,
-                    elements = elements,
-                    state = state,
-                    repeatScope = repeatScope,
-                    repeatedChildScopes = repeatedChildScopes,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath
-                )
+            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
+                FlowRow(
+                    modifier = stackModifier,
+                    horizontalArrangement = horizontalArrangement,
+                    verticalArrangement = Arrangement.spacedBy(gap)
+                ) {
+                    RenderChildren(
+                        children = children,
+                        elements = elements,
+                        state = state,
+                        repeatScope = repeatScope,
+                        repeatedChildScopes = repeatedChildScopes,
+                        onOpenUrl = onOpenUrl,
+                        onSetState = onSetState,
+                        onAction = onAction,
+                        activePath = activePath
+                    )
+                }
             }
             return
         }
@@ -2277,22 +2305,24 @@ private fun RenderStack(
             "end" -> Alignment.Bottom
             else -> Alignment.Top
         }
-        Row(
-            modifier = stackModifier,
-            horizontalArrangement = horizontalArrangement,
-            verticalAlignment = verticalAlignment
-        ) {
-            RenderChildren(
-                children = children,
-                elements = elements,
-                state = state,
-                repeatScope = repeatScope,
-                repeatedChildScopes = repeatedChildScopes,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                onAction = onAction,
-                activePath = activePath
-            )
+        CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
+            Row(
+                modifier = stackModifier,
+                horizontalArrangement = horizontalArrangement,
+                verticalAlignment = verticalAlignment
+            ) {
+                RenderChildren(
+                    children = children,
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    repeatedChildScopes = repeatedChildScopes,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
+                )
+            }
         }
         return
     }
@@ -2309,22 +2339,24 @@ private fun RenderStack(
         "end" -> Alignment.End
         else -> Alignment.Start
     }
-    Column(
-        modifier = stackModifier,
-        verticalArrangement = verticalArrangement,
-        horizontalAlignment = horizontalAlignment
-    ) {
-        RenderChildren(
-            children = children,
-            elements = elements,
-            state = state,
-            repeatScope = repeatScope,
-            repeatedChildScopes = repeatedChildScopes,
-            onOpenUrl = onOpenUrl,
-            onSetState = onSetState,
-            onAction = onAction,
-            activePath = activePath
-        )
+    CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
+        Column(
+            modifier = stackModifier,
+            verticalArrangement = verticalArrangement,
+            horizontalAlignment = horizontalAlignment
+        ) {
+            RenderChildren(
+                children = children,
+                elements = elements,
+                state = state,
+                repeatScope = repeatScope,
+                repeatedChildScopes = repeatedChildScopes,
+                onOpenUrl = onOpenUrl,
+                onSetState = onSetState,
+                onAction = onAction,
+                activePath = activePath
+            )
+        }
     }
 }
 
@@ -4765,15 +4797,29 @@ private fun RenderCard(
     val allChildren = children.ifEmpty {
         props["child"]?.toString()?.let { listOf(it) } ?: emptyList()
     }
+    val hasExplicitCardPadding = props.containsKey("contentPadding") ||
+        props.containsKey("contentPaddingHorizontal") ||
+        props.containsKey("contentPaddingVertical") ||
+        props.containsKey("padding") ||
+        props.containsKey("paddingHorizontal") ||
+        props.containsKey("paddingVertical")
+    val defaultContentPadding = if (!hasExplicitCardPadding &&
+        allChildren.size == 1 &&
+        isPaddedContainerElement(elements[allChildren.first()])
+    ) {
+        0.dp
+    } else {
+        10.dp
+    }
     val contentPaddingAll = asDp(props["contentPadding"]) ?: asDp(props["padding"])
     val contentPaddingHorizontal = asDp(props["contentPaddingHorizontal"])
         ?: asDp(props["paddingHorizontal"])
         ?: contentPaddingAll
-        ?: 10.dp
+        ?: defaultContentPadding
     val contentPaddingVertical = asDp(props["contentPaddingVertical"])
         ?: asDp(props["paddingVertical"])
         ?: contentPaddingAll
-        ?: 10.dp
+        ?: defaultContentPadding
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -4786,25 +4832,27 @@ private fun RenderCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = contentPaddingHorizontal,
-                    vertical = contentPaddingVertical
+        CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides 0.dp) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = contentPaddingHorizontal,
+                        vertical = contentPaddingVertical
+                    )
+            ) {
+                RenderChildren(
+                    children = allChildren,
+                    elements = elements,
+                    state = state,
+                    repeatScope = repeatScope,
+                    repeatedChildScopes = repeatedChildScopes,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
                 )
-        ) {
-            RenderChildren(
-                children = allChildren,
-                elements = elements,
-                state = state,
-                repeatScope = repeatScope,
-                repeatedChildScopes = repeatedChildScopes,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                onAction = onAction,
-                activePath = activePath
-            )
+            }
         }
     }
 }
@@ -4847,26 +4895,29 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         normalizedVariantSource.contains("chip") -> "chip"
         else -> normalizedVariantSource
     }
+    val horizontalPadding = asDp(props["textPaddingHorizontal"])
+        ?: asDp(props["paddingHorizontal"])
+        ?: LocalFlatSpecTextHorizontalPadding.current
     when (variant) {
         "h1" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
             modifier = modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = horizontalPadding, vertical = 8.dp)
                 .accessibilitySemantics(props = props, isHeading = true)
         )
         "h2" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             modifier = modifier
-                .padding(horizontal = 16.dp, vertical = 6.dp)
+                .padding(horizontal = horizontalPadding, vertical = 6.dp)
                 .accessibilitySemantics(props = props, isHeading = true)
         )
         "h3" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             modifier = modifier
-                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .padding(horizontal = horizontalPadding, vertical = 4.dp)
                 .accessibilitySemantics(props = props, isHeading = true)
         )
         "caption", "label" -> Text(
@@ -4874,7 +4925,7 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = modifier
-                .padding(horizontal = 16.dp, vertical = 2.dp)
+                .padding(horizontal = horizontalPadding, vertical = 2.dp)
                 .accessibilitySemantics(props = props)
         )
         "chip" -> Surface(
@@ -4895,7 +4946,7 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
             text = markdown.content,
             style = MaterialTheme.typography.bodyMedium,
             modifier = modifier
-                .padding(horizontal = 16.dp, vertical = 2.dp)
+                .padding(horizontal = horizontalPadding, vertical = 2.dp)
                 .accessibilitySemantics(props = props)
         )
     }
@@ -4913,7 +4964,7 @@ private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Mod
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = LocalFlatSpecTextHorizontalPadding.current, vertical = 4.dp)
             .semantics(mergeDescendants = true) {
                 contentDescription = buildString {
                     append("Code block")
