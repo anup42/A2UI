@@ -129,6 +129,10 @@ class RendererHomeActivity : AppCompatActivity() {
     }
 
     private fun openSampleSetPicker() {
+        if (SampleDatasets.all.size == 1) {
+            loadBundledSample(SampleDatasets.all.first())
+            return
+        }
         sampleSetPicker.launch(Intent(this, SampleDatasetPickerActivity::class.java))
     }
 
