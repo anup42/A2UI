@@ -63,12 +63,15 @@ Valid (flat-spec):
 - Never invent placeholder paths like `/image.jpg` or `/asset/foo.png`.
 
 ## Media preservation rules (compact)
-- If the response text contains verified `Images:` or `Media: Image=<url>` entries, the UI MUST include at least one `Image` element.
-- Preserve representative image URLs, but do not create a separate element for every URL when that bloats the UI.
+- Treat standalone media sections as metadata, not content sections. Headings such as `Images:`, `Icons:`, `Visual Guide`, `Key Feature Icons`, `Trip Imagery`, `Weather Icons`, or `Related Icons` MUST NOT become standalone Cards or trailing sections.
+- If a media URL is detached from a specific option/row/section, drop it instead of creating a gallery or icon list.
+- If the response text contains verified inline `Media: Image=<url>` entries, the UI should include a matching `Image` element only inside the related Card/section.
+- Preserve representative image URLs only when they are verified, content-specific, and attached to the relevant content; do not create a separate element for every URL when that bloats the UI.
 - Use one hero Image for the screen and up to three additional item/gallery Images when they directly improve understanding.
 - If the response contains item-specific image URLs for 2-4 primary options, attach those images to the matching cards. If there are more than 4 options, attach images to the top 3 representative cards only.
-- If the response contains `Icons:` or `Media: Icon=<url>`, include at least one `Icon` when it helps identify status/category/actions, and use up to four icons for compact labels or section headers. Do not add decorative icons to every row.
+- If the response contains inline `Media: Icon=<url>`, include at least one `Icon` when it helps identify status/category/actions, and use up to four icons for compact labels or section headers. Do not add decorative icons to every row.
 - Do not fabricate an `Image` element from icon-only media.
+- Do not render placeholder/random-host images such as loremflickr.com or picsum.photos. Prefer no image over a bad or unrelated image.
 - Place hero images at the top of the relevant section or Card.
 - Place icons inline next to headings or labels using a horizontal Stack.
 

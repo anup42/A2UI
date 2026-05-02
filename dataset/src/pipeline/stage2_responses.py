@@ -75,6 +75,14 @@ _ASSET_HOST_HINTS = (
     "googleusercontent.com",
     "loremflickr.com",
 )
+_RANDOM_PLACEHOLDER_ASSET_HOSTS = (
+    "loremflickr.com",
+    "picsum.photos",
+    "placekitten.com",
+    "placehold.co",
+    "placeholder.com",
+    "dummyimage.com",
+)
 
 _VISUAL_INTENT_HINTS = {
     "travel",
@@ -142,6 +150,10 @@ def _use_local_icon_catalog_enabled() -> bool:
 
 def _icons_only_mode_enabled() -> bool:
     return _is_truthy(os.environ.get("STAGE2_ICONS_ONLY_MODE"))
+
+
+def _standalone_icon_section_enabled() -> bool:
+    return _is_truthy(os.environ.get("STAGE2_APPEND_STANDALONE_ICON_SECTION"))
 
 
 def _detect_dataset_root(start: Path) -> Path:
@@ -445,10 +457,55 @@ def _remove_icons_section(text: str) -> str:
     return "\n".join(cleaned)
 
 
+def _strip_unresolved_media_images(text: str, assets: list[dict]) -> str:
+    if not text:
+        return text
+    valid_urls = {
+        str(item.get("url") or "").strip()
+        for item in assets
+        if isinstance(item, dict) and str(item.get("url") or "").strip()
+    }
+    if not valid_urls:
+        valid_urls = set()
+
+    media_image_re = re.compile(r"\s*Image=(https?://[^\s]+)")
+    cleaned: list[str] = []
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip()
+        if not line.strip().lower().startswith("media:"):
+            cleaned.append(line)
+            continue
+
+        def _replace(match: re.Match[str]) -> str:
+            url = _clean_url(match.group(1))
+            return match.group(0) if url in valid_urls else ""
+
+        next_line = media_image_re.sub(_replace, line)
+        payload = next_line.split(":", 1)[1].strip() if ":" in next_line else ""
+        if payload:
+            cleaned.append(next_line)
+    while cleaned and not cleaned[-1].strip():
+        cleaned.pop()
+    return "\n".join(cleaned)
+
+
 def _upsert_icons_section(text: str, icon_rows: list[tuple[str, str]]) -> str:
     if not icon_rows:
         return text
     base = _remove_icons_section(text)
+    if not _standalone_icon_section_enabled():
+        if "Media:" in base:
+            return base
+        first_url = icon_rows[0][1]
+        lines = base.splitlines()
+        insert_idx = 1 if lines else 0
+        # Attach the generated icon to the first rendered content block instead
+        # of creating a detached trailing media section.
+        merged = lines[:insert_idx] + [f"Media: Icon={first_url}"] + lines[insert_idx:]
+        while merged and not merged[-1].strip():
+            merged.pop()
+        return "\n".join(merged)
+
     lines = base.splitlines()
     insertion_idx = len(lines)
     for idx, line in enumerate(lines):
@@ -530,6 +587,16 @@ def _extract_asset_entries(text: str) -> list[dict[str, str]]:
         if header in {"images", "icons", "assets", "files"}:
             section = header
             continue
+        if stripped.lower().startswith("media:"):
+            for media_match in re.finditer(r"\b(Image|Icon)=(https?://[^\s]+)", stripped, flags=re.IGNORECASE):
+                cleaned = _clean_url(media_match.group(2))
+                if not cleaned:
+                    continue
+                entries.append({
+                    "url": cleaned,
+                    "kind": "image" if media_match.group(1).lower() == "image" else "icon",
+                })
+            continue
         candidates = _URL_RE.findall(line)
         if not candidates:
             continue
@@ -588,11 +655,19 @@ def _asset_quality_check(
     has_image = any(item.get("kind") == "image" for item in entries)
     has_icon = any(item.get("kind") == "icon" for item in entries)
     visual = _is_visual_intent(intent, tags)
+    random_hosts = []
+    for item in entries:
+        url = str(item.get("url") or "")
+        host = urllib.parse.urlparse(url).netloc.lower()
+        if any(host == blocked or host.endswith(f".{blocked}") for blocked in _RANDOM_PLACEHOLDER_ASSET_HOSTS):
+            random_hosts.append(host)
+    if random_hosts:
+        return False, f"random/placeholder media hosts are not allowed: {', '.join(sorted(set(random_hosts)))}"
 
     if visual and declared_assets_count == 0:
-        return False, "visual intent requires Images/Icons entries but none were declared"
-    if visual and not icons_only_mode and not has_image:
-        return False, "visual intent response is missing image URLs in Images section"
+        return False, "visual intent requires inline Media or Icons entries but none were declared"
+    if visual and not icons_only_mode and not has_image and not has_icon:
+        return False, "visual intent response has no usable image or icon media"
     if visual and not has_icon:
         return False, "visual intent response is missing icon URLs in Icons section"
 
@@ -627,7 +702,9 @@ def _build_real_asset_retry_prompt(
         f"- {visual_req}\n"
         "- Use only real, publicly reachable media URLs that are directly downloadable.\n"
         "- Do NOT use upload.wikimedia.org, images.unsplash.com, cdn.pixabay.com, or deep images.pexels.com links (commonly blocked/dead in this pipeline).\n"
-        "- Prefer direct image URLs (jpg/png/webp) with display-friendly size for cards (around 1200x800, landscape).\n- When uncertain, use keyword-based real photos via https://loremflickr.com/1200/800/<keyword> .\n"
+        "- Do NOT use random or placeholder media hosts such as loremflickr.com, picsum.photos, placekitten.com, placehold.co, placeholder.com, or dummyimage.com.\n"
+        "- Prefer direct verified image URLs (jpg/png/webp) with display-friendly size for cards (around 1200x800, landscape).\n"
+        "- When uncertain about a verified image, use icon-only media and omit the image.\n"
         "- For icons, prefer direct lightweight SVGs suitable for UI (roughly 64-256 px square), e.g.\n"
         "  https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg\n"
         "- Keep each URL adjacent to the specific option/row it belongs to.\n"
@@ -1191,6 +1268,7 @@ def run_stage2(
                 selected_model = retry_model
                 asset_retry_attempts = asset_attempt + 1
 
+            selected_text = _strip_unresolved_media_images(selected_text, assets)
             norm_hash = hash_text(normalize_text(selected_text))
             if norm_hash in existing_hashes:
                 logger.info("Stage2 duplicate response query_id=%s", query_id)
