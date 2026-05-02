@@ -344,15 +344,26 @@ internal object NativeTextFormatter {
         text.split('\n').forEach { line ->
             val trimmed = line.trim()
             if (trimmed.isNotEmpty() && !containsUrlLikeToken(trimmed)) {
+                LEADING_LABEL_REGEX.find(line)?.let { match ->
+                    val label = match.groups[2]?.value?.trim().orEmpty()
+                    val valueText = match.groups[4]?.value?.trim().orEmpty()
+                    val labelStart = match.groups[2]?.range?.first ?: match.range.first
+                    val delimiterEnd = match.groups[3]?.range?.last ?: match.range.last
+                    if (isLikelyLeadingLabel(label, valueText)) {
+                        ranges += (offset + labelStart)..(offset + delimiterEnd)
+                    }
+                }
                 INLINE_LABEL_REGEX.findAll(line).forEach { match ->
                     val label = match.groups[1]?.value?.trim().orEmpty()
                     val matchStart = match.range.first
                     val valueText = line.substring(match.range.last + 1).trimStart()
+                    val range = (offset + match.range.first)..(offset + match.range.last)
                     if (valueText.isNotEmpty() &&
                         isLikelyLeadingLabel(label, valueText) &&
-                        isSentenceBoundary(line, matchStart)
+                        isSentenceBoundary(line, matchStart) &&
+                        ranges.none { existing -> range.first <= existing.last && range.last >= existing.first }
                     ) {
-                        ranges += (offset + match.range.first)..(offset + match.range.last)
+                        ranges += range
                     }
                 }
             }

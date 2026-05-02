@@ -1335,18 +1335,29 @@ object GenUiHtmlRenderer {
         lines.forEachIndexed { lineIndex, line ->
             val ranges = mutableListOf<IntRange>()
             if (line.trim().isNotEmpty() && !URL_REGEX.containsMatchIn(line)) {
+                LEADING_LABEL_REGEX.find(line)?.let { match ->
+                    val label = match.groups[2]?.value?.trim().orEmpty()
+                    val labelStart = match.groups[2]?.range?.first ?: match.range.first
+                    val delimiterEnd = match.groups[3]?.range?.last ?: match.range.last
+                    val valueText = match.groups[4]?.value?.trim().orEmpty()
+                    if (isLikelyLeadingLabel(label, valueText)) {
+                        ranges += labelStart..delimiterEnd
+                    }
+                }
                 INLINE_LABEL_REGEX.findAll(line).forEach { match ->
                     val label = match.groups[1]?.value?.trim().orEmpty()
                     val labelStart = match.groups[1]?.range?.first ?: match.range.first
                     val delimiterEnd = match.groups[2]?.range?.last ?: match.range.last
                     val valueText = line.substring(delimiterEnd + 1).trimStart()
+                    val range = labelStart..delimiterEnd
                     if (valueText.isEmpty() ||
                         !isLikelyLeadingLabel(label, valueText) ||
-                        !isSentenceBoundary(line, labelStart)
+                        !isSentenceBoundary(line, labelStart) ||
+                        ranges.any { existing -> range.first <= existing.last && range.last >= existing.first }
                     ) {
                         return@forEach
                     }
-                    ranges += labelStart..delimiterEnd
+                    ranges += range
                 }
             }
 

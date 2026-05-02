@@ -5053,20 +5053,26 @@ private fun parseSupportedMarkdownText(raw: String): SupportedMarkdownText {
     )
 }
 
-private val LEADING_LABEL_REGEX = Regex("^(\\s*)([A-Za-z][A-Za-z0-9 /()&+\\-]{0,40}):(\\s*.*)$")
+private val LEADING_LABEL_REGEX = Regex("^(\\s*)([A-Za-z][A-Za-z0-9 ./()&+\\-]{0,40})([:;])(\\s*.*)$")
 
 private fun parseBoldMarkdown(raw: String): AnnotatedString {
     return buildAnnotatedString {
         raw.split('\n').forEachIndexed { index, line ->
             if (index > 0) append('\n')
-            val labelMatch = LEADING_LABEL_REGEX.matchEntire(line)
+            val labelMatch = if (NativeTextFormatter.containsUrlLikeToken(line)) {
+                null
+            } else {
+                LEADING_LABEL_REGEX.matchEntire(line)
+            }
             if (labelMatch != null) {
                 val leading = labelMatch.groupValues.getOrNull(1).orEmpty()
                 val label = labelMatch.groupValues.getOrNull(2).orEmpty()
-                val rest = labelMatch.groupValues.getOrNull(3).orEmpty()
+                val delimiter = labelMatch.groupValues.getOrNull(3).orEmpty()
+                val rest = labelMatch.groupValues.getOrNull(4).orEmpty()
                 append(leading)
                 pushStyle(SpanStyle(fontWeight = FontWeight.SemiBold))
-                append("$label:")
+                append(label)
+                append(delimiter)
                 pop()
                 appendMarkdownBoldSpans(rest)
             } else {
