@@ -124,17 +124,18 @@ Allowed dynamic value expressions in props:
     - optional `primaryColumn`: key/label used as the row title in portrait card layouts
     - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
     - optional `numericColumns`: keys/labels for numeric, currency, score, or unit columns
+    - optional playlist-only `title`, `subtitle`, `mood`, `genre` for renderer-generated playlist hero metadata
     - optional `sourceFormat`: `markdown | csv | tsv | html | plain`
     - optional `sourceText`: raw table text from source response, only when rows/columns cannot preserve the data
 - Do NOT expand compact table payloads into `header_row`, `body_rows`, `row_template`, or per-cell elements.
 - Do NOT include both `sourceText` and full row data unless source text is essential for traceability.
 - Do NOT create separate portrait and landscape IR; emit one compact `Table`. Android adapts the visual:
   - portrait `<600dp`: entity rows become cards, playlist rows become music rows/cards, key-value rows become fact panels, schedules become timeline cards, metrics become KPI cards
-  - landscape/tablet: table-first layout with horizontal scroll and sticky first column when needed
+  - landscape/tablet: table-first layout with horizontal scroll and sticky first column when needed; playlist stays a split music-player layout, not a spreadsheet
 - Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
 - Weather/climate outputs must include a dedicated metrics table.
 - Flight comparisons should include explicit airline/time/fare columns.
-- Playlist/music responses should emit one compact `Table` with columns like `trackNumber`, `artist`, `title`, and optional `mood`/`genre`; set `domain: "playlist"` and `preferredPresentation: "cards"`.
+- Playlist/music responses should emit one compact `Table` with columns like `trackNumber`, `artist`, `title`, and optional `mood`/`genre`; set `domain: "playlist"`, `preferredPresentation: "cards"`, and optional table props `title`, `subtitle`, `mood`, `genre`.
 - Comparison tables:
   - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
@@ -205,7 +206,7 @@ Apply these patterns when the response content matches the domain:
 
 **Booking/Flights**: Stack > h2 title + Stack(repeat over /options) > Card(h3 name + body summary + Table or label-value details + h2-sized price text + Button "Book Now" / "Check Availability")
 
-**Entertainment/Playlist**: Stack > h2 playlist title + Card(short mood/context summary with Icon, chips, or 1-2 body Text elements; do not use random/placeholder images) + Table(track data with columns: trackNumber/artist/title and optional mood/genre, `domain: "playlist"`, `preferredPresentation: "cards"`, `primaryColumn: "title"`, `highlightColumns: ["artist","mood"]`)
+**Entertainment/Playlist**: Stack > h2 playlist title + Card(short mood/context summary with Icon, chips, or 1-2 body Text elements; do not use random/placeholder images) + Table(track data with columns: trackNumber/artist/title and optional mood/genre, `domain: "playlist"`, `preferredPresentation: "cards"`, `title`, `subtitle`, `mood`, `genre`, `primaryColumn: "title"`, `highlightColumns: ["artist","mood"]`)
 
 **Comparison**: Stack > h2 title + Table(comparison matrix: features as rows, products as columns) + per-product Card(Image + h3 name + key highlights as body Text + Button)
 
@@ -256,6 +257,7 @@ Content:
   - `primaryColumn` optional (key/label for portrait card title)
   - `highlightColumns` optional (list/string of 1-2 important key/label values)
   - `numericColumns` optional (list/string of numeric/currency/score/unit columns)
+  - `title`, `subtitle`, `mood`, `genre` optional for playlist/music table hero metadata
   - `sourceFormat` optional (`markdown|csv|tsv|html|plain`)
   - `sourceText` optional raw table text
 - `Image` props: `url` (required), `fit` optional (`cover|contain`)

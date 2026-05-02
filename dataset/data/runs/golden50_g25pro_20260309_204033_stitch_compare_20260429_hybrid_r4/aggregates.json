@@ -3,11 +3,11 @@
   "schema_valid_strict_rate": 1.0,
   "content_coverage_avg": 0.8376268610399435,
   "lint_score_avg": 1.0,
-  "dup_rate_avg": 0.27391024999275887,
-  "output_tokens_toon_avg": 4495.84,
-  "output_tokens_json_avg": 5643.2,
-  "output_chars_toon_avg": 4495.84,
-  "output_chars_json_avg": 5643.2,
+  "dup_rate_avg": 0.2737440720846455,
+  "output_tokens_toon_avg": 4498.58,
+  "output_tokens_json_avg": 5646.42,
+  "output_chars_toon_avg": 4498.58,
+  "output_chars_json_avg": 5646.42,
   "component_count_avg": 33.32,
   "component_count_capped_avg": 33.28,
   "unique_component_types_avg": 6.14,
@@ -312,5 +312,5 @@
   "render_ok_rate": null,
   "latency_ms_avg": 18567.15208053589,
   "latency_ms_p95": 76864.14337158203,
-  "overall_score": 79.69649692268544
+  "overall_score": 79.69688248627736
 }

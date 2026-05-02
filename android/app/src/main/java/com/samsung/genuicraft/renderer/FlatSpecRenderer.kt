@@ -24,10 +24,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Image
@@ -163,6 +165,14 @@ private enum class AdaptiveTablePresentation {
     TIMELINE_CARDS,
     METRIC_CARDS
 }
+
+private data class PlaylistTrackRow(
+    val number: String,
+    val title: String,
+    val artist: String?,
+    val chips: List<String>,
+    val sourceRow: List<String>
+)
 
 internal data class FlatTableModel(
     val headerRowId: String,
@@ -3827,7 +3837,7 @@ private fun selectAdaptiveTablePresentation(
     val regularOrLandscape = isLandscape || screenWidthDp >= 600
     val columnCount = table.columns.size
     val featureMatrix = table.shape == FlatTableShape.FEATURE_MATRIX
-    if (!regularOrLandscape && table.shape == FlatTableShape.PLAYLIST) {
+    if (table.shape == FlatTableShape.PLAYLIST) {
         return AdaptiveTablePresentation.PLAYLIST_ROWS
     }
     if (regularOrLandscape) {
@@ -3983,163 +3993,374 @@ private fun splitPlaylistTrack(raw: String): Pair<String?, String> {
     return null to text
 }
 
+private fun playlistStringListProp(value: Any?): List<String> {
+    return when (value) {
+        is List<*> -> value.mapNotNull { it?.toString()?.trim()?.takeIf(String::isNotBlank) }
+        is String -> value
+            .split(',', '|')
+            .mapNotNull { it.trim().takeIf(String::isNotBlank) }
+        else -> emptyList()
+    }
+}
+
+private fun buildPlaylistTrackRows(
+    headers: List<String>,
+    rows: List<List<String>>
+): List<PlaylistTrackRow> {
+    val numberIndex = playlistNumberColumnIndex(headers)
+    val titleIndex = playlistTitleColumnIndex(headers)
+    val artistIndex = playlistArtistColumnIndex(headers)
+    val usedIndexes = listOfNotNull(numberIndex, titleIndex, artistIndex).toSet()
+    val chipIndexes = playlistChipColumnIndexes(headers, usedIndexes)
+    return rows.mapIndexed { rowIndex, row ->
+        val rawTrack = titleIndex?.let { row.getOrNull(it) }.orEmpty().trim()
+            .ifBlank {
+                row.indices
+                    .firstOrNull { it != numberIndex && row.getOrNull(it).orEmpty().isNotBlank() }
+                    ?.let { row.getOrNull(it).orEmpty().trim() }
+                    .orEmpty()
+            }
+        val (parsedArtist, parsedTitle) = splitPlaylistTrack(rawTrack)
+        PlaylistTrackRow(
+            number = numberIndex?.let { row.getOrNull(it).orEmpty().trim() }
+                ?.takeIf { it.isNotBlank() }
+                ?: (rowIndex + 1).toString(),
+            title = parsedTitle.ifBlank { "Track ${rowIndex + 1}" },
+            artist = artistIndex?.let { row.getOrNull(it).orEmpty().trim() }
+                ?.takeIf { it.isNotBlank() }
+                ?: parsedArtist,
+            chips = chipIndexes
+                .mapNotNull { index -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() && !isLikelyHttpUrl(it) } }
+                .take(3),
+            sourceRow = row
+        )
+    }
+}
+
 @Composable
-private fun PlaylistTableHeader(trackCount: Int) {
-    val countLabel = "$trackCount ${if (trackCount == 1) "track" else "tracks"}"
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(20.dp)
+private fun PlaylistCoverArt(
+    trackCount: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(26.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF050510),
+                        Color(0xFF283179),
+                        Color(0xFF08B6A2)
+                    )
+                )
+            )
+            .semantics {
+                contentDescription = "Generated playlist cover art"
+            }
+            .padding(18.dp)
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .matchParentSize()
                 .background(
-                    Brush.horizontalGradient(
+                    Brush.radialGradient(
                         colors = listOf(
-                            Color(0xFF151523),
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.88f),
-                            Color(0xFF0E3C45)
+                            Color.White.copy(alpha = 0.18f),
+                            Color.Transparent
                         )
                     )
                 )
-                .padding(horizontal = 14.dp, vertical = 12.dp)
+        )
+        Column(
+            modifier = Modifier.align(Alignment.BottomStart),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(
-                    text = "Playlist",
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White
-                )
-                Text(
-                    text = countLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.78f)
-                )
-            }
+            Text(
+                text = "PLAYLIST",
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                color = Color.White.copy(alpha = 0.72f)
+            )
+            Text(
+                text = "$trackCount",
+                style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
+                color = Color.White
+            )
+            Text(
+                text = if (trackCount == 1) "track" else "tracks",
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = Color.White.copy(alpha = 0.8f)
+            )
         }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
+private fun PlaylistMetaTags(tags: List<String>) {
+    if (tags.isEmpty()) return
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        tags.take(4).forEach { tag ->
+            Surface(
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                color = Color.White.copy(alpha = 0.12f)
+            ) {
+                Text(
+                    text = parseBoldMarkdown(tag),
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = Color.White.copy(alpha = 0.88f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaylistHeroBlock(
+    title: String,
+    subtitle: String,
+    tags: List<String>,
+    trackCount: Int,
+    landscape: Boolean,
+    modifier: Modifier = Modifier
+) {
+    if (landscape) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            PlaylistCoverArt(
+                trackCount = trackCount,
+                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+            )
+            Text(
+                text = parseBoldMarkdown(title),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = Color.White,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = parseBoldMarkdown(subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.74f)
+            )
+            PlaylistMetaTags(tags)
+        }
+    } else {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PlaylistCoverArt(
+                trackCount = trackCount,
+                modifier = Modifier.size(92.dp)
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = parseBoldMarkdown(title),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = parseBoldMarkdown(subtitle),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.White.copy(alpha = 0.72f),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                PlaylistMetaTags(tags)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaylistTrackRowView(
+    headers: List<String>,
+    track: PlaylistTrackRow,
+    rowIndex: Int,
+    dense: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White.copy(alpha = if (rowIndex == 0) 0.13f else 0.07f))
+            .padding(horizontal = if (dense) 10.dp else 12.dp, vertical = if (dense) 7.dp else 9.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, track.sourceRow, rowIndex)
+            },
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(if (dense) 30.dp else 34.dp)
+                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                .background(Color.White.copy(alpha = 0.13f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = track.number,
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color.White.copy(alpha = 0.9f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = parseBoldMarkdown(track.title),
+                style = (if (dense) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.titleSmall)
+                    .copy(fontWeight = FontWeight.SemiBold),
+                color = Color.White,
+                maxLines = if (dense) 1 else 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (!track.artist.isNullOrBlank()) {
+                Text(
+                    text = parseBoldMarkdown(track.artist),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.68f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+        if (track.chips.isNotEmpty()) {
+            Text(
+                text = track.chips.first(),
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = Color.White.copy(alpha = 0.64f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.widthIn(max = 92.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlaylistTrackList(
+    headers: List<String>,
+    tracks: List<PlaylistTrackRow>,
+    dense: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
+    ) {
+        tracks.forEachIndexed { rowIndex, track ->
+            PlaylistTrackRowView(
+                headers = headers,
+                track = track,
+                rowIndex = rowIndex,
+                dense = dense
+            )
+        }
+    }
+}
+
+@Composable
 private fun RenderPlaylistTableRows(
     headers: List<String>,
     rows: List<List<String>>,
+    props: Map<String, Any?>,
     modifier: Modifier = Modifier,
-    spacing: Dp = 8.dp
+    landscape: Boolean
 ) {
     if (rows.isEmpty()) return
-    val numberIndex = playlistNumberColumnIndex(headers)
-    val titleIndex = playlistTitleColumnIndex(headers)
-    val artistIndex = playlistArtistColumnIndex(headers)
-    val usedIndexes = listOfNotNull(numberIndex, titleIndex, artistIndex).toSet()
-    val chipIndexes = playlistChipColumnIndexes(headers, usedIndexes)
-
-    Column(
+    val tracks = buildPlaylistTrackRows(headers, rows)
+    val trackCount = tracks.size
+    val title = props["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() } ?: "Playlist"
+    val subtitle = props["subtitle"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+        ?: "$trackCount ${if (trackCount == 1) "track" else "tracks"}"
+    val tags = playlistStringListProp(props["mood"]) + playlistStringListProp(props["genre"])
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .semantics {
                 contentDescription = tableAccessibilitySummary(headers, rows)
             },
-        verticalArrangement = Arrangement.spacedBy(spacing)
+        shape = RoundedCornerShape(26.dp),
+        color = Color.Transparent,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
     ) {
-        PlaylistTableHeader(trackCount = rows.size)
-        rows.forEachIndexed { rowIndex, row ->
-            val rawTrack = titleIndex?.let { row.getOrNull(it) }.orEmpty().trim()
-                .ifBlank {
-                    row.indices
-                        .firstOrNull { it != numberIndex && row.getOrNull(it).orEmpty().isNotBlank() }
-                        ?.let { row.getOrNull(it).orEmpty().trim() }
-                        .orEmpty()
-                }
-            val (parsedArtist, parsedTitle) = splitPlaylistTrack(rawTrack)
-            val title = parsedTitle.ifBlank { "Track ${rowIndex + 1}" }
-            val artist = artistIndex?.let { row.getOrNull(it).orEmpty().trim() }
-                ?.takeIf { it.isNotBlank() }
-                ?: parsedArtist
-            val trackNumber = numberIndex?.let { row.getOrNull(it).orEmpty().trim() }
-                ?.takeIf { it.isNotBlank() }
-                ?: (rowIndex + 1).toString()
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
-                    },
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                shape = RoundedCornerShape(18.dp)
-            ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF070712),
+                            Color(0xFF172044),
+                            Color(0xFF082F35)
+                        )
+                    )
+                )
+                .padding(14.dp)
+        ) {
+            if (landscape) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(18.dp),
                     verticalAlignment = Alignment.Top
                 ) {
-                    Surface(
-                        modifier = Modifier.size(34.dp),
-                        shape = RoundedCornerShape(17.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                text = trackNumber,
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(title),
-                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        if (!artist.isNullOrBlank()) {
-                            Text(
-                                text = parseBoldMarkdown(artist),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        if (chipIndexes.isNotEmpty()) {
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalArrangement = Arrangement.spacedBy(5.dp)
-                            ) {
-                                chipIndexes.take(3).forEach { index ->
-                                    val value = row.getOrNull(index).orEmpty().trim()
-                                    if (value.isBlank() || isLikelyHttpUrl(value)) return@forEach
-                                    Surface(
-                                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                        color = MaterialTheme.colorScheme.secondaryContainer
-                                    ) {
-                                        Text(
-                                            text = parseBoldMarkdown(value),
-                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    PlaylistHeroBlock(
+                        title = title,
+                        subtitle = subtitle,
+                        tags = tags,
+                        trackCount = trackCount,
+                        landscape = true,
+                        modifier = Modifier.widthIn(min = 210.dp, max = 260.dp)
+                    )
+                    PlaylistTrackList(
+                        headers = headers,
+                        tracks = tracks,
+                        dense = true,
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(max = 430.dp)
+                            .verticalScroll(rememberScrollState())
+                    )
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    PlaylistHeroBlock(
+                        title = title,
+                        subtitle = subtitle,
+                        tags = tags,
+                        trackCount = trackCount,
+                        landscape = false,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    PlaylistTrackList(
+                        headers = headers,
+                        tracks = tracks,
+                        dense = false,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
@@ -4901,8 +5122,9 @@ private fun RenderDirectTable(
         AdaptiveTablePresentation.PLAYLIST_ROWS -> RenderPlaylistTableRows(
             headers = headers,
             rows = table.rows,
+            props = props,
             modifier = tableModifier,
-            spacing = spacing
+            landscape = isLandscape || screenWidthDp >= 600
         )
         AdaptiveTablePresentation.METRIC_CARDS -> RenderMetricTableCards(
             headers = headers,
