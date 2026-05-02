@@ -104,7 +104,7 @@ Allowed dynamic value expressions in props:
     - `[{"key":"column_1","label":"Column 1"}, {"key":"column_2","label":"Column 2"}, ...]`
   - Column keys/labels should be generic and derived from source headers for the current domain (not weather-specific by default).
   - Include metadata:
-    - `domain`: `weather | flight | booking | schedule | status | comparison | generic`
+    - `domain`: `weather | flight | booking | playlist | schedule | status | comparison | generic`
     - `preferredPresentation`: `cards | table`
     - optional `primaryColumn`: key/label used as the row title in portrait card layouts
     - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
@@ -114,16 +114,17 @@ Allowed dynamic value expressions in props:
 - Do NOT expand compact table payloads into `header_row`, `body_rows`, `row_template`, or per-cell elements.
 - Do NOT include both `sourceText` and full row data unless source text is essential for traceability.
 - Do NOT create separate portrait and landscape IR; emit one compact `Table`. Android adapts the visual:
-  - portrait `<600dp`: entity rows become cards, key-value rows become fact panels, schedules become timeline cards, metrics become KPI cards
+  - portrait `<600dp`: entity rows become cards, playlist rows become music rows/cards, key-value rows become fact panels, schedules become timeline cards, metrics become KPI cards
   - landscape/tablet: table-first layout with horizontal scroll and sticky first column when needed
 - Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
 - Weather/climate outputs must include a dedicated metrics table.
 - Flight comparisons should include explicit airline/time/fare columns.
+- Playlist/music responses should emit one compact `Table` with columns like `trackNumber`, `artist`, `title`, and optional `mood`/`genre`; set `domain: "playlist"` and `preferredPresentation: "cards"`.
 - Comparison tables:
   - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
 - Defaults:
-  - weather/flight/booking/schedule/status => `preferredPresentation: "cards"`
+  - weather/flight/booking/playlist/schedule/status => `preferredPresentation: "cards"`
   - comparison => `preferredPresentation: "cards"` for entity rows and `"table"` for feature matrices
   - generic => `preferredPresentation: "table"`
 - If table parsing is partial, keep compact `Table` with best-effort columns/rows; do not degrade to prose-only output.
@@ -141,6 +142,7 @@ Allowed dynamic value expressions in props:
 - Convert links/CTAs to `Button` with `openUrl`.
 - Keep `Tags: A | B | C` lines: emit chips via `Text` with `variant: "chip"`.
 - For hotel/restaurant/place result sets, prefer one card template with `repeat` over a state array.
+- For playlist/music tracklists, keep tracks in one compact `Table` (`domain: "playlist"`) and do not expand each track into separate elements.
 - Preserve all numbers, dates, times, units, and currency exactly.
 
 ## CATALOG
@@ -163,7 +165,7 @@ Content:
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
-  - `domain` optional (`weather|flight|booking|schedule|status|comparison|generic`)
+  - `domain` optional (`weather|flight|booking|playlist|schedule|status|comparison|generic`)
   - `preferredPresentation` optional (`cards|table`)
   - `primaryColumn` optional (key/label for portrait card title)
   - `highlightColumns` optional (list/string of 1-2 important key/label values)

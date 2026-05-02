@@ -138,10 +138,12 @@ internal enum class FlatTableRenderMode {
     WEATHER_CARDS,
     FLIGHT_CARDS,
     BOOKING_CARDS,
+    PLAYLIST_CARDS,
     RESPONSIVE_CARD_ROWS
 }
 
 internal enum class FlatTableShape {
+    PLAYLIST,
     ENTITY_ROW,
     FEATURE_MATRIX,
     KEY_VALUE,
@@ -155,6 +157,7 @@ private enum class AdaptiveTablePresentation {
     HORIZONTAL_TABLE,
     STICKY_HORIZONTAL_TABLE,
     ENTITY_CARDS,
+    PLAYLIST_ROWS,
     FEATURE_CARDS,
     KEY_VALUE_PANEL,
     TIMELINE_CARDS,
@@ -206,7 +209,8 @@ private val ICON_PROP_KEYS = listOf("name", "icon", "source", "url", "src")
 private val MEDIA_OBJECT_KEYS = listOf("uri", "url", "src", "path", "value", "source", "image", "icon", "name")
 private val DIRECT_TABLE_ROW_LIST_KEYS = listOf("cells", "values", "row", "data")
 private const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
-private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "schedule", "status")
+private val PLAYLIST_TABLE_DOMAIN_ALIASES = setOf("playlist", "music", "entertainment")
+private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "schedule", "status", "playlist")
 private val SUPPORTED_TABLE_DOMAINS = CARD_FIRST_TABLE_DOMAINS + setOf("generic", "comparison")
 
 object FlatSpecParser {
@@ -1661,6 +1665,40 @@ private fun isComparisonEntityHeader(label: String): Boolean {
     return keywords.any { keyword -> token.contains(keyword) }
 }
 
+private fun normalizeExplicitTableDomain(value: String?): String? {
+    val token = value?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
+    return if (token in PLAYLIST_TABLE_DOMAIN_ALIASES) "playlist" else token
+}
+
+private fun isPlaylistTableHeaderSet(headers: List<String>, domain: String = "generic"): Boolean {
+    if (domain == "playlist") return true
+    val tokens = headers.map(::normalizeTableHeaderForMatch)
+    val hasTrackNumber = headers.any { it.trim() == "#" } ||
+        tokens.any { token ->
+            token in setOf("no", "number", "track number", "track no", "tracknumber", "track")
+        }
+    val hasTrackTitle = tokens.any { token ->
+        token == "track" ||
+            token == "song" ||
+            token == "title" ||
+            token.contains("track title") ||
+            token.contains("song title")
+    }
+    val hasArtist = tokens.any { token ->
+        token == "artist" ||
+            token.contains("artist") ||
+            token.contains("performer") ||
+            token.contains("band")
+    }
+    val hasMusicMetadata = tokens.any { token ->
+        token.contains("album") ||
+            token.contains("genre") ||
+            token.contains("mood") ||
+            token.contains("tempo")
+    }
+    return hasTrackTitle && (hasTrackNumber || hasArtist || hasMusicMetadata)
+}
+
 private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val weatherSignals = headers.count(::isWeatherHeaderLabel)
     val flightSignals = headers.count(::isFlightHeaderLabel)
@@ -1672,6 +1710,7 @@ private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val featureLike = isComparisonFeatureHeader(headers.firstOrNull().orEmpty())
     val entityLike = isComparisonEntityHeader(headers.firstOrNull().orEmpty())
     return when {
+        isPlaylistTableHeaderSet(headers) -> "playlist"
         weatherSignals >= 2 -> "weather"
         strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
         bookingEntitySignals >= 1 && bookingValueSignals >= 2 -> "booking"
@@ -1844,6 +1883,7 @@ private fun detectTableShape(
             .let { values -> values.size >= 2 && values.count(::looksLikeNumericTableValue) >= values.size / 2 }
     }
     return when {
+        isPlaylistTableHeaderSet(headers, domain) -> FlatTableShape.PLAYLIST
         columnCount <= 2 &&
             firstHeaderToken in setOf("metric", "feature", "field", "label", "item", "name", "attribute", "key") ->
             FlatTableShape.KEY_VALUE
@@ -1945,7 +1985,7 @@ internal fun extractFlatTableModel(
     val inferredDomain = inferTableDomainFromHeaders(headers)
     val isWeather = inferredDomain == "weather"
     val isFlight = inferredDomain == "flight"
-    val explicitDomain = containerProps["domain"]?.toString()?.trim()?.lowercase()
+    val explicitDomain = normalizeExplicitTableDomain(containerProps["domain"]?.toString())
         ?.takeIf { it in SUPPORTED_TABLE_DOMAINS }
     val domain = when {
         explicitDomain != null && explicitDomain in CARD_FIRST_TABLE_DOMAINS -> explicitDomain
@@ -1998,6 +2038,7 @@ internal fun extractFlatTableModel(
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
+        domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
         comparisonCardsPreferred -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         domain in setOf("schedule", "status") -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         compactScreen && columns >= 4 -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
@@ -2602,7 +2643,7 @@ internal fun extractDirectTableModel(
 
     val resolvedRows = rows.map { row -> resolveDirectTableRow(row, columns, state) }
     val headerLabels = columns.map { column -> column.label }
-    val explicitDomain = props["domain"]?.toString()?.trim()?.lowercase()
+    val explicitDomain = normalizeExplicitTableDomain(props["domain"]?.toString())
         ?.takeIf { it in SUPPORTED_TABLE_DOMAINS }
     val inferredDomain = inferTableDomainFromHeaders(headerLabels)
     val domain = when {
@@ -2628,7 +2669,9 @@ internal fun extractDirectTableModel(
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
+        domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
         compactScreen && shape in setOf(
+            FlatTableShape.PLAYLIST,
             FlatTableShape.ENTITY_ROW,
             FlatTableShape.FEATURE_MATRIX,
             FlatTableShape.KEY_VALUE,
@@ -3784,6 +3827,9 @@ private fun selectAdaptiveTablePresentation(
     val regularOrLandscape = isLandscape || screenWidthDp >= 600
     val columnCount = table.columns.size
     val featureMatrix = table.shape == FlatTableShape.FEATURE_MATRIX
+    if (!regularOrLandscape && table.shape == FlatTableShape.PLAYLIST) {
+        return AdaptiveTablePresentation.PLAYLIST_ROWS
+    }
     if (regularOrLandscape) {
         return when {
             autoHorizontalScroll && featureMatrix -> AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE
@@ -3792,6 +3838,7 @@ private fun selectAdaptiveTablePresentation(
         }
     }
     return when (table.shape) {
+        FlatTableShape.PLAYLIST -> AdaptiveTablePresentation.PLAYLIST_ROWS
         FlatTableShape.KEY_VALUE -> AdaptiveTablePresentation.KEY_VALUE_PANEL
         FlatTableShape.SCHEDULE_TIMELINE -> AdaptiveTablePresentation.TIMELINE_CARDS
         FlatTableShape.FEATURE_MATRIX -> AdaptiveTablePresentation.FEATURE_CARDS
@@ -3875,6 +3922,227 @@ private fun RenderFeatureMatrixEntityCards(
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
         ResponsiveComparisonColumnCards(headers = headers, rows = rows, spacing = spacing)
+    }
+}
+
+private fun playlistNumberColumnIndex(headers: List<String>): Int? {
+    return headers.indexOfFirst { header ->
+        val raw = header.trim().lowercase()
+        val token = normalizeTableHeaderForMatch(header)
+        raw == "#" || token in setOf("no", "number", "track number", "track no", "tracknumber")
+    }.takeIf { it >= 0 }
+}
+
+private fun playlistTitleColumnIndex(headers: List<String>): Int? {
+    return headers.indexOfFirst { header ->
+        val token = normalizeTableHeaderForMatch(header)
+        token == "track" ||
+            token == "song" ||
+            token == "title" ||
+            token.contains("track title") ||
+            token.contains("song title")
+    }.takeIf { it >= 0 }
+}
+
+private fun playlistArtistColumnIndex(headers: List<String>): Int? {
+    return headers.indexOfFirst { header ->
+        val token = normalizeTableHeaderForMatch(header)
+        token == "artist" ||
+            token.contains("artist") ||
+            token.contains("performer") ||
+            token.contains("band")
+    }.takeIf { it >= 0 }
+}
+
+private fun playlistChipColumnIndexes(
+    headers: List<String>,
+    usedIndexes: Set<Int>
+): List<Int> {
+    return headers.indices.filterNot { it in usedIndexes }.filter { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        token.contains("mood") ||
+            token.contains("genre") ||
+            token.contains("tempo") ||
+            token.contains("album") ||
+            token.contains("duration") ||
+            token.contains("era")
+    }
+}
+
+private fun splitPlaylistTrack(raw: String): Pair<String?, String> {
+    val text = raw.trim()
+    if (text.isBlank()) return null to ""
+    val parts = text.split(Regex("""\s+[-\u2013\u2014]\s+"""), limit = 2)
+    if (parts.size == 2 && parts[0].isNotBlank() && parts[1].isNotBlank()) {
+        return parts[0].trim() to parts[1].trim()
+    }
+    val byParts = text.split(Regex("""\s+by\s+""", RegexOption.IGNORE_CASE), limit = 2)
+    if (byParts.size == 2 && byParts[0].isNotBlank() && byParts[1].isNotBlank()) {
+        return byParts[1].trim() to byParts[0].trim()
+    }
+    return null to text
+}
+
+@Composable
+private fun PlaylistTableHeader(trackCount: Int) {
+    val countLabel = "$trackCount ${if (trackCount == 1) "track" else "tracks"}"
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(0xFF151523),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.88f),
+                            Color(0xFF0E3C45)
+                        )
+                    )
+                )
+                .padding(horizontal = 14.dp, vertical = 12.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = "Playlist",
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+                Text(
+                    text = countLabel,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.White.copy(alpha = 0.78f)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RenderPlaylistTableRows(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    spacing: Dp = 8.dp
+) {
+    if (rows.isEmpty()) return
+    val numberIndex = playlistNumberColumnIndex(headers)
+    val titleIndex = playlistTitleColumnIndex(headers)
+    val artistIndex = playlistArtistColumnIndex(headers)
+    val usedIndexes = listOfNotNull(numberIndex, titleIndex, artistIndex).toSet()
+    val chipIndexes = playlistChipColumnIndexes(headers, usedIndexes)
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        PlaylistTableHeader(trackCount = rows.size)
+        rows.forEachIndexed { rowIndex, row ->
+            val rawTrack = titleIndex?.let { row.getOrNull(it) }.orEmpty().trim()
+                .ifBlank {
+                    row.indices
+                        .firstOrNull { it != numberIndex && row.getOrNull(it).orEmpty().isNotBlank() }
+                        ?.let { row.getOrNull(it).orEmpty().trim() }
+                        .orEmpty()
+                }
+            val (parsedArtist, parsedTitle) = splitPlaylistTrack(rawTrack)
+            val title = parsedTitle.ifBlank { "Track ${rowIndex + 1}" }
+            val artist = artistIndex?.let { row.getOrNull(it).orEmpty().trim() }
+                ?.takeIf { it.isNotBlank() }
+                ?: parsedArtist
+            val trackNumber = numberIndex?.let { row.getOrNull(it).orEmpty().trim() }
+                ?.takeIf { it.isNotBlank() }
+                ?: (rowIndex + 1).toString()
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+                    },
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Surface(
+                        modifier = Modifier.size(34.dp),
+                        shape = RoundedCornerShape(17.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = trackNumber,
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(title),
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        if (!artist.isNullOrBlank()) {
+                            Text(
+                                text = parseBoldMarkdown(artist),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        if (chipIndexes.isNotEmpty()) {
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                chipIndexes.take(3).forEach { index ->
+                                    val value = row.getOrNull(index).orEmpty().trim()
+                                    if (value.isBlank() || isLikelyHttpUrl(value)) return@forEach
+                                    Surface(
+                                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                        color = MaterialTheme.colorScheme.secondaryContainer
+                                    ) {
+                                        Text(
+                                            text = parseBoldMarkdown(value),
+                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -4538,7 +4806,8 @@ private fun RenderDirectTable(
     val cardsRequested =
         table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
-            table.renderMode == FlatTableRenderMode.BOOKING_CARDS
+            table.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
+            table.renderMode == FlatTableRenderMode.PLAYLIST_CARDS
 
     if (compactPortrait && table.renderMode == FlatTableRenderMode.WEATHER_CARDS) {
         val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
@@ -4628,6 +4897,12 @@ private fun RenderDirectTable(
             primaryColumn = table.primaryColumn,
             highlightColumns = table.highlightColumns,
             onOpenUrl = onOpenUrl
+        )
+        AdaptiveTablePresentation.PLAYLIST_ROWS -> RenderPlaylistTableRows(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            spacing = spacing
         )
         AdaptiveTablePresentation.METRIC_CARDS -> RenderMetricTableCards(
             headers = headers,

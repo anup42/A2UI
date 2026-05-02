@@ -137,6 +137,7 @@ Media placement policy (MANDATORY — include media only when verified):
 - Keep media local to the related block; do not dump media links at the end.
 - Use at most 1 image and 0-1 icon per block to keep UI clean.
 - For weather blocks, include a weather icon. For flight blocks, include an airplane icon.
+- For playlist/music/entertainment blocks, prefer icon-only media (`music-note`, `music-note-beamed`, or `play-circle`) unless a verified album/cover image URL is available in the current context.
 - For travel/place/food blocks, ALWAYS include both image and icon for every block.
 - For general/comparison/recommendation blocks, ALWAYS include at least one image per major section.
 
@@ -155,6 +156,11 @@ Asset URL rules (strict — images MUST be content-relevant and working):
   Common icon names: `geo-alt`, `calendar`, `clock`, `sun`, `cloud`, `airplane`, `shop`, `star`, `map`, `building`, `cup-hot`, `tree`, `water`, `snow`, `wind`, `thermometer-half`, `currency-rupee`, `ticket-perforated`, `signpost-split`, `cloud-sun`, `moon-stars`, `house`, `car-front`, `phone`, `laptop`, `book`, `music-note`.
 - Avoid hosts that are unreliable: images.unsplash.com, cdn.pixabay.com, images.pexels.com, loremflickr.com, picsum.photos.
 - Prefer landscape image URLs sized for UI cards (roughly 1200x800 or similar).
+
+Playlist/music response rules:
+- Use a short title, one compact mood/context paragraph, and a numbered track table or list.
+- Keep track data structured with fields like number, artist, title, and optional mood/genre.
+- Do not add standalone media collections or random cyberpunk/album art. If no verified image exists, use only inline Bootstrap music/play icons.
 
 Example of correctly formatted blocks with verified media:
 ## Taj Mahal, Agra
