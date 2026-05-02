@@ -10,6 +10,12 @@ __pycache__
 *.pyc
 .angular
 
+# Local generated dataset artifacts
+dataset/data/cache
+dataset/data/cache/
+presentation_work/
+**/run.log
+
 # MkDocs build output
 site/
 
