@@ -142,15 +142,15 @@ class GenUiHtmlRendererTest {
 
     @Test
     fun rendersAllBundledSamplesWithoutErrorPage() {
-        val sampleFile = File("src/main/assets/sample_genui.jsonl")
+        val sampleFile = File("src/main/assets/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4_genui.jsonl")
         assertTrue(sampleFile.exists())
         val lines = sampleFile.readLines().filter { it.isNotBlank() }
-        assertTrue(lines.size >= 10)
+        assertTrue(lines.size >= 50)
 
         lines.forEachIndexed { index, line ->
-            val result = GenUiHtmlRenderer.render(line)
-            assertFalse("Sample ${index + 1} returned error page", result.html.contains("No renderable", ignoreCase = true))
-            assertTrue("Sample ${index + 1} missing surface output", result.html.contains("<section class=\"surface\">"))
+            val result = GenUiNativeRenderer.render(line, sourceDir = sampleFile.parentFile)
+            assertTrue("Sample ${index + 1} returned error: ${result.errorMessage}", result.errorMessage == null)
+            assertTrue("Sample ${index + 1} missing native surface output", result.surfaces.isNotEmpty())
         }
     }
 }
