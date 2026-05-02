@@ -4040,8 +4040,25 @@ private fun buildPlaylistTrackRows(
 @Composable
 private fun PlaylistCoverArt(
     trackCount: Int,
+    compact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val padding = if (compact) 10.dp else 18.dp
+    val numberStyle = if (compact) {
+        MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+    } else {
+        MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold)
+    }
+    val labelStyle = if (compact) {
+        MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+    } else {
+        MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+    }
+    val tracksStyle = if (compact) {
+        MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
+    } else {
+        MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
+    }
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(26.dp))
@@ -4057,7 +4074,7 @@ private fun PlaylistCoverArt(
             .semantics {
                 contentDescription = "Generated playlist cover art"
             }
-            .padding(18.dp)
+            .padding(padding)
     ) {
         Box(
             modifier = Modifier
@@ -4077,18 +4094,24 @@ private fun PlaylistCoverArt(
         ) {
             Text(
                 text = "PLAYLIST",
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                color = Color.White.copy(alpha = 0.72f)
+                style = labelStyle,
+                color = Color.White.copy(alpha = 0.72f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = "$trackCount",
-                style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
-                color = Color.White
+                style = numberStyle,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = if (trackCount == 1) "track" else "tracks",
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = Color.White.copy(alpha = 0.8f)
+                style = tracksStyle,
+                color = Color.White.copy(alpha = 0.8f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -4136,6 +4159,7 @@ private fun PlaylistHeroBlock(
         ) {
             PlaylistCoverArt(
                 trackCount = trackCount,
+                compact = false,
                 modifier = Modifier.fillMaxWidth().aspectRatio(1f)
             )
             Text(
@@ -4160,6 +4184,7 @@ private fun PlaylistHeroBlock(
         ) {
             PlaylistCoverArt(
                 trackCount = trackCount,
+                compact = true,
                 modifier = Modifier.size(92.dp)
             )
             Column(
