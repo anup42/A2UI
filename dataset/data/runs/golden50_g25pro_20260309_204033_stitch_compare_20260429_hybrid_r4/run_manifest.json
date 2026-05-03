@@ -1,6 +1,6 @@
 {
   "manifest_version": 1,
-  "generated_at": "2026-04-29T17:46:37Z",
+  "generated_at": "2026-05-03T15:56:48Z",
   "run_id": "golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4",
   "stage": 3,
   "repo": {
@@ -17,7 +17,7 @@
       "genui_schema": "v0.9",
       "min_manifest_version": 1
     },
-    "git_commit": "647c6bfbb711e68f3947caaf964c37b3bf236a23",
+    "git_commit": "83625af40e7aaa8867fa005cd55e2593030aded0",
     "git_branch": "new_ir_changes_20260331",
     "git_dirty": true
   },
@@ -52,8 +52,10 @@
       "gemini_2_5_pro",
       "--run_id",
       "golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4",
+      "--genui_batch_size",
+      "1",
       "--rate_limit_qps",
-      "1"
+      "0.5"
     ],
     "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
   }

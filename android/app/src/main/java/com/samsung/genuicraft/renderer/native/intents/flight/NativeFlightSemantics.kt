@@ -48,7 +48,7 @@ internal object NativeFlightSemantics {
         if (raw.isBlank()) {
             return null
         }
-        val match = Regex("""(?i)(\d+)\s*h(?:ours?)?\s*(?:(\d+)\s*m(?:in(?:ute)?s?)?)?""").find(raw)
+        val match = Regex("""(?i)(?<![\d.])(\d+(?:\.\d+)?)\s*h(?:ours?)?\s*(?:(\d+)\s*m(?:in(?:ute)?s?)?)?""").find(raw)
         if (match != null) {
             val hours = match.groupValues[1]
             val mins = match.groupValues.getOrNull(2).orEmpty()

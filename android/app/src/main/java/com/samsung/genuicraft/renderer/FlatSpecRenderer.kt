@@ -2062,6 +2062,28 @@ private fun shouldUseNativeFlightCards(headers: List<String>): Boolean {
     return routeSignals >= 2 && rankedComparisonSignals < 2
 }
 
+private fun rankedFlightColumnIndex(headers: List<String>, keywords: List<String>): Int? {
+    return headers.indexOfFirst { header ->
+        val token = normalizeTableHeaderForMatch(header)
+        keywords.any { keyword -> token.contains(keyword) }
+    }.takeIf { it >= 0 }
+}
+
+private fun looksLikeRankedFlightComparisonTable(headers: List<String>): Boolean {
+    val normalized = headers.map(::normalizeTableHeaderForMatch)
+    val hasAirline = normalized.any { it.contains("airline") || it.contains("carrier") }
+    val hasRank = normalized.any { it.contains("rank") || it.contains("score") || it.contains("order") }
+    val hasCost = normalized.any { it.contains("cost") || it.contains("fare") || it.contains("price") }
+    val hasDuration = normalized.any { it.contains("time") || it.contains("duration") || it.contains("travel") }
+    val hasStops = normalized.any { it.contains("layover") || it.contains("stop") || it.contains("connection") }
+    return hasAirline && (hasRank || hasCost) && (hasDuration || hasStops)
+}
+
+private fun compactRankBadge(rawRank: String, fallbackIndex: Int): String {
+    val number = Regex("""\d+""").find(rawRank)?.value ?: (fallbackIndex + 1).toString()
+    return "#$number"
+}
+
 private fun looksLikeMultiLegFlightTable(headers: List<String>): Boolean {
     val normalized = headers.map(::normalizeTableHeaderForMatch)
     val legSignals = normalized.count { header ->
@@ -6286,6 +6308,212 @@ private fun flightLegRoute(header: String): String {
 }
 
 @Composable
+private fun FlightInfoChip(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun RenderRankedFlightComparisonCards(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    spacing: Dp = 10.dp
+) {
+    if (rows.isEmpty()) return
+    val rankIndex = rankedFlightColumnIndex(headers, listOf("rank", "order", "score"))
+    val airlineIndex = rankedFlightColumnIndex(headers, listOf("airline", "carrier")) ?: 0
+    val costIndex = rankedFlightColumnIndex(headers, listOf("cost", "fare", "price", "amount"))
+    val durationIndex = rankedFlightColumnIndex(headers, listOf("travel time", "duration", "time"))
+    val layoverIndex = rankedFlightColumnIndex(headers, listOf("layover", "stop", "connection"))
+    val reasonIndex = rankedFlightColumnIndex(headers, listOf("justification", "reason", "why", "notes", "detail"))
+    val stopMetricLabel = layoverIndex
+        ?.let { headers.getOrNull(it).orEmpty() }
+        ?.takeIf { normalizeTableHeaderForMatch(it).contains("stop") }
+        ?.let { "Stops" }
+        ?: "Layover"
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        rows.forEachIndexed { rowIndex, row ->
+            val rank = compactRankBadge(
+                rawRank = row.getOrNull(rankIndex ?: -1).orEmpty().trim(),
+                fallbackIndex = rowIndex
+            )
+            val airline = row.getOrNull(airlineIndex).orEmpty().trim().ifBlank { "Flight option ${rowIndex + 1}" }
+            val cost = row.getOrNull(costIndex ?: -1).orEmpty().trim()
+            val duration = row.getOrNull(durationIndex ?: -1).orEmpty().trim()
+            val layover = row.getOrNull(layoverIndex ?: -1).orEmpty().trim()
+            val reason = row.getOrNull(reasonIndex ?: -1).orEmpty().trim()
+            val best = rowIndex == 0 || rank == "#1"
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+                    },
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (best) {
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
+                    } else {
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.84f)
+                    }
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = if (best) 2.dp else 0.dp),
+                border = BorderStroke(
+                    width = GenUiTokens.BorderSm,
+                    color = if (best) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.24f)
+                    } else {
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    }
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(
+                                    if (best) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = rank,
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                                color = if (best) {
+                                    MaterialTheme.colorScheme.onPrimary
+                                } else {
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                }
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(
+                                text = airline,
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (best) {
+                                Text(
+                                    text = "Recommended balance",
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        if (cost.isNotBlank()) {
+                            val (fareValue, fareMeta) = NativeFlightSemantics.splitFareDisplay(cost)
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = fareValue ?: cost,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.End,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                fareMeta?.let { suffix ->
+                                    Text(
+                                        text = suffix,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.End
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (duration.isNotBlank()) {
+                            FlightInfoChip(
+                                label = "Travel time",
+                                value = NativeFlightSemantics.normalizeDurationLabel(duration) ?: duration,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        if (layover.isNotBlank()) {
+                            FlightInfoChip(
+                                label = stopMetricLabel,
+                                value = NativeFlightSemantics.canonicalizeStopLabel(layover) ?: layover,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+
+                    if (reason.isNotBlank()) {
+                        Text(
+                            text = parseBoldMarkdown(reason),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun FlightLegTimelineRow(
     badge: String,
     route: String,
@@ -6744,6 +6972,15 @@ private fun RenderDirectTable(
             )
             return
         }
+    }
+    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeRankedFlightComparisonTable(headers)) {
+        RenderRankedFlightComparisonCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = applyStackModifier(modifier, props, "vertical"),
+            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp
+        )
+        return
     }
     if (compactPortrait && table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && shouldUseNativeFlightCards(headers)) {
         val flightRows = NativeFlightSemantics.buildFlightRows(headers, table.rows)
