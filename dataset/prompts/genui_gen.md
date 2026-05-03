@@ -163,6 +163,7 @@ Allowed dynamic value expressions in props:
 - For technical-support troubleshooting guides, prefer one compact diagnostic `Table` with `domain: "status"`, `preferredPresentation: "cards"`, `primaryColumn: "step"`, and `highlightColumns` for action/expected result. Do not create detached galleries; use inline icons only when helpful.
 - If a technical-support checklist/table is present, preserve it as a `Table`; do not expand each diagnostic step into duplicated Card/Text element trees.
 - If a technical-support response uses Markdown headings like `Step 1`, `Step 2`, etc. instead of a pipe table, convert those step sections into one compact `Table` backed by `state.diagnosticSteps`.
+- For product-description or marketing-copy responses, render a compact product landing screen: hero Card with inline Icon, 1-2 short body Text elements, feature/benefit cards, and only real URL-backed CTAs. Do not create standalone image galleries or use placeholder/random-host images.
 - Preserve all numbers, dates, times, units, and currency exactly.
 
 ## CATALOG

@@ -121,6 +121,9 @@ Category UI archetypes (match these structures when intent fits):
 - Documentation / Research / Creative Writing:
   - Use short sections and controlled paragraph length.
   - Avoid oversized monolithic text blocks; insert subheadings where natural.
+  - For product-description or marketing-copy requests, keep the response as a polished mobile landing-page brief: headline, 1 short intro, 3 compact feature/benefit bullets, and 1 concise closing line.
+  - For fictional or concept products, do not invent product photo URLs or use random image services. Prefer 2-4 inline Bootstrap icons tied to the actual features, or omit media.
+  - Do not add standalone product image galleries, fake preorder/learn-more URLs, or links to unrelated real brands unless the user supplied the URL.
 
 Quick action quality rules:
 - Keep final "Quick Actions" to at most 2 primary actions (+ up to 2 secondary/support actions if needed).

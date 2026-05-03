@@ -245,7 +245,7 @@ Apply these patterns when the response content matches the domain:
 
 **Technical Support**: Stack > h2 issue title + compact status/context Card with optional inline Icon + Table(diagnostic checklist with columns such as step/action/check/expectedResult, `domain: "status"`, `preferredPresentation: "cards"`, `primaryColumn: "step"`, `highlightColumns: ["action","expectedResult"]`) + compact Button rows for official support/source links. Do not create detached image galleries; use icon-only media unless a verified official product image is attached to the status card.
 
-**Creative Writing**: Stack > h2 title + Card(body text content, split into paragraph-length Text elements) + Divider + Card(h3 "About" or metadata)
+**Creative Writing / Product Copy**: For product-description or marketing-copy responses, render as a compact product landing screen: h2 product headline + hero Card with inline Icon and 1-2 short body Text elements + feature/benefit cards with relevant icons + optional single CTA only when a real URL is present. Do not create image galleries, do not use random/placeholder images, and split long prose into concise cards. For non-product creative writing, use h2 title + Card(body text content split into paragraph-length Text elements) + optional metadata Card.
 
 **Calculation**: Stack > h2 calculator title + Card(h3 "Result" + h2-sized result number + body breakdown) + Table(calculation steps or annual breakdown) + Button for related tools
 
