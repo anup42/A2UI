@@ -91,6 +91,31 @@ class FlatSpecContractTest {
     }
 
     @Test
+    fun coerceAndValidate_acceptsFormulaElement() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["formula"] },
+                "formula": {
+                  "type": "Formula",
+                  "props": {
+                    "latex": "M = P \\\\frac{i(1+i)^n}{(1+i)^n - 1}",
+                    "result": "${'$'}2,451.25"
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertTrue(result.error.orEmpty(), result.isValid)
+    }
+
+    @Test
     fun coerceAndValidate_failsWhenElementsIsEmpty() {
         val payload = JsonParser.parseString(
             """

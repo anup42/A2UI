@@ -80,7 +80,7 @@ Response:
 ## Stitch-style compact mobile patterns
 - Favor a mobile app screen, not a document: one clear title, 1 compact hero/status/result card, then structured cards or tables.
 - Preserve hierarchy with short headings, chips, metric rows, and compact cards instead of long prose blocks.
-- For dashboards/calculations/status results, use 2-4 KPI/metric cards plus one compact details Table. For explicit chart requests, use a compact `Chart` element backed by the same rows, not a placeholder chart image.
+- For dashboards/calculations/status results, use 1 prominent result card, one `Formula` element for the main equation, and compact `Table` elements for variables and numeric breakdowns. For explicit chart requests, use a compact `Chart` element backed by the same rows, not a placeholder chart image.
 - For product/place/booking/travel options, use one repeated card pattern when that is smaller than duplicated elements.
 - For comparison data, emit one compact `Table`; renderer will choose cards or horizontal table based on metadata and columns.
 - For email/message drafts, emit one `EmailPreview` element for the actual message. If the response contains `Subject:` plus a greeting/signature, this is mandatory. Do not expand the email body into multiple generic Text/Card elements.
@@ -152,7 +152,7 @@ Allowed dynamic value expressions in props:
     - `[{"key":"column_1","label":"Column 1"}, {"key":"column_2","label":"Column 2"}, ...]`
   - Column keys/labels should be generic and derived from source headers for the current domain (not weather-specific by default).
   - Include metadata:
-    - `domain`: `weather | flight | booking | playlist | schedule | status | comparison | generic`
+    - `domain`: `weather | flight | booking | playlist | schedule | status | formula | comparison | generic`
     - `preferredPresentation`: `cards | table`
     - optional `primaryColumn`: key/label used as the row title in portrait card layouts
     - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
@@ -173,6 +173,7 @@ Allowed dynamic value expressions in props:
 - Flight planning tables should stay compact as one `Table` with `domain: "flight"` and `preferredPresentation: "cards"`. For multi-leg routes, use leg columns such as `leg1`, `leg2`, `leg3` plus a carrier/title column; do not expand each leg into separate elements.
 - Do not render destination photo galleries for flight/travel planning unless each image is verified and attached to a specific destination/day card. Prefer renderer-generated route/itinerary cards over decorative travel photos.
 - Put global flight CTAs near the related section: alliance/flight search actions near the itinerary table, and visa/entry-rule actions near the documents section. Do not leave these as plain text at the bottom.
+- Calculation/formula outputs should keep formula notation compact: emit a `Formula` element for the equation, a compact variables `Table` with `domain: "formula"`, and a compact numeric breakdown `Table`. Do not render equations as plain prose or screenshot images. Do not hide calculation formula, variables, or cost breakdown inside Tabs; show them vertically so all key math is visible in one scroll.
 - Playlist/music responses should emit one compact `Table` with columns like `trackNumber`, `artist`, `title`, and optional `mood`/`genre`; set `domain: "playlist"`, `preferredPresentation: "cards"`, and optional table props `title`, `subtitle`, `mood`, `genre`.
 - Booking/hotel tables must keep row-level actions inside the same compact `Table`: add `bookingUrl` plus `actionLabel`/`buttonLabel`/`ctaLabel` for each actionable row, set `domain: "booking"` and `preferredPresentation: "cards"`, and do not create a detached final Quick Actions card for that row.
 - Booking/hotel tables may include compact row media with an `image`/`imageUrl`/`photo` column when the image is verified and directly tied to that hotel. Do not put hotel photos in trailing galleries.
@@ -188,6 +189,7 @@ Allowed dynamic value expressions in props:
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
 - Defaults:
   - weather/flight/booking/playlist/schedule/status => `preferredPresentation: "cards"`
+  - formula => `preferredPresentation: "table"` for variables/breakdowns plus one `Formula` element for the equation
   - comparison => `preferredPresentation: "cards"` for entity rows and `"table"` for feature matrices
   - generic => `preferredPresentation: "table"`
 - If table parsing is partial, keep compact `Table` with best-effort columns/rows; do not degrade to prose-only output.
@@ -279,7 +281,7 @@ Apply these patterns when the response content matches the domain:
 
 **Creative Writing / Product Copy**: For product-description or marketing-copy responses, render as a compact product landing screen: h2 product headline + hero Card with inline Icon and 1-2 short body Text elements + feature/benefit cards with relevant icons + optional single CTA only when a real URL is present. Do not create image galleries, do not use random/placeholder images, and split long prose into concise cards. For non-product creative writing, use h2 title + Card(body text content split into paragraph-length Text elements) + optional metadata Card.
 
-**Calculation**: Stack > h2 calculator title + Card(h3 "Result" + h2-sized result number + body breakdown) + Table(calculation steps or annual breakdown) + Button for related tools
+**Calculation**: Stack > h2 calculator title + Card(h3 "Result" + h2-sized result number + one concise explanation) + Formula(main equation as LaTeX/text, optional result) + Table(variables with columns variable/description/value, `domain: "formula"`, `preferredPresentation: "table"`) + Table(cost or numeric breakdown with `domain: "formula"`, `numericColumns: ["amount","value"]`) + nearby Button for related tools. Do not use Tabs for calculation content, do not use random finance/house images, and do not expand variables into per-field cards.
 
 **Research/Analysis**: Stack > h2 report title + Card(h3 "Key Findings" + body summary) + compact Table(data analysis). For age/category percentage distributions, use rows like category + percentage columns so Android can render a chart; avoid expanding chart bars as separate elements. End with Card(h3 "Methodology" or "Conclusion" + body text) when needed.
 
@@ -300,11 +302,12 @@ Layout:
 
 Content:
 - `Text` props: `text` (required), `variant` optional (`h1|h2|h3|body|caption|chip|label`)
+- `Formula` props: `latex` or `text` (required), optional `title`, `subtitle`, `result`, `display`. Use LaTeX-style notation for fractions, exponents, roots, and variables, for example `M = P \\frac{i(1+i)^n}{(1+i)^n - 1}`. Renderer formats fractions/exponents; do not use images for formulas.
 - `EmailPreview` props: `title`, `subtitle`, `subject`, `to`, `from`, `date`, `role`, `company`, `body` (string or paragraph array), `signature` (string or line array), optional `context`/`metadata`. Use for professional emails, drafts, messages, cover letters, and similar communication templates.
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
-  - `domain` optional (`weather|flight|booking|playlist|schedule|status|comparison|generic`)
+  - `domain` optional (`weather|flight|booking|playlist|schedule|status|formula|comparison|generic`)
   - `preferredPresentation` optional (`cards|table`)
   - `primaryColumn` optional (key/label for portrait card title)
   - `highlightColumns` optional (list/string of 1-2 important key/label values)

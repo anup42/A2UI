@@ -13,6 +13,7 @@ _ALLOWED_TYPES = {
     "list",
     "card",
     "text",
+    "formula",
     "table",
     "image",
     "icon",
@@ -44,6 +45,7 @@ _TYPE_CANONICAL_MAP = {
     "list": "List",
     "card": "Card",
     "text": "Text",
+    "formula": "Formula",
     "table": "Table",
     "image": "Image",
     "icon": "Icon",
@@ -807,6 +809,8 @@ def _infer_table_domain(headers: list[str], full_text: str) -> tuple[str, str]:
     source = f"{joined} {response}"
     if any(token in source for token in ("temp", "humidity", "wind", "forecast", "rain", "uv")):
         return "weather", "cards"
+    if any(token in source for token in ("formula", "variable", "equation", "principal", "interest rate", "monthly payment", "total interest")):
+        return "formula", "table"
     if any(token in source for token in ("flight", "airline", "fare", "departure", "arrival")):
         return "flight", "cards"
     if any(token in source for token in ("hotel", "room", "rating", "amenity", "booking")):

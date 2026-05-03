@@ -52,6 +52,7 @@ internal object FlatSpecContract {
         "card",
         "table",
         "chart",
+        "formula",
         "text",
         "emailpreview",
         "image",
@@ -69,7 +70,7 @@ internal object FlatSpecContract {
         "datetimeinput"
     )
     private val cardFirstTableDomains = setOf("weather", "flight", "booking", "schedule", "status")
-    private val supportedTableDomains = cardFirstTableDomains + setOf("generic", "comparison")
+    private val supportedTableDomains = cardFirstTableDomains + setOf("generic", "comparison", "formula")
 
     fun looksLikeFlatSpec(json: JsonElement?): Boolean {
         if (json == null || !json.isJsonObject) return false

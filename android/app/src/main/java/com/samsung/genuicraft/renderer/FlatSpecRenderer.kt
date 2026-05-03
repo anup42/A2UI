@@ -83,6 +83,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -263,8 +264,9 @@ private val MEDIA_OBJECT_KEYS = listOf("uri", "url", "src", "path", "value", "so
 private val DIRECT_TABLE_ROW_LIST_KEYS = listOf("cells", "values", "row", "data")
 private const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
 private val PLAYLIST_TABLE_DOMAIN_ALIASES = setOf("playlist", "music", "entertainment")
+private val FORMULA_TABLE_DOMAIN_ALIASES = setOf("formula", "calculation", "calculator", "math")
 private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "schedule", "status", "playlist")
-private val SUPPORTED_TABLE_DOMAINS = CARD_FIRST_TABLE_DOMAINS + setOf("generic", "comparison")
+private val SUPPORTED_TABLE_DOMAINS = CARD_FIRST_TABLE_DOMAINS + setOf("generic", "comparison", "formula")
 
 object FlatSpecParser {
 
@@ -1268,6 +1270,7 @@ private fun RenderByType(
         "list" -> RenderList(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "card" -> RenderCard(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "table" -> RenderDirectTable(props, state, onOpenUrl, modifier)
+        "formula" -> RenderFormula(props, modifier)
         "chart", "barchart", "bar_chart" -> RenderChart(props, state, modifier)
         "text" -> RenderText(props, modifier)
         "emailpreview", "email_preview" -> RenderEmailPreview(props, modifier)
@@ -1790,7 +1793,11 @@ private fun isComparisonEntityHeader(label: String): Boolean {
 
 private fun normalizeExplicitTableDomain(value: String?): String? {
     val token = value?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
-    return if (token in PLAYLIST_TABLE_DOMAIN_ALIASES) "playlist" else token
+    return when {
+        token in PLAYLIST_TABLE_DOMAIN_ALIASES -> "playlist"
+        token in FORMULA_TABLE_DOMAIN_ALIASES -> "formula"
+        else -> token
+    }
 }
 
 private fun isPlaylistTableHeaderSet(headers: List<String>, domain: String = "generic"): Boolean {
@@ -1822,6 +1829,33 @@ private fun isPlaylistTableHeaderSet(headers: List<String>, domain: String = "ge
     return hasTrackTitle && (hasTrackNumber || hasArtist || hasMusicMetadata)
 }
 
+internal fun isFormulaVariableHeaderSet(headers: List<String>): Boolean {
+    val tokens = headers.map(::normalizeTableHeaderForMatch)
+    val hasVariable = tokens.any { token ->
+        token in setOf("variable", "symbol", "term", "parameter")
+    }
+    val hasDescription = tokens.any { token ->
+        token.contains("description") || token.contains("meaning") || token.contains("definition")
+    }
+    val hasValue = tokens.any { token ->
+        token in setOf("value", "amount", "input value", "given")
+    }
+    return headers.size in 2..4 && hasVariable && (hasDescription || hasValue)
+}
+
+internal fun isCalculationBreakdownHeaderSet(headers: List<String>): Boolean {
+    val tokens = headers.map(::normalizeTableHeaderForMatch)
+    val hasLabel = tokens.any { token ->
+        token in setOf("component", "item", "metric", "field", "label", "cost component")
+    }
+    val hasAmount = tokens.any { token ->
+        token in setOf("amount", "value", "cost", "total", "payment") ||
+            token.contains("amount") ||
+            token.contains("payment")
+    }
+    return headers.size == 2 && hasLabel && hasAmount
+}
+
 private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val weatherSignals = headers.count(::isWeatherHeaderLabel)
     val flightSignals = headers.count(::isFlightHeaderLabel)
@@ -1834,6 +1868,7 @@ private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val entityLike = isComparisonEntityHeader(headers.firstOrNull().orEmpty())
     return when {
         isPlaylistTableHeaderSet(headers) -> "playlist"
+        isFormulaVariableHeaderSet(headers) || isCalculationBreakdownHeaderSet(headers) -> "formula"
         weatherSignals >= 2 -> "weather"
         strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
         bookingEntitySignals >= 1 && bookingValueSignals >= 2 -> "booking"
@@ -2056,6 +2091,9 @@ private fun detectTableShape(
     }
     return when {
         isPlaylistTableHeaderSet(headers, domain) -> FlatTableShape.PLAYLIST
+        domain == "formula" && isFormulaVariableHeaderSet(headers) -> FlatTableShape.KEY_VALUE
+        domain == "formula" && columnCount == 2 && firstHeaderToken == "input" -> FlatTableShape.KEY_VALUE
+        domain == "formula" && isCalculationBreakdownHeaderSet(headers) -> FlatTableShape.NUMERIC_METRICS
         columnCount <= 2 &&
             firstHeaderToken in setOf("metric", "feature", "field", "label", "item", "name", "attribute", "key") ->
             FlatTableShape.KEY_VALUE
@@ -4484,6 +4522,205 @@ private fun selectAdaptiveTablePresentation(
     }
 }
 
+internal fun isFormulaVariablesTable(table: FlatDirectTableModel): Boolean =
+    table.domain == "formula" && isFormulaVariableHeaderSet(table.columns.map { it.label })
+
+internal fun isCalculationBreakdownTable(table: FlatDirectTableModel): Boolean {
+    if (table.domain != "formula") return false
+    if (!isCalculationBreakdownHeaderSet(table.columns.map { it.label })) return false
+    return table.rows.any { row ->
+        row.any { value ->
+            value.contains('$') ||
+                value.contains('€') ||
+                value.contains('£') ||
+                value.contains('₹') ||
+                looksLikeNumericTableValue(value)
+        }
+    }
+}
+
+@Composable
+private fun RenderFormulaVariablesTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier
+) {
+    if (rows.isEmpty()) return
+    val variableIndex = headers.indexOfFirst { normalizeTableHeaderForMatch(it) in setOf("variable", "symbol", "term", "parameter", "input") }
+        .takeIf { it >= 0 } ?: 0
+    val descriptionIndex = headers.indexOfFirst {
+        normalizeTableHeaderForMatch(it).let { token ->
+            token.contains("description") || token.contains("meaning") || token.contains("definition")
+        }
+    }
+    val valueIndex = headers.indexOfFirst {
+        normalizeTableHeaderForMatch(it).let { token ->
+            token in setOf("value", "amount", "input value", "given")
+        }
+    }
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = "Formula variables table with ${rows.size} variables"
+            },
+        shape = RoundedCornerShape(18.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "Variables",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            rows.forEach { row ->
+                val variable = row.getOrNull(variableIndex).orEmpty().trim().ifBlank { "-" }
+                val description = row.getOrNull(descriptionIndex).orEmpty().trim()
+                val value = row.getOrNull(valueIndex).orEmpty().trim()
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = variable,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace
+                                ),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            if (description.isNotBlank()) {
+                                Text(
+                                    text = parseBoldMarkdown(description),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            if (value.isNotBlank()) {
+                                Text(
+                                    text = value,
+                                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenderCalculationBreakdownTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier
+) {
+    if (rows.isEmpty()) return
+    val labelIndex = headers.indexOfFirst {
+        normalizeTableHeaderForMatch(it) in setOf("component", "item", "metric", "field", "label", "cost component")
+    }.takeIf { it >= 0 } ?: 0
+    val amountIndex = headers.indexOfFirst {
+        normalizeTableHeaderForMatch(it).let { token ->
+            token.contains("amount") || token.contains("payment") || token == "value" || token == "cost" || token == "total"
+        }
+    }.takeIf { it >= 0 } ?: rows.firstOrNull()?.indices?.firstOrNull { it != labelIndex } ?: 1
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = "Calculation breakdown table with ${rows.size} rows"
+            },
+        shape = RoundedCornerShape(18.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 8.dp)
+        ) {
+            rows.forEachIndexed { index, row ->
+                val label = row.getOrNull(labelIndex).orEmpty().trim()
+                val amount = row.getOrNull(amountIndex).orEmpty().trim()
+                val highlight = label.contains("monthly", ignoreCase = true) ||
+                    label.contains("lifetime", ignoreCase = true) ||
+                    label.contains("total", ignoreCase = true)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(label),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = if (highlight) FontWeight.SemiBold else FontWeight.Normal
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(999.dp),
+                        color = if (highlight) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f)
+                        }
+                    ) {
+                        Text(
+                            text = amount,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            color = if (highlight) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                        )
+                    }
+                }
+                if (index < rows.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun RenderKeyValueTablePanel(
     headers: List<String>,
@@ -6482,6 +6719,22 @@ private fun RenderDirectTable(
     }
 
     val tableModifier = applyStackModifier(modifier, props, "vertical")
+    if (isFormulaVariablesTable(table)) {
+        RenderFormulaVariablesTable(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier
+        )
+        return
+    }
+    if (isCalculationBreakdownTable(table)) {
+        RenderCalculationBreakdownTable(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier
+        )
+        return
+    }
     extractPercentageMatrixChartModel(
         columns = table.columns,
         rows = table.rows,
@@ -7201,6 +7454,16 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         RenderCodeBlock(codeBlock = codeBlock, modifier = modifier)
         return
     }
+    if (looksLikeFormulaText(rawText)) {
+        RenderFormula(
+            props = mapOf(
+                "latex" to rawText,
+                "title" to props["formulaTitle"]
+            ),
+            modifier = modifier
+        )
+        return
+    }
     val markdown = parseSupportedMarkdownText(rawText)
     val rawVariant = (
         props["variant"]?.toString()
@@ -7285,6 +7548,149 @@ private data class FencedCodeBlock(
     val language: String? = null
 )
 
+internal data class FormulaFractionParts(
+    val prefix: String,
+    val numerator: String,
+    val denominator: String,
+    val suffix: String
+)
+
+@Composable
+private fun RenderFormula(props: Map<String, Any?>, modifier: Modifier = Modifier) {
+    val rawFormula = (
+        props["latex"]
+            ?: props["formula"]
+            ?: props["text"]
+            ?: props["value"]
+        )
+        ?.toString()
+        .orEmpty()
+    val normalizedFormula = normalizeFormulaText(rawFormula)
+    if (normalizedFormula.isBlank()) return
+    val title = props["title"]?.toString()?.trim().orEmpty()
+    val subtitle = props["subtitle"]?.toString()?.trim().orEmpty()
+    val result = props["result"]?.toString()?.trim().orEmpty()
+    val displayFormula = plainBracketFractionToLatex(normalizedFormula)
+    val fraction = parseFormulaFraction(displayFormula)
+    Surface(
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.64f),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = LocalFlatSpecTextHorizontalPadding.current, vertical = 6.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = "Formula ${readableFormulaText(displayFormula)}"
+            }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            if (title.isNotBlank()) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            if (subtitle.isNotBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val scrollState = rememberScrollState()
+                if (fraction != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(scrollState)
+                            .padding(horizontal = 14.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (fraction.prefix.isNotBlank()) {
+                            Text(
+                                text = formulaAnnotatedString(fraction.prefix),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            modifier = Modifier.widthIn(min = 104.dp)
+                        ) {
+                            Text(
+                                text = formulaAnnotatedString(fraction.numerator),
+                                style = MaterialTheme.typography.titleSmall.copy(fontFamily = FontFamily.Monospace),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.62f)
+                            )
+                            Text(
+                                text = formulaAnnotatedString(fraction.denominator),
+                                style = MaterialTheme.typography.titleSmall.copy(fontFamily = FontFamily.Monospace),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        if (fraction.suffix.isNotBlank()) {
+                            Text(
+                                text = formulaAnnotatedString(fraction.suffix),
+                                style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                } else {
+                    Text(
+                        text = formulaAnnotatedString(displayFormula),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(scrollState)
+                            .padding(horizontal = 14.dp, vertical = 14.dp)
+                    )
+                }
+            }
+            if (result.isNotBlank()) {
+                Surface(
+                    shape = RoundedCornerShape(999.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = result,
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Modifier) {
     Surface(
@@ -7361,6 +7767,187 @@ private fun parseFencedCodeBlock(raw: String): FencedCodeBlock? {
     }
     return FencedCodeBlock(code = code, language = languageToken)
 }
+
+internal fun looksLikeFormulaText(raw: String): Boolean {
+    val text = raw.trim()
+    if (text.length !in 5..220) return false
+    if ('\n' in text) return false
+    if (NativeTextFormatter.containsUrlLikeToken(text)) return false
+    val hasEquation = '=' in text
+    val hasMathSignal = listOf("\\frac", "^", "_", "√", "sqrt", "[", "]", "(", ")", "×", "÷", "/")
+        .any { token -> text.contains(token) }
+    val hasOperator = Regex("""[+\-−*/=]""").containsMatchIn(text)
+    val hasVariable = Regex("""\b[A-Za-z]\b""").containsMatchIn(text)
+    return hasEquation && hasMathSignal && hasOperator && hasVariable
+}
+
+internal fun normalizeFormulaText(raw: String): String {
+    var value = raw.trim()
+    if ((value.startsWith("$$") && value.endsWith("$$")) ||
+        (value.startsWith("\\[") && value.endsWith("\\]"))
+    ) {
+        value = value.removePrefix("$$").removeSuffix("$$")
+            .removePrefix("\\[").removeSuffix("\\]")
+            .trim()
+    } else if ((value.startsWith("$") && value.endsWith("$")) ||
+        (value.startsWith("\\(") && value.endsWith("\\)"))
+    ) {
+        value = value.removePrefix("$").removeSuffix("$")
+            .removePrefix("\\(").removeSuffix("\\)")
+            .trim()
+    }
+    return value
+        .replace("\\left", "")
+        .replace("\\right", "")
+        .replace("\\times", "×")
+        .replace("\\cdot", "·")
+        .replace("\\div", "÷")
+        .replace("\\%", "%")
+        .replace("–", "-")
+        .replace("−", "-")
+        .replace(Regex("""\\text\{([^}]*)\}""")) { match -> match.groupValues[1] }
+        .replace(Regex("""\s+"""), " ")
+        .trim()
+}
+
+internal fun plainBracketFractionToLatex(raw: String): String {
+    val normalized = normalizeFormulaText(raw)
+    if ("\\frac" in normalized) return normalized
+    val match = Regex("""^(.*?)\[\s*(.+?)\s*]\s*/\s*\[\s*(.+?)\s*]$""").matchEntire(normalized)
+        ?: return normalized
+    val prefix = match.groupValues[1].trimEnd()
+    val numerator = match.groupValues[2].trim()
+    val denominator = match.groupValues[3].trim()
+    return "$prefix \\frac{$numerator}{$denominator}".trim()
+}
+
+internal fun parseFormulaFraction(raw: String): FormulaFractionParts? {
+    val text = normalizeFormulaText(raw)
+    val index = text.indexOf("\\frac")
+    if (index < 0) return null
+    var cursor = index + "\\frac".length
+    while (cursor < text.length && text[cursor].isWhitespace()) cursor++
+    val numerator = readLatexGroup(text, cursor) ?: return null
+    cursor = numerator.nextIndex
+    while (cursor < text.length && text[cursor].isWhitespace()) cursor++
+    val denominator = readLatexGroup(text, cursor) ?: return null
+    return FormulaFractionParts(
+        prefix = text.substring(0, index).trim(),
+        numerator = numerator.value.trim(),
+        denominator = denominator.value.trim(),
+        suffix = text.substring(denominator.nextIndex).trim()
+    )
+}
+
+private data class LatexGroup(val value: String, val nextIndex: Int)
+
+private fun readLatexGroup(text: String, start: Int): LatexGroup? {
+    if (start >= text.length || text[start] != '{') return null
+    var depth = 0
+    for (index in start until text.length) {
+        when (text[index]) {
+            '{' -> depth++
+            '}' -> {
+                depth--
+                if (depth == 0) {
+                    return LatexGroup(
+                        value = text.substring(start + 1, index),
+                        nextIndex = index + 1
+                    )
+                }
+            }
+        }
+    }
+    return null
+}
+
+internal fun formulaAnnotatedString(raw: String): AnnotatedString = buildAnnotatedString {
+    val text = normalizeFormulaText(raw)
+    var index = 0
+    while (index < text.length) {
+        val char = text[index]
+        when {
+            char == '^' || char == '_' -> {
+                val token = readFormulaScriptToken(text, index + 1)
+                if (token.value.isNotBlank()) {
+                    pushStyle(
+                        SpanStyle(
+                            baselineShift = if (char == '^') BaselineShift.Superscript else BaselineShift.Subscript,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                    append(token.value)
+                    pop()
+                    index = token.nextIndex
+                } else {
+                    append(char)
+                    index++
+                }
+            }
+            char == '\\' -> {
+                val command = readLatexCommand(text, index + 1)
+                val replacement = latexCommandReplacement(command.value)
+                if (replacement != null) {
+                    append(replacement)
+                    index = command.nextIndex
+                } else {
+                    append(char)
+                    index++
+                }
+            }
+            char == '{' || char == '}' -> index++
+            else -> {
+                append(char)
+                index++
+            }
+        }
+    }
+}
+
+private data class FormulaToken(val value: String, val nextIndex: Int)
+
+private fun readFormulaScriptToken(text: String, start: Int): FormulaToken {
+    if (start >= text.length) return FormulaToken("", start)
+    if (text[start] == '{') {
+        readLatexGroup(text, start)?.let { return FormulaToken(it.value, it.nextIndex) }
+    }
+    return FormulaToken(text[start].toString(), start + 1)
+}
+
+private fun readLatexCommand(text: String, start: Int): FormulaToken {
+    var index = start
+    while (index < text.length && text[index].isLetter()) index++
+    return FormulaToken(text.substring(start, index), index)
+}
+
+private fun latexCommandReplacement(command: String): String? = when (command) {
+    "alpha" -> "α"
+    "beta" -> "β"
+    "gamma" -> "γ"
+    "delta" -> "δ"
+    "Delta" -> "Δ"
+    "theta" -> "θ"
+    "lambda" -> "λ"
+    "mu" -> "μ"
+    "pi" -> "π"
+    "sigma" -> "σ"
+    "Sigma" -> "Σ"
+    "sqrt" -> "√"
+    "leq" -> "≤"
+    "geq" -> "≥"
+    "neq" -> "≠"
+    "approx" -> "≈"
+    "infty" -> "∞"
+    else -> null
+}
+
+private fun readableFormulaText(raw: String): String =
+    normalizeFormulaText(raw)
+        .replace("\\frac", " fraction ")
+        .replace("{", " ")
+        .replace("}", " ")
+        .replace(Regex("""\s+"""), " ")
+        .trim()
 
 private fun parseSupportedMarkdownText(raw: String): SupportedMarkdownText {
     val trimmedStart = raw.trimStart()

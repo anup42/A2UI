@@ -1,4 +1,4 @@
-package com.samsung.genuicraft.renderer
+﻿package com.samsung.genuicraft.renderer
 
 import com.google.gson.JsonParser
 import org.junit.Assert.assertEquals
@@ -209,8 +209,8 @@ class FlatSpecRendererSupportTest {
                 mapOf("key" to "sunshine", "label" to "Sunshine")
             ),
             "rows" to listOf(
-                mapOf("city" to "Rome", "avg_low" to "12°C", "sunshine" to "6h"),
-                mapOf("city" to "Lisbon", "avg_low" to "15°C", "sunshine" to "7h")
+                mapOf("city" to "Rome", "avg_low" to "12Â°C", "sunshine" to "6h"),
+                mapOf("city" to "Lisbon", "avg_low" to "15Â°C", "sunshine" to "7h")
             ),
             "domain" to "comparison",
             "preferredPresentation" to "cards"
@@ -817,7 +817,7 @@ class FlatSpecRendererSupportTest {
             """
             {
               "root": "main",
-              "state": { "forecast": [ { "day": "Sun, Apr 12", "condition": "Partly sunny", "high": "34°C", "low": "22°C" } ] },
+              "state": { "forecast": [ { "day": "Sun, Apr 12", "condition": "Partly sunny", "high": "34Â°C", "low": "22Â°C" } ] },
               "elements": {
                 "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["table"] },
                 "table": {
@@ -828,8 +828,8 @@ class FlatSpecRendererSupportTest {
                 "header": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["h1", "h2", "h3", "h4"] },
                 "h1": { "type": "Text", "props": { "text": "Date" }, "children": [] },
                 "h2": { "type": "Text", "props": { "text": "Conditions" }, "children": [] },
-                "h3": { "type": "Text", "props": { "text": "High (°C/°F)" }, "children": [] },
-                "h4": { "type": "Text", "props": { "text": "Low (°C/°F)" }, "children": [] },
+                "h3": { "type": "Text", "props": { "text": "High (Â°C/Â°F)" }, "children": [] },
+                "h4": { "type": "Text", "props": { "text": "Low (Â°C/Â°F)" }, "children": [] },
                 "rows": { "type": "Stack", "props": { "direction": "vertical" }, "repeat": { "statePath": "/forecast" }, "children": ["row"] },
                 "row": { "type": "Stack", "props": { "direction": "horizontal" }, "children": ["c1", "c2", "c3", "c4"] },
                 "c1": { "type": "Text", "props": { "text": { "${'$'}item": "day" } }, "children": [] },
@@ -1027,8 +1027,8 @@ class FlatSpecRendererSupportTest {
             "columns" to listOf(
                 mapOf("key" to "day", "label" to "Day"),
                 mapOf("key" to "condition", "label" to "Conditions"),
-                mapOf("key" to "high", "label" to "High (°C/°F)"),
-                mapOf("key" to "low", "label" to "Low (°C/°F)")
+                mapOf("key" to "high", "label" to "High (Â°C/Â°F)"),
+                mapOf("key" to "low", "label" to "Low (Â°C/Â°F)")
             ),
             "statePath" to "/forecast",
             "domain" to "generic",
@@ -1036,7 +1036,7 @@ class FlatSpecRendererSupportTest {
         )
         val state = mapOf<String, Any?>(
             "forecast" to listOf(
-                mapOf("day" to "Sun", "condition" to "Clear", "high" to "34°C/94°F", "low" to "23°C/73°F")
+                mapOf("day" to "Sun", "condition" to "Clear", "high" to "34Â°C/94Â°F", "low" to "23Â°C/73Â°F")
             )
         )
 
@@ -1139,7 +1139,7 @@ class FlatSpecRendererSupportTest {
             "rows" to listOf(
                 mapOf(
                     "city" to mapOf("${'$'}state" to "/weather/city"),
-                    "temp" to mapOf("${'$'}template" to "${'$'}{/weather/temp_c}°C")
+                    "temp" to mapOf("${'$'}template" to "${'$'}{/weather/temp_c}Â°C")
                 )
             )
         )
@@ -1157,7 +1157,55 @@ class FlatSpecRendererSupportTest {
         )
 
         assertNotNull(model)
-        assertEquals(listOf("Bengaluru", "31°C"), model!!.rows.first())
+        assertEquals(listOf("Bengaluru", "31Â°C"), model!!.rows.first())
+    }
+    @Test
+    fun formulaHelpers_parseMortgageFractionAndScripts() {
+        val converted = plainBracketFractionToLatex("M = P [ i(1 + i)^n ] / [ (1 + i)^n - 1 ]")
+        val fraction = parseFormulaFraction(converted)
+
+        assertNotNull(fraction)
+        assertEquals("M = P", fraction!!.prefix)
+        assertEquals("i(1 + i)^n", fraction.numerator)
+        assertEquals("(1 + i)^n - 1", fraction.denominator)
+        assertTrue(looksLikeFormulaText("M = P [ i(1 + i)^n ] / [ (1 + i)^n - 1 ]"))
+        assertEquals("Payment = principal", normalizeFormulaText("""Payment = \text{principal}"""))
+    }
+
+    @Test
+    fun extractDirectTableModel_routesFormulaTables() {
+        val variableProps = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "variable", "label" to "Variable"),
+                mapOf("key" to "description", "label" to "Description"),
+                mapOf("key" to "value", "label" to "Value")
+            ),
+            "rows" to listOf(
+                mapOf("variable" to "P", "description" to "Principal loan amount", "value" to "${'$'}420,000")
+            ),
+            "domain" to "formula",
+            "preferredPresentation" to "table"
+        )
+        val breakdownProps = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "component", "label" to "Component"),
+                mapOf("key" to "amount", "label" to "Amount")
+            ),
+            "rows" to listOf(
+                mapOf("component" to "Monthly Payment", "amount" to "${'$'}2,451.25")
+            ),
+            "domain" to "calculation",
+            "preferredPresentation" to "table"
+        )
+
+        val variables = extractDirectTableModel(variableProps, emptyMap(), compactScreen = true)
+        val breakdown = extractDirectTableModel(breakdownProps, emptyMap(), compactScreen = true)
+
+        assertNotNull(variables)
+        assertTrue(isFormulaVariablesTable(variables!!))
+        assertNotNull(breakdown)
+        assertEquals("formula", breakdown!!.domain)
+        assertTrue(isCalculationBreakdownTable(breakdown))
     }
 }
 

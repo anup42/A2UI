@@ -87,6 +87,7 @@
             "List",
             "Card",
             "Text",
+            "Formula",
             "EmailPreview",
             "Table",
             "Chart",
