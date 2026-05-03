@@ -4571,68 +4571,95 @@ private fun RenderFormulaVariablesTable(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp)
         ) {
-            Text(
-                text = "Variables",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            rows.forEach { row ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f))
+                    .padding(horizontal = 10.dp, vertical = 7.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = headers.getOrNull(variableIndex).orEmpty().ifBlank { "Variable" },
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.width(58.dp)
+                )
+                Text(
+                    text = headers.getOrNull(descriptionIndex).orEmpty().ifBlank { "Meaning" },
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f)
+                )
+                if (valueIndex >= 0) {
+                    Text(
+                        text = headers.getOrNull(valueIndex).orEmpty().ifBlank { "Value" },
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.widthIn(min = 72.dp)
+                    )
+                }
+            }
+            rows.forEachIndexed { index, row ->
                 val variable = row.getOrNull(variableIndex).orEmpty().trim().ifBlank { "-" }
                 val description = row.getOrNull(descriptionIndex).orEmpty().trim()
                 val value = row.getOrNull(valueIndex).orEmpty().trim()
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = listOf(variable, description, value)
+                                .filter(String::isNotBlank)
+                                .joinToString(": ")
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Row(
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            .width(58.dp)
+                            .heightIn(min = 36.dp)
+                            .clip(RoundedCornerShape(11.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = variable,
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = FontFamily.Monospace
-                                ),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            if (description.isNotBlank()) {
-                                Text(
-                                    text = parseBoldMarkdown(description),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                            if (value.isNotBlank()) {
-                                Text(
-                                    text = value,
-                                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
+                        Text(
+                            text = variable,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
+                    Text(
+                        text = parseBoldMarkdown(description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (valueIndex >= 0) {
+                        Text(
+                            text = value,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.widthIn(min = 72.dp)
+                        )
+                    }
+                }
+                if (index < rows.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
                 }
             }
         }
@@ -4654,6 +4681,12 @@ private fun RenderCalculationBreakdownTable(
             token.contains("amount") || token.contains("payment") || token == "value" || token == "cost" || token == "total"
         }
     }.takeIf { it >= 0 } ?: rows.firstOrNull()?.indices?.firstOrNull { it != labelIndex } ?: 1
+    val labelHeader = headers.getOrNull(labelIndex).orEmpty().ifBlank { "Item" }
+    val amountHeader = headers.getOrNull(amountIndex).orEmpty().ifBlank { "Value" }
+    val inputStyleTable = normalizeTableHeaderForMatch(labelHeader) in setOf("metric", "input", "field") &&
+        normalizeTableHeaderForMatch(amountHeader) == "value"
+    val labelWeight = if (inputStyleTable) 0.66f else 0.54f
+    val amountWeight = 1f - labelWeight
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -4667,8 +4700,31 @@ private fun RenderCalculationBreakdownTable(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 8.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp)
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f))
+                    .padding(horizontal = 10.dp, vertical = 7.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = labelHeader,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(labelWeight)
+                )
+                Text(
+                    text = amountHeader,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(amountWeight)
+                )
+            }
             rows.forEachIndexed { index, row ->
                 val label = row.getOrNull(labelIndex).orEmpty().trim()
                 val amount = row.getOrNull(amountIndex).orEmpty().trim()
@@ -4678,7 +4734,10 @@ private fun RenderCalculationBreakdownTable(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp),
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = "$label: $amount"
+                        },
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -4688,30 +4747,25 @@ private fun RenderCalculationBreakdownTable(
                             fontWeight = if (highlight) FontWeight.SemiBold else FontWeight.Normal
                         ),
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(labelWeight)
                     )
-                    Surface(
-                        shape = RoundedCornerShape(999.dp),
+                    Text(
+                        text = amount,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        ),
                         color = if (highlight) {
-                            MaterialTheme.colorScheme.primaryContainer
+                            MaterialTheme.colorScheme.primary
                         } else {
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f)
-                        }
-                    ) {
-                        Text(
-                            text = amount,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Monospace
-                            ),
-                            color = if (highlight) {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                        )
-                    }
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        textAlign = TextAlign.End,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(amountWeight)
+                    )
                 }
                 if (index < rows.lastIndex) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
