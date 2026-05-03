@@ -4377,6 +4377,10 @@ private fun ResponsiveScheduleRowCard(
         TravelItineraryDayCard(headers = headers, row = row)
         return
     }
+    if (looksLikeStudyPlanTable(headers)) {
+        StudyPlanWeekCard(headers = headers, row = row)
+        return
+    }
 
     val cellCount = maxOf(headers.size, row.size)
     val cells = (0 until cellCount).map { index ->
@@ -4482,6 +4486,120 @@ private fun ResponsiveScheduleRowCard(
             }
 
             bodyCells.forEach { (_, label, value) ->
+                ScheduleDetailBlock(label = label, value = value)
+            }
+        }
+    }
+}
+
+private fun looksLikeStudyPlanTable(headers: List<String>): Boolean {
+    val normalized = headers.map(::normalizeTableHeaderForMatch)
+    val hasWeek = normalized.any { it == "week" || it.contains("week") }
+    val hasStudyFocus = normalized.any { header ->
+        header.contains("topic") ||
+            header.contains("focus") ||
+            header.contains("session") ||
+            header.contains("study") ||
+            header.contains("practice")
+    }
+    val hasGoalOrAssessment = normalized.any { header ->
+        header.contains("goal") ||
+            header.contains("quiz") ||
+            header.contains("test") ||
+            header.contains("review")
+    }
+    val hasScheduleSignal = normalized.any { header ->
+        header.contains("date") ||
+            header.contains("day") ||
+            header.contains("saturday") ||
+            header.contains("duration")
+    }
+    return hasWeek && hasScheduleSignal && (hasStudyFocus || hasGoalOrAssessment)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun StudyPlanWeekCard(
+    headers: List<String>,
+    row: List<String>
+) {
+    val weekIndex = findTableColumnIndex(headers, listOf("week")) ?: 0
+    val dateIndex = findTableColumnIndex(headers, listOf("date", "dates", "range"), exclude = setOf(weekIndex))
+    val focusIndex = findTableColumnIndex(
+        headers = headers,
+        keywords = listOf("focus", "topic", "module", "subject"),
+        exclude = setOf(weekIndex, dateIndex ?: -1)
+    )
+    val title = focusIndex?.let { row.getOrNull(it).orEmpty().trim() }
+        ?.takeIf { it.isNotBlank() }
+        ?: row.firstOrNull { it.trim().isNotBlank() }.orEmpty().trim().ifBlank { "Study week" }
+    val rawWeek = row.getOrNull(weekIndex).orEmpty().trim()
+    val weekLabel = when {
+        rawWeek.isBlank() -> "Week"
+        normalizeTableHeaderForMatch(rawWeek).contains("week") -> rawWeek
+        else -> "Week $rawWeek"
+    }
+    val dateValue = dateIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+    val excluded = setOfNotNull(weekIndex, dateIndex, focusIndex)
+    val detailCells = headers.indices.mapNotNull { index ->
+        val value = row.getOrNull(index).orEmpty().trim()
+        if (index in excluded || value.isBlank()) null else tableHeaderLabel(headers, index) to value
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row)
+            },
+        shape = RoundedCornerShape(18.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = flatSpecCardBorder()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp)
+        ) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(weekLabel),
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp)
+                    )
+                }
+                if (dateValue.isNotBlank()) {
+                    Surface(
+                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(dateValue),
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                        )
+                    }
+                }
+            }
+            Text(
+                text = parseBoldMarkdown(title),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            detailCells.forEach { (label, value) ->
                 ScheduleDetailBlock(label = label, value = value)
             }
         }

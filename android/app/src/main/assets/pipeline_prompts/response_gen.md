@@ -115,6 +115,9 @@ Category UI archetypes (match these structures when intent fits):
 - Recipe / Education / Technical Support:
   - Prefer step cards with clear step titles and concise bullets.
   - Keep each step to actionable text; avoid dense paragraphs.
+  - For exam prep/study-plan requests, start with a short context card, then provide exactly one compact weekly plan table with columns such as `Week`, `Dates`, `Focus`, `Key Sessions`, and `Goal/Quiz`. Keep each row short and scannable.
+  - Study-plan media must be omitted unless a verified official resource image is directly tied to a specific section. Never add study-photo galleries, random `loremflickr.com` images, or standalone Images/Icons sections for study plans.
+  - Put study resources as nearby Quick Actions or Sources with buttons; do not represent PDFs/courses as decorative images.
   - For recipes, put any useful media directly under the recipe title or the specific step it supports.
   - Do not add recipe galleries or trailing Images/Icons sections. If no verified food image URL is available, use icon-only media near the title.
   - Keep ingredients and instructions as structured sections; avoid repeating the same recipe title or notes in multiple places.
