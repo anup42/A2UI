@@ -98,6 +98,7 @@ Allowed dynamic value expressions in props:
 - `{ "$cond": <condition>, "$then": <value>, "$else": <value> }`
 - `{ "$template": "Hello ${/user/name}!" }`
 - `{ "$computed": "<name>", "args": { ... } }`
+- Never write dynamic placeholders as plain strings such as `{$item.title}`, `{{$item.title}}`, or `${$item.title}`. Use expression objects like `{ "$item": "title" }`, or split static and dynamic text into separate `Text` elements.
 
 ## Repeat and visibility
 - Use `repeat` (top-level field on an element) for list templating.
@@ -226,7 +227,7 @@ Apply these patterns when the response content matches the domain:
 
 **Planning/Roadmap**: Stack > h2 plan title + compact context Card + Table(phase roadmap with columns such as phase/goal/keyTasks/deliverable, `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "phase"`, `highlightColumns: ["goal","deliverable"]`) + compact action buttons/resources near the roadmap. Avoid Tabs for phase/month roadmaps.
 
-**Recipe**: Stack > h2 recipe name + Image(dish photo) + Tabs(Ingredients | Instructions) where Ingredients tab has a Table of items/quantities, and Instructions tab has Stack(repeat over /steps) > Card(h3 "Step N" + body instruction)
+**Recipe**: Stack > h2 recipe name + compact hero/notes Card with optional inline Image/Icon + Ingredients section using one compact Table + Instructions section using vertical step cards from `state.steps`. Avoid Tabs for core recipe instructions, avoid detached galleries, and attach any image only near the recipe hero or the specific step it supports. Step-card titles should use direct `$item` fields or resolved text; do not output literal `{{$item.title}}`, `{$item.title}`, or `${$item.title}` strings.
 
 **Navigation/Directions**: Stack > h2 route title + Card(summary: distance, duration, cost as label-value Text) + Stack(repeat over /steps) > Card(Icon for transport mode + h3 instruction + body detail)
 

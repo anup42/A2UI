@@ -690,9 +690,9 @@ def _build_real_asset_retry_prompt(
 ) -> str:
     visual = _is_visual_intent(intent, tags)
     visual_req = (
-        "Include both Images and Icons sections with relevant URLs."
+        "Include inline Media lines only when they are tied to the exact content block; do not add standalone Images or Icons sections."
         if visual
-        else "Images/Icons are optional unless clearly useful."
+        else "Inline Media lines are optional unless clearly useful; do not add standalone Images or Icons sections."
     )
     return (
         f"{base_prompt}\n\n"
@@ -701,13 +701,14 @@ def _build_real_asset_retry_prompt(
         "Hard requirements for this retry:\n"
         f"- {visual_req}\n"
         "- Use only real, publicly reachable media URLs that are directly downloadable.\n"
-        "- Do NOT use upload.wikimedia.org, images.unsplash.com, cdn.pixabay.com, or deep images.pexels.com links (commonly blocked/dead in this pipeline).\n"
+        "- Do NOT use upload.wikimedia.org, images.unsplash.com, cdn.pixabay.com, or deep images.pexels.com links (commonly blocked/dead in this pipeline). If using Wikimedia, use a verified commons.wikimedia.org/wiki/Special:FilePath/<filename> URL instead.\n"
         "- Do NOT use random or placeholder media hosts such as loremflickr.com, picsum.photos, placekitten.com, placehold.co, placeholder.com, or dummyimage.com.\n"
         "- Prefer direct verified image URLs (jpg/png/webp) with display-friendly size for cards (around 1200x800, landscape).\n"
         "- When uncertain about a verified image, use icon-only media and omit the image.\n"
         "- For icons, prefer direct lightweight SVGs suitable for UI (roughly 64-256 px square), e.g.\n"
         "  https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg\n"
         "- Keep each URL adjacent to the specific option/row it belongs to.\n"
+        "- Never append trailing Images, Icons, Visual Guide, Gallery, or Related Icons sections.\n"
         "- Keep the original answer quality and structure.\n"
         "Return plain text only."
     )

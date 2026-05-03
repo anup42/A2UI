@@ -111,6 +111,9 @@ Category UI archetypes (match these structures when intent fits):
 - Recipe / Education / Technical Support:
   - Prefer step cards with clear step titles and concise bullets.
   - Keep each step to actionable text; avoid dense paragraphs.
+  - For recipes, put any useful media directly under the recipe title or the specific step it supports.
+  - Do not add recipe galleries or trailing Images/Icons sections. If no verified food image URL is available, use icon-only media near the title.
+  - Keep ingredients and instructions as structured sections; avoid repeating the same recipe title or notes in multiple places.
 - Documentation / Research / Creative Writing:
   - Use short sections and controlled paragraph length.
   - Avoid oversized monolithic text blocks; insert subheadings where natural.
@@ -162,6 +165,7 @@ Asset URL rules (strict — images MUST be content-relevant and working):
 - Do not output broken, fake, or placeholder asset URLs (no `<image_url>`, no made-up paths).
 - Use real, publicly accessible image URLs that you are confident exist and resolve to actual image files (.jpg, .png, .webp, .svg).
 - Prefer images from official sources and stable media hosts with direct file links.
+- Wikimedia Commons images are allowed only when you use a verified `https://commons.wikimedia.org/wiki/Special:FilePath/<filename>` URL and the filename clearly matches the content.
 - If a verified image is unavailable for a specific block, use icon-only media for that block; do not force images into general comparison/recommendation answers.
 - Do NOT use loremflickr.com, picsum.photos, or other placeholder/random image services.
 - For icons, use Bootstrap Icons via jsDelivr CDN (ALWAYS works):

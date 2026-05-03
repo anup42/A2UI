@@ -668,6 +668,7 @@ object FlatExprResolver {
             is List<*> -> value.map { child ->
                 resolve(child, state, repeatScope, computedFunctions)
             }
+            is String -> resolveInlineTemplateString(value, state, repeatScope)
             else -> value
         }
     }
@@ -762,7 +763,8 @@ object FlatExprResolver {
 
             stringMap.containsKey("\$template") -> interpolate(
                 template = stringMap["\$template"]?.toString().orEmpty(),
-                state = state
+                state = state,
+                repeatScope = repeatScope
             )
 
             stringMap.containsKey("\$computed") -> {
@@ -853,11 +855,35 @@ object FlatExprResolver {
         }
     }
 
-    private fun interpolate(template: String, state: Map<String, Any?>): String {
-        return Regex("""\$\{([^}]+)\}""").replace(template) { match ->
+    private fun interpolate(template: String, state: Map<String, Any?>, repeatScope: RepeatScope?): String {
+        return resolveInlineTemplateString(template, state, repeatScope)
+    }
+
+    private fun resolveInlineTemplateString(template: String, state: Map<String, Any?>, repeatScope: RepeatScope?): String {
+        if (!template.contains("\$item") && !template.contains("\${/") && !template.contains("\${index")) return template
+        val item = repeatScope?.item
+        val dollarItemResolved = Regex("""[$]\{\s*[$]item[./]([^}]+?)\s*\}""").replace(template) { match ->
+            val itemPath = match.groupValues.getOrNull(1).orEmpty().trim()
+            resolveItemValue(item, itemPath)?.toString().orEmpty()
+        }
+        val mustacheItemResolved = Regex("""\{\{\s*[$]item[./]([^}]+?)\s*\}\}""").replace(dollarItemResolved) { match ->
+            val itemPath = match.groupValues.getOrNull(1).orEmpty().trim()
+            resolveItemValue(item, itemPath)?.toString().orEmpty()
+        }
+        val itemResolved = Regex("""(?<![$])\{\s*[$]item[./]([^}]+?)\s*\}""").replace(mustacheItemResolved) { match ->
+            val itemPath = match.groupValues.getOrNull(1).orEmpty().trim()
+            resolveItemValue(item, itemPath)?.toString().orEmpty()
+        }
+        return Regex("""[$]\{([^}]+)\}""").replace(itemResolved) { match ->
             val rawPath = match.groupValues.getOrNull(1).orEmpty()
-            val path = normalizePointer(rawPath)
-            FlatSpecParser.getAtPath(state, path)?.toString().orEmpty()
+            when (rawPath.trim()) {
+                "index", "index_0" -> repeatScope?.index?.toString().orEmpty()
+                "index_1" -> repeatScope?.index?.let { (it + 1).toString() }.orEmpty()
+                else -> {
+                    val path = normalizePointer(rawPath)
+                    FlatSpecParser.getAtPath(state, path)?.toString().orEmpty()
+                }
+            }
         }
     }
 }
@@ -1518,6 +1544,12 @@ private fun isHorizontalRowElement(element: FlatElement?): Boolean {
     }
 }
 
+private fun hasOnlyTextCellChildren(element: FlatElement, elements: Map<String, FlatElement>): Boolean {
+    return element.children.isNotEmpty() && element.children.all { childId ->
+        elements[childId]?.type?.equals("text", ignoreCase = true) == true
+    }
+}
+
 private fun textLikeValue(props: Map<String, Any?>): Any? {
     return props["text"] ?: props["title"] ?: props["label"] ?: props["content"] ?: props["value"]
 }
@@ -2022,7 +2054,8 @@ internal fun extractFlatTableModel(
         val element = elements[childId] ?: return@firstOrNull false
         isHorizontalRowElement(element) &&
             element.repeat == null &&
-            element.children.size >= 2
+            element.children.size >= 2 &&
+            hasOnlyTextCellChildren(element, elements)
     } ?: return null
     val headerRow = elements[headerRowId] ?: return null
 

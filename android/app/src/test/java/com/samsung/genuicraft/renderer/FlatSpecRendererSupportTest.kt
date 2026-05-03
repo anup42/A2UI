@@ -220,6 +220,58 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractFlatTableModel_ignoresSectionHeaderRowsWithIcons() {
+        val elements = mapOf(
+            "sectionHeader" to FlatElement(
+                type = "Stack",
+                props = mapOf("direction" to "horizontal"),
+                children = listOf("headerIcon", "headerText")
+            ),
+            "headerIcon" to FlatElement(
+                type = "Icon",
+                props = mapOf("name" to "../assets/list.svg"),
+                children = emptyList()
+            ),
+            "headerText" to FlatElement(
+                type = "Text",
+                props = mapOf("text" to "Baking Steps"),
+                children = emptyList()
+            ),
+            "list" to FlatElement(
+                type = "Stack",
+                props = mapOf("direction" to "vertical"),
+                children = listOf("row"),
+                repeat = RepeatConfig(statePath = "/steps", key = "id")
+            ),
+            "row" to FlatElement(
+                type = "Stack",
+                props = mapOf("direction" to "horizontal"),
+                children = listOf("number", "body")
+            ),
+            "number" to FlatElement(
+                type = "Text",
+                props = mapOf("text" to mapOf("\$template" to "${'$'}{index_1}.")),
+                children = emptyList()
+            ),
+            "body" to FlatElement(
+                type = "Text",
+                props = mapOf("text" to mapOf("\$item" to "description")),
+                children = emptyList()
+            )
+        )
+
+        val model = extractFlatTableModel(
+            containerChildren = listOf("sectionHeader", "list"),
+            containerProps = mapOf("direction" to "vertical"),
+            elements = elements,
+            state = mapOf("steps" to listOf(mapOf("id" to "1", "description" to "Preheat."))),
+            compactScreen = true
+        )
+
+        assertNull(model)
+    }
+
+    @Test
     fun looksLikeClimateComparisonTable_detectsCityWeatherMetrics() {
         val headers = listOf(
             "City",
@@ -458,13 +510,19 @@ class FlatSpecRendererSupportTest {
         val state = mapOf<String, Any?>(
             "user" to mapOf("name" to "Anup")
         )
-        val item = mapOf<String, Any?>("url" to "https://example.com")
+        val item = mapOf<String, Any?>("url" to "https://example.com", "title" to "Prepare Dough")
 
         val itemExpr = mapOf("\$item" to "url")
         val templateExpr = mapOf("\$template" to "Hello ${'$'}{/user/name}")
+        val mustacheItemTemplateExpr = mapOf("\$template" to "Step 1: {{${'$'}item.title}}")
+        val legacyItemTemplateExpr = mapOf("\$template" to "Step 1: {${'$'}item.title}")
+        val dollarItemTemplateExpr = mapOf("\$template" to "Step 1: ${'$'}{${'$'}item.title}")
 
         assertEquals("https://example.com", FlatExprResolver.resolve(itemExpr, state, item))
         assertEquals("Hello Anup", FlatExprResolver.resolve(templateExpr, state, item))
+        assertEquals("Step 1: Prepare Dough", FlatExprResolver.resolve(mustacheItemTemplateExpr, state, item))
+        assertEquals("Step 1: Prepare Dough", FlatExprResolver.resolve(legacyItemTemplateExpr, state, item))
+        assertEquals("Step 1: Prepare Dough", FlatExprResolver.resolve(dollarItemTemplateExpr, state, item))
     }
 
     @Test
@@ -487,6 +545,23 @@ class FlatSpecRendererSupportTest {
         assertEquals("Alpha", FlatExprResolver.resolve(nestedItemExpr, state, scope, emptyMap()))
         assertEquals(0, FlatExprResolver.resolve(indexExpr, state, scope, emptyMap()))
         assertEquals("First", FlatExprResolver.resolve(bindItemExpr, state, scope, emptyMap()))
+    }
+
+    @Test
+    fun resolve_interpolatesLegacyInlineItemStrings() {
+        val state = mapOf<String, Any?>(
+            "user" to mapOf("name" to "Asha")
+        )
+        val scope = RepeatScope(
+            item = mapOf("title" to "Prep Oven", "description" to "Preheat to 375 F"),
+            index = 0
+        )
+
+        assertEquals("Prep Oven", FlatExprResolver.resolve("{${'$'}item.title}", state, scope, emptyMap()))
+        assertEquals("Prep Oven", FlatExprResolver.resolve("{{${'$'}item.title}}", state, scope, emptyMap()))
+        assertEquals("Step: Prep Oven", FlatExprResolver.resolve("Step: ${'$'}{${'$'}item.title}", state, scope, emptyMap()))
+        assertEquals("Hello Asha", FlatExprResolver.resolve("Hello ${'$'}{/user/name}", state, scope, emptyMap()))
+        assertEquals("Step 1.", FlatExprResolver.resolve("Step ${'$'}{index_1}.", state, scope, emptyMap()))
     }
 
     @Test
