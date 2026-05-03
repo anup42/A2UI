@@ -862,6 +862,7 @@ object FlatExprResolver {
 
     private fun resolveInlineTemplateString(template: String, state: Map<String, Any?>, repeatScope: RepeatScope?): String {
         if (!template.contains("\$item") &&
+            !template.contains("\$index") &&
             !template.contains("\${/") &&
             !template.contains("\${index") &&
             !Regex("""[$]\{[^}]+\}""").containsMatchIn(template)
@@ -881,7 +882,12 @@ object FlatExprResolver {
             val itemPath = match.groupValues.getOrNull(1).orEmpty().trim()
             resolveItemValue(item, itemPath)?.toString().orEmpty()
         }
-        return Regex("""[$]\{([^}]+)\}""").replace(itemResolved) { match ->
+        val legacyIndexResolved = Regex("""(?<![$])\{\s*[$]index\s*(?:\+\s*1)?\s*\}""").replace(itemResolved) { match ->
+            val raw = match.value
+            val index = repeatScope?.index ?: return@replace ""
+            if (raw.contains("+")) (index + 1).toString() else index.toString()
+        }
+        return Regex("""[$]\{([^}]+)\}""").replace(legacyIndexResolved) { match ->
             val rawPath = match.groupValues.getOrNull(1).orEmpty()
             when (rawPath.trim()) {
                 "index", "index_0" -> repeatScope?.index?.toString().orEmpty()

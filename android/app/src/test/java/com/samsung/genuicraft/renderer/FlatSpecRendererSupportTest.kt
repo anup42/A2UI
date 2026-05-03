@@ -576,6 +576,7 @@ class FlatSpecRendererSupportTest {
         assertEquals("Title: Prep Oven", FlatExprResolver.resolve("Title: ${'$'}{title}", state, scope, emptyMap()))
         assertEquals("Hello Asha", FlatExprResolver.resolve("Hello ${'$'}{/user/name}", state, scope, emptyMap()))
         assertEquals("Step 1.", FlatExprResolver.resolve("Step ${'$'}{index_1}.", state, scope, emptyMap()))
+        assertEquals("Step 1: Prep Oven", FlatExprResolver.resolve("Step {${'$'}index + 1}: {${'$'}item.title}", state, scope, emptyMap()))
     }
 
     @Test
