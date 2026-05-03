@@ -1292,13 +1292,42 @@ class FlatSpecRendererSupportTest {
     fun formulaHelpers_parseMortgageFractionAndScripts() {
         val converted = plainBracketFractionToLatex("M = P [ i(1 + i)^n ] / [ (1 + i)^n - 1 ]")
         val fraction = parseFormulaFraction(converted)
+        val segments = parseFormulaSegments("""M = P \frac{i(1+i)^n}{(1+i)^n - 1}""")
 
         assertNotNull(fraction)
         assertEquals("M = P", fraction!!.prefix)
         assertEquals("i(1 + i)^n", fraction.numerator)
         assertEquals("(1 + i)^n - 1", fraction.denominator)
+        assertEquals(2, segments.size)
+        assertTrue(segments[0] is FormulaVisualSegment.TextSegment)
+        assertTrue(segments[1] is FormulaVisualSegment.FractionSegment)
+        val mortgageFraction = segments[1] as FormulaVisualSegment.FractionSegment
+        assertEquals("i(1+i)^n", mortgageFraction.numerator)
+        assertEquals("(1+i)^n - 1", mortgageFraction.denominator)
+        assertEquals("M = P ×", formulaDisplayTextSegment((segments[0] as FormulaVisualSegment.TextSegment).value, true))
+        assertEquals("A =", formulaDisplayTextSegment("A =", true))
         assertTrue(looksLikeFormulaText("M = P [ i(1 + i)^n ] / [ (1 + i)^n - 1 ]"))
         assertEquals("Payment = principal", normalizeFormulaText("""Payment = \text{principal}"""))
+    }
+
+    @Test
+    fun formulaHelpers_parseMultipleFractionsAndPlainScripts() {
+        val areaSegments = parseFormulaSegments("""A = \frac{1}{2}bh + \frac{\pi r^2}{2}""")
+        val plainSegments = parseFormulaSegments("E = mc^2")
+        val roiSegments = parseFormulaSegments("""ROI = \frac{\text{Gain} - \text{Cost}}{\text{Cost}} \times 100\%""")
+
+        assertEquals(4, areaSegments.size)
+        assertTrue(areaSegments[0] is FormulaVisualSegment.TextSegment)
+        assertTrue(areaSegments[1] is FormulaVisualSegment.FractionSegment)
+        assertTrue(areaSegments[2] is FormulaVisualSegment.TextSegment)
+        assertTrue(areaSegments[3] is FormulaVisualSegment.FractionSegment)
+        assertEquals("E = mc2", formulaAnnotatedString((plainSegments.single() as FormulaVisualSegment.TextSegment).value).text)
+        assertEquals(3, roiSegments.size)
+        val roiFraction = roiSegments[1] as FormulaVisualSegment.FractionSegment
+        assertEquals("Gain - Cost", normalizeFormulaText(roiFraction.numerator))
+        assertEquals("Cost", normalizeFormulaText(roiFraction.denominator))
+        assertTrue((roiSegments[2] as FormulaVisualSegment.TextSegment).value.contains("100"))
+        assertTrue(formulaAnnotatedString("""x = \sqrt{b^2 - 4ac}""").text.contains("b2 - 4ac"))
     }
 
     @Test

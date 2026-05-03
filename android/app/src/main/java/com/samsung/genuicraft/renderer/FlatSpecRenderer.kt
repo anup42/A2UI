@@ -9004,6 +9004,11 @@ internal data class FormulaFractionParts(
     val suffix: String
 )
 
+internal sealed class FormulaVisualSegment {
+    data class TextSegment(val value: String) : FormulaVisualSegment()
+    data class FractionSegment(val numerator: String, val denominator: String) : FormulaVisualSegment()
+}
+
 @Composable
 private fun RenderFormula(props: Map<String, Any?>, modifier: Modifier = Modifier) {
     val rawFormula = (
@@ -9020,7 +9025,7 @@ private fun RenderFormula(props: Map<String, Any?>, modifier: Modifier = Modifie
     val subtitle = props["subtitle"]?.toString()?.trim().orEmpty()
     val result = props["result"]?.toString()?.trim().orEmpty()
     val displayFormula = plainBracketFractionToLatex(normalizedFormula)
-    val fraction = parseFormulaFraction(displayFormula)
+    val segments = parseFormulaSegments(displayFormula)
     Surface(
         shape = RoundedCornerShape(18.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.64f),
@@ -9057,71 +9062,11 @@ private fun RenderFormula(props: Map<String, Any?>, modifier: Modifier = Modifie
                 modifier = Modifier.fillMaxWidth()
             ) {
                 val scrollState = rememberScrollState()
-                if (fraction != null) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(scrollState)
-                            .padding(horizontal = 14.dp, vertical = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (fraction.prefix.isNotBlank()) {
-                            Text(
-                                text = formulaAnnotatedString(fraction.prefix),
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontFamily = FontFamily.Monospace,
-                                    fontWeight = FontWeight.SemiBold
-                                ),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
-                            modifier = Modifier.widthIn(min = 104.dp)
-                        ) {
-                            Text(
-                                text = formulaAnnotatedString(fraction.numerator),
-                                style = MaterialTheme.typography.titleSmall.copy(fontFamily = FontFamily.Monospace),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.62f)
-                            )
-                            Text(
-                                text = formulaAnnotatedString(fraction.denominator),
-                                style = MaterialTheme.typography.titleSmall.copy(fontFamily = FontFamily.Monospace),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        if (fraction.suffix.isNotBlank()) {
-                            Text(
-                                text = formulaAnnotatedString(fraction.suffix),
-                                style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                } else {
-                    Text(
-                        text = formulaAnnotatedString(displayFormula),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(scrollState)
-                            .padding(horizontal = 14.dp, vertical = 14.dp)
-                    )
-                }
+                RenderFormulaExpression(
+                    displayFormula = displayFormula,
+                    segments = segments,
+                    scrollState = scrollState
+                )
             }
             if (result.isNotBlank()) {
                 Surface(
@@ -9137,6 +9082,117 @@ private fun RenderFormula(props: Map<String, Any?>, modifier: Modifier = Modifie
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RenderFormulaExpression(
+    displayFormula: String,
+    segments: List<FormulaVisualSegment>,
+    scrollState: androidx.compose.foundation.ScrollState
+) {
+    val formulaTextStyle = MaterialTheme.typography.titleLarge.copy(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.SemiBold
+    )
+    val hasFraction = segments.any { it is FormulaVisualSegment.FractionSegment }
+    if (!hasFraction) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(scrollState)
+                .padding(horizontal = 16.dp, vertical = 18.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = formulaAnnotatedString(displayFormula),
+                style = formulaTextStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Visible
+            )
+        }
+        return
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(scrollState)
+            .padding(horizontal = 16.dp, vertical = 18.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            segments.forEachIndexed { index, segment ->
+                when (segment) {
+                    is FormulaVisualSegment.TextSegment -> {
+                        val nextIsFraction = segments.getOrNull(index + 1) is FormulaVisualSegment.FractionSegment
+                        val text = formulaDisplayTextSegment(segment.value, nextIsFraction)
+                        if (text.isNotBlank()) {
+                            Text(
+                                text = formulaAnnotatedString(text),
+                                style = formulaTextStyle,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Visible
+                            )
+                        }
+                    }
+                    is FormulaVisualSegment.FractionSegment -> FormulaFractionView(
+                        numerator = segment.numerator,
+                        denominator = segment.denominator
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FormulaFractionView(
+    numerator: String,
+    denominator: String,
+    modifier: Modifier = Modifier
+) {
+    val numeratorText = formulaAnnotatedString(numerator)
+    val denominatorText = formulaAnnotatedString(denominator)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier.widthIn(min = 88.dp)
+    ) {
+        Text(
+            text = numeratorText,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold
+            ),
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Visible,
+            modifier = Modifier.padding(horizontal = 6.dp)
+        )
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.70f),
+            thickness = 1.5.dp
+        )
+        Text(
+            text = denominatorText,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold
+            ),
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Visible,
+            modifier = Modifier.padding(horizontal = 6.dp)
+        )
     }
 }
 
@@ -9369,6 +9425,45 @@ internal fun parseFormulaFraction(raw: String): FormulaFractionParts? {
         denominator = denominator.value.trim(),
         suffix = text.substring(denominator.nextIndex).trim()
     )
+}
+
+internal fun parseFormulaSegments(raw: String): List<FormulaVisualSegment> {
+    val text = plainBracketFractionToLatex(raw)
+    if ("\\frac" !in text) return listOf(FormulaVisualSegment.TextSegment(text))
+    val segments = mutableListOf<FormulaVisualSegment>()
+    var cursor = 0
+    while (cursor < text.length) {
+        val fractionIndex = text.indexOf("\\frac", startIndex = cursor)
+        if (fractionIndex < 0) {
+            text.substring(cursor).takeIf { it.isNotBlank() }?.let {
+                segments += FormulaVisualSegment.TextSegment(it)
+            }
+            break
+        }
+        text.substring(cursor, fractionIndex).takeIf { it.isNotBlank() }?.let {
+            segments += FormulaVisualSegment.TextSegment(it)
+        }
+        var groupCursor = fractionIndex + "\\frac".length
+        while (groupCursor < text.length && text[groupCursor].isWhitespace()) groupCursor++
+        val numerator = readLatexGroup(text, groupCursor) ?: return listOf(FormulaVisualSegment.TextSegment(text))
+        groupCursor = numerator.nextIndex
+        while (groupCursor < text.length && text[groupCursor].isWhitespace()) groupCursor++
+        val denominator = readLatexGroup(text, groupCursor) ?: return listOf(FormulaVisualSegment.TextSegment(text))
+        segments += FormulaVisualSegment.FractionSegment(
+            numerator = numerator.value.trim(),
+            denominator = denominator.value.trim()
+        )
+        cursor = denominator.nextIndex
+    }
+    return segments.ifEmpty { listOf(FormulaVisualSegment.TextSegment(text)) }
+}
+
+internal fun formulaDisplayTextSegment(raw: String, nextIsFraction: Boolean): String {
+    val text = raw.trim()
+    if (!nextIsFraction || text.isBlank()) return text
+    val last = text.last()
+    val alreadyOperator = last in setOf('=', '+', '-', '*', '/', '×', '÷', '·', '(')
+    return if (alreadyOperator) text else "$text ×"
 }
 
 private data class LatexGroup(val value: String, val nextIndex: Int)
