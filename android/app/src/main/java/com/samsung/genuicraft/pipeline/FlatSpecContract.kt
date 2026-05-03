@@ -52,6 +52,7 @@ internal object FlatSpecContract {
         "card",
         "table",
         "text",
+        "emailpreview",
         "image",
         "icon",
         "video",

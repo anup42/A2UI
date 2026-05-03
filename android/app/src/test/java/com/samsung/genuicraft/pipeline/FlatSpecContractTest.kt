@@ -31,6 +31,32 @@ class FlatSpecContractTest {
     }
 
     @Test
+    fun coerceAndValidate_acceptsEmailPreviewElement() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["email"] },
+                "email": {
+                  "type": "EmailPreview",
+                  "props": {
+                    "subject": "Interview follow-up",
+                    "to": "Dr. Reed",
+                    "body": ["Dear Dr. Reed,", "Thank you for your time."]
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertTrue(result.error.orEmpty(), result.isValid)
+    }
+
+    @Test
     fun coerceAndValidate_failsWhenElementsIsEmpty() {
         val payload = JsonParser.parseString(
             """

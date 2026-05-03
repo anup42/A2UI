@@ -71,6 +71,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -1251,6 +1252,7 @@ private fun RenderByType(
         "table" -> RenderDirectTable(props, state, onOpenUrl, modifier)
         "chart", "barchart", "bar_chart" -> RenderChart(props, state, modifier)
         "text" -> RenderText(props, modifier)
+        "emailpreview", "email_preview" -> RenderEmailPreview(props, modifier)
         "image" -> RenderImage(props, onOpenUrl, modifier)
         "icon" -> RenderIcon(props, modifier)
         "button" -> RenderButton(props, onMap, repeatScope, onAction, modifier)
@@ -6426,6 +6428,10 @@ private fun RenderCard(
     val allChildren = children.ifEmpty {
         props["child"]?.toString()?.let { listOf(it) } ?: emptyList()
     }
+    extractEmailPreviewPropsFromCard(allChildren, elements, state, repeatScope)?.let { emailProps ->
+        RenderEmailPreview(emailProps, modifier)
+        return
+    }
     val hasExplicitCardPadding = props.containsKey("contentPadding") ||
         props.containsKey("contentPaddingHorizontal") ||
         props.containsKey("contentPaddingVertical") ||
@@ -6482,6 +6488,406 @@ private fun RenderCard(
                     onAction = onAction,
                     activePath = activePath
                 )
+            }
+        }
+    }
+}
+
+private fun collectTextValuesForEmail(
+    elementIds: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    activePath: Set<String> = emptySet()
+): List<String> {
+    val computedFunctions = emptyMap<String, FlatComputedFunction>()
+    return elementIds.flatMap { elementId ->
+        if (elementId in activePath) return@flatMap emptyList()
+        val element = elements[elementId] ?: return@flatMap emptyList()
+        val resolvedProps = element.props.mapValues { (_, value) ->
+            FlatExprResolver.resolve(value, state, repeatScope, computedFunctions)
+        }
+        val ownText = if (element.type.equals("text", ignoreCase = true)) {
+            emailFirstString(resolvedProps, "text", "title", "label", "content", "value")
+                .takeIf { it.isNotBlank() }
+                ?.let(::listOf)
+                .orEmpty()
+        } else {
+            emptyList()
+        }
+        ownText + collectTextValuesForEmail(
+            element.children,
+            elements,
+            state,
+            repeatScope,
+            activePath + elementId
+        )
+    }
+}
+
+private fun extractEmailPreviewPropsFromCard(
+    childIds: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?
+): Map<String, Any?>? {
+    val textValues = collectTextValuesForEmail(childIds, elements, state, repeatScope)
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+    if (textValues.size < 5) return null
+
+    fun labelValue(label: String): String {
+        val prefix = "$label:"
+        textValues.forEachIndexed { index, text ->
+            if (text.equals(prefix, ignoreCase = true)) {
+                return textValues.getOrNull(index + 1).orEmpty()
+            }
+            if (text.startsWith(prefix, ignoreCase = true)) {
+                return text.substringAfter(":").trim()
+            }
+        }
+        return ""
+    }
+
+    val subject = labelValue("Subject")
+    val to = labelValue("To")
+    val from = labelValue("From")
+    val hasGreeting = textValues.any { it.startsWith("Dear ", ignoreCase = true) || it.startsWith("Hello ", ignoreCase = true) }
+    val hasSignature = textValues.any { value ->
+        val lower = value.lowercase()
+        lower.startsWith("best regards") ||
+            lower.startsWith("sincerely") ||
+            lower.startsWith("regards") ||
+            lower.startsWith("thank you")
+    }
+    if (subject.isBlank() || (!hasGreeting && !hasSignature)) return null
+
+    val headerLabels = setOf("subject:", "to:", "from:", "date:")
+    fun headerEndIndex(label: String): Int? {
+        val prefix = "$label:"
+        textValues.forEachIndexed { index, text ->
+            if (text.equals(prefix, ignoreCase = true)) {
+                return (index + 1).coerceAtMost(textValues.lastIndex)
+            }
+            if (text.startsWith(prefix, ignoreCase = true)) return index
+        }
+        return null
+    }
+
+    val greetingIndex = textValues.indexOfFirst { text ->
+        text.startsWith("Dear ", ignoreCase = true) || text.startsWith("Hello ", ignoreCase = true)
+    }
+    val headerEnd = listOfNotNull(
+        headerEndIndex("Subject"),
+        headerEndIndex("To"),
+        headerEndIndex("From"),
+        headerEndIndex("Date")
+    ).maxOrNull() ?: -1
+    val bodyStart = greetingIndex.takeIf { it >= 0 } ?: (headerEnd + 1).coerceAtMost(textValues.size)
+    val signatureStart = textValues.indexOfFirst { value ->
+        val lower = value.lowercase()
+        lower.startsWith("best regards") ||
+            lower.startsWith("sincerely") ||
+            lower.startsWith("regards")
+    }.takeIf { it >= 0 } ?: textValues.size
+    val body = textValues
+        .drop(bodyStart)
+        .take((signatureStart - bodyStart).coerceAtLeast(0))
+        .filterNot { headerLabels.contains(it.lowercase()) }
+        .filterNot { it.startsWith("Subject:", ignoreCase = true) || it.startsWith("To:", ignoreCase = true) || it.startsWith("From:", ignoreCase = true) }
+    val signature = if (signatureStart < textValues.size) textValues.drop(signatureStart) else emptyList()
+    val bodyWithGreeting = if (
+        body.none { it.startsWith("Dear ", ignoreCase = true) || it.startsWith("Hello ", ignoreCase = true) } &&
+        to.isNotBlank()
+    ) {
+        listOf("Dear $to,") + body
+    } else {
+        body
+    }
+
+    return mapOf(
+        "title" to "Email draft",
+        "subject" to subject,
+        "to" to to,
+        "from" to from,
+        "body" to bodyWithGreeting,
+        "signature" to signature
+    )
+}
+
+private fun emailFirstString(props: Map<String, Any?>, vararg keys: String): String {
+    keys.forEach { key ->
+        val value = props[key]
+        if (value is String && value.isNotBlank()) return value.trim()
+        if (value != null && value !is List<*> && value !is Map<*, *>) {
+            val text = value.toString().trim()
+            if (text.isNotBlank()) return text
+        }
+    }
+    return ""
+}
+
+private fun emailFirstNonBlank(map: Map<String, Any?>, vararg keys: String): String {
+    keys.forEach { key ->
+        val value = map[key]?.toString()?.trim().orEmpty()
+        if (value.isNotBlank()) return value
+    }
+    return ""
+}
+
+private fun emailStringList(value: Any?): List<String> {
+    return when (value) {
+        is List<*> -> value.mapNotNull { item ->
+            when (item) {
+                is String -> item.trim().takeIf { it.isNotBlank() }
+                is Map<*, *> -> emailFirstNonBlank(
+                    item.entries.associate { (key, entryValue) -> key.toString() to entryValue },
+                    "text",
+                    "body",
+                    "paragraph",
+                    "value",
+                    "content"
+                ).takeIf { it.isNotBlank() }
+                null -> null
+                else -> item.toString().trim().takeIf { it.isNotBlank() }
+            }
+        }
+        is String -> value
+            .split(Regex("""\n\s*\n"""))
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+        null -> emptyList()
+        else -> listOf(value.toString().trim()).filter { it.isNotBlank() }
+    }
+}
+
+private fun emailMetadataItems(props: Map<String, Any?>): List<Pair<String, String>> {
+    val items = mutableListOf<Pair<String, String>>()
+    fun add(label: String, value: String) {
+        if (value.isNotBlank()) items += label to value
+    }
+    add("To", emailFirstString(props, "to", "recipient"))
+    add("From", emailFirstString(props, "from", "sender"))
+    add("Date", emailFirstString(props, "date", "sentAt", "interviewDate"))
+    add("Role", emailFirstString(props, "role", "position"))
+    add("Company", emailFirstString(props, "company", "organization"))
+
+    val rawContext = props["context"] ?: props["metadata"] ?: props["details"]
+    when (rawContext) {
+        is Map<*, *> -> rawContext.forEach { (key, value) ->
+            val label = key?.toString()?.trim().orEmpty()
+            val text = value?.toString()?.trim().orEmpty()
+            if (label.isNotBlank() && text.isNotBlank()) items += label to text
+        }
+        is List<*> -> rawContext.forEach { entry ->
+            val map = toStringKeyMap(entry)
+            if (map != null) {
+                val label = emailFirstNonBlank(map, "label", "name", "key")
+                val value = emailFirstNonBlank(map, "value", "text", "content")
+                if (label.isNotBlank() && value.isNotBlank()) items += label to value
+            } else {
+                val value = entry?.toString()?.trim().orEmpty()
+                if (value.isNotBlank()) items += "Info" to value
+            }
+        }
+    }
+    return items.distinct()
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RenderEmailPreview(props: Map<String, Any?>, modifier: Modifier = Modifier) {
+    val clipboard = LocalClipboardManager.current
+    val title = emailFirstString(props, "title", "heading").ifBlank { "Email Draft" }
+    val subtitle = emailFirstString(props, "subtitle", "preheader", "summary")
+    val subject = emailFirstString(props, "subject", "emailSubject")
+    val body = emailStringList(props["body"] ?: props["paragraphs"] ?: props["emailBody"])
+    val signature = emailStringList(props["signature"] ?: props["signoff"])
+    val metadata = emailMetadataItems(props)
+    val copyBody = (body + signature).joinToString("\n\n")
+    val label = accessibilityLabel(
+        props,
+        listOfNotNull("Email preview", subject, metadata.firstOrNull()?.second)
+            .filter { it.isNotBlank() }
+            .joinToString(". ")
+    )
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .accessibilitySemantics(
+                props = props,
+                fallbackLabel = label,
+                mergeDescendants = false
+            ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(24.dp),
+        border = flatSpecCardBorder()
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                MaterialTheme.colorScheme.tertiaryContainer
+                            )
+                        )
+                    )
+                    .padding(horizontal = 18.dp, vertical = 16.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.semantics { heading() }
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(999.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
+                        ) {
+                            Text(
+                                text = "Draft",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                    if (subtitle.isNotBlank()) {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f)
+                        )
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                if (metadata.isNotEmpty()) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        metadata.take(5).forEach { (metaLabel, value) ->
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerHighest
+                            ) {
+                                Text(
+                                    text = "$metaLabel: $value",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (subject.isNotBlank()) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.72f)
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Text(
+                                text = "Subject",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.76f)
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = subject,
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        body.forEach { paragraph ->
+                            Text(
+                                text = paragraph,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        if (signature.isNotEmpty()) {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                signature.forEachIndexed { index, line ->
+                                    Text(
+                                        text = line,
+                                        style = if (index == 0) {
+                                            MaterialTheme.typography.bodyMedium
+                                        } else {
+                                            MaterialTheme.typography.bodyMedium.copy(
+                                                fontWeight = if (index == 1) FontWeight.SemiBold else FontWeight.Normal
+                                            )
+                                        },
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (subject.isNotBlank()) {
+                        OutlinedButton(
+                            onClick = { clipboard.setText(AnnotatedString(subject)) },
+                            modifier = Modifier.semantics {
+                                contentDescription = "Copy email subject"
+                                role = Role.Button
+                            }
+                        ) {
+                            Text("Copy Subject")
+                        }
+                    }
+                    if (copyBody.isNotBlank()) {
+                        Button(
+                            onClick = { clipboard.setText(AnnotatedString(copyBody)) },
+                            modifier = Modifier.semantics {
+                                contentDescription = "Copy email body"
+                                role = Role.Button
+                            }
+                        ) {
+                            Text("Copy Email")
+                        }
+                    }
+                }
             }
         }
     }

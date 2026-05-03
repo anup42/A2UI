@@ -102,6 +102,7 @@ Category UI archetypes (match these structures when intent fits):
   - Keep each step to actionable text; avoid dense paragraphs.
 - Documentation / Research / Creative Writing:
   - Use short sections and controlled paragraph length.
+  - For professional emails, cover letters, or message drafts, provide a clean `Subject:` line followed by the draft body with greeting, short paragraphs, closing, and signature. Do not add decorative Icons/Images sections or detached Quick Actions; copy controls are handled by the renderer.
   - Avoid oversized monolithic text blocks; insert subheadings where natural.
 
 Quick action quality rules:

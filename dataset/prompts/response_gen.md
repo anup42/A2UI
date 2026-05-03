@@ -120,6 +120,7 @@ Category UI archetypes (match these structures when intent fits):
   - Put manufacturer/ISP support links in a compact Sources or Quick Actions section as buttons; do not encode source links as Icons.
 - Documentation / Research / Creative Writing:
   - Use short sections and controlled paragraph length.
+  - For professional emails, cover letters, or message drafts, provide a clean `Subject:` line followed by the draft body with greeting, short paragraphs, closing, and signature. Do not add decorative Icons/Images sections or detached Quick Actions; copy controls are handled by the renderer.
   - Avoid oversized monolithic text blocks; insert subheadings where natural.
   - For product-description or marketing-copy requests, keep the response as a polished mobile landing-page brief: headline, 1 short intro, 3 compact feature/benefit bullets, and 1 concise closing line.
   - For fictional or concept products, do not invent product photo URLs or use random image services. Prefer 2-4 inline Bootstrap icons tied to the actual features, or omit media.

@@ -87,6 +87,7 @@
             "List",
             "Card",
             "Text",
+            "EmailPreview",
             "Table",
             "Image",
             "Icon",

@@ -24,6 +24,34 @@ Response:
 ## Hard rule: no legacy message array
 - Correct output is a single flat object with `root/state/elements`.
 
+## Hard rule: email/message drafts
+- If the response is drafting an email, cover letter, message, reply, or follow-up note, the draft body MUST be rendered with exactly one `EmailPreview` element.
+- It is invalid to render the actual email draft as a generic `Card` containing many `Text` paragraphs.
+- The surrounding screen may have a title and one short context Text/Card, but the subject/body/signature belong inside `EmailPreview.props`.
+- Minimal valid shape:
+```json
+{
+  "root": "main",
+  "state": {},
+  "elements": {
+    "main": { "type": "Stack", "props": { "direction": "vertical", "gap": "md" }, "children": ["title", "email"] },
+    "title": { "type": "Text", "props": { "text": "Follow-Up Email Draft", "variant": "h2" }, "children": [] },
+    "email": {
+      "type": "EmailPreview",
+      "props": {
+        "title": "Email draft",
+        "subject": "Following up",
+        "to": "Recipient",
+        "from": "Sender",
+        "body": ["Dear Recipient,", "Main message paragraph."],
+        "signature": ["Best regards,", "Sender"]
+      },
+      "children": []
+    }
+  }
+}
+```
+
 ## Output complexity target
 - Prefer compact, high-signal UI over large element graphs.
 - For normal responses, target 10-28 elements. For simple responses, fewer elements are acceptable if the UI still has a title, structured content, and any required media/actions.
@@ -55,6 +83,7 @@ Response:
 - For dashboards/calculations/status results, use 2-4 KPI/metric cards plus one compact details Table. For explicit chart requests, use a compact `Chart` element backed by the same rows, not a placeholder chart image.
 - For product/place/booking/travel options, use one repeated card pattern when that is smaller than duplicated elements.
 - For comparison data, emit one compact `Table`; renderer will choose cards or horizontal table based on metadata and columns.
+- For email/message drafts, emit one `EmailPreview` element for the actual message. If the response contains `Subject:` plus a greeting/signature, this is mandatory. Do not expand the email body into multiple generic Text/Card elements.
 - Keep IR small: do not duplicate the same fact in summary text and table rows.
 
 ## Positive format example
@@ -245,6 +274,8 @@ Apply these patterns when the response content matches the domain:
 
 **Technical Support**: Stack > h2 issue title + compact status/context Card with optional inline Icon + Table(diagnostic checklist with columns such as step/action/check/expectedResult, `domain: "status"`, `preferredPresentation: "cards"`, `primaryColumn: "step"`, `highlightColumns: ["action","expectedResult"]`) + compact Button rows for official support/source links. Do not create detached image galleries; use icon-only media unless a verified official product image is attached to the status card.
 
+**Email / Message Drafting**: Stack > h2 draft title + compact context Text/Card + one `EmailPreview` element for the actual draft. Put `subject`, `to`, `from`, `date`, `role`, `company`, `body` paragraph array, and `signature` lines in `EmailPreview.props`. Do not render the email body as oversized generic Text paragraphs, do not create detached Quick Actions cards for copy buttons, and do not add decorative icon sections.
+
 **Creative Writing / Product Copy**: For product-description or marketing-copy responses, render as a compact product landing screen: h2 product headline + hero Card with inline Icon and 1-2 short body Text elements + feature/benefit cards with relevant icons + optional single CTA only when a real URL is present. Do not create image galleries, do not use random/placeholder images, and split long prose into concise cards. For non-product creative writing, use h2 title + Card(body text content split into paragraph-length Text elements) + optional metadata Card.
 
 **Calculation**: Stack > h2 calculator title + Card(h3 "Result" + h2-sized result number + body breakdown) + Table(calculation steps or annual breakdown) + Button for related tools
@@ -268,6 +299,7 @@ Layout:
 
 Content:
 - `Text` props: `text` (required), `variant` optional (`h1|h2|h3|body|caption|chip|label`)
+- `EmailPreview` props: `title`, `subtitle`, `subject`, `to`, `from`, `date`, `role`, `company`, `body` (string or paragraph array), `signature` (string or line array), optional `context`/`metadata`. Use for professional emails, drafts, messages, cover letters, and similar communication templates.
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
