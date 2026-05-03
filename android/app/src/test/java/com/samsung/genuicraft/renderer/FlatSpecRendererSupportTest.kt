@@ -203,6 +203,29 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractChartPoints_parsesCurrencyBarChartRows() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "month", "label" to "Month"),
+                mapOf("key" to "revenue", "label" to "Revenue")
+            ),
+            "rows" to listOf(
+                mapOf("month" to "January", "revenue" to "$12,500"),
+                mapOf("month" to "February", "revenue" to "$18,000")
+            ),
+            "xKey" to "month",
+            "yKey" to "revenue"
+        )
+
+        val points = extractChartPoints(props, emptyMap())
+
+        assertEquals(2, points.size)
+        assertEquals("January", points[0].label)
+        assertEquals(12500.0, points[0].value, 0.01)
+        assertEquals("$18,000", points[1].displayValue)
+    }
+
+    @Test
     fun bookingRowActionLabel_readsSupportedActionLabelColumns() {
         val headers = listOf("Hotel", "Price", "Booking URL", "Action Label")
         val row = listOf(

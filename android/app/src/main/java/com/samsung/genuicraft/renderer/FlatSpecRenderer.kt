@@ -184,6 +184,12 @@ private data class ClimateComparisonRow(
     val sourceRow: List<String>
 )
 
+internal data class ChartPoint(
+    val label: String,
+    val value: Double,
+    val displayValue: String
+)
+
 internal data class FlatTableModel(
     val headerRowId: String,
     val bodyContainerId: String?,
@@ -1198,6 +1204,7 @@ private fun RenderByType(
         "list" -> RenderList(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "card" -> RenderCard(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "table" -> RenderDirectTable(props, state, onOpenUrl, modifier)
+        "chart", "barchart", "bar_chart" -> RenderChart(props, state, modifier)
         "text" -> RenderText(props, modifier)
         "image" -> RenderImage(props, onOpenUrl, modifier)
         "icon" -> RenderIcon(props, modifier)
@@ -4424,6 +4431,211 @@ private fun RenderClimateComparisonCards(
                 )
             }
         }
+    }
+}
+
+private fun parseChartNumber(value: String): Double? {
+    val match = Regex("""-?\d[\d,]*(?:\.\d+)?""").find(value) ?: return null
+    return match.value.replace(",", "").toDoubleOrNull()
+}
+
+private fun chartColumnIndex(
+    columns: List<FlatDirectTableColumn>,
+    explicitKey: String?,
+    fallbackIndex: Int
+): Int {
+    val normalizedKey = explicitKey?.let(::normalizeColumnToken)
+    if (!normalizedKey.isNullOrBlank()) {
+        val match = columns.indexOfFirst { column ->
+            normalizeColumnToken(column.key) == normalizedKey ||
+                normalizeColumnToken(column.label) == normalizedKey
+        }
+        if (match >= 0) return match
+    }
+    return fallbackIndex.coerceIn(0, (columns.size - 1).coerceAtLeast(0))
+}
+
+internal fun extractChartPoints(
+    props: Map<String, Any?>,
+    state: Map<String, Any?>
+): List<ChartPoint> {
+    val rawRows = (props["rows"] as? List<*>)
+        ?: (props["data"] as? List<*>)
+        ?: resolveDirectTableRows(props, state)
+    if (rawRows.isEmpty()) return emptyList()
+    val columns = resolveDirectTableColumns(props, rawRows)
+    if (columns.size < 2) return emptyList()
+    val xIndex = chartColumnIndex(columns, props["xKey"]?.toString(), 0)
+    val yIndex = chartColumnIndex(columns, props["yKey"]?.toString(), 1)
+    if (xIndex == yIndex) return emptyList()
+
+    return rawRows.mapNotNull { row ->
+        val resolved = resolveDirectTableRow(row, columns, state)
+        val label = resolved.getOrNull(xIndex).orEmpty().trim()
+        val displayValue = resolved.getOrNull(yIndex).orEmpty().trim()
+        val value = parseChartNumber(displayValue)
+        if (label.isBlank() || displayValue.isBlank() || value == null) {
+            null
+        } else {
+            ChartPoint(label = label, value = value, displayValue = displayValue)
+        }
+    }
+}
+
+private fun formatChartNumber(value: Double, currencyPrefix: String?): String {
+    val rounded = value.roundToInt()
+    val formatted = "%,d".format(rounded)
+    return if (currencyPrefix.isNullOrBlank()) formatted else "$currencyPrefix$formatted"
+}
+
+private fun inferChartCurrency(points: List<ChartPoint>): String? {
+    val value = points.firstOrNull { it.displayValue.trim().startsWith("$") } ?: return null
+    return value.displayValue.trim().takeWhile { !it.isDigit() && it != '-' }.takeIf { it.isNotBlank() }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RenderChart(
+    props: Map<String, Any?>,
+    state: Map<String, Any?>,
+    modifier: Modifier = Modifier
+) {
+    val chartType = props["chartType"]?.toString()?.trim()?.lowercase().orEmpty().ifBlank { "bar" }
+    if (chartType !in setOf("bar", "bar_chart", "column")) return
+    val points = extractChartPoints(props, state)
+    if (points.isEmpty()) return
+
+    val title = props["title"]?.toString()?.trim().orEmpty()
+    val subtitle = props["subtitle"]?.toString()?.trim().orEmpty()
+    val yLabel = props["yLabel"]?.toString()?.trim().orEmpty()
+    val maxValue = points.maxOf { it.value }.takeIf { it > 0.0 } ?: 1.0
+    val currencyPrefix = inferChartCurrency(points)
+    val total = points.sumOf { it.value }
+    val peak = points.maxByOrNull { it.value }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = buildString {
+                    if (title.isNotBlank()) append(title).append(". ")
+                    append("Bar chart with ${points.size} values. ")
+                    points.forEach { point ->
+                        append(point.label).append(": ").append(point.displayValue).append(". ")
+                    }
+                }
+            },
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (title.isNotBlank() || subtitle.isNotBlank()) {
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    if (title.isNotBlank()) {
+                        Text(
+                            text = parseBoldMarkdown(title),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    if (subtitle.isNotBlank()) {
+                        Text(
+                            text = parseBoldMarkdown(subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                points.forEachIndexed { index, point ->
+                    val fraction = (point.value / maxValue).toFloat().coerceIn(0.04f, 1f)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(point.label),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.width(76.dp)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(30.dp)
+                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.52f))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(fraction)
+                                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            colors = listOf(
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.86f),
+                                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.78f)
+                                            )
+                                        )
+                                    )
+                            )
+                        }
+                        Text(
+                            text = parseBoldMarkdown(point.displayValue),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.End,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.width(82.dp)
+                        )
+                    }
+                    if (index < points.lastIndex) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f))
+                    }
+                }
+            }
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                peak?.let { point ->
+                    ChartSummaryChip("Peak: ${point.label} ${point.displayValue}")
+                }
+                ChartSummaryChip("Total: ${formatChartNumber(total, currencyPrefix)}")
+                if (yLabel.isNotBlank()) {
+                    ChartSummaryChip(yLabel)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChartSummaryChip(text: String) {
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.62f)
+    ) {
+        Text(
+            text = parseBoldMarkdown(text),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
+        )
     }
 }
 

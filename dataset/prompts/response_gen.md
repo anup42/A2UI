@@ -101,6 +101,7 @@ Category UI archetypes (match these structures when intent fits):
 - Data Visualization / Calculation / Productivity:
   - Start with 1-3 KPI lines.
   - Include one compact table for core numeric detail.
+  - For chart requests, provide the actual numeric rows and chart title/axis labels in text; do not add chart screenshot image URLs or placeholder chart images. The renderer will generate the chart from table data.
   - End with 1-3 short insights.
 - Recipe / Education / Technical Support:
   - Prefer step cards with clear step titles and concise bullets.

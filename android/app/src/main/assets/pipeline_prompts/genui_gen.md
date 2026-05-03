@@ -53,7 +53,7 @@ Valid (flat-spec):
 ## Stitch-style compact mobile patterns
 - Favor a mobile app screen, not a document: one clear title, 1 compact hero/status/result card, then structured cards or tables.
 - Preserve hierarchy with short headings, chips, metric rows, and compact cards instead of long prose blocks.
-- For dashboards/calculations/status results, use 2-4 KPI/metric cards plus one compact details Table.
+- For dashboards/calculations/status results, use 2-4 KPI/metric cards plus one compact details Table. For explicit chart requests, use a compact `Chart` element backed by the same rows, not a placeholder chart image.
 - For product/place/booking/travel options, use one repeated card pattern when that is smaller than duplicated elements.
 - For comparison data, emit one compact `Table`; renderer will choose cards or horizontal table based on metadata and columns.
 - Keep IR small: do not duplicate the same fact in summary text and table rows.
@@ -122,6 +122,7 @@ Allowed dynamic value expressions in props:
   - portrait `<600dp`: entity rows become cards, playlist rows become music rows/cards, key-value rows become fact panels, schedules become timeline cards, metrics become KPI cards
   - landscape/tablet: table-first layout with horizontal scroll and sticky first column when needed; playlist stays a split music-player layout, not a spreadsheet
 - Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
+- Data visualization/chart outputs should use `Chart` for bar/column charts with `statePath`/`rows`, `columns`, `xKey`, and `yKey`; keep the source data as compact rows and do not use random chart screenshots or decorative chart images.
 - Weather/climate outputs must include a dedicated metrics table.
 - Weather/climate comparison tables should stay compact as one `Table`; use `domain: "comparison"` and `preferredPresentation: "cards"` for city/entity rows so the renderer can map them to weather-style climate cards. Keep temperature, rain/precipitation, sunshine, wind, humidity, and recommendation fields as table columns; do not render detached destination image galleries.
 - Flight/travel planning tables should stay compact as one `Table` with `domain: "flight"` and `preferredPresentation: "cards"`. For multi-leg routes, use leg columns such as `leg1`, `leg2`, `leg3` plus a carrier/title column; do not expand each leg into separate elements.
@@ -184,6 +185,7 @@ Content:
   - `title`, `subtitle`, `mood`, `genre` optional for playlist/music table hero metadata
   - `sourceFormat` optional (`markdown|csv|tsv|html|plain`)
   - `sourceText` optional raw table text
+- `Chart` props: `chartType` optional (`bar`), `columns`, `statePath` OR `rows`, `xKey`, `yKey`, optional `title`, `subtitle`, `yLabel`. Use this for generated charts instead of image placeholders.
 - `Image` props: `url` (required), `fit` optional (`cover|contain`)
 - `Icon` props: `name` (required, icon URL)
 - `Video` props: `url` (required)
