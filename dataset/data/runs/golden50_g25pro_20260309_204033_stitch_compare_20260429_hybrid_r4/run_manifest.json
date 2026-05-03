@@ -1,6 +1,6 @@
 {
   "manifest_version": 1,
-  "generated_at": "2026-05-03T17:50:32Z",
+  "generated_at": "2026-05-03T18:03:17Z",
   "run_id": "golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4",
   "stage": 3,
   "repo": {
@@ -17,7 +17,7 @@
       "genui_schema": "v0.9",
       "min_manifest_version": 1
     },
-    "git_commit": "5d97bae3540b83476014e58399a60387919ed088",
+    "git_commit": "b72a533303913d8a62fa9f3206ca6fe3486fa08f",
     "git_branch": "new_ir_changes_20260331",
     "git_dirty": true
   },

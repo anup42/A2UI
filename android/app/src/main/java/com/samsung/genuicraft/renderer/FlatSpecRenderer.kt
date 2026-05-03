@@ -2467,6 +2467,12 @@ private fun RenderStack(
         !wrap &&
         children.size >= 2 &&
         childElements.all { child -> child.type.equals("card", ignoreCase = true) }
+    val compactTextButtonRow = direction == "horizontal" &&
+        compactScreen &&
+        !wrap &&
+        children.size == 2 &&
+        childElements.any { child -> child.type.equals("text", ignoreCase = true) } &&
+        childElements.any { child -> child.type.equals("button", ignoreCase = true) }
     val forceVerticalButtonStack = autoWrapButtonRow && hasLongButtonLabel
     val stackModifier = applyStackModifier(modifier, props, direction)
     val childTextHorizontalPadding = if (hasHorizontalContainerPadding(props)) {
@@ -2535,6 +2541,45 @@ private fun RenderStack(
                 }
             }
             return
+        }
+        if (compactTextButtonRow) {
+            val textChildId = children.firstOrNull { childId ->
+                elements[childId]?.type?.equals("text", ignoreCase = true) == true
+            }
+            val buttonChildId = children.firstOrNull { childId ->
+                elements[childId]?.type?.equals("button", ignoreCase = true) == true
+            }
+            if (textChildId != null && buttonChildId != null) {
+                CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
+                    Column(
+                        modifier = stackModifier,
+                        verticalArrangement = Arrangement.spacedBy(if (gap > 0.dp) gap else 6.dp)
+                    ) {
+                        RenderElement(
+                            elementId = textChildId,
+                            elements = elements,
+                            state = state,
+                            repeatScope = repeatScope,
+                            onOpenUrl = onOpenUrl,
+                            onSetState = onSetState,
+                            onAction = onAction,
+                            activePath = activePath
+                        )
+                        RenderElement(
+                            elementId = buttonChildId,
+                            elements = elements,
+                            state = state,
+                            repeatScope = repeatScope,
+                            onOpenUrl = onOpenUrl,
+                            onSetState = onSetState,
+                            onAction = onAction,
+                            activePath = activePath,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+                return
+            }
         }
         if (forceVerticalMediaTextRow) {
             CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
