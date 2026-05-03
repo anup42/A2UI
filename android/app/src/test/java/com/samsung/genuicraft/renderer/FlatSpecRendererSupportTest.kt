@@ -144,6 +144,30 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun bookingRowImageUrl_readsSupportedImageColumns() {
+        assertEquals(
+            "../assets/sakura.jpg",
+            bookingRowImageUrl(
+                listOf("Hotel", "Image URL", "Booking URL"),
+                listOf("Sakura Inn Kyoto", "../assets/sakura.jpg", "https://example.com")
+            )
+        )
+        assertEquals(
+            "../assets/gion.jpg",
+            bookingRowImageUrl(
+                listOf("Hotel", "Photo", "Price"),
+                listOf("Gion Traditional Ryokan", "../assets/gion.jpg", "$245")
+            )
+        )
+        assertNull(
+            bookingRowImageUrl(
+                listOf("Hotel", "Price"),
+                listOf("Kyoto Grand Hotel", "$280")
+            )
+        )
+    }
+
+    @Test
     fun deriveImageFallbackUrl_returnsSeededFallbackForWikimediaWeatherLikeImages() {
         val sourceUrl =
             "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Bangalore_skyline.jpg/1280px-Bangalore_skyline.jpg"

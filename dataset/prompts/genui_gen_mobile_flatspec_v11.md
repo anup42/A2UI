@@ -140,7 +140,8 @@ Allowed dynamic value expressions in props:
 - Weather/climate outputs must include a dedicated metrics table.
 - Flight comparisons should include explicit airline/time/fare columns.
 - Playlist/music responses should emit one compact `Table` with columns like `trackNumber`, `artist`, `title`, and optional `mood`/`genre`; set `domain: "playlist"`, `preferredPresentation: "cards"`, and optional table props `title`, `subtitle`, `mood`, `genre`.
-- Booking/hotel tables must keep row-level actions inside the same compact `Table`: add `bookingUrl` plus `actionLabel`/`buttonLabel`/`ctaLabel` only for rows that have an action, set `domain: "booking"` and `preferredPresentation: "cards"`, and do not create a detached final Quick Actions card for that row.
+- Booking/hotel tables must keep row-level actions inside the same compact `Table`: add `bookingUrl` plus `actionLabel`/`buttonLabel`/`ctaLabel` for each actionable row, set `domain: "booking"` and `preferredPresentation: "cards"`, and do not create a detached final Quick Actions card for that row.
+- Booking/hotel tables may include compact row media with an `image`/`imageUrl`/`photo` column when the image is verified and directly tied to that hotel. Do not put hotel photos in trailing galleries.
 - Comparison tables:
   - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`. If verified/local images are available for compared entities, attach them in `props.entityMedia`; do not create trailing media cards.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.

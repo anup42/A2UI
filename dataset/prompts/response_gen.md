@@ -87,6 +87,7 @@ Category UI archetypes (match these structures when intent fits):
   - Start with a short summary card.
   - Then provide ranked option cards with compact fields (price, duration/type, one key differentiator) and one clear action each.
   - For hotel/booking rows, keep the action directly under the recommended option or row. Do not repeat the same action later in a detached Quick Actions section.
+  - If verified hotel images are available, place each image as inline `Media:` within the matching hotel option only. Do not add a separate hotel gallery.
   - Keep action labels short (prefer <= 22 characters).
 - Weather / Local Context / Status:
   - Start with one compact "current state" block.

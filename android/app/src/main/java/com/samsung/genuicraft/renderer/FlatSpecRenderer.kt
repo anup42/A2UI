@@ -3382,12 +3382,27 @@ private fun bookingActionLabelIndex(headers: List<String>): Int? =
             (token.contains("cta") && token.contains("label"))
     }
 
+private fun bookingImageIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        token in setOf("image", "imageurl", "image url", "photo", "photourl", "photo url", "thumbnail", "media") ||
+            (token.contains("image") && token.contains("url")) ||
+            (token.contains("photo") && token.contains("url"))
+    }
+
 internal fun bookingRowActionLabel(headers: List<String>, row: List<String>): String? {
     val index = bookingActionLabelIndex(headers) ?: return null
     return row.getOrNull(index)
         ?.trim()
         ?.takeIf { it.isNotBlank() }
         ?.takeIf { !isLikelyHttpUrl(it) }
+}
+
+internal fun bookingRowImageUrl(headers: List<String>, row: List<String>): String? {
+    val index = bookingImageIndex(headers) ?: return null
+    return row.getOrNull(index)
+        ?.trim()
+        ?.takeIf { it.isNotBlank() }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -3411,6 +3426,7 @@ private fun renderBookingRowsIfPossible(
         keywords = listOf("url", "link", "book", "booking", "reserve", "website")
     )
     val actionLabelIndex = bookingActionLabelIndex(headers)
+    val imageIndex = bookingImageIndex(headers)
     val secondaryIndex = findTableColumnIndex(
         headers = headers,
         keywords = listOf("duration", "time", "date", "location", "room", "type", "class", "stops", "status"),
@@ -3435,9 +3451,12 @@ private fun renderBookingRowsIfPossible(
             val actionUrl = linkIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
                 ?.takeIf(::isLikelyHttpUrl)
             val actionLabel = bookingRowActionLabel(headers, row) ?: "Open Option"
+            val imageUrl = bookingRowImageUrl(headers, row).orEmpty()
             val chips = buildList {
                 headers.forEachIndexed { index, header ->
-                    if (index in setOf(titleIndex, priceIndex, secondaryIndex, linkIndex, actionLabelIndex)) return@forEachIndexed
+                    if (index in setOf(titleIndex, priceIndex, secondaryIndex, linkIndex, actionLabelIndex, imageIndex)) {
+                        return@forEachIndexed
+                    }
                     val value = row.getOrNull(index).orEmpty().trim()
                     if (value.isBlank()) return@forEachIndexed
                     add(header.ifBlank { "Detail" } to value)
@@ -3460,6 +3479,17 @@ private fun renderBookingRowsIfPossible(
                         .padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    if (imageUrl.isNotBlank()) {
+                        RenderImage(
+                            props = mapOf(
+                                "url" to imageUrl,
+                                "fit" to "cover",
+                                "aspectRatio" to 1.65f,
+                                "alt" to title
+                            ),
+                            onOpenUrl = onOpenUrl
+                        )
+                    }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
