@@ -7,7 +7,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from pipeline.stage2_responses import _downloaded_asset_content_valid
+from pipeline.stage2_responses import _downloaded_asset_content_valid, _sanitize_response_media
 
 
 class Stage2AssetValidationTests(unittest.TestCase):
@@ -41,6 +41,42 @@ class Stage2AssetValidationTests(unittest.TestCase):
         )
 
         self.assertTrue(ok, msg=reason)
+
+    def test_sanitizes_detached_media_sections(self) -> None:
+        text = "\n".join(
+            [
+                "Phone Comparison",
+                "",
+                "Feature table goes here.",
+                "",
+                "Images:",
+                "- iPhone: https://loremflickr.com/1200/800/iphone13pro",
+                "- Pixel: https://loremflickr.com/1200/800/pixel6pro",
+                "",
+                "Quick Actions",
+                "- Apple specs: https://support.apple.com/kb/SP852",
+            ]
+        )
+
+        cleaned = _sanitize_response_media(text)
+
+        self.assertIn("Phone Comparison", cleaned)
+        self.assertIn("Quick Actions", cleaned)
+        self.assertNotIn("Images:", cleaned)
+        self.assertNotIn("loremflickr.com", cleaned)
+
+    def test_sanitizes_random_inline_media_image_but_keeps_icon(self) -> None:
+        text = (
+            "Option 1: Phone comparison\n"
+            "Media: Image=https://loremflickr.com/1200/800/phone "
+            "Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/phone.svg\n"
+            "- Camera-focused option."
+        )
+
+        cleaned = _sanitize_response_media(text)
+
+        self.assertNotIn("loremflickr.com", cleaned)
+        self.assertIn("Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/phone.svg", cleaned)
 
 
 if __name__ == "__main__":

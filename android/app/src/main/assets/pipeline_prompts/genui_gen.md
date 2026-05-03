@@ -139,6 +139,7 @@ Allowed dynamic value expressions in props:
 - Planning/project roadmap responses MUST stay compact as one `Table` with `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn` set to the phase/month column, and `highlightColumns` for goal/deliverable. Do not use Tabs for sequential months/phases, do not expand each phase into separate duplicated element trees, and do not add decorative image galleries.
 - Comparison tables:
   - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`. If verified/local images are available for compared entities, attach them in `props.entityMedia`; do not create trailing media cards.
+  - Exact product/device feature matrices should be table-first and compact: one title/context card, one `Table`, and nearby source/action buttons. Do not create `Images`, `Referenced Icons`, gallery, or loose decorative icon sections from detached media.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
 - Defaults:
   - weather/flight/booking/playlist/schedule/status => `preferredPresentation: "cards"`

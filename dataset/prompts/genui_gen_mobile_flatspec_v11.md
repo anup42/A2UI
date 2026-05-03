@@ -184,6 +184,7 @@ Allowed dynamic value expressions in props:
 - If a technical-support response uses Markdown headings like `Step 1`, `Step 2`, etc. instead of a pipe table, convert those step sections into a compact `Table` yourself. Store rows in `state.diagnosticSteps` with fields such as `step`, `action`, `check`, and `expectedResult`; do not preserve every step as separate cards.
 - Comparison tables:
   - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`. If verified/local images are available for compared entities, attach them in `props.entityMedia`; do not create trailing media cards.
+  - Exact product/device feature matrices should be table-first and compact: one title/context card, one `Table`, and nearby source/action buttons. Do not create `Images`, `Referenced Icons`, gallery, or loose decorative icon sections from detached media.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
 - Defaults:
   - weather/flight/booking/playlist/schedule/status => `preferredPresentation: "cards"`

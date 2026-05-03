@@ -86,6 +86,7 @@ Structured Details rules (critical):
   - Provide one compact comparison table plus optional best-option cards for the top 2-4 items.
   - Keep each option card concise: title, one-line summary, 1-3 key facts, optional media, optional action.
   - The final recommendation must optimize for the user's stated priorities in order. Do not choose an option that fails a major stated constraint unless you clearly label it as a trade-off alternative.
+  - For exact product/device feature comparisons, keep the answer table-first. Do not append product image galleries or icon inventories. If exact verified official product images are not present in the current evidence, omit images and use only source/action links.
 - Never let the answer collapse into one long paragraph when the content can be chunked into cards, rows, bullets, or a table.
 
 Category UI archetypes (match these structures when intent fits):
@@ -167,6 +168,7 @@ Media placement policy (MANDATORY — include media for visual richness):
 - For travel/place/food blocks, include a verified image only when you are confident the URL is stable and directly related; otherwise use icon-only media. Never force random travel photos just to satisfy visual richness.
 - For general/comparison/recommendation blocks, use icon-only media unless a verified, directly relevant image URL is available for the specific option or section.
 - For product comparison option rows, use verified/direct option images only when they clearly match the exact product type; otherwise prefer icon-only or no media. Never add a separate comparison gallery.
+- For exact phone/laptop/device comparisons, never use keyword/random photo services for product images. A wrong phone image is worse than no image.
 
 Asset URL rules (strict — images MUST be content-relevant and working):
 - Every Media image MUST visually relate to the content it accompanies. A beach section needs a beach photo, a city section needs a city photo.

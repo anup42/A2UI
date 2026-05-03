@@ -83,6 +83,20 @@ _RANDOM_PLACEHOLDER_ASSET_HOSTS = (
     "placeholder.com",
     "dummyimage.com",
 )
+_DETACHED_MEDIA_SECTION_HEADERS = {
+    "images",
+    "image",
+    "icons",
+    "icon",
+    "visual guide",
+    "visual guides",
+    "key feature icons",
+    "trip imagery",
+    "weather icons",
+    "related icons",
+    "referenced icons",
+    "gallery",
+}
 
 _VISUAL_INTENT_HINTS = {
     "travel",
@@ -249,12 +263,20 @@ def _looks_like_known_heading(value: str) -> bool:
         "image",
         "icons",
         "icon",
+        "visual guide",
+        "visual guides",
+        "key feature icons",
+        "trip imagery",
+        "weather icons",
+        "related icons",
+        "referenced icons",
+        "gallery",
     }:
         return True
     return bool(re.match(r"^option\s+\d+\b", header))
 
 
-def _strip_images_section(text: str) -> str:
+def _strip_detached_media_sections(text: str) -> str:
     lines = text.splitlines()
     cleaned: list[str] = []
     i = 0
@@ -262,7 +284,7 @@ def _strip_images_section(text: str) -> str:
         line = lines[i]
         stripped = line.strip()
         lower = _normalize_section_header(stripped)
-        if lower in {"images", "image"}:
+        if lower in _DETACHED_MEDIA_SECTION_HEADERS:
             i += 1
             while i < len(lines):
                 look = lines[i].strip()
@@ -278,6 +300,10 @@ def _strip_images_section(text: str) -> str:
     while cleaned and not cleaned[-1].strip():
         cleaned.pop()
     return "\n".join(cleaned)
+
+
+def _strip_images_section(text: str) -> str:
+    return _strip_detached_media_sections(text)
 
 
 def _extract_icon_labels(text: str) -> list[str]:
@@ -500,29 +526,47 @@ def _build_icon_rows(
 
 
 def _remove_icons_section(text: str) -> str:
-    lines = text.splitlines()
+    return _strip_detached_media_sections(text)
+
+
+def _is_random_placeholder_url(url: str) -> bool:
+    try:
+        host = urllib.parse.urlparse(url).netloc.lower()
+    except Exception:
+        return False
+    return any(host == blocked or host.endswith(f".{blocked}") for blocked in _RANDOM_PLACEHOLDER_ASSET_HOSTS)
+
+
+def _strip_random_placeholder_media(text: str) -> str:
+    if not text:
+        return text
+
+    media_asset_re = re.compile(r"\s*(Image|Icon)=(https?://[^\s]+)", flags=re.IGNORECASE)
     cleaned: list[str] = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        stripped = line.strip()
-        lower = _normalize_section_header(stripped)
-        if lower in {"icons", "icon"}:
-            i += 1
-            while i < len(lines):
-                look = lines[i].strip()
-                if not look:
-                    i += 1
-                    break
-                if _looks_like_known_heading(look):
-                    break
-                i += 1
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip()
+        if not line.strip().lower().startswith("media:"):
+            cleaned.append(line)
             continue
-        cleaned.append(line)
-        i += 1
+
+        def _replace(match: re.Match[str]) -> str:
+            url = _clean_url(match.group(2))
+            if match.group(1).lower() == "image" and _is_random_placeholder_url(url):
+                return ""
+            return match.group(0)
+
+        next_line = media_asset_re.sub(_replace, line)
+        payload = next_line.split(":", 1)[1].strip() if ":" in next_line else ""
+        if payload:
+            cleaned.append(next_line)
+
     while cleaned and not cleaned[-1].strip():
         cleaned.pop()
     return "\n".join(cleaned)
+
+
+def _sanitize_response_media(text: str) -> str:
+    return _strip_random_placeholder_media(_strip_detached_media_sections(text))
 
 
 def _strip_unresolved_media_images(text: str, assets: list[dict]) -> str:
@@ -1181,6 +1225,7 @@ def run_stage2(
                 tags_list,
                 icon_context,
             )
+            selected_text = _sanitize_response_media(selected_text)
             selected_prompt = prompt
             selected_latency_ms = latency_ms
             selected_input_tokens = input_tokens
@@ -1206,6 +1251,7 @@ def run_stage2(
                     tags_list,
                     icon_context,
                 )
+                selected_text = _sanitize_response_media(selected_text)
                 assets, _, declared_assets_count = _download_assets(
                     selected_text,
                     response_id,
@@ -1338,6 +1384,7 @@ def run_stage2(
                     break
 
                 selected_text = retry_text
+                selected_text = _sanitize_response_media(selected_text)
                 selected_prompt = retry_prompt
                 selected_latency_ms = retry_latency_ms
                 selected_input_tokens = retry_input_tokens
@@ -1346,6 +1393,7 @@ def run_stage2(
                 selected_model = retry_model
                 asset_retry_attempts = asset_attempt + 1
 
+            selected_text = _sanitize_response_media(selected_text)
             selected_text = _strip_unresolved_media_images(selected_text, assets)
             final_asset_entries = _extract_asset_entries(selected_text)
             final_asset_urls = {entry["url"] for entry in final_asset_entries}
