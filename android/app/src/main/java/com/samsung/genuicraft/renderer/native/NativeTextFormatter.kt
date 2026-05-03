@@ -263,6 +263,7 @@ internal object NativeTextFormatter {
             .replace("\u00E2\u0080\u0099", "\u2019")
             .replace("\u00E2\u0080\u009C", "\u201C")
             .replace("\u00E2\u0080\u009D", "\u201D")
+            .replace("\u013D", "\u00A5")
     }
 
     fun isLikelyLeadingLabel(label: String, value: String): Boolean {

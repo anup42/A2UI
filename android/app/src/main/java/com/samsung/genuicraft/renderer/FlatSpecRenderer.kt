@@ -3502,6 +3502,26 @@ private fun isIconColumnLabel(label: String): Boolean {
     return normalized == "icon" || normalized == "media icon" || normalized == "visual"
 }
 
+private fun isImageColumnLabel(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized == "image" ||
+        normalized == "photo" ||
+        normalized == "picture" ||
+        normalized == "thumbnail" ||
+        normalized == "hero image" ||
+        normalized == "image url" ||
+        normalized == "photo url" ||
+        normalized == "media image"
+}
+
+private fun isImageAltColumnLabel(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized == "alt" ||
+        normalized == "image alt" ||
+        normalized == "photo alt" ||
+        normalized == "caption"
+}
+
 private fun pickResponsiveTableTemplate(
     headers: List<String>,
     rows: List<List<String>>
@@ -3552,6 +3572,14 @@ private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
     val second = normalized.getOrNull(1).orEmpty()
     val hasDayColumn = first.contains("day") || first.contains("date")
     val hasTimeColumn = first.contains("time") || first.contains("slot")
+    val hasDateColumn = normalized.any { it.contains("date") }
+    val hasAreaColumn = normalized.any { header ->
+        header.contains("area") ||
+            header.contains("focus") ||
+            header.contains("district") ||
+            header.contains("neighborhood") ||
+            header.contains("location")
+    }
     val hasTimeActivityDetailsShape = hasTimeColumn &&
         (second.contains("activity") || second.contains("stop") || second.contains("place")) &&
         normalized.drop(2).any { header ->
@@ -3574,7 +3602,17 @@ private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
             header.contains("meal") ||
             header.contains("restaurant")
     }
-    return hasTimeActivityDetailsShape || (hasDayColumn && (activityColumns >= 2 || hasDiningColumn))
+    val hasSummaryItineraryShape = hasDayColumn &&
+        hasDateColumn &&
+        hasAreaColumn &&
+        normalized.any { header ->
+            header.contains("activity") ||
+                header.contains("plan") ||
+                header.contains("highlight")
+        }
+    return hasTimeActivityDetailsShape ||
+        hasSummaryItineraryShape ||
+        (hasDayColumn && (activityColumns >= 2 || hasDiningColumn))
 }
 
 private fun compactItinerarySectionLabel(label: String): String {
@@ -3644,12 +3682,39 @@ private fun TravelItineraryDayCard(
     headers: List<String>,
     row: List<String>
 ) {
+    val cellCount = maxOf(headers.size, row.size)
+    val cells = (0 until cellCount).map { index ->
+        Triple(index, tableHeaderLabel(headers, index), row.getOrNull(index).orEmpty().trim())
+    }.filter { (_, _, value) -> value.isNotBlank() }
+    if (cells.isEmpty()) return
     val day = row.getOrNull(0).orEmpty().trim().ifBlank { "Day" }
-    val sections = (1 until maxOf(headers.size, row.size)).mapNotNull { index ->
-        val value = row.getOrNull(index).orEmpty().trim()
-        if (value.isBlank()) null else tableHeaderLabel(headers, index) to value
+    val imageCell = cells.firstOrNull { (_, label, _) -> isImageColumnLabel(label) }
+    val imageAltCell = cells.firstOrNull { (_, label, _) -> isImageAltColumnLabel(label) }
+    val iconCell = cells.firstOrNull { (_, label, _) -> isIconColumnLabel(label) }
+    val dateCell = cells.firstOrNull { (index, label, _) ->
+        index != 0 && normalizeTableHeaderForMatch(label).contains("date")
     }
-    if (sections.isEmpty()) return
+    val areaCell = cells.firstOrNull { (index, label, _) ->
+        index != 0 &&
+            normalizeTableHeaderForMatch(label).let { normalized ->
+                normalized.contains("area") ||
+                    normalized.contains("focus") ||
+                    normalized.contains("district") ||
+                    normalized.contains("neighborhood") ||
+                    normalized.contains("location")
+            }
+    }
+    val excludedIndexes = setOfNotNull(
+        0,
+        imageCell?.first,
+        imageAltCell?.first,
+        iconCell?.first,
+        dateCell?.first,
+        areaCell?.first
+    )
+    val sections = cells.mapNotNull { (index, label, value) ->
+        if (index in excludedIndexes) null else label to value
+    }
 
     Card(
         modifier = Modifier
@@ -3668,16 +3733,62 @@ private fun TravelItineraryDayCard(
                 .padding(horizontal = 14.dp, vertical = 13.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Surface(
-                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Text(
-                    text = parseBoldMarkdown(day),
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp)
+            val imageUrl = imageCell?.third.orEmpty()
+            if (imageUrl.isNotBlank()) {
+                RenderImage(
+                    props = mapOf(
+                        "url" to imageUrl,
+                        "fit" to "cover",
+                        "height" to 132,
+                        "alt" to imageAltCell?.third.orEmpty().ifBlank { day }
+                    ),
+                    onOpenUrl = {},
+                    modifier = Modifier.fillMaxWidth()
                 )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                iconCell?.third?.takeIf { it.isNotBlank() }?.let { icon ->
+                    RenderIcon(
+                        props = mapOf("name" to icon, "size" to "sm", "decorative" to true),
+                        modifier = Modifier
+                    )
+                }
+                Surface(
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(day),
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp)
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    dateCell?.third?.takeIf { it.isNotBlank() }?.let { date ->
+                        Text(
+                            text = parseBoldMarkdown(date),
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    areaCell?.third?.takeIf { it.isNotBlank() }?.let { area ->
+                        Text(
+                            text = parseBoldMarkdown(area),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
             sections.forEach { (label, value) ->
                 ItinerarySectionBlock(label = label, value = value)
