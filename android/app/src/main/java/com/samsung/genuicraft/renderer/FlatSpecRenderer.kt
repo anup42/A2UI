@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -3688,6 +3689,12 @@ private fun flatSpecCardColors() = CardDefaults.cardColors(
     containerColor = MaterialTheme.colorScheme.surfaceContainerLow
 )
 
+@Composable
+private fun flatSpecCardBorder() = BorderStroke(
+    width = 1.dp,
+    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
+)
+
 private fun tableAccessibilitySummary(
     headers: List<String>,
     rows: List<List<String>>,
@@ -3840,7 +3847,8 @@ private fun renderBookingRowsIfPossible(
                     },
                 shape = RoundedCornerShape(16.dp),
                 colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                border = flatSpecCardBorder()
             ) {
                 Column(
                     modifier = Modifier
@@ -3952,7 +3960,8 @@ private fun ResponsiveComparisonRowCard(
             },
         shape = RoundedCornerShape(16.dp),
         colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = flatSpecCardBorder()
     ) {
         Column(
             modifier = Modifier
@@ -4048,7 +4057,8 @@ private fun ResponsiveComparisonColumnCards(
                     },
                 shape = RoundedCornerShape(16.dp),
                 colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                border = flatSpecCardBorder()
             ) {
                 Column(
                     modifier = Modifier
@@ -4188,7 +4198,8 @@ private fun ResponsiveScheduleRowCard(
             },
         shape = RoundedCornerShape(16.dp),
         colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = flatSpecCardBorder()
     ) {
         Column(
             modifier = Modifier
@@ -6442,7 +6453,8 @@ private fun RenderCard(
             ),
         colors = flatSpecCardColors(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        border = flatSpecCardBorder()
     ) {
         CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides 0.dp) {
             Column(

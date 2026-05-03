@@ -151,6 +151,8 @@ Allowed dynamic value expressions in props:
 - Single-day timed itineraries may use compact columns like `time`, `activity`, and `details`; set `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "time"`, and `highlightColumns: ["activity"]`.
 - Sources with URLs must be rendered as compact source/action rows or Buttons with `openUrl`; do not turn URL-backed sources into plain non-clickable Text. If the source line has no URL, keep it as short caption text only.
 - Planning/project roadmap responses MUST stay compact as one `Table` with `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn` set to the phase/month column, and `highlightColumns` for goal/deliverable. Do not use Tabs for sequential months/phases, do not expand each phase into separate duplicated element trees, and do not add decorative image galleries.
+- Technical-support troubleshooting responses MUST keep the diagnostic checklist as one compact `Table` with `domain: "status"`, `preferredPresentation: "cards"`, `primaryColumn: "step"`, and `highlightColumns` for action/expected result. Do not expand each step into separate duplicated Card/Text trees when a checklist/table is present.
+- If a technical-support response uses Markdown headings like `Step 1`, `Step 2`, etc. instead of a pipe table, convert those step sections into a compact `Table` yourself. Store rows in `state.diagnosticSteps` with fields such as `step`, `action`, `check`, and `expectedResult`; do not preserve every step as separate cards.
 - Comparison tables:
   - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`. If verified/local images are available for compared entities, attach them in `props.entityMedia`; do not create trailing media cards.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
@@ -241,7 +243,7 @@ Apply these patterns when the response content matches the domain:
 
 **Documentation**: Stack > h2 title + Table(attribute/field documentation) + Card(h3 "Example" + body code/usage text) + Button for full docs link
 
-**Technical Support**: Stack > h2 issue title + Card(h3 "Likely Causes" + body list) + Card(h3 "Step-by-Step Fix" + numbered body Text children) + Button for support resources
+**Technical Support**: Stack > h2 issue title + compact status/context Card with optional inline Icon + Table(diagnostic checklist with columns such as step/action/check/expectedResult, `domain: "status"`, `preferredPresentation: "cards"`, `primaryColumn: "step"`, `highlightColumns: ["action","expectedResult"]`) + compact Button rows for official support/source links. Do not create detached image galleries; use icon-only media unless a verified official product image is attached to the status card.
 
 **Creative Writing**: Stack > h2 title + Card(body text content, split into paragraph-length Text elements) + Divider + Card(h3 "About" or metadata)
 

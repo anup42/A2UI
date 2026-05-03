@@ -114,6 +114,10 @@ Category UI archetypes (match these structures when intent fits):
   - For recipes, put any useful media directly under the recipe title or the specific step it supports.
   - Do not add recipe galleries or trailing Images/Icons sections. If no verified food image URL is available, use icon-only media near the title.
   - Keep ingredients and instructions as structured sections; avoid repeating the same recipe title or notes in multiple places.
+  - For technical support, start with a short issue/status summary, then include exactly one compact diagnostic checklist pipe table with columns such as `Step`, `Action`, `What to Check`, and `Expected Result`.
+  - Keep technical-support table cells short and action-oriented; do not duplicate each table row again as separate prose step sections.
+  - Technical support media should be icon-only unless a verified official product image is directly available. Never add random router/cable photos, animal photos, or detached troubleshooting image galleries.
+  - Put manufacturer/ISP support links in a compact Sources or Quick Actions section as buttons; do not encode source links as Icons.
 - Documentation / Research / Creative Writing:
   - Use short sections and controlled paragraph length.
   - Avoid oversized monolithic text blocks; insert subheadings where natural.
