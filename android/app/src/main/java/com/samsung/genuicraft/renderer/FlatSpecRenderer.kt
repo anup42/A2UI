@@ -1894,6 +1894,57 @@ internal fun looksLikeIncidentStatusTable(
     return hasComponent && hasStatus && hasNotes && rowSignals >= 1
 }
 
+internal fun looksLikeMarketHoldingsTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    domain: String = "generic"
+): Boolean {
+    if (headers.size < 3 || rows.isEmpty()) return false
+    if (domain !in setOf("generic", "comparison", "finance", "portfolio", "market", "investment", "schedule")) {
+        return false
+    }
+    val tokens = headers.map(::normalizeTableHeaderForMatch)
+    val hasTicker = tokens.any { token ->
+        token in setOf("ticker", "symbol", "stock", "asset", "holding", "security") ||
+            token.contains("ticker") ||
+            token.contains("symbol")
+    }
+    val hasCurrentValue = tokens.any { token ->
+        (token.contains("current") && token.contains("value")) ||
+            token.contains("market value") ||
+            (token == "value") ||
+            (token.contains("price") && !token.contains("change"))
+    }
+    val hasChange = tokens.any { token ->
+        token.contains("change") ||
+            token.contains("return") ||
+            token.contains("gain") ||
+            token.contains("loss") ||
+            token.contains("p l")
+    }
+    val hasPercentColumn = tokens.any { token ->
+        token.contains("pct") ||
+            token.contains("percent") ||
+            token.contains("percentage")
+    } || headers.any { header -> header.contains('%') }
+    val firstColumnIndex = marketTickerColumnIndex(headers)
+    val tickerLikeRows = rows.count { row ->
+        row.getOrNull(firstColumnIndex).orEmpty().trim().matches(Regex("""[A-Z][A-Z0-9.\-]{1,6}"""))
+    }
+    val currencyOrPercentValues = rows.flatten().count { value ->
+        val token = value.trim()
+        token.contains('$') ||
+            token.contains('%') ||
+            token.startsWith("+") ||
+            token.startsWith("-")
+    }
+    return hasTicker &&
+        hasCurrentValue &&
+        (hasChange || hasPercentColumn) &&
+        tickerLikeRows >= maxOf(1, rows.size / 2) &&
+        currencyOrPercentValues >= rows.size
+}
+
 private fun isComparisonFeatureHeader(label: String): Boolean {
     if (label.isBlank()) return false
     val token = label.lowercase()
@@ -2931,6 +2982,14 @@ private fun RenderTableLayout(
             rows = tableRows,
             modifier = tableModifier,
             landscape = isLandscape || screenWidthDp >= 600
+        )
+        return
+    }
+    if (looksLikeMarketHoldingsTable(tableModel.headers, tableRows, tableModel.domain)) {
+        RenderMarketHoldingsTable(
+            headers = tableModel.headers,
+            rows = tableRows,
+            modifier = tableModifier
         )
         return
     }
@@ -4160,6 +4219,231 @@ private fun tableRowAccessibilitySummary(
     }
     val prefix = rowIndex?.let { "Row ${it + 1}. " }.orEmpty()
     return prefix + pairs.joinToString(". ")
+}
+
+private fun marketTickerColumnIndex(headers: List<String>): Int =
+    findTableColumnIndex(headers, listOf("ticker", "symbol", "stock", "asset", "holding", "security"))
+        ?: 0
+
+private fun marketValueColumnIndex(headers: List<String>, tickerIndex: Int): Int =
+    headers.indices.firstOrNull { index ->
+        if (index == tickerIndex) {
+            false
+        } else {
+            val token = normalizeTableHeaderForMatch(headers[index])
+            (token.contains("current") && token.contains("value")) ||
+                token.contains("market value") ||
+                token == "value" ||
+                (token.contains("price") && !token.contains("change"))
+        }
+    } ?: headers.indices.firstOrNull { it != tickerIndex } ?: 0
+
+private fun marketChangeAmountColumnIndex(headers: List<String>, exclude: Set<Int>): Int? =
+    headers.indices.firstOrNull { index ->
+        if (index in exclude) {
+            false
+        } else {
+            val raw = headers[index]
+            val token = normalizeTableHeaderForMatch(raw)
+            (token.contains("change") && (raw.contains('$') || token.contains("usd") || token.contains("amount"))) ||
+                token.contains("gain loss") ||
+                token.contains("profit loss") ||
+                token == "p l"
+        }
+    }
+
+private fun marketChangePercentColumnIndex(headers: List<String>, exclude: Set<Int>): Int? =
+    headers.indices.firstOrNull { index ->
+        if (index in exclude) {
+            false
+        } else {
+            val raw = headers[index]
+            val token = normalizeTableHeaderForMatch(raw)
+            raw.contains('%') ||
+                token.contains("pct") ||
+                token.contains("percent") ||
+                token.contains("percentage") ||
+                (token.contains("change") && token.contains("rate")) ||
+                token.contains("return")
+        }
+    }
+
+private fun marketTrendToken(vararg values: String?): Boolean? {
+    values.forEach { raw ->
+        val value = raw?.trim().orEmpty()
+        val first = value.firstOrNull()
+        when {
+            value.startsWith("+") -> return true
+            first == '-' || first?.code == 0x2212 -> return false
+        }
+    }
+    return null
+}
+
+@Composable
+private fun marketTrendColor(positive: Boolean?): Color {
+    return when (positive) {
+        true -> Color(0xFF15803D)
+        false -> Color(0xFFDC2626)
+        null -> MaterialTheme.colorScheme.primary
+    }
+}
+
+@Composable
+private fun RenderMarketHoldingsTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier
+) {
+    if (rows.isEmpty()) return
+    val tickerIndex = marketTickerColumnIndex(headers)
+    val valueIndex = marketValueColumnIndex(headers, tickerIndex)
+    val amountIndex = marketChangeAmountColumnIndex(headers, setOf(tickerIndex, valueIndex))
+    val percentIndex = marketChangePercentColumnIndex(headers, setOf(tickerIndex, valueIndex) + listOfNotNull(amountIndex))
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        shape = RoundedCornerShape(18.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            rows.forEachIndexed { rowIndex, row ->
+                MarketHoldingRow(
+                    headers = headers,
+                    row = row,
+                    rowIndex = rowIndex,
+                    tickerIndex = tickerIndex,
+                    valueIndex = valueIndex,
+                    amountIndex = amountIndex,
+                    percentIndex = percentIndex
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MarketHoldingRow(
+    headers: List<String>,
+    row: List<String>,
+    rowIndex: Int,
+    tickerIndex: Int,
+    valueIndex: Int,
+    amountIndex: Int?,
+    percentIndex: Int?
+) {
+    val ticker = row.getOrNull(tickerIndex).orEmpty().trim().ifBlank { "Asset ${rowIndex + 1}" }
+    val value = row.getOrNull(valueIndex).orEmpty().trim()
+    val amount = amountIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+    val percent = percentIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+    val trend = marketTrendToken(percent, amount)
+    val accent = marketTrendColor(trend)
+    val valueLabel = tableHeaderLabel(headers, valueIndex)
+    val changeLabel = percentIndex?.let { tableHeaderLabel(headers, it) }
+        ?: amountIndex?.let { tableHeaderLabel(headers, it) }
+        ?: "Change"
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+            },
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.54f)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .widthIn(min = 54.dp, max = 66.dp)
+                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                    .background(accent.copy(alpha = 0.12f))
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = ticker,
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = accent,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(1.dp)
+            ) {
+                Text(
+                    text = valueLabel,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = parseBoldMarkdown(value),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+                modifier = Modifier.widthIn(min = 88.dp, max = 118.dp)
+            ) {
+                val primaryChange = percent.ifBlank { amount }
+                if (primaryChange.isNotBlank()) {
+                    Surface(
+                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                        color = accent.copy(alpha = 0.12f)
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(primaryChange),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = accent,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+                if (amount.isNotBlank() && amount != primaryChange) {
+                    Text(
+                        text = parseBoldMarkdown(amount),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = accent,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                } else {
+                    Text(
+                        text = changeLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
 }
 
 private fun processStateColumnIndex(headers: List<String>): Int =
@@ -5581,6 +5865,14 @@ private fun RenderResponsiveTableRows(
     spacing: Dp = 8.dp
 ) {
     if (rows.isEmpty()) return
+    if (looksLikeMarketHoldingsTable(headers, rows)) {
+        RenderMarketHoldingsTable(
+            headers = headers,
+            rows = rows,
+            modifier = modifier
+        )
+        return
+    }
     val template = pickResponsiveTableTemplate(headers, rows)
     val featureMatrixStyle = template == ResponsiveTableCardTemplate.COMPARISON &&
         headers.size >= 3 &&
@@ -8101,6 +8393,14 @@ private fun RenderDirectTable(
             rows = table.rows,
             modifier = applyStackModifier(modifier, props, "vertical"),
             landscape = isLandscape || screenWidthDp >= 600
+        )
+        return
+    }
+    if (looksLikeMarketHoldingsTable(headers, table.rows, table.domain)) {
+        RenderMarketHoldingsTable(
+            headers = headers,
+            rows = table.rows,
+            modifier = applyStackModifier(modifier, props, "vertical")
         )
         return
     }

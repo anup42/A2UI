@@ -1211,6 +1211,26 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun looksLikeMarketHoldingsTable_detectsPortfolioHoldings() {
+        val headers = listOf("Ticker", "Current Value", "Day's Change ($)", "Day's Change (%)")
+        val rows = listOf(
+            listOf("AAPL", "$1,752.80", "+$21.80", "+1.26%"),
+            listOf("GOOG", "$11,252.50", "+$27.50", "+0.24%"),
+            listOf("TSLA", "$2,348.40", "-$69.00", "-2.85%")
+        )
+
+        assertTrue(looksLikeMarketHoldingsTable(headers, rows, domain = "generic"))
+        assertTrue(looksLikeMarketHoldingsTable(headers, rows, domain = "schedule"))
+        assertFalse(
+            looksLikeMarketHoldingsTable(
+                headers = listOf("Feature", "Option A", "Option B", "Option C"),
+                rows = listOf(listOf("Battery", "Long", "Medium", "Short")),
+                domain = "comparison"
+            )
+        )
+    }
+
+    @Test
     fun extractDirectTableModel_mapsGenericColumnKeysByPositionWhenRowKeysDiffer() {
         val props = mapOf<String, Any?>(
             "columns" to listOf(
