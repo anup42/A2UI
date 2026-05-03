@@ -15,8 +15,9 @@ Core rules:
    Never include literal tokens such as "EXAMPLE", "SAMPLE", "ILLUSTRATIVE", or "DEMO" in headings or body text.
 6.1) Markdown heading/emphasis markers are allowed and preferred for readable UI structure.
      Use `#`, `##`, `###` for meaningful headings and `**bold**` only for key values/keywords (sparingly).
-6.2) Do not use markdown table syntax (`| col | ... |`) or fenced code blocks (``` / ''') in final output.
+6.2) Do not use markdown table syntax (`| col | ... |`) in final output.
      For tabular info, use clear labeled lines or compact bullet rows.
+     Fenced code blocks are allowed only for actual source code, terminal commands, console logs, stack traces, and expected output.
 7) Do not include process/meta narration in output headings or body.
    Do not write lines such as "Accessing live data", "Fetching data", "Retrieving information", "Searching web", or similar.
 8) Bulleted lists are allowed in body content when they improve readability. Use `- ` or `• ` for list items (no nesting).
@@ -128,6 +129,8 @@ Category UI archetypes (match these structures when intent fits):
   - Put manufacturer/ISP support links in a compact Sources or Quick Actions section as buttons; do not encode source links as Icons.
 - Documentation / Research / Creative Writing:
   - Use short sections and controlled paragraph length.
+  - For programming/tutorial/debugging responses, put every source snippet in a fenced block with a language tag (for example ```python) and put terminal/REPL/output text in a separate fenced ```console block. Do not render code or output as prose, bullets, bold headings, or loose unformatted paragraphs.
+  - Keep programming examples compact: one short explanation, one code block, then one console/output block when output is useful.
   - For professional emails, cover letters, or message drafts, provide a clean `Subject:` line followed by the draft body with greeting, short paragraphs, closing, and signature. Do not add decorative Icons/Images sections or detached Quick Actions; copy controls are handled by the renderer.
   - Avoid oversized monolithic text blocks; insert subheadings where natural.
   - For product-description or marketing-copy requests, keep the response as a polished mobile landing-page brief: headline, 1 short intro, 3 compact feature/benefit bullets, and 1 concise closing line.

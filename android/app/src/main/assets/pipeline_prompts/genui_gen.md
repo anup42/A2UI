@@ -28,12 +28,13 @@ Response:
 - Do not emit literal markdown control tokens in `Text.props.text`:
   - no leading `#`, `##`, `###`
   - no literal table pipes (`|`) for table rows
-  - no fenced code markers (``` or ''')
+  - no fenced code markers (``` or ''') inside `Text.props.text`; preserve the code body in `CodeBlock`/`ConsoleLog` props instead
   - avoid leaving raw `**bold**` markers in final text
 - Convert markdown intent into UI structure:
   - headings -> `Text` with `variant` (`h1|h2|h3`)
   - table-like markdown -> compact `Table`
-  - code-like sections -> `Card` + `Text` (plain content, no fence markers)
+  - source code examples -> `CodeBlock` with `props.code` and `props.language`
+  - terminal commands, console logs, and expected output -> `ConsoleLog` with `props.code` and `props.language: "console"`
   - emphasis -> plain text wording (or split into separate labeled/value text nodes)
 
 ## Positive format example
@@ -173,6 +174,7 @@ Allowed dynamic value expressions in props:
 - If a technical-support response uses Markdown headings like `Step 1`, `Step 2`, etc. instead of a pipe table, convert those step sections into one compact `Table` backed by `state.diagnosticSteps`.
 - For email/message-writing responses, use one compact `EmailPreview` element for the actual draft. Put `subject`, `to`, `from`, `date`, `role`, `company`, `body` paragraph array, and `signature` lines in props. Do not render email drafts as oversized generic Text paragraphs or detached Quick Actions cards.
 - For product-description or marketing-copy responses, render a compact product landing screen: hero Card with inline Icon, 1-2 short body Text elements, feature/benefit cards, and only real URL-backed CTAs. Do not create standalone image galleries or use placeholder/random-host images.
+- For programming/tutorial/debugging responses, separate source code from runtime output: use compact `CodeBlock` elements for functions/snippets and `ConsoleLog` elements for command lines, REPL transcripts, stack traces, and expected output. Do not render code or logs as oversized heading Text, and do not duplicate the same snippet as prose.
 - Preserve all numbers, dates, times, units, and currency exactly.
 
 ## CATALOG
@@ -193,6 +195,8 @@ Layout:
 Content:
 - `Text` props: `text` (required), `variant` optional (`h1|h2|h3|body|caption|chip|label`)
 - `Formula` props: `latex` or `text` (required), optional `title`, `subtitle`, `result`, `display`. Use LaTeX-style notation for fractions, exponents, roots, and variables, for example `M = P \\frac{i(1+i)^n}{(1+i)^n - 1}`. Renderer formats fractions/exponents; do not use images for formulas.
+- `CodeBlock` props: `code` (required), optional `language` (`python|javascript|kotlin|bash|text`) and `title`. Use for source code only; do not put expected output inside the same CodeBlock unless it is part of the source comment.
+- `ConsoleLog` props: `code` (required), optional `language: "console"` and `title`. Use for terminal commands, REPL transcripts, stack traces, and expected output.
 - `EmailPreview` props: `title`, `subtitle`, `subject`, `to`, `from`, `date`, `role`, `company`, `body` (string or paragraph array), `signature` (string or line array), optional `context`/`metadata`. Use for professional emails, drafts, messages, cover letters, and similar communication templates.
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)

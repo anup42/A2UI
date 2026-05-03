@@ -1272,6 +1272,14 @@ private fun RenderByType(
         "table" -> RenderDirectTable(props, state, onOpenUrl, modifier)
         "formula" -> RenderFormula(props, modifier)
         "chart", "barchart", "bar_chart" -> RenderChart(props, state, modifier)
+        "code", "codeblock", "code_block", "pre", "preformatted" -> RenderCodeBlock(
+            codeBlock = codeBlockFromProps(props, defaultLanguage = "text", isConsole = false),
+            modifier = modifier
+        )
+        "console", "consolelog", "console_log", "terminal", "logoutput", "log_output" -> RenderCodeBlock(
+            codeBlock = codeBlockFromProps(props, defaultLanguage = "console", isConsole = true),
+            modifier = modifier
+        )
         "text" -> RenderText(props, modifier)
         "emailpreview", "email_preview" -> RenderEmailPreview(props, modifier)
         "image" -> RenderImage(props, onOpenUrl, modifier)
@@ -8032,6 +8040,10 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         RenderCodeBlock(codeBlock = codeBlock, modifier = modifier)
         return
     }
+    inferCodeBlockFromPlainText(rawText, props)?.let { codeBlock ->
+        RenderCodeBlock(codeBlock = codeBlock, modifier = modifier)
+        return
+    }
     if (looksLikeFormulaText(rawText)) {
         RenderFormula(
             props = mapOf(
@@ -8123,7 +8135,9 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
 
 private data class FencedCodeBlock(
     val code: String,
-    val language: String? = null
+    val language: String? = null,
+    val title: String? = null,
+    val isConsole: Boolean = false
 )
 
 internal data class FormulaFractionParts(
@@ -8271,16 +8285,28 @@ private fun RenderFormula(props: Map<String, Any?>, modifier: Modifier = Modifie
 
 @Composable
 private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Modifier) {
+    if (codeBlock.code.isBlank() && codeBlock.title.isNullOrBlank()) return
+    val isConsole = codeBlock.isConsole ||
+        codeBlock.language.equals("console", ignoreCase = true) ||
+        codeBlock.language.equals("terminal", ignoreCase = true) ||
+        codeBlock.language.equals("shell", ignoreCase = true) ||
+        codeBlock.language.equals("bash", ignoreCase = true)
+    val label = codeBlock.title?.trim()?.takeIf { it.isNotBlank() }
+        ?: codeBlock.language?.trim()?.takeIf { it.isNotBlank() }
+        ?: if (isConsole) "Console" else "Code"
+    val containerColor = if (isConsole) Color(0xFF0B1020) else Color(0xFF111827)
+    val headerColor = if (isConsole) Color(0xFF67E8F9) else Color(0xFFA7F3D0)
+    val bodyColor = Color(0xFFE5E7EB)
     Surface(
-        shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(16.dp),
+        color = containerColor,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = LocalFlatSpecTextHorizontalPadding.current, vertical = 4.dp)
+            .padding(horizontal = LocalFlatSpecTextHorizontalPadding.current, vertical = 6.dp)
             .semantics(mergeDescendants = true) {
                 contentDescription = buildString {
-                    append("Code block")
-                    codeBlock.language?.trim()?.takeIf { it.isNotBlank() }?.let { language ->
+                    append(if (isConsole) "Console log" else "Code block")
+                    label.takeIf { it.isNotBlank() }?.let { language ->
                         append(", ")
                         append(language)
                     }
@@ -8292,25 +8318,59 @@ private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Mod
             }
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
-            val languageLabel = codeBlock.language?.trim().orEmpty()
-            if (languageLabel.isNotBlank()) {
+            if (label.isNotBlank()) {
                 Text(
-                    text = languageLabel.uppercase(),
+                    text = label.uppercase(),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = headerColor,
                     modifier = Modifier.padding(bottom = 6.dp)
                 )
+            }
+            val codeTextModifier = if (isConsole) {
+                Modifier.fillMaxWidth()
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
             }
             Text(
                 text = codeBlock.code.ifBlank { " " },
                 style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
+                color = bodyColor,
+                softWrap = isConsole,
+                modifier = codeTextModifier
             )
         }
     }
+}
+
+private fun codeBlockFromProps(
+    props: Map<String, Any?>,
+    defaultLanguage: String? = null,
+    isConsole: Boolean = false
+): FencedCodeBlock {
+    val rawContent = listOf("code", "text", "content", "value", "output", "log", "logs")
+        .firstNotNullOfOrNull { key -> props[key]?.toString()?.takeIf { it.isNotBlank() } }
+        .orEmpty()
+    val parsed = parseFencedCodeBlock(rawContent)
+    val language = props["language"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+        ?: props["lang"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+        ?: props["syntax"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+        ?: parsed?.language
+        ?: defaultLanguage
+    val title = props["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+        ?: props["label"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
+    val console = isConsole ||
+        props["kind"]?.toString()?.contains("console", ignoreCase = true) == true ||
+        props["role"]?.toString()?.contains("console", ignoreCase = true) == true ||
+        language.equals("console", ignoreCase = true) ||
+        language.equals("terminal", ignoreCase = true)
+    return FencedCodeBlock(
+        code = parsed?.code ?: rawContent,
+        language = language,
+        title = title,
+        isConsole = console
+    )
 }
 
 private data class SupportedMarkdownText(
@@ -8343,7 +8403,44 @@ private fun parseFencedCodeBlock(raw: String): FencedCodeBlock? {
     } else {
         inner
     }
-    return FencedCodeBlock(code = code, language = languageToken)
+    val isConsole = languageToken.equals("console", ignoreCase = true) ||
+        languageToken.equals("terminal", ignoreCase = true) ||
+        languageToken.equals("shell", ignoreCase = true) ||
+        languageToken.equals("bash", ignoreCase = true)
+    return FencedCodeBlock(code = code, language = languageToken, isConsole = isConsole)
+}
+
+private fun inferCodeBlockFromPlainText(raw: String, props: Map<String, Any?>): FencedCodeBlock? {
+    val text = raw.trim()
+    if ('\n' !in text || text.length < 16) return null
+    val variant = props["variant"]?.toString()?.lowercase().orEmpty()
+    val hasOutput = Regex("""(?im)^\s*(Output|Console|Terminal|Result)\s*:""").containsMatchIn(text)
+    val hasUsage = Regex("""(?im)^\s*(Usage|Example)\s*\d*\s*$""").containsMatchIn(text)
+    val hasPythonCode = Regex("""(?m)^\s*(def |class |print\(|for |if |elif |else:|return |import |from )""")
+        .containsMatchIn(text)
+    val hasShellPrompt = Regex("""(?m)^\s*([$>#]|PS>|C:\\|adb |git |npm |python )""").containsMatchIn(text)
+    val lineCount = text.lines().count { it.isNotBlank() }
+    if (!hasOutput && !hasPythonCode && !hasShellPrompt) return null
+    if (lineCount < 2) return null
+
+    val isConsole = hasOutput || hasUsage || hasShellPrompt || variant == "console"
+    val language = when {
+        isConsole -> "console"
+        hasPythonCode -> "python"
+        else -> "text"
+    }
+    val title = when {
+        isConsole && hasUsage -> text.lineSequence().firstOrNull()?.trim()?.takeIf { it.length <= 32 }
+        isConsole -> "Console output"
+        hasPythonCode -> "Python"
+        else -> "Code"
+    }
+    return FencedCodeBlock(
+        code = text,
+        language = language,
+        title = title,
+        isConsole = isConsole
+    )
 }
 
 internal fun looksLikeFormulaText(raw: String): Boolean {
