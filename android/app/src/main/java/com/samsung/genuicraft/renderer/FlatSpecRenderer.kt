@@ -158,6 +158,7 @@ private enum class AdaptiveTablePresentation {
     TABLE,
     HORIZONTAL_TABLE,
     STICKY_HORIZONTAL_TABLE,
+    CLIMATE_CARDS,
     ENTITY_CARDS,
     PLAYLIST_ROWS,
     FEATURE_CARDS,
@@ -171,6 +172,15 @@ private data class PlaylistTrackRow(
     val title: String,
     val artist: String?,
     val chips: List<String>,
+    val sourceRow: List<String>
+)
+
+private data class ClimateComparisonRow(
+    val place: String,
+    val verdict: String?,
+    val high: String?,
+    val low: String?,
+    val metrics: List<Pair<String, String>>,
     val sourceRow: List<String>
 )
 
@@ -1533,8 +1543,12 @@ private fun isWeatherHeaderLabel(label: String): Boolean {
         "humidity",
         "wind",
         "rain",
+        "rainy",
         "precip",
         "forecast",
+        "climate",
+        "sunshine",
+        "sunny",
         "uv",
         "feels"
     )
@@ -1758,6 +1772,55 @@ private fun shouldPreferComparisonCards(headers: List<String>, compactScreen: Bo
     val firstHeader = headers.firstOrNull().orEmpty()
     return isComparisonFeatureHeader(firstHeader) ||
         (headers.size >= 4 && isComparisonEntityHeader(firstHeader))
+}
+
+internal fun looksLikeClimateComparisonTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    domain: String = "generic"
+): Boolean {
+    if (headers.size < 3 || rows.isEmpty()) return false
+    val firstHeader = normalizeTableHeaderForMatch(headers.firstOrNull().orEmpty())
+    val firstColumnIsPlace = firstHeader in setOf(
+        "city",
+        "destination",
+        "location",
+        "place",
+        "region",
+        "area",
+        "country"
+    ) || isComparisonEntityHeader(headers.firstOrNull().orEmpty())
+    if (!firstColumnIsPlace) return false
+
+    val normalizedHeaders = headers.map(::normalizeTableHeaderForMatch)
+    val climateSignals = normalizedHeaders.count { token ->
+        token.contains("climate") ||
+            token.contains("weather") ||
+            token.contains("temp") ||
+            token.contains("high") ||
+            token.contains("low") ||
+            token.contains("rain") ||
+            token.contains("precip") ||
+            token.contains("sunshine") ||
+            token.contains("sunny") ||
+            token.contains("humidity") ||
+            token.contains("wind") ||
+            token.contains("uv")
+    }
+    val hasTemperature = normalizedHeaders.any { token ->
+        token.contains("temp") || token.contains("high") || token.contains("low")
+    }
+    val hasOutdoorMetric = normalizedHeaders.any { token ->
+        token.contains("rain") ||
+            token.contains("precip") ||
+            token.contains("sunshine") ||
+            token.contains("sunny") ||
+            token.contains("humidity") ||
+            token.contains("wind") ||
+            token.contains("uv")
+    }
+    val comparisonLike = domain in setOf("comparison", "weather", "generic")
+    return comparisonLike && climateSignals >= 2 && hasTemperature && hasOutdoorMetric
 }
 
 private fun stringSetFromTableProp(value: Any?): Set<String> {
@@ -2446,7 +2509,9 @@ private fun RenderTableLayout(
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val compactScreen = screenWidthDp <= 480
     val gap = stackGap(props)
     val tableModifier = applyStackModifier(modifier, props, "vertical")
@@ -2490,6 +2555,16 @@ private fun RenderTableLayout(
             )
             return
         }
+    }
+    if (looksLikeClimateComparisonTable(tableModel.headers, tableRows, tableModel.domain)) {
+        RenderClimateComparisonCards(
+            headers = tableModel.headers,
+            rows = tableRows,
+            modifier = tableModifier,
+            spacing = spacing,
+            landscape = isLandscape || screenWidthDp >= 600
+        )
+        return
     }
     if (tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS) {
         if (looksLikeMultiLegFlightTable(tableModel.headers)) {
@@ -3993,8 +4068,27 @@ private fun selectAdaptiveTablePresentation(
     val regularOrLandscape = isLandscape || screenWidthDp >= 600
     val columnCount = table.columns.size
     val featureMatrix = table.shape == FlatTableShape.FEATURE_MATRIX
+    if (looksLikeClimateComparisonTable(
+            headers = table.columns.map { column -> column.label },
+            rows = table.rows,
+            domain = table.domain
+        )
+    ) {
+        return AdaptiveTablePresentation.CLIMATE_CARDS
+    }
     if (table.shape == FlatTableShape.PLAYLIST) {
         return AdaptiveTablePresentation.PLAYLIST_ROWS
+    }
+    if (!isLandscape && cardsRequested) {
+        when (table.shape) {
+            FlatTableShape.FEATURE_MATRIX -> return AdaptiveTablePresentation.FEATURE_CARDS
+            FlatTableShape.ENTITY_ROW -> return AdaptiveTablePresentation.ENTITY_CARDS
+            FlatTableShape.NUMERIC_METRICS -> return AdaptiveTablePresentation.METRIC_CARDS
+            FlatTableShape.SCHEDULE_TIMELINE -> return AdaptiveTablePresentation.TIMELINE_CARDS
+            FlatTableShape.KEY_VALUE -> return AdaptiveTablePresentation.KEY_VALUE_PANEL
+            FlatTableShape.PLAYLIST -> return AdaptiveTablePresentation.PLAYLIST_ROWS
+            FlatTableShape.GENERIC_GRID -> Unit
+        }
     }
     if (regularOrLandscape) {
         return when {
@@ -4198,6 +4292,290 @@ private fun buildPlaylistTrackRows(
                 .take(3),
             sourceRow = row
         )
+    }
+}
+
+private fun climateColumnIndex(headers: List<String>, vararg keywords: String): Int? {
+    return headers.indexOfFirst { header ->
+        val token = normalizeTableHeaderForMatch(header)
+        keywords.any { keyword -> token.contains(keyword) }
+    }.takeIf { it >= 0 }
+}
+
+private fun compactClimateMetricLabel(header: String): String {
+    val token = normalizeTableHeaderForMatch(header)
+    return when {
+        token.contains("rain") || token.contains("precip") -> "Rain"
+        token.contains("sunshine") || token.contains("sunny") -> "Sun"
+        token.contains("humidity") -> "Humidity"
+        token.contains("wind") -> "Wind"
+        token.contains("uv") -> "UV"
+        token.contains("best") -> "Best for"
+        token.contains("condition") -> "Condition"
+        else -> tableHeaderLabel(listOf(header), 0)
+    }
+}
+
+private fun firstNumberFromText(value: String?): Double? {
+    return Regex("""-?\d+(?:\.\d+)?""")
+        .find(value.orEmpty())
+        ?.value
+        ?.toDoubleOrNull()
+}
+
+private fun inferClimateCondition(row: ClimateComparisonRow): String {
+    val textPool = buildString {
+        append(row.verdict.orEmpty())
+        row.metrics.forEach { (_, value) ->
+            append(' ')
+            append(value)
+        }
+    }.lowercase()
+    val sunshine = row.metrics.firstOrNull { (label, _) ->
+        normalizeTableHeaderForMatch(label).contains("sun")
+    }?.second?.let(::firstNumberFromText)
+    val rain = row.metrics.firstOrNull { (label, _) ->
+        normalizeTableHeaderForMatch(label).contains("rain")
+    }?.second?.let(::firstNumberFromText)
+    return when {
+        textPool.contains("storm") -> "Thunderstorm"
+        textPool.contains("snow") -> "Snow"
+        textPool.contains("rain") && textPool.contains("heavy") -> "Rain"
+        rain != null && rain >= 12 -> "Rain"
+        sunshine != null && sunshine >= 7 -> "Sunny"
+        textPool.contains("sun") || textPool.contains("recommended") -> "Sunny"
+        textPool.contains("dry") || textPool.contains("mild") -> "Partly Cloudy"
+        else -> "Cloudy"
+    }
+}
+
+private fun buildClimateComparisonRows(
+    headers: List<String>,
+    rows: List<List<String>>
+): List<ClimateComparisonRow> {
+    if (headers.isEmpty()) return emptyList()
+    val placeIndex = 0
+    val verdictIndex = climateColumnIndex(headers, "verdict", "condition", "summary")
+    val highIndex = climateColumnIndex(headers, "average high", "avg high", "high", "max")
+    val lowIndex = climateColumnIndex(headers, "average low", "avg low", "low", "min")
+    val reserved = setOfNotNull(placeIndex, verdictIndex, highIndex, lowIndex)
+    return rows.mapIndexedNotNull { rowIndex, row ->
+        val place = row.getOrNull(placeIndex).orEmpty().trim().ifBlank { "Place ${rowIndex + 1}" }
+        if (place.isBlank()) return@mapIndexedNotNull null
+        val metrics = headers.indices
+            .filterNot { it in reserved }
+            .mapNotNull { index ->
+                val value = row.getOrNull(index).orEmpty().trim()
+                if (value.isBlank() || isLikelyHttpUrl(value)) null else compactClimateMetricLabel(headers[index]) to value
+            }
+            .take(4)
+        ClimateComparisonRow(
+            place = place,
+            verdict = verdictIndex?.let { row.getOrNull(it).orEmpty().trim() }?.takeIf { it.isNotBlank() },
+            high = highIndex?.let { row.getOrNull(it).orEmpty().trim() }?.takeIf { it.isNotBlank() },
+            low = lowIndex?.let { row.getOrNull(it).orEmpty().trim() }?.takeIf { it.isNotBlank() },
+            metrics = metrics,
+            sourceRow = row
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RenderClimateComparisonCards(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    spacing: Dp = 8.dp,
+    landscape: Boolean = false
+) {
+    val climateRows = buildClimateComparisonRows(headers, rows)
+    if (climateRows.isEmpty()) return
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        verticalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        if (landscape && climateRows.size == 2) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(spacing)
+            ) {
+                climateRows.forEachIndexed { index, row ->
+                    ClimateComparisonCard(
+                        row = row,
+                        rowIndex = index,
+                        highlighted = isPreferredClimateRow(row),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        } else {
+            climateRows.forEachIndexed { index, row ->
+                ClimateComparisonCard(
+                    row = row,
+                    rowIndex = index,
+                    highlighted = isPreferredClimateRow(row),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+private fun isPreferredClimateRow(row: ClimateComparisonRow): Boolean {
+    val text = "${row.place} ${row.verdict.orEmpty()} ${row.metrics.joinToString(" ") { it.second }}".lowercase()
+    return text.contains("recommended") ||
+        text.contains("pick") ||
+        text.contains("best") ||
+        text.contains("more sun") ||
+        text.contains("warmer")
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ClimateComparisonCard(
+    row: ClimateComparisonRow,
+    rowIndex: Int,
+    highlighted: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val condition = inferClimateCondition(row)
+    val background = if (highlighted) {
+        Brush.linearGradient(
+            colors = listOf(
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.92f),
+                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.78f)
+            )
+        )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(
+                MaterialTheme.colorScheme.surfaceContainerHigh,
+                MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.72f)
+            )
+        )
+    }
+    val chipColor = if (highlighted) {
+        MaterialTheme.colorScheme.surface.copy(alpha = 0.58f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f)
+    }
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(22.dp))
+            .background(background)
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(
+                    headers = listOf("Place", "Verdict", "High", "Low") + row.metrics.map { it.first },
+                    row = listOf(row.place, row.verdict.orEmpty(), row.high.orEmpty(), row.low.orEmpty()) +
+                        row.metrics.map { it.second },
+                    rowIndex = rowIndex
+                )
+            }
+            .padding(horizontal = 14.dp, vertical = 13.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                NativeWeatherUiRenderer.WeatherConditionIcon(
+                    condition = condition,
+                    size = 34.dp,
+                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(row.place),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    row.verdict?.let { verdict ->
+                        Text(
+                            text = parseBoldMarkdown(verdict),
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                row.high?.let { high ->
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = "High",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = parseBoldMarkdown(high),
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+                row.low?.let { low ->
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = "Low",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = parseBoldMarkdown(low),
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                row.metrics.forEach { (label, value) ->
+                    Surface(
+                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                        color = chipColor
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown("$label: $value"),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -5282,6 +5660,13 @@ private fun RenderDirectTable(
     )
     val tableModifier = applyStackModifier(modifier, props, "vertical")
     when (presentation) {
+        AdaptiveTablePresentation.CLIMATE_CARDS -> RenderClimateComparisonCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            spacing = spacing,
+            landscape = isLandscape || screenWidthDp >= 600
+        )
         AdaptiveTablePresentation.KEY_VALUE_PANEL -> RenderKeyValueTablePanel(
             headers = headers,
             rows = table.rows,

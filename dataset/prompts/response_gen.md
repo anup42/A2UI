@@ -94,6 +94,7 @@ Category UI archetypes (match these structures when intent fits):
   - Start with one compact "current state" block.
   - Follow with one forecast/status table or timeline section (not both unless truly needed).
   - Prefer short metric labels and compact values.
+  - For climate/city comparisons, keep the answer metric-first with one comparison table and no decorative destination gallery.
 - Travel / Event Schedule / Navigation:
   - Prefer timeline-style entries (time/day + title + 1-2 details) over long prose.
   - Keep each timeline row self-contained and scannable.

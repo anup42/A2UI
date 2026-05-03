@@ -123,6 +123,7 @@ Allowed dynamic value expressions in props:
   - landscape/tablet: table-first layout with horizontal scroll and sticky first column when needed; playlist stays a split music-player layout, not a spreadsheet
 - Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
 - Weather/climate outputs must include a dedicated metrics table.
+- Weather/climate comparison tables should stay compact as one `Table`; use `domain: "comparison"` and `preferredPresentation: "cards"` for city/entity rows so the renderer can map them to weather-style climate cards. Keep temperature, rain/precipitation, sunshine, wind, humidity, and recommendation fields as table columns; do not render detached destination image galleries.
 - Flight/travel planning tables should stay compact as one `Table` with `domain: "flight"` and `preferredPresentation: "cards"`. For multi-leg routes, use leg columns such as `leg1`, `leg2`, `leg3` plus a carrier/title column; do not expand each leg into separate elements.
 - Do not render destination photo galleries for flight planning unless the image is verified and attached to a specific destination card. Prefer renderer-generated route/flight cards over decorative travel photos.
 - Put global flight CTAs near the related section: alliance/flight search actions near the itinerary table, and visa/entry-rule actions near the documents section. Do not leave these as plain text at the bottom.

@@ -151,6 +151,58 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractDirectTableModel_routesComparisonCardsWhenRequested() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "city", "label" to "City"),
+                mapOf("key" to "avg_low", "label" to "Average Low"),
+                mapOf("key" to "sunshine", "label" to "Sunshine")
+            ),
+            "rows" to listOf(
+                mapOf("city" to "Rome", "avg_low" to "12°C", "sunshine" to "6h"),
+                mapOf("city" to "Lisbon", "avg_low" to "15°C", "sunshine" to "7h")
+            ),
+            "domain" to "comparison",
+            "preferredPresentation" to "cards"
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals(FlatTableRenderMode.RESPONSIVE_CARD_ROWS, model!!.renderMode)
+        assertEquals(FlatTableShape.ENTITY_ROW, model.shape)
+    }
+
+    @Test
+    fun looksLikeClimateComparisonTable_detectsCityWeatherMetrics() {
+        val headers = listOf(
+            "City",
+            "Verdict",
+            "Average High",
+            "Average Low",
+            "Rainy Days",
+            "Sunshine/Day"
+        )
+        val rows = listOf(
+            listOf("Rome, Italy", "Mild", "22 C", "12 C", "8", "6 hours/day"),
+            listOf("Lisbon, Portugal", "Recommended", "22 C", "15 C", "9", "7 hours/day")
+        )
+
+        assertTrue(looksLikeClimateComparisonTable(headers, rows, domain = "comparison"))
+        assertFalse(
+            looksLikeClimateComparisonTable(
+                headers = listOf("Product", "Price", "Rating"),
+                rows = listOf(listOf("A", "$10", "4.5")),
+                domain = "comparison"
+            )
+        )
+    }
+
+    @Test
     fun bookingRowActionLabel_readsSupportedActionLabelColumns() {
         val headers = listOf("Hotel", "Price", "Booking URL", "Action Label")
         val row = listOf(
