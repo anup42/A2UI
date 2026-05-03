@@ -193,6 +193,24 @@ internal data class ChartPoint(
     val displayValue: String
 )
 
+internal data class MultiSeriesChartSegment(
+    val key: String,
+    val label: String,
+    val value: Double,
+    val displayValue: String
+)
+
+internal data class MultiSeriesChartRow(
+    val label: String,
+    val segments: List<MultiSeriesChartSegment>
+)
+
+internal data class MultiSeriesChartModel(
+    val categoryLabel: String,
+    val rows: List<MultiSeriesChartRow>,
+    val percentBased: Boolean
+)
+
 internal data class FlatTableModel(
     val headerRowId: String,
     val bodyContainerId: String?,
@@ -4839,6 +4857,61 @@ private fun inferChartCurrency(points: List<ChartPoint>): String? {
     return value.displayValue.trim().takeWhile { !it.isDigit() && it != '-' }.takeIf { it.isNotBlank() }
 }
 
+internal fun extractPercentageMatrixChartModel(
+    columns: List<FlatDirectTableColumn>,
+    rows: List<List<String>>,
+    domain: String
+): MultiSeriesChartModel? {
+    if (columns.size < 3 || rows.size !in 2..12) return null
+    if (domain in setOf("weather", "flight", "booking", "playlist", "schedule", "status")) return null
+
+    val categoryLabel = columns.firstOrNull()?.label?.trim().orEmpty()
+    val categoryToken = normalizeTableHeaderForMatch(categoryLabel)
+    if (categoryLabel.isBlank() || categoryToken in setOf("feature", "metric", "attribute", "criteria")) {
+        return null
+    }
+
+    val candidateSeriesIndexes = columns.indices.drop(1).filter { columnIndex ->
+        val values = rows.mapNotNull { row -> row.getOrNull(columnIndex)?.trim()?.takeIf { it.isNotBlank() } }
+        values.isNotEmpty() && values.count { value -> parseChartNumber(value) != null } >= maxOf(1, values.size * 2 / 3)
+    }
+    if (candidateSeriesIndexes.size < 2 || candidateSeriesIndexes.size > 6) return null
+
+    val candidateValues = candidateSeriesIndexes.flatMap { columnIndex ->
+        rows.mapNotNull { row -> row.getOrNull(columnIndex)?.trim()?.takeIf { it.isNotBlank() } }
+    }
+    val percentLikeCount = candidateValues.count { value -> value.contains('%') }
+    if (percentLikeCount < maxOf(2, candidateValues.size * 2 / 3)) return null
+
+    val chartRows = rows.mapNotNull { row ->
+        val label = row.getOrNull(0)?.trim().orEmpty()
+        if (label.isBlank()) return@mapNotNull null
+        val segments = candidateSeriesIndexes.mapNotNull { columnIndex ->
+            val displayValue = row.getOrNull(columnIndex)?.trim().orEmpty()
+            val value = parseChartNumber(displayValue)
+            if (value == null) {
+                null
+            } else {
+                val column = columns[columnIndex]
+                MultiSeriesChartSegment(
+                    key = column.key,
+                    label = column.label.ifBlank { column.key },
+                    value = value.coerceAtLeast(0.0),
+                    displayValue = displayValue
+                )
+            }
+        }
+        if (segments.size < 2) null else MultiSeriesChartRow(label = label, segments = segments)
+    }
+
+    if (chartRows.size < 2) return null
+    return MultiSeriesChartModel(
+        categoryLabel = categoryLabel,
+        rows = chartRows,
+        percentBased = true
+    )
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RenderChart(
@@ -4982,6 +5055,212 @@ private fun ChartSummaryChip(text: String) {
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
         )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RenderPercentageMatrixChart(
+    model: MultiSeriesChartModel,
+    modifier: Modifier = Modifier,
+    landscape: Boolean = false
+) {
+    val palette = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.tertiary,
+        MaterialTheme.colorScheme.secondary,
+        MaterialTheme.colorScheme.error.copy(alpha = 0.82f),
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.58f),
+        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.58f)
+    )
+    val seriesLabels = model.rows
+        .flatMap { row -> row.segments.map { segment -> segment.label } }
+        .distinct()
+    val colorBySeries = seriesLabels.mapIndexed { index, label ->
+        label to palette[index % palette.size]
+    }.toMap()
+    val title = if (model.percentBased) {
+        "Preference distribution"
+    } else {
+        "Data distribution"
+    }
+    val subtitle = "Grouped by ${model.categoryLabel}"
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = buildString {
+                    append(title).append(". ")
+                    model.rows.forEach { row ->
+                        append(row.label).append(": ")
+                        append(row.segments.joinToString(", ") { segment -> "${segment.label} ${segment.displayValue}" })
+                        append(". ")
+                    }
+                }
+            },
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f),
+                            MaterialTheme.colorScheme.surfaceContainerLow
+                        )
+                    )
+                )
+                .padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                ) {
+                    Text(
+                        text = "Graph",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                seriesLabels.forEach { label ->
+                    ChartLegendChip(
+                        label = label,
+                        color = colorBySeries[label] ?: MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(if (landscape) 8.dp else 11.dp)) {
+                model.rows.forEachIndexed { index, row ->
+                    PercentageMatrixChartRow(
+                        row = row,
+                        colorBySeries = colorBySeries,
+                        compact = !landscape
+                    )
+                    if (index < model.rows.lastIndex) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.22f))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChartLegendChip(
+    label: String,
+    color: Color
+) {
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.74f),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.24f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                    .background(color)
+            )
+            Text(
+                text = parseBoldMarkdown(label),
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+private fun PercentageMatrixChartRow(
+    row: MultiSeriesChartRow,
+    colorBySeries: Map<String, Color>,
+    compact: Boolean
+) {
+    val positiveSegments = row.segments.filter { segment -> segment.value > 0.0 }
+    val total = positiveSegments.sumOf { segment -> segment.value }.takeIf { it > 0.0 } ?: 1.0
+    val winner = row.segments.maxByOrNull { segment -> segment.value }
+
+    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = parseBoldMarkdown(row.label),
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            winner?.let { segment ->
+                Text(
+                    text = "${segment.label} ${segment.displayValue}",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.End,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(if (compact) 1.45f else 1f)
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (compact) 30.dp else 26.dp)
+                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.52f))
+        ) {
+            if (positiveSegments.isNotEmpty()) {
+                Row(modifier = Modifier.fillMaxSize()) {
+                    positiveSegments.forEach { segment ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight((segment.value / total).toFloat().coerceAtLeast(0.01f))
+                                .background(colorBySeries[segment.label] ?: MaterialTheme.colorScheme.primary)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -6202,6 +6481,20 @@ private fun RenderDirectTable(
         }
     }
 
+    val tableModifier = applyStackModifier(modifier, props, "vertical")
+    extractPercentageMatrixChartModel(
+        columns = table.columns,
+        rows = table.rows,
+        domain = table.domain
+    )?.let { chartModel ->
+        RenderPercentageMatrixChart(
+            model = chartModel,
+            modifier = tableModifier,
+            landscape = isLandscape || screenWidthDp >= 600
+        )
+        return
+    }
+
     val spacing = 8.dp
     val autoHorizontalScroll = shouldUseHorizontalTableScroll(
         compactScreen = compactPortrait,
@@ -6216,7 +6509,6 @@ private fun RenderDirectTable(
         autoHorizontalScroll = autoHorizontalScroll,
         cardsRequested = cardsRequested
     )
-    val tableModifier = applyStackModifier(modifier, props, "vertical")
     when (presentation) {
         AdaptiveTablePresentation.CLIMATE_CARDS -> RenderClimateComparisonCards(
             headers = headers,

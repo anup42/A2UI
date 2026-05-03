@@ -57,6 +57,40 @@ class FlatSpecContractTest {
     }
 
     @Test
+    fun coerceAndValidate_acceptsChartElement() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": {
+                "rows": [
+                  { "age": "18-24", "tiktok": "75.0%" },
+                  { "age": "25-34", "tiktok": "0.0%" }
+                ]
+              },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["chart"] },
+                "chart": {
+                  "type": "Chart",
+                  "props": {
+                    "chartType": "bar",
+                    "statePath": "/rows",
+                    "columns": [{"key":"age","label":"Age"},{"key":"tiktok","label":"TikTok"}],
+                    "xKey": "age",
+                    "yKey": "tiktok"
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertTrue(result.error.orEmpty(), result.isValid)
+    }
+
+    @Test
     fun coerceAndValidate_failsWhenElementsIsEmpty() {
         val payload = JsonParser.parseString(
             """

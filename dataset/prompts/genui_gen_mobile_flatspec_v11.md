@@ -167,7 +167,7 @@ Allowed dynamic value expressions in props:
   - portrait `<600dp`: entity rows become cards, playlist rows become music rows/cards, key-value rows become fact panels, schedules become timeline cards, metrics become KPI cards
   - landscape/tablet: table-first layout with horizontal scroll and sticky first column when needed; playlist stays a split music-player layout, not a spreadsheet
 - Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
-- Data visualization/chart outputs should use `Chart` for bar/column charts with `statePath`/`rows`, `columns`, `xKey`, and `yKey`; keep the source data as compact rows and do not use random chart screenshots or decorative chart images.
+- Data visualization/chart outputs should use `Chart` for bar/column charts with `statePath`/`rows`, `columns`, `xKey`, and `yKey`; keep the source data as compact rows and do not use random chart screenshots or decorative chart images. For survey/distribution percentage matrices, keep one compact `Table`; Android auto-renders it as a stacked percentage chart without duplicating the IR data.
 - Weather/climate outputs must include a dedicated metrics table.
 - Weather/climate comparison tables should stay compact as one `Table`; use `domain: "comparison"` and `preferredPresentation: "cards"` for city/entity rows so the renderer can map them to weather-style climate cards. Keep temperature, rain/precipitation, sunshine, wind, humidity, and recommendation fields as table columns; do not render detached destination image galleries.
 - Flight planning tables should stay compact as one `Table` with `domain: "flight"` and `preferredPresentation: "cards"`. For multi-leg routes, use leg columns such as `leg1`, `leg2`, `leg3` plus a carrier/title column; do not expand each leg into separate elements.
@@ -280,7 +280,7 @@ Apply these patterns when the response content matches the domain:
 
 **Calculation**: Stack > h2 calculator title + Card(h3 "Result" + h2-sized result number + body breakdown) + Table(calculation steps or annual breakdown) + Button for related tools
 
-**Research/Analysis**: Stack > h2 report title + Card(h3 "Key Findings" + body summary) + Table(data analysis) + Card(h3 "Methodology" or "Conclusion" + body text)
+**Research/Analysis**: Stack > h2 report title + Card(h3 "Key Findings" + body summary) + compact Table(data analysis). For age/category percentage distributions, use rows like category + percentage columns so Android can render a chart; avoid expanding chart bars as separate elements. End with Card(h3 "Methodology" or "Conclusion" + body text) when needed.
 
 ## CATALOG
 

@@ -328,6 +328,30 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractPercentageMatrixChartModel_detectsSurveyDistributionTable() {
+        val columns = listOf(
+            FlatDirectTableColumn("age_group", "Age Group"),
+            FlatDirectTableColumn("tiktok", "TikTok"),
+            FlatDirectTableColumn("instagram", "Instagram"),
+            FlatDirectTableColumn("facebook", "Facebook"),
+            FlatDirectTableColumn("linkedin", "LinkedIn")
+        )
+        val rows = listOf(
+            listOf("18-24", "75.0%", "25.0%", "0.0%", "0.0%"),
+            listOf("25-34", "0.0%", "66.7%", "0.0%", "33.3%"),
+            listOf("35-44", "0.0%", "0.0%", "66.7%", "33.3%")
+        )
+
+        val model = extractPercentageMatrixChartModel(columns, rows, domain = "comparison")
+
+        assertNotNull(model)
+        assertEquals("Age Group", model!!.categoryLabel)
+        assertEquals(3, model.rows.size)
+        assertEquals("TikTok", model.rows.first().segments.first().label)
+        assertEquals(75.0, model.rows.first().segments.first().value, 0.01)
+    }
+
+    @Test
     fun bookingRowActionLabel_readsSupportedActionLabelColumns() {
         val headers = listOf("Hotel", "Price", "Booking URL", "Action Label")
         val row = listOf(

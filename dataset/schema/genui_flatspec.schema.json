@@ -89,6 +89,7 @@
             "Text",
             "EmailPreview",
             "Table",
+            "Chart",
             "Image",
             "Icon",
             "Video",
