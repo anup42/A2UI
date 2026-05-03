@@ -236,20 +236,33 @@ internal object NativeTextFormatter {
             return value
         }
         val candidates = linkedSetOf(value)
-        if (value.contains('Ã') || value.contains('Â') || value.contains('â')) {
-            runCatching {
-                String(value.toByteArray(Charset.forName("windows-1252")), Charsets.UTF_8)
-            }.onSuccess { candidates += it }
-            runCatching {
-                String(value.toByteArray(Charsets.ISO_8859_1), Charsets.UTF_8)
-            }.onSuccess { candidates += it }
+        var frontier = listOf(value)
+        repeat(2) {
+            frontier = frontier.flatMap { candidate ->
+                if (!hasMojibakeMarker(candidate)) {
+                    emptyList()
+                } else {
+                    listOfNotNull(
+                        decodeMojibakeCandidate(candidate, Charset.forName("windows-1252")),
+                        decodeMojibakeCandidate(candidate, Charsets.ISO_8859_1)
+                    )
+                }
+            }.distinct()
+            candidates += frontier
         }
         val normalized = candidates.minByOrNull(::mojibakeScore) ?: value
         return normalized
-            .replace("Â°", "°")
-            .replace("Â₹", "₹")
-            .replace("â‚¹", "₹")
-            .replace("â€¢", "•")
+            .replace("\u00C2\u00B0", "\u00B0")
+            .replace("\u00C2\u00A0", " ")
+            .replace("\u00E2\u0082\u00AC", "\u20AC")
+            .replace("\u00E2\u0082\u00B9", "\u20B9")
+            .replace("\u00E2\u0080\u00A2", "\u2022")
+            .replace("\u00E2\u0080\u0093", "\u2013")
+            .replace("\u00E2\u0080\u0094", "\u2014")
+            .replace("\u00E2\u0080\u0098", "\u2018")
+            .replace("\u00E2\u0080\u0099", "\u2019")
+            .replace("\u00E2\u0080\u009C", "\u201C")
+            .replace("\u00E2\u0080\u009D", "\u201D")
     }
 
     fun isLikelyLeadingLabel(label: String, value: String): Boolean {
@@ -395,10 +408,31 @@ internal object NativeTextFormatter {
             return 0
         }
         val markers = listOf(
-            "Ã", "Â", "â€¢", "â‚¹", "â€“", "â€”", "â€˜", "â€™", "â€œ", "â€�", "�"
+            "\u00C3\u0192",
+            "\u00C3\u201A",
+            "\u00C3",
+            "\u00C2",
+            "\u00E2\u0080\u00A2",
+            "\u00E2\u0082\u00AC",
+            "\u00E2\u0082\u00B9",
+            "\u00E2\u0080\u0093",
+            "\u00E2\u0080\u0094",
+            "\u00E2\u0080\u0098",
+            "\u00E2\u0080\u0099",
+            "\u00E2\u0080\u009C",
+            "\u00E2\u0080\u009D",
+            "\u00EF\u00BF\u00BD",
+            "\uFFFD"
         )
         return markers.sumOf { marker -> countOccurrences(value, marker) }
     }
+
+    private fun hasMojibakeMarker(value: String): Boolean = mojibakeScore(value) > 0
+
+    private fun decodeMojibakeCandidate(value: String, charset: Charset): String? =
+        runCatching {
+            String(value.toByteArray(charset), Charsets.UTF_8)
+        }.getOrNull()
 
     private fun countOccurrences(value: String, needle: String): Int {
         if (needle.isEmpty()) {

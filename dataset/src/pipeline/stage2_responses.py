@@ -1269,6 +1269,30 @@ def run_stage2(
                 asset_retry_attempts = asset_attempt + 1
 
             selected_text = _strip_unresolved_media_images(selected_text, assets)
+            final_asset_entries = _extract_asset_entries(selected_text)
+            final_asset_urls = {entry["url"] for entry in final_asset_entries}
+            if final_asset_urls:
+                assets = [
+                    asset for asset in assets
+                    if str(asset.get("url") or "").strip() in final_asset_urls
+                ]
+            else:
+                assets = []
+            declared_assets_count = len(final_asset_entries)
+            valid_asset_rate = (
+                float(len(assets) / declared_assets_count)
+                if declared_assets_count > 0
+                else 1.0
+            )
+            asset_quality_ok, asset_quality_reason = _asset_quality_check(
+                selected_text,
+                intent_value,
+                tags_list,
+                declared_assets_count,
+                len(assets),
+                real_asset_retry_min_valid_rate,
+                icons_only_mode=icons_only_mode,
+            )
             norm_hash = hash_text(normalize_text(selected_text))
             if norm_hash in existing_hashes:
                 logger.info("Stage2 duplicate response query_id=%s", query_id)

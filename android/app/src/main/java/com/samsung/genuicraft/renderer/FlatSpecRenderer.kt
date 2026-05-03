@@ -3371,6 +3371,137 @@ private fun pickResponsiveTableTemplate(
     return ResponsiveTableCardTemplate.GENERIC
 }
 
+private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
+    if (headers.size < 3) return false
+    val normalized = headers.map(::normalizeTableHeaderForMatch)
+    val first = normalized.firstOrNull().orEmpty()
+    val hasDayColumn = first.contains("day") || first.contains("date")
+    val activityColumns = normalized.drop(1).count { header ->
+        header.contains("activity") ||
+            header.contains("morning") ||
+            header.contains("afternoon") ||
+            header.contains("evening") ||
+            header.contains("stop") ||
+            header.contains("plan")
+    }
+    val hasDiningColumn = normalized.any { header ->
+        header.contains("dining") ||
+            header.contains("food") ||
+            header.contains("meal") ||
+            header.contains("restaurant")
+    }
+    return hasDayColumn && (activityColumns >= 2 || hasDiningColumn)
+}
+
+private fun compactItinerarySectionLabel(label: String): String {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return when {
+        normalized.contains("morning") -> "Morning"
+        normalized.contains("afternoon") -> "Afternoon"
+        normalized.contains("evening") -> "Evening"
+        normalized.contains("dining") || normalized.contains("food") || normalized.contains("meal") -> "Food"
+        normalized.contains("activity") -> "Activity"
+        else -> label.trim().ifBlank { "Plan" }
+    }
+}
+
+private fun splitLeadingItineraryTitle(value: String): Pair<String?, String> {
+    val trimmed = value.trim()
+    val match = Regex("""^([^:;]{3,56})[:;]\s+(.+)$""").find(trimmed)
+    if (match != null) {
+        val title = match.groupValues[1].trim()
+        val body = match.groupValues[2].trim()
+        if (title.isNotBlank() && body.isNotBlank()) {
+            return title to body
+        }
+    }
+    return null to trimmed
+}
+
+@Composable
+private fun ItinerarySectionBlock(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    val (title, body) = splitLeadingItineraryTitle(value)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.56f))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Text(
+            text = compactItinerarySectionLabel(label),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary
+        )
+        if (!title.isNullOrBlank()) {
+            Text(
+                text = parseBoldMarkdown(title),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        if (body.isNotBlank()) {
+            Text(
+                text = parseBoldMarkdown(body),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun TravelItineraryDayCard(
+    headers: List<String>,
+    row: List<String>
+) {
+    val day = row.getOrNull(0).orEmpty().trim().ifBlank { "Day" }
+    val sections = (1 until maxOf(headers.size, row.size)).mapNotNull { index ->
+        val value = row.getOrNull(index).orEmpty().trim()
+        if (value.isBlank()) null else tableHeaderLabel(headers, index) to value
+    }
+    if (sections.isEmpty()) return
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row)
+            },
+        shape = RoundedCornerShape(20.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 13.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Text(
+                    text = parseBoldMarkdown(day),
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp)
+                )
+            }
+            sections.forEach { (label, value) ->
+                ItinerarySectionBlock(label = label, value = value)
+            }
+        }
+    }
+}
+
 @Composable
 private fun ResponsiveFieldBlock(
     label: String,
@@ -3853,6 +3984,11 @@ private fun ResponsiveScheduleRowCard(
     headers: List<String>,
     row: List<String>
 ) {
+    if (looksLikeTravelItineraryTable(headers)) {
+        TravelItineraryDayCard(headers = headers, row = row)
+        return
+    }
+
     val cellCount = maxOf(headers.size, row.size)
     val cells = (0 until cellCount).map { index ->
         Triple(index, tableHeaderLabel(headers, index), row.getOrNull(index).orEmpty().trim())
@@ -6341,8 +6477,9 @@ private fun parseSupportedMarkdownText(raw: String): SupportedMarkdownText {
 private val LEADING_LABEL_REGEX = Regex("^(\\s*)([A-Za-z][A-Za-z0-9 ./()&+\\-]{0,40})([:;])(\\s*.*)$")
 
 private fun parseBoldMarkdown(raw: String): AnnotatedString {
+    val cleanedRaw = NativeTextFormatter.sanitizeDisplayText(raw, preserveMarkdown = true)
     return buildAnnotatedString {
-        raw.split('\n').forEachIndexed { index, line ->
+        cleanedRaw.split('\n').forEachIndexed { index, line ->
             if (index > 0) append('\n')
             val labelMatch = if (NativeTextFormatter.containsUrlLikeToken(line)) {
                 null

@@ -9,6 +9,7 @@
 - Android uses the flat-spec contract shape: `{"root": "...", "state": {...}, "elements": {...}}`.
 - Current preferred dataset Stage 3 prompt is `dataset/prompts/genui_gen_mobile_flatspec_v11.md`.
 - Android runtime prompt copy is `android/app/src/main/assets/pipeline_prompts/genui_gen.md`.
+- When fixing a generated sample, do not manually rewrite the IR JSON. Fix the prompt/pipeline/renderer, regenerate the IR through Stage 3, then merge the generated record.
 
 ## LLM/Auth
 - Dataset Gemini calls should use Vertex Express API keys, not AI Studio direct keys.

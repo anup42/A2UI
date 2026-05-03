@@ -79,6 +79,23 @@ class LeadingLabelBoldTest {
     }
 
     @Test
+    fun flatSpecRenderer_normalizesMojibakeText() {
+        val parseMethod = Class
+            .forName("com.samsung.genuicraft.renderer.FlatSpecRendererKt")
+            .getDeclaredMethod("parseBoldMarkdown", String::class.java)
+        parseMethod.isAccessible = true
+
+        val annotated = parseMethod.invoke(
+            null,
+            "Morning: Visit the CitÃ© des Sciences and use the MÃ©tro."
+        ) as AnnotatedString
+
+        assertTrue("Expected CitÃ© to normalize to Cité", annotated.text.contains("Cité"))
+        assertTrue("Expected MÃ©tro to normalize to Métro", annotated.text.contains("Métro"))
+        assertFalse("Mojibake marker should not remain", annotated.text.contains("Ã"))
+    }
+
+    @Test
     fun htmlRenderer_wrapsLeadingLabelsWithStrong() {
         val formatMethod =
             GenUiHtmlRenderer::class.java.getDeclaredMethod("formatInlineText", String::class.java, File::class.java)
