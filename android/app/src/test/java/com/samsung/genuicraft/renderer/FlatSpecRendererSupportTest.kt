@@ -517,12 +517,17 @@ class FlatSpecRendererSupportTest {
         val mustacheItemTemplateExpr = mapOf("\$template" to "Step 1: {{${'$'}item.title}}")
         val legacyItemTemplateExpr = mapOf("\$template" to "Step 1: {${'$'}item.title}")
         val dollarItemTemplateExpr = mapOf("\$template" to "Step 1: ${'$'}{${'$'}item.title}")
+        val compactItemTemplateExpr = mapOf("\$template" to "Price: ${'$'}{price}")
 
         assertEquals("https://example.com", FlatExprResolver.resolve(itemExpr, state, item))
         assertEquals("Hello Anup", FlatExprResolver.resolve(templateExpr, state, item))
         assertEquals("Step 1: Prepare Dough", FlatExprResolver.resolve(mustacheItemTemplateExpr, state, item))
         assertEquals("Step 1: Prepare Dough", FlatExprResolver.resolve(legacyItemTemplateExpr, state, item))
         assertEquals("Step 1: Prepare Dough", FlatExprResolver.resolve(dollarItemTemplateExpr, state, item))
+        assertEquals(
+            "Price: GBP 199",
+            FlatExprResolver.resolve(compactItemTemplateExpr, state, item + ("price" to "GBP 199"))
+        )
     }
 
     @Test
@@ -560,6 +565,7 @@ class FlatSpecRendererSupportTest {
         assertEquals("Prep Oven", FlatExprResolver.resolve("{${'$'}item.title}", state, scope, emptyMap()))
         assertEquals("Prep Oven", FlatExprResolver.resolve("{{${'$'}item.title}}", state, scope, emptyMap()))
         assertEquals("Step: Prep Oven", FlatExprResolver.resolve("Step: ${'$'}{${'$'}item.title}", state, scope, emptyMap()))
+        assertEquals("Title: Prep Oven", FlatExprResolver.resolve("Title: ${'$'}{title}", state, scope, emptyMap()))
         assertEquals("Hello Asha", FlatExprResolver.resolve("Hello ${'$'}{/user/name}", state, scope, emptyMap()))
         assertEquals("Step 1.", FlatExprResolver.resolve("Step ${'$'}{index_1}.", state, scope, emptyMap()))
     }
