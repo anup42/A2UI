@@ -147,6 +147,7 @@ Allowed dynamic value expressions in props:
 - Booking/hotel tables must keep row-level actions inside the same compact `Table`: add `bookingUrl` plus `actionLabel`/`buttonLabel`/`ctaLabel` for each actionable row, set `domain: "booking"` and `preferredPresentation: "cards"`, and do not create a detached final Quick Actions card for that row.
 - Booking/hotel tables may include compact row media with an `image`/`imageUrl`/`photo` column when the image is verified and directly tied to that hotel. Do not put hotel photos in trailing galleries.
 - Travel itinerary responses MUST stay compact as one `Table` with `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "dayDate"`, and day/activity/dining rows in `state`. Do not expand each day into repeated Card/Text element trees, and do not create top/bottom image galleries.
+- Planning/project roadmap responses MUST stay compact as one `Table` with `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn` set to the phase/month column, and `highlightColumns` for goal/deliverable. Do not use Tabs for sequential months/phases, do not expand each phase into separate duplicated element trees, and do not add decorative image galleries.
 - Comparison tables:
   - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`. If verified/local images are available for compared entities, attach them in `props.entityMedia`; do not create trailing media cards.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
@@ -222,6 +223,8 @@ Apply these patterns when the response content matches the domain:
 **Comparison**: Stack > h2 title + Table(comparison matrix: features as rows, products as columns) + per-product Card(Image + h3 name + key highlights as body Text + Button)
 
 **Travel/Itinerary**: Stack > h2 destination + compact context Card + Table(day schedule with columns such as dayDate/morningActivity/afternoonActivity/diningIdea, `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "dayDate"`, `highlightColumns: ["morningActivity","afternoonActivity","diningIdea"]`). Use a hero Image only when a verified/local destination image is provided; never create a detached gallery.
+
+**Planning/Roadmap**: Stack > h2 plan title + compact context Card + Table(phase roadmap with columns such as phase/goal/keyTasks/deliverable, `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "phase"`, `highlightColumns: ["goal","deliverable"]`) + compact action buttons/resources near the roadmap. Avoid Tabs for phase/month roadmaps.
 
 **Recipe**: Stack > h2 recipe name + Image(dish photo) + Tabs(Ingredients | Instructions) where Ingredients tab has a Table of items/quantities, and Instructions tab has Stack(repeat over /steps) > Card(h3 "Step N" + body instruction)
 

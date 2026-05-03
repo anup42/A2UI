@@ -77,6 +77,11 @@ Structured Details rules (critical):
   - Media is optional for travel day cards. Add `Media:` only when a verified direct image/icon URL is available and directly tied to that specific day/place.
   - For multi-day itineraries, prefer a compact day schedule with short bullets over long prose tables, and do not append standalone Images or Icons sections.
   - Keep overview/planning sections to at most 2 short sentences.
+- Planning/project-roadmap requests:
+  - Start with a compact planning overview, then provide exactly one roadmap table with rows for phases/months/weeks and columns such as `Phase`, `Goal`, `Key Tasks`, and `Deliverable`.
+  - Keep each row scannable: use short semicolon-separated task phrases, not paragraph-length cells.
+  - Do not add decorative images or standalone Images/Icons sections. Use icon-only media only when attached to a specific phase or action.
+  - Put quick actions next to the relevant decision/resource when possible, and keep them to 1-3 high-value links.
 - Comparison/recommendation requests:
   - Provide one compact comparison table plus optional best-option cards for the top 2-4 items.
   - Keep each option card concise: title, one-line summary, 1-3 key facts, optional media, optional action.

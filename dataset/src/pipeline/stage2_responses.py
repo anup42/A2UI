@@ -468,7 +468,7 @@ def _strip_unresolved_media_images(text: str, assets: list[dict]) -> str:
     if not valid_urls:
         valid_urls = set()
 
-    media_image_re = re.compile(r"\s*Image=(https?://[^\s]+)")
+    media_asset_re = re.compile(r"\s*(Image|Icon)=(https?://[^\s]+)", flags=re.IGNORECASE)
     cleaned: list[str] = []
     for raw_line in text.splitlines():
         line = raw_line.rstrip()
@@ -477,10 +477,10 @@ def _strip_unresolved_media_images(text: str, assets: list[dict]) -> str:
             continue
 
         def _replace(match: re.Match[str]) -> str:
-            url = _clean_url(match.group(1))
+            url = _clean_url(match.group(2))
             return match.group(0) if url in valid_urls else ""
 
-        next_line = media_image_re.sub(_replace, line)
+        next_line = media_asset_re.sub(_replace, line)
         payload = next_line.split(":", 1)[1].strip() if ":" in next_line else ""
         if payload:
             cleaned.append(next_line)

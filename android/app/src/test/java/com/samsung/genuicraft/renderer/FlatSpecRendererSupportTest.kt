@@ -80,6 +80,48 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun rowChildFlex_readsPositiveFlexOnly() {
+        assertEquals(
+            1f,
+            rowChildFlex(
+                FlatElement(
+                    type = "Stack",
+                    props = mapOf("flex" to 1),
+                    children = emptyList()
+                )
+            ),
+            0.01f
+        )
+        assertEquals(
+            0f,
+            rowChildFlex(
+                FlatElement(
+                    type = "Stack",
+                    props = mapOf("flex" to 0),
+                    children = emptyList()
+                )
+            ),
+            0.01f
+        )
+        assertEquals(0f, rowChildFlex(null), 0.01f)
+    }
+
+    @Test
+    fun compactBulletItems_splitsTaskLikeSemicolonLists() {
+        val items = compactBulletItems(
+            "Key Tasks",
+            "Register business name; Order packaging; Test checkout."
+        )
+
+        assertEquals(
+            listOf("Register business name", "Order packaging", "Test checkout"),
+            items
+        )
+        assertTrue(compactBulletItems("Goal", "Register business name; Order packaging").isEmpty())
+        assertTrue(compactBulletItems("Key Tasks", "Register business name").isEmpty())
+    }
+
+    @Test
     fun extractDirectTableModel_keepsComparisonEntityMediaCompact() {
         val props = mapOf<String, Any?>(
             "columns" to listOf(

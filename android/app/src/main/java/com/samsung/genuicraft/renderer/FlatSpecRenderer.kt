@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -2214,6 +2215,11 @@ private fun hasHorizontalContainerPadding(props: Map<String, Any?>): Boolean =
         asFlatSpacingDp(props["contentPadding"]) != null ||
         asFlatSpacingDp(props["contentPaddingHorizontal"]) != null
 
+internal fun rowChildFlex(element: FlatElement?): Float =
+    asFloat(element?.props?.get("flex"))
+        ?.takeIf { it > 0f }
+        ?: 0f
+
 private fun isPaddedContainerElement(element: FlatElement?): Boolean {
     if (element == null || !hasHorizontalContainerPadding(element.props)) return false
     return when (element.type.trim().lowercase()) {
@@ -2453,7 +2459,7 @@ private fun RenderStack(
                 horizontalArrangement = horizontalArrangement,
                 verticalAlignment = verticalAlignment
             ) {
-                RenderChildren(
+                RenderRowChildren(
                     children = children,
                     elements = elements,
                     state = state,
@@ -2497,6 +2503,38 @@ private fun RenderStack(
                 onSetState = onSetState,
                 onAction = onAction,
                 activePath = activePath
+            )
+        }
+    }
+}
+
+@Composable
+private fun RowScope.RenderRowChildren(
+    children: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    repeatedChildScopes: List<RepeatScope>?,
+    onOpenUrl: (String) -> Unit,
+    onSetState: (String, Any?) -> Unit,
+    onAction: (Any?, RepeatScope?) -> Int,
+    activePath: Set<String>
+) {
+    val scopes = repeatedChildScopes ?: listOf(repeatScope)
+    scopes.forEach { scopedRepeat ->
+        children.forEach { childId ->
+            val child = elements[childId] ?: return@forEach
+            val flex = rowChildFlex(child)
+            RenderElement(
+                elementId = childId,
+                elements = elements,
+                state = state,
+                repeatScope = scopedRepeat,
+                onOpenUrl = onOpenUrl,
+                onSetState = onSetState,
+                onAction = onAction,
+                activePath = activePath,
+                modifier = if (flex > 0f) Modifier.weight(flex) else Modifier
             )
         }
     }
@@ -3510,6 +3548,7 @@ private fun ResponsiveFieldBlock(
 ) {
     val normalizedValue = value.trim()
     if (normalizedValue.isBlank()) return
+    val bulletItems = compactBulletItems(label, normalizedValue)
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -3519,12 +3558,38 @@ private fun ResponsiveFieldBlock(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(
-            text = parseBoldMarkdown(normalizedValue),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        if (bulletItems.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                bulletItems.forEach { item ->
+                    Text(
+                        text = parseBoldMarkdown("\u2022 $item"),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        } else {
+            Text(
+                text = parseBoldMarkdown(normalizedValue),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
     }
+}
+
+internal fun compactBulletItems(label: String, value: String): List<String> {
+    val normalizedLabel = normalizeTableHeaderForMatch(label)
+    val taskLike = listOf("task", "deliverable", "requirement", "checklist", "step", "action")
+        .any { normalizedLabel.contains(it) }
+    if (!taskLike || !value.contains(';')) {
+        return emptyList()
+    }
+    val items = value
+        .split(';')
+        .map { it.trim().trim('.', ';') }
+        .filter { it.length >= 6 }
+    return items.takeIf { it.size >= 2 }.orEmpty()
 }
 
 @Composable
@@ -3937,6 +4002,7 @@ private fun FeatureMatrixField(
     value: String
 ) {
     val longPair = feature.length > 18 || value.length > 48 || value.contains('\n')
+    val bulletItems = compactBulletItems(feature, value)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -3951,11 +4017,23 @@ private fun FeatureMatrixField(
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                text = parseBoldMarkdown(value),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (bulletItems.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    bulletItems.forEach { item ->
+                        Text(
+                            text = parseBoldMarkdown("\u2022 $item"),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = parseBoldMarkdown(value),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         } else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
