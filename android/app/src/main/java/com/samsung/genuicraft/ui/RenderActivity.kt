@@ -3,6 +3,7 @@ package com.samsung.genuicraft
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.MotionEvent
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -29,7 +30,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -42,6 +46,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import java.util.Locale
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -50,6 +55,11 @@ class RenderActivity : AppCompatActivity() {
         const val EXTRA_RECORD_INDEX = "record_index"
         const val APP_ASSET_BASE_URL = "https://appassets.androidplatform.net/"
     }
+
+    private var currentIndex by mutableIntStateOf(-1)
+    private var swipeStartX = 0f
+    private var swipeStartY = 0f
+    private var swipeTracking = false
 
     private val assetLoader by lazy {
         WebViewAssetLoader.Builder()
@@ -61,11 +71,16 @@ class RenderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         applyOneUiWindowBlur()
 
-        val index = intent.getIntExtra(EXTRA_RECORD_INDEX, -1)
         val session = RenderSessionStore.current()
-        val record = session?.records?.getOrNull(index)
+        currentIndex = resolveInitialIndex(
+            requestedIndex = savedInstanceState?.getInt(EXTRA_RECORD_INDEX)
+                ?: intent.getIntExtra(EXTRA_RECORD_INDEX, -1),
+            session = session
+        )
 
         setContent {
+            val index = currentIndex
+            val record = session?.records?.getOrNull(index)
             GenUiCraftTheme {
                 RenderScreen(
                     session = session,
@@ -75,6 +90,59 @@ class RenderActivity : AppCompatActivity() {
                     onOpenExternalUrl = { openExternalUrl(it) }
                 )
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(EXTRA_RECORD_INDEX, currentIndex)
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                swipeStartX = ev.x
+                swipeStartY = ev.y
+                swipeTracking = true
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                swipeTracking = false
+            }
+        }
+
+        val handled = super.dispatchTouchEvent(ev)
+
+        if (ev.actionMasked == MotionEvent.ACTION_UP && swipeTracking) {
+            handleHorizontalSwipe(endX = ev.x, endY = ev.y)
+            swipeTracking = false
+        }
+        return handled
+    }
+
+    private fun resolveInitialIndex(requestedIndex: Int, session: RenderSessionStore.Session?): Int {
+        val lastIndex = session?.records?.lastIndex ?: return requestedIndex
+        if (lastIndex < 0) return -1
+        return requestedIndex.coerceIn(0, lastIndex)
+    }
+
+    private fun handleHorizontalSwipe(endX: Float, endY: Float) {
+        val session = RenderSessionStore.current() ?: return
+        if (session.records.size <= 1 || currentIndex !in session.records.indices) return
+
+        val dx = endX - swipeStartX
+        val dy = endY - swipeStartY
+        val density = resources.displayMetrics.density
+        val minDistancePx = max(72f * density, resources.displayMetrics.widthPixels * 0.16f)
+        val horizontalDominates = abs(dx) > abs(dy) * 1.35f
+        if (abs(dx) < minDistancePx || !horizontalDominates) return
+
+        val nextIndex = if (dx < 0f) {
+            (currentIndex + 1).coerceAtMost(session.records.lastIndex)
+        } else {
+            (currentIndex - 1).coerceAtLeast(0)
+        }
+        if (nextIndex != currentIndex) {
+            currentIndex = nextIndex
         }
     }
 
