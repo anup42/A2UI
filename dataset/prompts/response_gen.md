@@ -86,6 +86,7 @@ Category UI archetypes (match these structures when intent fits):
 - Booking / Product Lookup / Option Selection:
   - Start with a short summary card.
   - Then provide ranked option cards with compact fields (price, duration/type, one key differentiator) and one clear action each.
+  - For hotel/booking rows, keep the action directly under the recommended option or row. Do not repeat the same action later in a detached Quick Actions section.
   - Keep action labels short (prefer <= 22 characters).
 - Weather / Local Context / Status:
   - Start with one compact "current state" block.
@@ -112,6 +113,7 @@ Quick action quality rules:
 Link locality rule (strict for downstream UI binding):
 - Do not dump unrelated links at the end.
 - For each option/row, place the action URL immediately under it.
+- If exactly one option has a booking/action URL, keep that action local to that option; do not create a final action-only section for it.
 - Use final Quick Actions only for global actions (compare all, official docs, support home, etc.).
 - Every action/source link must be an absolute URL with scheme (prefer `https://`).
 - Do not output bare domains such as `timeanddate.com` or `www.example.com` without `https://`.

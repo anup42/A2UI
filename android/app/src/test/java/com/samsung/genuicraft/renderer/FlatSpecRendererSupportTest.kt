@@ -118,6 +118,32 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun bookingRowActionLabel_readsSupportedActionLabelColumns() {
+        val headers = listOf("Hotel", "Price", "Booking URL", "Action Label")
+        val row = listOf(
+            "Sakura Inn Kyoto",
+            "$220",
+            "https://www.booking.com/searchresults.html?ss=Sakura+Inn+Kyoto",
+            "Check Availability"
+        )
+
+        assertEquals("Check Availability", bookingRowActionLabel(headers, row))
+        assertEquals(
+            "Reserve",
+            bookingRowActionLabel(
+                listOf("Hotel", "CTA Label"),
+                listOf("Kyoto Grand Hotel", "Reserve")
+            )
+        )
+        assertNull(
+            bookingRowActionLabel(
+                listOf("Hotel", "Button Label"),
+                listOf("Kyoto Grand Hotel", "https://example.com/not-a-label")
+            )
+        )
+    }
+
+    @Test
     fun deriveImageFallbackUrl_returnsSeededFallbackForWikimediaWeatherLikeImages() {
         val sourceUrl =
             "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Bangalore_skyline.jpg/1280px-Bangalore_skyline.jpg"

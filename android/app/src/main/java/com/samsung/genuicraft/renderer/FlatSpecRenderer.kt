@@ -3373,6 +3373,23 @@ private fun isLikelyHttpUrl(value: String): Boolean {
     return normalized.startsWith("https://") || normalized.startsWith("http://")
 }
 
+private fun bookingActionLabelIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        token in setOf("actionlabel", "action label", "buttonlabel", "button label", "ctalabel", "cta label") ||
+            (token.contains("action") && token.contains("label")) ||
+            (token.contains("button") && token.contains("label")) ||
+            (token.contains("cta") && token.contains("label"))
+    }
+
+internal fun bookingRowActionLabel(headers: List<String>, row: List<String>): String? {
+    val index = bookingActionLabelIndex(headers) ?: return null
+    return row.getOrNull(index)
+        ?.trim()
+        ?.takeIf { it.isNotBlank() }
+        ?.takeIf { !isLikelyHttpUrl(it) }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun renderBookingRowsIfPossible(
@@ -3393,6 +3410,7 @@ private fun renderBookingRowsIfPossible(
         headers = headers,
         keywords = listOf("url", "link", "book", "booking", "reserve", "website")
     )
+    val actionLabelIndex = bookingActionLabelIndex(headers)
     val secondaryIndex = findTableColumnIndex(
         headers = headers,
         keywords = listOf("duration", "time", "date", "location", "room", "type", "class", "stops", "status"),
@@ -3416,9 +3434,10 @@ private fun renderBookingRowsIfPossible(
             val secondary = secondaryIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
             val actionUrl = linkIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
                 ?.takeIf(::isLikelyHttpUrl)
+            val actionLabel = bookingRowActionLabel(headers, row) ?: "Open Option"
             val chips = buildList {
                 headers.forEachIndexed { index, header ->
-                    if (index in setOf(titleIndex, priceIndex, secondaryIndex, linkIndex)) return@forEachIndexed
+                    if (index in setOf(titleIndex, priceIndex, secondaryIndex, linkIndex, actionLabelIndex)) return@forEachIndexed
                     val value = row.getOrNull(index).orEmpty().trim()
                     if (value.isBlank()) return@forEachIndexed
                     add(header.ifBlank { "Detail" } to value)
@@ -3502,7 +3521,7 @@ private fun renderBookingRowsIfPossible(
                             onClick = { onOpenUrl(actionUrl) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Open Option")
+                            Text(actionLabel)
                         }
                     }
                 }
@@ -5206,7 +5225,7 @@ private fun RenderDirectTable(
         )
         return
     }
-    if (compactPortrait && table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
+    if (table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
         val rendered = renderBookingRowsIfPossible(
             headers = headers,
             rows = table.rows,

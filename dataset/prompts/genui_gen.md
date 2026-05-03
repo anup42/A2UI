@@ -125,6 +125,7 @@ Allowed dynamic value expressions in props:
 - Weather/climate outputs must include a dedicated metrics table.
 - Flight comparisons should include explicit airline/time/fare columns.
 - Playlist/music responses should emit one compact `Table` with columns like `trackNumber`, `artist`, `title`, and optional `mood`/`genre`; set `domain: "playlist"`, `preferredPresentation: "cards"`, and optional table props `title`, `subtitle`, `mood`, `genre`.
+- Booking/hotel tables must keep row-level actions inside the same compact `Table`: add `bookingUrl` plus `actionLabel`/`buttonLabel`/`ctaLabel` only for rows that have an action, set `domain: "booking"` and `preferredPresentation: "cards"`, and do not create a detached final Quick Actions card for that row.
 - Comparison tables:
   - Feature matrices should use first column `Feature` or `Metric`, `domain: "comparison"`, `preferredPresentation: "table"`. If verified/local images are available for compared entities, attach them in `props.entityMedia`; do not create trailing media cards.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
@@ -146,7 +147,7 @@ Allowed dynamic value expressions in props:
 - Use only flex-style positioning props; absolute positioning is unsupported.
 - Convert links/CTAs to `Button` with `openUrl`.
 - Keep `Tags: A | B | C` lines: emit chips via `Text` with `variant: "chip"`.
-- For hotel/restaurant/place result sets, prefer one card template with `repeat` over a state array.
+- For hotel/restaurant/place result sets, prefer one compact `Table`/repeated card data model; keep action URLs and labels in the matching row so the renderer can place the CTA inside the related card.
 - For playlist/music tracklists, keep tracks in one compact `Table` (`domain: "playlist"`) and do not expand each track into separate elements.
 - Preserve all numbers, dates, times, units, and currency exactly.
 

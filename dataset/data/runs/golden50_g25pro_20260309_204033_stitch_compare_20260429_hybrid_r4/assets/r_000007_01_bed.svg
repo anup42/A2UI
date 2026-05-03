@@ -1,0 +1,7 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="King bed">
+  <rect x="8" y="28" width="48" height="22" rx="4" fill="#E8F0FA" stroke="#315C7C" stroke-width="4"/>
+  <rect x="12" y="18" width="16" height="12" rx="3" fill="#FFFFFF" stroke="#315C7C" stroke-width="3"/>
+  <rect x="30" y="18" width="22" height="12" rx="3" fill="#FFFFFF" stroke="#315C7C" stroke-width="3"/>
+  <path d="M8 50v6M56 50v6" stroke="#315C7C" stroke-width="4" stroke-linecap="round"/>
+</svg>
+
