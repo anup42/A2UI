@@ -5246,7 +5246,7 @@ private fun RenderDirectTable(
             return
         }
     }
-    if (compactPortrait && table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeMultiLegFlightTable(headers)) {
+    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeMultiLegFlightTable(headers)) {
         RenderFlightItineraryTableCards(
             headers = headers,
             rows = table.rows,

@@ -118,6 +118,39 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractDirectTableModel_routesFlightDomainToFlightCards() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "carrier", "label" to "Carrier Combination"),
+                mapOf("key" to "leg1", "label" to "Leg 1: JFK-LHR"),
+                mapOf("key" to "leg2", "label" to "Leg 2: LHR-FCO"),
+                mapOf("key" to "leg3", "label" to "Leg 3: FCO-JFK"),
+                mapOf("key" to "feature", "label" to "Key Feature")
+            ),
+            "rows" to listOf(
+                mapOf(
+                    "carrier" to "United / Lufthansa",
+                    "leg1" to "United (Direct)",
+                    "leg2" to "Lufthansa via FRA",
+                    "leg3" to "United (Direct)",
+                    "feature" to "Most direct long-haul routing."
+                )
+            ),
+            "domain" to "flight",
+            "preferredPresentation" to "cards"
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = false
+        )
+
+        assertNotNull(model)
+        assertEquals(FlatTableRenderMode.FLIGHT_CARDS, model!!.renderMode)
+    }
+
+    @Test
     fun bookingRowActionLabel_readsSupportedActionLabelColumns() {
         val headers = listOf("Hotel", "Price", "Booking URL", "Action Label")
         val row = listOf(

@@ -55,6 +55,7 @@ Structured Details rules (critical):
   For flights, do not add decorative/travel/weather photos.
   If media is included, it must be airline-relevant only (airline logo/icon tied to that row/card).
   Never include unrelated icons/images (for example clouds, city sightseeing photos, food, animals).
+  For multi-city flight planning, keep route/checklist prose compact and place global actions near their section: flight search near itinerary options, visa/entry links near document checks.
 - If table is not natural, provide 3-6 option cards in this strict pattern:
   Option 1: <title> | <one-line summary> | <key attribute>
   Action: [Button: <label>] <url>
