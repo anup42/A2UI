@@ -1858,6 +1858,42 @@ internal fun looksLikeProcessStateTable(
     return hasState && (hasVisuals || hasFeedback) && rowSignals >= 2
 }
 
+internal fun looksLikeIncidentStatusTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    domain: String = "generic"
+): Boolean {
+    if (rows.isEmpty()) return false
+    if (domain !in setOf("status", "generic")) return false
+    val tokens = headers.map(::normalizeTableHeaderForMatch)
+    val hasComponent = tokens.any { token ->
+        token == "component" ||
+            token == "service" ||
+            token == "system" ||
+            token == "module" ||
+            token.contains("service")
+    }
+    val hasStatus = tokens.any { token ->
+        token == "status" ||
+            token == "current status" ||
+            token == "health" ||
+            token.contains("status")
+    }
+    val hasNotes = tokens.any { token ->
+        token == "notes" ||
+            token == "impact" ||
+            token == "details" ||
+            token == "description" ||
+            token.contains("message")
+    }
+    val rowSignals = rows.flatten().joinToString(" ").lowercase().let { combined ->
+        listOf("outage", "degraded", "operational", "partial", "incident", "failure", "delayed").count {
+            combined.contains(it)
+        }
+    }
+    return hasComponent && hasStatus && hasNotes && rowSignals >= 1
+}
+
 private fun isComparisonFeatureHeader(label: String): Boolean {
     if (label.isBlank()) return false
     val token = label.lowercase()
@@ -2882,6 +2918,15 @@ private fun RenderTableLayout(
 
     if (tableModel.renderMode == FlatTableRenderMode.PROCESS_CARDS) {
         RenderProcessStateTable(
+            headers = tableModel.headers,
+            rows = tableRows,
+            modifier = tableModifier,
+            landscape = isLandscape || screenWidthDp >= 600
+        )
+        return
+    }
+    if (looksLikeIncidentStatusTable(tableModel.headers, tableRows, tableModel.domain)) {
+        RenderIncidentStatusDashboard(
             headers = tableModel.headers,
             rows = tableRows,
             modifier = tableModifier,
@@ -4142,6 +4187,385 @@ private fun processStateAccent(title: String): Color {
         token.contains("invalid") || token.contains("error") || token.contains("fail") -> Color(0xFFF87171)
         token.contains("scan") || token.contains("ready") || token.contains("start") -> Color(0xFF60A5FA)
         else -> Color(0xFFA78BFA)
+    }
+}
+
+private fun incidentComponentColumnIndex(headers: List<String>): Int =
+    findTableColumnIndex(headers, listOf("component", "service", "system", "module", "dependency"))
+        ?: 0
+
+private fun incidentStatusColumnIndex(headers: List<String>, componentIndex: Int): Int =
+    findTableColumnIndex(
+        headers,
+        listOf("current status", "status", "health", "state"),
+        exclude = setOf(componentIndex)
+    ) ?: headers.indices.firstOrNull { it != componentIndex } ?: 0
+
+private fun incidentNotesColumnIndex(headers: List<String>, excluded: Set<Int>): Int? =
+    findTableColumnIndex(
+        headers,
+        listOf("notes", "impact", "details", "description", "message"),
+        exclude = excluded
+    )
+
+private fun incidentSeverityRank(status: String): Int {
+    val token = status.lowercase()
+    return when {
+        token.contains("major") ||
+            token.contains("outage") ||
+            token.contains("down") ||
+            token.contains("failed") -> 3
+        token.contains("degraded") ||
+            token.contains("partial") ||
+            token.contains("delay") -> 2
+        token.contains("maintenance") ||
+            token.contains("warning") -> 1
+        else -> 0
+    }
+}
+
+private fun incidentStatusAccent(status: String): Color = when (incidentSeverityRank(status)) {
+    3 -> Color(0xFFF97373)
+    2 -> Color(0xFFFBBF24)
+    1 -> Color(0xFF60A5FA)
+    else -> Color(0xFF34D399)
+}
+
+private fun incidentStatusLabel(status: String): String {
+    val cleaned = status.replace('_', ' ').replace('-', ' ').trim()
+    if (cleaned.isBlank()) return "Unknown"
+    return cleaned
+        .lowercase()
+        .split(Regex("\\s+"))
+        .joinToString(" ") { word -> word.replaceFirstChar { it.uppercase() } }
+}
+
+private fun incidentCompactStatusLabel(status: String): String = when (incidentSeverityRank(status)) {
+    3 -> "Major"
+    2 -> "Degraded"
+    1 -> "Maintenance"
+    else -> "OK"
+}
+
+private fun incidentOverallLabel(rows: List<List<String>>, statusIndex: Int): String {
+    val worst = rows
+        .map { row -> row.getOrNull(statusIndex).orEmpty() }
+        .maxByOrNull(::incidentSeverityRank)
+        .orEmpty()
+    return when (incidentSeverityRank(worst)) {
+        3 -> "Major outage"
+        2 -> "Partial outage"
+        1 -> "Maintenance"
+        else -> "Operational"
+    }
+}
+
+@Composable
+private fun IncidentSeverityPill(
+    status: String,
+    modifier: Modifier = Modifier
+) {
+    val accent = incidentStatusAccent(status)
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = accent.copy(alpha = 0.18f)
+    ) {
+        Text(
+            text = parseBoldMarkdown(incidentStatusLabel(status)),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = accent,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+        )
+    }
+}
+
+@Composable
+private fun IncidentStatusHero(
+    rows: List<List<String>>,
+    componentIndex: Int,
+    statusIndex: Int,
+    modifier: Modifier = Modifier
+) {
+    val overall = incidentOverallLabel(rows, statusIndex)
+    val affectedCount = rows.count { row ->
+        incidentSeverityRank(row.getOrNull(statusIndex).orEmpty()) > 0
+    }.coerceAtLeast(rows.size)
+    val worstRawStatus = rows
+        .map { row -> row.getOrNull(statusIndex).orEmpty() }
+        .maxByOrNull(::incidentSeverityRank)
+        .orEmpty()
+    val accent = incidentStatusAccent(worstRawStatus)
+    val topServices = rows
+        .sortedByDescending { row -> incidentSeverityRank(row.getOrNull(statusIndex).orEmpty()) }
+        .take(3)
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = Color.White.copy(alpha = 0.10f),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "System status",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = Color.White.copy(alpha = 0.72f)
+                    )
+                    Text(
+                        text = parseBoldMarkdown(overall),
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                        color = Color.White,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .size(54.dp)
+                        .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                        .background(accent.copy(alpha = 0.18f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "!",
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                        color = accent
+                    )
+                }
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IncidentSeverityPill(status = worstRawStatus.ifBlank { overall })
+                Surface(
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                    color = Color.White.copy(alpha = 0.12f)
+                ) {
+                    Text(
+                        text = "$affectedCount affected",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = Color.White.copy(alpha = 0.82f),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                    )
+                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                topServices.forEach { row ->
+                    val component = row.getOrNull(componentIndex).orEmpty().ifBlank { "Service" }
+                    val status = row.getOrNull(statusIndex).orEmpty()
+                    val rowAccent = incidentStatusAccent(status)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(9.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                .background(rowAccent)
+                        )
+                        Text(
+                            text = parseBoldMarkdown(component),
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = Color.White.copy(alpha = 0.86f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = incidentCompactStatusLabel(status),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.64f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun IncidentServiceRowCard(
+    headers: List<String>,
+    row: List<String>,
+    rowIndex: Int,
+    componentIndex: Int,
+    statusIndex: Int,
+    notesIndex: Int?
+) {
+    val component = row.getOrNull(componentIndex).orEmpty().ifBlank { "Service ${rowIndex + 1}" }
+    val status = row.getOrNull(statusIndex).orEmpty()
+    val notes = notesIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+    val accent = incidentStatusAccent(status)
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+            },
+        shape = RoundedCornerShape(18.dp),
+        color = Color.White.copy(alpha = 0.095f),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 13.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                        .background(accent.copy(alpha = 0.20f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                        .background(accent)
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(component),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    IncidentSeverityPill(status = status)
+                }
+            }
+            if (notes.isNotBlank()) {
+                Text(
+                    text = parseBoldMarkdown(notes),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.76f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenderIncidentStatusDashboard(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    landscape: Boolean
+) {
+    if (rows.isEmpty()) return
+    val componentIndex = incidentComponentColumnIndex(headers)
+    val statusIndex = incidentStatusColumnIndex(headers, componentIndex)
+    val notesIndex = incidentNotesColumnIndex(headers, setOf(componentIndex, statusIndex))
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        shape = RoundedCornerShape(28.dp),
+        color = Color.Transparent,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        listOf(
+                            Color(0xFF130D1B),
+                            Color(0xFF2B1724),
+                            Color(0xFF0F2433)
+                        )
+                    )
+                )
+                .padding(14.dp)
+        ) {
+            if (landscape) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    IncidentStatusHero(
+                        rows = rows,
+                        componentIndex = componentIndex,
+                        statusIndex = statusIndex,
+                        modifier = Modifier.widthIn(min = 220.dp, max = 280.dp)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(max = 430.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(9.dp)
+                    ) {
+                        rows.forEachIndexed { rowIndex, row ->
+                            IncidentServiceRowCard(
+                                headers = headers,
+                                row = row,
+                                rowIndex = rowIndex,
+                                componentIndex = componentIndex,
+                                statusIndex = statusIndex,
+                                notesIndex = notesIndex
+                            )
+                        }
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    IncidentStatusHero(
+                        rows = rows,
+                        componentIndex = componentIndex,
+                        statusIndex = statusIndex
+                    )
+                    rows.forEachIndexed { rowIndex, row ->
+                        IncidentServiceRowCard(
+                            headers = headers,
+                            row = row,
+                            rowIndex = rowIndex,
+                            componentIndex = componentIndex,
+                            statusIndex = statusIndex,
+                            notesIndex = notesIndex
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -7664,6 +8088,15 @@ private fun RenderDirectTable(
 
     if (table.renderMode == FlatTableRenderMode.PROCESS_CARDS) {
         RenderProcessStateTable(
+            headers = headers,
+            rows = table.rows,
+            modifier = applyStackModifier(modifier, props, "vertical"),
+            landscape = isLandscape || screenWidthDp >= 600
+        )
+        return
+    }
+    if (looksLikeIncidentStatusTable(headers, table.rows, table.domain)) {
+        RenderIncidentStatusDashboard(
             headers = headers,
             rows = table.rows,
             modifier = applyStackModifier(modifier, props, "vertical"),

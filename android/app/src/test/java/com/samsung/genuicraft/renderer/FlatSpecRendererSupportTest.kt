@@ -299,6 +299,25 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun looksLikeIncidentStatusTable_detectsComponentStatusNotesRows() {
+        val headers = listOf("Component", "Current Status", "Notes")
+        val rows = listOf(
+            listOf("Database", "MAJOR_OUTAGE", "Widespread data access failures."),
+            listOf("API", "DEGRADED_PERFORMANCE", "System responses may be slow."),
+            listOf("Payment Gateway", "DEGRADED_PERFORMANCE", "Transactions may be delayed.")
+        )
+
+        assertTrue(looksLikeIncidentStatusTable(headers, rows, domain = "status"))
+        assertFalse(
+            looksLikeIncidentStatusTable(
+                headers = listOf("Component", "Version", "Owner"),
+                rows = listOf(listOf("API", "v1", "Platform")),
+                domain = "status"
+            )
+        )
+    }
+
+    @Test
     fun isDetachedMediaDumpElement_detectsTrailingImagesCardOnly() {
         val elements = mapOf(
             "images_card" to FlatElement(
