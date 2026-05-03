@@ -20,6 +20,14 @@ class FlatSpecRendererSupportTest {
             "file:///android_asset/icons/cloud.svg",
             resolveCoilMediaModel("assets/icons/cloud.svg")
         )
+        assertEquals(
+            "file:///android_asset/icons/cloud.svg",
+            resolveCoilMediaModel("../assets/icons/cloud.svg")
+        )
+        assertEquals(
+            "file:///android_asset/icons/cloud.svg",
+            resolveCoilMediaModel("./assets/icons/cloud.svg")
+        )
     }
 
     @Test

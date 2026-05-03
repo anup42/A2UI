@@ -110,6 +110,74 @@ _MIME_EXTENSION_MAP = {
     "application/pdf": ".pdf",
     "application/zip": ".zip",
 }
+_RASTER_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff"}
+_IMAGE_EXTENSIONS = _RASTER_IMAGE_EXTENSIONS | {".svg"}
+
+
+def _sniff_asset_mime(data: bytes) -> str | None:
+    if data.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if data.startswith(b"GIF87a") or data.startswith(b"GIF89a"):
+        return "image/gif"
+    if len(data) >= 12 and data[0:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    if data.startswith(b"BM"):
+        return "image/bmp"
+    if data.startswith(b"II*\x00") or data.startswith(b"MM\x00*"):
+        return "image/tiff"
+    if data.startswith(b"%PDF-"):
+        return "application/pdf"
+    if data.startswith(b"PK\x03\x04"):
+        return "application/zip"
+    prefix = data[:512].lstrip().lower()
+    if prefix.startswith(b"<!doctype html") or prefix.startswith(b"<html") or b"<html" in prefix[:128]:
+        return "text/html"
+    if prefix.startswith(b"<?xml") and b"<svg" in prefix:
+        return "image/svg+xml"
+    if prefix.startswith(b"<svg"):
+        return "image/svg+xml"
+    return None
+
+
+def _downloaded_asset_content_valid(
+    url: str,
+    safe_name: str,
+    content_type: str | None,
+    data: bytes,
+) -> tuple[bool, str]:
+    if not data:
+        return False, "empty response"
+
+    declared_type = (content_type or "").split(";", 1)[0].strip().lower()
+    sniffed_type = _sniff_asset_mime(data)
+    if declared_type in {"text/html", "application/xhtml+xml"} or sniffed_type == "text/html":
+        return False, "downloaded HTML instead of an asset"
+
+    path_ext = Path(urllib.parse.urlparse(url).path).suffix.lower()
+    name_ext = Path(safe_name).suffix.lower()
+    expected_ext = name_ext or path_ext
+
+    if expected_ext in _IMAGE_EXTENSIONS:
+        if expected_ext in {".jpg", ".jpeg"} and sniffed_type != "image/jpeg":
+            return False, f"expected JPEG but downloaded {sniffed_type or declared_type or 'unknown'}"
+        if expected_ext == ".png" and sniffed_type != "image/png":
+            return False, f"expected PNG but downloaded {sniffed_type or declared_type or 'unknown'}"
+        if expected_ext == ".gif" and sniffed_type != "image/gif":
+            return False, f"expected GIF but downloaded {sniffed_type or declared_type or 'unknown'}"
+        if expected_ext == ".webp" and sniffed_type != "image/webp":
+            return False, f"expected WEBP but downloaded {sniffed_type or declared_type or 'unknown'}"
+        if expected_ext == ".svg" and sniffed_type != "image/svg+xml":
+            return False, f"expected SVG but downloaded {sniffed_type or declared_type or 'unknown'}"
+        if expected_ext in {".bmp", ".tif", ".tiff"} and sniffed_type not in {"image/bmp", "image/tiff"}:
+            return False, f"expected raster image but downloaded {sniffed_type or declared_type or 'unknown'}"
+        return True, "ok"
+
+    if declared_type.startswith("image/") and sniffed_type is None:
+        return False, f"image content could not be verified ({declared_type})"
+
+    return True, "ok"
 
 
 def _is_truthy(value: str | None) -> bool:
@@ -760,6 +828,15 @@ def _download_asset_url(
 
     if len(data) > max_bytes:
         logger.warning("Stage2 asset too large, skipped url=%s", url)
+        return None
+
+    content_valid, content_reason = _downloaded_asset_content_valid(url, safe_name, content_type, data)
+    if not content_valid:
+        logger.warning(
+            "Stage2 asset content invalid, skipped url=%s reason=%s",
+            url,
+            content_reason,
+        )
         return None
 
     ext = ""

@@ -3157,8 +3157,8 @@ object GenUiNativeRenderer {
         return when {
             resolved.startsWith("/assets/") -> "file:///android_asset/${resolved.removePrefix("/assets/")}"
             resolved.startsWith("assets/") -> "file:///android_asset/${resolved.removePrefix("assets/")}"
-            resolved.startsWith("../assets/") -> "file:///android_asset/${resolved.removePrefix("../")}"
-            resolved.startsWith("./assets/") -> "file:///android_asset/${resolved.removePrefix("./")}"
+            resolved.startsWith("../assets/") -> "file:///android_asset/${resolved.removePrefix("../assets/")}"
+            resolved.startsWith("./assets/") -> "file:///android_asset/${resolved.removePrefix("./assets/")}"
             else -> resolved
         }
     }

@@ -3135,9 +3135,9 @@ internal fun resolveCoilMediaModel(url: String): String {
         normalized.startsWith("assets/") ->
             "file:///android_asset/${normalized.removePrefix("assets/")}"
         normalized.startsWith("../assets/") ->
-            "file:///android_asset/${normalized.removePrefix("../")}"
+            "file:///android_asset/${normalized.removePrefix("../assets/")}"
         normalized.startsWith("./assets/") ->
-            "file:///android_asset/${normalized.removePrefix("./")}"
+            "file:///android_asset/${normalized.removePrefix("./assets/")}"
         else -> normalized
     }
 }
@@ -3410,6 +3410,11 @@ private fun formatTimelineTitle(label: String, value: String): String {
     }
 }
 
+private fun isIconColumnLabel(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized == "icon" || normalized == "media icon" || normalized == "visual"
+}
+
 private fun pickResponsiveTableTemplate(
     headers: List<String>,
     rows: List<List<String>>
@@ -3457,7 +3462,17 @@ private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
     if (headers.size < 3) return false
     val normalized = headers.map(::normalizeTableHeaderForMatch)
     val first = normalized.firstOrNull().orEmpty()
+    val second = normalized.getOrNull(1).orEmpty()
     val hasDayColumn = first.contains("day") || first.contains("date")
+    val hasTimeColumn = first.contains("time") || first.contains("slot")
+    val hasTimeActivityDetailsShape = hasTimeColumn &&
+        (second.contains("activity") || second.contains("stop") || second.contains("place")) &&
+        normalized.drop(2).any { header ->
+            header.contains("detail") ||
+                header.contains("location") ||
+                header.contains("note") ||
+                header.contains("plan")
+        }
     val activityColumns = normalized.drop(1).count { header ->
         header.contains("activity") ||
             header.contains("morning") ||
@@ -3472,7 +3487,7 @@ private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
             header.contains("meal") ||
             header.contains("restaurant")
     }
-    return hasDayColumn && (activityColumns >= 2 || hasDiningColumn)
+    return hasTimeActivityDetailsShape || (hasDayColumn && (activityColumns >= 2 || hasDiningColumn))
 }
 
 private fun compactItinerarySectionLabel(label: String): String {
@@ -3581,6 +3596,38 @@ private fun TravelItineraryDayCard(
                 ItinerarySectionBlock(label = label, value = value)
             }
         }
+    }
+}
+
+@Composable
+private fun ScheduleDetailBlock(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    val normalizedValue = value.trim()
+    if (normalizedValue.isBlank()) return
+    val normalizedLabel = normalizeTableHeaderForMatch(label)
+    val showLabel = normalizedLabel.isNotBlank() &&
+        !normalizedLabel.contains("detail") &&
+        !normalizedLabel.contains("description") &&
+        !normalizedLabel.contains("note")
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        if (showLabel) {
+            Text(
+                text = label.trim(),
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Text(
+            text = parseBoldMarkdown(normalizedValue),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -4116,14 +4163,19 @@ private fun ResponsiveScheduleRowCard(
         Triple(index, tableHeaderLabel(headers, index), row.getOrNull(index).orEmpty().trim())
     }.filter { (_, _, value) -> value.isNotBlank() }
     if (cells.isEmpty()) return
+    val iconCell = cells.firstOrNull { (_, label, value) ->
+        isIconColumnLabel(label) && value.isNotBlank()
+    }
+    val contentCells = cells.filterNot { (index, _, _) -> index == iconCell?.first }
+    if (contentCells.isEmpty()) return
 
-    val promoteSecond = cells.size > 1 &&
-        shouldPromoteTimelineSecondTitle(cells[0].second, cells[1].second)
+    val promoteSecond = contentCells.size > 1 &&
+        shouldPromoteTimelineSecondTitle(contentCells[0].second, contentCells[1].second)
     val titleCellIndex = if (promoteSecond) 1 else 0
-    val badgeCell = if (promoteSecond) cells.firstOrNull() else null
-    val titleCell = cells.getOrNull(titleCellIndex) ?: cells.first()
+    val badgeCell = if (promoteSecond) contentCells.firstOrNull() else null
+    val titleCell = contentCells.getOrNull(titleCellIndex) ?: contentCells.first()
     val titleValue = formatTimelineTitle(titleCell.second, titleCell.third)
-    val bodyCells = cells.filterNot { (index, _, _) ->
+    val bodyCells = contentCells.filterNot { (index, _, _) ->
         index == titleCell.first || index == badgeCell?.first
     }
 
@@ -4147,16 +4199,27 @@ private fun ResponsiveScheduleRowCard(
             val badgeValue = badgeCell?.third.orEmpty()
             val titleIsLong = titleValue.length > 64 || titleValue.contains('\n')
             if (badgeValue.isNotBlank() && titleIsLong) {
-                Surface(
-                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                    color = MaterialTheme.colorScheme.primaryContainer
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = parseBoldMarkdown(badgeValue),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                    )
+                    if (iconCell != null) {
+                        RenderIcon(
+                            props = mapOf("name" to iconCell.third, "size" to "sm", "decorative" to true),
+                            modifier = Modifier
+                        )
+                    }
+                    Surface(
+                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(badgeValue),
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+                    }
                 }
                 Text(
                     text = parseBoldMarkdown(titleValue),
@@ -4169,6 +4232,12 @@ private fun ResponsiveScheduleRowCard(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.Top
                 ) {
+                    if (iconCell != null) {
+                        RenderIcon(
+                            props = mapOf("name" to iconCell.third, "size" to "sm", "decorative" to true),
+                            modifier = Modifier
+                        )
+                    }
                     if (badgeValue.isNotBlank()) {
                         Surface(
                             shape = RoundedCornerShape(GenUiTokens.RadiusPill),
@@ -4192,7 +4261,7 @@ private fun ResponsiveScheduleRowCard(
             }
 
             bodyCells.forEach { (_, label, value) ->
-                FeatureMatrixField(feature = label, value = value)
+                ScheduleDetailBlock(label = label, value = value)
             }
         }
     }
