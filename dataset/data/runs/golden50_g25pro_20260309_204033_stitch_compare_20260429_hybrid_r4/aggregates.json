@@ -1,7 +1,7 @@
 {
   "counts": 50,
   "schema_valid_strict_rate": 1.0,
-  "content_coverage_avg": 0.8594933907439143,
+  "content_coverage_avg": 0.8585625483971426,
   "lint_score_avg": 1.0,
   "dup_rate_avg": 0.25511208712255234,
   "output_tokens_toon_avg": 4040.48,
@@ -26,7 +26,7 @@
   "markdown_leakage_rate_avg": 0.0,
   "image_presence_rate": 0.46,
   "icon_presence_rate": 0.74,
-  "asset_url_valid_rate": 0.9093730158730159,
+  "asset_url_valid_rate": 0.9049285714285715,
   "rendered_image_ok_rate": null,
   "missing_ids_avg": 0.0,
   "missing_ids_rate_avg": 0.0,
@@ -316,6 +316,6 @@
   "render_ok_rate": null,
   "latency_ms_avg": 31837.61335849762,
   "latency_ms_p95": 76864.14337158203,
-  "media_score": 70.31243386243386,
-  "overall_score": 75.55461743258786
+  "media_score": 70.16428571428573,
+  "overall_score": 75.54813825151986
 }

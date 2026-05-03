@@ -201,6 +201,38 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractDirectTableModel_infersPlaylistFromSongArtistPhaseColumns() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "phase", "label" to "Phase"),
+                mapOf("key" to "artist", "label" to "Artist"),
+                mapOf("key" to "songTitle", "label" to "Song Title")
+            ),
+            "rows" to listOf(
+                mapOf(
+                    "phase" to "1: Guest Arrival (0-60 min)",
+                    "artist" to "Vitamin String Quartet",
+                    "songTitle" to "thank u, next"
+                )
+            ),
+            "domain" to "generic",
+            "preferredPresentation" to "table"
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals("playlist", model!!.domain)
+        assertEquals("cards", model.preferredPresentation)
+        assertEquals(FlatTableShape.PLAYLIST, model.shape)
+        assertEquals(FlatTableRenderMode.PLAYLIST_CARDS, model.renderMode)
+    }
+
+    @Test
     fun extractDirectTableModel_routesComparisonCardsWhenRequested() {
         val props = mapOf<String, Any?>(
             "columns" to listOf(

@@ -1819,8 +1819,12 @@ private fun isPlaylistTableHeaderSet(headers: List<String>, domain: String = "ge
         token == "track" ||
             token == "song" ||
             token == "title" ||
+            token == "songtitle" ||
+            token == "tracktitle" ||
             token.contains("track title") ||
-            token.contains("song title")
+            token.contains("track name") ||
+            token.contains("song title") ||
+            token.contains("song name")
     }
     val hasArtist = tokens.any { token ->
         token == "artist" ||
@@ -1832,7 +1836,9 @@ private fun isPlaylistTableHeaderSet(headers: List<String>, domain: String = "ge
         token.contains("album") ||
             token.contains("genre") ||
             token.contains("mood") ||
-            token.contains("tempo")
+            token.contains("tempo") ||
+            token.contains("phase") ||
+            token.contains("set")
     }
     return hasTrackTitle && (hasTrackNumber || hasArtist || hasMusicMetadata)
 }

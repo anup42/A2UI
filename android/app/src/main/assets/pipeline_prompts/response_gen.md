@@ -196,7 +196,7 @@ Asset URL rules (strict — images MUST be content-relevant and working):
 
 Playlist/music response rules:
 - Use a short title, one compact mood/context paragraph, and a numbered track table or list.
-- Keep track data structured with fields like number, artist, title, and optional mood/genre.
+- Keep track data structured with fields like number/phase, artist, title/song title, and optional mood/genre; never append a detached image gallery to a playlist response.
 - Do not add standalone media collections or random cyberpunk/album art. If no verified image exists, use only inline Bootstrap music/play icons.
 
 Example of correctly formatted blocks with verified media:
