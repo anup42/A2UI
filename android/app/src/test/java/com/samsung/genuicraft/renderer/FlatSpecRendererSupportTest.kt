@@ -260,6 +260,84 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractDirectTableModel_routesUiStateTableToProcessCards() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "ui_state", "label" to "UI State"),
+                mapOf("key" to "visuals", "label" to "Key Visuals"),
+                mapOf("key" to "feedback", "label" to "On-Screen Text and Feedback")
+            ),
+            "rows" to listOf(
+                mapOf(
+                    "ui_state" to "Ready to Scan",
+                    "visuals" to "Camera preview with QR scan frame.",
+                    "feedback" to "Scan your ticket QR code."
+                ),
+                mapOf(
+                    "ui_state" to "Check-in Success",
+                    "visuals" to "Green confirmation overlay.",
+                    "feedback" to "Check-in successful."
+                ),
+                mapOf(
+                    "ui_state" to "Invalid Code",
+                    "visuals" to "Error overlay on the scanner.",
+                    "feedback" to "Invalid QR code."
+                )
+            ),
+            "domain" to "status",
+            "preferredPresentation" to "table"
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals(FlatTableRenderMode.PROCESS_CARDS, model!!.renderMode)
+    }
+
+    @Test
+    fun isDetachedMediaDumpElement_detectsTrailingImagesCardOnly() {
+        val elements = mapOf(
+            "images_card" to FlatElement(
+                type = "Card",
+                props = emptyMap(),
+                children = listOf("images_title", "image_one")
+            ),
+            "images_title" to FlatElement(
+                type = "Text",
+                props = mapOf("text" to "Images"),
+                children = emptyList()
+            ),
+            "image_one" to FlatElement(
+                type = "Image",
+                props = mapOf("url" to "../assets/sample.jpg"),
+                children = emptyList()
+            ),
+            "content_card" to FlatElement(
+                type = "Card",
+                props = emptyMap(),
+                children = listOf("content_title", "content_body")
+            ),
+            "content_title" to FlatElement(
+                type = "Text",
+                props = mapOf("text" to "Check-in Success"),
+                children = emptyList()
+            ),
+            "content_body" to FlatElement(
+                type = "Text",
+                props = mapOf("text" to "Show a green confirmation overlay."),
+                children = emptyList()
+            )
+        )
+
+        assertTrue(isDetachedMediaDumpElement("images_card", elements))
+        assertFalse(isDetachedMediaDumpElement("content_card", elements))
+    }
+
+    @Test
     fun extractFlatTableModel_ignoresSectionHeaderRowsWithIcons() {
         val elements = mapOf(
             "sectionHeader" to FlatElement(

@@ -141,6 +141,7 @@ private data class WatchEntry(
 internal enum class FlatTableRenderMode {
     TABLE,
     TABLE_HORIZONTAL_SCROLL,
+    PROCESS_CARDS,
     WEATHER_CARDS,
     FLIGHT_CARDS,
     BOOKING_CARDS,
@@ -1326,8 +1327,14 @@ private fun RenderChildren(
     onAction: (Any?, RepeatScope?) -> Int,
     activePath: Set<String>
 ) {
+    val visibleChildren = children.filterNot { childId ->
+        isDetachedMediaDumpElement(childId, elements)
+    }
+    if (visibleChildren.isEmpty()) {
+        return
+    }
     if (repeatedChildScopes == null) {
-        children.forEach { childId ->
+        visibleChildren.forEach { childId ->
             RenderElement(
                 elementId = childId,
                 elements = elements,
@@ -1347,7 +1354,7 @@ private fun RenderChildren(
     }
 
     repeatedChildScopes.forEach { scopedRepeat ->
-        children.forEach { childId ->
+        visibleChildren.forEach { childId ->
             RenderElement(
                 elementId = childId,
                 elements = elements,
@@ -1359,6 +1366,70 @@ private fun RenderChildren(
                 activePath = activePath
             )
         }
+    }
+}
+
+internal fun isDetachedMediaDumpElement(
+    elementId: String,
+    elements: Map<String, FlatElement>
+): Boolean {
+    val root = elements[elementId] ?: return false
+    val rootType = root.type.lowercase()
+    if (rootType !in setOf("card", "stack", "column", "row", "list")) return false
+
+    var hasMedia = rootType in setOf("image", "icon")
+    var hasInteractiveOrStructuredContent = rootType in setOf(
+        "table",
+        "button",
+        "tabs",
+        "emailpreview",
+        "codeblock",
+        "consolelog",
+        "chart"
+    )
+    val headings = mutableListOf<String>()
+    val visited = mutableSetOf<String>()
+
+    fun walk(id: String, depth: Int) {
+        if (depth > 8 || !visited.add(id)) return
+        val element = elements[id] ?: return
+        val type = element.type.lowercase()
+        if (type in setOf("image", "icon")) {
+            hasMedia = true
+        }
+        if (type in setOf("table", "button", "tabs", "emailpreview", "codeblock", "consolelog", "chart")) {
+            hasInteractiveOrStructuredContent = true
+        }
+        if (type == "text") {
+            val text = FlatExprResolver.resolveString(
+                value = textLikeValue(element.props),
+                state = emptyMap(),
+                repeatScope = null,
+                computedFunctions = emptyMap()
+            ).trim()
+            if (text.isNotBlank()) {
+                headings += text
+            }
+        }
+        element.children.forEach { childId -> walk(childId, depth + 1) }
+    }
+
+    walk(elementId, 0)
+    if (!hasMedia || hasInteractiveOrStructuredContent) return false
+    val detachedHeadingTokens = setOf(
+        "images",
+        "icons",
+        "visual guide",
+        "key feature icons",
+        "trip imagery",
+        "weather icons",
+        "related icons",
+        "referenced icons",
+        "gallery"
+    )
+    return headings.any { heading ->
+        val token = heading.trim().lowercase()
+        token in detachedHeadingTokens
     }
 }
 
@@ -1749,6 +1820,42 @@ private fun isStatusHeaderLabel(label: String): Boolean {
         "phase"
     )
     return keywords.any { keyword -> token.contains(keyword) }
+}
+
+internal fun looksLikeProcessStateTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    domain: String = "generic"
+): Boolean {
+    if (rows.size !in 2..8) return false
+    if (domain !in setOf("status", "schedule", "generic")) return false
+    val tokens = headers.map(::normalizeTableHeaderForMatch)
+    val hasState = tokens.any { token ->
+        token == "state" ||
+            token == "ui state" ||
+            token == "screen state" ||
+            token == "status" ||
+            token == "step" ||
+            token == "stage"
+    }
+    val hasVisuals = tokens.any { token ->
+        token.contains("visual") ||
+            token.contains("screen") ||
+            token.contains("view") ||
+            token.contains("interface")
+    }
+    val hasFeedback = tokens.any { token ->
+        token.contains("feedback") ||
+            token.contains("message") ||
+            token.contains("text") ||
+            token.contains("result")
+    }
+    val rowSignals = rows.flatten().joinToString(" ").lowercase().let { combined ->
+        listOf("scan", "success", "invalid", "error", "ready", "state", "overlay", "check-in", "qr").count {
+            combined.contains(it)
+        }
+    }
+    return hasState && (hasVisuals || hasFeedback) && rowSignals >= 2
 }
 
 private fun isComparisonFeatureHeader(label: String): Boolean {
@@ -2249,30 +2356,31 @@ internal fun extractFlatTableModel(
             domain in CARD_FIRST_TABLE_DOMAINS -> "cards"
         else -> explicitPreferredPresentation
     }
+    val resolvedTableRows = collectResolvedTableRows(
+        tableModel = FlatTableModel(
+            headerRowId = headerRowId,
+            bodyContainerId = bodyContainerId,
+            rowTemplateId = rowTemplateId,
+            staticRowIds = staticRowIds,
+            headers = headers,
+            columns = columns,
+            rows = rows,
+            isWeather = isWeather,
+            isFlight = isFlight,
+            domain = domain,
+            preferredPresentation = preferredPresentation,
+            shape = FlatTableShape.GENERIC_GRID,
+            cardMappingStatus = "not_applicable",
+            renderMode = FlatTableRenderMode.TABLE
+        ),
+        elements = elements,
+        state = state,
+        repeatedRowScopes = bodyElement?.repeat?.let { buildRepeatScopes(it, state) }.orEmpty(),
+        repeatScope = null
+    )
     val shape = detectTableShape(
         headers = headers,
-        rows = collectResolvedTableRows(
-            tableModel = FlatTableModel(
-                headerRowId = headerRowId,
-                bodyContainerId = bodyContainerId,
-                rowTemplateId = rowTemplateId,
-                staticRowIds = staticRowIds,
-                headers = headers,
-                columns = columns,
-                rows = rows,
-                isWeather = isWeather,
-                isFlight = isFlight,
-                domain = domain,
-                preferredPresentation = preferredPresentation,
-                shape = FlatTableShape.GENERIC_GRID,
-                cardMappingStatus = "not_applicable",
-                renderMode = FlatTableRenderMode.TABLE
-            ),
-            elements = elements,
-            state = state,
-            repeatedRowScopes = bodyElement?.repeat?.let { buildRepeatScopes(it, state) }.orEmpty(),
-            repeatScope = null
-        ),
+        rows = resolvedTableRows,
         domain = domain
     )
     val cardMappingStatus = when (domain) {
@@ -2282,6 +2390,7 @@ internal fun extractFlatTableModel(
     }
     val comparisonCardsPreferred = domain == "comparison" && shouldPreferComparisonCards(headers, compactScreen)
     val renderMode = when {
+        looksLikeProcessStateTable(headers, resolvedTableRows, domain) -> FlatTableRenderMode.PROCESS_CARDS
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
@@ -2771,6 +2880,16 @@ private fun RenderTableLayout(
         rows = tableRows
     )
 
+    if (tableModel.renderMode == FlatTableRenderMode.PROCESS_CARDS) {
+        RenderProcessStateTable(
+            headers = tableModel.headers,
+            rows = tableRows,
+            modifier = tableModifier,
+            landscape = isLandscape || screenWidthDp >= 600
+        )
+        return
+    }
+
     if (tableModel.renderMode == FlatTableRenderMode.WEATHER_CARDS) {
         val weatherRows = NativeWeatherSemantics.buildWeatherRows(tableModel.headers, tableRows)
         if (!weatherRows.isNullOrEmpty()) {
@@ -3008,6 +3127,7 @@ internal fun extractDirectTableModel(
     val numericColumns = stringSetFromTableProp(props["numericColumns"])
     val entityMedia = extractTableEntityMedia(props)
     val renderMode = when {
+        looksLikeProcessStateTable(headerLabels, resolvedRows, domain) -> FlatTableRenderMode.PROCESS_CARDS
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
@@ -3995,6 +4115,294 @@ private fun tableRowAccessibilitySummary(
     }
     val prefix = rowIndex?.let { "Row ${it + 1}. " }.orEmpty()
     return prefix + pairs.joinToString(". ")
+}
+
+private fun processStateColumnIndex(headers: List<String>): Int =
+    findTableColumnIndex(headers, listOf("ui state", "screen state", "state", "status", "step", "stage"))
+        ?: 0
+
+private fun processVisualColumnIndex(headers: List<String>, stateIndex: Int): Int? =
+    findTableColumnIndex(
+        headers,
+        listOf("visual", "screen", "view", "interface"),
+        exclude = setOf(stateIndex)
+    )
+
+private fun processFeedbackColumnIndex(headers: List<String>, stateIndex: Int): Int? =
+    findTableColumnIndex(
+        headers,
+        listOf("feedback", "message", "text", "result", "copy"),
+        exclude = setOf(stateIndex)
+    )
+
+private fun processStateAccent(title: String): Color {
+    val token = title.lowercase()
+    return when {
+        token.contains("success") || token.contains("valid") || token.contains("complete") -> Color(0xFF5EEAD4)
+        token.contains("invalid") || token.contains("error") || token.contains("fail") -> Color(0xFFF87171)
+        token.contains("scan") || token.contains("ready") || token.contains("start") -> Color(0xFF60A5FA)
+        else -> Color(0xFFA78BFA)
+    }
+}
+
+@Composable
+private fun ProcessScannerHero(
+    rows: List<List<String>>,
+    stateIndex: Int,
+    modifier: Modifier = Modifier
+) {
+    val states = rows.mapNotNull { row -> row.getOrNull(stateIndex)?.trim()?.takeIf(String::isNotBlank) }
+    val primaryState = states.firstOrNull().orEmpty()
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = Color.White.copy(alpha = 0.10f),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Process flow",
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White.copy(alpha = 0.92f)
+                )
+                Surface(
+                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                    color = Color.White.copy(alpha = 0.12f)
+                ) {
+                    Text(
+                        text = "${rows.size} states",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = Color.White.copy(alpha = 0.82f),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(172.dp)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(
+                                Color(0xFF020617),
+                                Color(0xFF0F172A),
+                                Color(0xFF12324B)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(112.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color.White.copy(alpha = 0.08f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(7.dp)
+                    ) {
+                        Text(
+                            text = "QR",
+                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
+                            color = Color.White
+                        )
+                        Box(
+                            modifier = Modifier
+                                .width(72.dp)
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                .background(Color(0xFF5EEAD4))
+                        )
+                        Text(
+                            text = primaryState.ifBlank { "Scan state" },
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = Color.White.copy(alpha = 0.72f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProcessStateStepCard(
+    headers: List<String>,
+    row: List<String>,
+    rowIndex: Int,
+    stateIndex: Int,
+    visualIndex: Int?,
+    feedbackIndex: Int?,
+    modifier: Modifier = Modifier
+) {
+    val title = row.getOrNull(stateIndex).orEmpty().ifBlank { "State ${rowIndex + 1}" }
+    val visual = visualIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+    val feedback = feedbackIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+    val accent = processStateAccent(title)
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
+            },
+        shape = RoundedCornerShape(18.dp),
+        color = Color.White.copy(alpha = 0.095f),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                    .background(accent.copy(alpha = 0.24f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = (rowIndex + 1).toString(),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = accent
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                Text(
+                    text = parseBoldMarkdown(title),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+                if (visual.isNotBlank()) {
+                    Text(
+                        text = parseBoldMarkdown(visual),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.78f)
+                    )
+                }
+                if (feedback.isNotBlank()) {
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = accent.copy(alpha = 0.16f)
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(feedback),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = Color.White.copy(alpha = 0.90f),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenderProcessStateTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    landscape: Boolean
+) {
+    if (rows.isEmpty()) return
+    val stateIndex = processStateColumnIndex(headers)
+    val visualIndex = processVisualColumnIndex(headers, stateIndex)
+    val feedbackIndex = processFeedbackColumnIndex(headers, stateIndex)
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = tableAccessibilitySummary(headers, rows)
+            },
+        shape = RoundedCornerShape(28.dp),
+        color = Color.Transparent,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        listOf(
+                            Color(0xFF07111F),
+                            Color(0xFF102A43),
+                            Color(0xFF062E2E)
+                        )
+                    )
+                )
+                .padding(14.dp)
+        ) {
+            if (landscape) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    ProcessScannerHero(
+                        rows = rows,
+                        stateIndex = stateIndex,
+                        modifier = Modifier.widthIn(min = 220.dp, max = 280.dp)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(max = 430.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(9.dp)
+                    ) {
+                        rows.forEachIndexed { rowIndex, row ->
+                            ProcessStateStepCard(
+                                headers = headers,
+                                row = row,
+                                rowIndex = rowIndex,
+                                stateIndex = stateIndex,
+                                visualIndex = visualIndex,
+                                feedbackIndex = feedbackIndex
+                            )
+                        }
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    ProcessScannerHero(rows = rows, stateIndex = stateIndex)
+                    rows.forEachIndexed { rowIndex, row ->
+                        ProcessStateStepCard(
+                            headers = headers,
+                            row = row,
+                            rowIndex = rowIndex,
+                            stateIndex = stateIndex,
+                            visualIndex = visualIndex,
+                            feedbackIndex = feedbackIndex
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 private fun findTableColumnIndex(
@@ -7253,6 +7661,16 @@ private fun RenderDirectTable(
             table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
             table.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
             table.renderMode == FlatTableRenderMode.PLAYLIST_CARDS
+
+    if (table.renderMode == FlatTableRenderMode.PROCESS_CARDS) {
+        RenderProcessStateTable(
+            headers = headers,
+            rows = table.rows,
+            modifier = applyStackModifier(modifier, props, "vertical"),
+            landscape = isLandscape || screenWidthDp >= 600
+        )
+        return
+    }
 
     if (compactPortrait && table.renderMode == FlatTableRenderMode.WEATHER_CARDS) {
         val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
