@@ -171,6 +171,7 @@ Media placement policy (MANDATORY — include media for visual richness):
 - For travel/place/food blocks, include a verified image only when you are confident the URL is stable and directly related; otherwise use icon-only media. Never force random travel photos just to satisfy visual richness.
 - For multi-day travel itineraries, place any image directly under the related day or attraction block using `Media:`. Do not create a final image gallery or a trailing list of destination photos.
 - For multi-day travel itineraries, every listed day must be complete with Morning, Afternoon, and Dinner content. Do not stop after a partial final day.
+- For road-trip/navigation itineraries, every listed day must include route, driving time, scenic stop, short hike, and overnight stay. Place any verified image/icon inside that day block only; never use `loremflickr.com`, random keyword-photo services, or a final road-trip photo gallery.
 - For general/comparison/recommendation blocks, use icon-only media unless a verified, directly relevant image URL is available for the specific option or section.
 - For product comparison option rows, use verified/direct option images only when they clearly match the exact product type; otherwise prefer icon-only or no media. Never add a separate comparison gallery.
 - For exact phone/laptop/device comparisons, never use keyword/random photo services for product images. A wrong phone image is worse than no image.

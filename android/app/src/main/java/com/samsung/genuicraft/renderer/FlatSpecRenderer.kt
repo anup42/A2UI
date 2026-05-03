@@ -3576,9 +3576,20 @@ private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
     val hasAreaColumn = normalized.any { header ->
         header.contains("area") ||
             header.contains("focus") ||
+            header == "title" ||
+            header.contains("route") ||
             header.contains("district") ||
             header.contains("neighborhood") ||
             header.contains("location")
+    }
+    val hasRoadTripColumn = normalized.any { header ->
+        header.contains("driving") ||
+            header.contains("drive") ||
+            header.contains("miles") ||
+            header.contains("scenic") ||
+            header.contains("hike") ||
+            header.contains("overnight") ||
+            header.contains("stay")
     }
     val hasTimeActivityDetailsShape = hasTimeColumn &&
         (second.contains("activity") || second.contains("stop") || second.contains("place")) &&
@@ -3612,6 +3623,7 @@ private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
         }
     return hasTimeActivityDetailsShape ||
         hasSummaryItineraryShape ||
+        (hasDayColumn && hasRoadTripColumn) ||
         (hasDayColumn && (activityColumns >= 2 || hasDiningColumn))
 }
 
@@ -3699,6 +3711,7 @@ private fun TravelItineraryDayCard(
             normalizeTableHeaderForMatch(label).let { normalized ->
                 normalized.contains("area") ||
                     normalized.contains("focus") ||
+                    normalized == "title" ||
                     normalized.contains("district") ||
                     normalized.contains("neighborhood") ||
                     normalized.contains("location")
