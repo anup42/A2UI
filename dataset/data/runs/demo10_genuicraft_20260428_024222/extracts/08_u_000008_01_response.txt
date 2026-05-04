@@ -1,0 +1,62 @@
+# Kyoto Itinerary for a Couple: October 2026
+
+This two-day plan for October 18-19, 2026, balances Kyoto's most iconic temples and serene walks with rich culinary experiences. The itinerary is designed for a calm pace, with ample time for photography, and groups sights geographically to minimize travel time and maximize enjoyment.
+
+# Planning & Budget Context
+
+This schedule focuses on Eastern, Western, and Southern Kyoto to create a relaxed and immersive experience. Your budget of **JPY 40,000** for two people is well-suited for the activities listed below.
+
+*   **Estimated Total Cost (2 people):** JPY 32,000 - JPY 36,000
+*   **Cost Breakdown:** Transport (~JPY 5,000), Food (~JPY 24,000), Admissions (~JPY 3,200).
+*   **Transport Tip:** Consider purchasing a Kyoto City Bus & Subway 1-Day Pass (JPY 1,100 per person) for each day to simplify travel within the city. JR lines for Arashiyama and Fushimi Inari will be separate but are inexpensive.
+
+---
+
+# Day 1: Eastern Kyoto's Charm & Gion's Night (Oct 18)
+
+### Morning: Kiyomizu-dera & Historic Higashiyama
+**Time: 9:00 AM - 12:00 PM**
+Media: Image=https://loremflickr.com/1200/800/kiyomizu-dera,temple Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg
+Start your day at the magnificent Kiyomizu-dera Temple, famous for its wooden stage that juts out from the main hall. After visiting the temple, take a calm walk down the preserved historic streets of Sannenzaka and Ninenzaka, which are filled with traditional shops and teahouses—perfect for photography.
+*   **Transport:** Bus from Kyoto Station to Gojo-zaka or Kiyomizu-michi stop.
+*   **Cost:** Admission: JPY 400/person.
+*   Action: [Button: View on Map] https://www.google.com/maps/place/Kiyomizu-dera
+
+### Afternoon: Philosopher's Path & Nishiki Market
+**Time: 1:00 PM - 5:00 PM**
+Media: Image=https://loremflickr.com/1200/800/nishiki-market,food Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg
+Take a taxi or bus to the northern part of Higashiyama to walk a portion of the Philosopher's Path, a tranquil stone path along a canal. Afterwards, head to the heart of Kyoto's food scene, Nishiki Market. Known as "Kyoto's Kitchen," this is the perfect place for a late lunch, sampling everything from fresh seafood skewers to matcha-flavored sweets.
+*   **Transport:** Bus to Ginkaku-ji for the path, then another bus to Shijo Karasuma for the market.
+*   **Cost:** Food: ~JPY 3,000 - 4,000/person.
+*   Action: [Button: Explore Nishiki Market] https://www.kyoto-nishiki.or.jp/en/
+
+### Evening: Gion's Lantern-Lit Lanes
+**Time: 6:00 PM onwards**
+Media: Image=https://loremflickr.com/1200/800/gion,night Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/signpost-split.svg
+As evening falls, explore the famous Gion district, Kyoto's geisha district. Stroll down the beautifully preserved Hanamikoji Street and the scenic Shirakawa Lane. The area is at its most atmospheric after dark when the lanterns are lit. Find a restaurant for dinner and enjoy the traditional ambiance.
+*   **Transport:** Walking distance from Nishiki Market.
+*   **Cost:** Dinner: ~JPY 5,000 - 7,000/person.
+*   Action: [Button: Gion District Guide] https://kyoto.travel/en/thingstodo/entertainment/gion.html
+
+---
+
+# Day 2: Arashiyama's Serenity & Fushimi's Gates (Oct 19)
+
+### Morning: Arashiyama Bamboo Grove & Tenryu-ji
+**Time: 8:30 AM - 12:00 PM**
+Media: Image=https://loremflickr.com/1200/800/arashiyama-bamboo-grove Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/tree.svg
+Arrive early to experience the ethereal beauty of the Arashiyama Bamboo Grove before the crowds. The towering bamboo stalks create a unique, serene atmosphere ideal for a quiet walk and photos. Afterwards, visit the adjacent Tenryu-ji Temple, a UNESCO World Heritage site with a stunning landscape garden.
+*   **Transport:** JR Sagano Line from Kyoto Station to Saga-Arashiyama Station.
+*   **Cost:** Tenryu-ji Garden Admission: JPY 500/person.
+*   Action: [Button: Learn about Tenryu-ji] https://www.tenryuji.com/en/
+
+### Afternoon: Riverside Views & Lunch
+**Time: 12:00 PM - 3:00 PM**
+Media: Image=https://loremflickr.com/1200/800/togetsukyo-bridge,kyoto Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/water.svg
+Walk from the bamboo grove to the iconic Togetsukyo Bridge ("Moon Crossing Bridge"), which spans the Katsura River. The area offers picturesque views of the forested mountainsides. Enjoy a relaxing lunch at one of the many restaurants overlooking the river.
+*   **Transport:** Walking.
+*   **Cost:** Lunch
+
+Icons:
+- Alarm: https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/alarm.svg
+- Calendar Event: https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calendar-event.svg

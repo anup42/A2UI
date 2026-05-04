@@ -1,0 +1,216 @@
+{
+  "root": "kyoto_itinerary",
+  "state": {
+    "budgetRows": [
+      {
+        "item": "Estimated Total (2 people)",
+        "cost": "JPY 32,000 - JPY 36,000"
+      },
+      {
+        "item": "Transport",
+        "cost": "~JPY 5,000"
+      },
+      {
+        "item": "Food",
+        "cost": "~JPY 24,000"
+      },
+      {
+        "item": "Admissions",
+        "cost": "~JPY 3,200"
+      }
+    ],
+    "dayCards": [
+      {
+        "id": "d1_morning",
+        "time": "Day 1 Morning",
+        "title": "Kiyomizu-dera & Historic Higashiyama",
+        "image": "../assets/r_000008_01_1_kiyomizu-dera_temple_android.png",
+        "cost": "~JPY 1,000 admission + local transit",
+        "cta": "View on Map",
+        "url": "https://www.google.com/maps/place/Kiyomizu-dera"
+      },
+      {
+        "id": "d2_morning",
+        "time": "Day 2 Morning",
+        "title": "Arashiyama Bamboo Grove & Tenryu-ji",
+        "image": "../assets/r_000008_01_7_arashiyama-bamboo-grove_android.png",
+        "cost": "~JPY 1,000 admission + transit",
+        "cta": "Learn about Tenryu-ji",
+        "url": "https://www.tenryuji.com/en/"
+      }
+    ]
+  },
+  "elements": {
+    "kyoto_itinerary": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "lg"
+      },
+      "children": [
+        "title",
+        "contextCard",
+        "budgetTable",
+        "dayCardTemplate",
+        "globalActions"
+      ]
+    },
+    "title": {
+      "type": "Text",
+      "props": {
+        "text": "Kyoto Itinerary for a Couple: October 2026",
+        "variant": "h2"
+      },
+      "children": []
+    },
+    "contextCard": {
+      "type": "Card",
+      "props": {},
+      "children": [
+        "contextText"
+      ]
+    },
+    "contextText": {
+      "type": "Text",
+      "props": {
+        "text": "Two calm days across Eastern Kyoto, Arashiyama, Gion, Nishiki Market, and Fushimi Inari within a JPY 40,000 activity budget.",
+        "variant": "body"
+      },
+      "children": []
+    },
+    "budgetTable": {
+      "type": "Table",
+      "props": {
+        "statePath": "/budgetRows",
+        "columns": [
+          {
+            "key": "item",
+            "label": "Item"
+          },
+          {
+            "key": "cost",
+            "label": "Cost"
+          }
+        ],
+        "domain": "booking",
+        "preferredPresentation": "table"
+      },
+      "children": []
+    },
+    "dayCardTemplate": {
+      "type": "Card",
+      "props": {},
+      "repeat": {
+        "statePath": "/dayCards",
+        "key": "id"
+      },
+      "children": [
+        "dayImage",
+        "dayTime",
+        "dayTitle",
+        "dayCost",
+        "dayButton"
+      ]
+    },
+    "dayImage": {
+      "type": "Image",
+      "props": {
+        "url": {
+          "$item": "image"
+        },
+        "fit": "cover"
+      },
+      "children": []
+    },
+    "dayTime": {
+      "type": "Text",
+      "props": {
+        "text": {
+          "$item": "time"
+        },
+        "variant": "label"
+      },
+      "children": []
+    },
+    "dayTitle": {
+      "type": "Text",
+      "props": {
+        "text": {
+          "$item": "title"
+        },
+        "variant": "h3"
+      },
+      "children": []
+    },
+    "dayCost": {
+      "type": "Text",
+      "props": {
+        "text": {
+          "$item": "cost"
+        },
+        "variant": "body"
+      },
+      "children": []
+    },
+    "dayButton": {
+      "type": "Button",
+      "props": {
+        "label": {
+          "$item": "cta"
+        }
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "openUrl",
+          "params": {
+            "url": {
+              "$item": "url"
+            }
+          }
+        }
+      }
+    },
+    "globalActions": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "md"
+      },
+      "children": [
+        "routeButton",
+        "hotelButton"
+      ]
+    },
+    "routeButton": {
+      "type": "Button",
+      "props": {
+        "label": "Open Kyoto Route Map"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "openUrl",
+          "params": {
+            "url": "https://www.google.com/maps/search/Kyoto+2+day+itinerary"
+          }
+        }
+      }
+    },
+    "hotelButton": {
+      "type": "Button",
+      "props": {
+        "label": "Find Hotels"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "openUrl",
+          "params": {
+            "url": "https://www.booking.com/city/jp/kyoto.html"
+          }
+        }
+      }
+    }
+  }
+}

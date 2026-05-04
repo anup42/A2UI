@@ -1,0 +1,21 @@
+{
+  "query_text": "Create a 2-day Kyoto itinerary for a couple visiting 2026-10-18 to 2026-10-19. Preferences: temples, food, calm walking routes, photography, budget JPY 40,000 excluding hotel. Must include day cards with times, places, estimated transport, costs, and action links. Candidate places: Fushimi Inari, Kiyomizu-dera, Nishiki Market, Gion, Arashiyama Bamboo Grove, Tenryu-ji, Kinkaku-ji, Philosopher Path. Keep it realistic with morning/afternoon/evening blocks.",
+  "source": "codex_curated_demo_seed",
+  "difficulty": "hard",
+  "gen": {
+    "prompt_version": "demo10_seed_v1",
+    "llm_provider": "codex",
+    "model": "gpt-5",
+    "seed": 42,
+    "temperature": 0
+  },
+  "tags": [
+    "travel",
+    "itinerary",
+    "kyoto",
+    "cards"
+  ],
+  "intent": "Travel",
+  "created_at": "2026-04-27T21:12:22.0860369Z",
+  "query_id": "q_000008"
+}

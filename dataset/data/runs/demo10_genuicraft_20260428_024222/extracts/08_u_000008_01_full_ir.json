@@ -1,0 +1,670 @@
+{
+  "root": "root_stack",
+  "state": {},
+  "elements": {
+    "root_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "lg",
+        "padding": 16
+      },
+      "children": [
+        "title_text",
+        "intro_text",
+        "planning_card",
+        "divider_1",
+        "day1_title",
+        "day1_morning_card",
+        "day1_afternoon_card",
+        "day1_evening_card",
+        "divider_2",
+        "day2_title",
+        "day2_morning_card",
+        "day2_afternoon_card"
+      ]
+    },
+    "title_text": {
+      "type": "Text",
+      "props": {
+        "text": "Kyoto Itinerary for a Couple: October 2026",
+        "variant": "h2"
+      },
+      "children": []
+    },
+    "intro_text": {
+      "type": "Text",
+      "props": {
+        "text": "This two-day plan for October 18-19, 2026, balances Kyoto's most iconic temples and serene walks with rich culinary experiences. The itinerary is designed for a calm pace, with ample time for photography, and groups sights geographically to minimize travel time and maximize enjoyment."
+      },
+      "children": []
+    },
+    "planning_card": {
+      "type": "Card",
+      "props": {},
+      "children": [
+        "planning_stack"
+      ]
+    },
+    "planning_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md",
+        "padding": 16
+      },
+      "children": [
+        "planning_title",
+        "planning_intro",
+        "cost_table",
+        "transport_tip"
+      ]
+    },
+    "planning_title": {
+      "type": "Text",
+      "props": {
+        "text": "Planning & Budget Context",
+        "variant": "h2"
+      },
+      "children": []
+    },
+    "planning_intro": {
+      "type": "Text",
+      "props": {
+        "text": "This schedule focuses on Eastern, Western, and Southern Kyoto to create a relaxed and immersive experience. Your budget of JPY 40,000 for two people is well-suited for the activities listed below."
+      },
+      "children": []
+    },
+    "cost_table": {
+      "type": "Table",
+      "props": {
+        "columns": [
+          {
+            "key": "item",
+            "label": "Item"
+          },
+          {
+            "key": "cost",
+            "label": "Cost"
+          }
+        ],
+        "rows": [
+          {
+            "item": "Estimated Total (2 people)",
+            "cost": "JPY 32,000 - JPY 36,000"
+          },
+          {
+            "item": "Transport",
+            "cost": "~JPY 5,000"
+          },
+          {
+            "item": "Food",
+            "cost": "~JPY 24,000"
+          },
+          {
+            "item": "Admissions",
+            "cost": "~JPY 3,200"
+          }
+        ],
+        "domain": "generic"
+      },
+      "children": []
+    },
+    "transport_tip": {
+      "type": "Text",
+      "props": {
+        "text": "Transport Tip: Consider purchasing a Kyoto City Bus & Subway 1-Day Pass (JPY 1,100 per person) for each day to simplify travel within the city. JR lines for Arashiyama and Fushimi Inari will be separate but are inexpensive."
+      },
+      "children": []
+    },
+    "divider_1": {
+      "type": "Divider",
+      "props": {},
+      "children": []
+    },
+    "day1_title": {
+      "type": "Text",
+      "props": {
+        "text": "Day 1: Eastern Kyoto's Charm & Gion's Night (Oct 18)",
+        "variant": "h2"
+      },
+      "children": []
+    },
+    "day1_morning_card": {
+      "type": "Card",
+      "props": {},
+      "children": [
+        "day1_morning_stack"
+      ]
+    },
+    "day1_morning_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md"
+      },
+      "children": [
+        "day1_morning_image",
+        "day1_morning_content_stack"
+      ]
+    },
+    "day1_morning_image": {
+      "type": "Image",
+      "props": {
+        "url": "../assets/r_000008_01_1_kiyomizu-dera_temple_android.png",
+        "fit": "cover",
+        "height": 180
+      },
+      "children": []
+    },
+    "day1_morning_content_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md",
+        "padding": 16
+      },
+      "children": [
+        "day1_morning_header_stack",
+        "day1_morning_time",
+        "day1_morning_desc",
+        "day1_morning_details",
+        "day1_morning_button"
+      ]
+    },
+    "day1_morning_header_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "md",
+        "align": "center"
+      },
+      "children": [
+        "day1_morning_icon",
+        "day1_morning_title"
+      ]
+    },
+    "day1_morning_icon": {
+      "type": "Icon",
+      "props": {
+        "name": "../assets/r_000002_01_3_building.svg"
+      },
+      "children": []
+    },
+    "day1_morning_title": {
+      "type": "Text",
+      "props": {
+        "text": "Morning: Kiyomizu-dera & Historic Higashiyama",
+        "variant": "h3"
+      },
+      "children": []
+    },
+    "day1_morning_time": {
+      "type": "Text",
+      "props": {
+        "text": "Time: 9:00 AM - 12:00 PM",
+        "variant": "caption"
+      },
+      "children": []
+    },
+    "day1_morning_desc": {
+      "type": "Text",
+      "props": {
+        "text": "Start your day at the magnificent Kiyomizu-dera Temple, famous for its wooden stage. After, walk down the preserved historic streets of Sannenzaka and Ninenzaka, filled with traditional shops and teahouses."
+      },
+      "children": []
+    },
+    "day1_morning_details": {
+      "type": "Text",
+      "props": {
+        "text": "Transport: Bus from Kyoto Station to Gojo-zaka or Kiyomizu-michi stop.\nCost: Admission: JPY 400/person.",
+        "variant": "body"
+      },
+      "children": []
+    },
+    "day1_morning_button": {
+      "type": "Button",
+      "props": {
+        "label": "View on Map",
+        "variant": "borderless"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "openUrl",
+          "params": {
+            "url": "https://www.google.com/maps/place/Kiyomizu-dera"
+          }
+        }
+      }
+    },
+    "day1_afternoon_card": {
+      "type": "Card",
+      "props": {},
+      "children": [
+        "day1_afternoon_stack"
+      ]
+    },
+    "day1_afternoon_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md"
+      },
+      "children": [
+        "day1_afternoon_image",
+        "day1_afternoon_content_stack"
+      ]
+    },
+    "day1_afternoon_image": {
+      "type": "Image",
+      "props": {
+        "url": "../assets/r_000008_01_3_nishiki-market_food_android.png",
+        "fit": "cover",
+        "height": 180
+      },
+      "children": []
+    },
+    "day1_afternoon_content_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md",
+        "padding": 16
+      },
+      "children": [
+        "day1_afternoon_header_stack",
+        "day1_afternoon_time",
+        "day1_afternoon_desc",
+        "day1_afternoon_details",
+        "day1_afternoon_button"
+      ]
+    },
+    "day1_afternoon_header_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "md",
+        "align": "center"
+      },
+      "children": [
+        "day1_afternoon_icon",
+        "day1_afternoon_title"
+      ]
+    },
+    "day1_afternoon_icon": {
+      "type": "Icon",
+      "props": {
+        "name": "../assets/r_000008_01_4_shop.svg"
+      },
+      "children": []
+    },
+    "day1_afternoon_title": {
+      "type": "Text",
+      "props": {
+        "text": "Afternoon: Philosopher's Path & Nishiki Market",
+        "variant": "h3"
+      },
+      "children": []
+    },
+    "day1_afternoon_time": {
+      "type": "Text",
+      "props": {
+        "text": "Time: 1:00 PM - 5:00 PM",
+        "variant": "caption"
+      },
+      "children": []
+    },
+    "day1_afternoon_desc": {
+      "type": "Text",
+      "props": {
+        "text": "Walk a portion of the Philosopher's Path, then head to Nishiki Market. Known as 'Kyoto's Kitchen,' this is the perfect place for a late lunch, sampling everything from fresh seafood to matcha-flavored sweets."
+      },
+      "children": []
+    },
+    "day1_afternoon_details": {
+      "type": "Text",
+      "props": {
+        "text": "Transport: Bus to Ginkaku-ji for the path, then another bus to Shijo Karasuma for the market.\nCost: Food: ~JPY 3,000 - 4,000/person.",
+        "variant": "body"
+      },
+      "children": []
+    },
+    "day1_afternoon_button": {
+      "type": "Button",
+      "props": {
+        "label": "Explore Nishiki Market",
+        "variant": "borderless"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "openUrl",
+          "params": {
+            "url": "https://www.kyoto-nishiki.or.jp/en/"
+          }
+        }
+      }
+    },
+    "day1_evening_card": {
+      "type": "Card",
+      "props": {},
+      "children": [
+        "day1_evening_stack"
+      ]
+    },
+    "day1_evening_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md"
+      },
+      "children": [
+        "day1_evening_image",
+        "day1_evening_content_stack"
+      ]
+    },
+    "day1_evening_image": {
+      "type": "Image",
+      "props": {
+        "url": "../assets/r_000008_01_5_gion_night_android.png",
+        "fit": "cover",
+        "height": 180
+      },
+      "children": []
+    },
+    "day1_evening_content_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md",
+        "padding": 16
+      },
+      "children": [
+        "day1_evening_header_stack",
+        "day1_evening_time",
+        "day1_evening_desc",
+        "day1_evening_details",
+        "day1_evening_button"
+      ]
+    },
+    "day1_evening_header_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "md",
+        "align": "center"
+      },
+      "children": [
+        "day1_evening_icon",
+        "day1_evening_title"
+      ]
+    },
+    "day1_evening_icon": {
+      "type": "Icon",
+      "props": {
+        "name": "../assets/r_000006_01_4_signpost-split.svg"
+      },
+      "children": []
+    },
+    "day1_evening_title": {
+      "type": "Text",
+      "props": {
+        "text": "Evening: Gion's Lantern-Lit Lanes",
+        "variant": "h3"
+      },
+      "children": []
+    },
+    "day1_evening_time": {
+      "type": "Text",
+      "props": {
+        "text": "Time: 6:00 PM onwards",
+        "variant": "caption"
+      },
+      "children": []
+    },
+    "day1_evening_desc": {
+      "type": "Text",
+      "props": {
+        "text": "Explore the famous Gion district, Kyoto's geisha district. Stroll down Hanamikoji Street and the scenic Shirakawa Lane. The area is at its most atmospheric after dark when the lanterns are lit."
+      },
+      "children": []
+    },
+    "day1_evening_details": {
+      "type": "Text",
+      "props": {
+        "text": "Transport: Walking distance from Nishiki Market.\nCost: Dinner: ~JPY 5,000 - 7,000/person.",
+        "variant": "body"
+      },
+      "children": []
+    },
+    "day1_evening_button": {
+      "type": "Button",
+      "props": {
+        "label": "Gion District Guide",
+        "variant": "borderless"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "openUrl",
+          "params": {
+            "url": "https://kyoto.travel/en/thingstodo/entertainment/gion.html"
+          }
+        }
+      }
+    },
+    "divider_2": {
+      "type": "Divider",
+      "props": {},
+      "children": []
+    },
+    "day2_title": {
+      "type": "Text",
+      "props": {
+        "text": "Day 2: Arashiyama's Serenity & Fushimi's Gates (Oct 19)",
+        "variant": "h2"
+      },
+      "children": []
+    },
+    "day2_morning_card": {
+      "type": "Card",
+      "props": {},
+      "children": [
+        "day2_morning_stack"
+      ]
+    },
+    "day2_morning_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md"
+      },
+      "children": [
+        "day2_morning_image",
+        "day2_morning_content_stack"
+      ]
+    },
+    "day2_morning_image": {
+      "type": "Image",
+      "props": {
+        "url": "../assets/r_000008_01_7_arashiyama-bamboo-grove_android.png",
+        "fit": "cover",
+        "height": 180
+      },
+      "children": []
+    },
+    "day2_morning_content_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md",
+        "padding": 16
+      },
+      "children": [
+        "day2_morning_header_stack",
+        "day2_morning_time",
+        "day2_morning_desc",
+        "day2_morning_details",
+        "day2_morning_button"
+      ]
+    },
+    "day2_morning_header_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "md",
+        "align": "center"
+      },
+      "children": [
+        "day2_morning_icon",
+        "day2_morning_title"
+      ]
+    },
+    "day2_morning_icon": {
+      "type": "Icon",
+      "props": {
+        "name": "../assets/r_000002_01_2_tree.svg"
+      },
+      "children": []
+    },
+    "day2_morning_title": {
+      "type": "Text",
+      "props": {
+        "text": "Morning: Arashiyama Bamboo Grove & Tenryu-ji",
+        "variant": "h3"
+      },
+      "children": []
+    },
+    "day2_morning_time": {
+      "type": "Text",
+      "props": {
+        "text": "Time: 8:30 AM - 12:00 PM",
+        "variant": "caption"
+      },
+      "children": []
+    },
+    "day2_morning_desc": {
+      "type": "Text",
+      "props": {
+        "text": "Arrive early to experience the ethereal beauty of the Arashiyama Bamboo Grove. Afterwards, visit the adjacent Tenryu-ji Temple, a UNESCO World Heritage site with a stunning landscape garden."
+      },
+      "children": []
+    },
+    "day2_morning_details": {
+      "type": "Text",
+      "props": {
+        "text": "Transport: JR Sagano Line from Kyoto Station to Saga-Arashiyama Station.\nCost: Tenryu-ji Garden Admission: JPY 500/person.",
+        "variant": "body"
+      },
+      "children": []
+    },
+    "day2_morning_button": {
+      "type": "Button",
+      "props": {
+        "label": "Learn about Tenryu-ji",
+        "variant": "borderless"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "openUrl",
+          "params": {
+            "url": "https://www.tenryuji.com/en/"
+          }
+        }
+      }
+    },
+    "day2_afternoon_card": {
+      "type": "Card",
+      "props": {},
+      "children": [
+        "day2_afternoon_stack"
+      ]
+    },
+    "day2_afternoon_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md"
+      },
+      "children": [
+        "day2_afternoon_image",
+        "day2_afternoon_content_stack"
+      ]
+    },
+    "day2_afternoon_image": {
+      "type": "Image",
+      "props": {
+        "url": "../assets/r_000008_01_9_togetsukyo-bridge_kyoto_android.png",
+        "fit": "cover",
+        "height": 180
+      },
+      "children": []
+    },
+    "day2_afternoon_content_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md",
+        "padding": 16
+      },
+      "children": [
+        "day2_afternoon_header_stack",
+        "day2_afternoon_time",
+        "day2_afternoon_desc",
+        "day2_afternoon_details"
+      ]
+    },
+    "day2_afternoon_header_stack": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "md",
+        "align": "center"
+      },
+      "children": [
+        "day2_afternoon_icon",
+        "day2_afternoon_title"
+      ]
+    },
+    "day2_afternoon_icon": {
+      "type": "Icon",
+      "props": {
+        "name": "../assets/r_000008_01_10_water.svg"
+      },
+      "children": []
+    },
+    "day2_afternoon_title": {
+      "type": "Text",
+      "props": {
+        "text": "Afternoon: Riverside Views & Lunch",
+        "variant": "h3"
+      },
+      "children": []
+    },
+    "day2_afternoon_time": {
+      "type": "Text",
+      "props": {
+        "text": "Time: 12:00 PM - 3:00 PM",
+        "variant": "caption"
+      },
+      "children": []
+    },
+    "day2_afternoon_desc": {
+      "type": "Text",
+      "props": {
+        "text": "Walk from the bamboo grove to the iconic Togetsukyo Bridge ('Moon Crossing Bridge'), which spans the Katsura River. The area offers picturesque views of the forested mountainsides."
+      },
+      "children": []
+    },
+    "day2_afternoon_details": {
+      "type": "Text",
+      "props": {
+        "text": "Transport: Walking.\nCost: Lunch",
+        "variant": "body"
+      },
+      "children": []
+    }
+  }
+}

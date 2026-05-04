@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"salesData": [{"id": "1", "item": "Masala Chai", "category": "Hot", "sales": "300", "growth": "+18.2%"}, {"id": "2", "item": "Iced Latte", "category": "Cold", "sales": "255", "growth": "+84.2%"}, {"id": "3", "item": "Espresso", "category": "Hot", "sales": "221", "growth": "+21.4%"}, {"id": "4", "item": "Sandwich", "category": "Food", "sales": "171", "growth": "+46.7%"}, {"id": "5", "item": "Cold Brew", "category": "Cold", "sales": "160", "growth": "+118.2%"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["header_stack", "hero_image", "summary_card", "analysis_section", "trends_section", "recommendations_section"]}, "header_stack": {"type": "Stack", "props": {"direction": "horizontal", "align": "center", "gap": "md"}, "children": ["header_icon", "header_title"]}, "header_icon": {"type": "Icon", "props": {"name": "../assets/r_000007_01_2_graph-up.svg"}, "children": []}, "header_title": {"type": "Text", "props": {"text": "Weekly Sales Performance Snapshot", "variant": "h2"}, "children": []}, "hero_image": {"type": "Image", "props": {"url": "../assets/r_000007_01_1_cafe_coffee.jpg", "fit": "cover"}, "children": []}, "summary_card": {"type": "Card", "props": {}, "children": ["summary_stack"]}, "summary_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": "md"}, "children": ["kpi_total_units", "kpi_best_item", "kpi_busiest_day"]}, "kpi_total_units": {"type": "Text", "props": {"text": "Total Units Sold: 1,107", "variant": "body"}, "children": []}, "kpi_best_item": {"type": "Text", "props": {"text": "Best Selling Item: Masala Chai (300 units)", "variant": "body"}, "children": []}, "kpi_busiest_day": {"type": "Text", "props": {"text": "Busiest Day: Friday (278 units)", "variant": "body"}, "children": []}, "analysis_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["analysis_title", "analysis_desc", "sales_table"]}, "analysis_title": {"type": "Text", "props": {"text": "Item Sales & Growth Analysis", "variant": "h2"}, "children": []}, "analysis_desc": {"type": "Text", "props": {"text": "This table details the performance of each item, highlighting total sales and growth from Monday to Friday.", "variant": "body"}, "children": []}, "sales_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Item"}, {"key": "category", "label": "Category"}, {"key": "sales", "label": "Total Sales"}, {"key": "growth", "label": "Mon-Fri Growth"}], "statePath": "/salesData", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "trends_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["trends_title", "trends_card"]}, "trends_title": {"type": "Text", "props": {"text": "Category Performance Trends", "variant": "h2"}, "children": []}, "trends_card": {"type": "Card", "props": {}, "children": ["trends_stack"]}, "trends_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": "md"}, "children": ["trend_cold_stack", "trend_hot_stack", "trend_food_stack"]}, "trend_cold_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["trend_cold_title", "trend_cold_desc"]}, "trend_cold_title": {"type": "Text", "props": {"text": "Cold Drinks", "variant": "h3"}, "children": []}, "trend_cold_desc": {"type": "Text", "props": {"text": "This category demonstrated explosive growth, with sales nearly doubling from Monday to Friday. It is the primary driver of late-week revenue increases.", "variant": "body"}, "children": []}, "trend_hot_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["trend_hot_title", "trend_hot_desc"]}, "trend_hot_title": {"type": "Text", "props": {"text": "Hot Drinks", "variant": "h3"}, "children": []}, "trend_hot_desc": {"type": "Text", "props": {"text": "Provided a consistent, high-volume sales base throughout the week, showing steady but modest growth. Masala Chai is the top-selling item overall.", "variant": "body"}, "children": []}, "trend_food_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["trend_food_title", "trend_food_desc"]}, "trend_food_title": {"type": "Text", "props": {"text": "Food", "variant": "h3"}, "children": []}, "trend_food_desc": {"type": "Text", "props": {"text": "Sales grew moderately through the week but lagged significantly behind beverage sales, indicating a clear opportunity for targeted promotions.", "variant": "body"}, "children": []}, "recommendations_section": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["recommendations_title", "recommendations_desc", "rec_1_card", "rec_2_card", "rec_3_card"]}, "recommendations_title": {"type": "Text", "props": {"text": "Operational Recommendations", "variant": "h2"}, "children": []}, "recommendations_desc": {"type": "Text", "props": {"text": "Here are three actionable insights based on the weekly sales data.", "variant": "body"}, "children": []}, "rec_1_card": {"type": "Card", "props": {}, "children": ["rec_1_stack"]}, "rec_1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": "md"}, "children": ["rec_1_header", "rec_1_body"]}, "rec_1_header": {"type": "Stack", "props": {"direction": "horizontal", "align": "center", "gap": "sm"}, "children": ["rec_1_icon", "rec_1_title"]}, "rec_1_icon": {"type": "Icon", "props": {"name": "../assets/r_000007_01_3_snow.svg"}, "children": []}, "rec_1_title": {"type": "Text", "props": {"text": "1. Capitalize on Cold Drink Demand", "variant": "h3"}, "children": []}, "rec_1_body": {"type": "Text", "props": {"text": "The dramatic late-week spike in Iced Latte and Cold Brew sales requires proactive preparation. Increase stock of ice, milk, and cold brew concentrate for Thursdays and Fridays.", "variant": "body"}, "children": []}, "rec_2_card": {"type": "Card", "props": {}, "children": ["rec_2_stack"]}, "rec_2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": "md"}, "children": ["rec_2_header", "rec_2_body"]}, "rec_2_header": {"type": "Stack", "props": {"direction": "horizontal", "align": "center", "gap": "sm"}, "children": ["rec_2_icon", "rec_2_title"]}, "rec_2_icon": {"type": "Icon", "props": {"name": "../assets/r_000007_01_4_plus-circle-dotted.svg"}, "children": []}, "rec_2_title": {"type": "Text", "props": {"text": "2. Boost Food Sales with Pairings", "variant": "h3"}, "children": []}, "rec_2_body": {"type": "Text", "props": {"text": "To lift underperforming food sales, introduce a \"combo deal.\" Offer a discount on a sandwich when purchased with a high-growth cold drink. This can convert beverage-only customers into higher-value meal customers.", "variant": "body"}, "children": []}, "rec_3_card": {"type": "Card", "props": {}, "children": ["rec_3_stack"]}, "rec_3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": "md"}, "children": ["rec_3_header", "rec_3_body"]}, "rec_3_header": {"type": "Stack", "props": {"direction": "horizontal", "align": "center", "gap": "sm"}, "children": ["rec_3_icon", "rec_3_title"]}, "rec_3_icon": {"type": "Icon", "props": {"name": "../assets/r_000007_01_5_search.svg"}, "children": []}, "rec_3_title": {"type": "Text", "props": {"text": "3. Investigate the Tuesday Slowdown", "variant": "h3"}, "children": []}, "rec_3_body": {"type": "Text", "props": {"text": "Tuesday was the slowest growth day and saw a dip in sales for both Espresso and Sandwiches. Analyze potential causes for this anomaly. Review local business schedules, competitor promotions, or internal factors.", "variant": "body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

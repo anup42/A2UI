@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": "md"}, "children": ["title_stack", "intro_card", "suspects_card", "divider_1", "troubleshooting_title", "step1_card", "step2_card", "step3_card", "divider_2", "monitoring_card", "divider_3", "support_card", "divider_4", "sources_card"]}, "title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["title_icon", "title_text"]}, "title_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_8_battery-charging.svg"}, "children": []}, "title_text": {"type": "Text", "props": {"text": "Diagnosing Post-Update Battery Drain on Your Galaxy", "variant": "h2"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["intro_text_1", "intro_image"]}, "intro_text_1": {"type": "Text", "props": {"text": "The rapid battery drain and warmth after the One UI update are likely caused by system processes and apps adapting to the new software. High usage from Photos (18%) and Google Play Services (11%) suggests background processes are stuck in a loop."}, "children": []}, "intro_image": {"type": "Image", "props": {"url": "../assets/r_000003_01_1_smartphones_tech.jpg", "fit": "cover"}, "children": []}, "suspects_card": {"type": "Card", "props": {}, "children": ["suspects_stack"]}, "suspects_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["suspects_title", "suspect_1", "suspect_2", "suspect_3"]}, "suspects_title": {"type": "Text", "props": {"text": "Primary Suspects", "variant": "h3"}, "children": []}, "suspect_1": {"type": "Text", "props": {"text": "• Stuck Background Processes: The update may have triggered a re-indexing of your photos, causing the Photos app process to get stuck and consume CPU cycles."}, "children": []}, "suspect_2": {"type": "Text", "props": {"text": "• System Cache Conflict: Old system files can conflict with the new One UI version, causing instability and inefficient operation."}, "children": []}, "suspect_3": {"type": "Text", "props": {"text": "• App Incompatibility: Google Play Services or One UI Home may not be fully optimized for the new update, leading to excessive battery consumption."}, "children": []}, "divider_1": {"type": "Divider", "props": {}, "children": []}, "troubleshooting_title": {"type": "Text", "props": {"text": "Prioritized Troubleshooting Checklist", "variant": "h2"}, "children": []}, "step1_card": {"type": "Card", "props": {}, "children": ["step1_stack"]}, "step1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step1_title_stack", "step1_desc", "step1_point1", "step1_point2"]}, "step1_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["step1_icon", "step1_title"]}, "step1_icon": {"type": "Icon", "props": {"name": "../assets/r_000009_01_3_arrow-clockwise.svg"}, "children": []}, "step1_title": {"type": "Text", "props": {"text": "Step 1: Perform Basic System Resets", "variant": "h3"}, "children": []}, "step1_desc": {"type": "Text", "props": {"text": "A simple reboot and clearing the system cache can resolve a majority of post-update issues."}, "children": []}, "step1_point1": {"type": "Text", "props": {"text": "• Reboot the Phone: Press and hold the power button and tap 'Restart'."}, "children": []}, "step1_point2": {"type": "Text", "props": {"text": "• Wipe Cache Partition: This does not erase personal data. Follow the steps in your device's recovery mode to 'Wipe cache partition' and then 'Reboot system now'."}, "children": []}, "step2_card": {"type": "Card", "props": {}, "children": ["step2_stack"]}, "step2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step2_title_stack", "step2_desc", "step2_point1", "step2_point2", "step2_point3"]}, "step2_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["step2_icon", "step2_title"]}, "step2_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_4_google.svg"}, "children": []}, "step2_title": {"type": "Text", "props": {"text": "Step 2: Address High-Usage Apps", "variant": "h3"}, "children": []}, "step2_desc": {"type": "Text", "props": {"text": "Target the specific apps identified as the top battery consumers."}, "children": []}, "step2_point1": {"type": "Text", "props": {"text": "• Photos App (18%): Force Stop the app and Clear its cache (not data) in Settings."}, "children": []}, "step2_point2": {"type": "Text", "props": {"text": "• Google Play Services (11%): Go to the app's storage settings and Clear Cache."}, "children": []}, "step2_point3": {"type": "Text", "props": {"text": "• One UI Home (8%): Go to the app's storage settings and Clear Cache."}, "children": []}, "step3_card": {"type": "Card", "props": {}, "children": ["step3_stack"]}, "step3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["step3_title_stack", "step3_desc"]}, "step3_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["step3_icon", "step3_title"]}, "step3_icon": {"type": "Icon", "props": {"name": "../assets/r_000009_01_5_wifi-off.svg"}, "children": []}, "step3_title": {"type": "Text", "props": {"text": "Step 3: Reset Network Settings", "variant": "h3"}, "children": []}, "step3_desc": {"type": "Text", "props": {"text": "Go to Settings > General Management > Reset and select 'Reset Network Settings'. This will reset Wi-Fi, mobile data, and Bluetooth settings."}, "children": []}, "divider_2": {"type": "Divider", "props": {}, "children": []}, "monitoring_card": {"type": "Card", "props": {}, "children": ["monitoring_stack"]}, "monitoring_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["monitoring_title_stack", "monitoring_point1", "monitoring_point2", "monitoring_point3", "monitoring_point4"]}, "monitoring_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["monitoring_icon", "monitoring_title"]}, "monitoring_icon": {"type": "Icon", "props": {"name": "../assets/r_000009_01_6_graph-up-arrow.svg"}, "children": []}, "monitoring_title": {"type": "Text", "props": {"text": "Monitoring Plan for the Next 24 Hours", "variant": "h2"}, "children": []}, "monitoring_point1": {"type": "Text", "props": {"text": "1. Full Charge: Charge your phone to 100%."}, "children": []}, "monitoring_point2": {"type": "Text", "props": {"text": "2. Idle Test: Let the phone remain idle for 2-4 hours. Battery should not drop more than 3-5%."}, "children": []}, "monitoring_point3": {"type": "Text", "props": {"text": "3. Temperature Check: Periodically check if the area near the camera is still warm."}, "children": []}, "monitoring_point4": {"type": "Text", "props": {"text": "4. Review Battery Stats: Check if usage percentages for Photos and Play Services have returned to normal."}, "children": []}, "divider_3": {"type": "Divider", "props": {}, "children": []}, "support_card": {"type": "Card", "props": {}, "children": ["support_stack"]}, "support_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["support_title", "support_desc", "support_point1", "support_point2", "support_point3", "support_buttons"]}, "support_title": {"type": "Text", "props": {"text": "Further Support Actions", "variant": "h2"}, "children": []}, "support_desc": {"type": "Text", "props": {"text": "If the battery drain persists after 24 hours, consider these more advanced options."}, "children": []}, "support_point1": {"type": "Text", "props": {"text": "• Run Device Care: Go to Settings > Battery and device care and tap 'Optimize now'."}, "children": []}, "support_point2": {"type": "Text", "props": {"text": "• Boot in Safe Mode: This disables third-party apps to help identify if a downloaded app is the culprit."}, "children": []}, "support_point3": {"type": "Text", "props": {"text": "• Contact Support: Use the Samsung Members app to run diagnostics or contact customer support."}, "children": []}, "support_buttons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["support_button_1", "support_button_2"]}, "support_button_1": {"type": "Button", "props": {"label": "Samsung Support", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.samsung.com/us/support/contact/"}}}}, "support_button_2": {"type": "Button", "props": {"label": "Last Resort: Factory Reset Guide"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.samsung.com/us/support/answer/ANS00062029/"}}}}, "divider_4": {"type": "Divider", "props": {}, "children": []}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sources_title", "source_1", "source_2"]}, "sources_title": {"type": "Text", "props": {"text": "Sources", "variant": "h3"}, "children": []}, "source_1": {"type": "Text", "props": {"text": "• Samsung Support: Battery Life Troubleshooting", "variant": "caption"}, "children": []}, "source_2": {"type": "Text", "props": {"text": "• Android Authority: How to wipe the cache partition on a Samsung Galaxy device", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

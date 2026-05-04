@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["status_card", "journey_card", "management_card"]}, "status_card": {"type": "Card", "props": {}, "children": ["status_card_stack"]}, "status_card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["title_stack", "hero_image", "status_summary_text", "details_table"]}, "title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["title_icon", "title_text"]}, "title_icon": {"type": "Icon", "props": {"name": "../assets/r_000006_01_2_box-seam.svg"}, "children": []}, "title_text": {"type": "Text", "props": {"text": "Order GC-48291: Out for Delivery", "variant": "h2"}, "children": []}, "hero_image": {"type": "Image", "props": {"url": "../assets/r_000006_01_1_package_delivery.jpg", "fit": "cover"}, "children": []}, "status_summary_text": {"type": "Text", "props": {"text": "Your package is on its way and is scheduled to arrive today.", "variant": "body"}, "children": []}, "details_table": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "rows": [{"metric": "Estimated Delivery", "value": "6:30 PM, April 29, 2026"}, {"metric": "Carrier", "value": "BlueDart"}], "domain": "status", "preferredPresentation": "table"}, "children": []}, "journey_card": {"type": "Card", "props": {}, "children": ["journey_card_stack"]}, "journey_card_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["journey_title", "delivery_info_stack", "tracking_history_title", "tracking_history_stack"]}, "journey_title": {"type": "Text", "props": {"text": "Shipment Journey & Details", "variant": "h2"}, "children": []}, "delivery_info_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["delivery_info_title", "tracking_number_text", "delivery_address_text", "delivery_instructions_text"]}, "delivery_info_title": {"type": "Text", "props": {"text": "Delivery Information", "variant": "h3"}, "children": []}, "tracking_number_text": {"type": "Text", "props": {"text": "Tracking Number: BD99881244IN", "variant": "body"}, "children": []}, "delivery_address_text": {"type": "Text", "props": {"text": "Delivery Address: Whitefield, Bengaluru", "variant": "body"}, "children": []}, "delivery_instructions_text": {"type": "Text", "props": {"text": "Delivery Instructions: Please leave the package with the security guard if no one is available to receive it.", "variant": "body"}, "children": []}, "tracking_history_title": {"type": "Text", "props": {"text": "Tracking History", "variant": "h3"}, "children": []}, "tracking_history_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["history_item_1", "history_item_2", "history_item_3", "history_item_4"]}, "history_item_1": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["history_icon_1", "history_text_stack_1"]}, "history_icon_1": {"type": "Icon", "props": {"name": "../assets/r_000006_01_1_truck.svg"}, "children": []}, "history_text_stack_1": {"type": "Stack", "props": {"direction": "vertical"}, "children": ["history_date_1", "history_status_1", "history_desc_1"]}, "history_date_1": {"type": "Text", "props": {"text": "Apr 29, 2026 - 09:05 AM", "variant": "caption"}, "children": []}, "history_status_1": {"type": "Text", "props": {"text": "Out for Delivery", "variant": "label"}, "children": []}, "history_desc_1": {"type": "Text", "props": {"text": "The package is on the final leg of its journey.", "variant": "body"}, "children": []}, "history_item_2": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["history_icon_2", "history_text_stack_2"]}, "history_icon_2": {"type": "Icon", "props": {"name": "../assets/r_000006_01_4_signpost-split.svg"}, "children": []}, "history_text_stack_2": {"type": "Stack", "props": {"direction": "vertical"}, "children": ["history_date_2", "history_status_2", "history_desc_2"]}, "history_date_2": {"type": "Text", "props": {"text": "Apr 28, 2026 - 08:20 AM", "variant": "caption"}, "children": []}, "history_status_2": {"type": "Text", "props": {"text": "Dispatched to Local Facility", "variant": "label"}, "children": []}, "history_desc_2": {"type": "Text", "props": {"text": "The package has been sent to the BlueDart facility nearest your address.", "variant": "body"}, "children": []}, "history_item_3": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["history_icon_3", "history_text_stack_3"]}, "history_icon_3": {"type": "Icon", "props": {"name": "../assets/r_000006_01_5_buildings.svg"}, "children": []}, "history_text_stack_3": {"type": "Stack", "props": {"direction": "vertical"}, "children": ["history_date_3", "history_status_3", "history_desc_3"]}, "history_date_3": {"type": "Text", "props": {"text": "Apr 28, 2026 - 02:45 AM", "variant": "caption"}, "children": []}, "history_status_3": {"type": "Text", "props": {"text": "Arrived at Bengaluru Sort Center", "variant": "label"}, "children": []}, "history_desc_3": {"type": "Text", "props": {"text": "The package was processed at the main hub in Bengaluru.", "variant": "body"}, "children": []}, "history_item_4": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "start"}, "children": ["history_icon_4", "history_text_stack_4"]}, "history_icon_4": {"type": "Icon", "props": {"name": "../assets/r_000006_01_6_box.svg"}, "children": []}, "history_text_stack_4": {"type": "Stack", "props": {"direction": "vertical"}, "children": ["history_date_4", "history_status_4", "history_desc_4"]}, "history_date_4": {"type": "Text", "props": {"text": "Apr 27, 2026 - 09:10 AM", "variant": "caption"}, "children": []}, "history_status_4": {"type": "Text", "props": {"text": "Package Picked Up from Mumbai Hub", "variant": "label"}, "children": []}, "history_desc_4": {"type": "Text", "props": {"text": "The shipment journey has begun.", "variant": "body"}, "children": []}, "management_card": {"type": "Card", "props": {}, "children": ["management_stack"]}, "management_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["management_title", "management_text", "button_stack"]}, "management_title": {"type": "Text", "props": {"text": "Delivery Management", "variant": "h2"}, "children": []}, "management_text": {"type": "Text", "props": {"text": "Need to make a change or have a question about your delivery?", "variant": "body"}, "children": []}, "button_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["contact_button", "track_button"]}, "contact_button": {"type": "Button", "props": {"label": "Contact Courier", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.bluedart.com/contact"}}}}, "track_button": {"type": "Button", "props": {"label": "Track & Manage Delivery", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.bluedart.com/tracking?trackingNo=BD99881244IN"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

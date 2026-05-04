@@ -1,0 +1,4814 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/lslcot",
+    "id": "lslcot",
+    "slide": 1,
+    "layoutId": "a84ffca7-440d-4bb1-8761-d6321bb63b34",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "b9b409ae-432d-48d5-8d23-6bb98bd2ebec",
+    "masterLayoutName": "Master",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "a84ffca7-440d-4bb1-8761-d6321bb63b34",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "b9b409ae-432d-48d5-8d23-6bb98bd2ebec",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "b9b409ae-432d-48d5-8d23-6bb98bd2ebec",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/j2t83itg",
+      "id": "1",
+      "name": "bg-field",
+      "bbox": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0"
+      },
+      "geometry": "rect",
+      "fillColor": "#08111F",
+      "lineColor": "#08111F",
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/8nqxs72x",
+      "id": "2",
+      "name": "left-accent",
+      "bbox": [
+        0,
+        0,
+        28,
+        1080
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1"
+      },
+      "geometry": "rect",
+      "fillColor": "#38BDF8",
+      "lineColor": "#38BDF8",
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/18jqh0fe",
+      "id": "3",
+      "name": "slide-title",
+      "bbox": [
+        78,
+        60,
+        1764,
+        56
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.0.0"
+      },
+      "geometry": "rect",
+      "text": "GenUICraft FlatSpec IR: data model + UI graph",
+      "textPreview": "GenUICraft FlatSpec IR: data model + UI graph",
+      "resolvedFontSize": 56,
+      "resolvedTextStyle": {
+        "fontSize": 56,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "GenUICraft FlatSpec IR: data model + UI graph"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "GenUICraft FlatSpec IR: data model + UI graph",
+          "runs": [
+            {
+              "index": 1,
+              "text": "GenUICraft FlatSpec IR: data model + UI graph",
+              "fontSize": 56,
+              "color": "#F8FAFC",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/q5o7qpg3",
+      "id": "4",
+      "name": "slide-subtitle",
+      "bbox": [
+        78,
+        130,
+        660,
+        26
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.0.1"
+      },
+      "geometry": "rect",
+      "text": "Kyoto response -> FlatSpec JSON -> OneUI-native Android render.",
+      "textPreview": "Kyoto response -> FlatSpec JSON -> OneUI-native Android render.",
+      "resolvedFontSize": 25,
+      "resolvedTextStyle": {
+        "fontSize": 25,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Kyoto response -> FlatSpec JSON -> OneUI-native Android render."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Kyoto response -> FlatSpec JSON -> OneUI-native Android render.",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Kyoto response -> FlatSpec JSON -> OneUI-native Android render.",
+              "fontSize": 25,
+              "color": "#AAB7CA"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/jqh0fepk",
+      "id": "5",
+      "name": "flow-Response",
+      "bbox": [
+        78,
+        190,
+        259.54,
+        132
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#101B2D",
+      "lineColor": "#FBBF24",
+      "lineWidth": 1.5
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/8bat47y1",
+      "id": "6",
+      "name": "flow-title-Response",
+      "bbox": [
+        100,
+        218,
+        216,
+        28
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.0.0.0"
+      },
+      "geometry": "rect",
+      "text": "Response",
+      "textPreview": "Response",
+      "resolvedFontSize": 28,
+      "resolvedTextStyle": {
+        "fontSize": 28,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Response"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Response",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Response",
+              "fontSize": 28,
+              "color": "#FBBF24",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1w7mp0bi",
+      "id": "7",
+      "name": "flow-body-Response",
+      "bbox": [
+        100,
+        254,
+        216,
+        40
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.0.0.1"
+      },
+      "geometry": "rect",
+      "text": "Natural language itinerary, media, actions",
+      "textPreview": "Natural language itinerary, media, actions",
+      "resolvedFontSize": 20,
+      "resolvedTextStyle": {
+        "fontSize": 20,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Natural language itinerary,"
+          },
+          {
+            "index": 2,
+            "text": "media, actions"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Natural language itinerary, media, actions",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Natural language itinerary, media, actions",
+              "fontSize": 20,
+              "color": "#AAB7CA"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/uxc3ylc7",
+      "id": "8",
+      "name": "arrow-1",
+      "bbox": [
+        354,
+        238,
+        36,
+        36
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.1"
+      },
+      "geometry": "rect",
+      "text": "->",
+      "textPreview": "->",
+      "resolvedFontSize": 36,
+      "resolvedTextStyle": {
+        "fontSize": 36,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "->"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "->",
+          "runs": [
+            {
+              "index": 1,
+              "text": "->",
+              "fontSize": 36,
+              "color": "#AAB7CA",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ji5snelo",
+      "id": "9",
+      "name": "flow-FlatSpec",
+      "bbox": [
+        405.54,
+        190,
+        259.54,
+        132
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.2"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#101B2D",
+      "lineColor": "#38BDF8",
+      "lineWidth": 1.5
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/vu9knih4",
+      "id": "10",
+      "name": "flow-title-FlatSpec",
+      "bbox": [
+        428,
+        228,
+        216,
+        28
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.2.0.0"
+      },
+      "geometry": "rect",
+      "text": "FlatSpec",
+      "textPreview": "FlatSpec",
+      "resolvedFontSize": 28,
+      "resolvedTextStyle": {
+        "fontSize": 28,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "FlatSpec"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "FlatSpec",
+          "runs": [
+            {
+              "index": 1,
+              "text": "FlatSpec",
+              "fontSize": 28,
+              "color": "#38BDF8",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/29gr2p8n",
+      "id": "11",
+      "name": "flow-body-FlatSpec",
+      "bbox": [
+        428,
+        264,
+        216,
+        20
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.2.0.1"
+      },
+      "geometry": "rect",
+      "text": "root + state + elements",
+      "textPreview": "root + state + elements",
+      "resolvedFontSize": 20,
+      "resolvedTextStyle": {
+        "fontSize": 20,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "root + state + elements"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "root + state + elements",
+          "runs": [
+            {
+              "index": 1,
+              "text": "root + state + elements",
+              "fontSize": 20,
+              "color": "#AAB7CA"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/d0z61032",
+      "id": "12",
+      "name": "arrow-2",
+      "bbox": [
+        682,
+        238,
+        36,
+        36
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.3"
+      },
+      "geometry": "rect",
+      "text": "->",
+      "textPreview": "->",
+      "resolvedFontSize": 36,
+      "resolvedTextStyle": {
+        "fontSize": 36,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "->"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "->",
+          "runs": [
+            {
+              "index": 1,
+              "text": "->",
+              "fontSize": 36,
+              "color": "#AAB7CA",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/kf6dcbul",
+      "id": "13",
+      "name": "flow-OneUI",
+      "bbox": [
+        733.08,
+        190,
+        259.54,
+        132
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.4"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#101B2D",
+      "lineColor": "#34D399",
+      "lineWidth": 1.5
+    },
+    {
+      "order": 14,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/v6psfil0",
+      "id": "14",
+      "name": "flow-title-OneUI",
+      "bbox": [
+        756,
+        218,
+        216,
+        28
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.4.0.0"
+      },
+      "geometry": "rect",
+      "text": "OneUI",
+      "textPreview": "OneUI",
+      "resolvedFontSize": 28,
+      "resolvedTextStyle": {
+        "fontSize": 28,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "OneUI"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "OneUI",
+          "runs": [
+            {
+              "index": 1,
+              "text": "OneUI",
+              "fontSize": 28,
+              "color": "#34D399",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 15,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/2lszqtcj",
+      "id": "15",
+      "name": "flow-body-OneUI",
+      "bbox": [
+        756,
+        254,
+        216,
+        40
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.0.4.0.1"
+      },
+      "geometry": "rect",
+      "text": "Renderer owns layout, style, actions",
+      "textPreview": "Renderer owns layout, style, actions",
+      "resolvedFontSize": 20,
+      "resolvedTextStyle": {
+        "fontSize": 20,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Renderer owns layout,"
+          },
+          {
+            "index": 2,
+            "text": "style, actions"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Renderer owns layout, style, actions",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Renderer owns layout, style, actions",
+              "fontSize": 20,
+              "color": "#AAB7CA"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 16,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/d8bat47y",
+      "id": "16",
+      "name": "pill-root",
+      "bbox": [
+        78,
+        339,
+        914.62,
+        44
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#0D1727",
+      "lineColor": "#2A3A52",
+      "lineWidth": 1
+    },
+    {
+      "order": 17,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/knih4byh",
+      "id": "17",
+      "name": "dot-root",
+      "bbox": [
+        96,
+        356,
+        12,
+        12
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.0.0.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#38BDF8",
+      "lineColor": "#38BDF8",
+      "lineWidth": 0
+    },
+    {
+      "order": 18,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/val87ed8",
+      "id": "18",
+      "name": "label-root",
+      "bbox": [
+        120,
+        350,
+        120,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.0.0.1"
+      },
+      "geometry": "rect",
+      "text": "root",
+      "textPreview": "root",
+      "resolvedFontSize": 22,
+      "resolvedTextStyle": {
+        "fontSize": 22,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "root"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "root",
+          "runs": [
+            {
+              "index": 1,
+              "text": "root",
+              "fontSize": 22,
+              "color": "#AAB7CA",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 19,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/6psfil0r",
+      "id": "19",
+      "name": "value-root",
+      "bbox": [
+        252,
+        350,
+        722,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.0.0.2"
+      },
+      "geometry": "rect",
+      "text": "Entry point: kyoto_itinerary",
+      "textPreview": "Entry point: kyoto_itinerary",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Entry point: kyoto_itinerary"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Entry point: kyoto_itinerary",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Entry point: kyoto_itinerary",
+              "fontSize": 24,
+              "color": "#F8FAFC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 20,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/a1gvy90j",
+      "id": "20",
+      "name": "pill-state",
+      "bbox": [
+        78,
+        393,
+        914.62,
+        44
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.1"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#0D1727",
+      "lineColor": "#2A3A52",
+      "lineWidth": 1
+    },
+    {
+      "order": 21,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/zidonyd0",
+      "id": "21",
+      "name": "dot-state",
+      "bbox": [
+        96,
+        410,
+        12,
+        12
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.1.0.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#34D399",
+      "lineColor": "#34D399",
+      "lineWidth": 0
+    },
+    {
+      "order": 22,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/s36hcrmh",
+      "id": "22",
+      "name": "label-state",
+      "bbox": [
+        120,
+        404,
+        120,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.1.0.1"
+      },
+      "geometry": "rect",
+      "text": "state",
+      "textPreview": "state",
+      "resolvedFontSize": 22,
+      "resolvedTextStyle": {
+        "fontSize": 22,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "state"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "state",
+          "runs": [
+            {
+              "index": 1,
+              "text": "state",
+              "fontSize": 22,
+              "color": "#AAB7CA",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 23,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/hoza1gvy",
+      "id": "23",
+      "name": "value-state",
+      "bbox": [
+        252,
+        404,
+        722,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.1.0.2"
+      },
+      "geometry": "rect",
+      "text": "Reusable data: budgetRows, dayCards",
+      "textPreview": "Reusable data: budgetRows, dayCards",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Reusable data: budgetRows, dayCards"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Reusable data: budgetRows, dayCards",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Reusable data: budgetRows, dayCards",
+              "fontSize": 24,
+              "color": "#F8FAFC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 24,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ap4r65wj",
+      "id": "24",
+      "name": "pill-elements",
+      "bbox": [
+        78,
+        447,
+        914.62,
+        44
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.2"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#0D1727",
+      "lineColor": "#2A3A52",
+      "lineWidth": 1
+    },
+    {
+      "order": 25,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/za1gvy90",
+      "id": "25",
+      "name": "dot-elements",
+      "bbox": [
+        96,
+        464,
+        12,
+        12
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.2.0.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#A78BFA",
+      "lineColor": "#A78BFA",
+      "lineWidth": 0
+    },
+    {
+      "order": 26,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/svu9knih",
+      "id": "26",
+      "name": "label-elements",
+      "bbox": [
+        120,
+        458,
+        120,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.2.0.1"
+      },
+      "geometry": "rect",
+      "text": "elements",
+      "textPreview": "elements",
+      "resolvedFontSize": 22,
+      "resolvedTextStyle": {
+        "fontSize": 22,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "elements"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "elements",
+          "runs": [
+            {
+              "index": 1,
+              "text": "elements",
+              "fontSize": 22,
+              "color": "#AAB7CA",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 27,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/hgn29gr2",
+      "id": "27",
+      "name": "value-elements",
+      "bbox": [
+        252,
+        458,
+        722,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.2.0.2"
+      },
+      "geometry": "rect",
+      "text": "Flat component graph: Text, Table, Card, Image, Button",
+      "textPreview": "Flat component graph: Text, Table, Card, Image, Button",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Flat component graph: Text, Table, Card, Image, Button"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Flat component graph: Text, Table, Card, Image, Button",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Flat component graph: Text, Table, Card, Image, Button",
+              "fontSize": 24,
+              "color": "#F8FAFC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 28,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/adsji5sn",
+      "id": "28",
+      "name": "pill-bindings",
+      "bbox": [
+        78,
+        501,
+        914.62,
+        44
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.3"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#0D1727",
+      "lineColor": "#2A3A52",
+      "lineWidth": 1
+    },
+    {
+      "order": 29,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/3ylc7u54",
+      "id": "29",
+      "name": "dot-bindings",
+      "bbox": [
+        96,
+        518,
+        12,
+        12
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.3.0.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#FBBF24",
+      "lineColor": "#FBBF24",
+      "lineWidth": 0
+    },
+    {
+      "order": 30,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/5o7qpg3e",
+      "id": "30",
+      "name": "label-bindings",
+      "bbox": [
+        120,
+        512,
+        120,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.3.0.1"
+      },
+      "geometry": "rect",
+      "text": "bindings",
+      "textPreview": "bindings",
+      "resolvedFontSize": 22,
+      "resolvedTextStyle": {
+        "fontSize": 22,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "bindings"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "bindings",
+          "runs": [
+            {
+              "index": 1,
+              "text": "bindings",
+              "fontSize": 22,
+              "color": "#AAB7CA",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 31,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/g3ex0nux",
+      "id": "31",
+      "name": "value-bindings",
+      "bbox": [
+        252,
+        512,
+        722,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.1.3.0.2"
+      },
+      "geometry": "rect",
+      "text": "$item, repeat, statePath, openUrl",
+      "textPreview": "$item, repeat, statePath, openUrl",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "$item, repeat, statePath, openUrl"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "$item, repeat, statePath, openUrl",
+          "runs": [
+            {
+              "index": 1,
+              "text": "$item, repeat, statePath, openUrl",
+              "fontSize": 24,
+              "color": "#F8FAFC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 32,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/nih4byhg",
+      "id": "32",
+      "name": "code-panel",
+      "bbox": [
+        78,
+        563,
+        914.62,
+        377
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.2"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#07101C",
+      "lineColor": "#2A3A52",
+      "lineWidth": 1.2
+    },
+    {
+      "order": 33,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/yxobm58z",
+      "id": "33",
+      "name": "code-title",
+      "bbox": [
+        102,
+        586,
+        866,
+        26
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.2.0.0"
+      },
+      "geometry": "rect",
+      "text": "Representative IR pattern",
+      "textPreview": "Representative IR pattern",
+      "resolvedFontSize": 26,
+      "resolvedTextStyle": {
+        "fontSize": 26,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Representative IR pattern"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Representative IR pattern",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Representative IR pattern",
+              "fontSize": 26,
+              "color": "#F8FAFC",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 34,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/9cvixcze",
+      "id": "34",
+      "name": "code-rule",
+      "bbox": [
+        102,
+        624,
+        866,
+        1
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.2.0.1"
+      },
+      "geometry": "rect",
+      "fillColor": "#2A3A52",
+      "lineColor": "#2A3A52",
+      "lineWidth": 0
+    },
+    {
+      "order": 35,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/gr2p8nqx",
+      "id": "35",
+      "name": "code-snippet",
+      "bbox": [
+        102,
+        636,
+        866,
+        248
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.1.2.0.2"
+      },
+      "geometry": "rect",
+      "text": "{\n  \"root\": \"kyoto_itinerary\",\n  \"state\": {\n    \"budgetRows\": [...],\n    \"dayCards\": [{ \"title\": \"...\", \"image\": \"...\", \"url\": \"...\" }]\n  },\n  \"elements\": {\n    \"budgetTable\": { \"type\": \"Table\",\n      \"props\": { \"statePath\": \"/budgetRows\" }},\n    \"dayCardTemplate\": { \"type\": \"Card\",\n      \"repeat\": { \"statePath\": \"/dayCards\" }}\n  }\n}",
+      "textPreview": "{ |   \"root\": \"kyoto_itinerary\", |   \"state\": { |     \"budgetRows\": [...], |     \"dayCards\": [{ \"title\": \"...\", \"image\": \"...\", \"url\": \"....",
+      "resolvedFontSize": 19,
+      "resolvedTextStyle": {
+        "fontSize": 19,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 13,
+        "lines": [
+          {
+            "index": 1,
+            "text": "{"
+          },
+          {
+            "index": 2,
+            "text": "  \"root\": \"kyoto_itinerary\","
+          },
+          {
+            "index": 3,
+            "text": "  \"state\": {"
+          },
+          {
+            "index": 4,
+            "text": "    \"budgetRows\": [...],"
+          },
+          {
+            "index": 5,
+            "text": "    \"dayCards\": [{ \"title\": \"...\", \"image\": \"...\", \"url\": \"...\" }]"
+          },
+          {
+            "index": 6,
+            "text": "  },"
+          },
+          {
+            "index": 7,
+            "text": "  \"elements\": {"
+          },
+          {
+            "index": 8,
+            "text": "    \"budgetTable\": { \"type\": \"Table\","
+          },
+          {
+            "index": 9,
+            "text": "      \"props\": { \"statePath\": \"/budgetRows\" }},"
+          },
+          {
+            "index": 10,
+            "text": "    \"dayCardTemplate\": { \"type\": \"Card\","
+          },
+          {
+            "index": 11,
+            "text": "      \"repeat\": { \"statePath\": \"/dayCards\" }}"
+          },
+          {
+            "index": 12,
+            "text": "  }"
+          },
+          {
+            "index": 13,
+            "text": "}"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "{",
+          "runs": [
+            {
+              "index": 1,
+              "text": "{",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "text": "  \"root\": \"kyoto_itinerary\",",
+          "runs": [
+            {
+              "index": 1,
+              "text": "  \"root\": \"kyoto_itinerary\",",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "text": "  \"state\": {",
+          "runs": [
+            {
+              "index": 1,
+              "text": "  \"state\": {",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "text": "    \"budgetRows\": [...],",
+          "runs": [
+            {
+              "index": 1,
+              "text": "    \"budgetRows\": [...],",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "text": "    \"dayCards\": [{ \"title\": \"...\", \"image\": \"...\", \"url\": \"...\" }]",
+          "runs": [
+            {
+              "index": 1,
+              "text": "    \"dayCards\": [{ \"title\": \"...\", \"image\": \"...\", \"url\": \"...\" }]",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "text": "  },",
+          "runs": [
+            {
+              "index": 1,
+              "text": "  },",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "text": "  \"elements\": {",
+          "runs": [
+            {
+              "index": 1,
+              "text": "  \"elements\": {",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "text": "    \"budgetTable\": { \"type\": \"Table\",",
+          "runs": [
+            {
+              "index": 1,
+              "text": "    \"budgetTable\": { \"type\": \"Table\",",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "text": "      \"props\": { \"statePath\": \"/budgetRows\" }},",
+          "runs": [
+            {
+              "index": 1,
+              "text": "      \"props\": { \"statePath\": \"/budgetRows\" }},",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "text": "    \"dayCardTemplate\": { \"type\": \"Card\",",
+          "runs": [
+            {
+              "index": 1,
+              "text": "    \"dayCardTemplate\": { \"type\": \"Card\",",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "text": "      \"repeat\": { \"statePath\": \"/dayCards\" }}",
+          "runs": [
+            {
+              "index": 1,
+              "text": "      \"repeat\": { \"statePath\": \"/dayCards\" }}",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "text": "  }",
+          "runs": [
+            {
+              "index": 1,
+              "text": "  }",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        },
+        {
+          "index": 13,
+          "text": "}",
+          "runs": [
+            {
+              "index": 1,
+              "text": "}",
+              "fontSize": 19,
+              "color": "#DDE7F6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 36,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/r65wjudg",
+      "id": "36",
+      "name": "render-panel",
+      "bbox": [
+        1040.62,
+        189,
+        801.38,
+        751
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.2"
+      },
+      "geometry": "roundRect",
+      "fillColor": "#111A2A",
+      "lineColor": "#2A3A52",
+      "lineWidth": 1.2
+    },
+    {
+      "order": 37,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ylc7u54z",
+      "id": "37",
+      "name": "render-heading",
+      "bbox": [
+        1062,
+        212,
+        578,
+        28
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.2.0.0.0"
+      },
+      "geometry": "rect",
+      "text": "Rendered Android surface",
+      "textPreview": "Rendered Android surface",
+      "resolvedFontSize": 28,
+      "resolvedTextStyle": {
+        "fontSize": 28,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Rendered Android surface"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Rendered Android surface",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Rendered Android surface",
+              "fontSize": 28,
+              "color": "#F8FAFC",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 38,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/90je9cvi",
+      "id": "38",
+      "name": "sample-id",
+      "bbox": [
+        1640,
+        218,
+        180,
+        16
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.2.0.0.1"
+      },
+      "geometry": "rect",
+      "text": "08_u_000008_01",
+      "textPreview": "08_u_000008_01",
+      "resolvedFontSize": 16,
+      "resolvedTextStyle": {
+        "fontSize": 16,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "08_u_000008_01"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "08_u_000008_01",
+          "runs": [
+            {
+              "index": 1,
+              "text": "08_u_000008_01",
+              "fontSize": 16,
+              "color": "#38BDF8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 39,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/7y1kre1w",
+      "id": "39",
+      "name": "kyoto-render",
+      "bbox": [
+        1062.62,
+        255,
+        757.38,
+        663
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.2.0.1"
+      },
+      "geometry": "roundRect",
+      "alt": "Android screenshot of rendered Kyoto GenUICraft itinerary",
+      "contentType": "image/png",
+      "asset": {
+        "assetId": "7f046ddf-dd44-4f22-ba4a-80a71446facb",
+        "contentType": "image/png",
+        "byteLength": 1037134
+      }
+    },
+    {
+      "order": 40,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/4vmtwra5",
+      "id": "40",
+      "name": "bottom-label",
+      "bbox": [
+        78,
+        986,
+        210,
+        24
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.3.0"
+      },
+      "geometry": "rect",
+      "text": "Why this matters",
+      "textPreview": "Why this matters",
+      "resolvedFontSize": 22,
+      "resolvedTextStyle": {
+        "fontSize": 22,
+        "typeface": "+mn-lt",
+        "bold": true,
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Why this matters"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Why this matters",
+          "runs": [
+            {
+              "index": 1,
+              "text": "Why this matters",
+              "fontSize": 22,
+              "color": "#38BDF8",
+              "bold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 41,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/tgfmlkjm",
+      "id": "41",
+      "name": "bottom-proof",
+      "bbox": [
+        310,
+        974,
+        1532,
+        48
+      ],
+      "composeSource": {
+        "run": 2,
+        "path": "0.3.1"
+      },
+      "geometry": "rect",
+      "text": "No executable UI code. Compact state-driven tables/cards. Local validation and repair before render. Compose owns OneUI typography, spacing, cards, dark mode, and actions.",
+      "textPreview": "No executable UI code. Compact state-driven tables/cards. Local validation and repair before render. Compose owns OneUI typography, spaci...",
+      "resolvedFontSize": 23,
+      "resolvedTextStyle": {
+        "fontSize": 23,
+        "typeface": "+mn-lt",
+        "alignment": "left"
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "No executable UI code. Compact state-driven tables/cards. Local validation and repair before render. Compose owns OneUI typography, spacing, cards, dark mode,"
+          },
+          {
+            "index": 2,
+            "text": "and actions."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "No executable UI code. Compact state-driven tables/cards. Local validation and repair before render. Compose owns OneUI typography, spacing, cards, dark mode, and actions.",
+          "runs": [
+            {
+              "index": 1,
+              "text": "No executable UI code. Compact state-driven tables/cards. Local validation and repair before render. Compose owns OneUI typography, spacing, cards, dark mode, and actions.",
+              "fontSize": 23,
+              "color": "#F8FAFC"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "composeRuns": [
+    {
+      "index": 1,
+      "frame": {
+        "left": 0,
+        "top": 0,
+        "width": 1920,
+        "height": 1080
+      },
+      "baseUnit": 8,
+      "root": {
+        "path": "0",
+        "kind": "layers",
+        "name": "background",
+        "requestedSize": {
+          "width": {
+            "mode": "fill",
+            "value": 1
+          },
+          "height": {
+            "mode": "fill",
+            "value": 1
+          }
+        },
+        "intrinsicSize": {
+          "width": 28,
+          "height": 0
+        },
+        "frame": {
+          "left": 0,
+          "top": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "children": [
+          {
+            "path": "0.0",
+            "kind": "shape",
+            "name": "bg-field",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 0,
+              "height": 0
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "snappedFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "children": [],
+            "geometry": "rect",
+            "element": {
+              "aid": "sh/j2t83itg",
+              "id": "1",
+              "kind": "shape"
+            }
+          },
+          {
+            "path": "0.1",
+            "kind": "shape",
+            "name": "left-accent",
+            "requestedSize": {
+              "width": {
+                "mode": "fixed",
+                "value": 28
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 28,
+              "height": 0
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 28,
+              "height": 1080
+            },
+            "snappedFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 28,
+              "height": 1080
+            },
+            "children": [],
+            "geometry": "rect",
+            "element": {
+              "aid": "sh/8nqxs72x",
+              "id": "2",
+              "kind": "shape"
+            }
+          }
+        ],
+        "padding": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "alignItems": "stretch",
+        "justifyItems": "stretch",
+        "contentFrame": {
+          "left": 0,
+          "top": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "items": [
+          {
+            "path": "0.0",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1920,
+              "height": 1080
+            }
+          },
+          {
+            "path": "0.1",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 28,
+              "height": 1080
+            }
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "frame": {
+        "left": 0,
+        "top": 0,
+        "width": 1920,
+        "height": 1080
+      },
+      "baseUnit": 8,
+      "root": {
+        "path": "0",
+        "kind": "grid",
+        "name": "slide-root",
+        "requestedSize": {
+          "width": {
+            "mode": "fill",
+            "value": 1
+          },
+          "height": {
+            "mode": "fill",
+            "value": 1
+          }
+        },
+        "intrinsicSize": {
+          "width": 204,
+          "height": 306
+        },
+        "frame": {
+          "left": 0,
+          "top": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "children": [
+          {
+            "path": "0.0",
+            "kind": "column",
+            "name": "title-stack",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "hug"
+              }
+            },
+            "intrinsicSize": {
+              "width": 659.83,
+              "height": 95
+            },
+            "frame": {
+              "left": 78,
+              "top": 60,
+              "width": 1764,
+              "height": 95
+            },
+            "children": [
+              {
+                "path": "0.0.0",
+                "kind": "text",
+                "name": "slide-title",
+                "requestedSize": {
+                  "width": {
+                    "mode": "fill",
+                    "value": 1
+                  },
+                  "height": {
+                    "mode": "hug"
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 0,
+                  "height": 56
+                },
+                "frame": {
+                  "left": 78,
+                  "top": 60,
+                  "width": 1764,
+                  "height": 56
+                },
+                "snappedFrame": {
+                  "left": 78,
+                  "top": 60,
+                  "width": 1764,
+                  "height": 56
+                },
+                "children": [],
+                "text": "GenUICraft FlatSpec IR: data model + UI graph",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/18jqh0fe",
+                  "id": "3",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.1",
+                "kind": "text",
+                "name": "slide-subtitle",
+                "requestedSize": {
+                  "width": {
+                    "mode": "wrap",
+                    "max": 1500
+                  },
+                  "height": {
+                    "mode": "hug"
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 659.83,
+                  "height": 25
+                },
+                "frame": {
+                  "left": 78,
+                  "top": 130,
+                  "width": 659.83,
+                  "height": 25
+                },
+                "snappedFrame": {
+                  "left": 78,
+                  "top": 130,
+                  "width": 660,
+                  "height": 26
+                },
+                "children": [],
+                "text": "Kyoto response -> FlatSpec JSON -> OneUI-native Android render.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/q5o7qpg3",
+                  "id": "4",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "gap": 14,
+            "effectiveGap": 14,
+            "justifyOffset": 0,
+            "align": "start",
+            "justify": "start",
+            "contentFrame": {
+              "left": 78,
+              "top": 60,
+              "width": 1764,
+              "height": 95
+            },
+            "items": [
+              {
+                "path": "0.0.0",
+                "frame": {
+                  "left": 78,
+                  "top": 60,
+                  "width": 1764,
+                  "height": 56
+                }
+              },
+              {
+                "path": "0.0.1",
+                "frame": {
+                  "left": 78,
+                  "top": 130,
+                  "width": 659.83,
+                  "height": 25
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.1",
+            "kind": "column",
+            "name": "left-column",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 0,
+              "height": 374
+            },
+            "frame": {
+              "left": 78,
+              "top": 189,
+              "width": 914.62,
+              "height": 751
+            },
+            "children": [
+              {
+                "path": "0.1.0",
+                "kind": "row",
+                "name": "pipeline-row",
+                "requestedSize": {
+                  "width": {
+                    "mode": "fill",
+                    "value": 1
+                  },
+                  "height": {
+                    "mode": "hug"
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 136,
+                  "height": 132
+                },
+                "frame": {
+                  "left": 78,
+                  "top": 189,
+                  "width": 914.62,
+                  "height": 132
+                },
+                "children": [
+                  {
+                    "path": "0.1.0.0",
+                    "kind": "panel",
+                    "name": "flow-Response",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "fixed",
+                        "value": 132
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 44,
+                      "height": 36
+                    },
+                    "frame": {
+                      "left": 78,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    },
+                    "snappedFrame": {
+                      "left": 78,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    },
+                    "children": [
+                      {
+                        "path": "0.1.0.0.0",
+                        "kind": "column",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "fill",
+                            "value": 1
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 0,
+                          "height": 56
+                        },
+                        "frame": {
+                          "left": 100,
+                          "top": 208,
+                          "width": 215.54,
+                          "height": 96
+                        },
+                        "children": [
+                          {
+                            "path": "0.1.0.0.0.0",
+                            "kind": "text",
+                            "name": "flow-title-Response",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 28
+                            },
+                            "frame": {
+                              "left": 100,
+                              "top": 218,
+                              "width": 215.54,
+                              "height": 28
+                            },
+                            "snappedFrame": {
+                              "left": 100,
+                              "top": 218,
+                              "width": 216,
+                              "height": 28
+                            },
+                            "children": [],
+                            "text": "Response",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/8bat47y1",
+                              "id": "6",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.0.0.0.1",
+                            "kind": "text",
+                            "name": "flow-body-Response",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 20
+                            },
+                            "frame": {
+                              "left": 100,
+                              "top": 254,
+                              "width": 215.54,
+                              "height": 40
+                            },
+                            "snappedFrame": {
+                              "left": 100,
+                              "top": 254,
+                              "width": 216,
+                              "height": 40
+                            },
+                            "children": [],
+                            "text": "Natural language itinerary, media, actions",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/1w7mp0bi",
+                              "id": "7",
+                              "kind": "shape"
+                            }
+                          }
+                        ],
+                        "padding": {
+                          "top": 0,
+                          "right": 0,
+                          "bottom": 0,
+                          "left": 0
+                        },
+                        "gap": 8,
+                        "effectiveGap": 8,
+                        "justifyOffset": 10,
+                        "align": "start",
+                        "justify": "center",
+                        "contentFrame": {
+                          "left": 100,
+                          "top": 208,
+                          "width": 215.54,
+                          "height": 96
+                        },
+                        "items": [
+                          {
+                            "path": "0.1.0.0.0.0",
+                            "frame": {
+                              "left": 100,
+                              "top": 218,
+                              "width": 215.54,
+                              "height": 28
+                            }
+                          },
+                          {
+                            "path": "0.1.0.0.0.1",
+                            "frame": {
+                              "left": 100,
+                              "top": 254,
+                              "width": 215.54,
+                              "height": 40
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "padding": {
+                      "top": 18,
+                      "right": 22,
+                      "bottom": 18,
+                      "left": 22
+                    },
+                    "align": "start",
+                    "justify": "start",
+                    "contentFrame": {
+                      "left": 100,
+                      "top": 208,
+                      "width": 215.54,
+                      "height": 96
+                    },
+                    "element": {
+                      "aid": "sh/jqh0fepk",
+                      "id": "5",
+                      "kind": "shape"
+                    }
+                  },
+                  {
+                    "path": "0.1.0.1",
+                    "kind": "text",
+                    "name": "arrow-1",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fixed",
+                        "value": 36
+                      },
+                      "height": {
+                        "mode": "hug"
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 36,
+                      "height": 36
+                    },
+                    "frame": {
+                      "left": 353.54,
+                      "top": 238,
+                      "width": 36,
+                      "height": 36
+                    },
+                    "snappedFrame": {
+                      "left": 354,
+                      "top": 238,
+                      "width": 36,
+                      "height": 36
+                    },
+                    "children": [],
+                    "text": "->",
+                    "transform": "none",
+                    "element": {
+                      "aid": "sh/uxc3ylc7",
+                      "id": "8",
+                      "kind": "shape"
+                    }
+                  },
+                  {
+                    "path": "0.1.0.2",
+                    "kind": "panel",
+                    "name": "flow-FlatSpec",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "fixed",
+                        "value": 132
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 44,
+                      "height": 36
+                    },
+                    "frame": {
+                      "left": 405.54,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    },
+                    "snappedFrame": {
+                      "left": 405.54,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    },
+                    "children": [
+                      {
+                        "path": "0.1.0.2.0",
+                        "kind": "column",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "fill",
+                            "value": 1
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 0,
+                          "height": 56
+                        },
+                        "frame": {
+                          "left": 427.54,
+                          "top": 208,
+                          "width": 215.54,
+                          "height": 96
+                        },
+                        "children": [
+                          {
+                            "path": "0.1.0.2.0.0",
+                            "kind": "text",
+                            "name": "flow-title-FlatSpec",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 28
+                            },
+                            "frame": {
+                              "left": 427.54,
+                              "top": 228,
+                              "width": 215.54,
+                              "height": 28
+                            },
+                            "snappedFrame": {
+                              "left": 428,
+                              "top": 228,
+                              "width": 216,
+                              "height": 28
+                            },
+                            "children": [],
+                            "text": "FlatSpec",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/vu9knih4",
+                              "id": "10",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.0.2.0.1",
+                            "kind": "text",
+                            "name": "flow-body-FlatSpec",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 20
+                            },
+                            "frame": {
+                              "left": 427.54,
+                              "top": 264,
+                              "width": 215.54,
+                              "height": 20
+                            },
+                            "snappedFrame": {
+                              "left": 428,
+                              "top": 264,
+                              "width": 216,
+                              "height": 20
+                            },
+                            "children": [],
+                            "text": "root + state + elements",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/29gr2p8n",
+                              "id": "11",
+                              "kind": "shape"
+                            }
+                          }
+                        ],
+                        "padding": {
+                          "top": 0,
+                          "right": 0,
+                          "bottom": 0,
+                          "left": 0
+                        },
+                        "gap": 8,
+                        "effectiveGap": 8,
+                        "justifyOffset": 20,
+                        "align": "start",
+                        "justify": "center",
+                        "contentFrame": {
+                          "left": 427.54,
+                          "top": 208,
+                          "width": 215.54,
+                          "height": 96
+                        },
+                        "items": [
+                          {
+                            "path": "0.1.0.2.0.0",
+                            "frame": {
+                              "left": 427.54,
+                              "top": 228,
+                              "width": 215.54,
+                              "height": 28
+                            }
+                          },
+                          {
+                            "path": "0.1.0.2.0.1",
+                            "frame": {
+                              "left": 427.54,
+                              "top": 264,
+                              "width": 215.54,
+                              "height": 20
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "padding": {
+                      "top": 18,
+                      "right": 22,
+                      "bottom": 18,
+                      "left": 22
+                    },
+                    "align": "start",
+                    "justify": "start",
+                    "contentFrame": {
+                      "left": 427.54,
+                      "top": 208,
+                      "width": 215.54,
+                      "height": 96
+                    },
+                    "element": {
+                      "aid": "sh/ji5snelo",
+                      "id": "9",
+                      "kind": "shape"
+                    }
+                  },
+                  {
+                    "path": "0.1.0.3",
+                    "kind": "text",
+                    "name": "arrow-2",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fixed",
+                        "value": 36
+                      },
+                      "height": {
+                        "mode": "hug"
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 36,
+                      "height": 36
+                    },
+                    "frame": {
+                      "left": 681.08,
+                      "top": 238,
+                      "width": 36,
+                      "height": 36
+                    },
+                    "snappedFrame": {
+                      "left": 682,
+                      "top": 238,
+                      "width": 36,
+                      "height": 36
+                    },
+                    "children": [],
+                    "text": "->",
+                    "transform": "none",
+                    "element": {
+                      "aid": "sh/d0z61032",
+                      "id": "12",
+                      "kind": "shape"
+                    }
+                  },
+                  {
+                    "path": "0.1.0.4",
+                    "kind": "panel",
+                    "name": "flow-OneUI",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "fixed",
+                        "value": 132
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 44,
+                      "height": 36
+                    },
+                    "frame": {
+                      "left": 733.08,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    },
+                    "snappedFrame": {
+                      "left": 733.08,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    },
+                    "children": [
+                      {
+                        "path": "0.1.0.4.0",
+                        "kind": "column",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "fill",
+                            "value": 1
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 0,
+                          "height": 56
+                        },
+                        "frame": {
+                          "left": 755.08,
+                          "top": 208,
+                          "width": 215.54,
+                          "height": 96
+                        },
+                        "children": [
+                          {
+                            "path": "0.1.0.4.0.0",
+                            "kind": "text",
+                            "name": "flow-title-OneUI",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 28
+                            },
+                            "frame": {
+                              "left": 755.08,
+                              "top": 218,
+                              "width": 215.54,
+                              "height": 28
+                            },
+                            "snappedFrame": {
+                              "left": 756,
+                              "top": 218,
+                              "width": 216,
+                              "height": 28
+                            },
+                            "children": [],
+                            "text": "OneUI",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/v6psfil0",
+                              "id": "14",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.0.4.0.1",
+                            "kind": "text",
+                            "name": "flow-body-OneUI",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 20
+                            },
+                            "frame": {
+                              "left": 755.08,
+                              "top": 254,
+                              "width": 215.54,
+                              "height": 40
+                            },
+                            "snappedFrame": {
+                              "left": 756,
+                              "top": 254,
+                              "width": 216,
+                              "height": 40
+                            },
+                            "children": [],
+                            "text": "Renderer owns layout, style, actions",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/2lszqtcj",
+                              "id": "15",
+                              "kind": "shape"
+                            }
+                          }
+                        ],
+                        "padding": {
+                          "top": 0,
+                          "right": 0,
+                          "bottom": 0,
+                          "left": 0
+                        },
+                        "gap": 8,
+                        "effectiveGap": 8,
+                        "justifyOffset": 10,
+                        "align": "start",
+                        "justify": "center",
+                        "contentFrame": {
+                          "left": 755.08,
+                          "top": 208,
+                          "width": 215.54,
+                          "height": 96
+                        },
+                        "items": [
+                          {
+                            "path": "0.1.0.4.0.0",
+                            "frame": {
+                              "left": 755.08,
+                              "top": 218,
+                              "width": 215.54,
+                              "height": 28
+                            }
+                          },
+                          {
+                            "path": "0.1.0.4.0.1",
+                            "frame": {
+                              "left": 755.08,
+                              "top": 254,
+                              "width": 215.54,
+                              "height": 40
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "padding": {
+                      "top": 18,
+                      "right": 22,
+                      "bottom": 18,
+                      "left": 22
+                    },
+                    "align": "start",
+                    "justify": "start",
+                    "contentFrame": {
+                      "left": 755.08,
+                      "top": 208,
+                      "width": 215.54,
+                      "height": 96
+                    },
+                    "element": {
+                      "aid": "sh/kf6dcbul",
+                      "id": "13",
+                      "kind": "shape"
+                    }
+                  }
+                ],
+                "padding": {
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                },
+                "gap": 16,
+                "effectiveGap": 16,
+                "justifyOffset": 0,
+                "align": "center",
+                "justify": "start",
+                "contentFrame": {
+                  "left": 78,
+                  "top": 189,
+                  "width": 914.62,
+                  "height": 132
+                },
+                "items": [
+                  {
+                    "path": "0.1.0.0",
+                    "frame": {
+                      "left": 78,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    }
+                  },
+                  {
+                    "path": "0.1.0.1",
+                    "frame": {
+                      "left": 353.54,
+                      "top": 238,
+                      "width": 36,
+                      "height": 36
+                    }
+                  },
+                  {
+                    "path": "0.1.0.2",
+                    "frame": {
+                      "left": 405.54,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    }
+                  },
+                  {
+                    "path": "0.1.0.3",
+                    "frame": {
+                      "left": 681.08,
+                      "top": 238,
+                      "width": 36,
+                      "height": 36
+                    }
+                  },
+                  {
+                    "path": "0.1.0.4",
+                    "frame": {
+                      "left": 733.08,
+                      "top": 190,
+                      "width": 259.54,
+                      "height": 132
+                    }
+                  }
+                ]
+              },
+              {
+                "path": "0.1.1",
+                "kind": "column",
+                "name": "ir-table",
+                "requestedSize": {
+                  "width": {
+                    "mode": "fill",
+                    "value": 1
+                  },
+                  "height": {
+                    "mode": "hug"
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 0,
+                  "height": 206
+                },
+                "frame": {
+                  "left": 78,
+                  "top": 339,
+                  "width": 914.62,
+                  "height": 206
+                },
+                "children": [
+                  {
+                    "path": "0.1.1.0",
+                    "kind": "panel",
+                    "name": "pill-root",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "hug"
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 36,
+                      "height": 44
+                    },
+                    "frame": {
+                      "left": 78,
+                      "top": 339,
+                      "width": 914.62,
+                      "height": 44
+                    },
+                    "snappedFrame": {
+                      "left": 78,
+                      "top": 339,
+                      "width": 914.62,
+                      "height": 44
+                    },
+                    "children": [
+                      {
+                        "path": "0.1.1.0.0",
+                        "kind": "row",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "hug"
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 156,
+                          "height": 24
+                        },
+                        "frame": {
+                          "left": 96,
+                          "top": 349,
+                          "width": 878.62,
+                          "height": 24
+                        },
+                        "children": [
+                          {
+                            "path": "0.1.1.0.0.0",
+                            "kind": "shape",
+                            "name": "dot-root",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fixed",
+                                "value": 12
+                              },
+                              "height": {
+                                "mode": "fixed",
+                                "value": 12
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 12,
+                              "height": 12
+                            },
+                            "frame": {
+                              "left": 96,
+                              "top": 356,
+                              "width": 12,
+                              "height": 12
+                            },
+                            "snappedFrame": {
+                              "left": 96,
+                              "top": 356,
+                              "width": 12,
+                              "height": 12
+                            },
+                            "children": [],
+                            "geometry": "rect",
+                            "element": {
+                              "aid": "sh/knih4byh",
+                              "id": "17",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.1.0.0.1",
+                            "kind": "text",
+                            "name": "label-root",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fixed",
+                                "value": 120
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 120,
+                              "height": 22
+                            },
+                            "frame": {
+                              "left": 120,
+                              "top": 350,
+                              "width": 120,
+                              "height": 24
+                            },
+                            "snappedFrame": {
+                              "left": 120,
+                              "top": 350,
+                              "width": 120,
+                              "height": 24
+                            },
+                            "children": [],
+                            "text": "root",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/val87ed8",
+                              "id": "18",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.1.0.0.2",
+                            "kind": "text",
+                            "name": "value-root",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 24
+                            },
+                            "frame": {
+                              "left": 252,
+                              "top": 350,
+                              "width": 722.62,
+                              "height": 24
+                            },
+                            "snappedFrame": {
+                              "left": 252,
+                              "top": 350,
+                              "width": 722,
+                              "height": 24
+                            },
+                            "children": [],
+                            "text": "Entry point: kyoto_itinerary",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/6psfil0r",
+                              "id": "19",
+                              "kind": "shape"
+                            }
+                          }
+                        ],
+                        "padding": {
+                          "top": 0,
+                          "right": 0,
+                          "bottom": 0,
+                          "left": 0
+                        },
+                        "gap": 12,
+                        "effectiveGap": 12,
+                        "justifyOffset": 0,
+                        "align": "center",
+                        "justify": "start",
+                        "contentFrame": {
+                          "left": 96,
+                          "top": 349,
+                          "width": 878.62,
+                          "height": 24
+                        },
+                        "items": [
+                          {
+                            "path": "0.1.1.0.0.0",
+                            "frame": {
+                              "left": 96,
+                              "top": 356,
+                              "width": 12,
+                              "height": 12
+                            }
+                          },
+                          {
+                            "path": "0.1.1.0.0.1",
+                            "frame": {
+                              "left": 120,
+                              "top": 350,
+                              "width": 120,
+                              "height": 24
+                            }
+                          },
+                          {
+                            "path": "0.1.1.0.0.2",
+                            "frame": {
+                              "left": 252,
+                              "top": 350,
+                              "width": 722.62,
+                              "height": 24
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "padding": {
+                      "top": 10,
+                      "right": 18,
+                      "bottom": 10,
+                      "left": 18
+                    },
+                    "align": "start",
+                    "justify": "start",
+                    "contentFrame": {
+                      "left": 96,
+                      "top": 349,
+                      "width": 878.62,
+                      "height": 24
+                    },
+                    "element": {
+                      "aid": "sh/d8bat47y",
+                      "id": "16",
+                      "kind": "shape"
+                    }
+                  },
+                  {
+                    "path": "0.1.1.1",
+                    "kind": "panel",
+                    "name": "pill-state",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "hug"
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 36,
+                      "height": 44
+                    },
+                    "frame": {
+                      "left": 78,
+                      "top": 393,
+                      "width": 914.62,
+                      "height": 44
+                    },
+                    "snappedFrame": {
+                      "left": 78,
+                      "top": 393,
+                      "width": 914.62,
+                      "height": 44
+                    },
+                    "children": [
+                      {
+                        "path": "0.1.1.1.0",
+                        "kind": "row",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "hug"
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 156,
+                          "height": 24
+                        },
+                        "frame": {
+                          "left": 96,
+                          "top": 403,
+                          "width": 878.62,
+                          "height": 24
+                        },
+                        "children": [
+                          {
+                            "path": "0.1.1.1.0.0",
+                            "kind": "shape",
+                            "name": "dot-state",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fixed",
+                                "value": 12
+                              },
+                              "height": {
+                                "mode": "fixed",
+                                "value": 12
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 12,
+                              "height": 12
+                            },
+                            "frame": {
+                              "left": 96,
+                              "top": 410,
+                              "width": 12,
+                              "height": 12
+                            },
+                            "snappedFrame": {
+                              "left": 96,
+                              "top": 410,
+                              "width": 12,
+                              "height": 12
+                            },
+                            "children": [],
+                            "geometry": "rect",
+                            "element": {
+                              "aid": "sh/zidonyd0",
+                              "id": "21",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.1.1.0.1",
+                            "kind": "text",
+                            "name": "label-state",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fixed",
+                                "value": 120
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 120,
+                              "height": 22
+                            },
+                            "frame": {
+                              "left": 120,
+                              "top": 404,
+                              "width": 120,
+                              "height": 24
+                            },
+                            "snappedFrame": {
+                              "left": 120,
+                              "top": 404,
+                              "width": 120,
+                              "height": 24
+                            },
+                            "children": [],
+                            "text": "state",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/s36hcrmh",
+                              "id": "22",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.1.1.0.2",
+                            "kind": "text",
+                            "name": "value-state",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 24
+                            },
+                            "frame": {
+                              "left": 252,
+                              "top": 404,
+                              "width": 722.62,
+                              "height": 24
+                            },
+                            "snappedFrame": {
+                              "left": 252,
+                              "top": 404,
+                              "width": 722,
+                              "height": 24
+                            },
+                            "children": [],
+                            "text": "Reusable data: budgetRows, dayCards",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/hoza1gvy",
+                              "id": "23",
+                              "kind": "shape"
+                            }
+                          }
+                        ],
+                        "padding": {
+                          "top": 0,
+                          "right": 0,
+                          "bottom": 0,
+                          "left": 0
+                        },
+                        "gap": 12,
+                        "effectiveGap": 12,
+                        "justifyOffset": 0,
+                        "align": "center",
+                        "justify": "start",
+                        "contentFrame": {
+                          "left": 96,
+                          "top": 403,
+                          "width": 878.62,
+                          "height": 24
+                        },
+                        "items": [
+                          {
+                            "path": "0.1.1.1.0.0",
+                            "frame": {
+                              "left": 96,
+                              "top": 410,
+                              "width": 12,
+                              "height": 12
+                            }
+                          },
+                          {
+                            "path": "0.1.1.1.0.1",
+                            "frame": {
+                              "left": 120,
+                              "top": 404,
+                              "width": 120,
+                              "height": 24
+                            }
+                          },
+                          {
+                            "path": "0.1.1.1.0.2",
+                            "frame": {
+                              "left": 252,
+                              "top": 404,
+                              "width": 722.62,
+                              "height": 24
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "padding": {
+                      "top": 10,
+                      "right": 18,
+                      "bottom": 10,
+                      "left": 18
+                    },
+                    "align": "start",
+                    "justify": "start",
+                    "contentFrame": {
+                      "left": 96,
+                      "top": 403,
+                      "width": 878.62,
+                      "height": 24
+                    },
+                    "element": {
+                      "aid": "sh/a1gvy90j",
+                      "id": "20",
+                      "kind": "shape"
+                    }
+                  },
+                  {
+                    "path": "0.1.1.2",
+                    "kind": "panel",
+                    "name": "pill-elements",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "hug"
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 36,
+                      "height": 44
+                    },
+                    "frame": {
+                      "left": 78,
+                      "top": 447,
+                      "width": 914.62,
+                      "height": 44
+                    },
+                    "snappedFrame": {
+                      "left": 78,
+                      "top": 447,
+                      "width": 914.62,
+                      "height": 44
+                    },
+                    "children": [
+                      {
+                        "path": "0.1.1.2.0",
+                        "kind": "row",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "hug"
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 156,
+                          "height": 24
+                        },
+                        "frame": {
+                          "left": 96,
+                          "top": 457,
+                          "width": 878.62,
+                          "height": 24
+                        },
+                        "children": [
+                          {
+                            "path": "0.1.1.2.0.0",
+                            "kind": "shape",
+                            "name": "dot-elements",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fixed",
+                                "value": 12
+                              },
+                              "height": {
+                                "mode": "fixed",
+                                "value": 12
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 12,
+                              "height": 12
+                            },
+                            "frame": {
+                              "left": 96,
+                              "top": 464,
+                              "width": 12,
+                              "height": 12
+                            },
+                            "snappedFrame": {
+                              "left": 96,
+                              "top": 464,
+                              "width": 12,
+                              "height": 12
+                            },
+                            "children": [],
+                            "geometry": "rect",
+                            "element": {
+                              "aid": "sh/za1gvy90",
+                              "id": "25",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.1.2.0.1",
+                            "kind": "text",
+                            "name": "label-elements",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fixed",
+                                "value": 120
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 120,
+                              "height": 22
+                            },
+                            "frame": {
+                              "left": 120,
+                              "top": 458,
+                              "width": 120,
+                              "height": 24
+                            },
+                            "snappedFrame": {
+                              "left": 120,
+                              "top": 458,
+                              "width": 120,
+                              "height": 24
+                            },
+                            "children": [],
+                            "text": "elements",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/svu9knih",
+                              "id": "26",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.1.2.0.2",
+                            "kind": "text",
+                            "name": "value-elements",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 24
+                            },
+                            "frame": {
+                              "left": 252,
+                              "top": 458,
+                              "width": 722.62,
+                              "height": 24
+                            },
+                            "snappedFrame": {
+                              "left": 252,
+                              "top": 458,
+                              "width": 722,
+                              "height": 24
+                            },
+                            "children": [],
+                            "text": "Flat component graph: Text, Table, Card, Image, Button",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/hgn29gr2",
+                              "id": "27",
+                              "kind": "shape"
+                            }
+                          }
+                        ],
+                        "padding": {
+                          "top": 0,
+                          "right": 0,
+                          "bottom": 0,
+                          "left": 0
+                        },
+                        "gap": 12,
+                        "effectiveGap": 12,
+                        "justifyOffset": 0,
+                        "align": "center",
+                        "justify": "start",
+                        "contentFrame": {
+                          "left": 96,
+                          "top": 457,
+                          "width": 878.62,
+                          "height": 24
+                        },
+                        "items": [
+                          {
+                            "path": "0.1.1.2.0.0",
+                            "frame": {
+                              "left": 96,
+                              "top": 464,
+                              "width": 12,
+                              "height": 12
+                            }
+                          },
+                          {
+                            "path": "0.1.1.2.0.1",
+                            "frame": {
+                              "left": 120,
+                              "top": 458,
+                              "width": 120,
+                              "height": 24
+                            }
+                          },
+                          {
+                            "path": "0.1.1.2.0.2",
+                            "frame": {
+                              "left": 252,
+                              "top": 458,
+                              "width": 722.62,
+                              "height": 24
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "padding": {
+                      "top": 10,
+                      "right": 18,
+                      "bottom": 10,
+                      "left": 18
+                    },
+                    "align": "start",
+                    "justify": "start",
+                    "contentFrame": {
+                      "left": 96,
+                      "top": 457,
+                      "width": 878.62,
+                      "height": 24
+                    },
+                    "element": {
+                      "aid": "sh/ap4r65wj",
+                      "id": "24",
+                      "kind": "shape"
+                    }
+                  },
+                  {
+                    "path": "0.1.1.3",
+                    "kind": "panel",
+                    "name": "pill-bindings",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "hug"
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 36,
+                      "height": 44
+                    },
+                    "frame": {
+                      "left": 78,
+                      "top": 501,
+                      "width": 914.62,
+                      "height": 44
+                    },
+                    "snappedFrame": {
+                      "left": 78,
+                      "top": 501,
+                      "width": 914.62,
+                      "height": 44
+                    },
+                    "children": [
+                      {
+                        "path": "0.1.1.3.0",
+                        "kind": "row",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "hug"
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 156,
+                          "height": 24
+                        },
+                        "frame": {
+                          "left": 96,
+                          "top": 511,
+                          "width": 878.62,
+                          "height": 24
+                        },
+                        "children": [
+                          {
+                            "path": "0.1.1.3.0.0",
+                            "kind": "shape",
+                            "name": "dot-bindings",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fixed",
+                                "value": 12
+                              },
+                              "height": {
+                                "mode": "fixed",
+                                "value": 12
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 12,
+                              "height": 12
+                            },
+                            "frame": {
+                              "left": 96,
+                              "top": 518,
+                              "width": 12,
+                              "height": 12
+                            },
+                            "snappedFrame": {
+                              "left": 96,
+                              "top": 518,
+                              "width": 12,
+                              "height": 12
+                            },
+                            "children": [],
+                            "geometry": "rect",
+                            "element": {
+                              "aid": "sh/3ylc7u54",
+                              "id": "29",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.1.3.0.1",
+                            "kind": "text",
+                            "name": "label-bindings",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fixed",
+                                "value": 120
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 120,
+                              "height": 22
+                            },
+                            "frame": {
+                              "left": 120,
+                              "top": 512,
+                              "width": 120,
+                              "height": 24
+                            },
+                            "snappedFrame": {
+                              "left": 120,
+                              "top": 512,
+                              "width": 120,
+                              "height": 24
+                            },
+                            "children": [],
+                            "text": "bindings",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/5o7qpg3e",
+                              "id": "30",
+                              "kind": "shape"
+                            }
+                          },
+                          {
+                            "path": "0.1.1.3.0.2",
+                            "kind": "text",
+                            "name": "value-bindings",
+                            "requestedSize": {
+                              "width": {
+                                "mode": "fill",
+                                "value": 1
+                              },
+                              "height": {
+                                "mode": "hug"
+                              }
+                            },
+                            "intrinsicSize": {
+                              "width": 0,
+                              "height": 24
+                            },
+                            "frame": {
+                              "left": 252,
+                              "top": 512,
+                              "width": 722.62,
+                              "height": 24
+                            },
+                            "snappedFrame": {
+                              "left": 252,
+                              "top": 512,
+                              "width": 722,
+                              "height": 24
+                            },
+                            "children": [],
+                            "text": "$item, repeat, statePath, openUrl",
+                            "transform": "none",
+                            "element": {
+                              "aid": "sh/g3ex0nux",
+                              "id": "31",
+                              "kind": "shape"
+                            }
+                          }
+                        ],
+                        "padding": {
+                          "top": 0,
+                          "right": 0,
+                          "bottom": 0,
+                          "left": 0
+                        },
+                        "gap": 12,
+                        "effectiveGap": 12,
+                        "justifyOffset": 0,
+                        "align": "center",
+                        "justify": "start",
+                        "contentFrame": {
+                          "left": 96,
+                          "top": 511,
+                          "width": 878.62,
+                          "height": 24
+                        },
+                        "items": [
+                          {
+                            "path": "0.1.1.3.0.0",
+                            "frame": {
+                              "left": 96,
+                              "top": 518,
+                              "width": 12,
+                              "height": 12
+                            }
+                          },
+                          {
+                            "path": "0.1.1.3.0.1",
+                            "frame": {
+                              "left": 120,
+                              "top": 512,
+                              "width": 120,
+                              "height": 24
+                            }
+                          },
+                          {
+                            "path": "0.1.1.3.0.2",
+                            "frame": {
+                              "left": 252,
+                              "top": 512,
+                              "width": 722.62,
+                              "height": 24
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "padding": {
+                      "top": 10,
+                      "right": 18,
+                      "bottom": 10,
+                      "left": 18
+                    },
+                    "align": "start",
+                    "justify": "start",
+                    "contentFrame": {
+                      "left": 96,
+                      "top": 511,
+                      "width": 878.62,
+                      "height": 24
+                    },
+                    "element": {
+                      "aid": "sh/adsji5sn",
+                      "id": "28",
+                      "kind": "shape"
+                    }
+                  }
+                ],
+                "padding": {
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                },
+                "gap": 10,
+                "effectiveGap": 10,
+                "justifyOffset": 0,
+                "align": "start",
+                "justify": "start",
+                "contentFrame": {
+                  "left": 78,
+                  "top": 339,
+                  "width": 914.62,
+                  "height": 206
+                },
+                "items": [
+                  {
+                    "path": "0.1.1.0",
+                    "frame": {
+                      "left": 78,
+                      "top": 339,
+                      "width": 914.62,
+                      "height": 44
+                    }
+                  },
+                  {
+                    "path": "0.1.1.1",
+                    "frame": {
+                      "left": 78,
+                      "top": 393,
+                      "width": 914.62,
+                      "height": 44
+                    }
+                  },
+                  {
+                    "path": "0.1.1.2",
+                    "frame": {
+                      "left": 78,
+                      "top": 447,
+                      "width": 914.62,
+                      "height": 44
+                    }
+                  },
+                  {
+                    "path": "0.1.1.3",
+                    "frame": {
+                      "left": 78,
+                      "top": 501,
+                      "width": 914.62,
+                      "height": 44
+                    }
+                  }
+                ]
+              },
+              {
+                "path": "0.1.2",
+                "kind": "panel",
+                "name": "code-panel",
+                "requestedSize": {
+                  "width": {
+                    "mode": "fill",
+                    "value": 1
+                  },
+                  "height": {
+                    "mode": "fill",
+                    "value": 1
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 48,
+                  "height": 44
+                },
+                "frame": {
+                  "left": 78,
+                  "top": 563,
+                  "width": 914.62,
+                  "height": 377
+                },
+                "snappedFrame": {
+                  "left": 78,
+                  "top": 563,
+                  "width": 914.62,
+                  "height": 377
+                },
+                "children": [
+                  {
+                    "path": "0.1.2.0",
+                    "kind": "column",
+                    "name": "code-stack",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "fill",
+                        "value": 1
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 0,
+                      "height": 298
+                    },
+                    "frame": {
+                      "left": 102,
+                      "top": 585,
+                      "width": 866.62,
+                      "height": 333
+                    },
+                    "children": [
+                      {
+                        "path": "0.1.2.0.0",
+                        "kind": "text",
+                        "name": "code-title",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "hug"
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 0,
+                          "height": 26
+                        },
+                        "frame": {
+                          "left": 102,
+                          "top": 585,
+                          "width": 866.62,
+                          "height": 26
+                        },
+                        "snappedFrame": {
+                          "left": 102,
+                          "top": 586,
+                          "width": 866,
+                          "height": 26
+                        },
+                        "children": [],
+                        "text": "Representative IR pattern",
+                        "transform": "none",
+                        "element": {
+                          "aid": "sh/yxobm58z",
+                          "id": "33",
+                          "kind": "shape"
+                        }
+                      },
+                      {
+                        "path": "0.1.2.0.1",
+                        "kind": "rule",
+                        "name": "code-rule",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "fixed",
+                            "value": 1
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 0,
+                          "height": 1
+                        },
+                        "frame": {
+                          "left": 102,
+                          "top": 623,
+                          "width": 866.62,
+                          "height": 1
+                        },
+                        "snappedFrame": {
+                          "left": 102,
+                          "top": 624,
+                          "width": 866,
+                          "height": 1
+                        },
+                        "children": [],
+                        "weight": 1,
+                        "element": {
+                          "aid": "sh/9cvixcze",
+                          "id": "34",
+                          "kind": "shape"
+                        }
+                      },
+                      {
+                        "path": "0.1.2.0.2",
+                        "kind": "text",
+                        "name": "code-snippet",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "hug"
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 0,
+                          "height": 247
+                        },
+                        "frame": {
+                          "left": 102,
+                          "top": 636,
+                          "width": 866.62,
+                          "height": 247
+                        },
+                        "snappedFrame": {
+                          "left": 102,
+                          "top": 636,
+                          "width": 866,
+                          "height": 248
+                        },
+                        "children": [],
+                        "text": "{\n  \"root\": \"kyoto_itinerary\",\n  \"state\": {\n    \"budgetRows\": [...],\n    \"dayCards\": [{ \"title\": \"...\", \"image\": \"...\", \"url\": \"...\" }]\n  },\n  \"elements\": {\n    \"budgetTable\": { \"type\": \"Table\",\n      \"props\": { \"statePath\": \"/budgetRows\" }},\n    \"dayCardTemplate\": { \"type\": \"Card\",\n      \"repeat\": { \"statePath\": \"/dayCards\" }}\n  }\n}",
+                        "transform": "none",
+                        "element": {
+                          "aid": "sh/gr2p8nqx",
+                          "id": "35",
+                          "kind": "shape"
+                        }
+                      }
+                    ],
+                    "padding": {
+                      "top": 0,
+                      "right": 0,
+                      "bottom": 0,
+                      "left": 0
+                    },
+                    "gap": 12,
+                    "effectiveGap": 12,
+                    "justifyOffset": 0,
+                    "align": "start",
+                    "justify": "start",
+                    "contentFrame": {
+                      "left": 102,
+                      "top": 585,
+                      "width": 866.62,
+                      "height": 333
+                    },
+                    "items": [
+                      {
+                        "path": "0.1.2.0.0",
+                        "frame": {
+                          "left": 102,
+                          "top": 585,
+                          "width": 866.62,
+                          "height": 26
+                        }
+                      },
+                      {
+                        "path": "0.1.2.0.1",
+                        "frame": {
+                          "left": 102,
+                          "top": 623,
+                          "width": 866.62,
+                          "height": 1
+                        }
+                      },
+                      {
+                        "path": "0.1.2.0.2",
+                        "frame": {
+                          "left": 102,
+                          "top": 636,
+                          "width": 866.62,
+                          "height": 247
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "padding": {
+                  "top": 22,
+                  "right": 24,
+                  "bottom": 22,
+                  "left": 24
+                },
+                "align": "start",
+                "justify": "start",
+                "contentFrame": {
+                  "left": 102,
+                  "top": 585,
+                  "width": 866.62,
+                  "height": 333
+                },
+                "element": {
+                  "aid": "sh/nih4byhg",
+                  "id": "32",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "gap": 18,
+            "effectiveGap": 18,
+            "justifyOffset": 0,
+            "align": "start",
+            "justify": "start",
+            "contentFrame": {
+              "left": 78,
+              "top": 189,
+              "width": 914.62,
+              "height": 751
+            },
+            "items": [
+              {
+                "path": "0.1.0",
+                "frame": {
+                  "left": 78,
+                  "top": 189,
+                  "width": 914.62,
+                  "height": 132
+                }
+              },
+              {
+                "path": "0.1.1",
+                "frame": {
+                  "left": 78,
+                  "top": 339,
+                  "width": 914.62,
+                  "height": 206
+                }
+              },
+              {
+                "path": "0.1.2",
+                "frame": {
+                  "left": 78,
+                  "top": 563,
+                  "width": 914.62,
+                  "height": 377
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.2",
+            "kind": "panel",
+            "name": "render-panel",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 44,
+              "height": 44
+            },
+            "frame": {
+              "left": 1040.62,
+              "top": 189,
+              "width": 801.38,
+              "height": 751
+            },
+            "snappedFrame": {
+              "left": 1040.62,
+              "top": 189,
+              "width": 801.38,
+              "height": 751
+            },
+            "children": [
+              {
+                "path": "0.2.0",
+                "kind": "column",
+                "name": "render-stack",
+                "requestedSize": {
+                  "width": {
+                    "mode": "fill",
+                    "value": 1
+                  },
+                  "height": {
+                    "mode": "fill",
+                    "value": 1
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 0,
+                  "height": 44
+                },
+                "frame": {
+                  "left": 1062.62,
+                  "top": 211,
+                  "width": 757.38,
+                  "height": 707
+                },
+                "children": [
+                  {
+                    "path": "0.2.0.0",
+                    "kind": "row",
+                    "name": "render-heading-row",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "hug"
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 180,
+                      "height": 28
+                    },
+                    "frame": {
+                      "left": 1062.62,
+                      "top": 211,
+                      "width": 757.38,
+                      "height": 28
+                    },
+                    "children": [
+                      {
+                        "path": "0.2.0.0.0",
+                        "kind": "text",
+                        "name": "render-heading",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fill",
+                            "value": 1
+                          },
+                          "height": {
+                            "mode": "hug"
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 0,
+                          "height": 28
+                        },
+                        "frame": {
+                          "left": 1062.62,
+                          "top": 212,
+                          "width": 577.38,
+                          "height": 28
+                        },
+                        "snappedFrame": {
+                          "left": 1062,
+                          "top": 212,
+                          "width": 578,
+                          "height": 28
+                        },
+                        "children": [],
+                        "text": "Rendered Android surface",
+                        "transform": "none",
+                        "element": {
+                          "aid": "sh/ylc7u54z",
+                          "id": "37",
+                          "kind": "shape"
+                        }
+                      },
+                      {
+                        "path": "0.2.0.0.1",
+                        "kind": "text",
+                        "name": "sample-id",
+                        "requestedSize": {
+                          "width": {
+                            "mode": "fixed",
+                            "value": 180
+                          },
+                          "height": {
+                            "mode": "hug"
+                          }
+                        },
+                        "intrinsicSize": {
+                          "width": 180,
+                          "height": 16
+                        },
+                        "frame": {
+                          "left": 1640,
+                          "top": 218,
+                          "width": 180,
+                          "height": 16
+                        },
+                        "snappedFrame": {
+                          "left": 1640,
+                          "top": 218,
+                          "width": 180,
+                          "height": 16
+                        },
+                        "children": [],
+                        "text": "08_u_000008_01",
+                        "transform": "none",
+                        "element": {
+                          "aid": "sh/90je9cvi",
+                          "id": "38",
+                          "kind": "shape"
+                        }
+                      }
+                    ],
+                    "padding": {
+                      "top": 0,
+                      "right": 0,
+                      "bottom": 0,
+                      "left": 0
+                    },
+                    "gap": 0,
+                    "effectiveGap": 0,
+                    "justifyOffset": 0,
+                    "align": "center",
+                    "justify": "between",
+                    "contentFrame": {
+                      "left": 1062.62,
+                      "top": 211,
+                      "width": 757.38,
+                      "height": 28
+                    },
+                    "items": [
+                      {
+                        "path": "0.2.0.0.0",
+                        "frame": {
+                          "left": 1062.62,
+                          "top": 212,
+                          "width": 577.38,
+                          "height": 28
+                        }
+                      },
+                      {
+                        "path": "0.2.0.0.1",
+                        "frame": {
+                          "left": 1640,
+                          "top": 218,
+                          "width": 180,
+                          "height": 16
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "path": "0.2.0.1",
+                    "kind": "image",
+                    "name": "kyoto-render",
+                    "requestedSize": {
+                      "width": {
+                        "mode": "fill",
+                        "value": 1
+                      },
+                      "height": {
+                        "mode": "fill",
+                        "value": 1
+                      }
+                    },
+                    "intrinsicSize": {
+                      "width": 0,
+                      "height": 0
+                    },
+                    "frame": {
+                      "left": 1062.62,
+                      "top": 255,
+                      "width": 757.38,
+                      "height": 663
+                    },
+                    "snappedFrame": {
+                      "left": 1062.62,
+                      "top": 255,
+                      "width": 757.38,
+                      "height": 663
+                    },
+                    "children": [],
+                    "source": {
+                      "kind": "dataUrl"
+                    },
+                    "fit": "contain",
+                    "alt": "Android screenshot of rendered Kyoto GenUICraft itinerary",
+                    "element": {
+                      "aid": "im/7y1kre1w",
+                      "id": "39",
+                      "kind": "image"
+                    }
+                  }
+                ],
+                "padding": {
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                },
+                "gap": 16,
+                "effectiveGap": 16,
+                "justifyOffset": 0,
+                "align": "start",
+                "justify": "start",
+                "contentFrame": {
+                  "left": 1062.62,
+                  "top": 211,
+                  "width": 757.38,
+                  "height": 707
+                },
+                "items": [
+                  {
+                    "path": "0.2.0.0",
+                    "frame": {
+                      "left": 1062.62,
+                      "top": 211,
+                      "width": 757.38,
+                      "height": 28
+                    }
+                  },
+                  {
+                    "path": "0.2.0.1",
+                    "frame": {
+                      "left": 1062.62,
+                      "top": 255,
+                      "width": 757.38,
+                      "height": 663
+                    }
+                  }
+                ]
+              }
+            ],
+            "padding": {
+              "top": 22,
+              "right": 22,
+              "bottom": 22,
+              "left": 22
+            },
+            "align": "start",
+            "justify": "start",
+            "contentFrame": {
+              "left": 1062.62,
+              "top": 211,
+              "width": 757.38,
+              "height": 707
+            },
+            "element": {
+              "aid": "sh/r65wjudg",
+              "id": "36",
+              "kind": "shape"
+            }
+          },
+          {
+            "path": "0.3",
+            "kind": "row",
+            "name": "bottom-strip",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "hug"
+              }
+            },
+            "intrinsicSize": {
+              "width": 232,
+              "height": 23
+            },
+            "frame": {
+              "left": 78,
+              "top": 974,
+              "width": 1764,
+              "height": 46
+            },
+            "children": [
+              {
+                "path": "0.3.0",
+                "kind": "text",
+                "name": "bottom-label",
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 210
+                  },
+                  "height": {
+                    "mode": "hug"
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 210,
+                  "height": 22
+                },
+                "frame": {
+                  "left": 78,
+                  "top": 986,
+                  "width": 210,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 78,
+                  "top": 986,
+                  "width": 210,
+                  "height": 24
+                },
+                "children": [],
+                "text": "Why this matters",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/4vmtwra5",
+                  "id": "40",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.1",
+                "kind": "text",
+                "name": "bottom-proof",
+                "requestedSize": {
+                  "width": {
+                    "mode": "fill",
+                    "value": 1
+                  },
+                  "height": {
+                    "mode": "hug"
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 0,
+                  "height": 23
+                },
+                "frame": {
+                  "left": 310,
+                  "top": 974,
+                  "width": 1532,
+                  "height": 48
+                },
+                "snappedFrame": {
+                  "left": 310,
+                  "top": 974,
+                  "width": 1532,
+                  "height": 48
+                },
+                "children": [],
+                "text": "No executable UI code. Compact state-driven tables/cards. Local validation and repair before render. Compose owns OneUI typography, spacing, cards, dark mode, and actions.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/tgfmlkjm",
+                  "id": "41",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "gap": 22,
+            "effectiveGap": 22,
+            "justifyOffset": 0,
+            "align": "center",
+            "justify": "start",
+            "contentFrame": {
+              "left": 78,
+              "top": 974,
+              "width": 1764,
+              "height": 46
+            },
+            "items": [
+              {
+                "path": "0.3.0",
+                "frame": {
+                  "left": 78,
+                  "top": 986,
+                  "width": 210,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.3.1",
+                "frame": {
+                  "left": 310,
+                  "top": 974,
+                  "width": 1532,
+                  "height": 48
+                }
+              }
+            ]
+          }
+        ],
+        "padding": {
+          "top": 60,
+          "right": 78,
+          "bottom": 60,
+          "left": 78
+        },
+        "columnGap": 48,
+        "rowGap": 34,
+        "alignItems": "stretch",
+        "justifyItems": "stretch",
+        "contentFrame": {
+          "left": 78,
+          "top": 60,
+          "width": 1764,
+          "height": 960
+        },
+        "columns": [
+          {
+            "mode": "fr",
+            "value": 1.05
+          },
+          {
+            "mode": "fr",
+            "value": 0.92
+          }
+        ],
+        "rows": [
+          "auto",
+          {
+            "mode": "fr",
+            "value": 1
+          },
+          "auto"
+        ],
+        "autoRows": "auto",
+        "resolvedRows": [
+          "auto",
+          {
+            "mode": "fr",
+            "value": 1
+          },
+          "auto"
+        ],
+        "columnSizes": [
+          914.62,
+          801.38
+        ],
+        "rowSizes": [
+          95,
+          751,
+          46
+        ],
+        "cells": [
+          {
+            "path": "0.0",
+            "column": 0,
+            "row": 0,
+            "columnSpan": 2,
+            "rowSpan": 1,
+            "cellFrame": {
+              "left": 78,
+              "top": 60,
+              "width": 1764,
+              "height": 95
+            }
+          },
+          {
+            "path": "0.1",
+            "column": 0,
+            "row": 1,
+            "columnSpan": 1,
+            "rowSpan": 1,
+            "cellFrame": {
+              "left": 78,
+              "top": 189,
+              "width": 914.62,
+              "height": 751
+            }
+          },
+          {
+            "path": "0.2",
+            "column": 1,
+            "row": 1,
+            "columnSpan": 1,
+            "rowSpan": 1,
+            "cellFrame": {
+              "left": 1040.62,
+              "top": 189,
+              "width": 801.38,
+              "height": 751
+            }
+          },
+          {
+            "path": "0.3",
+            "column": 0,
+            "row": 2,
+            "columnSpan": 2,
+            "rowSpan": 1,
+            "cellFrame": {
+              "left": 78,
+              "top": 974,
+              "width": 1764,
+              "height": 46
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

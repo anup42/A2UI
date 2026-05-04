@@ -1,0 +1,13 @@
+{
+    "created_at":  "2026-04-27T21:12:22.0860369Z",
+    "run_id":  "demo10_genuicraft_20260428_024222",
+    "purpose":  "10 high-quality GenUICraft demo samples with query, response, IR, web render, and Android device render",
+    "stages":  [
+                   "seed_queries",
+                   "stage2_response",
+                   "stage3_ir",
+                   "stage4_web_render",
+                   "android_device_render",
+                   "quality_verify"
+               ]
+}

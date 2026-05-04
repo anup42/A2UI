@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"flightData": [{"airline": "Air India", "departure": "01:20 AM", "arrival": "01:35 PM", "duration": "8h 45m", "stops": "Non-stop", "fare": "₹42,800"}, {"airline": "Cathay Pacific", "departure": "01:25 AM", "arrival": "12:45 PM", "duration": "8h 50m", "stops": "1 stop", "fare": "₹45,600"}, {"airline": "Thai Airways", "departure": "00:30 AM", "arrival": "03:40 PM", "duration": "11h 40m", "stops": "1 stop", "fare": "₹41,200"}, {"airline": "Singapore Airlines", "departure": "11:35 AM", "arrival": "08:10 AM (+1d)", "duration": "17h 05m", "stops": "1 stop", "fare": "₹38,900"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["mainTitle", "summaryCard", "contextCard", "tableSection", "recommendationsSection", "actionsSection", "sourcesSection"]}, "mainTitle": {"type": "Text", "props": {"text": "Bengaluru to Tokyo: Business Flight Comparison", "variant": "h2"}, "children": []}, "summaryCard": {"type": "Card", "props": {}, "children": ["summaryText"]}, "summaryText": {"type": "Text", "props": {"text": "For your business trip on June 18, 2026, the Air India non-stop flight is the top recommendation, offering the fastest travel time. For a more premium experience, Cathay Pacific is a strong alternative with a similarly short duration. The other options provide cost savings but at the expense of significantly longer journeys."}, "children": []}, "contextCard": {"type": "Card", "props": {}, "children": ["contextTitle", "contextText"]}, "contextTitle": {"type": "Text", "props": {"text": "Flight Details Context", "variant": "h3"}, "children": []}, "contextText": {"type": "Text", "props": {"text": "This comparison is based on the fixed flight offer data provided for one-way travel from Bengaluru (BLR) to Tokyo Haneda (HND) on the specified date. Fares and availability are subject to change."}, "children": []}, "tableSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["tableTitleStack", "flightTable"]}, "tableTitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["tableIcon", "tableTitle"]}, "tableIcon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_1_table.svg"}, "children": []}, "tableTitle": {"type": "Text", "props": {"text": "Flight Options Table: BLR to HND", "variant": "h2"}, "children": []}, "flightTable": {"type": "Table", "props": {"columns": [{"key": "airline", "label": "Airline"}, {"key": "departure", "label": "Departure"}, {"key": "arrival", "label": "Arrival"}, {"key": "duration", "label": "Duration"}, {"key": "stops", "label": "Stops"}, {"key": "fare", "label": "Fare"}], "statePath": "/flightData", "domain": "flight", "preferredPresentation": "table"}, "children": []}, "recommendationsSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["recommendationsTitle", "recommendationsStack"]}, "recommendationsTitle": {"type": "Text", "props": {"text": "Ranked Recommendations", "variant": "h2"}, "children": []}, "recommendationsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["card1", "card2", "card3", "card4"]}, "card1": {"type": "Card", "props": {}, "children": ["card1Image", "card1TitleStack", "card1Details", "card1Value"]}, "card1Image": {"type": "Image", "props": {"url": "../assets/r_000001_01_1_airindia_airplane.jpg"}, "children": []}, "card1TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["card1Icon", "card1Title"]}, "card1Icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_2_airplane.svg"}, "children": []}, "card1Title": {"type": "Text", "props": {"text": "1: Air India (AI392)", "variant": "h3"}, "children": []}, "card1Details": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "rows": [{"metric": "Duration", "value": "8h 45m"}, {"metric": "Stops", "value": "Non-stop"}, {"metric": "Fare", "value": "₹42,800"}]}, "children": []}, "card1Value": {"type": "Text", "props": {"text": "Business Value: The most efficient option. This direct flight minimizes travel time, allowing for a full afternoon and evening in Tokyo upon arrival. Includes carry-on baggage."}, "children": []}, "card2": {"type": "Card", "props": {}, "children": ["card2Image", "card2TitleStack", "card2Details", "card2Value"]}, "card2Image": {"type": "Image", "props": {"url": "../assets/r_000001_01_3_cathaypacific_airplane.jpg"}, "children": []}, "card2TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["card2Icon", "card2Title"]}, "card2Icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_2_airplane.svg"}, "children": []}, "card2Title": {"type": "Text", "props": {"text": "2: Cathay Pacific (CX624/CX542)", "variant": "h3"}, "children": []}, "card2Details": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "rows": [{"metric": "Duration", "value": "8h 50m"}, {"metric": "Stops", "value": "1 stop (HKG)"}, {"metric": "Fare", "value": "₹45,600"}]}, "children": []}, "card2Value": {"type": "Text", "props": {"text": "Business Value: Excellent for comfort. Despite one stop, the travel time is nearly as short as the direct flight. Lounge eligibility adds a premium touch for a productive layover."}, "children": []}, "card3": {"type": "Card", "props": {}, "children": ["card3Image", "card3TitleStack", "card3Details", "card3Value"]}, "card3Image": {"type": "Image", "props": {"url": "../assets/r_000001_01_4_thaiairways_airplane.jpg"}, "children": []}, "card3TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["card3Icon", "card3Title"]}, "card3Icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_2_airplane.svg"}, "children": []}, "card3Title": {"type": "Text", "props": {"text": "3: Thai Airways (TG326/TG660)", "variant": "h3"}, "children": []}, "card3Details": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "rows": [{"metric": "Duration", "value": "11h 40m"}, {"metric": "Stops", "value": "1 stop (BKK)"}, {"metric": "Fare", "value": "₹41,200"}]}, "children": []}, "card3Value": {"type": "Text", "props": {"text": "Business Value: A cost-effective choice with a reasonable travel time. The inclusion of a checked bag is a practical benefit, and the fare is lower than the fastest options."}, "children": []}, "card4": {"type": "Card", "props": {}, "children": ["card4Image", "card4TitleStack", "card4Details", "card4Value"]}, "card4Image": {"type": "Image", "props": {"url": "../assets/r_000001_01_5_sing.jpg"}, "children": []}, "card4TitleStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["card4Icon", "card4Title"]}, "card4Icon": {"type": "Icon", "props": {"name": "../assets/r_000001_01_2_airplane.svg"}, "children": []}, "card4Title": {"type": "Text", "props": {"text": "4: Singapore Airlines (SQ509/SQ632)", "variant": "h3"}, "children": []}, "card4Details": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "rows": [{"metric": "Duration", "value": "17h 05m"}, {"metric": "Stops", "value": "1 stop (SIN)"}, {"metric": "Fare", "value": "₹38,900"}]}, "children": []}, "card4Value": {"type": "Text", "props": {"text": "Business Value: The most budget-friendly option. Best suited for travelers who are not time-sensitive, as the overnight layover and next-day arrival significantly extend the journey. Includes a meal service."}, "children": []}, "actionsSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actionsTitle", "actionsButtons"]}, "actionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsButtons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["button1", "button2"]}, "button1": {"type": "Button", "props": {"label": "Search Flights on Kayak"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.kayak.co.in/flights/Bengaluru-BLR-Tokyo-HND/2026-06-18?sort=best"}}}}, "button2": {"type": "Button", "props": {"label": "Set Fare Alert on Google"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/travel/flights"}}}}, "sourcesSection": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["sourcesTitle", "sourcesText"]}, "sourcesTitle": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesText": {"type": "Text", "props": {"text": "Flight Data: User-provided offer details for June 18, 2026."}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

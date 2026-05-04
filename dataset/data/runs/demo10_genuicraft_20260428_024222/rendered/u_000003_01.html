@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "intro_text", "context_title", "context_text", "breakdown_title", "breakdown_intro", "phone_cards_stack", "recommendations_title", "recommendations_stack", "actions_title", "actions_stack"]}, "title": {"type": "Text", "props": {"text": "Mid-Range AI & Camera Phone Showdown", "variant": "h2"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This comparison evaluates four mid-range Android phones, focusing on their on-device AI capabilities for note-taking and their camera systems. The analysis uses the specifications you provided.", "variant": "body"}, "children": []}, "context_title": {"type": "Text", "props": {"text": "Evaluation Context", "variant": "h3"}, "children": []}, "context_text": {"type": "Text", "props": {"text": "The Google Pixel 8a is a real-world device. The Samsung Galaxy A56, Nothing Phone 3a Pro, and OnePlus 13R are treated as hypothetical models for this direct comparison.", "variant": "body"}, "children": []}, "breakdown_title": {"type": "Text", "props": {"text": "Feature Breakdown", "variant": "h2"}, "children": []}, "breakdown_intro": {"type": "Text", "props": {"text": "Here is a side-by-side look at the key specifications for each phone.", "variant": "body"}, "children": []}, "phone_cards_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["pixel_card", "samsung_card", "nothing_card", "oneplus_card"]}, "pixel_card": {"type": "Card", "props": {}, "children": ["pixel_stack"]}, "pixel_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["pixel_image", "pixel_title_stack", "pixel_table"]}, "pixel_image": {"type": "Image", "props": {"url": "../assets/r_000003_01_1_smartphones_tech.jpg", "fit": "cover"}, "children": []}, "pixel_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["pixel_icon", "pixel_title"]}, "pixel_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_4_google.svg"}, "children": []}, "pixel_title": {"type": "Text", "props": {"text": "Google Pixel 8a", "variant": "h3"}, "children": []}, "pixel_table": {"type": "Table", "props": {"columns": [{"key": "feature", "label": "Feature"}, {"key": "value", "label": "Value"}], "rows": [{"feature": "Price", "value": "USD 499"}, {"feature": "Chipset & AI", "value": "Tensor G3 (Optimized for on-device Google AI)"}, {"feature": "RAM / Storage", "value": "8 GB / 128 GB"}, {"feature": "Camera", "value": "64 MP Main"}, {"feature": "Key Features", "value": "Exclusive AI call notes, best-in-class 7 years of OS updates."}]}, "children": []}, "samsung_card": {"type": "Card", "props": {}, "children": ["samsung_stack"]}, "samsung_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["samsung_image", "samsung_title_stack", "samsung_table"]}, "samsung_image": {"type": "Image", "props": {"url": "../assets/r_000003_01_3_all.jpg", "fit": "cover"}, "children": []}, "samsung_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["samsung_icon", "samsung_title"]}, "samsung_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_6_phone-fill.svg"}, "children": []}, "samsung_title": {"type": "Text", "props": {"text": "Samsung Galaxy A56", "variant": "h3"}, "children": []}, "samsung_table": {"type": "Table", "props": {"columns": [{"key": "feature", "label": "Feature"}, {"key": "value", "label": "Value"}], "rows": [{"feature": "Price", "value": "USD 449"}, {"feature": "Chipset & AI", "value": "Exynos 1580 with One UI AI tools"}, {"feature": "RAM / Storage", "value": "8 GB / 256 GB"}, {"feature": "Camera", "value": "50 MP Main"}, {"feature": "Key Features", "value": "Double the storage of the Pixel 8a, long 6-year update policy."}]}, "children": []}, "nothing_card": {"type": "Card", "props": {}, "children": ["nothing_stack"]}, "nothing_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["nothing_image", "nothing_title_stack", "nothing_table"]}, "nothing_image": {"type": "Image", "props": {"url": "../assets/r_000003_01_5_all.jpg", "fit": "cover"}, "children": []}, "nothing_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["nothing_icon", "nothing_title"]}, "nothing_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_6_phone-vibrate.svg"}, "children": []}, "nothing_title": {"type": "Text", "props": {"text": "Nothing Phone 3a Pro", "variant": "h3"}, "children": []}, "nothing_table": {"type": "Table", "props": {"columns": [{"key": "feature", "label": "Feature"}, {"key": "value", "label": "Value"}], "rows": [{"feature": "Price", "value": "USD 459"}, {"feature": "Chipset & AI", "value": "Snapdragon 7s Gen 3"}, {"feature": "RAM / Storage", "value": "12 GB / 256 GB"}, {"feature": "Camera", "value": "50 MP Periscope for superior zoom"}, {"feature": "Key Features", "value": "High 12 GB RAM for multitasking, unique zoom camera, and a clean UI."}]}, "children": []}, "oneplus_card": {"type": "Card", "props": {}, "children": ["oneplus_stack"]}, "oneplus_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["oneplus_image", "oneplus_title_stack", "oneplus_table"]}, "oneplus_image": {"type": "Image", "props": {"url": "../assets/r_000003_01_7_all.jpg", "fit": "cover"}, "children": []}, "oneplus_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["oneplus_icon", "oneplus_title"]}, "oneplus_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_8_battery-charging.svg"}, "children": []}, "oneplus_title": {"type": "Text", "props": {"text": "OnePlus 13R", "variant": "h3"}, "children": []}, "oneplus_table": {"type": "Table", "props": {"columns": [{"key": "feature", "label": "Feature"}, {"key": "value", "label": "Value"}], "rows": [{"feature": "Price", "value": "USD 599"}, {"feature": "Chipset & AI", "value": "Snapdragon 8 Gen 3 (Flagship performance)"}, {"feature": "RAM / Storage", "value": "12 GB / 256 GB"}, {"feature": "Camera", "value": "50 MP Main"}, {"feature": "Key Features", "value": "Top-tier processor for maximum power, extremely fast charging."}]}, "children": []}, "recommendations_title": {"type": "Text", "props": {"text": "Recommendations", "variant": "h2"}, "children": []}, "recommendations_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["top_pick_card", "performance_card", "value_card"]}, "top_pick_card": {"type": "Card", "props": {}, "children": ["top_pick_stack"]}, "top_pick_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["top_pick_title_stack", "top_pick_text"]}, "top_pick_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["top_pick_icon", "top_pick_title"]}, "top_pick_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_2_star-fill.svg"}, "children": []}, "top_pick_title": {"type": "Text", "props": {"text": "Top Pick for AI & Camera: Google Pixel 8a", "variant": "h3"}, "children": []}, "top_pick_text": {"type": "Text", "props": {"text": "The Pixel 8a is the strongest choice for your specific needs. Its Tensor G3 chip is custom-built for Google's on-device AI, directly supporting features like AI-powered notes. It also has the highest resolution main camera and an unmatched 7-year software update promise, ensuring long-term security and feature availability.", "variant": "body"}, "children": []}, "performance_card": {"type": "Card", "props": {}, "children": ["performance_stack"]}, "performance_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["performance_title_stack", "performance_text"]}, "performance_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["performance_icon", "performance_title"]}, "performance_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_12_speedometer2.svg"}, "children": []}, "performance_title": {"type": "Text", "props": {"text": "Best for Raw Performance: OnePlus 13R", "variant": "h3"}, "children": []}, "performance_text": {"type": "Text", "props": {"text": "If raw processing power is a priority for heavy multitasking or gaming alongside AI tasks, the OnePlus 13R is the clear winner. Its flagship-grade Snapdragon 8 Gen 3 processor and 12 GB of RAM offer the most performance, though it comes at the highest price in this group.", "variant": "body"}, "children": []}, "value_card": {"type": "Card", "props": {}, "children": ["value_stack"]}, "value_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["value_title_stack", "value_text"]}, "value_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["value_icon", "value_title"]}, "value_icon": {"type": "Icon", "props": {"name": "../assets/r_000003_01_13_gem.svg"}, "children": []}, "value_title": {"type": "Text", "props": {"text": "Best Value Hardware: Nothing Phone 3a Pro", "variant": "h3"}, "children": []}, "value_text": {"type": "Text", "props": {"text": "This phone offers an impressive hardware package for its price. The combination of high 12 GB RAM, 256 GB storage, and a versatile periscope zoom camera is rare in this price bracket. Its main compromise is the shorter 3-year update policy.", "variant": "body"}, "children": []}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md"}, "children": ["button_compare", "button_deals"]}, "button_compare": {"type": "Button", "props": {"label": "Compare Smartphone Prices", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://shopping.google.com/search?q=mid-range+android+phone"}}}}, "button_deals": {"type": "Button", "props": {"label": "View Latest Phone Deals", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.gsmarena.com/deals.php3"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

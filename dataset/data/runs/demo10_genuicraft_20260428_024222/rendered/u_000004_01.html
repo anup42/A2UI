@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"curry_ingredients": [{"item": "Paneer", "quantity": "250g, cut into 1-inch cubes"}, {"item": "Cooked Chickpeas", "quantity": "1 cup"}, {"item": "Fresh Spinach", "quantity": "3 cups, roughly chopped"}, {"item": "Tomato Puree", "quantity": "1 cup"}, {"item": "Greek Yogurt", "quantity": "1/2 cup"}, {"item": "Ginger-Garlic Paste", "quantity": "1 tbsp"}, {"item": "Garam Masala", "quantity": "1.5 tsp"}, {"item": "Turmeric Powder", "quantity": "1/2 tsp"}, {"item": "Cumin Seeds", "quantity": "1 tsp"}, {"item": "Lemon", "quantity": "1/2, juiced"}, {"item": "Oil or Ghee", "quantity": "1 tbsp"}, {"item": "Salt", "quantity": "to taste"}], "serving_ingredients": [{"item": "Basmati Rice", "quantity": "1 cup (uncooked)"}, {"item": "Water", "quantity": "2 cups (for rice)"}], "nutrition": [{"metric": "Calories", "value": "~650 kcal"}, {"metric": "Protein", "value": "~38 g"}, {"metric": "Carbohydrates", "value": "~75 g"}, {"metric": "Fat", "value": "~22 g"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg"}, "children": ["title_stack", "hero_image", "intro_text", "ingredients_card", "steps_title_stack", "step1_card", "step2_card", "step3_card", "step4_card", "actions_card"]}, "title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["title_icon", "title_text"]}, "title_icon": {"type": "Icon", "props": {"name": "../assets/r_000004_01_2_cup-hot.svg"}, "children": []}, "title_text": {"type": "Text", "props": {"text": "Speedy Paneer & Chickpea Curry Bowl", "variant": "h2"}, "children": []}, "hero_image": {"type": "Image", "props": {"url": "../assets/r_000004_01_1_paneer_curry.jpg", "fit": "cover"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "A high-protein, satisfying vegetarian meal ready in under 40 minutes. This recipe combines creamy paneer, hearty chickpeas, and fresh spinach in a flavorful tomato-yogurt sauce, served over fluffy basmati rice.", "variant": "body"}, "children": []}, "ingredients_card": {"type": "Card", "props": {}, "children": ["ingredients_stack"]}, "ingredients_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["ingredients_title", "servings_text", "curry_ingredients_title", "curry_ingredients_table", "serving_ingredients_title", "serving_ingredients_table", "nutrition_title", "nutrition_table"]}, "ingredients_title": {"type": "Text", "props": {"text": "Ingredients & Nutrition Breakdown", "variant": "h2"}, "children": []}, "servings_text": {"type": "Text", "props": {"text": "This recipe serves 2 people.", "variant": "caption"}, "children": []}, "curry_ingredients_title": {"type": "Text", "props": {"text": "For the Curry:", "variant": "h3"}, "children": []}, "curry_ingredients_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Item"}, {"key": "quantity", "label": "Quantity"}], "statePath": "/curry_ingredients", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "serving_ingredients_title": {"type": "Text", "props": {"text": "For Serving:", "variant": "h3"}, "children": []}, "serving_ingredients_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Item"}, {"key": "quantity", "label": "Quantity"}], "statePath": "/serving_ingredients", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "nutrition_title": {"type": "Text", "props": {"text": "Nutrition Estimate (per serving):", "variant": "h3"}, "children": []}, "nutrition_table": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "statePath": "/nutrition", "domain": "generic", "preferredPresentation": "table"}, "children": []}, "steps_title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center"}, "children": ["steps_title_text", "steps_title_icon"]}, "steps_title_text": {"type": "Text", "props": {"text": "Step-by-Step Cooking Guide (35 Mins)", "variant": "h2"}, "children": []}, "steps_title_icon": {"type": "Icon", "props": {"name": "../assets/r_000004_01_3_stopwatch.svg"}, "children": []}, "step1_card": {"type": "Card", "props": {}, "children": ["step1_stack"]}, "step1_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step1_title", "step1_text1", "step1_text2"]}, "step1_title": {"type": "Text", "props": {"text": "Step 1: Cook the Rice (Time: 0-20 mins)", "variant": "h3"}, "children": []}, "step1_text1": {"type": "Text", "props": {"text": "Rinse 1 cup of basmati rice under cold water. In a medium pot, combine the rinsed rice with 2 cups of water and a pinch of salt.", "variant": "body"}, "children": []}, "step1_text2": {"type": "Text", "props": {"text": "Bring to a boil, then reduce heat to the lowest setting, cover, and simmer for 15 minutes or until all water is absorbed. Remove from heat and let it rest, covered, for 5 minutes. Fluff with a fork before serving.", "variant": "body"}, "children": []}, "step2_card": {"type": "Card", "props": {}, "children": ["step2_stack"]}, "step2_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step2_title", "step2_text1", "step2_text2"]}, "step2_title": {"type": "Text", "props": {"text": "Step 2: Sauté Aromatics & Spices (Time: 20-25 mins)", "variant": "h3"}, "children": []}, "step2_text1": {"type": "Text", "props": {"text": "While the rice cooks, heat 1 tbsp of oil or ghee in a large pan or skillet over medium heat. Add 1 tsp of cumin seeds and let them sizzle for 30 seconds until fragrant.", "variant": "body"}, "children": []}, "step2_text2": {"type": "Text", "props": {"text": "Stir in 1 tbsp of ginger-garlic paste and cook for another minute. Pour in 1 cup of tomato puree, 1.5 tsp garam masala, 1/2 tsp turmeric, and salt to taste. Cook for 3-4 minutes, stirring occasionally.", "variant": "body"}, "children": []}, "step3_card": {"type": "Card", "props": {}, "children": ["step3_stack"]}, "step3_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step3_title", "step3_text1", "step3_text2"]}, "step3_title": {"type": "Text", "props": {"text": "Step 3: Combine & Simmer (Time: 25-32 mins)", "variant": "h3"}, "children": []}, "step3_text1": {"type": "Text", "props": {"text": "Add the 1 cup of cooked chickpeas and 3 cups of spinach to the pan. Stir until the spinach has wilted completely, which should take about 2-3 minutes.", "variant": "body"}, "children": []}, "step3_text2": {"type": "Text", "props": {"text": "Gently fold in the 250g of paneer cubes. Allow it to simmer for 2 more minutes to heat the paneer through and absorb the flavors of the sauce.", "variant": "body"}, "children": []}, "step4_card": {"type": "Card", "props": {}, "children": ["step4_stack"]}, "step4_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["step4_title", "step4_text1", "step4_text2"]}, "step4_title": {"type": "Text", "props": {"text": "Step 4: Finish & Serve (Time: 32-35 mins)", "variant": "h3"}, "children": []}, "step4_text1": {"type": "Text", "props": {"text": "Remove the pan from the heat. This is important to prevent the yogurt from curdling. Stir in 1/2 cup of Greek yogurt and the juice of half a lemon until well combined and the sauce is creamy.", "variant": "body"}, "children": []}, "step4_text2": {"type": "Text", "props": {"text": "Divide the fluffy basmati rice between two bowls and top with the paneer and chickpea curry.", "variant": "body"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md"}, "children": ["actions_title", "actions_button_stack"]}, "actions_title": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_button_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "wrap": "wrap"}, "children": ["action_button_1", "action_button_2"]}, "action_button_1": {"type": "Button", "props": {"label": "Create Grocery List", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://anylist.com/"}}}}, "action_button_2": {"type": "Button", "props": {"label": "Start 35-Min Timer", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/search?q=set+a+timer+for+35+minutes"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.../../../../renderer/json_render/ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>
