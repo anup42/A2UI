@@ -107,6 +107,22 @@ val embeddedVertexOauthAccessToken = resolveSecret(
     "VERTEX_OAUTH_ACCESS_TOKEN",
     "GOOGLE_OAUTH_ACCESS_TOKEN"
 )
+val embeddedAzureOpenAiApiKey = resolveSecret(
+    "AZURE_OPENAI_API_KEY",
+    "AZURE_OPENAI_SUBSCRIPTION_KEY"
+)
+val embeddedAzureOpenAiEndpoint = resolveSecret(
+    "AZURE_OPENAI_RESPONSES_ENDPOINT",
+    "AZURE_OPENAI_ENDPOINT"
+).ifBlank {
+    "https://genui1.openai.azure.com/openai/responses?api-version=2025-04-01-preview"
+}
+val embeddedAzureOpenAiDeployment = resolveSecret(
+    "AZURE_OPENAI_DEPLOYMENT",
+    "AZURE_OPENAI_MODEL"
+).ifBlank {
+    "gpt-5.4-mini"
+}
 
 android {
     namespace = "com.samsung.genuicraft"
@@ -153,6 +169,21 @@ android {
             "String",
             "VERTEX_PROJECT_ID_DEFAULT",
             "\"${escapeForBuildConfig(embeddedVertexProjectId)}\""
+        )
+        buildConfigField(
+            "String",
+            "AZURE_OPENAI_API_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedAzureOpenAiApiKey)}\""
+        )
+        buildConfigField(
+            "String",
+            "AZURE_OPENAI_RESPONSES_ENDPOINT_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedAzureOpenAiEndpoint)}\""
+        )
+        buildConfigField(
+            "String",
+            "AZURE_OPENAI_DEPLOYMENT_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedAzureOpenAiDeployment)}\""
         )
     }
 

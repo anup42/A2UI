@@ -81,6 +81,17 @@ object GeminiApiKeyProvider {
         )
     }
 
+    fun azureOpenAiApiKey(context: Context): String {
+        return firstNonBlank(
+            resolveKey(
+                context,
+                "AZURE_OPENAI_API_KEY",
+                "AZURE_OPENAI_SUBSCRIPTION_KEY"
+            ),
+            BuildConfig.AZURE_OPENAI_API_KEY_DEFAULT
+        )
+    }
+
     fun setupHintPath(context: Context): String {
         return "/sdcard/Android/data/${context.packageName}/files/$EXTERNAL_KEYS_FILE"
     }

@@ -11,22 +11,30 @@ object InferenceBackendSettings {
     private const val KEY_VERTEX_PROJECT_ID = "vertex_project_id"
     private const val KEY_VERTEX_LOCATION = "vertex_location"
     private const val KEY_VERTEX_ACCESS_TOKEN = "vertex_access_token"
+    private const val KEY_DEFAULT_PROVIDER_MIGRATION = "default_provider_migration_azure_openai"
+    private const val KEY_AZURE_OPENAI_RESPONSES_ENDPOINT = "azure_openai_responses_endpoint"
+    private const val KEY_AZURE_OPENAI_DEPLOYMENT = "azure_openai_deployment"
     private const val KEY_LOCAL_SERVER_BASE_URL = "local_server_base_url"
     private const val KEY_LOCAL_MODEL_PATH = "local_model_path"
 
+    const val DEFAULT_AZURE_OPENAI_RESPONSES_ENDPOINT =
+        "https://genui1.openai.azure.com/openai/responses?api-version=2025-04-01-preview"
+    const val DEFAULT_AZURE_OPENAI_DEPLOYMENT = "gpt-5.4-mini"
     const val DEFAULT_LOCAL_SERVER_BASE_URL = "http://10.0.2.2:8000"
     const val DEFAULT_LOCAL_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
     private const val FALLBACK_VERTEX_PROJECT_ID = "gen-lang-client-0741138863"
     const val DEFAULT_VERTEX_LOCATION = "us-central1"
 
     enum class Provider(val rawValue: String) {
+        AZURE_OPENAI("azure_openai"),
         GEMINI("gemini"),
         LOCAL_SERVER("local_server");
 
         companion object {
             fun fromRawValue(value: String?): Provider {
                 val normalized = value?.trim().orEmpty()
-                return entries.firstOrNull { it.rawValue.equals(normalized, ignoreCase = true) } ?: GEMINI
+                return entries.firstOrNull { it.rawValue.equals(normalized, ignoreCase = true) }
+                    ?: AZURE_OPENAI
             }
         }
     }
@@ -59,12 +67,13 @@ object InferenceBackendSettings {
     }
 
     fun getResponseProvider(context: Context): Provider {
+        migrateDefaultProviderIfNeeded(context)
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val responseRaw = prefs.getString(KEY_RESPONSE_PROVIDER, null)
         if (!responseRaw.isNullOrBlank()) {
             return Provider.fromRawValue(responseRaw)
         }
-        val legacy = prefs.getString(KEY_PROVIDER, Provider.GEMINI.rawValue)
+        val legacy = prefs.getString(KEY_PROVIDER, Provider.AZURE_OPENAI.rawValue)
         return Provider.fromRawValue(legacy)
     }
 
@@ -77,12 +86,13 @@ object InferenceBackendSettings {
     }
 
     fun getIrProvider(context: Context): Provider {
+        migrateDefaultProviderIfNeeded(context)
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val irRaw = prefs.getString(KEY_IR_PROVIDER, null)
         if (!irRaw.isNullOrBlank()) {
             return Provider.fromRawValue(irRaw)
         }
-        val legacy = prefs.getString(KEY_PROVIDER, Provider.GEMINI.rawValue)
+        val legacy = prefs.getString(KEY_PROVIDER, Provider.AZURE_OPENAI.rawValue)
         return Provider.fromRawValue(legacy)
     }
 
@@ -174,6 +184,43 @@ object InferenceBackendSettings {
             .apply()
     }
 
+    fun getAzureOpenAiResponsesEndpoint(context: Context): String {
+        val defaultEndpoint = BuildConfig.AZURE_OPENAI_RESPONSES_ENDPOINT_DEFAULT
+            .trim()
+            .ifBlank { DEFAULT_AZURE_OPENAI_RESPONSES_ENDPOINT }
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return normalizeHttpsUrl(
+            prefs.getString(KEY_AZURE_OPENAI_RESPONSES_ENDPOINT, defaultEndpoint).orEmpty()
+        ).ifBlank { defaultEndpoint }
+    }
+
+    fun setAzureOpenAiResponsesEndpoint(context: Context, value: String) {
+        val normalized = normalizeHttpsUrl(value).ifBlank { DEFAULT_AZURE_OPENAI_RESPONSES_ENDPOINT }
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_AZURE_OPENAI_RESPONSES_ENDPOINT, normalized)
+            .apply()
+    }
+
+    fun getAzureOpenAiDeployment(context: Context): String {
+        val defaultDeployment = BuildConfig.AZURE_OPENAI_DEPLOYMENT_DEFAULT
+            .trim()
+            .ifBlank { DEFAULT_AZURE_OPENAI_DEPLOYMENT }
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_AZURE_OPENAI_DEPLOYMENT, defaultDeployment)
+            .orEmpty()
+            .trim()
+            .ifBlank { defaultDeployment }
+    }
+
+    fun setAzureOpenAiDeployment(context: Context, value: String) {
+        val normalized = value.trim().ifBlank { DEFAULT_AZURE_OPENAI_DEPLOYMENT }
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_AZURE_OPENAI_DEPLOYMENT, normalized)
+            .apply()
+    }
+
     fun getLocalServerBaseUrl(context: Context): String {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val stored = prefs.getString(KEY_LOCAL_SERVER_BASE_URL, DEFAULT_LOCAL_SERVER_BASE_URL).orEmpty()
@@ -217,7 +264,45 @@ object InferenceBackendSettings {
         return normalized.trimEnd('/')
     }
 
+    private fun normalizeHttpsUrl(value: String): String {
+        var normalized = value.trim()
+        if (normalized.isBlank()) {
+            return ""
+        }
+        if (!normalized.startsWith("http://", ignoreCase = true) &&
+            !normalized.startsWith("https://", ignoreCase = true)
+        ) {
+            normalized = "https://$normalized"
+        }
+        return normalized
+    }
+
     private fun defaultVertexProjectId(): String {
         return BuildConfig.VERTEX_PROJECT_ID_DEFAULT.trim().ifBlank { FALLBACK_VERTEX_PROJECT_ID }
+    }
+
+    private fun migrateDefaultProviderIfNeeded(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_DEFAULT_PROVIDER_MIGRATION, false)) {
+            return
+        }
+
+        val legacyRaw = prefs.getString(KEY_PROVIDER, null)
+        val legacyProvider = Provider.fromRawValue(legacyRaw)
+        val shouldMigrateLegacy = legacyRaw.isNullOrBlank() || legacyProvider == Provider.GEMINI
+        val responseRaw = prefs.getString(KEY_RESPONSE_PROVIDER, null)
+        val irRaw = prefs.getString(KEY_IR_PROVIDER, null)
+
+        val editor = prefs.edit()
+        if (shouldMigrateLegacy && responseRaw.isNullOrBlank()) {
+            editor.putString(KEY_RESPONSE_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+        }
+        if (shouldMigrateLegacy && irRaw.isNullOrBlank()) {
+            editor.putString(KEY_IR_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+        }
+        if (shouldMigrateLegacy && legacyRaw.isNullOrBlank()) {
+            editor.putString(KEY_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+        }
+        editor.putBoolean(KEY_DEFAULT_PROVIDER_MIGRATION, true).apply()
     }
 }

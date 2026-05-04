@@ -13,10 +13,19 @@ object InferenceBackendFactory {
         vertexLocation: String,
         vertexAccessToken: String,
         vertexExpressApiKey: String,
+        azureOpenAiApiKey: String,
+        azureOpenAiResponsesEndpoint: String,
+        azureOpenAiDeployment: String,
         localServerBaseUrl: String,
         localModelPath: String
     ): InferenceBackend {
         return when (provider) {
+            InferenceBackendSettings.Provider.AZURE_OPENAI ->
+                AzureOpenAiResponsesBackend(
+                    apiKey = azureOpenAiApiKey,
+                    responsesEndpoint = azureOpenAiResponsesEndpoint,
+                    deployment = azureOpenAiDeployment
+                )
             InferenceBackendSettings.Provider.GEMINI ->
                 GeminiBackend(
                     apiKey = apiKey,

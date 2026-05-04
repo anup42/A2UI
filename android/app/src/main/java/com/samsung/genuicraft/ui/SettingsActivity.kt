@@ -100,6 +100,12 @@ private fun SettingsScreen(
     var selectedGeminiApiMode by remember {
         mutableStateOf(InferenceBackendSettings.getGeminiApiMode(context))
     }
+    var azureOpenAiResponsesEndpoint by remember {
+        mutableStateOf(InferenceBackendSettings.getAzureOpenAiResponsesEndpoint(context))
+    }
+    var azureOpenAiDeployment by remember {
+        mutableStateOf(InferenceBackendSettings.getAzureOpenAiDeployment(context))
+    }
     var localServerBaseUrl by remember {
         mutableStateOf(InferenceBackendSettings.getLocalServerBaseUrl(context))
     }
@@ -127,6 +133,11 @@ private fun SettingsScreen(
     fun usesGeminiBackend(): Boolean {
         return selectedResponseProvider == InferenceBackendSettings.Provider.GEMINI ||
             selectedIrProvider == InferenceBackendSettings.Provider.GEMINI
+    }
+
+    fun usesAzureOpenAiBackend(): Boolean {
+        return selectedResponseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI ||
+            selectedIrProvider == InferenceBackendSettings.Provider.AZURE_OPENAI
     }
 
     fun usesLocalBackend(): Boolean {
@@ -262,6 +273,7 @@ private fun SettingsScreen(
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             val responseProviderRows = listOf(
+                                InferenceBackendSettings.Provider.AZURE_OPENAI to stringResource(id = R.string.settings_provider_azure_openai),
                                 InferenceBackendSettings.Provider.GEMINI to stringResource(id = R.string.settings_provider_gemini),
                                 InferenceBackendSettings.Provider.LOCAL_SERVER to stringResource(id = R.string.settings_provider_local_server)
                             )
@@ -297,6 +309,7 @@ private fun SettingsScreen(
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             val irProviderRows = listOf(
+                                InferenceBackendSettings.Provider.AZURE_OPENAI to stringResource(id = R.string.settings_provider_azure_openai),
                                 InferenceBackendSettings.Provider.GEMINI to stringResource(id = R.string.settings_provider_gemini),
                                 InferenceBackendSettings.Provider.LOCAL_SERVER to stringResource(id = R.string.settings_provider_local_server)
                             )
@@ -357,6 +370,61 @@ private fun SettingsScreen(
                                 }
                                 Text(
                                     text = stringResource(id = R.string.settings_vertex_express_key_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (usesAzureOpenAiBackend()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                            colors = genUiCardColors(GenUiCardTone.Neutral),
+                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.settings_azure_openai_title),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.settings_azure_openai_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                OutlinedTextField(
+                                    value = azureOpenAiResponsesEndpoint,
+                                    onValueChange = {
+                                        azureOpenAiResponsesEndpoint = it
+                                        InferenceBackendSettings.setAzureOpenAiResponsesEndpoint(context, it)
+                                    },
+                                    label = { Text(stringResource(id = R.string.settings_azure_openai_endpoint_label)) },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                OutlinedTextField(
+                                    value = azureOpenAiDeployment,
+                                    onValueChange = {
+                                        azureOpenAiDeployment = it
+                                        InferenceBackendSettings.setAzureOpenAiDeployment(context, it)
+                                    },
+                                    label = { Text(stringResource(id = R.string.settings_azure_openai_deployment_label)) },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.settings_azure_openai_key_description),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -443,6 +511,8 @@ private fun SettingsScreen(
                                 Text(
                                     text = if (selectedResponseProvider == InferenceBackendSettings.Provider.GEMINI) {
                                         "${stringResource(id = R.string.settings_model_response_title)}: $selectedResponseModel"
+                                    } else if (selectedResponseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+                                        "${stringResource(id = R.string.settings_model_response_title)}: $azureOpenAiDeployment"
                                     } else {
                                         "${stringResource(id = R.string.settings_model_response_title)}: ${stringResource(id = R.string.settings_provider_local_server)}"
                                     },
@@ -452,6 +522,8 @@ private fun SettingsScreen(
                                 Text(
                                     text = if (selectedIrProvider == InferenceBackendSettings.Provider.GEMINI) {
                                         "${stringResource(id = R.string.settings_model_ir_title)}: $selectedIrModel"
+                                    } else if (selectedIrProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+                                        "${stringResource(id = R.string.settings_model_ir_title)}: $azureOpenAiDeployment"
                                     } else {
                                         "${stringResource(id = R.string.settings_model_ir_title)}: ${stringResource(id = R.string.settings_provider_local_server)}"
                                     },

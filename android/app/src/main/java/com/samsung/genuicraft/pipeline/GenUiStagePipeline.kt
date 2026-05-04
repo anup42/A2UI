@@ -111,8 +111,19 @@ class GenUiStagePipeline(private val appContext: Context) {
         val vertexLocation = InferenceBackendSettings.getVertexLocation(appContext)
         val vertexAccessToken = InferenceBackendSettings.getVertexAccessToken(appContext)
         val vertexExpressApiKey = GeminiApiKeyProvider.vertexExpressApiKey(appContext).trim()
-        val responseModel = GeminiModelSettings.getResponseModel(appContext)
-        val irModel = GeminiModelSettings.getIrModel(appContext)
+        val azureOpenAiApiKey = GeminiApiKeyProvider.azureOpenAiApiKey(appContext).trim()
+        val azureOpenAiResponsesEndpoint = InferenceBackendSettings.getAzureOpenAiResponsesEndpoint(appContext)
+        val azureOpenAiDeployment = InferenceBackendSettings.getAzureOpenAiDeployment(appContext)
+        val responseModel = if (responseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+            azureOpenAiDeployment
+        } else {
+            GeminiModelSettings.getResponseModel(appContext)
+        }
+        val irModel = if (irProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+            azureOpenAiDeployment
+        } else {
+            GeminiModelSettings.getIrModel(appContext)
+        }
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
         val stage2MaxOutputTokens = if (responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
@@ -183,6 +194,15 @@ class GenUiStagePipeline(private val appContext: Context) {
                 message = "Vertex Express API key is missing. Add VERTEX_EXPRESS_API_KEY at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
+        if ((responseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI ||
+                irProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) &&
+            azureOpenAiApiKey.isBlank()
+        ) {
+            return@withContext Outcome.Failure(
+                stage = if (responseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) Stage.STAGE2 else Stage.STAGE3,
+                message = "Azure OpenAI key is missing. Add AZURE_OPENAI_API_KEY (or AZURE_OPENAI_SUBSCRIPTION_KEY) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
+            )
+        }
         if ((responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER ||
                 irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) &&
             localServerBaseUrl.isBlank()
@@ -217,6 +237,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             vertexLocation = vertexLocation,
             vertexAccessToken = vertexAccessToken,
             vertexExpressApiKey = vertexExpressApiKey,
+            azureOpenAiApiKey = azureOpenAiApiKey,
+            azureOpenAiResponsesEndpoint = azureOpenAiResponsesEndpoint,
+            azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath
         )
@@ -229,6 +252,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             vertexLocation = vertexLocation,
             vertexAccessToken = vertexAccessToken,
             vertexExpressApiKey = vertexExpressApiKey,
+            azureOpenAiApiKey = azureOpenAiApiKey,
+            azureOpenAiResponsesEndpoint = azureOpenAiResponsesEndpoint,
+            azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath
         )
@@ -330,6 +356,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                             irProvider == InferenceBackendSettings.Provider.GEMINI) {
                             mcpWarnings += "Gemini route: ${geminiApiMode.rawValue}"
                         }
+                        if (responseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI ||
+                            irProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+                            mcpWarnings += "Azure OpenAI deployment: $azureOpenAiDeployment"
+                        }
                         return@withContext executeStage3WithResponse(
                             normalizedQuery = normalizedQuery,
                             stage2Response = combinedResponse,
@@ -364,6 +394,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                     if (responseProvider == InferenceBackendSettings.Provider.GEMINI ||
                         irProvider == InferenceBackendSettings.Provider.GEMINI) {
                         mcpWarnings += "Gemini route: ${geminiApiMode.rawValue}"
+                    }
+                    if (responseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI ||
+                        irProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+                        mcpWarnings += "Azure OpenAI deployment: $azureOpenAiDeployment"
                     }
                     return@withContext executeStage3WithResponse(
                         normalizedQuery = normalizedQuery,
@@ -589,6 +623,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Cache.error?.let {
                 warnings += "Stage 2 instruction cache unavailable ($it). Using direct prompt."
             }
+        } else if (responseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+            warnings += "Azure OpenAI response deployment: $azureOpenAiDeployment"
+            warnings += "Azure OpenAI endpoint: $azureOpenAiResponsesEndpoint"
         } else {
             warnings += "Local server (response): $localServerBaseUrl"
             warnings += "Local model path (response): $localModelPath"
@@ -596,6 +633,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini IR model: $irModel"
+        } else if (irProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+            warnings += "Azure OpenAI IR deployment: $azureOpenAiDeployment"
+            warnings += "Azure OpenAI endpoint: $azureOpenAiResponsesEndpoint"
         } else {
             warnings += "Local server (IR): $localServerBaseUrl"
             warnings += "Local model path (IR): $localModelPath"
@@ -879,7 +919,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         val vertexLocation = InferenceBackendSettings.getVertexLocation(appContext)
         val vertexAccessToken = InferenceBackendSettings.getVertexAccessToken(appContext)
         val vertexExpressApiKey = GeminiApiKeyProvider.vertexExpressApiKey(appContext).trim()
-        val irModel = GeminiModelSettings.getIrModel(appContext)
+        val azureOpenAiApiKey = GeminiApiKeyProvider.azureOpenAiApiKey(appContext).trim()
+        val azureOpenAiResponsesEndpoint = InferenceBackendSettings.getAzureOpenAiResponsesEndpoint(appContext)
+        val azureOpenAiDeployment = InferenceBackendSettings.getAzureOpenAiDeployment(appContext)
+        val irModel = if (provider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+            azureOpenAiDeployment
+        } else {
+            GeminiModelSettings.getIrModel(appContext)
+        }
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
         val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
@@ -934,6 +981,14 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
+        if (provider == InferenceBackendSettings.Provider.AZURE_OPENAI && azureOpenAiApiKey.isBlank()) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Azure OpenAI key is missing. Add AZURE_OPENAI_API_KEY (or AZURE_OPENAI_SUBSCRIPTION_KEY) at ${GeminiApiKeyProvider.setupHintPath(appContext)}",
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
         if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && localServerBaseUrl.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
@@ -964,6 +1019,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             vertexLocation = vertexLocation,
             vertexAccessToken = vertexAccessToken,
             vertexExpressApiKey = vertexExpressApiKey,
+            azureOpenAiApiKey = azureOpenAiApiKey,
+            azureOpenAiResponsesEndpoint = azureOpenAiResponsesEndpoint,
+            azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath
         )
@@ -1053,6 +1111,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini route: ${geminiApiMode.rawValue}"
             warnings += "Gemini IR model: $irModel"
+        } else if (provider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
+            warnings += "Azure OpenAI IR deployment: $azureOpenAiDeployment"
+            warnings += "Azure OpenAI endpoint: $azureOpenAiResponsesEndpoint"
         } else {
             warnings += "Using local server: $localServerBaseUrl"
             warnings += "Local model path: $localModelPath"

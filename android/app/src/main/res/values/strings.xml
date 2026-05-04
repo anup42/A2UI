@@ -12,8 +12,14 @@
     <string name="settings_provider_description">Choose backend separately for response generation and GenUI IR conversion.</string>
     <string name="settings_provider_response_title">Response backend</string>
     <string name="settings_provider_ir_title">IR generation backend</string>
+    <string name="settings_provider_azure_openai">Azure OpenAI</string>
     <string name="settings_provider_gemini">Gemini API</string>
     <string name="settings_provider_local_server">Local Server</string>
+    <string name="settings_azure_openai_title">Azure OpenAI Settings</string>
+    <string name="settings_azure_openai_description">Uses the Azure Responses API with the configured deployment.</string>
+    <string name="settings_azure_openai_endpoint_label">Responses endpoint</string>
+    <string name="settings_azure_openai_deployment_label">Deployment</string>
+    <string name="settings_azure_openai_key_description">Azure OpenAI uses AZURE_OPENAI_API_KEY or AZURE_OPENAI_SUBSCRIPTION_KEY from runtime keys.</string>
     <string name="settings_gemini_api_mode_title">Google Gemini Route</string>
     <string name="settings_gemini_api_mode_description">Gemini requests are sent through Vertex AI Express only.</string>
     <string name="settings_gemini_api_mode_direct">Google AI Studio (Direct)</string>
@@ -39,7 +45,7 @@
     <string name="settings_model_fetch_failed">Could not fetch Gemini models.</string>
     <string name="settings_model_api_key_missing">Gemini API key is missing. Showing default model options.</string>
     <string name="settings_model_vertex_catalog_note">Vertex AI mode is active. Using default model list.</string>
-    <string name="settings_model_not_used_local">Local Server is selected for this stage. Gemini model selection is not used.</string>
+    <string name="settings_model_not_used_local">This stage uses a non-Gemini backend. Gemini model selection is not used.</string>
     <string name="settings_refresh_models">Refresh model list</string>
 
     <string name="home_title">GenUICraft</string>
