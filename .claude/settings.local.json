@@ -7,7 +7,9 @@
       "Bash(./gradlew testDebugUnitTest)",
       "Bash(./gradlew installDebug)",
       "Bash(adb logcat:*)",
-      "Bash(adb shell:*)"
+      "Bash(adb shell:*)",
+      "Bash(python3 -m json.tool)",
+      "Bash(powershell -Command ':*)"
     ]
   }
 }
