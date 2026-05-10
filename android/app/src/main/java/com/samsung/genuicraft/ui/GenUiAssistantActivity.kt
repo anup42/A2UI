@@ -11,8 +11,13 @@ import androidx.activity.compose.setContent
 import androidx.core.app.ActivityCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -41,10 +46,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,7 +64,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -85,6 +95,28 @@ private data class AssistantLogItem(
     val title: String,
     val content: String,
     val monospace: Boolean = false
+)
+
+private data class StarterPrompt(
+    val label: String,
+    val description: String,
+    val prompt: String,
+    val icon: ImageVector
+)
+
+private val GenUiStarterPrompts = listOf(
+    StarterPrompt(
+        label = "Weather in Bengaluru",
+        description = "Forecast cards and weather metrics.",
+        prompt = "Show weather in Bengaluru",
+        icon = Icons.Filled.WbSunny
+    ),
+    StarterPrompt(
+        label = "Flights BLR to LKO",
+        description = "Flight cards with price and timing.",
+        prompt = "Show flights from BLR to LKO on 15 June 2026",
+        icon = Icons.Filled.FlightTakeoff
+    )
 )
 
 private object GenUiAssistantSessionCache {
@@ -357,6 +389,31 @@ private fun GenUiAssistantScreen(
         }
     }
 
+    fun resetToIdleSteps() {
+        steps.indices.forEach { index ->
+            steps[index] = steps[index].copy(
+                status = PipelineStepStatus.Pending,
+                message = ""
+            )
+        }
+    }
+
+    fun clearConversation() {
+        inputText = ""
+        currentStatus = ""
+        errorText = null
+        stage2Text = null
+        stage3Json = null
+        currentQuery = null
+        usedFallback = false
+        warnings = arrayListOf()
+        stage3InputTokens = null
+        stage3OutputTokens = null
+        renderResult = null
+        logs.clear()
+        resetToIdleSteps()
+    }
+
     val deviceConfig = rememberDeviceUiConfig()
     val horizontalPadding = when (deviceConfig.widthClass) {
         DeviceSizeClass.Compact -> 14.dp
@@ -368,6 +425,21 @@ private fun GenUiAssistantScreen(
     val canSaveToIrDemo = !isRunning &&
         !currentQuery.isNullOrBlank() &&
         !stage2Text.isNullOrBlank()
+    val hasConversation = inputText.isNotBlank() ||
+        currentStatus.isNotBlank() ||
+        errorText != null ||
+        stage2Text != null ||
+        stage3Json != null ||
+        currentQuery != null ||
+        displayRenderResult != null ||
+        logs.isNotEmpty() ||
+        warnings.isNotEmpty() ||
+        usedFallback
+    val showLanding = !isRunning &&
+        displayRenderResult == null &&
+        currentQuery == null &&
+        logs.isEmpty() &&
+        errorText == null
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -387,6 +459,16 @@ private fun GenUiAssistantScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(end = 6.dp)
                     ) {
+                        TextButton(
+                            onClick = { clearConversation() },
+                            enabled = !isRunning && hasConversation,
+                            contentPadding = PaddingValues(horizontal = 8.dp)
+                        ) {
+                            Text(
+                                text = "Clear",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
                         IconButton(
                             onClick = {
                                 runCatching {
@@ -721,6 +803,19 @@ private fun GenUiAssistantScreen(
                 contentPadding = PaddingValues(bottom = listBottomPadding),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                if (showLanding) {
+                    item {
+                        GenUiAssistantLandingCard(
+                            prompts = GenUiStarterPrompts,
+                            enabled = !isRunning,
+                            deviceConfig = deviceConfig,
+                            onPromptSelected = { selectedPrompt ->
+                                inputText = selectedPrompt
+                            }
+                        )
+                    }
+                }
+
                 if (debugMode) {
                     if (currentQuery != null) {
                         item {
@@ -796,7 +891,7 @@ private fun GenUiAssistantScreen(
                     }
                 }
 
-                if (debugMode && !isRunning && logs.isEmpty() && errorText == null) {
+                if (debugMode && !isRunning && logs.isEmpty() && errorText == null && !showLanding) {
                     item {
                         StageCard(
                             title = "How It Works",
@@ -806,6 +901,176 @@ private fun GenUiAssistantScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun GenUiAssistantLandingCard(
+    prompts: List<StarterPrompt>,
+    enabled: Boolean,
+    deviceConfig: DeviceUiConfig,
+    onPromptSelected: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f),
+                            MaterialTheme.colorScheme.surfaceContainerLow,
+                            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.48f)
+                        )
+                    )
+                )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = "Ask once. Get a rendered mobile UI.",
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "GenUI Demo turns live answers into compact flat-spec IR and renders the result as native Compose cards, tables, and actions.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    prompts.forEach { prompt ->
+                        StarterPromptChip(
+                            prompt = prompt,
+                            enabled = enabled,
+                            onPromptSelected = onPromptSelected
+                        )
+                    }
+                }
+
+                if (deviceConfig.widthClass == DeviceSizeClass.Compact) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DemoFeatureTile(
+                            title = "Live data",
+                            body = "Weather, flights, restaurants, and supported domains use configured live-data routes."
+                        )
+                        DemoFeatureTile(
+                            title = "Native render",
+                            body = "The generated IR is shown immediately in the same mobile surface."
+                        )
+                    }
+                } else {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        DemoFeatureTile(
+                            title = "Live data",
+                            body = "Weather, flights, restaurants, and supported domains use configured live-data routes.",
+                            modifier = Modifier.weight(1f)
+                        )
+                        DemoFeatureTile(
+                            title = "Native render",
+                            body = "The generated IR is shown immediately in the same mobile surface.",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StarterPromptChip(
+    prompt: StarterPrompt,
+    enabled: Boolean,
+    onPromptSelected: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier.clickable(enabled = enabled) {
+            onPromptSelected(prompt.prompt)
+        },
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.72f)
+        ),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = prompt.icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(17.dp)
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(
+                    text = prompt.label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = prompt.description,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DemoFeatureTile(
+    title: String,
+    body: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.58f)
+        ),
+        border = BorderStroke(GenUiTokens.BorderSm, genUiCardBorderColor())
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = body,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
