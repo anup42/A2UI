@@ -1,5 +1,6 @@
 package com.samsung.genuicraft.mcp
 
+import android.net.Uri
 import android.util.Log
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -417,7 +418,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 if (photoUri.isNotBlank()) {
                     sb.appendLine("Media: Image=$photoUri Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg")
                 } else {
-                    sb.appendLine("Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg")
+                    sb.appendLine("Media: Image=${restaurantVisualUri(name)} Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg")
                 }
 
                 // Tags: pipe-separated format so Stage 3 renders as chip row
@@ -475,6 +476,11 @@ private fun buildFlightsFallback(data: JsonObject): String {
         }
 
         return sb.toString()
+    }
+
+    private fun restaurantVisualUri(name: String): String {
+        val encodedTitle = Uri.encode(name.ifBlank { "Restaurant" })
+        return "genuicraft://visual/restaurant?title=$encodedTitle"
     }
 
     private fun buildHotelsFallback(data: JsonObject): String {

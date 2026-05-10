@@ -27,6 +27,9 @@ internal object NativeMediaVisualUtils {
 
         val uri = runCatching { Uri.parse(normalized) }.getOrNull()
         val scheme = uri?.scheme?.lowercase(Locale.US)
+        if (scheme == "genuicraft" && uri.host?.equals("visual", ignoreCase = true) == true) {
+            return true
+        }
         if (scheme == "http" || scheme == "https") {
             val host = uri.host?.lowercase(Locale.US).orEmpty()
             val path = uri.path.orEmpty().lowercase(Locale.US)

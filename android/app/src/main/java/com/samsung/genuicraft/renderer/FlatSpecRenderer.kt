@@ -35,6 +35,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -251,6 +252,10 @@ internal data class FlatDirectTableModel(
 internal data class TableEntityMedia(
     val image: String,
     val alt: String
+)
+
+private data class GeneratedRestaurantVisual(
+    val title: String
 )
 
 typealias FlatComputedFunction = (Map<String, Any?>) -> Any?
@@ -9992,6 +9997,16 @@ private fun RenderImage(
     } else {
         imageModifier
     }
+    val generatedRestaurantVisual = parseGeneratedRestaurantVisual(resolvedUrl)
+        ?: parseGeneratedRestaurantVisual(url)
+    if (generatedRestaurantVisual != null) {
+        RenderGeneratedRestaurantVisual(
+            visual = generatedRestaurantVisual,
+            modifier = clickableModifier,
+            imageLabel = accessibilityLabel(props, "${generatedRestaurantVisual.title} restaurant image")
+        )
+        return
+    }
     var failed by remember(url) { mutableStateOf(false) }
     var activeUrl by remember(url) { mutableStateOf(url) }
     var fallbackAttempted by remember(url) { mutableStateOf(false) }
@@ -10053,6 +10068,88 @@ private fun RenderImage(
             )
         }
     }
+}
+
+private fun parseGeneratedRestaurantVisual(raw: String): GeneratedRestaurantVisual? {
+    val uri = runCatching { Uri.parse(raw.trim()) }.getOrNull() ?: return null
+    if (!uri.scheme.equals("genuicraft", ignoreCase = true)) return null
+    if (!uri.host.equals("visual", ignoreCase = true)) return null
+    val pathSegments = uri.pathSegments.orEmpty()
+    if (pathSegments.firstOrNull()?.equals("restaurant", ignoreCase = true) != true) return null
+    val title = uri.getQueryParameter("title")
+        ?.trim()
+        ?.takeIf { it.isNotBlank() }
+        ?: "Restaurant"
+    return GeneratedRestaurantVisual(title = title)
+}
+
+@Composable
+private fun RenderGeneratedRestaurantVisual(
+    visual: GeneratedRestaurantVisual,
+    modifier: Modifier,
+    imageLabel: String?
+) {
+    val palette = restaurantVisualPalette(visual.title)
+    Box(
+        modifier = modifier
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(palette.first, palette.second)
+                )
+            )
+            .accessibilitySemantics(
+                props = emptyMap(),
+                fallbackLabel = imageLabel ?: "${visual.title} restaurant visual",
+                mergeDescendants = true
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(Color.White.copy(alpha = 0.22f), Color.Transparent)
+                    )
+                )
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Restaurant,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(34.dp)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = visual.title,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+private fun restaurantVisualPalette(seed: String): Pair<Color, Color> {
+    val palettes = listOf(
+        Color(0xFF8A3FFC) to Color(0xFFFF7A59),
+        Color(0xFF0F766E) to Color(0xFFF59E0B),
+        Color(0xFFB91C1C) to Color(0xFFF97316),
+        Color(0xFF1D4ED8) to Color(0xFF06B6D4),
+        Color(0xFF7C2D12) to Color(0xFFEAB308)
+    )
+    val index = kotlin.math.abs(seed.hashCode()).rem(palettes.size)
+    return palettes[index]
 }
 
 @Composable
