@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -7738,35 +7739,130 @@ private fun flightLegRoute(header: String): String {
 }
 
 @Composable
-private fun FlightInfoChip(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f)
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+private fun RankedFlightAirlineBadge(airline: String, rank: String, best: Boolean) {
+    val accent = rankedFlightAccentColor(airline)
+    val code = NativeFlightSemantics.airlineBadgeCode(airline).ifBlank { rank.removePrefix("#") }
+    Box(
+        modifier = Modifier
+            .size(42.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        accent,
+                        accent.copy(alpha = if (best) 0.72f else 0.58f)
+                    )
+                )
             )
+            .border(
+                width = GenUiTokens.BorderSm,
+                color = Color.White.copy(alpha = 0.35f),
+                shape = RoundedCornerShape(14.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = code.take(3),
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Black),
+            color = Color.White,
+            maxLines = 1,
+            overflow = TextOverflow.Clip
+        )
+    }
+}
+
+@Composable
+private fun RankedFlightBestChip(text: String, accent: Color) {
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = accent.copy(alpha = 0.12f),
+        border = BorderStroke(GenUiTokens.BorderSm, accent.copy(alpha = 0.28f))
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = accent,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun RankedFlightRouteHint(
+    duration: String?,
+    stopLabel: String?,
+    accent: Color
+) {
+    if (duration.isNullOrBlank() && stopLabel.isNullOrBlank()) return
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(accent.copy(alpha = 0.07f))
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                .background(accent.copy(alpha = 0.14f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.FlightTakeoff,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(14.dp)
+            )
+        }
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            color = accent.copy(alpha = 0.34f)
+        )
+        duration?.takeIf { it.isNotBlank() }?.let { value ->
             Text(
                 text = value,
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
+        stopLabel?.takeIf { it.isNotBlank() }?.let { value ->
+            Surface(
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)
+            ) {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = accent,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun rankedFlightAccentColor(airline: String): Color {
+    val normalized = NativeFlightSemantics.normalizeMatchText(airline)
+    return when {
+        normalized.contains("indigo") -> Color(0xFF2849B8)
+        normalized.contains("akasa") -> Color(0xFF7A2E8E)
+        normalized.contains("air india express") -> Color(0xFFE53935)
+        normalized == "air india" || normalized.startsWith("air india ") -> Color(0xFFC62828)
+        normalized.contains("vistara") -> Color(0xFF54206E)
+        normalized.contains("spicejet") -> Color(0xFFD84315)
+        normalized.contains("emirates") -> Color(0xFFB71C1C)
+        normalized.contains("qatar") -> Color(0xFF7B1238)
+        else -> MaterialTheme.colorScheme.primary
     }
 }
 
@@ -7784,11 +7880,6 @@ private fun RenderRankedFlightComparisonCards(
     val durationIndex = rankedFlightColumnIndex(headers, listOf("travel time", "duration", "time"))
     val layoverIndex = rankedFlightColumnIndex(headers, listOf("layover", "stop", "connection"))
     val reasonIndex = rankedFlightColumnIndex(headers, listOf("justification", "reason", "why", "notes", "detail"))
-    val stopMetricLabel = layoverIndex
-        ?.let { headers.getOrNull(it).orEmpty() }
-        ?.takeIf { normalizeTableHeaderForMatch(it).contains("stop") }
-        ?.let { "Stops" }
-        ?: "Layover"
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -7808,64 +7899,46 @@ private fun RenderRankedFlightComparisonCards(
             val layover = row.getOrNull(layoverIndex ?: -1).orEmpty().trim()
             val reason = row.getOrNull(reasonIndex ?: -1).orEmpty().trim()
             val best = rowIndex == 0 || rank == "#1"
+            val accent = rankedFlightAccentColor(airline)
+            val normalizedDuration = NativeFlightSemantics.normalizeDurationLabel(duration) ?: duration
+            val normalizedStop = NativeFlightSemantics.canonicalizeStopLabel(layover) ?: layover
+            val (fareValue, fareMeta) = NativeFlightSemantics.splitFareDisplay(cost)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .semantics(mergeDescendants = true) {
                         contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
                     },
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = if (best) {
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
+                        accent.copy(alpha = 0.08f)
                     } else {
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.84f)
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)
                     }
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = if (best) 2.dp else 0.dp),
                 border = BorderStroke(
                     width = GenUiTokens.BorderSm,
                     color = if (best) {
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.24f)
+                        accent.copy(alpha = 0.34f)
                     } else {
-                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.38f)
                     }
                 )
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                        .padding(horizontal = 12.dp, vertical = 11.dp),
+                    verticalArrangement = Arrangement.spacedBy(9.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(
-                                    if (best) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.primaryContainer
-                                    }
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = rank,
-                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                                color = if (best) {
-                                    MaterialTheme.colorScheme.onPrimary
-                                } else {
-                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                }
-                            )
-                        }
+                        RankedFlightAirlineBadge(airline = airline, rank = rank, best = best)
                         Column(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -7877,17 +7950,18 @@ private fun RenderRankedFlightComparisonCards(
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
-                            if (best) {
-                                Text(
-                                    text = "Recommended balance",
-                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.primary
-                                )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RankedFlightBestChip(if (best) "Best value" else rank, accent)
                             }
                         }
                         if (cost.isNotBlank()) {
-                            val (fareValue, fareMeta) = NativeFlightSemantics.splitFareDisplay(cost)
-                            Column(horizontalAlignment = Alignment.End) {
+                            Column(
+                                modifier = Modifier.widthIn(min = 78.dp, max = 116.dp),
+                                horizontalAlignment = Alignment.End
+                            ) {
                                 Text(
                                     text = fareValue ?: cost,
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -7908,34 +7982,26 @@ private fun RenderRankedFlightComparisonCards(
                         }
                     }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (duration.isNotBlank()) {
-                            FlightInfoChip(
-                                label = "Travel time",
-                                value = NativeFlightSemantics.normalizeDurationLabel(duration) ?: duration,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        if (layover.isNotBlank()) {
-                            FlightInfoChip(
-                                label = stopMetricLabel,
-                                value = NativeFlightSemantics.canonicalizeStopLabel(layover) ?: layover,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
+                    RankedFlightRouteHint(
+                        duration = normalizedDuration.takeIf { it.isNotBlank() },
+                        stopLabel = normalizedStop.takeIf { it.isNotBlank() },
+                        accent = accent
+                    )
 
                     if (reason.isNotBlank()) {
-                        Text(
-                            text = parseBoldMarkdown(reason),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.74f)
+                        ) {
+                            Text(
+                                text = parseBoldMarkdown(reason),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
+                            )
+                        }
                     }
                 }
             }
