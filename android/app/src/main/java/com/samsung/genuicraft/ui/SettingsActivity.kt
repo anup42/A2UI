@@ -766,9 +766,9 @@ private fun SettingsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                // Weather uses Open-Meteo - no key needed
+                                // Weather uses Open-Meteo without a key.
                                 Text(
-                                    text = "Weather: Open-Meteo (free, no key required)",
+                                    text = "Weather: Open-Meteo (no key required)",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -792,25 +792,6 @@ private fun SettingsScreen(
                                         singleLine = true,
                                         modifier = Modifier.fillMaxWidth()
                                     )
-                                    // Hint for the key source
-                                    val hintRes = when (domain) {
-                                        McpSettings.Domain.FLIGHTS, McpSettings.Domain.HOTELS ->
-                                            R.string.settings_mcp_key_hint_serpapi
-                                        McpSettings.Domain.RESTAURANTS ->
-                                            R.string.settings_mcp_key_hint_geoapify
-                                        McpSettings.Domain.PLACES ->
-                                            R.string.settings_mcp_key_hint_places
-                                        McpSettings.Domain.NEWS ->
-                                            R.string.settings_mcp_key_hint_news
-                                        else -> null
-                                    }
-                                    if (hintRes != null) {
-                                        Text(
-                                            text = stringResource(id = hintRes),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
                                 }
                             }
                         }
