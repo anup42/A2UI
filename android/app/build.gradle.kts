@@ -91,6 +91,7 @@ val embeddedStage3ApiKey = resolveSecret(
 )
 val embeddedNewsApiKey = resolveSecret("NEWS_API_KEY")
 val embeddedSerpApiKey = resolveSecret("SERPAPI_KEY")
+val embeddedGeoapifyApiKey = resolveSecret("GEOAPIFY_API_KEY")
 val embeddedVertexExpressApiKey = resolveSecret(
     "VERTEX_EXPRESS_API_KEY",
     "GEMINI_VERTEX_EXPRESS_API_KEY"
@@ -154,6 +155,11 @@ android {
             "String",
             "SERPAPI_KEY_DEFAULT",
             "\"${escapeForBuildConfig(embeddedSerpApiKey)}\""
+        )
+        buildConfigField(
+            "String",
+            "GEOAPIFY_API_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedGeoapifyApiKey)}\""
         )
         buildConfigField(
             "String",

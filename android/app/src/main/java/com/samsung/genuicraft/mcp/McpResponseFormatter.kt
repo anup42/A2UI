@@ -1,4 +1,4 @@
-﻿package com.samsung.genuicraft.mcp
+package com.samsung.genuicraft.mcp
 
 import android.util.Log
 import com.google.gson.JsonArray
@@ -336,6 +336,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
     private fun buildRestaurantsFallback(data: JsonObject): String {
         val location = data.safeString("location") ?: "your area"
+        val provider = data.safeString("provider") ?: "google_places"
         val results = data.getAsJsonArray("results")
 
         val sb = StringBuilder()
@@ -358,6 +359,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val websiteUri = biz.safeString("websiteUri") ?: ""
                 val address = biz.safeString("formattedAddress") ?: ""
                 val photoUri = biz.safeString("photoUri") ?: ""
+                val distanceMeters = biz.safeDouble("distance")
                 val priceLevel = when (biz.safeString("priceLevel")) {
                     "PRICE_LEVEL_INEXPENSIVE" -> "₹"
                     "PRICE_LEVEL_MODERATE" -> "₹₹"
@@ -366,15 +368,21 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     else -> ""
                 }
 
-                // Tags: filter noise types, format as backtick spans for chip-like rendering
-                val typeList = biz.getAsJsonArray("types")
+                val cuisineList = biz.getAsJsonArray("cuisineTags")
+                    ?.mapNotNull { it.safeString()?.trim()?.takeIf { tag -> tag.isNotBlank() } }
+                    ?: emptyList()
+
+                // Tags: filter noise types, format as chip-friendly plain labels.
+                val typeList = cuisineList + (biz.getAsJsonArray("types")
                     ?.mapNotNull { it.takeIf { e -> !e.isJsonNull }?.asString }
                     ?.filter { t ->
                         t !in setOf("restaurant", "food", "point_of_interest",
-                            "establishment", "place_of_worship", "store")
+                            "establishment", "place_of_worship", "store", "catering", "catering.restaurant")
                     }
+                    ?.map { it.substringAfterLast('.') }
                     ?.map { it.replace("_", " ").replaceFirstChar { c -> c.uppercase() } }
-                    ?.take(4) ?: emptyList()
+                    ?: emptyList())
+                val uniqueTypeList = typeList.distinct().take(4)
 
                 val editorial = biz.getAsJsonObject("editorialSummary")
                     ?.safeString("text")?.trim()
@@ -413,8 +421,8 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 }
 
                 // Tags: pipe-separated format so Stage 3 renders as chip row
-                if (typeList.isNotEmpty()) {
-                    sb.appendLine("Tags: ${typeList.joinToString(" | ")}")
+                if (uniqueTypeList.isNotEmpty()) {
+                    sb.appendLine("Tags: ${uniqueTypeList.joinToString(" | ")}")
                 }
 
                 // Rating row with price level
@@ -426,6 +434,18 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     }
                 }
                 if (ratingLine.isNotBlank()) sb.appendLine(ratingLine)
+
+                if (address.isNotBlank()) {
+                    sb.appendLine("- Address: $address")
+                }
+                if (distanceMeters != null && distanceMeters > 0) {
+                    val distanceLabel = if (distanceMeters >= 1000) {
+                        "%.1f km away".format(distanceMeters / 1000.0)
+                    } else {
+                        "${distanceMeters.toInt()} m away"
+                    }
+                    sb.appendLine("- Distance: $distanceLabel")
+                }
 
                 // Open status + today's hours
                 val hoursLine = buildString {
@@ -441,14 +461,18 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 if (editorial != null) sb.appendLine("- $editorial")
 
                 // Action buttons
-                if (mapsUri.isNotBlank()) sb.appendLine("Action: [Button: View on Maps] $mapsUri")
+                if (mapsUri.isNotBlank()) sb.appendLine("Action: [Button: View on Map] $mapsUri")
                 if (websiteUri.isNotBlank()) sb.appendLine("Action: [Button: Visit Website] $websiteUri")
             }
         }
 
         sb.appendLine()
         sb.appendLine("## Sources")
-        sb.appendLine("- Google Places: https://maps.google.com/")
+        if (provider == "geoapify") {
+            sb.appendLine("- Geoapify Places: https://www.geoapify.com/places-api/")
+        } else {
+            sb.appendLine("- Google Places: https://maps.google.com/")
+        }
 
         return sb.toString()
     }

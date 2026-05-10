@@ -117,11 +117,11 @@ private fun SettingsScreen(
     }
     var loading by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
-    
+
     var mcpEnabled by remember {
         mutableStateOf(McpSettings.isEnabled(context))
     }
-    
+
     val mcpApiKeys = remember {
         val map = androidx.compose.runtime.mutableStateMapOf<McpSettings.Domain, String>()
         McpSettings.Domain.entries.forEach { domain ->
@@ -753,7 +753,7 @@ private fun SettingsScreen(
                                     )
                                 )
                             }
-                            
+
                             if (mcpEnabled) {
                                 Text(
                                     text = stringResource(id = R.string.settings_mcp_api_keys_title),
@@ -766,7 +766,7 @@ private fun SettingsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                // Weather uses Open-Meteo — no key needed
+                                // Weather uses Open-Meteo - no key needed
                                 Text(
                                     text = "Weather: Open-Meteo (free, no key required)",
                                     style = MaterialTheme.typography.bodySmall,
@@ -796,7 +796,9 @@ private fun SettingsScreen(
                                     val hintRes = when (domain) {
                                         McpSettings.Domain.FLIGHTS, McpSettings.Domain.HOTELS ->
                                             R.string.settings_mcp_key_hint_serpapi
-                                        McpSettings.Domain.RESTAURANTS, McpSettings.Domain.PLACES ->
+                                        McpSettings.Domain.RESTAURANTS ->
+                                            R.string.settings_mcp_key_hint_geoapify
+                                        McpSettings.Domain.PLACES ->
                                             R.string.settings_mcp_key_hint_places
                                         McpSettings.Domain.NEWS ->
                                             R.string.settings_mcp_key_hint_news

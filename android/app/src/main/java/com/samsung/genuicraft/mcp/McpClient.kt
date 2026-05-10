@@ -24,7 +24,7 @@ import java.util.Locale
  *
  * - Weather: Open-Meteo (free, no key required)
  * - Flights: Tequila Kiwi (API key required)
- * - Restaurants: Google Places (API key required)
+ * - Restaurants: Geoapify Places (API key required)
  * - Hotels: Serpapi (API key required)
  * - Places: Google Places (API key required)
  * - News: NewsData.io (API key required)
@@ -75,7 +75,7 @@ object McpClient {
         }
     }
 
-    // ── Weather: Open-Meteo (free, no API key) ──────────────────────────
+    // â”€â”€ Weather: Open-Meteo (free, no API key) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private fun fetchWeather(entities: Map<String, String>, queryText: String): McpResult {
         val location = entities["location"] ?: extractLocationFallback(queryText) ?: "New York"
@@ -180,7 +180,7 @@ object McpClient {
         )
     }
 
-    // ── Flights: Google Flights (via Serpapi) ─────────────────────────────────────
+    // â”€â”€ Flights: Google Flights (via Serpapi) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private fun fetchFlights(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
@@ -281,7 +281,7 @@ object McpClient {
             params += "travel_class=$travelClass"
         }
         val searchUrl = "https://serpapi.com/search.json?${params.joinToString("&")}"
-            
+
         val flightResponse = httpGet(searchUrl)
         val flightJson = JsonParser.parseString(flightResponse).asJsonObject
         val apiError = flightJson.get("error")?.takeIf { !it.isJsonNull }?.asString
@@ -321,7 +321,7 @@ object McpClient {
         )
     }
 
-    // ── Restaurants: Google Places API (New) ────────────────────────────
+    // Restaurants: Geoapify Places API
 
     private fun fetchRestaurants(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
@@ -330,7 +330,7 @@ object McpClient {
                 success = false,
                 data = null,
                 rawJson = null,
-                error = "Google Places API key not configured. Set it in Settings > MCP API Keys.",
+                error = "Geoapify API key not configured. Set it in Settings > MCP API Keys.",
                 requestDebug = null
             )
         }
@@ -340,64 +340,137 @@ object McpClient {
         val country = normalizeCountryCode(entities["country"])
         val requestDebug = buildRequestDebug(
             domain = "restaurants",
-            endpoint = "google_places/searchText",
+            endpoint = "geoapify/places",
             pairs = listOf(
                 "location" to location,
                 "language" to language,
                 "country" to country,
+                "categories" to "catering.restaurant",
                 "max_results" to "8"
             )
         )
-        val url = "https://places.googleapis.com/v1/places:searchText"
-        val body = JsonObject().apply {
-            addProperty("textQuery", "restaurants in $location")
-            addProperty("maxResultCount", 8)
-            addProperty("languageCode", language)
-            if (!country.isNullOrBlank()) {
-                addProperty("regionCode", country.uppercase(Locale.US))
-            }
-        }.toString()
-        val headers = mapOf(
-            "X-Goog-Api-Key" to apiKey,
-            "X-Goog-FieldMask" to "places.displayName,places.formattedAddress,places.priceLevel," +
-                "places.rating,places.userRatingCount,places.types,places.photos,places.reviews," +
-                "places.editorialSummary,places.regularOpeningHours," +
-                "places.websiteUri,places.googleMapsUri"
-        )
-        val response = httpPostWithHeaders(url, body, "application/json", headers)
-        val json = JsonParser.parseString(response).asJsonObject
 
-        // Enrich each place with a ready-to-use photoUri constructed from the first photo slot
-        val places = json.getAsJsonArray("places") ?: JsonArray()
-        places.forEach { el ->
-            val place = el.asJsonObject
-            val photoName = place.getAsJsonArray("photos")
-                ?.firstOrNull()?.asJsonObject?.get("name")?.asString
-            if (photoName != null) {
-                place.addProperty("photoUri",
-                    "https://places.googleapis.com/v1/$photoName/media?maxWidthPx=800&key=$apiKey")
+        val geocodeParams = mutableListOf(
+            "text=${enc(location)}",
+            "format=json",
+            "limit=1",
+            "lang=${enc(language)}",
+            "apiKey=${enc(apiKey)}"
+        )
+        if (!country.isNullOrBlank()) {
+            geocodeParams += "filter=countrycode:${enc(country)}"
+        }
+        val geocodeUrl = "https://api.geoapify.com/v1/geocode/search?${geocodeParams.joinToString("&")}"
+        val geocodeResponse = httpGet(geocodeUrl)
+        val geocodeJson = JsonParser.parseString(geocodeResponse).asJsonObject
+        val geocodeResults = geocodeJson.getAsJsonArray("results")
+        if (geocodeResults == null || geocodeResults.size() == 0) {
+            return McpResult(
+                domain = McpSettings.Domain.RESTAURANTS,
+                success = false,
+                data = null,
+                rawJson = geocodeResponse,
+                error = "Location not found: $location",
+                requestDebug = requestDebug
+            )
+        }
+
+        val geoPlace = geocodeResults[0].asJsonObject
+        val lat = geoPlace.safeDouble("lat")
+        val lon = geoPlace.safeDouble("lon")
+        val placeId = geoPlace.safeString("place_id")
+        val resolvedName = geoPlace.safeString("city")
+            ?: geoPlace.safeString("name")
+            ?: geoPlace.safeString("formatted")
+            ?: location
+        val resolvedCountry = geoPlace.safeString("country") ?: country.orEmpty()
+        val resolvedCountryCode = geoPlace.safeString("country_code") ?: country.orEmpty()
+
+        val spatialFilter = when {
+            !placeId.isNullOrBlank() -> "place:$placeId"
+            lat != null && lon != null -> "circle:$lon,$lat,10000"
+            else -> "countrycode:${resolvedCountryCode.ifBlank { "auto" }}"
+        }
+        val placesParams = mutableListOf(
+            "categories=catering.restaurant",
+            "filter=${enc(spatialFilter)}",
+            "limit=8",
+            "lang=${enc(language)}",
+            "apiKey=${enc(apiKey)}"
+        )
+        if (lat != null && lon != null) {
+            placesParams += "bias=${enc("proximity:$lon,$lat")}"
+        }
+        val placesUrl = "https://api.geoapify.com/v2/places?${placesParams.joinToString("&")}"
+        val placesResponse = httpGet(placesUrl)
+        val placesJson = JsonParser.parseString(placesResponse).asJsonObject
+
+        val restaurants = JsonArray()
+        val features = placesJson.getAsJsonArray("features") ?: JsonArray()
+        features.forEach { featureElement ->
+            val feature = featureElement.asJsonObject
+            val properties = feature.getAsJsonObject("properties") ?: JsonObject()
+            val coordinates = feature.getAsJsonObject("geometry")?.getAsJsonArray("coordinates")
+            val placeLon = properties.safeDouble("lon")
+                ?: coordinates?.let { if (it.size() > 0 && !it[0].isJsonNull) it[0].asDouble else null }
+            val placeLat = properties.safeDouble("lat")
+                ?: coordinates?.let { if (it.size() > 1 && !it[1].isJsonNull) it[1].asDouble else null }
+            val name = properties.safeString("name")
+                ?: properties.safeString("address_line1")
+                ?: "Restaurant"
+            val address = properties.safeString("formatted")
+                ?: listOfNotNull(
+                    properties.safeString("address_line1"),
+                    properties.safeString("address_line2")
+                ).joinToString(", ").takeIf { it.isNotBlank() }
+                ?: ""
+            val websiteUri = geoapifyWebsite(properties)
+            val mapUri = if (placeLat != null && placeLon != null) {
+                "https://www.openstreetmap.org/?mlat=$placeLat&mlon=$placeLon#map=18/$placeLat/$placeLon"
+            } else {
+                ""
             }
+            val categories = properties.getAsJsonArray("categories") ?: JsonArray()
+            val restaurant = JsonObject().apply {
+                add("displayName", JsonObject().apply { addProperty("text", name) })
+                addProperty("formattedAddress", address)
+                addProperty("websiteUri", websiteUri)
+                addProperty("googleMapsUri", mapUri)
+                addProperty("provider", "geoapify")
+                properties.safeDouble("distance")?.let { addProperty("distance", it) }
+                properties.safeString("place_id")?.let { addProperty("placeId", it) }
+                if (placeLat != null) addProperty("latitude", placeLat)
+                if (placeLon != null) addProperty("longitude", placeLon)
+                add("types", categories)
+                val cuisineTags = geoapifyCuisineTags(categories)
+                if (cuisineTags.size() > 0) add("cuisineTags", cuisineTags)
+            }
+            restaurants.add(restaurant)
         }
 
         val result = JsonObject().apply {
-            addProperty("location", location)
-            addProperty("country", country ?: "")
+            addProperty("location", resolvedName)
+            addProperty("country", resolvedCountry)
+            addProperty("country_code", resolvedCountryCode)
             addProperty("language", language)
             addProperty("query", queryText)
-            add("results", places)
+            addProperty("provider", "geoapify")
+            if (lat != null) addProperty("latitude", lat)
+            if (lon != null) addProperty("longitude", lon)
+            add("results", restaurants)
         }
 
         return McpResult(
             domain = McpSettings.Domain.RESTAURANTS,
             success = true,
             data = result,
-            rawJson = response,
+            rawJson = placesResponse,
             error = null,
             requestDebug = requestDebug
         )
     }
 
-    // ── Hotels: SerpApi (Google Hotels) ─────────────────────────────────
+    // â”€â”€ Hotels: SerpApi (Google Hotels) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private fun fetchHotels(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
@@ -500,7 +573,7 @@ object McpClient {
         )
     }
 
-    // ── Places: Google Places API (New) ─────────────────────────────────
+    // â”€â”€ Places: Google Places API (New) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private fun fetchPlaces(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
@@ -576,7 +649,7 @@ object McpClient {
         )
     }
 
-    // ── News: NewsData.io ───────────────────────────────────────────────
+    // â”€â”€ News: NewsData.io â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private fun fetchNews(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
@@ -658,7 +731,7 @@ object McpClient {
         )
     }
 
-    // ── HTTP helpers ────────────────────────────────────────────────────
+    // â”€â”€ HTTP helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private fun httpGet(url: String): String {
         val connection = (URL(url).openConnection() as HttpURLConnection).apply {
@@ -703,6 +776,55 @@ object McpClient {
             out.write(body.toByteArray(StandardCharsets.UTF_8))
         }
         return readResponse(connection)
+    }
+
+    private fun JsonObject.safeString(key: String): String? {
+        return get(key)
+            ?.takeIf { !it.isJsonNull }
+            ?.asString
+            ?.trim()
+            ?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+    }
+
+    private fun JsonObject.safeDouble(key: String): Double? {
+        return get(key)
+            ?.takeIf { !it.isJsonNull }
+            ?.let { runCatching { it.asDouble }.getOrNull() }
+    }
+
+    private fun geoapifyWebsite(properties: JsonObject): String {
+        properties.safeString("website")?.let { return it }
+        properties.safeString("contact:website")?.let { return it }
+        val raw = properties.get("datasource")
+            ?.takeIf { it.isJsonObject }
+            ?.asJsonObject
+            ?.get("raw")
+            ?.takeIf { it.isJsonObject }
+            ?.asJsonObject
+        return raw?.safeString("website")
+            ?: raw?.safeString("contact:website")
+            ?: raw?.safeString("url")
+            ?: ""
+    }
+
+    private fun geoapifyCuisineTags(categories: JsonArray): JsonArray {
+        val tags = JsonArray()
+        categories
+            .mapNotNull { element ->
+                element
+                    .takeIf { !it.isJsonNull }
+                    ?.asString
+                    ?.takeIf { it.startsWith("catering.restaurant.") }
+                    ?.removePrefix("catering.restaurant.")
+                    ?.replace('_', ' ')
+                    ?.replace('-', ' ')
+                    ?.split(' ')
+                    ?.joinToString(" ") { word -> word.replaceFirstChar { c -> c.uppercase() } }
+            }
+            .distinct()
+            .take(4)
+            .forEach { tags.add(it) }
+        return tags
     }
 
     private fun readResponse(connection: HttpURLConnection): String {
