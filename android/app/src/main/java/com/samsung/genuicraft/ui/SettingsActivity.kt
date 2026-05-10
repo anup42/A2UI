@@ -772,10 +772,10 @@ private fun SettingsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.primary
                                 )
-                                // Show API key fields for all other domains
+                                // Restaurant search reuses the configured Vertex Express key, so it
+                                // does not need a separate MCP key field.
                                 val keyedDomains = listOf(
                                     McpSettings.Domain.FLIGHTS to stringResource(id = R.string.settings_mcp_key_flights),
-                                    McpSettings.Domain.RESTAURANTS to stringResource(id = R.string.settings_mcp_key_restaurants),
                                     McpSettings.Domain.HOTELS to stringResource(id = R.string.settings_mcp_key_hotels),
                                     McpSettings.Domain.PLACES to stringResource(id = R.string.settings_mcp_key_places),
                                     McpSettings.Domain.NEWS to stringResource(id = R.string.settings_mcp_key_news)

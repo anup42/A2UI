@@ -468,8 +468,8 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
         sb.appendLine()
         sb.appendLine("## Sources")
-        if (provider == "geoapify") {
-            sb.appendLine("- Geoapify Places: https://www.geoapify.com/places-api/")
+        if (provider == "google_maps_grounding") {
+            sb.appendLine("- Google Maps grounding via Vertex AI: https://maps.google.com/")
         } else {
             sb.appendLine("- Google Places: https://maps.google.com/")
         }

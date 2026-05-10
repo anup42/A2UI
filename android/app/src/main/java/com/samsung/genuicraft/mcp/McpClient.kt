@@ -24,7 +24,7 @@ import java.util.Locale
  *
  * - Weather: Open-Meteo (free, no key required)
  * - Flights: Tequila Kiwi (API key required)
- * - Restaurants: Geoapify Places (API key required)
+ * - Restaurants: Gemini with Google Maps grounding via Vertex Express (API key required)
  * - Hotels: Serpapi (API key required)
  * - Places: Google Places (API key required)
  * - News: NewsData.io (API key required)
@@ -42,6 +42,11 @@ object McpClient {
         val rawJson: String?,
         val error: String?,
         val requestDebug: String? = null
+    )
+
+    private data class HttpResult(
+        val code: Int,
+        val body: String
     )
 
     /**
@@ -321,7 +326,7 @@ object McpClient {
         )
     }
 
-    // Restaurants: Geoapify Places API
+    // Restaurants: Gemini with Google Maps grounding via Vertex Express
 
     private fun fetchRestaurants(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
@@ -330,7 +335,7 @@ object McpClient {
                 success = false,
                 data = null,
                 rawJson = null,
-                error = "Geoapify API key not configured. Set it in Settings > MCP API Keys.",
+                error = "Vertex Express API key not configured. Add VERTEX_EXPRESS_API_KEY in runtime keys.",
                 requestDebug = null
             )
         }
@@ -338,136 +343,301 @@ object McpClient {
         val location = entities["location"] ?: extractLocationFallback(queryText) ?: "New York"
         val language = normalizeLanguageCode(entities["language"], fallback = "en")
         val country = normalizeCountryCode(entities["country"])
+        val latitude = entities["latitude"]?.toDoubleOrNull()
+        val longitude = entities["longitude"]?.toDoubleOrNull()
         val requestDebug = buildRequestDebug(
             domain = "restaurants",
-            endpoint = "geoapify/places",
+            endpoint = "vertex_express/gemini_google_maps_grounding",
             pairs = listOf(
                 "location" to location,
                 "language" to language,
                 "country" to country,
-                "categories" to "catering.restaurant",
+                "latitude" to latitude?.toString(),
+                "longitude" to longitude?.toString(),
                 "max_results" to "8"
             )
         )
 
-        val geocodeParams = mutableListOf(
-            "text=${enc(location)}",
-            "format=json",
-            "limit=1",
-            "lang=${enc(language)}",
-            "apiKey=${enc(apiKey)}"
-        )
-        if (!country.isNullOrBlank()) {
-            geocodeParams += "filter=countrycode:${enc(country)}"
+        val prompt = buildRestaurantGroundingPrompt(queryText, location, country)
+        val requestBody = JsonObject().apply {
+            add("contents", JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("role", "user")
+                    add("parts", JsonArray().apply {
+                        add(JsonObject().apply { addProperty("text", prompt) })
+                    })
+                })
+            })
+            add("tools", JsonArray().apply {
+                add(JsonObject().apply {
+                    add("googleMaps", JsonObject().apply {
+                        addProperty("enableWidget", false)
+                    })
+                })
+            })
+            if (latitude != null && longitude != null) {
+                add("toolConfig", JsonObject().apply {
+                    add("retrievalConfig", JsonObject().apply {
+                        add("latLng", JsonObject().apply {
+                            addProperty("latitude", latitude)
+                            addProperty("longitude", longitude)
+                        })
+                        addProperty("languageCode", mapsLanguageCode(language, country))
+                    })
+                })
+            }
+            add("generationConfig", JsonObject().apply {
+                addProperty("temperature", 0.2)
+                addProperty("maxOutputTokens", 2048)
+                addProperty("responseMimeType", "application/json")
+            })
         }
-        val geocodeUrl = "https://api.geoapify.com/v1/geocode/search?${geocodeParams.joinToString("&")}"
-        val geocodeResponse = httpGet(geocodeUrl)
-        val geocodeJson = JsonParser.parseString(geocodeResponse).asJsonObject
-        val geocodeResults = geocodeJson.getAsJsonArray("results")
-        if (geocodeResults == null || geocodeResults.size() == 0) {
+
+        val endpoint = "https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent"
+        val response = httpPostJsonWithStatus(
+            url = endpoint,
+            body = requestBody.toString(),
+            headers = mapOf("x-goog-api-key" to apiKey)
+        )
+        if (response.code !in 200..299) {
             return McpResult(
                 domain = McpSettings.Domain.RESTAURANTS,
                 success = false,
                 data = null,
-                rawJson = geocodeResponse,
-                error = "Location not found: $location",
+                rawJson = response.body,
+                error = "Google Maps grounding request failed with HTTP ${response.code}. Verify the Vertex Express key has access to Gemini generateContent and Google Maps grounding.",
                 requestDebug = requestDebug
             )
         }
 
-        val geoPlace = geocodeResults[0].asJsonObject
-        val lat = geoPlace.safeDouble("lat")
-        val lon = geoPlace.safeDouble("lon")
-        val placeId = geoPlace.safeString("place_id")
-        val resolvedName = geoPlace.safeString("city")
-            ?: geoPlace.safeString("name")
-            ?: geoPlace.safeString("formatted")
-            ?: location
-        val resolvedCountry = geoPlace.safeString("country") ?: country.orEmpty()
-        val resolvedCountryCode = geoPlace.safeString("country_code") ?: country.orEmpty()
+        val root = JsonParser.parseString(response.body).asJsonObject
+        val sources = extractGroundingMapSources(root)
+        val text = extractGeminiCandidateText(root)
+        val restaurantPayload = parseJsonObjectFromText(text)
+        val restaurants = normalizeGroundedRestaurants(restaurantPayload, sources)
 
-        val spatialFilter = when {
-            !placeId.isNullOrBlank() -> "place:$placeId"
-            lat != null && lon != null -> "circle:$lon,$lat,10000"
-            else -> "countrycode:${resolvedCountryCode.ifBlank { "auto" }}"
-        }
-        val placesParams = mutableListOf(
-            "categories=catering.restaurant",
-            "filter=${enc(spatialFilter)}",
-            "limit=8",
-            "lang=${enc(language)}",
-            "apiKey=${enc(apiKey)}"
-        )
-        if (lat != null && lon != null) {
-            placesParams += "bias=${enc("proximity:$lon,$lat")}"
-        }
-        val placesUrl = "https://api.geoapify.com/v2/places?${placesParams.joinToString("&")}"
-        val placesResponse = httpGet(placesUrl)
-        val placesJson = JsonParser.parseString(placesResponse).asJsonObject
-
-        val restaurants = JsonArray()
-        val features = placesJson.getAsJsonArray("features") ?: JsonArray()
-        features.forEach { featureElement ->
-            val feature = featureElement.asJsonObject
-            val properties = feature.getAsJsonObject("properties") ?: JsonObject()
-            val coordinates = feature.getAsJsonObject("geometry")?.getAsJsonArray("coordinates")
-            val placeLon = properties.safeDouble("lon")
-                ?: coordinates?.let { if (it.size() > 0 && !it[0].isJsonNull) it[0].asDouble else null }
-            val placeLat = properties.safeDouble("lat")
-                ?: coordinates?.let { if (it.size() > 1 && !it[1].isJsonNull) it[1].asDouble else null }
-            val name = properties.safeString("name")
-                ?: properties.safeString("address_line1")
-                ?: "Restaurant"
-            val address = properties.safeString("formatted")
-                ?: listOfNotNull(
-                    properties.safeString("address_line1"),
-                    properties.safeString("address_line2")
-                ).joinToString(", ").takeIf { it.isNotBlank() }
-                ?: ""
-            val websiteUri = geoapifyWebsite(properties)
-            val mapUri = if (placeLat != null && placeLon != null) {
-                "https://www.openstreetmap.org/?mlat=$placeLat&mlon=$placeLon#map=18/$placeLat/$placeLon"
-            } else {
-                ""
+        if (restaurants.size() == 0) {
+            sources.take(6).forEach { sourceElement ->
+                val source = sourceElement.asJsonObject
+                val title = source.safeString("title") ?: return@forEach
+                restaurants.add(JsonObject().apply {
+                    add("displayName", JsonObject().apply { addProperty("text", title) })
+                    addProperty("formattedAddress", "")
+                    addProperty("googleMapsUri", source.safeString("uri") ?: "")
+                    source.safeString("placeId")?.let { addProperty("placeId", it) }
+                    addProperty("provider", "google_maps_grounding")
+                    add("types", JsonArray().apply { add("Restaurant") })
+                })
             }
-            val categories = properties.getAsJsonArray("categories") ?: JsonArray()
-            val restaurant = JsonObject().apply {
-                add("displayName", JsonObject().apply { addProperty("text", name) })
-                addProperty("formattedAddress", address)
-                addProperty("websiteUri", websiteUri)
-                addProperty("googleMapsUri", mapUri)
-                addProperty("provider", "geoapify")
-                properties.safeDouble("distance")?.let { addProperty("distance", it) }
-                properties.safeString("place_id")?.let { addProperty("placeId", it) }
-                if (placeLat != null) addProperty("latitude", placeLat)
-                if (placeLon != null) addProperty("longitude", placeLon)
-                add("types", categories)
-                val cuisineTags = geoapifyCuisineTags(categories)
-                if (cuisineTags.size() > 0) add("cuisineTags", cuisineTags)
-            }
-            restaurants.add(restaurant)
         }
 
         val result = JsonObject().apply {
-            addProperty("location", resolvedName)
-            addProperty("country", resolvedCountry)
-            addProperty("country_code", resolvedCountryCode)
+            addProperty("location", restaurantPayload?.safeString("location") ?: location)
+            addProperty("country", country.orEmpty())
             addProperty("language", language)
             addProperty("query", queryText)
-            addProperty("provider", "geoapify")
-            if (lat != null) addProperty("latitude", lat)
-            if (lon != null) addProperty("longitude", lon)
+            addProperty("provider", "google_maps_grounding")
+            if (latitude != null) addProperty("latitude", latitude)
+            if (longitude != null) addProperty("longitude", longitude)
             add("results", restaurants)
+            add("sources", sources)
+            if (!text.isNullOrBlank()) {
+                addProperty("grounded_text", text.take(6000))
+            }
         }
 
         return McpResult(
             domain = McpSettings.Domain.RESTAURANTS,
             success = true,
             data = result,
-            rawJson = placesResponse,
+            rawJson = response.body,
             error = null,
             requestDebug = requestDebug
         )
+    }
+
+    private fun buildRestaurantGroundingPrompt(queryText: String, location: String, country: String?): String {
+        val countryClause = country?.takeIf { it.isNotBlank() }?.let { " Country code: $it." }.orEmpty()
+        return """
+            User query: $queryText
+            Search focus: restaurants near $location.$countryClause
+
+            Use Google Maps grounding to find relevant restaurants. Return JSON only, with this shape:
+            {
+              "location": "resolved location",
+              "results": [
+                {
+                  "name": "restaurant name",
+                  "address": "street/locality address when available",
+                  "rating": 4.5,
+                  "reviewCount": 1234,
+                  "priceLevel": "$$",
+                  "cuisineTags": ["Italian", "Family friendly"],
+                  "openStatus": "Open now",
+                  "hoursToday": "10 AM-10 PM",
+                  "summary": "one short reason this matches the query",
+                  "reviewSnippet": "short review/community insight when available",
+                  "websiteUri": "",
+                  "googleMapsUri": ""
+                }
+              ]
+            }
+
+            Keep at most 8 restaurants. Do not invent ratings, addresses, hours, URLs, or reviews.
+            If a field is not available from Google Maps grounding, use an empty string or omit it.
+        """.trimIndent()
+    }
+
+    private fun mapsLanguageCode(language: String, country: String?): String {
+        val region = country?.uppercase(Locale.US)?.takeIf { it.length == 2 } ?: "US"
+        return "${language.lowercase(Locale.US)}_$region"
+    }
+
+    private fun extractGeminiCandidateText(root: JsonObject): String? {
+        val candidates = root.getAsJsonArray("candidates") ?: return null
+        val first = candidates.firstOrNull()?.asJsonObject ?: return null
+        val parts = first.getAsJsonObject("content")?.getAsJsonArray("parts") ?: return null
+        val text = StringBuilder()
+        parts.forEach { part ->
+            val value = part.asJsonObject.get("text")?.takeIf { it.isJsonPrimitive }?.asString
+            if (!value.isNullOrBlank()) {
+                if (text.isNotEmpty()) text.append('\n')
+                text.append(value)
+            }
+        }
+        return text.toString().trim().ifBlank { null }
+    }
+
+    private fun parseJsonObjectFromText(text: String?): JsonObject? {
+        if (text.isNullOrBlank()) return null
+        val cleaned = text
+            .trim()
+            .removePrefix("```json")
+            .removePrefix("```")
+            .removeSuffix("```")
+            .trim()
+        return runCatching { JsonParser.parseString(cleaned).asJsonObject }.getOrNull()
+    }
+
+    private fun extractGroundingMapSources(root: JsonObject): JsonArray {
+        val sources = JsonArray()
+        val candidates = root.getAsJsonArray("candidates") ?: return sources
+        candidates.forEach { candidateElement ->
+            val candidate = candidateElement.asJsonObject
+            val chunks = candidate.getAsJsonObject("groundingMetadata")
+                ?.getAsJsonArray("groundingChunks")
+                ?: return@forEach
+            chunks.forEach { chunkElement ->
+                val maps = chunkElement.asJsonObject.getAsJsonObject("maps") ?: return@forEach
+                val title = maps.safeString("title")
+                val uri = maps.safeString("uri") ?: maps.safeString("googleMapsUri")
+                if (title.isNullOrBlank() && uri.isNullOrBlank()) return@forEach
+                sources.add(JsonObject().apply {
+                    if (!title.isNullOrBlank()) addProperty("title", title)
+                    if (!uri.isNullOrBlank()) addProperty("uri", uri)
+                    maps.safeString("placeId")?.let { addProperty("placeId", it) }
+                    addProperty("provider", "Google Maps")
+                })
+            }
+        }
+        return sources
+    }
+
+    private fun normalizeGroundedRestaurants(payload: JsonObject?, sources: JsonArray): JsonArray {
+        val normalized = JsonArray()
+        val rawResults = payload?.getAsJsonArray("results")
+            ?: payload?.getAsJsonArray("restaurants")
+            ?: return normalized
+
+        rawResults.forEach { element ->
+            val item = runCatching { element.asJsonObject }.getOrNull() ?: return@forEach
+            val name = item.safeString("name")
+                ?: item.safeString("title")
+                ?: item.getAsJsonObject("displayName")?.safeString("text")
+                ?: return@forEach
+            val mapsUri = firstNonBlank(
+                item.safeString("googleMapsUri"),
+                item.safeString("mapsUri"),
+                item.safeString("mapUri"),
+                findRestaurantSourceUri(name, sources)
+            )
+            val websiteUri = firstNonBlank(item.safeString("websiteUri"), item.safeString("website"), item.safeString("url"))
+            val address = firstNonBlank(item.safeString("address"), item.safeString("formattedAddress"))
+            val summary = firstNonBlank(item.safeString("summary"), item.safeString("description"), item.safeString("reason"))
+            val reviewSnippet = firstNonBlank(item.safeString("reviewSnippet"), item.safeString("review"))
+            val openStatus = firstNonBlank(item.safeString("openStatus"), item.safeString("openNow"))
+            val hoursToday = firstNonBlank(item.safeString("hoursToday"), item.safeString("todayHours"))
+            val cuisineTags = jsonStringArray(item, "cuisineTags", "cuisines", "tags", "types")
+
+            normalized.add(JsonObject().apply {
+                add("displayName", JsonObject().apply { addProperty("text", name) })
+                addProperty("formattedAddress", address)
+                addProperty("websiteUri", websiteUri)
+                addProperty("googleMapsUri", mapsUri)
+                addProperty("provider", "google_maps_grounding")
+                item.safeDouble("rating")?.let { addProperty("rating", it) }
+                item.safeInt("reviewCount")?.let { addProperty("userRatingCount", it) }
+                item.safeString("priceLevel")?.let { addProperty("priceLevel", it) }
+                item.safeString("placeId")?.let { addProperty("placeId", it) }
+                if (cuisineTags.size() > 0) add("cuisineTags", cuisineTags)
+                if (summary.isNotBlank()) {
+                    add("editorialSummary", JsonObject().apply { addProperty("text", summary) })
+                }
+                if (openStatus.isNotBlank() || hoursToday.isNotBlank()) {
+                    add("regularOpeningHours", JsonObject().apply {
+                        when (openStatus.lowercase(Locale.US)) {
+                            "open", "open now", "true" -> addProperty("openNow", true)
+                            "closed", "closed now", "false" -> addProperty("openNow", false)
+                        }
+                        if (hoursToday.isNotBlank()) {
+                            add("weekdayDescriptions", JsonArray().apply { add("Today: $hoursToday") })
+                        }
+                    })
+                }
+                if (reviewSnippet.isNotBlank()) {
+                    add("reviews", JsonArray().apply {
+                        add(JsonObject().apply {
+                            add("text", JsonObject().apply { addProperty("text", reviewSnippet) })
+                        })
+                    })
+                }
+            })
+        }
+        return normalized
+    }
+
+    private fun jsonStringArray(item: JsonObject, vararg keys: String): JsonArray {
+        val values = linkedSetOf<String>()
+        keys.forEach { key ->
+            val value = item.get(key) ?: return@forEach
+            when {
+                value.isJsonArray -> value.asJsonArray.forEach { entry ->
+                    entry.takeIf { !it.isJsonNull }?.asString?.trim()?.takeIf { it.isNotBlank() }?.let(values::add)
+                }
+                value.isJsonPrimitive -> value.asString
+                    .split(',', '|', ';')
+                    .map { it.trim() }
+                    .filter { it.isNotBlank() }
+                    .forEach(values::add)
+            }
+        }
+        return JsonArray().apply { values.take(5).forEach { add(it) } }
+    }
+
+    private fun findRestaurantSourceUri(name: String, sources: JsonArray): String {
+        val target = name.lowercase(Locale.US)
+        sources.forEach { sourceElement ->
+            val source = sourceElement.asJsonObject
+            val title = source.safeString("title")?.lowercase(Locale.US).orEmpty()
+            if (title.isNotBlank() && (target.contains(title) || title.contains(target))) {
+                return source.safeString("uri") ?: ""
+            }
+        }
+        return ""
+    }
+
+    private fun firstNonBlank(vararg values: String?): String {
+        return values.firstOrNull { !it.isNullOrBlank() }?.trim().orEmpty()
     }
 
     // â”€â”€ Hotels: SerpApi (Google Hotels) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -778,6 +948,31 @@ object McpClient {
         return readResponse(connection)
     }
 
+    private fun httpPostJsonWithStatus(url: String, body: String, headers: Map<String, String>): HttpResult {
+        val connection = (URL(url).openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = CONNECT_TIMEOUT
+            readTimeout = READ_TIMEOUT
+            doOutput = true
+            setRequestProperty("Content-Type", "application/json")
+            setRequestProperty("Accept", "application/json")
+            headers.forEach { (k, v) -> setRequestProperty(k, v) }
+        }
+        return try {
+            connection.outputStream.use { out ->
+                out.write(body.toByteArray(StandardCharsets.UTF_8))
+            }
+            val code = connection.responseCode
+            val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+            HttpResult(
+                code = code,
+                body = stream?.bufferedReader(StandardCharsets.UTF_8)?.use { it.readText() }.orEmpty()
+            )
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     private fun JsonObject.safeString(key: String): String? {
         return get(key)
             ?.takeIf { !it.isJsonNull }
@@ -792,39 +987,10 @@ object McpClient {
             ?.let { runCatching { it.asDouble }.getOrNull() }
     }
 
-    private fun geoapifyWebsite(properties: JsonObject): String {
-        properties.safeString("website")?.let { return it }
-        properties.safeString("contact:website")?.let { return it }
-        val raw = properties.get("datasource")
-            ?.takeIf { it.isJsonObject }
-            ?.asJsonObject
-            ?.get("raw")
-            ?.takeIf { it.isJsonObject }
-            ?.asJsonObject
-        return raw?.safeString("website")
-            ?: raw?.safeString("contact:website")
-            ?: raw?.safeString("url")
-            ?: ""
-    }
-
-    private fun geoapifyCuisineTags(categories: JsonArray): JsonArray {
-        val tags = JsonArray()
-        categories
-            .mapNotNull { element ->
-                element
-                    .takeIf { !it.isJsonNull }
-                    ?.asString
-                    ?.takeIf { it.startsWith("catering.restaurant.") }
-                    ?.removePrefix("catering.restaurant.")
-                    ?.replace('_', ' ')
-                    ?.replace('-', ' ')
-                    ?.split(' ')
-                    ?.joinToString(" ") { word -> word.replaceFirstChar { c -> c.uppercase() } }
-            }
-            .distinct()
-            .take(4)
-            .forEach { tags.add(it) }
-        return tags
+    private fun JsonObject.safeInt(key: String): Int? {
+        return get(key)
+            ?.takeIf { !it.isJsonNull }
+            ?.let { runCatching { it.asInt }.getOrNull() }
     }
 
     private fun readResponse(connection: HttpURLConnection): String {

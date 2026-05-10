@@ -34,7 +34,7 @@ object McpSettings {
         RESTAURANTS(
             key = "restaurants",
             displayName = "Restaurants",
-            description = "Restaurant search via Geoapify Places",
+            description = "Restaurant search via Gemini grounded with Google Maps",
             apiKeyPrefKey = "mcp_api_key_restaurants"
         ),
         HOTELS(
@@ -76,13 +76,7 @@ object McpSettings {
 
     fun getApiKey(context: Context, domain: Domain): String {
         return when (domain) {
-            Domain.RESTAURANTS -> {
-                val prefKey = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                    .getString(domain.apiKeyPrefKey, "")
-                    .orEmpty()
-                    .trim()
-                prefKey.ifBlank { com.samsung.genuicraft.BuildConfig.GEOAPIFY_API_KEY_DEFAULT }
-            }
+            Domain.RESTAURANTS -> com.samsung.genuicraft.GeminiApiKeyProvider.vertexExpressApiKey(context)
             Domain.PLACES -> com.samsung.genuicraft.GeminiApiKeyProvider.stage3ApiKey(context)
             Domain.NEWS -> {
                 val prefKey = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
