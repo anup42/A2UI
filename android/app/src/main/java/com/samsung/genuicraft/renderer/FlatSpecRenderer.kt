@@ -7515,6 +7515,119 @@ private fun RenderPlaylistTableRows(
     }
 }
 
+@Composable
+private fun EntityProviderBadge(title: String) {
+    val accent = entityProviderAccentColor(title)
+    val initials = entityProviderInitials(title)
+    Box(
+        modifier = Modifier
+            .size(38.dp)
+            .clip(RoundedCornerShape(13.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(
+                        accent,
+                        accent.copy(alpha = 0.68f)
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = initials,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Black),
+            color = Color.White,
+            maxLines = 1,
+            overflow = TextOverflow.Clip
+        )
+    }
+}
+
+@Composable
+private fun entityProviderAccentColor(title: String): Color {
+    val normalized = normalizeTableHeaderForMatch(title)
+    return when {
+        normalized.contains("google") -> Color(0xFF4285F4)
+        normalized.contains("sky") -> Color(0xFF00A7E1)
+        normalized.contains("makemytrip") || normalized.contains("make my trip") -> Color(0xFFEF3E42)
+        normalized.contains("cleartrip") -> Color(0xFFFF7A00)
+        normalized.contains("ixigo") -> Color(0xFFFF6D00)
+        normalized.contains("booking") -> Color(0xFF003B95)
+        normalized.contains("expedia") -> Color(0xFFFFC72C)
+        else -> MaterialTheme.colorScheme.primary
+    }
+}
+
+private fun entityProviderInitials(title: String): String {
+    val normalized = normalizeTableHeaderForMatch(title)
+    val explicit = when {
+        normalized.contains("google") -> "G"
+        normalized.contains("skyscanner") -> "SS"
+        normalized.contains("makemytrip") || normalized.contains("make my trip") -> "MMT"
+        normalized.contains("cleartrip") -> "CT"
+        normalized.contains("ixigo") -> "IX"
+        else -> ""
+    }
+    if (explicit.isNotBlank()) return explicit
+    return title
+        .split(Regex("""[^A-Za-z0-9]+"""))
+        .filter { it.isNotBlank() }
+        .take(2)
+        .mapNotNull { it.firstOrNull()?.uppercaseChar()?.toString() }
+        .joinToString("")
+        .ifBlank { "UI" }
+        .take(3)
+}
+
+private fun shouldShowEntityProviderBadge(title: String, actionUrl: String?): Boolean {
+    if (!actionUrl.isNullOrBlank()) return true
+    val normalized = normalizeTableHeaderForMatch(title)
+    return normalized.contains("google") ||
+        normalized.contains("skyscanner") ||
+        normalized.contains("makemytrip") ||
+        normalized.contains("make my trip") ||
+        normalized.contains("cleartrip") ||
+        normalized.contains("ixigo") ||
+        normalized.contains("booking") ||
+        normalized.contains("expedia")
+}
+
+private fun isUrlColumnLabel(header: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(header)
+    return normalized == "url" ||
+        normalized == "link" ||
+        normalized == "href" ||
+        normalized.contains("website") ||
+        normalized.contains("booking url") ||
+        normalized.contains("action url") ||
+        normalized.endsWith(" link")
+}
+
+private fun isActionLabelColumn(header: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(header)
+    return normalized.contains("action label") ||
+        normalized.contains("button label") ||
+        normalized.contains("cta label") ||
+        normalized == "action" ||
+        normalized == "cta"
+}
+
+private fun entityActionLabel(headers: List<String>, row: List<String>, title: String): String {
+    val explicit = headers.indices
+        .firstOrNull { index -> isActionLabelColumn(headers[index]) }
+        ?.let { row.getOrNull(it).orEmpty().trim() }
+        .orEmpty()
+    if (explicit.isNotBlank() && !isLikelyHttpUrl(explicit)) {
+        return explicit.take(28)
+    }
+    val compactTitle = title
+        .replace(Regex("""\s+"""), " ")
+        .trim()
+        .take(22)
+        .trim()
+    return if (compactTitle.isBlank()) "Open" else "Open $compactTitle"
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RenderEntityTableCards(
@@ -7565,9 +7678,21 @@ private fun RenderEntityTableCards(
     ) {
         rows.forEachIndexed { rowIndex, row ->
             val title = row.getOrNull(primaryIndex).orEmpty().trim().ifBlank { "Item ${rowIndex + 1}" }
-            val actionUrl = row.firstOrNull(::isLikelyHttpUrl)
+            val actionUrlIndex = headers.indices.firstOrNull { index ->
+                isUrlColumnLabel(headers[index]) && isLikelyHttpUrl(row.getOrNull(index).orEmpty().trim())
+            } ?: row.indexOfFirst { value -> isLikelyHttpUrl(value.trim()) }.takeIf { it >= 0 }
+            val actionUrl = actionUrlIndex?.let { row.getOrNull(it).orEmpty().trim() }
+            val actionLabel = entityActionLabel(headers, row, title)
+            val showProviderBadge = shouldShowEntityProviderBadge(title, actionUrl)
             val bodyIndexes = headers.indices.filterNot { index ->
-                index == primaryIndex || index in inferredHighlightIndexes || row.getOrNull(index).orEmpty().isBlank()
+                val value = row.getOrNull(index).orEmpty().trim()
+                index == primaryIndex ||
+                    index == actionUrlIndex ||
+                    index in inferredHighlightIndexes ||
+                    value.isBlank() ||
+                    isLikelyHttpUrl(value) ||
+                    isUrlColumnLabel(headers[index]) ||
+                    isActionLabelColumn(headers[index])
             }
             val (shortBodyIndexes, detailBodyIndexes) = bodyIndexes.partition { index ->
                 val value = row.getOrNull(index).orEmpty()
@@ -7587,11 +7712,36 @@ private fun RenderEntityTableCards(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = parseBoldMarkdown(title),
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (showProviderBadge) {
+                            EntityProviderBadge(title)
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                text = parseBoldMarkdown(title),
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            actionUrl?.let {
+                                Text(
+                                    text = "Tap to open related search",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
                     if (inferredHighlightIndexes.isNotEmpty()) {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -7645,8 +7795,11 @@ private fun RenderEntityTableCards(
                         )
                     }
                     if (!actionUrl.isNullOrBlank()) {
-                        Button(onClick = { onOpenUrl(actionUrl) }) {
-                            Text("Open")
+                        Button(
+                            onClick = { onOpenUrl(actionUrl) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(actionLabel)
                         }
                     }
                 }
@@ -7800,7 +7953,7 @@ private fun RankedFlightRouteHint(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(accent.copy(alpha = 0.07f))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             .padding(horizontal = 10.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(9.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -7911,19 +8064,15 @@ private fun RenderRankedFlightComparisonCards(
                     },
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = if (best) {
-                        accent.copy(alpha = 0.08f)
-                    } else {
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)
-                    }
+                    containerColor = MaterialTheme.colorScheme.surface
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = if (best) 2.dp else 0.dp),
                 border = BorderStroke(
                     width = GenUiTokens.BorderSm,
                     color = if (best) {
-                        accent.copy(alpha = 0.34f)
+                        accent.copy(alpha = 0.55f)
                     } else {
-                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.38f)
+                        MaterialTheme.colorScheme.outlineVariant
                     }
                 )
             ) {
@@ -7991,7 +8140,7 @@ private fun RenderRankedFlightComparisonCards(
                     if (reason.isNotBlank()) {
                         Surface(
                             shape = RoundedCornerShape(14.dp),
-                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.74f)
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest
                         ) {
                             Text(
                                 text = parseBoldMarkdown(reason),
