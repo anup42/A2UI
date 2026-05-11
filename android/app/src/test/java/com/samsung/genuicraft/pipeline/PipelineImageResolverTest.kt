@@ -1,6 +1,7 @@
 package com.samsung.genuicraft.pipeline
 
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -32,5 +33,35 @@ class PipelineImageResolverTest {
         assertTrue(query.contains("bengaluru"))
         assertFalse(query.contains("https"))
         assertFalse(query.contains("jpg"))
+    }
+
+    @Test
+    fun commonsImageExtraction_prefersOriginalImageInfoUrl() {
+        val raw = """
+            {
+              "query": {
+                "pages": {
+                  "123": {
+                    "title": "File:Lalbagh Botanical Garden Bangalore.jpg",
+                    "imageinfo": [
+                      {
+                        "mime": "image/jpeg",
+                        "url": "https://upload.wikimedia.org/wikipedia/commons/1/11/Lalbagh_Botanical_Garden_Bangalore.jpg",
+                        "thumburl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Lalbagh_Botanical_Garden_Bangalore.jpg/1200px-Lalbagh_Botanical_Garden_Bangalore.jpg",
+                        "extmetadata": {
+                          "ObjectName": { "value": "Lalbagh Botanical Garden Bangalore" }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+        """.trimIndent()
+
+        assertEquals(
+            "https://upload.wikimedia.org/wikipedia/commons/1/11/Lalbagh_Botanical_Garden_Bangalore.jpg",
+            PipelineImageResolver.extractCommonsImageUrlForTest(raw)
+        )
     }
 }

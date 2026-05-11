@@ -1166,16 +1166,20 @@ fun FlatSpecContent(
     spec: FlatSpec,
     resolveAssetUrl: (String) -> String = { raw -> raw },
     computedFunctions: Map<String, FlatComputedFunction> = emptyMap(),
+    collapseRootHorizontalPadding: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val renderSpec = remember(spec, collapseRootHorizontalPadding) {
+        if (collapseRootHorizontalPadding) spec.withCollapsedRootHorizontalPadding() else spec
+    }
     val stateStore = remember(spec) {
         mutableStateMapOf<String, Any?>().apply { putAll(spec.state) }
     }
     val combinedComputedFunctions = remember(computedFunctions) {
         DefaultComputedFunctions + computedFunctions
     }
-    val watchRuntime = remember(spec) { FlatWatchRuntime(spec.elements) }
+    val watchRuntime = remember(renderSpec) { FlatWatchRuntime(renderSpec.elements) }
 
     val onOpenUrl: (String) -> Unit = { url ->
         runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
@@ -1196,7 +1200,7 @@ fun FlatSpecContent(
         )
     }
 
-    LaunchedEffect(spec) {
+    LaunchedEffect(renderSpec) {
         snapshotFlow { stateStore.toMap() }.collect { snapshot ->
             val triggered = watchRuntime.collectTriggered(snapshot)
             var remainingBudget = WATCH_ACTION_BUDGET
@@ -1213,8 +1217,8 @@ fun FlatSpecContent(
         LocalFlatSpecComputedFunctions provides combinedComputedFunctions
     ) {
         RenderElement(
-            elementId = spec.root,
-            elements = spec.elements,
+            elementId = renderSpec.root,
+            elements = renderSpec.elements,
             state = stateStore,
             repeatScope = null,
             onOpenUrl = onOpenUrl,
@@ -1224,6 +1228,28 @@ fun FlatSpecContent(
             modifier = modifier
         )
     }
+}
+
+private fun FlatSpec.withCollapsedRootHorizontalPadding(): FlatSpec {
+    val rootElement = elements[root] ?: return this
+    val rootType = rootElement.type.trim().lowercase()
+    if (rootType !in setOf("stack", "column", "row", "list", "container", "box")) return this
+
+    val props = rootElement.props
+    val hasAllPadding = props.containsKey("padding")
+    val hasHorizontalPadding = props.containsKey("paddingHorizontal")
+    if (!hasAllPadding && !hasHorizontalPadding) return this
+
+    val adjustedProps = props.toMutableMap()
+    if (hasAllPadding && !adjustedProps.containsKey("paddingVertical")) {
+        adjustedProps["paddingVertical"] = props["padding"]
+    }
+    adjustedProps.remove("padding")
+    adjustedProps["paddingHorizontal"] = 0
+
+    return copy(
+        elements = elements + (root to rootElement.copy(props = adjustedProps))
+    )
 }
 
 @Composable

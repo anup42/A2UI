@@ -157,6 +157,9 @@ internal object PipelineImageResolver {
         ).joinToString(" ")
     )
 
+    internal fun extractCommonsImageUrlForTest(rawJson: String): String? =
+        extractCommonsImageUrl(rawJson)
+
     private fun buildTextIndex(elements: JsonObject): Map<String, String> {
         return elements.entrySet().mapNotNull { (id, node) ->
             if (!node.isJsonObject) return@mapNotNull null
@@ -281,8 +284,12 @@ internal object PipelineImageResolver {
         val encoded = URLEncoder.encode(searchQuery, StandardCharsets.UTF_8.name())
         val apiUrl = "https://commons.wikimedia.org/w/api.php" +
             "?action=query&generator=search&gsrsearch=$encoded&gsrnamespace=6&gsrlimit=8" +
-            "&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json"
+            "&prop=imageinfo&iiprop=url|extmetadata|mime&format=json"
         val raw = readUrl(apiUrl) ?: return null
+        return extractCommonsImageUrl(raw)
+    }
+
+    private fun extractCommonsImageUrl(raw: String): String? {
         val root = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull() ?: return null
         val pages = root.getAsJsonObject("query")?.getAsJsonObject("pages") ?: return null
         return pages.entrySet()
@@ -293,8 +300,10 @@ internal object PipelineImageResolver {
                     ?.takeIf { it.isJsonObject }
                     ?.asJsonObject
                     ?: return@mapNotNull null
-                jsonStringOrNull(imageInfo.get("thumburl"))
-                    ?: jsonStringOrNull(imageInfo.get("url"))
+                val mime = jsonStringOrNull(imageInfo.get("mime")).orEmpty().lowercase(Locale.US)
+                if (mime.isNotBlank() && !mime.startsWith("image/")) return@mapNotNull null
+                jsonStringOrNull(imageInfo.get("url"))
+                    ?: jsonStringOrNull(imageInfo.get("thumburl"))
             }
             .map { PipelineMediaSanitizer.sanitizeMediaUrlToken(it) }
             .firstOrNull { shouldValidateRemoteImage(it) }

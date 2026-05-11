@@ -541,6 +541,7 @@ object GenUiNativeRenderer {
             FlatSpecContent(
                 spec = surface.flatSpec,
                 resolveAssetUrl = { raw -> resolveSurfaceAssetUrl(raw, sourceDir, surface.assetUrlMap) },
+                collapseRootHorizontalPadding = true,
                 modifier = Modifier.fillMaxWidth()
             )
             return
