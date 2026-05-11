@@ -1,5 +1,8 @@
 package com.samsung.genuicraft
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,19 +13,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 
 object GenUiTokens {
     val RadiusSm = 8.dp
@@ -238,11 +241,11 @@ fun genUiCardContainerColor(tone: GenUiCardTone = GenUiCardTone.Neutral): Color 
     val glassBase = lerp(tokenColor, scheme.surfaceContainerHighest, if (dark) 0.26f else 0.42f)
     val blended = lerp(glassBase, scheme.primaryContainer, if (dark) 0.10f else 0.16f)
     val alpha = when (tone) {
-        GenUiCardTone.Neutral -> if (dark) 0.56f else 0.50f
-        GenUiCardTone.Primary -> if (dark) 0.60f else 0.54f
-        GenUiCardTone.Positive -> if (dark) 0.60f else 0.54f
-        GenUiCardTone.Warning -> if (dark) 0.60f else 0.54f
-        GenUiCardTone.Error -> if (dark) 0.60f else 0.54f
+        GenUiCardTone.Neutral -> if (dark) 0.76f else 0.78f
+        GenUiCardTone.Primary -> if (dark) 0.80f else 0.82f
+        GenUiCardTone.Positive -> if (dark) 0.80f else 0.82f
+        GenUiCardTone.Warning -> if (dark) 0.80f else 0.82f
+        GenUiCardTone.Error -> if (dark) 0.80f else 0.82f
     }
     return blended.copy(alpha = alpha)
 }
@@ -269,21 +272,19 @@ fun genUiTableContainerColor(): Color {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
     val mixed = lerp(scheme.surfaceContainerLow, scheme.surfaceContainerHighest, if (dark) 0.24f else 0.40f)
-    return mixed.copy(alpha = if (dark) 0.54f else 0.48f)
+    return mixed.copy(alpha = if (dark) 0.76f else 0.78f)
 }
 
 @Composable
 fun genUiTopBarContainerColor(): Color {
-    return MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.42f)
+    return MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.78f)
 }
 
 @Composable
 fun GenUiCraftTheme(content: @Composable () -> Unit) {
-    val context = LocalContext.current
     val darkTheme = isSystemInDarkTheme()
-    val baseScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    } else if (darkTheme) {
+    val view = LocalView.current
+    val baseScheme = if (darkTheme) {
         DarkScheme
     } else {
         LightScheme
@@ -296,10 +297,30 @@ fun GenUiCraftTheme(content: @Composable () -> Unit) {
         outlineVariant = baseScheme.outlineVariant.copy(alpha = 1f)
     )
 
+    SideEffect {
+        val window = view.context.findActivity()?.window ?: return@SideEffect
+        val controller = WindowCompat.getInsetsController(window, view)
+        controller.isAppearanceLightStatusBars = !darkTheme
+        controller.isAppearanceLightNavigationBars = !darkTheme
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
+    }
+
     MaterialTheme(
         colorScheme = colorScheme,
         typography = GenUiTypography,
         shapes = GenUiShapes,
         content = content
     )
+}
+
+private tailrec fun Context.findActivity(): Activity? {
+    return when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
 }

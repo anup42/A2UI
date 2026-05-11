@@ -424,7 +424,8 @@ private fun GenUiAssistantScreen(
     val listBottomPadding = if (imeVisible) 16.dp else 112.dp
     val canSaveToIrDemo = !isRunning &&
         !currentQuery.isNullOrBlank() &&
-        !stage2Text.isNullOrBlank()
+        !stage2Text.isNullOrBlank() &&
+        !stage3Json.isNullOrBlank()
     val hasConversation = inputText.isNotBlank() ||
         currentStatus.isNotBlank() ||
         errorText != null ||
@@ -472,10 +473,11 @@ private fun GenUiAssistantScreen(
                         IconButton(
                             onClick = {
                                 runCatching {
-                                    val savedRecord = IrDemoRecordRepository.addSavedResponse(
+                                    val savedRecord = IrDemoRecordRepository.addSavedDemoArtifact(
                                         context = context.applicationContext,
                                         queryText = currentQuery.orEmpty(),
-                                        responseText = stage2Text.orEmpty()
+                                        responseText = stage2Text.orEmpty(),
+                                        genUiJson = stage3Json.orEmpty()
                                     )
                                     if (savedRecord != null) {
                                         val refreshed = IrDemoRecordRepository.load(context.applicationContext).orEmpty()
@@ -485,10 +487,10 @@ private fun GenUiAssistantScreen(
                                             sourceLabel = sourceLabel,
                                             records = refreshed
                                         )
-                                        currentStatus = "Saved response to IR Demo"
+                                        currentStatus = "Saved Demo item to IR Demo"
                                         logs += AssistantLogItem(
                                             title = "Saved",
-                                            content = "Added current response to IR Demo list."
+                                            content = "Added Demo item with query, response, GenUI IR, and asset references."
                                         )
                                     }
                                 }.onFailure { error ->
@@ -808,7 +810,6 @@ private fun GenUiAssistantScreen(
                         GenUiAssistantLandingCard(
                             prompts = GenUiStarterPrompts,
                             enabled = !isRunning,
-                            deviceConfig = deviceConfig,
                             onPromptSelected = { selectedPrompt ->
                                 inputText = selectedPrompt
                             }
@@ -910,13 +911,12 @@ private fun GenUiAssistantScreen(
 private fun GenUiAssistantLandingCard(
     prompts: List<StarterPrompt>,
     enabled: Boolean,
-    deviceConfig: DeviceUiConfig,
     onPromptSelected: (String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(GenUiTokens.RadiusXl),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
         border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
         elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
     ) {
@@ -926,9 +926,9 @@ private fun GenUiAssistantLandingCard(
                 .background(
                     Brush.linearGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f),
-                            MaterialTheme.colorScheme.surfaceContainerLow,
-                            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.48f)
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.58f),
+                            MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.46f),
+                            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.50f)
                         )
                     )
                 )
@@ -965,34 +965,11 @@ private fun GenUiAssistantLandingCard(
                     }
                 }
 
-                if (deviceConfig.widthClass == DeviceSizeClass.Compact) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        DemoFeatureTile(
-                            title = "Live data",
-                            body = "Weather, flights, restaurants, and supported domains use configured live-data routes."
-                        )
-                        DemoFeatureTile(
-                            title = "Native render",
-                            body = "The generated IR is shown immediately in the same mobile surface."
-                        )
-                    }
-                } else {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        DemoFeatureTile(
-                            title = "Live data",
-                            body = "Weather, flights, restaurants, and supported domains use configured live-data routes.",
-                            modifier = Modifier.weight(1f)
-                        )
-                        DemoFeatureTile(
-                            title = "Native render",
-                            body = "The generated IR is shown immediately in the same mobile surface.",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
+                DemoFeatureTile(
+                    title = "Native render",
+                    body = "The generated IR is shown immediately in the same mobile surface.",
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
@@ -1010,7 +987,7 @@ private fun StarterPromptChip(
         },
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.72f)
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.78f)
         ),
         border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
     ) {
@@ -1053,7 +1030,7 @@ private fun DemoFeatureTile(
         modifier = modifier,
         shape = RoundedCornerShape(GenUiTokens.RadiusLg),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.58f)
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.78f)
         ),
         border = BorderStroke(GenUiTokens.BorderSm, genUiCardBorderColor())
     ) {

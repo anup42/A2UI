@@ -36,7 +36,7 @@ fun GenUiScreenBackground(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = if (dark) 0.14f else 0.12f)
+                    MaterialTheme.colorScheme.background.copy(alpha = if (dark) 0.88f else 0.84f)
                 )
         )
         Box(

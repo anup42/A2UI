@@ -249,7 +249,7 @@ private fun IrDemoItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = (index + 1).toString().padStart(2, '0'),
+                    text = if (record.hasSavedIr) "Demo" else (index + 1).toString().padStart(2, '0'),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary
                 )

@@ -48,6 +48,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
 
 private sealed interface IrDemoRenderUiState {
     data class Loading(val message: String) : IrDemoRenderUiState
@@ -100,7 +101,11 @@ class IrDemoRenderActivity : AppCompatActivity() {
         } else {
             val restored = restoreFromSessionCache()
             if (!restored) {
-                runStage3ForRecord(selected)
+                if (selected.hasSavedIr) {
+                    renderSavedRecord(selected)
+                } else {
+                    runStage3ForRecord(selected)
+                }
             }
         }
 
@@ -225,6 +230,49 @@ class IrDemoRenderActivity : AppCompatActivity() {
             "unavailable"
         }
         appendPipelineLog("$prefix: $value")
+    }
+
+    private fun renderSavedRecord(record: IrDemoRecord) {
+        val payload = IrDemoRecordRepository.buildRenderablePayload(record)
+        val savedIr = record.genUiJson?.trim().orEmpty()
+        generatedIrJson = savedIr.takeIf { it.isNotBlank() }
+        pipelineLogs = emptyList()
+        appendPipelineLog("Loaded saved Demo artifact.")
+        appendPipelineLog("Stage 3 skipped; using saved GenUI IR.")
+        if (payload.isNullOrBlank() || savedIr.isBlank()) {
+            uiState = IrDemoRenderUiState.Failure("Saved Demo item is missing GenUI IR.")
+            persistSessionCache()
+            return
+        }
+
+        val renderResult = GenUiNativeRenderer.render(
+            rawInput = payload,
+            sourceDir = record.savedSourceDir()
+        )
+        if (renderResult.errorMessage != null) {
+            uiState = IrDemoRenderUiState.Failure(renderResult.errorMessage)
+            persistSessionCache()
+            return
+        }
+
+        uiState = IrDemoRenderUiState.Success(
+            GenUiStagePipeline.PipelineResult(
+                queryText = record.queryText,
+                stage2Prompt = "Saved Demo artifact",
+                stage2Response = record.responseText,
+                stage3Prompt = "Saved GenUI IR",
+                stage3SystemPrompt = null,
+                stage3Json = savedIr,
+                stage3InputTokens = null,
+                stage3OutputTokens = null,
+                stageDurationsMs = emptyMap(),
+                stageStreamDurationsMs = emptyMap(),
+                usedFallback = false,
+                warnings = renderResult.warnings + "Loaded saved Demo IR directly.",
+                renderResult = renderResult
+            )
+        )
+        persistSessionCache()
     }
 
     private fun runStage3ForRecord(record: IrDemoRecord) {
@@ -486,7 +534,7 @@ private fun IrDemoRenderScreen(
                             item {
                                 GenUiNativeRenderer.RenderInline(
                                     result = uiState.result.renderResult,
-                                    sourceDir = null,
+                                    sourceDir = record?.savedSourceDir(),
                                     onOpenExternalUrl = onOpenExternalUrl,
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -555,7 +603,7 @@ private fun IrDemoRenderScreen(
                             item {
                                 GenUiNativeRenderer.RenderInline(
                                     result = uiState.result.renderResult,
-                                    sourceDir = null,
+                                    sourceDir = record?.savedSourceDir(),
                                     onOpenExternalUrl = onOpenExternalUrl,
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -711,4 +759,12 @@ private fun formatIrDemoDuration(durationMs: Long): String {
     val minutes = durationMs / 60_000L
     val seconds = (durationMs % 60_000L) / 1000L
     return "${minutes}m ${seconds}s"
+}
+
+private fun IrDemoRecord.savedSourceDir(): File? {
+    val rawPath = sourceDirPath?.trim().orEmpty()
+    if (rawPath.isBlank()) {
+        return null
+    }
+    return File(rawPath)
 }
