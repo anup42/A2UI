@@ -16,6 +16,7 @@ internal object PipelineImageResolver {
     private const val LOG_TAG = "PipelineImageResolver"
     private const val USER_AGENT = "A2UI GenUICraft Android/1.0 image-resolver"
     private const val MAX_IMAGES_TO_VALIDATE = 6
+    private const val MAX_TABLE_ROW_IMAGES = 4
     private const val CONNECT_TIMEOUT_MS = 2500
     private const val READ_TIMEOUT_MS = 2500
 
@@ -44,6 +45,17 @@ internal object PipelineImageResolver {
         var resolved = 0
         var replaced = 0
         var hasRealImage = false
+
+        val tableRowImagesAdded = attachCommonsImagesToTravelTables(
+            payload = payload.asJsonObject,
+            queryText = queryText,
+            stage2Response = stage2Response
+        )
+        if (tableRowImagesAdded > 0) {
+            resolved += tableRowImagesAdded
+            replaced += tableRowImagesAdded
+            hasRealImage = true
+        }
 
         elements.entrySet().forEach { (id, node) ->
             if (!node.isJsonObject) return@forEach
@@ -307,6 +319,147 @@ internal object PipelineImageResolver {
             }
             .map { PipelineMediaSanitizer.sanitizeMediaUrlToken(it) }
             .firstOrNull { shouldValidateRemoteImage(it) }
+    }
+
+    private fun attachCommonsImagesToTravelTables(
+        payload: JsonObject,
+        queryText: String,
+        stage2Response: String
+    ): Int {
+        val elements = payload.getAsJsonObject("elements") ?: return 0
+        val state = payload.getAsJsonObject("state") ?: JsonObject()
+        var added = 0
+        val seenUrls = mutableSetOf<String>()
+        elements.entrySet().forEach { (_, node) ->
+            if (added >= MAX_TABLE_ROW_IMAGES || !node.isJsonObject) return@forEach
+            val element = node.asJsonObject
+            val type = jsonStringOrNull(element.get("type")).orEmpty()
+            if (!type.equals("Table", ignoreCase = true)) return@forEach
+            val props = element.getAsJsonObject("props") ?: return@forEach
+            if (!looksLikeTravelTable(props, queryText, stage2Response)) return@forEach
+            val rows = tableRowsArray(payload, state, props) ?: return@forEach
+            if (rows.size() == 0) return@forEach
+
+            ensureTableImageColumns(props)
+            rows.forEach { row ->
+                if (added >= MAX_TABLE_ROW_IMAGES) return@forEach
+                if (!row.isJsonObject) return@forEach
+                val rowObj = row.asJsonObject
+                val existingImage = jsonStringOrNull(rowObj.get("image"))
+                    ?: jsonStringOrNull(rowObj.get("photo"))
+                    ?: jsonStringOrNull(rowObj.get("imageUrl"))
+                    ?: jsonStringOrNull(rowObj.get("mediaImage"))
+                if (!existingImage.isNullOrBlank() && shouldValidateRemoteImage(existingImage)) {
+                    return@forEach
+                }
+
+                val rowLabel = travelRowSearchLabel(rowObj)
+                if (rowLabel.isBlank()) return@forEach
+                val imageUrl = searchCommonsImageUrl(
+                    normalizeSearchQuery("$rowLabel $queryText landmark travel")
+                )?.takeIf { it !in seenUrls } ?: return@forEach
+                seenUrls += imageUrl
+                rowObj.addProperty("image", imageUrl)
+                rowObj.addProperty("imageAlt", rowLabel)
+                added += 1
+            }
+        }
+        return added
+    }
+
+    private fun looksLikeTravelTable(
+        props: JsonObject,
+        queryText: String,
+        stage2Response: String
+    ): Boolean {
+        val domain = jsonStringOrNull(props.get("domain")).orEmpty().lowercase(Locale.US)
+        if (domain in setOf("travel", "itinerary", "tourism", "trip")) return true
+        val columns = props.getAsJsonArray("columns")
+            ?.mapNotNull { column ->
+                if (!column.isJsonObject) return@mapNotNull null
+                val obj = column.asJsonObject
+                listOfNotNull(jsonStringOrNull(obj.get("key")), jsonStringOrNull(obj.get("label")))
+                    .joinToString(" ")
+                    .lowercase(Locale.US)
+            }
+            .orEmpty()
+        val joinedColumns = columns.joinToString(" ")
+        val hasItineraryShape =
+            joinedColumns.contains("day") &&
+                (
+                    joinedColumns.contains("morning") ||
+                        joinedColumns.contains("afternoon") ||
+                        joinedColumns.contains("evening") ||
+                        joinedColumns.contains("food") ||
+                        joinedColumns.contains("area") ||
+                        joinedColumns.contains("place") ||
+                        joinedColumns.contains("location")
+                    )
+        return hasItineraryShape &&
+            (PipelineMediaSanitizer.looksLikeTravelQuery(queryText) ||
+                PipelineMediaSanitizer.looksLikeTravelContent(stage2Response))
+    }
+
+    private fun ensureTableImageColumns(props: JsonObject) {
+        val columns = props.getAsJsonArray("columns") ?: return
+        val keys = columns.mapNotNull { column ->
+            if (!column.isJsonObject) null else jsonStringOrNull(column.asJsonObject.get("key"))
+        }.map { it.lowercase(Locale.US) }
+        if ("image" !in keys) {
+            columns.add(JsonObject().apply {
+                addProperty("key", "image")
+                addProperty("label", "Image")
+            })
+        }
+        if ("imagealt" !in keys && "image_alt" !in keys) {
+            columns.add(JsonObject().apply {
+                addProperty("key", "imageAlt")
+                addProperty("label", "Image Alt")
+            })
+        }
+    }
+
+    private fun tableRowsArray(
+        payload: JsonObject,
+        state: JsonObject,
+        props: JsonObject
+    ): com.google.gson.JsonArray? {
+        props.getAsJsonArray("rows")?.let { return it }
+        val statePath = jsonStringOrNull(props.get("statePath")).orEmpty()
+        if (statePath.isBlank()) return null
+        return jsonAtPointer(state, statePath)?.takeIf { it.isJsonArray }?.asJsonArray
+            ?: jsonAtPointer(payload, statePath)?.takeIf { it.isJsonArray }?.asJsonArray
+    }
+
+    private fun jsonAtPointer(root: JsonElement, pointer: String): JsonElement? {
+        val parts = pointer.trim()
+            .removePrefix("#")
+            .split('/')
+            .filter { it.isNotBlank() }
+        var current: JsonElement = root
+        parts.forEach { rawPart ->
+            val part = rawPart.replace("~1", "/").replace("~0", "~")
+            current = when {
+                current.isJsonObject -> current.asJsonObject.get(part) ?: return null
+                current.isJsonArray -> {
+                    val index = part.toIntOrNull() ?: return null
+                    current.asJsonArray.takeIf { index in 0 until it.size() }?.get(index) ?: return null
+                }
+                else -> return null
+            }
+        }
+        return current
+    }
+
+    private fun travelRowSearchLabel(row: JsonObject): String {
+        val preferredKeys = listOf(
+            "area", "place", "location", "title", "focus", "destination", "neighborhood",
+            "morning", "afternoon", "evening"
+        )
+        val values = preferredKeys.mapNotNull { key ->
+            jsonStringOrNull(row.get(key))?.takeIf { it.isNotBlank() }
+        }
+        return normalizeSearchQuery(values.take(3).joinToString(" "))
     }
 
     private fun firstContentTitle(text: String): String? {
