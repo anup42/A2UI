@@ -10,6 +10,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
@@ -72,6 +73,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -4728,7 +4730,8 @@ internal fun compactBulletItems(label: String, value: String): List<String> {
 
 @Composable
 private fun flatSpecCardColors() = CardDefaults.cardColors(
-    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+    contentColor = MaterialTheme.colorScheme.onSurface
 )
 
 @Composable
@@ -8548,16 +8551,17 @@ private fun RankedFlightRouteHint(
 
 @Composable
 private fun rankedFlightAccentColor(airline: String): Color {
+    val dark = isSystemInDarkTheme()
     val normalized = NativeFlightSemantics.normalizeMatchText(airline)
     return when {
-        normalized.contains("indigo") -> Color(0xFF2849B8)
-        normalized.contains("akasa") -> Color(0xFF7A2E8E)
-        normalized.contains("air india express") -> Color(0xFFE53935)
-        normalized == "air india" || normalized.startsWith("air india ") -> Color(0xFFC62828)
-        normalized.contains("vistara") -> Color(0xFF54206E)
-        normalized.contains("spicejet") -> Color(0xFFD84315)
-        normalized.contains("emirates") -> Color(0xFFB71C1C)
-        normalized.contains("qatar") -> Color(0xFF7B1238)
+        normalized.contains("indigo") -> if (dark) Color(0xFF83A3FF) else Color(0xFF2849B8)
+        normalized.contains("akasa") -> if (dark) Color(0xFFD989F2) else Color(0xFF7A2E8E)
+        normalized.contains("air india express") -> if (dark) Color(0xFFFF8A8A) else Color(0xFFE53935)
+        normalized == "air india" || normalized.startsWith("air india ") -> if (dark) Color(0xFFFF8A8A) else Color(0xFFC62828)
+        normalized.contains("vistara") -> if (dark) Color(0xFFD389F2) else Color(0xFF54206E)
+        normalized.contains("spicejet") -> if (dark) Color(0xFFFFA074) else Color(0xFFD84315)
+        normalized.contains("emirates") -> if (dark) Color(0xFFFF8A8A) else Color(0xFFB71C1C)
+        normalized.contains("qatar") -> if (dark) Color(0xFFFF8FB7) else Color(0xFF7B1238)
         else -> MaterialTheme.colorScheme.primary
     }
 }
@@ -10020,10 +10024,12 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
     val horizontalPadding = asFlatSpacingDp(props["textPaddingHorizontal"])
         ?: asFlatSpacingDp(props["paddingHorizontal"])
         ?: LocalFlatSpecTextHorizontalPadding.current
+    val primaryTextColor = MaterialTheme.colorScheme.onSurface
     when (variant) {
         "h1" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+            color = primaryTextColor,
             modifier = modifier
                 .padding(horizontal = horizontalPadding, vertical = 8.dp)
                 .accessibilitySemantics(props = props, isHeading = true)
@@ -10031,6 +10037,7 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         "h2" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            color = primaryTextColor,
             modifier = modifier
                 .padding(horizontal = horizontalPadding, vertical = 6.dp)
                 .accessibilitySemantics(props = props, isHeading = true)
@@ -10038,6 +10045,7 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         "h3" -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = primaryTextColor,
             modifier = modifier
                 .padding(horizontal = horizontalPadding, vertical = 4.dp)
                 .accessibilitySemantics(props = props, isHeading = true)
@@ -10067,6 +10075,7 @@ private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) 
         else -> Text(
             text = markdown.content,
             style = MaterialTheme.typography.bodyMedium,
+            color = primaryTextColor,
             modifier = modifier
                 .padding(horizontal = horizontalPadding, vertical = 2.dp)
                 .accessibilitySemantics(props = props)
@@ -10978,6 +10987,7 @@ private fun RenderIcon(
             imageLoader = imageLoader,
             contentDescription = iconDescription,
             contentScale = ContentScale.Fit,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
             modifier = iconModifier,
             onSuccess = { failed = false },
             onError = { failed = true }

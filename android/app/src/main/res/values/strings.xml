@@ -3,6 +3,7 @@
     <string name="launcher_title">GenUICraft</string>
     <string name="launcher_subtitle"></string>
     <string name="launcher_genui_title">GenUI Demo</string>
+    <string name="genui_demo_title">GenUICraft Demo</string>
     <string name="launcher_genui_subtitle">Generate rich response with stage 2, convert with stage 3, and render natively in stage 4.</string>
     <string name="launcher_renderer_title">Renderer Demo</string>
     <string name="launcher_renderer_subtitle">Open the file/sample renderer flow for existing GenUI JSON/JSONL assets.</string>
@@ -86,7 +87,7 @@
     <string name="genui_assistant_save_ir_content_desc">Save current response to IR Demo</string>
 
     <string name="ir_demo_list_title">IR Demo</string>
-    <string name="ir_demo_source">subset10_g3pro_iconcatalog_headings_20260216_091411</string>
+    <string name="ir_demo_source">GenUICraft Demo</string>
     <string name="ir_demo_list_empty">No query-response items found in default IR demo dataset.</string>
     <string name="ir_demo_item_count">%1$d item(s)</string>
     <string name="ir_demo_query_prefix">Query</string>

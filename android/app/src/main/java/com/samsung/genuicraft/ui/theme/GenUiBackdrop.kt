@@ -10,7 +10,6 @@ import android.widget.ImageView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,8 +25,6 @@ fun GenUiScreenBackground(
 ) {
     val context = LocalContext.current
     val blurAvailable = remember(context) { context.isCrossWindowBlurActive() }
-    val dark = androidx.compose.foundation.isSystemInDarkTheme()
-
     Box(modifier = modifier.fillMaxSize()) {
         if (!blurAvailable) {
             BlurredWallpaperLayer(modifier = Modifier.fillMaxSize())
@@ -35,9 +32,7 @@ fun GenUiScreenBackground(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    MaterialTheme.colorScheme.background.copy(alpha = if (dark) 0.88f else 0.84f)
-                )
+                .background(genUiScreenOverlayColor())
         )
         Box(
             modifier = Modifier

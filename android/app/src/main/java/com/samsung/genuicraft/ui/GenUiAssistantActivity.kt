@@ -543,249 +543,256 @@ private fun GenUiAssistantScreen(
                 currentStatus.isNotBlank() ||
                 !errorText.isNullOrBlank() ||
                 displayRenderResult != null
-            Card(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = horizontalPadding, vertical = 6.dp)
+                    .background(genUiScreenOverlayColor())
+                    .background(genUiBackgroundBrush())
                     .imePadding()
-                    .navigationBarsPadding(),
-                shape = RoundedCornerShape(GenUiTokens.RadiusXl),
-                colors = genUiCardColors(GenUiCardTone.Neutral),
-                border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
-                elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
+                    .navigationBarsPadding()
             ) {
-                Column(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                        .padding(horizontal = horizontalPadding, vertical = 6.dp),
+                    shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                    colors = genUiCardColors(GenUiCardTone.Neutral),
+                    border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor()),
+                    elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
                 ) {
-                    if (showComposerStatus) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (isRunning) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(12.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    strokeWidth = 1.7.dp
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        if (showComposerStatus) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (isRunning) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(12.dp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        strokeWidth = 1.7.dp
+                                    )
+                                }
+                                Text(
+                                    text = composerStatus,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (!errorText.isNullOrBlank()) {
+                                        MaterialTheme.colorScheme.error
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
                                 )
                             }
-                            Text(
-                                text = composerStatus,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (!errorText.isNullOrBlank()) {
-                                    MaterialTheme.colorScheme.error
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f)
-                            )
                         }
-                    }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = inputText,
-                            onValueChange = { inputText = it },
-                            placeholder = {
-                                Text(
-                                    text = stringResource(id = R.string.genui_assistant_placeholder),
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .heightIn(min = 52.dp),
-                            singleLine = true,
-                            maxLines = 1,
-                            enabled = !isRunning,
-                            shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-                            textStyle = MaterialTheme.typography.bodySmall
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = inputText,
+                                onValueChange = { inputText = it },
+                                placeholder = {
+                                    Text(
+                                        text = stringResource(id = R.string.genui_assistant_placeholder),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .heightIn(min = 52.dp),
+                                singleLine = true,
+                                maxLines = 1,
+                                enabled = !isRunning,
+                                shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                                textStyle = MaterialTheme.typography.bodySmall
+                            )
 
-                        IconButton(
-                            onClick = {
-                                val query = inputText.trim()
-                                if (query.isBlank() || isRunning) {
-                                    return@IconButton
-                                }
-
-                                currentQuery = query
-                                isRunning = true
-                                errorText = null
-                                stage2Text = null
-                                stage3Json = null
-                                renderResult = null
-                                warnings = arrayListOf()
-                                usedFallback = false
-                                stage3InputTokens = null
-                                stage3OutputTokens = null
-                                logs.clear()
-                                resetSteps(GenUiStagePipeline.Stage.STAGE2)
-                                currentStatus = "Starting pipeline"
-                                appendDebugLogLine("Pipeline started for query: $query")
-                                PipelineRunNotifier.showRunning(
-                                    context.applicationContext,
-                                    status = "Starting pipeline"
-                                )
-
-                                coroutineScope.launch {
-                                    val outcome = pipeline.execute(query) { update ->
-                                        currentStatus = sanitizeUiLogText(update.message)
-                                        updateSteps(update)
-                                        appendDebugLogLine(update.message)
-                                        update.debugLog?.let(::appendDebugLogLine)
-                                        PipelineRunNotifier.showRunning(
-                                            context.applicationContext,
-                                            status = currentStatus
-                                        )
-
-                                        if (!update.stage2Response.isNullOrBlank()) {
-                                            stage2Text = update.stage2Response
-                                            upsertLogCard(
-                                                title = "Response",
-                                                content = update.stage2Response
-                                            )
-                                        }
-                                        if (!update.stage3Json.isNullOrBlank()) {
-                                            stage3Json = update.stage3Json
-                                            upsertLogCard(
-                                                title = "GenUI JSON",
-                                                content = update.stage3Json,
-                                                monospace = true
-                                            )
-                                        }
-                                        if (update.stage == GenUiStagePipeline.Stage.STAGE3 &&
-                                            (update.llmInputTokens != null || update.llmOutputTokens != null)
-                                        ) {
-                                            stage3InputTokens = update.llmInputTokens
-                                            stage3OutputTokens = update.llmOutputTokens
-                                            upsertLogCard(
-                                                title = "IR Tokens",
-                                                content = buildString {
-                                                    append("Input: ")
-                                                    append(update.llmInputTokens?.toString() ?: "n/a")
-                                                    append('\n')
-                                                    append("Output: ")
-                                                    append(update.llmOutputTokens?.toString() ?: "n/a")
-                                                },
-                                                monospace = true
-                                            )
-                                        }
-                                        update.renderResult?.let { partialRender ->
-                                            if (partialRender.errorMessage == null) {
-                                                renderResult = partialRender
-                                            }
-                                        }
+                            IconButton(
+                                onClick = {
+                                    val query = inputText.trim()
+                                    if (query.isBlank() || isRunning) {
+                                        return@IconButton
                                     }
-                                    when (outcome) {
-                                        is GenUiStagePipeline.Outcome.Success -> {
-                                            val result = outcome.result
-                                            stage2Text = result.stage2Response
-                                            stage3Json = result.stage3Json
-                                            stage3InputTokens = result.stage3InputTokens
-                                            stage3OutputTokens = result.stage3OutputTokens
-                                            renderResult = result.renderResult
-                                            warnings = ArrayList(result.warnings.map(::sanitizeUiLogText))
-                                            usedFallback = result.usedFallback
-                                            upsertLogCard(
-                                                title = "Response",
-                                                content = result.stage2Response
+
+                                    currentQuery = query
+                                    isRunning = true
+                                    errorText = null
+                                    stage2Text = null
+                                    stage3Json = null
+                                    renderResult = null
+                                    warnings = arrayListOf()
+                                    usedFallback = false
+                                    stage3InputTokens = null
+                                    stage3OutputTokens = null
+                                    logs.clear()
+                                    resetSteps(GenUiStagePipeline.Stage.STAGE2)
+                                    currentStatus = "Starting pipeline"
+                                    appendDebugLogLine("Pipeline started for query: $query")
+                                    PipelineRunNotifier.showRunning(
+                                        context.applicationContext,
+                                        status = "Starting pipeline"
+                                    )
+
+                                    coroutineScope.launch {
+                                        val outcome = pipeline.execute(query) { update ->
+                                            currentStatus = sanitizeUiLogText(update.message)
+                                            updateSteps(update)
+                                            appendDebugLogLine(update.message)
+                                            update.debugLog?.let(::appendDebugLogLine)
+                                            PipelineRunNotifier.showRunning(
+                                                context.applicationContext,
+                                                status = currentStatus
                                             )
-                                            upsertLogCard(
-                                                title = "GenUI JSON",
-                                                content = result.stage3Json,
-                                                monospace = true
-                                            )
-                                            if (result.stage3InputTokens != null || result.stage3OutputTokens != null) {
+
+                                            if (!update.stage2Response.isNullOrBlank()) {
+                                                stage2Text = update.stage2Response
+                                                upsertLogCard(
+                                                    title = "Response",
+                                                    content = update.stage2Response
+                                                )
+                                            }
+                                            if (!update.stage3Json.isNullOrBlank()) {
+                                                stage3Json = update.stage3Json
+                                                upsertLogCard(
+                                                    title = "GenUI JSON",
+                                                    content = update.stage3Json,
+                                                    monospace = true
+                                                )
+                                            }
+                                            if (update.stage == GenUiStagePipeline.Stage.STAGE3 &&
+                                                (update.llmInputTokens != null || update.llmOutputTokens != null)
+                                            ) {
+                                                stage3InputTokens = update.llmInputTokens
+                                                stage3OutputTokens = update.llmOutputTokens
                                                 upsertLogCard(
                                                     title = "IR Tokens",
                                                     content = buildString {
                                                         append("Input: ")
-                                                        append(result.stage3InputTokens?.toString() ?: "n/a")
+                                                        append(update.llmInputTokens?.toString() ?: "n/a")
                                                         append('\n')
                                                         append("Output: ")
-                                                        append(result.stage3OutputTokens?.toString() ?: "n/a")
+                                                        append(update.llmOutputTokens?.toString() ?: "n/a")
                                                     },
                                                     monospace = true
                                                 )
                                             }
-                                            appendDebugLogLine("Pipeline completed successfully.")
-                                            steps.indices.forEach { i ->
-                                                steps[i] = steps[i].copy(status = PipelineStepStatus.Done)
+                                            update.renderResult?.let { partialRender ->
+                                                if (partialRender.errorMessage == null) {
+                                                    renderResult = partialRender
+                                                }
                                             }
-                                            applyStageDurations(
-                                                durations = result.stageDurationsMs,
-                                                streamDurations = result.stageStreamDurationsMs
-                                            )
-                                            currentStatus = "Pipeline completed"
-                                            PipelineRunNotifier.showCompleted(
-                                                context.applicationContext,
-                                                status = "Rendered output is ready."
-                                            )
-                                            inputText = ""
                                         }
-
-                                        is GenUiStagePipeline.Outcome.Failure -> {
-                                            errorText = sanitizeUiLogText(outcome.message)
-                                            appendDebugLogLine("Pipeline failed: ${outcome.message}")
-                                            if (!outcome.stage2Response.isNullOrBlank()) {
-                                                stage2Text = outcome.stage2Response
+                                        when (outcome) {
+                                            is GenUiStagePipeline.Outcome.Success -> {
+                                                val result = outcome.result
+                                                stage2Text = result.stage2Response
+                                                stage3Json = result.stage3Json
+                                                stage3InputTokens = result.stage3InputTokens
+                                                stage3OutputTokens = result.stage3OutputTokens
+                                                renderResult = result.renderResult
+                                                warnings = ArrayList(result.warnings.map(::sanitizeUiLogText))
+                                                usedFallback = result.usedFallback
                                                 upsertLogCard(
                                                     title = "Response",
-                                                    content = outcome.stage2Response
+                                                    content = result.stage2Response
                                                 )
-                                            }
-                                            if (!outcome.stage3Json.isNullOrBlank()) {
-                                                stage3Json = outcome.stage3Json
                                                 upsertLogCard(
                                                     title = "GenUI JSON",
-                                                    content = outcome.stage3Json,
+                                                    content = result.stage3Json,
                                                     monospace = true
                                                 )
-                                            }
-                                            steps.indices.forEach { i ->
-                                                val step = steps[i]
-                                                val status = when {
-                                                    step.stage == outcome.stage -> PipelineStepStatus.Failed
-                                                    step.stage.ordinal < outcome.stage.ordinal -> PipelineStepStatus.Done
-                                                    else -> PipelineStepStatus.Pending
+                                                if (result.stage3InputTokens != null || result.stage3OutputTokens != null) {
+                                                    upsertLogCard(
+                                                        title = "IR Tokens",
+                                                        content = buildString {
+                                                            append("Input: ")
+                                                            append(result.stage3InputTokens?.toString() ?: "n/a")
+                                                            append('\n')
+                                                            append("Output: ")
+                                                            append(result.stage3OutputTokens?.toString() ?: "n/a")
+                                                        },
+                                                        monospace = true
+                                                    )
                                                 }
-                                                steps[i] = step.copy(status = status)
+                                                appendDebugLogLine("Pipeline completed successfully.")
+                                                steps.indices.forEach { i ->
+                                                    steps[i] = steps[i].copy(status = PipelineStepStatus.Done)
+                                                }
+                                                applyStageDurations(
+                                                    durations = result.stageDurationsMs,
+                                                    streamDurations = result.stageStreamDurationsMs
+                                                )
+                                                currentStatus = "Pipeline completed"
+                                                PipelineRunNotifier.showCompleted(
+                                                    context.applicationContext,
+                                                    status = "Rendered output is ready."
+                                                )
+                                                inputText = ""
                                             }
-                                            applyStageDurations(
-                                                durations = outcome.stageDurationsMs,
-                                                streamDurations = outcome.stageStreamDurationsMs,
-                                                failedStage = outcome.stage
-                                            )
-                                            currentStatus = "Pipeline failed"
-                                            PipelineRunNotifier.showFailed(
-                                                context.applicationContext,
-                                                message = errorText.orEmpty()
-                                            )
+
+                                            is GenUiStagePipeline.Outcome.Failure -> {
+                                                errorText = sanitizeUiLogText(outcome.message)
+                                                appendDebugLogLine("Pipeline failed: ${outcome.message}")
+                                                if (!outcome.stage2Response.isNullOrBlank()) {
+                                                    stage2Text = outcome.stage2Response
+                                                    upsertLogCard(
+                                                        title = "Response",
+                                                        content = outcome.stage2Response
+                                                    )
+                                                }
+                                                if (!outcome.stage3Json.isNullOrBlank()) {
+                                                    stage3Json = outcome.stage3Json
+                                                    upsertLogCard(
+                                                        title = "GenUI JSON",
+                                                        content = outcome.stage3Json,
+                                                        monospace = true
+                                                    )
+                                                }
+                                                steps.indices.forEach { i ->
+                                                    val step = steps[i]
+                                                    val status = when {
+                                                        step.stage == outcome.stage -> PipelineStepStatus.Failed
+                                                        step.stage.ordinal < outcome.stage.ordinal -> PipelineStepStatus.Done
+                                                        else -> PipelineStepStatus.Pending
+                                                    }
+                                                    steps[i] = step.copy(status = status)
+                                                }
+                                                applyStageDurations(
+                                                    durations = outcome.stageDurationsMs,
+                                                    streamDurations = outcome.stageStreamDurationsMs,
+                                                    failedStage = outcome.stage
+                                                )
+                                                currentStatus = "Pipeline failed"
+                                                PipelineRunNotifier.showFailed(
+                                                    context.applicationContext,
+                                                    message = errorText.orEmpty()
+                                                )
+                                            }
                                         }
+                                        isRunning = false
                                     }
-                                    isRunning = false
-                                }
-                            },
-                            enabled = !isRunning && inputText.trim().isNotEmpty()
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Send,
-                                contentDescription = stringResource(id = R.string.genui_assistant_send_content_desc),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                                },
+                                enabled = !isRunning && inputText.trim().isNotEmpty()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Send,
+                                    contentDescription = stringResource(id = R.string.genui_assistant_send_content_desc),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
                 }

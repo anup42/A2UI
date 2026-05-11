@@ -159,21 +159,15 @@ private fun IrDemoListScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             Column(
                 modifier = backgroundModifier
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
                     .padding(horizontal = horizontalPadding, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(
-                    text = session?.sourceLabel ?: stringResource(id = R.string.ir_demo_source),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
                 Text(
                     text = stringResource(id = R.string.ir_demo_item_count, session?.records?.size ?: 0),
                     style = MaterialTheme.typography.bodySmall,
@@ -229,6 +223,7 @@ private fun IrDemoItemCard(
     onClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val queryTitle = decodeIrDemoQueryText(record.queryText)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -254,7 +249,7 @@ private fun IrDemoItemCard(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = decodeIrDemoQueryText(record.queryText),
+                    text = if (record.hasSavedIr) "Demo" else queryTitle,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
@@ -272,6 +267,16 @@ private fun IrDemoItemCard(
                 }
             }
 
+            if (record.hasSavedIr) {
+                Text(
+                    text = queryTitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
             Text(
                 text = previewResponse(record.responseText),
                 style = MaterialTheme.typography.bodySmall,
@@ -281,11 +286,7 @@ private fun IrDemoItemCard(
             )
 
             val footer = buildString {
-                append(record.queryId)
-                if (!record.responseId.isNullOrBlank()) {
-                    append("  |  ")
-                    append(record.responseId)
-                }
+                append(if (record.hasSavedIr) "Saved Demo" else record.queryId)
             }
             Text(
                 text = footer,

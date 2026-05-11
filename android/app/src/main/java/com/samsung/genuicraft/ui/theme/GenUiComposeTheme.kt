@@ -19,6 +19,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -228,6 +229,12 @@ fun genUiBackgroundBrush(): Brush {
 }
 
 @Composable
+fun genUiScreenOverlayColor(): Color {
+    val dark = isSystemInDarkTheme()
+    return MaterialTheme.colorScheme.background.copy(alpha = if (dark) 0.88f else 0.84f)
+}
+
+@Composable
 fun genUiCardContainerColor(tone: GenUiCardTone = GenUiCardTone.Neutral): Color {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
@@ -300,10 +307,11 @@ fun GenUiCraftTheme(content: @Composable () -> Unit) {
     SideEffect {
         val window = view.context.findActivity()?.window ?: return@SideEffect
         val controller = WindowCompat.getInsetsController(window, view)
+        val navigationScrimColor = colorScheme.background.toArgb()
         controller.isAppearanceLightStatusBars = !darkTheme
         controller.isAppearanceLightNavigationBars = !darkTheme
         window.statusBarColor = android.graphics.Color.TRANSPARENT
-        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = navigationScrimColor
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }

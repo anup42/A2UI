@@ -44,6 +44,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -65,6 +67,11 @@ private object IrDemoRenderSessionCache {
     var loadingMessage: String? = null
     var failureMessage: String? = null
 }
+
+private val IrDemoDebugJsonGson = GsonBuilder()
+    .disableHtmlEscaping()
+    .setPrettyPrinting()
+    .create()
 
 class IrDemoRenderActivity : AppCompatActivity() {
     companion object {
@@ -237,8 +244,6 @@ class IrDemoRenderActivity : AppCompatActivity() {
         val savedIr = record.genUiJson?.trim().orEmpty()
         generatedIrJson = savedIr.takeIf { it.isNotBlank() }
         pipelineLogs = emptyList()
-        appendPipelineLog("Loaded saved Demo artifact.")
-        appendPipelineLog("Stage 3 skipped; using saved GenUI IR.")
         if (payload.isNullOrBlank() || savedIr.isBlank()) {
             uiState = IrDemoRenderUiState.Failure("Saved Demo item is missing GenUI IR.")
             persistSessionCache()
@@ -268,7 +273,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
                 stageDurationsMs = emptyMap(),
                 stageStreamDurationsMs = emptyMap(),
                 usedFallback = false,
-                warnings = renderResult.warnings + "Loaded saved Demo IR directly.",
+                warnings = renderResult.warnings,
                 renderResult = renderResult
             )
         )
@@ -386,7 +391,7 @@ private fun IrDemoRenderScreen(
         DeviceSizeClass.Expanded -> 24.dp
     }
 
-    val topBarTitle = record?.responseId ?: record?.queryId ?: stringResource(id = R.string.ir_demo_render_title)
+    val topBarTitle = stringResource(id = R.string.genui_demo_title)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -424,10 +429,7 @@ private fun IrDemoRenderScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             val hasGeneratedJson = !generatedIrJson.isNullOrBlank()
             val shouldAutoScroll =
@@ -460,6 +462,8 @@ private fun IrDemoRenderScreen(
                     state = contentListState,
                     modifier = backgroundModifier
                         .fillMaxSize()
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
                         .imePadding()
                         .padding(horizontal = horizontalPadding, vertical = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -467,14 +471,6 @@ private fun IrDemoRenderScreen(
                 ) {
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            if (session != null) {
-                                Text(
-                                    text = session.sourceLabel,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
                             if (record != null) {
                                 Text(
                                     text = stringResource(id = R.string.ir_demo_query_prefix),
@@ -506,7 +502,7 @@ private fun IrDemoRenderScreen(
                         item {
                             IrDemoDebugCard(
                                 title = "Generated IR JSON",
-                                content = generatedIrJson,
+                                content = formatIrDemoJsonForDebug(generatedIrJson),
                                 monospace = true
                             )
                         }
@@ -547,21 +543,13 @@ private fun IrDemoRenderScreen(
                     state = contentListState,
                     modifier = backgroundModifier
                         .fillMaxSize()
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
                         .imePadding()
                         .padding(horizontal = horizontalPadding, vertical = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
-                    item {
-                        if (session != null) {
-                            Text(
-                                text = session.sourceLabel,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
                     item {
                         if (record != null) {
                             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -750,6 +738,12 @@ private fun sanitizeIrDemoLogText(value: String): String {
 
 private fun previewIrDemoLog(value: String): String {
     return sanitizeIrDemoLogText(value).take(240)
+}
+
+private fun formatIrDemoJsonForDebug(value: String): String {
+    return runCatching {
+        IrDemoDebugJsonGson.toJson(JsonParser.parseString(value))
+    }.getOrDefault(value)
 }
 
 private fun formatIrDemoDuration(durationMs: Long): String {
