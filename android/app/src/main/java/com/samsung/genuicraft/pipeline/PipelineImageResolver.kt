@@ -44,7 +44,6 @@ internal object PipelineImageResolver {
         var checked = 0
         var resolved = 0
         var replaced = 0
-        var hasRealImage = false
 
         val tableRowImagesAdded = attachCommonsImagesToTravelTables(
             payload = payload.asJsonObject,
@@ -54,7 +53,6 @@ internal object PipelineImageResolver {
         if (tableRowImagesAdded > 0) {
             resolved += tableRowImagesAdded
             replaced += tableRowImagesAdded
-            hasRealImage = true
         }
 
         elements.entrySet().forEach { (id, node) ->
@@ -67,9 +65,6 @@ internal object PipelineImageResolver {
                 element.add("props", it)
             }
             val currentUrl = imageUrlFromProps(props).orEmpty()
-            if (shouldValidateRemoteImage(currentUrl)) {
-                hasRealImage = true
-            }
             if (checked >= MAX_IMAGES_TO_VALIDATE) return@forEach
             if (!shouldValidateRemoteImage(currentUrl)) return@forEach
 
@@ -96,34 +91,6 @@ internal object PipelineImageResolver {
             resolved += 1
             if (!currentIsReachable) {
                 putImageUrl(props, fallbackUrl)
-                replaced += 1
-            }
-        }
-
-        if (!hasRealImage &&
-            (PipelineMediaSanitizer.looksLikeTravelQuery(queryText) ||
-                PipelineMediaSanitizer.looksLikeTravelContent(stage2Response))
-        ) {
-            val fallbackUrl = searchCommonsImageUrl(
-                normalizeSearchQuery("$queryText ${firstContentTitle(stage2Response).orEmpty()} landmark travel")
-            )
-            if (!fallbackUrl.isNullOrBlank()) {
-                val imageId = buildUniqueElementId(elements, "auto_travel_image")
-                elements.add(
-                    imageId,
-                    JsonObject().apply {
-                        addProperty("type", "Image")
-                        add("props", JsonObject().apply {
-                            addProperty("url", fallbackUrl)
-                            addProperty("fit", "cover")
-                            addProperty("aspectRatio", "16:9")
-                            addProperty("alt", firstContentTitle(stage2Response) ?: "Trip image")
-                        })
-                        add("children", com.google.gson.JsonArray())
-                    }
-                )
-                prependRootChild(payload.asJsonObject, imageId)
-                resolved += 1
                 replaced += 1
             }
         }
@@ -460,42 +427,6 @@ internal object PipelineImageResolver {
             jsonStringOrNull(row.get(key))?.takeIf { it.isNotBlank() }
         }
         return normalizeSearchQuery(values.take(3).joinToString(" "))
-    }
-
-    private fun firstContentTitle(text: String): String? {
-        return text.lineSequence()
-            .map { it.trim().removePrefix("#").trim() }
-            .firstOrNull { line ->
-                line.length in 5..90 &&
-                    !line.contains("http", ignoreCase = true) &&
-                    !line.startsWith("Media:", ignoreCase = true) &&
-                    !line.startsWith("Action:", ignoreCase = true)
-            }
-    }
-
-    private fun buildUniqueElementId(elements: JsonObject, base: String): String {
-        var index = 1
-        while (true) {
-            val candidate = "${base}_$index"
-            if (!elements.has(candidate)) return candidate
-            index += 1
-        }
-    }
-
-    private fun prependRootChild(payload: JsonObject, childId: String) {
-        val rootId = jsonStringOrNull(payload.get("root")).orEmpty()
-        if (rootId.isBlank()) return
-        val root = payload.getAsJsonObject("elements")?.getAsJsonObject(rootId) ?: return
-        val children = root.get("children")?.takeIf { it.isJsonArray }?.asJsonArray
-            ?: com.google.gson.JsonArray().also { root.add("children", it) }
-        val existing = children.mapNotNull { child ->
-            if (child.isJsonPrimitive && child.asJsonPrimitive.isString) child.asString else null
-        }
-        if (childId in existing) return
-        root.add("children", com.google.gson.JsonArray().apply {
-            add(childId)
-            existing.forEach { add(it) }
-        })
     }
 
     private fun isReachableImageUrl(rawUrl: String): Boolean {
