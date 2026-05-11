@@ -83,13 +83,12 @@ private fun SampleDatasetPickerScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             Column(
                 modifier = backgroundModifier
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 LazyColumn(

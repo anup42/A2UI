@@ -109,15 +109,14 @@ private fun ItemListScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             Column(
                 modifier = backgroundModifier
-                .padding(horizontal = horizontalPadding, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
+                    .padding(horizontal = horizontalPadding, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
             val sourceText = session?.sourceLabel ?: stringResource(id = R.string.list_empty_source)
             val countText = stringResource(id = R.string.list_count, session?.records?.size ?: 0)

@@ -19,7 +19,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -307,11 +306,11 @@ fun GenUiCraftTheme(content: @Composable () -> Unit) {
     SideEffect {
         val window = view.context.findActivity()?.window ?: return@SideEffect
         val controller = WindowCompat.getInsetsController(window, view)
-        val navigationScrimColor = colorScheme.background.toArgb()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         controller.isAppearanceLightStatusBars = !darkTheme
         controller.isAppearanceLightNavigationBars = !darkTheme
         window.statusBarColor = android.graphics.Color.TRANSPARENT
-        window.navigationBarColor = navigationScrimColor
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }

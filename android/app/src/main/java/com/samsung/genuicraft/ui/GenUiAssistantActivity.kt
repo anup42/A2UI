@@ -800,14 +800,13 @@ private fun GenUiAssistantScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             LazyColumn(
                 modifier = backgroundModifier
                     .fillMaxSize()
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
                     .padding(horizontal = horizontalPadding, vertical = 10.dp),
                 contentPadding = PaddingValues(bottom = listBottomPadding),
                 verticalArrangement = Arrangement.spacedBy(10.dp)

@@ -231,14 +231,13 @@ private fun SettingsScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             LazyColumn(
                 modifier = backgroundModifier
                     .fillMaxSize()
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
                     .imePadding()
                     .padding(horizontal = horizontalPadding, vertical = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)

@@ -193,13 +193,12 @@ private fun RenderScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             Column(
                 modifier = backgroundModifier
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
                     .padding(horizontal = horizontalPadding, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {

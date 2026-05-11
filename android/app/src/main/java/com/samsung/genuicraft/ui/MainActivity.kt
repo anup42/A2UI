@@ -96,13 +96,12 @@ private fun LauncherScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             Column(
                 modifier = backgroundModifier
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
                     .padding(horizontal = horizontalPadding, vertical = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {

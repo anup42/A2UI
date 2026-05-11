@@ -263,16 +263,15 @@ private fun HomeScreen(
         }
     ) { innerPadding ->
         GenUiScreenBackground(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             Column(
                 modifier = backgroundModifier
-                .padding(horizontal = horizontalPadding, vertical = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                    .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
+                    .padding(horizontal = horizontalPadding, vertical = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
             Text(
                 text = stringResourceCompat(R.string.home_subtitle),
