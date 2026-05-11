@@ -247,11 +247,11 @@ fun genUiCardContainerColor(tone: GenUiCardTone = GenUiCardTone.Neutral): Color 
     val glassBase = lerp(tokenColor, scheme.surfaceContainerHighest, if (dark) 0.26f else 0.42f)
     val blended = lerp(glassBase, scheme.primaryContainer, if (dark) 0.10f else 0.16f)
     val alpha = when (tone) {
-        GenUiCardTone.Neutral -> if (dark) 0.76f else 0.78f
-        GenUiCardTone.Primary -> if (dark) 0.80f else 0.82f
-        GenUiCardTone.Positive -> if (dark) 0.80f else 0.82f
-        GenUiCardTone.Warning -> if (dark) 0.80f else 0.82f
-        GenUiCardTone.Error -> if (dark) 0.80f else 0.82f
+        GenUiCardTone.Neutral -> if (dark) 0.88f else 0.90f
+        GenUiCardTone.Primary -> if (dark) 0.90f else 0.92f
+        GenUiCardTone.Positive -> if (dark) 0.90f else 0.92f
+        GenUiCardTone.Warning -> if (dark) 0.90f else 0.92f
+        GenUiCardTone.Error -> if (dark) 0.90f else 0.92f
     }
     return blended.copy(alpha = alpha)
 }
@@ -264,7 +264,7 @@ fun genUiCardColors(tone: GenUiCardTone = GenUiCardTone.Neutral): CardColors {
 @Composable
 fun genUiCardBorderColor(): Color {
     val dark = isSystemInDarkTheme()
-    return MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.52f else 0.42f)
+    return MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.72f else 0.62f)
 }
 
 @Composable
@@ -278,12 +278,12 @@ fun genUiTableContainerColor(): Color {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
     val mixed = lerp(scheme.surfaceContainerLow, scheme.surfaceContainerHighest, if (dark) 0.24f else 0.40f)
-    return mixed.copy(alpha = if (dark) 0.76f else 0.78f)
+    return mixed.copy(alpha = if (dark) 0.88f else 0.90f)
 }
 
 @Composable
 fun genUiTopBarContainerColor(): Color {
-    return MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.78f)
+    return MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.90f)
 }
 
 @Composable

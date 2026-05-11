@@ -998,9 +998,9 @@ private fun GenUiAssistantLandingCard(
                 .background(
                     Brush.linearGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.58f),
-                            MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.46f),
-                            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.50f)
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f),
+                            MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.68f),
+                            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.64f)
                         )
                     )
                 )
