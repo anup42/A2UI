@@ -216,12 +216,7 @@ object IrDemoRecordRepository {
         }
 
         val fileName = buildExportFileName(normalizedQuery, timestamp)
-        val outputUri = DocumentsContract.createDocument(
-            context.contentResolver,
-            folderUri,
-            "application/json",
-            fileName
-        ) ?: error("Could not create export file.")
+        val outputUri = createExportDocumentUri(context, folderUri, fileName)
         context.contentResolver.openOutputStream(outputUri, "wt")?.use { output ->
             output.bufferedWriter(Charsets.UTF_8).use { writer ->
                 writer.write(bundle.toString())
@@ -233,6 +228,19 @@ object IrDemoRecordRepository {
             embeddedAssetCount = embeddedAssets.size,
             failedAssetCount = failedAssetCount + (collectedAssets.size - MAX_EMBEDDED_ASSETS).coerceAtLeast(0)
         )
+    }
+
+    private fun createExportDocumentUri(context: Context, folderUri: Uri, fileName: String): Uri {
+        val parentUri = runCatching {
+            val treeDocumentId = DocumentsContract.getTreeDocumentId(folderUri)
+            DocumentsContract.buildDocumentUriUsingTree(folderUri, treeDocumentId)
+        }.getOrDefault(folderUri)
+        return DocumentsContract.createDocument(
+            context.contentResolver,
+            parentUri,
+            "application/json",
+            fileName
+        ) ?: error("Could not create export file.")
     }
 
     fun importDemoArtifactBundle(context: Context, uri: Uri): IrDemoRecord? {
