@@ -1815,6 +1815,43 @@ private fun flatSourceLabelFromButtonProps(
         ?: flatSourceLabelFromUrl(fallbackUrl)
 }
 
+private fun parseFlatSourceLinksFromListItems(value: Any?): List<ParsedButton> {
+    val items = value as? List<*> ?: return emptyList()
+    return items.flatMap { item ->
+        when (item) {
+            is String -> parseFlatSourceLinksFromLine(item)
+            is Map<*, *> -> {
+                val map = item.entries.associate { (key, entryValue) ->
+                    key.toString() to entryValue
+                }
+                val explicitUrl = listOf("url", "href", "link", "source")
+                    .firstNotNullOfOrNull { key ->
+                        toFlatExternalUrl(map[key]?.toString())
+                    }
+                if (explicitUrl != null) {
+                    val label = listOf("label", "title", "text", "name", "content", "value")
+                        .firstNotNullOfOrNull { key ->
+                            map[key]?.toString()
+                                ?.trim()
+                                ?.takeIf { it.isNotBlank() && !NativeTextFormatter.containsUrlLikeToken(it) }
+                        }
+                        ?: flatSourceLabelFromUrl(explicitUrl)
+                    listOf(ParsedButton(label = label, url = explicitUrl))
+                } else {
+                    listOf("text", "label", "title", "content", "value", "name")
+                        .flatMap { key ->
+                            map[key]?.toString()
+                                ?.takeIf { it.isNotBlank() }
+                                ?.let(::parseFlatSourceLinksFromLine)
+                                .orEmpty()
+                        }
+                }
+            }
+            else -> emptyList()
+        }
+    }.distinctBy { flatCanonicalSourceUrl(it.url) }
+}
+
 private fun collectFlatSourceLinks(
     elementIds: List<String>,
     elements: Map<String, FlatElement>,
@@ -1864,6 +1901,25 @@ private fun collectFlatSourceLinks(
                         ),
                         url = url
                     )
+                }
+            }
+            "list" -> {
+                links += parseFlatSourceLinksFromListItems(resolvedProps["items"])
+                val nestedChildren = element.children.ifEmpty {
+                    resolvedProps["child"]?.toString()?.takeIf { it.isNotBlank() }?.let(::listOf)
+                        ?: emptyList()
+                }
+                if (nestedChildren.isNotEmpty()) {
+                    val nested = collectFlatSourceLinks(
+                        elementIds = nestedChildren,
+                        elements = elements,
+                        state = state,
+                        repeatScope = repeatScope,
+                        computedFunctions = computedFunctions,
+                        activePath = activePath + childId
+                    )
+                    title = title ?: nested.title
+                    links += nested.links
                 }
             }
             else -> {
