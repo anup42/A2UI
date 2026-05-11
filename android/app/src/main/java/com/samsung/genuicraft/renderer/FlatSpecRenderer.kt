@@ -34,8 +34,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -98,10 +100,14 @@ import com.samsung.genuicraft.GenUiTokens
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.samsung.genuicraft.renderer.native.NativeTextFormatter
+import com.samsung.genuicraft.renderer.native.NativePayloadParser
+import com.samsung.genuicraft.renderer.native.ParsedButton
 import com.samsung.genuicraft.renderer.native.intents.flight.NativeFlightSemantics
 import com.samsung.genuicraft.renderer.native.intents.flight.NativeFlightUiRenderer
 import com.samsung.genuicraft.renderer.native.intents.weather.NativeWeatherSemantics
 import com.samsung.genuicraft.renderer.native.intents.weather.NativeWeatherUiRenderer
+import com.samsung.genuicraft.renderer.native.parser.NativeSourceParsing
+import com.samsung.genuicraft.renderer.native.parser.NativeStructureParsing
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import java.util.UUID
@@ -132,6 +138,11 @@ data class RepeatScope(
     val item: Any? = null,
     val index: Int? = null,
     val basePath: String? = null
+)
+
+private data class FlatSourceSection(
+    val title: String?,
+    val links: List<ParsedButton>
 )
 
 private data class WatchEntry(
@@ -1275,7 +1286,7 @@ private fun RenderByType(
         "row" -> RenderStack(elementId, props + mapOf("direction" to "horizontal"), children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "column" -> RenderStack(elementId, props + mapOf("direction" to "vertical"), children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "list" -> RenderList(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "card" -> RenderCard(props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
+        "card" -> RenderCard(elementId, props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
         "table" -> RenderDirectTable(props, state, onOpenUrl, modifier)
         "formula" -> RenderFormula(props, modifier)
         "chart", "barchart", "bar_chart" -> RenderChart(props, state, modifier)
@@ -1370,6 +1381,135 @@ private fun RenderChildren(
                 onSetState = onSetState,
                 onAction = onAction,
                 activePath = activePath
+            )
+        }
+    }
+}
+
+@Composable
+private fun RenderFlatSourceSection(
+    section: FlatSourceSection,
+    onOpenUrl: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    wrapInCard: Boolean,
+    showTitle: Boolean
+) {
+    val dedupedLinks = section.links.distinctBy { flatCanonicalSourceUrl(it.url) }
+    if (dedupedLinks.isEmpty()) {
+        return
+    }
+    val title = section.title
+        ?.let(NativeSourceParsing::normalizeSourceHeadingToken)
+        ?.takeIf { it.isNotBlank() }
+        ?: "Sources"
+
+    @Composable
+    fun SourceContent(contentModifier: Modifier = Modifier) {
+        Column(
+            modifier = contentModifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (showTitle) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.semantics { heading() }
+                )
+            }
+            dedupedLinks.forEach { source ->
+                RenderFlatSourceRow(source, onOpenUrl)
+            }
+        }
+    }
+
+    if (wrapInCard) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .semantics(mergeDescendants = false) {
+                    contentDescription = "$title, ${dedupedLinks.size} links"
+                },
+            colors = flatSpecCardColors(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            shape = RoundedCornerShape(16.dp),
+            border = flatSpecCardBorder()
+        ) {
+            SourceContent(
+                contentModifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)
+            )
+        }
+    } else {
+        SourceContent(modifier)
+    }
+}
+
+@Composable
+private fun RenderFlatSourceRow(
+    source: ParsedButton,
+    onOpenUrl: (String) -> Unit
+) {
+    val label = source.label
+        .takeIf { it.isNotBlank() }
+        ?: flatSourceLabelFromUrl(source.url)
+    val urlHint = flatSourceUrlDisplay(source.url)
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(role = Role.Button) { onOpenUrl(source.url) }
+            .semantics(mergeDescendants = true) {
+                contentDescription = "Open source $label"
+                role = Role.Button
+            },
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.38f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(34.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Filled.Link,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = parseBoldMarkdown(label),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = urlHint,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
             )
         }
     }
@@ -1516,6 +1656,333 @@ private fun parseUrlHost(rawUrl: String): String {
     return runCatching {
         URI(normalized).host?.lowercase().orEmpty()
     }.getOrElse { "" }
+}
+
+private fun flatSourceCueText(value: String?): Boolean {
+    val normalized = NativeSourceParsing
+        .normalizeSourceHeadingToken(value.orEmpty())
+        .trim()
+    if (normalized.isBlank()) return false
+    val lower = normalized.lowercase()
+    return NativeSourceParsing.isSourceHeadingLine(normalized) ||
+        lower.contains("source") ||
+        lower.contains("reference") ||
+        lower.contains("citation")
+}
+
+private fun flatSourceCueFromSelf(
+    elementId: String,
+    props: Map<String, Any?>
+): Boolean {
+    if (flatSourceCueText(elementId)) return true
+    return listOf(
+        "role",
+        "semanticRole",
+        "domain",
+        "section",
+        "title",
+        "label",
+        "heading",
+        "accessibilityLabel",
+        "ariaLabel"
+    ).any { key -> flatSourceCueText(props[key]?.toString()) }
+}
+
+private fun flatDirectSourceCue(
+    childId: String,
+    element: FlatElement,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    computedFunctions: Map<String, FlatComputedFunction>
+): Boolean {
+    if (flatSourceCueText(childId) || flatSourceCueFromSelf(childId, element.props)) {
+        return true
+    }
+    if (!element.type.equals("text", ignoreCase = true)) {
+        return false
+    }
+    val rawText = listOf("text", "title", "label", "content", "value")
+        .firstNotNullOfOrNull { key -> element.props[key] }
+        ?: return false
+    val resolved = FlatExprResolver.resolve(rawText, state, repeatScope, computedFunctions)
+        ?.toString()
+        .orEmpty()
+    return resolved
+        .lineSequence()
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+        .any { NativeSourceParsing.isSourceHeadingLine(it) }
+}
+
+private fun flatResolvedString(
+    value: Any?,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    computedFunctions: Map<String, FlatComputedFunction>
+): String {
+    return FlatExprResolver.resolve(value, state, repeatScope, computedFunctions)
+        ?.toString()
+        ?.trim()
+        .orEmpty()
+}
+
+private fun toFlatExternalUrl(value: String?): String? {
+    val normalized = NativePayloadParser.canonicalizeNetworkUrlToken(
+        flatSanitizeUrlToken(value.orEmpty())
+    )
+    if (normalized.isBlank()) return null
+    val scheme = runCatching { Uri.parse(normalized).scheme?.lowercase() }.getOrNull()
+    return normalized.takeIf { scheme == "http" || scheme == "https" }
+}
+
+private fun flatSanitizeUrlToken(value: String): String =
+    NativeStructureParsing.sanitizeUrlToken(value)
+
+private fun parseFlatSourceLinksFromLine(line: String): List<ParsedButton> {
+    return NativeSourceParsing.parseSourceLinksFromLine(
+        line = line,
+        stripLeadingBulletMarker = NativeStructureParsing::stripLeadingBulletMarker,
+        sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
+        sanitizeUrlToken = ::flatSanitizeUrlToken,
+        toExternalUrl = ::toFlatExternalUrl,
+        containsUrlLikeToken = NativeTextFormatter::containsUrlLikeToken
+    )
+}
+
+private fun flatSourceTitleFromText(value: String): String? {
+    return value
+        .lineSequence()
+        .map { it.trim() }
+        .firstOrNull { NativeSourceParsing.isSourceHeadingLine(it) }
+        ?.let(NativeSourceParsing::normalizeSourceHeadingToken)
+        ?.takeIf { it.isNotBlank() }
+}
+
+private fun flatSourceUrlCandidateFromAction(
+    onMap: Map<String, Any?>?,
+    props: Map<String, Any?>,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    computedFunctions: Map<String, FlatComputedFunction>
+): String? {
+    val eventCandidates = listOf("press", "click", "tap", "select", "open")
+    val actionCandidates = eventCandidates
+        .mapNotNull { event ->
+            toStringKeyMap(onMap?.get(event))?.takeIf { it.isNotEmpty() }
+        }
+    val propCandidates = listOf(
+        props["url"],
+        props["href"],
+        props["link"],
+        props["source"]
+    )
+    val actionUrlCandidates = actionCandidates.flatMap { action ->
+        val params = toStringKeyMap(action["params"]) ?: emptyMap()
+        listOf(
+            params["url"],
+            params["href"],
+            params["link"],
+            action["url"],
+            action["href"],
+            action["link"]
+        )
+    }
+    return (actionUrlCandidates + propCandidates)
+        .firstNotNullOfOrNull { raw ->
+            toFlatExternalUrl(
+                flatResolvedString(
+                    value = raw,
+                    state = state,
+                    repeatScope = repeatScope,
+                    computedFunctions = computedFunctions
+                )
+            )
+        }
+}
+
+private fun flatSourceLabelFromButtonProps(
+    props: Map<String, Any?>,
+    fallbackUrl: String,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    computedFunctions: Map<String, FlatComputedFunction>
+): String {
+    return listOf("label", "text", "title", "content", "value")
+        .firstNotNullOfOrNull { key ->
+            flatResolvedString(props[key], state, repeatScope, computedFunctions)
+                .takeIf { it.isNotBlank() && !NativeTextFormatter.containsUrlLikeToken(it) }
+        }
+        ?: flatSourceLabelFromUrl(fallbackUrl)
+}
+
+private fun collectFlatSourceLinks(
+    elementIds: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    computedFunctions: Map<String, FlatComputedFunction>,
+    activePath: Set<String> = emptySet()
+): FlatSourceSection {
+    var title: String? = null
+    val links = mutableListOf<ParsedButton>()
+
+    elementIds.forEach { childId ->
+        if (childId in activePath) return@forEach
+        val element = elements[childId] ?: return@forEach
+        val resolvedProps = element.props.mapValues { (_, value) ->
+            FlatExprResolver.resolve(value, state, repeatScope, computedFunctions)
+        }
+        when (element.type.lowercase()) {
+            "text" -> {
+                val rawText = listOf("text", "title", "label", "content", "value")
+                    .firstNotNullOfOrNull { key -> resolvedProps[key]?.toString() }
+                    .orEmpty()
+                title = title ?: flatSourceTitleFromText(rawText)
+                rawText
+                    .lineSequence()
+                    .map { it.trim() }
+                    .filter { it.isNotBlank() && !NativeSourceParsing.isSourceHeadingLine(it) }
+                    .flatMap { parseFlatSourceLinksFromLine(it).asSequence() }
+                    .forEach(links::add)
+            }
+            "button" -> {
+                val url = flatSourceUrlCandidateFromAction(
+                    onMap = element.on,
+                    props = resolvedProps,
+                    state = state,
+                    repeatScope = repeatScope,
+                    computedFunctions = computedFunctions
+                )
+                if (url != null) {
+                    links += ParsedButton(
+                        label = flatSourceLabelFromButtonProps(
+                            props = resolvedProps,
+                            fallbackUrl = url,
+                            state = state,
+                            repeatScope = repeatScope,
+                            computedFunctions = computedFunctions
+                        ),
+                        url = url
+                    )
+                }
+            }
+            else -> {
+                val nestedChildren = element.children.ifEmpty {
+                    resolvedProps["child"]?.toString()?.takeIf { it.isNotBlank() }?.let(::listOf)
+                        ?: emptyList()
+                }
+                if (nestedChildren.isNotEmpty()) {
+                    val nested = collectFlatSourceLinks(
+                        elementIds = nestedChildren,
+                        elements = elements,
+                        state = state,
+                        repeatScope = repeatScope,
+                        computedFunctions = computedFunctions,
+                        activePath = activePath + childId
+                    )
+                    title = title ?: nested.title
+                    links += nested.links
+                }
+            }
+        }
+    }
+
+    return FlatSourceSection(
+        title = title,
+        links = links.distinctBy { flatCanonicalSourceUrl(it.url) }
+    )
+}
+
+private fun extractFlatSourceSection(
+    elementId: String,
+    props: Map<String, Any?>,
+    children: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>,
+    repeatScope: RepeatScope?,
+    computedFunctions: Map<String, FlatComputedFunction>,
+    allowChildSourceCue: Boolean
+): FlatSourceSection? {
+    val hasSelfCue = flatSourceCueFromSelf(elementId, props)
+    val hasChildCue = allowChildSourceCue && children.any { childId ->
+        elements[childId]?.let { child ->
+            flatDirectSourceCue(
+                childId = childId,
+                element = child,
+                state = state,
+                repeatScope = repeatScope,
+                computedFunctions = computedFunctions
+            )
+        } == true
+    }
+    if (!hasSelfCue && !hasChildCue) return null
+
+    val section = collectFlatSourceLinks(
+        elementIds = children,
+        elements = elements,
+        state = state,
+        repeatScope = repeatScope,
+        computedFunctions = computedFunctions
+    )
+    return section.takeIf { it.links.isNotEmpty() }
+}
+
+private fun flatCanonicalSourceUrl(raw: String): String {
+    val normalized = raw.trim()
+    val uri = runCatching { Uri.parse(normalized) }.getOrNull()
+        ?: return normalized.lowercase()
+    val scheme = (uri.scheme ?: "https").lowercase()
+    val host = uri.host?.lowercase()?.removePrefix("www.").orEmpty()
+    if (host.isBlank()) {
+        return normalized.lowercase()
+    }
+    val path = uri.path.orEmpty().trimEnd('/')
+    val query = uri.query.orEmpty().trim()
+    return buildString {
+        append(scheme)
+        append("://")
+        append(host)
+        if (path.isNotBlank()) append(path)
+        if (query.isNotBlank()) {
+            append('?')
+            append(query)
+        }
+    }
+}
+
+private fun flatSourceLabelFromUrl(url: String): String {
+    val host = runCatching { Uri.parse(url).host?.removePrefix("www.").orEmpty() }
+        .getOrElse { "" }
+    return host
+        .substringBefore('.')
+        .replace('-', ' ')
+        .replace('_', ' ')
+        .split(Regex("""\s+"""))
+        .filter { it.isNotBlank() }
+        .joinToString(" ") { token ->
+            token.replaceFirstChar { ch ->
+                if (ch.isLowerCase()) ch.titlecase() else ch.toString()
+            }
+        }
+        .ifBlank { "Source" }
+}
+
+private fun flatSourceUrlDisplay(url: String): String {
+    val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return url
+    val host = uri.host?.removePrefix("www.").orEmpty()
+    if (host.isBlank()) return url
+    val pathHint = uri.pathSegments
+        ?.take(2)
+        ?.filter { it.isNotBlank() }
+        ?.joinToString("/")
+        .orEmpty()
+    return buildString {
+        append(host)
+        if (pathHint.isNotBlank()) {
+            append('/')
+            append(pathHint)
+        }
+    }.take(72)
 }
 
 private fun looksLikeWeatherContext(sourceUrl: String, props: Map<String, Any?>): Boolean {
@@ -2592,6 +3059,26 @@ private fun RenderStack(
     modifier: Modifier = Modifier
 ) {
     val compactScreen = LocalConfiguration.current.screenWidthDp <= 480
+    val computedFunctions = LocalFlatSpecComputedFunctions.current
+    extractFlatSourceSection(
+        elementId = elementId,
+        props = props,
+        children = children,
+        elements = elements,
+        state = state,
+        repeatScope = repeatScope,
+        computedFunctions = computedFunctions,
+        allowChildSourceCue = false
+    )?.let { sourceSection ->
+        RenderFlatSourceSection(
+            section = sourceSection,
+            onOpenUrl = onOpenUrl,
+            modifier = modifier,
+            wrapInCard = false,
+            showTitle = sourceSection.title != null
+        )
+        return
+    }
     val tableModel = if (repeatedChildScopes == null) {
         extractFlatTableModel(
             containerChildren = children,
@@ -8921,6 +9408,7 @@ private fun RenderList(
 
 @Composable
 private fun RenderCard(
+    elementId: String,
     props: Map<String, Any?>,
     children: List<String>,
     elements: Map<String, FlatElement>,
@@ -8935,6 +9423,26 @@ private fun RenderCard(
 ) {
     val allChildren = children.ifEmpty {
         props["child"]?.toString()?.let { listOf(it) } ?: emptyList()
+    }
+    val computedFunctions = LocalFlatSpecComputedFunctions.current
+    extractFlatSourceSection(
+        elementId = elementId,
+        props = props,
+        children = allChildren,
+        elements = elements,
+        state = state,
+        repeatScope = repeatScope,
+        computedFunctions = computedFunctions,
+        allowChildSourceCue = true
+    )?.let { sourceSection ->
+        RenderFlatSourceSection(
+            section = sourceSection,
+            onOpenUrl = onOpenUrl,
+            modifier = modifier,
+            wrapInCard = true,
+            showTitle = true
+        )
+        return
     }
     extractEmailPreviewPropsFromCard(allChildren, elements, state, repeatScope)?.let { emailProps ->
         RenderEmailPreview(emailProps, modifier)
