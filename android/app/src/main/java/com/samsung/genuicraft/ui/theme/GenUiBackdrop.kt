@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 
-private const val FALLBACK_WALLPAPER_BLUR_RADIUS_PX = 48f
+private const val FALLBACK_WALLPAPER_BLUR_RADIUS_PX = 96f
 
 @Composable
 fun GenUiScreenBackground(

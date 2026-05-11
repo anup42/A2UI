@@ -8,9 +8,9 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import java.util.Locale
 
-private const val WINDOW_BACKGROUND_BLUR_RADIUS_PX = 120
-private const val WINDOW_BEHIND_BLUR_RADIUS_PX = 56
-private const val SAMSUNG_SEM_WINDOW_BLUR_RADIUS_PX = 96
+private const val WINDOW_BACKGROUND_BLUR_RADIUS_PX = 240
+private const val WINDOW_BEHIND_BLUR_RADIUS_PX = 112
+private const val SAMSUNG_SEM_WINDOW_BLUR_RADIUS_PX = 192
 private const val WINDOW_BLUR_TAG = "GenUiWindowBlur"
 
 fun Context.isCrossWindowBlurActive(): Boolean {
