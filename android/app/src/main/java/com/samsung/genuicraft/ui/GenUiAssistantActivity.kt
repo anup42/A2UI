@@ -48,10 +48,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.WbSunny
@@ -516,25 +517,25 @@ private fun GenUiAssistantScreen(
                         modifier = Modifier.padding(end = 6.dp)
                     ) {
                         if (hasConversation) {
-                            TextButton(
+                            IconButton(
                                 onClick = { clearConversation() },
-                                enabled = !isRunning,
-                                contentPadding = PaddingValues(horizontal = 8.dp)
+                                enabled = !isRunning
                             ) {
-                                Text(
-                                    text = "Clear",
-                                    style = MaterialTheme.typography.labelMedium
+                                Icon(
+                                    imageVector = Icons.Filled.Clear,
+                                    contentDescription = stringResource(id = R.string.genui_assistant_clear_content_desc),
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
                         if (canSaveToIrDemo) {
-                            TextButton(
-                                onClick = { exportFolderLauncher.launch(null) },
-                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            IconButton(
+                                onClick = { exportFolderLauncher.launch(null) }
                             ) {
-                                Text(
-                                    text = "Export",
-                                    style = MaterialTheme.typography.labelMedium
+                                Icon(
+                                    imageVector = Icons.Filled.FileUpload,
+                                    contentDescription = stringResource(id = R.string.genui_assistant_export_content_desc),
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }

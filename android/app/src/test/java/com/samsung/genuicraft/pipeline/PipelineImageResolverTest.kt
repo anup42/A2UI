@@ -64,4 +64,21 @@ class PipelineImageResolverTest {
             PipelineImageResolver.extractCommonsImageUrlForTest(raw)
         )
     }
+
+    @Test
+    fun travelRowSearchQueries_prioritizeDestinationAndSpecificPlace() {
+        val queries = PipelineImageResolver.travelRowSearchQueriesForTest(
+            rowValues = mapOf(
+                "area" to "West Coast",
+                "morning" to "Arrive and settle in near Kata or Karon Beach",
+                "afternoon" to "Relax on the beach and enjoy a sunset walk"
+            ),
+            queryText = "show 4day vacation itinerary in phuket"
+        )
+
+        assertTrue(queries.first().contains("phuket", ignoreCase = true))
+        assertTrue(queries.first().contains("Kata", ignoreCase = true))
+        assertTrue(queries.first().contains("Beach", ignoreCase = true))
+        assertFalse(queries.first().contains("Arrive", ignoreCase = true))
+    }
 }

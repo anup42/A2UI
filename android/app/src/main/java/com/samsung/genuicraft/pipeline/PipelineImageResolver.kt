@@ -320,14 +320,16 @@ internal object PipelineImageResolver {
                     return@forEach
                 }
 
-                val rowLabel = travelRowSearchLabel(rowObj)
-                if (rowLabel.isBlank()) return@forEach
-                val imageUrl = searchCommonsImageUrl(
-                    normalizeSearchQuery("$rowLabel $queryText landmark travel")
-                )?.takeIf { it !in seenUrls } ?: return@forEach
+                val searchQueries = travelRowSearchQueries(rowObj, queryText)
+                if (searchQueries.isEmpty()) return@forEach
+                val imageUrl = searchQueries
+                    .asSequence()
+                    .mapNotNull { searchCommonsImageUrl(it) }
+                    .firstOrNull { it !in seenUrls }
+                    ?: return@forEach
                 seenUrls += imageUrl
                 rowObj.addProperty("image", imageUrl)
-                rowObj.addProperty("imageAlt", rowLabel)
+                rowObj.addProperty("imageAlt", travelRowImageAlt(rowObj, queryText))
                 added += 1
             }
         }
@@ -418,15 +420,99 @@ internal object PipelineImageResolver {
         return current
     }
 
-    private fun travelRowSearchLabel(row: JsonObject): String {
+    internal fun travelRowSearchQueriesForTest(
+        rowValues: Map<String, String>,
+        queryText: String
+    ): List<String> {
+        val row = JsonObject().apply {
+            rowValues.forEach { (key, value) -> addProperty(key, value) }
+        }
+        return travelRowSearchQueries(row, queryText)
+    }
+
+    private fun travelRowSearchQueries(row: JsonObject, queryText: String): List<String> {
+        val destination = PipelineMediaSanitizer.extractTravelLocationKeyword(queryText)
+            .takeUnless { it.equals("travel", ignoreCase = true) }
+            .orEmpty()
+        val rawValues = travelRowTextValues(row)
+        val placePhrases = rawValues
+            .flatMap(::extractTravelPlacePhrases)
+            .distinctBy { it.lowercase(Locale.US) }
+            .sortedWith(
+                compareBy<String> { phrase ->
+                    if (phrase.contains("coast", ignoreCase = true)) 1 else 0
+                }.thenBy { it.length }
+            )
+        return buildList {
+            placePhrases.forEach { phrase ->
+                add("$destination $phrase")
+            }
+            val area = jsonStringOrNull(row.get("area"))
+                ?: jsonStringOrNull(row.get("location"))
+                ?: jsonStringOrNull(row.get("place"))
+            if (!destination.isBlank() && !area.isNullOrBlank()) {
+                add("$destination $area")
+            }
+            rawValues.take(2).forEach { value ->
+                add("$destination $value")
+            }
+        }
+            .map(::normalizeSearchQuery)
+            .filter { it.isNotBlank() }
+            .distinctBy { it.lowercase(Locale.US) }
+    }
+
+    private fun travelRowImageAlt(row: JsonObject, queryText: String): String {
+        val destination = PipelineMediaSanitizer.extractTravelLocationKeyword(queryText)
+        val phrase = travelRowTextValues(row)
+            .flatMap(::extractTravelPlacePhrases)
+            .firstOrNull()
+            ?: jsonStringOrNull(row.get("area"))
+            ?: jsonStringOrNull(row.get("place"))
+            ?: jsonStringOrNull(row.get("location"))
+            ?: destination
+        return listOf(phrase, destination)
+            .filter { it.isNotBlank() }
+            .distinctBy { it.lowercase(Locale.US) }
+            .joinToString(", ")
+    }
+
+    private fun travelRowTextValues(row: JsonObject): List<String> {
         val preferredKeys = listOf(
             "area", "place", "location", "title", "focus", "destination", "neighborhood",
             "morning", "afternoon", "evening"
         )
-        val values = preferredKeys.mapNotNull { key ->
+        return preferredKeys.mapNotNull { key ->
             jsonStringOrNull(row.get(key))?.takeIf { it.isNotBlank() }
         }
-        return normalizeSearchQuery(values.take(3).joinToString(" "))
+    }
+
+    private fun extractTravelPlacePhrases(value: String): List<String> {
+        val suffixes = "Beach|Beaches|Town|Market|Temple|Museum|Palace|Cape|Viewpoint|Island|Islands|Bay|Garden|Park|Hill|Hills|Buddha|Falls|Lake|Fort|Church|Cathedral|Mosque|Coast|Harbor|Harbour|Pier|Road|Street|Village"
+        val pattern = Regex(
+            """\b([A-Z][A-Za-z0-9'’.-]*(?:\s+[A-Z][A-Za-z0-9'’.-]*)*(?:\s+(?:or|and)\s+[A-Z][A-Za-z0-9'’.-]*(?:\s+[A-Z][A-Za-z0-9'’.-]*)*)?\s+(?:$suffixes))\b"""
+        )
+        return pattern.findAll(value)
+            .flatMap { match -> expandJoinedPlacePhrase(match.groupValues[1]).asSequence() }
+            .map { it.trim().trim('.', ',', ';', ':') }
+            .filter { it.length >= 4 }
+            .toList()
+    }
+
+    private fun expandJoinedPlacePhrase(phrase: String): List<String> {
+        val parts = phrase.split(Regex("""\s+(?:or|and)\s+"""))
+        if (parts.size < 2) return listOf(phrase)
+        val suffix = parts.last().substringAfterLast(' ').trim()
+        if (suffix.isBlank()) return listOf(phrase)
+        val expanded = parts.mapIndexed { index, part ->
+            val clean = part.trim()
+            if (index == parts.lastIndex || clean.endsWith(suffix, ignoreCase = true)) {
+                clean
+            } else {
+                "$clean $suffix"
+            }
+        }
+        return expanded + phrase
     }
 
     private fun isReachableImageUrl(rawUrl: String): Boolean {

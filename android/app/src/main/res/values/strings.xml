@@ -84,6 +84,8 @@
     <string name="genui_assistant_placeholder">Type your request</string>
     <string name="genui_assistant_send">Send</string>
     <string name="genui_assistant_send_content_desc">Send prompt</string>
+    <string name="genui_assistant_clear_content_desc">Clear current scenario</string>
+    <string name="genui_assistant_export_content_desc">Export current scenario</string>
     <string name="genui_assistant_save_ir_content_desc">Save current response to IR Demo</string>
 
     <string name="ir_demo_list_title">IR Demo</string>
