@@ -538,20 +538,11 @@ object GenUiNativeRenderer {
     ) {
         // Phase 2+: flat spec format — use new renderer
         if (surface.flatSpec != null) {
-            Card(
-                shape = RoundedCornerShape(GenUiTokens.RadiusXl),
-                colors = genUiCardColors(GenUiCardTone.Neutral),
-                elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationMd),
+            FlatSpecContent(
+                spec = surface.flatSpec,
+                resolveAssetUrl = { raw -> resolveSurfaceAssetUrl(raw, sourceDir, surface.assetUrlMap) },
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                FlatSpecContent(
-                    spec = surface.flatSpec,
-                    resolveAssetUrl = { raw -> resolveSurfaceAssetUrl(raw, sourceDir, surface.assetUrlMap) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
-            }
+            )
             return
         }
 

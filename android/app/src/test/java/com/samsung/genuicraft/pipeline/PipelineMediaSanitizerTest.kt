@@ -40,4 +40,65 @@ class PipelineMediaSanitizerTest {
 
         assertEquals(response, transformed)
     }
+
+    @Test
+    fun hasInlineImageUrl_ignoresBootstrapIconImageAssignments() {
+        val response = "Media: Image=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg"
+
+        assertEquals(false, PipelineMediaSanitizer.hasInlineImageUrl(response))
+        assertTrue(PipelineMediaSanitizer.hasInlineIconUrl("Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg"))
+    }
+
+    @Test
+    fun hasInlineImageUrl_ignoresRandomPlaceholderHosts() {
+        val response = "Media: Image=https://loremflickr.com/1200/800/travel,bengaluru"
+
+        assertEquals(false, PipelineMediaSanitizer.hasInlineImageUrl(response))
+    }
+
+    @Test
+    fun ensureTravelInlineMedia_addsIconOnlyFallbackWithoutHardcodedImages() {
+        val response = """
+            # 4-Day City Vacation
+
+            Day 1: Central district and park
+            - Morning: Walk around the main park.
+        """.trimIndent()
+
+        val transformed = PipelineMediaSanitizer.ensureTravelInlineMedia(
+            responseText = response,
+            queryText = "show 4 day itinerary for vacation in a city"
+        )
+
+        assertEquals(false, transformed.contains("Image="))
+        assertTrue(transformed.contains("Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/"))
+    }
+
+    @Test
+    fun ensureGenUiHasImageComponent_injectsMissingFlatSpecImage() {
+        val json = """
+            {
+              "root": "rootStack",
+              "state": {},
+              "elements": {
+                "rootStack": { "type": "Stack", "props": {}, "children": ["title"] },
+                "title": { "type": "Text", "props": { "text": "Trip Plan" }, "children": [] }
+              }
+            }
+        """.trimIndent()
+        val response = """
+            Day 1: City center
+            Media: Image=https://example.com/place-card.jpg Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg
+        """.trimIndent()
+
+        val transformed = PipelineMediaSanitizer.ensureGenUiHasImageComponent(
+            jsonText = json,
+            stage2Response = response,
+            queryText = "show 4 day itinerary for vacation"
+        )
+
+        assertTrue(transformed.contains("\"type\":\"Image\""))
+        assertTrue(transformed.contains("place-card.jpg"))
+        assertTrue(transformed.contains("\"auto_media_"))
+    }
 }

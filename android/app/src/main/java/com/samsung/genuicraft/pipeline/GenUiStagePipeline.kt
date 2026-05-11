@@ -13,6 +13,7 @@ import com.samsung.genuicraft.mcp.McpResponseFormatter
 import com.samsung.genuicraft.mcp.McpSettings
 import com.samsung.genuicraft.pipeline.PipelineCacheManager
 import com.samsung.genuicraft.pipeline.FlatSpecContract
+import com.samsung.genuicraft.pipeline.PipelineImageResolver
 import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
 import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
 import com.samsung.genuicraft.pipeline.PipelinePromptBuilder
@@ -503,7 +504,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             temperature = stage2Temperature,
             maxOutputTokens = stage2MaxOutputTokens,
             jsonMode = false,
-            enableGoogleSearch = responseProvider == InferenceBackendSettings.Provider.GEMINI,
+            enableGoogleSearch = responseProvider == InferenceBackendSettings.Provider.GEMINI ||
+                responseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI,
             cachedContentName = stage2Cache.name,
             allowCachedContent = true,
             structuredOutput = false,
@@ -794,7 +796,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
-        // Image injection into root removed - cards handle their own inline images.
+        // Preserve real Stage 2 image media when Stage 3 drops it.
         val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
             jsonText = stage3Json,
             queryText = normalizedQuery,
@@ -812,8 +814,29 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = stage3WithStableMediaUrls
             warnings += "Rewrote unstable media URLs to deterministic topic icons."
         }
-        // Inline text media injection removed - cards handle their own images.
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(stage2Response)
+        if (stage2HasInlineImage &&
+            !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
+        ) {
+            val stage3WithImageComponent = PipelineMediaSanitizer.ensureGenUiHasImageComponent(
+                jsonText = stage3Json,
+                stage2Response = stage2Response,
+                queryText = normalizedQuery
+            )
+            if (stage3WithImageComponent != stage3Json) {
+                stage3Json = stage3WithImageComponent
+                warnings += "Injected fallback image component to preserve response media."
+            }
+        }
+        val imageRepairResult = PipelineImageResolver.repairImageUrls(
+            jsonText = stage3Json,
+            queryText = normalizedQuery,
+            stage2Response = stage2Response
+        )
+        if (imageRepairResult.jsonText != stage3Json) {
+            stage3Json = imageRepairResult.jsonText
+            warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
+        }
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -1272,7 +1295,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         var stage3Json = gson.toJson(normalizedGenUi)
-        // Image injection into root removed - cards handle their own inline images.
+        // Preserve real Stage 2 image media when Stage 3 drops it.
         val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
             jsonText = stage3Json,
             queryText = normalizedQuery,
@@ -1290,8 +1313,29 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = stage3WithStableMediaUrls
             warnings += "Rewrote unstable media URLs to deterministic topic icons."
         }
-        // Inline text media injection removed - cards handle their own images.
         val stage2HasInlineImage = PipelineMediaSanitizer.hasInlineImageUrl(stage2Response)
+        if (stage2HasInlineImage &&
+            !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
+        ) {
+            val stage3WithImageComponent = PipelineMediaSanitizer.ensureGenUiHasImageComponent(
+                jsonText = stage3Json,
+                stage2Response = stage2Response,
+                queryText = normalizedQuery
+            )
+            if (stage3WithImageComponent != stage3Json) {
+                stage3Json = stage3WithImageComponent
+                warnings += "Injected fallback image component to preserve response media."
+            }
+        }
+        val imageRepairResult = PipelineImageResolver.repairImageUrls(
+            jsonText = stage3Json,
+            queryText = normalizedQuery,
+            stage2Response = stage2Response
+        )
+        if (imageRepairResult.jsonText != stage3Json) {
+            stage3Json = imageRepairResult.jsonText
+            warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
+        }
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -1568,7 +1612,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         // Restore shortened URL placeholders back to real URLs
         var stage3Json = com.samsung.genuicraft.mcp.McpUrlShortener.restore(gson.toJson(normalizedGenUi), urlMap)
-        // Image injection into root removed - cards handle their own inline images.
+        // Preserve real Stage 2 image media when Stage 3 drops it.
         val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
             jsonText = stage3Json, queryText = normalizedQuery, stage2Response = sanitizedResponse
         )
@@ -1587,13 +1631,24 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (stage2HasInlineImage &&
             !PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         ) {
-            val stage3WithInlineTextMedia = PipelineMediaSanitizer.ensureGenUiHasInlineTextMedia(
-                jsonText = stage3Json, queryText = normalizedQuery
+            val stage3WithImageComponent = PipelineMediaSanitizer.ensureGenUiHasImageComponent(
+                jsonText = stage3Json,
+                stage2Response = sanitizedResponse,
+                queryText = normalizedQuery
             )
-            if (stage3WithInlineTextMedia != stage3Json) {
-                stage3Json = stage3WithInlineTextMedia
-                warnings += "Injected fallback inline media text to preserve image rendering."
+            if (stage3WithImageComponent != stage3Json) {
+                stage3Json = stage3WithImageComponent
+                warnings += "Injected fallback image component to preserve response media."
             }
+        }
+        val imageRepairResult = PipelineImageResolver.repairImageUrls(
+            jsonText = stage3Json,
+            queryText = normalizedQuery,
+            stage2Response = sanitizedResponse
+        )
+        if (imageRepairResult.jsonText != stage3Json) {
+            stage3Json = imageRepairResult.jsonText
+            warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
         }
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(sanitizedResponse)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)

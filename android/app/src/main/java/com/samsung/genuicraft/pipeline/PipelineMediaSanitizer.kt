@@ -533,14 +533,13 @@ internal object PipelineMediaSanitizer {
         val iconCandidate = iconUrl ?: iconColonUrl
 
         val travelIconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/${pickTravelIconName(contextLine)}.svg"
-        // Preserve real, usable API image URLs (e.g. MCP hotel thumbnails from googleusercontent.com);
-        // only rewrite to the travel icon when the original URL is hallucinated / unusable.
+        // Preserve real, usable API image URLs (e.g. MCP hotel thumbnails from googleusercontent.com).
         val candidateImageUrl = imageUrl ?: imageColonUrl ?: markdownUrl
         val rewrittenImage = if (hasImageSignal) {
-            if (candidateImageUrl != null && looksLikeUsableInlineMediaUrl(candidateImageUrl)) {
+            if (candidateImageUrl != null && looksLikeUsableInlineImageUrl(candidateImageUrl)) {
                 candidateImageUrl
             } else {
-                travelIconUrl
+                null
             }
         } else {
             null
@@ -628,7 +627,7 @@ internal object PipelineMediaSanitizer {
     ): String {
         val iconName = pickTravelIconName(line)
         val iconUrl = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/$iconName.svg"
-        return "Media: Image=$iconUrl Icon=$iconUrl"
+        return "Media: Icon=$iconUrl"
     }
 
     fun buildTravelImageKeyword(line: String, locationKeyword: String): String {
@@ -674,7 +673,7 @@ internal object PipelineMediaSanitizer {
         )
             .findAll(text)
             .map { sanitizeMediaUrlToken(it.groupValues[1]) }
-            .any { looksLikeUsableInlineMediaUrl(it) }
+            .any { looksLikeUsableInlineImageUrl(it) }
         if (imageAssignment) {
             return true
         }
@@ -683,8 +682,14 @@ internal object PipelineMediaSanitizer {
         )
             .findAll(text)
             .map { sanitizeMediaUrlToken(it.groupValues[1]) }
-            .any { looksLikeUsableInlineMediaUrl(it) }
-        return imageColon
+            .any { looksLikeUsableInlineImageUrl(it) }
+        if (imageColon) {
+            return true
+        }
+        return Regex("""!\[[^\]]*]\((https?://\S+|/assets/\S+|assets/\S+)\)""")
+            .findAll(text)
+            .map { sanitizeMediaUrlToken(it.groupValues[1]) }
+            .any { looksLikeUsableInlineImageUrl(it) }
     }
 
     fun hasInlineIconUrl(text: String): Boolean {
@@ -712,7 +717,9 @@ internal object PipelineMediaSanitizer {
             ?.groupValues
             ?.getOrNull(1)
             ?.lowercase(Locale.US)
-        if (!itineraryPattern.isNullOrBlank()) {
+        if (!itineraryPattern.isNullOrBlank() &&
+            itineraryPattern !in setOf("itinerary", "vacation", "travel", "trip", "holiday")
+        ) {
             return itineraryPattern
         }
 
@@ -1177,8 +1184,43 @@ internal object PipelineMediaSanitizer {
     }
 
     fun genUiPreservesInlineImages(jsonText: String): Boolean {
-        // Phase 2+ flat spec: "type":"Image" with "url" in props
-        if (Regex(""""type"\s*:\s*"Image"[\s\S]{0,320}"url"\s*:\s*"(?:https?://|/assets/|assets/)""",
+        runCatching { JsonParser.parseString(jsonText) }.getOrNull()?.let { parsed ->
+            val payload = normalizeGenUiPayload(parsed)
+            if (payload.isJsonObject && FlatSpecContract.looksLikeFlatSpec(payload)) {
+                val elements = payload.asJsonObject.getAsJsonObject("elements")
+                if (elements != null && elements.entrySet().any { (_, node) ->
+                        if (!node.isJsonObject) return@any false
+                        val element = node.asJsonObject
+                        jsonStringOrNull(element.get("type")).equals("Image", ignoreCase = true) &&
+                            imageUrlFromProps(element.get("props")?.takeIf { it.isJsonObject }?.asJsonObject) != null
+                    }
+                ) {
+                    return true
+                }
+            } else if (payload.isJsonArray) {
+                val hasLegacyImage = payload.asJsonArray.any { message ->
+                    if (!message.isJsonObject) return@any false
+                    val update = message.asJsonObject.getAsJsonObject("updateComponents") ?: return@any false
+                    val components = update.getAsJsonArray("components") ?: return@any false
+                    components.asSequence().any { component ->
+                        if (!component.isJsonObject) {
+                            false
+                        } else {
+                            val obj = component.asJsonObject
+                            jsonStringOrNull(obj.get("component")).equals("Image", ignoreCase = true) &&
+                                listOf("url", "src", "source", "image")
+                                    .mapNotNull { key -> jsonStringOrNull(obj.get(key)) }
+                                    .any(::looksLikeUsableInlineImageUrl)
+                        }
+                    }
+                }
+                if (hasLegacyImage) {
+                    return true
+                }
+            }
+        }
+        // Phase 2+ flat spec: "type":"Image" with a media URL/source in props.
+        if (Regex(""""type"\s*:\s*"Image"[\s\S]{0,420}"(?:url|src|source|image)"\s*:\s*"(?:https?://|/assets/|assets/|\.\./assets/)""",
                 setOf(RegexOption.IGNORE_CASE)).containsMatchIn(jsonText)) return true
         // Phase 2+ flat spec: "$item" image reference inside elements
         if (Regex(""""type"\s*:\s*"Image"[\s\S]{0,320}"\${"$"}item"\s*:\s*"[^"]+"""",
@@ -1192,6 +1234,28 @@ internal object PipelineMediaSanitizer {
                 """"component"\s*:\s*"Image"[\s\S]{0,420}"(?:url|src|source|image)"\s*:\s*\{\s*"literalString"\s*:\s*"(?:https?://|/assets/|assets/)"""",
                 setOf(RegexOption.IGNORE_CASE)
             ).containsMatchIn(jsonText)
+    }
+
+    private fun imageUrlFromProps(props: JsonObject?): String? {
+        if (props == null) {
+            return null
+        }
+        return listOf("url", "src", "source", "image")
+            .firstNotNullOfOrNull { key -> extractImageUrlFromJsonValue(props.get(key)) }
+    }
+
+    private fun extractImageUrlFromJsonValue(element: JsonElement?): String? {
+        val direct = jsonStringOrNull(element)
+        if (!direct.isNullOrBlank() && looksLikeUsableInlineImageUrl(direct)) {
+            return direct
+        }
+        if (element != null && element.isJsonObject) {
+            val obj = element.asJsonObject
+            return listOf("uri", "url", "src", "path", "value")
+                .mapNotNull { key -> jsonStringOrNull(obj.get(key)) }
+                .firstOrNull(::looksLikeUsableInlineImageUrl)
+        }
+        return null
     }
 
     fun genUiPreservesInlineIcons(jsonText: String): Boolean {
@@ -1241,7 +1305,7 @@ internal object PipelineMediaSanitizer {
         Regex("""!\[[^\]]*]\((https?://\S+|/assets/\S+|assets/\S+)\)""")
             .findAll(text)
             .forEach { candidates += sanitizeMediaUrlToken(it.groupValues[1]) }
-        return candidates.firstOrNull(::looksLikeUsableInlineMediaUrl)
+        return candidates.firstOrNull(::looksLikeUsableInlineImageUrl)
     }
 
     private fun extractFirstInlineIconUrl(text: String): String? {
@@ -1286,6 +1350,7 @@ internal object PipelineMediaSanitizer {
         }
         val componentList = components ?: return jsonText
         val topicMediaUrl = buildTopicFallbackMediaUrl(queryText)
+        val fallbackImageUrl = extractFirstInlineImageUrl(stage2Response) ?: topicMediaUrl
         val isFlight = looksLikeFlightQuery(queryText) || looksLikeFlightContent(stage2Response)
         var changed = false
 
@@ -1301,8 +1366,8 @@ internal object PipelineMediaSanitizer {
                     obj.addProperty("url", topicMediaUrl)
                     changed = true
                 }
-            } else if (!looksLikeUsableInlineMediaUrl(currentUrl)) {
-                obj.addProperty("url", topicMediaUrl)
+            } else if (!looksLikeUsableInlineImageUrl(currentUrl)) {
+                obj.addProperty("url", fallbackImageUrl)
                 changed = true
             }
         }
@@ -1310,20 +1375,19 @@ internal object PipelineMediaSanitizer {
         val alreadyHasImage = componentList.any { component ->
             component.isJsonObject &&
                 jsonStringOrNull(component.asJsonObject.get("component")).equals("Image", ignoreCase = true) &&
-                looksLikeUsableInlineMediaUrl(jsonStringOrNull(component.asJsonObject.get("url")).orEmpty())
+                looksLikeUsableInlineImageUrl(jsonStringOrNull(component.asJsonObject.get("url")).orEmpty())
         }
         if (alreadyHasImage) {
             return if (changed) messages.toString() else jsonText
         }
 
-        val mediaUrl = if (looksLikeTravelQuery(queryText) || looksLikeTravelContent(stage2Response)) {
-            extractFirstInlineImageUrl(stage2Response)
-                ?: extractFirstInlineIconUrl(stage2Response)
-                ?: topicMediaUrl
-        } else {
-            topicMediaUrl
-        }
-        if (!looksLikeUsableInlineMediaUrl(mediaUrl)) {
+        val mediaUrl = extractFirstInlineImageUrl(stage2Response)
+            ?: if (looksLikeTravelQuery(queryText) || looksLikeTravelContent(stage2Response)) {
+                extractFirstInlineIconUrl(stage2Response) ?: topicMediaUrl
+            } else {
+                topicMediaUrl
+            }
+        if (!looksLikeUsableInlineImageUrl(mediaUrl)) {
             return jsonText
         }
 
@@ -1352,6 +1416,7 @@ internal object PipelineMediaSanitizer {
     ): Boolean {
         val elements = payload.getAsJsonObject("elements") ?: return false
         val topicMediaUrl = buildTopicFallbackMediaUrl(queryText)
+        val fallbackImageUrl = extractFirstInlineImageUrl(stage2Response) ?: topicMediaUrl
         val isFlight = looksLikeFlightQuery(queryText) || looksLikeFlightContent(stage2Response)
         var changed = false
         var hasImage = false
@@ -1373,11 +1438,11 @@ internal object PipelineMediaSanitizer {
                     props.addProperty("url", topicMediaUrl)
                     changed = true
                 }
-            } else if (!looksLikeUsableInlineMediaUrl(currentUrl)) {
-                props.addProperty("url", topicMediaUrl)
+            } else if (!looksLikeUsableInlineImageUrl(currentUrl)) {
+                props.addProperty("url", fallbackImageUrl)
                 changed = true
             }
-            if (looksLikeUsableInlineMediaUrl(jsonStringOrNull(props.get("url")).orEmpty())) {
+            if (looksLikeUsableInlineImageUrl(jsonStringOrNull(props.get("url")).orEmpty())) {
                 hasImage = true
             }
         }
@@ -1386,14 +1451,13 @@ internal object PipelineMediaSanitizer {
             return changed
         }
 
-        val mediaUrl = if (looksLikeTravelQuery(queryText) || looksLikeTravelContent(stage2Response)) {
-            extractFirstInlineImageUrl(stage2Response)
-                ?: extractFirstInlineIconUrl(stage2Response)
-                ?: topicMediaUrl
-        } else {
-            topicMediaUrl
-        }
-        if (!looksLikeUsableInlineMediaUrl(mediaUrl)) {
+        val mediaUrl = extractFirstInlineImageUrl(stage2Response)
+            ?: if (looksLikeTravelQuery(queryText) || looksLikeTravelContent(stage2Response)) {
+                extractFirstInlineIconUrl(stage2Response) ?: topicMediaUrl
+            } else {
+                topicMediaUrl
+            }
+        if (!looksLikeUsableInlineImageUrl(mediaUrl)) {
             return changed
         }
 
@@ -1657,6 +1721,7 @@ internal object PipelineMediaSanitizer {
             host.contains("cdn.jsdelivr.net") ||
             host.contains("raw.githubusercontent.com") ||
             host.contains("upload.wikimedia.org") ||
+            (host.contains("commons.wikimedia.org") && path.contains("/wiki/special:filepath/")) ||
             host.contains("imgur.com") ||
             host.contains("gstatic.com") ||
             host.contains("googleusercontent.com") ||
@@ -1668,6 +1733,33 @@ internal object PipelineMediaSanitizer {
             return true
         }
         return path.contains("/icon") || path.contains("/icons/") || path.contains("/image") || path.contains("/images/")
+    }
+
+    fun looksLikeUsableInlineImageUrl(value: String): Boolean {
+        val lower = value.trim().lowercase(Locale.US)
+        if (
+            lower.contains("loremflickr.com") ||
+            lower.contains("picsum.photos") ||
+            lower.contains("placehold.co") ||
+            lower.contains("dummyimage.com")
+        ) {
+            return false
+        }
+        return looksLikeUsableInlineMediaUrl(value) && !looksLikeIconOnlyMediaUrl(value)
+    }
+
+    private fun looksLikeIconOnlyMediaUrl(value: String): Boolean {
+        val normalized = value.trim().lowercase(Locale.US)
+        if (normalized.isBlank()) {
+            return false
+        }
+        val uri = runCatching { URI(normalized) }.getOrNull() ?: return false
+        val host = uri.host.orEmpty()
+        val path = uri.path.orEmpty()
+        return (host.contains("cdn.jsdelivr.net") || host.contains("unpkg.com")) &&
+            path.contains("/bootstrap-icons") &&
+            path.contains("/icons/") &&
+            path.endsWith(".svg")
     }
 
     // -- Payload ------------------------------------------------------------

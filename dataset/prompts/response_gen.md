@@ -77,13 +77,11 @@ Structured Details rules (critical):
     - Food: <short kid-friendly dining idea>
     Action: [Button: <label>] <url>
   - Travel day cards should include a directly relevant place image whenever a verified URL is available. Add `Media:` immediately under the day/place title, never at the end.
-  - If the itinerary is for Bengaluru, these verified Wikimedia image URLs are approved for matching day/place cards:
-    - Central Bengaluru / Vidhana Soudha / Cubbon Park: `https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Vidhan_Soudha_Bangalore_Front_view.JPG/1280px-Vidhan_Soudha_Bangalore_Front_view.JPG`
-    - Heritage / Bangalore Palace: `https://upload.wikimedia.org/wikipedia/commons/e/ec/Bangalore_Palace_facade_on_a_cloudy_day.jpg`
-    - Lalbagh / gardens: `https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Glass_house_in_Lalbagh%2C_Bangalore.JPG/1280px-Glass_house_in_Lalbagh%2C_Bangalore.JPG`
-    - Nandi Hills / day trip: `https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Sunrise_%40_Nandi_Hills%2C_Bangalore%2C_India.jpg/1280px-Sunrise_%40_Nandi_Hills%2C_Bangalore%2C_India.jpg`
-    - Church Street / cafes / nightlife: `https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Church_Street_in_night%2C_Bangalore_%282022%29.jpg/1280px-Church_Street_in_night%2C_Bangalore_%282022%29.jpg`
-  - For other destinations, add `Media:` only when a verified direct image/icon URL is available and directly tied to that specific day/place.
+  - Add `Media:` image lines only from live/grounded evidence, tool output, official pages, Places photo media, or stable direct image URLs that clearly match the specific day/place.
+  - When web/search grounding is available, you MUST include verified `Image=` URLs for at least 2 and preferably 4 main real place/day blocks. Use icon-only media only after search fails to find a verified image for that specific place.
+  - Prefer `https://commons.wikimedia.org/wiki/Special:FilePath/<filename>` for public landmarks because the renderer can follow it to the real image file.
+  - For Wikimedia/Commons, use only verified `https://commons.wikimedia.org/wiki/Special:FilePath/<filename>` or direct `https://upload.wikimedia.org/...` URLs whose filename/content clearly matches that exact place.
+  - Do not use destination-specific hardcoded image lists. If verified image evidence is unavailable for a day/place, use icon-only media for that block and let the renderer provide a designed placeholder.
   - For multi-day itineraries, prefer a compact day schedule with short bullets over long prose tables, and do not append standalone Images or Icons sections.
   - Keep overview/planning sections to at most 2 short sentences.
 - Planning/project-roadmap requests:
@@ -184,6 +182,7 @@ Media placement policy (MANDATORY — include media for visual richness):
 - For weather blocks, include a weather icon. For flight blocks, include an airplane icon.
 - For playlist/music/entertainment blocks, prefer icon-only media (`music-note`, `music-note-beamed`, or `play-circle`) unless a verified album/cover image URL is available in the current context.
 - For travel/place/food blocks, include a verified image only when you are confident the URL is stable and directly related; otherwise use icon-only media. Never force random travel photos just to satisfy visual richness.
+- For travel/place itineraries, do not stop at icon-only if web/search grounding is available. Use search evidence to provide verified image URLs for the main real places; target 2-4 real images per itinerary.
 - For multi-day travel itineraries, place any image directly under the related day or attraction block using `Media:`. Do not create a final image gallery or a trailing list of destination photos.
 - For multi-day travel itineraries, every listed day must be complete with Morning, Afternoon, and Dinner content. Do not stop after a partial final day.
 - For road-trip/navigation itineraries, every listed day must include route, driving time, scenic stop, short hike, and overnight stay. Place any verified image/icon inside that day block only; never use `loremflickr.com`, random keyword-photo services, or a final road-trip photo gallery.
@@ -199,6 +198,7 @@ Asset URL rules (strict — images MUST be content-relevant and working):
 - Use real, publicly accessible image URLs that you are confident exist and resolve to actual image files (.jpg, .png, .webp, .svg).
 - Prefer images from official sources and stable media hosts with direct file links.
 - Wikimedia Commons images are allowed only when you use a verified `https://commons.wikimedia.org/wiki/Special:FilePath/<filename>` URL and the filename clearly matches the content.
+- Never invent Wikimedia/upload.wikimedia filenames from memory. If the URL was not copied from live evidence or a tool result, do not output it.
 - If a verified image is unavailable for a specific block, use icon-only media for that block; do not force images into general comparison/recommendation answers.
 - Do NOT use loremflickr.com, picsum.photos, or other placeholder/random image services.
 - For icons, use Bootstrap Icons via jsDelivr CDN (ALWAYS works):

@@ -12,6 +12,8 @@ object InferenceBackendSettings {
     private const val KEY_VERTEX_LOCATION = "vertex_location"
     private const val KEY_VERTEX_ACCESS_TOKEN = "vertex_access_token"
     private const val KEY_DEFAULT_PROVIDER_MIGRATION = "default_provider_migration_azure_openai"
+    private const val KEY_HYBRID_PROVIDER_MIGRATION = "default_provider_migration_gemini_response_azure_ir"
+    private const val KEY_GPT54_RESPONSE_MIGRATION = "default_provider_migration_gpt54_response_azure_ir"
     private const val KEY_AZURE_OPENAI_RESPONSES_ENDPOINT = "azure_openai_responses_endpoint"
     private const val KEY_AZURE_OPENAI_DEPLOYMENT = "azure_openai_deployment"
     private const val KEY_LOCAL_SERVER_BASE_URL = "local_server_base_url"
@@ -19,7 +21,7 @@ object InferenceBackendSettings {
 
     const val DEFAULT_AZURE_OPENAI_RESPONSES_ENDPOINT =
         "https://genui1.openai.azure.com/openai/responses?api-version=2025-04-01-preview"
-    const val DEFAULT_AZURE_OPENAI_DEPLOYMENT = "gpt-5.4-mini"
+    const val DEFAULT_AZURE_OPENAI_DEPLOYMENT = "gpt-5.4"
     const val DEFAULT_LOCAL_SERVER_BASE_URL = "http://10.0.2.2:8000"
     const val DEFAULT_LOCAL_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
     private const val FALLBACK_VERTEX_PROJECT_ID = "gen-lang-client-0741138863"
@@ -284,6 +286,8 @@ object InferenceBackendSettings {
     private fun migrateDefaultProviderIfNeeded(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         if (prefs.getBoolean(KEY_DEFAULT_PROVIDER_MIGRATION, false)) {
+            migrateHybridDefaultsIfNeeded(context)
+            migrateGpt54ResponseDefaultsIfNeeded(context)
             return
         }
 
@@ -295,14 +299,85 @@ object InferenceBackendSettings {
 
         val editor = prefs.edit()
         if (shouldMigrateLegacy && responseRaw.isNullOrBlank()) {
-            editor.putString(KEY_RESPONSE_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+            editor.putString(KEY_RESPONSE_PROVIDER, Provider.GEMINI.rawValue)
         }
         if (shouldMigrateLegacy && irRaw.isNullOrBlank()) {
             editor.putString(KEY_IR_PROVIDER, Provider.AZURE_OPENAI.rawValue)
         }
         if (shouldMigrateLegacy && legacyRaw.isNullOrBlank()) {
-            editor.putString(KEY_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+            editor.putString(KEY_PROVIDER, Provider.GEMINI.rawValue)
         }
         editor.putBoolean(KEY_DEFAULT_PROVIDER_MIGRATION, true).apply()
+
+        migrateHybridDefaultsIfNeeded(context)
+        migrateGpt54ResponseDefaultsIfNeeded(context)
+    }
+
+    private fun migrateHybridDefaultsIfNeeded(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_HYBRID_PROVIDER_MIGRATION, false)) {
+            return
+        }
+
+        val responseRaw = prefs.getString(KEY_RESPONSE_PROVIDER, null)
+        val irRaw = prefs.getString(KEY_IR_PROVIDER, null)
+        val responseProvider = Provider.fromRawValue(responseRaw)
+        val irProvider = Provider.fromRawValue(irRaw)
+        val shouldApplyHybridDefault = responseRaw.isNullOrBlank() ||
+            irRaw.isNullOrBlank() ||
+            (
+                responseProvider != Provider.LOCAL_SERVER &&
+                    irProvider != Provider.LOCAL_SERVER &&
+                    (responseProvider != Provider.GEMINI || irProvider != Provider.AZURE_OPENAI)
+                )
+
+        val editor = prefs.edit()
+        if (shouldApplyHybridDefault) {
+            editor
+                .putString(KEY_RESPONSE_PROVIDER, Provider.GEMINI.rawValue)
+                .putString(KEY_IR_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+                .putString(KEY_PROVIDER, Provider.GEMINI.rawValue)
+        }
+        editor.putBoolean(KEY_HYBRID_PROVIDER_MIGRATION, true).apply()
+
+        val modelPrefs = context.getSharedPreferences("gemini_model_settings", Context.MODE_PRIVATE)
+        val responseModel = modelPrefs.getString("selected_response_model", null).orEmpty()
+        val legacyModel = modelPrefs.getString("selected_model", null).orEmpty()
+        if (responseModel.isBlank() || responseModel == "gemini-2.5-flash" || legacyModel == "gemini-2.5-flash") {
+            modelPrefs.edit()
+                .putString("selected_response_model", GeminiModelSettings.DEFAULT_RESPONSE_MODEL)
+                .apply()
+        }
+    }
+
+    private fun migrateGpt54ResponseDefaultsIfNeeded(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_GPT54_RESPONSE_MIGRATION, false)) {
+            return
+        }
+
+        val responseProvider = Provider.fromRawValue(prefs.getString(KEY_RESPONSE_PROVIDER, null))
+        val irProvider = Provider.fromRawValue(prefs.getString(KEY_IR_PROVIDER, null))
+        val shouldApplyAzureDefault =
+            responseProvider != Provider.LOCAL_SERVER &&
+                irProvider != Provider.LOCAL_SERVER
+
+        val currentDeployment = prefs.getString(KEY_AZURE_OPENAI_DEPLOYMENT, null)
+            .orEmpty()
+            .trim()
+        val shouldUpdateDeployment = currentDeployment.isBlank() ||
+            currentDeployment.equals("gpt-5.4-mini", ignoreCase = true)
+
+        val editor = prefs.edit()
+        if (shouldApplyAzureDefault) {
+            editor
+                .putString(KEY_RESPONSE_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+                .putString(KEY_IR_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+                .putString(KEY_PROVIDER, Provider.AZURE_OPENAI.rawValue)
+        }
+        if (shouldUpdateDeployment) {
+            editor.putString(KEY_AZURE_OPENAI_DEPLOYMENT, DEFAULT_AZURE_OPENAI_DEPLOYMENT)
+        }
+        editor.putBoolean(KEY_GPT54_RESPONSE_MIGRATION, true).apply()
     }
 }

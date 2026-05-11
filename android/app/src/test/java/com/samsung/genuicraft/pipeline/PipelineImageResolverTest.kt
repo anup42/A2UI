@@ -1,0 +1,36 @@
+package com.samsung.genuicraft.pipeline
+
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class PipelineImageResolverTest {
+    @Test
+    fun shouldValidateRemoteImage_validatesPhotoUrlsOnly() {
+        assertTrue(
+            PipelineImageResolver.shouldValidateRemoteImage(
+                "https://upload.wikimedia.org/wikipedia/commons/2/2c/BANGALORE_PALACE.jpg"
+            )
+        )
+        assertFalse(
+            PipelineImageResolver.shouldValidateRemoteImage(
+                "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg"
+            )
+        )
+        assertFalse(PipelineImageResolver.shouldValidateRemoteImage("../assets/local.jpg"))
+    }
+
+    @Test
+    fun commonsSearchQuery_usesFilenameAndPromptContextWithoutUrlNoise() {
+        val query = PipelineImageResolver.buildCommonsSearchQueryForTest(
+            currentUrl = "https://upload.wikimedia.org/wikipedia/commons/9/99/Bangalore_Palace_from_the_sky.jpg",
+            queryText = "show 4 day itinerary for vacation in bengaluru"
+        )
+
+        assertTrue(query.contains("Bangalore"))
+        assertTrue(query.contains("Palace"))
+        assertTrue(query.contains("bengaluru"))
+        assertFalse(query.contains("https"))
+        assertFalse(query.contains("jpg"))
+    }
+}

@@ -7,7 +7,9 @@ object GeminiModelSettings {
     private const val KEY_SELECTED_MODEL = "selected_model"
     private const val KEY_RESPONSE_MODEL = "selected_response_model"
     private const val KEY_IR_MODEL = "selected_ir_model"
-    const val DEFAULT_MODEL = "gemini-2.5-flash"
+    const val DEFAULT_RESPONSE_MODEL = "gemini-2.5-pro"
+    const val DEFAULT_IR_MODEL = "gemini-2.5-flash"
+    const val DEFAULT_MODEL = DEFAULT_RESPONSE_MODEL
 
     fun getSelectedModel(context: Context): String {
         return getResponseModel(context)
@@ -16,21 +18,21 @@ object GeminiModelSettings {
     fun getResponseModel(context: Context): String {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val stored = prefs.getString(KEY_RESPONSE_MODEL, null)
-            ?: prefs.getString(KEY_SELECTED_MODEL, DEFAULT_MODEL)
+            ?: prefs.getString(KEY_SELECTED_MODEL, DEFAULT_RESPONSE_MODEL)
         val normalized = normalizeModelName(stored.orEmpty().trim())
-        return normalized.ifBlank { DEFAULT_MODEL }
+        return normalized.ifBlank { DEFAULT_RESPONSE_MODEL }
     }
 
     fun getIrModel(context: Context): String {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val stored = prefs.getString(KEY_IR_MODEL, null)
-            ?: prefs.getString(KEY_SELECTED_MODEL, DEFAULT_MODEL)
+            ?: prefs.getString(KEY_SELECTED_MODEL, DEFAULT_IR_MODEL)
         val normalized = normalizeModelName(stored.orEmpty().trim())
-        return normalized.ifBlank { DEFAULT_MODEL }
+        return normalized.ifBlank { DEFAULT_IR_MODEL }
     }
 
     fun setResponseModel(context: Context, model: String) {
-        val normalized = normalizeModelName(model).ifBlank { DEFAULT_MODEL }
+        val normalized = normalizeModelName(model).ifBlank { DEFAULT_RESPONSE_MODEL }
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_RESPONSE_MODEL, normalized)
@@ -38,7 +40,7 @@ object GeminiModelSettings {
     }
 
     fun setIrModel(context: Context, model: String) {
-        val normalized = normalizeModelName(model).ifBlank { DEFAULT_MODEL }
+        val normalized = normalizeModelName(model).ifBlank { DEFAULT_IR_MODEL }
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_IR_MODEL, normalized)

@@ -96,7 +96,7 @@ val embeddedVertexExpressApiKey = resolveSecret(
     "GEMINI_VERTEX_EXPRESS_API_KEY"
 ).ifBlank {
     // User-requested fallback to keep Vertex Express key bundled in shared APK builds.
-    "Ab8RN6IRHBflUl3jG3DkjYhmgUVMeKlxPjwVDaJhWcQun7RZ_A"
+    "AQ.Ab8RN6K7IA7PtYMBp8p1bn48KHgASiWdvMTlb-bxH2XpmrROlQ"
 }
 val embeddedVertexProjectId = resolveSecret(
     "VERTEX_PROJECT_ID",

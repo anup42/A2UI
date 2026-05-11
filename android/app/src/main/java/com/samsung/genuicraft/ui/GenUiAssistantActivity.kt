@@ -889,18 +889,13 @@ private fun GenUiAssistantScreen(
                     }
                 }
 
-                if (debugMode) {
-                    if (currentQuery != null) {
-                        item {
-                            StageCard(
-                                title = "Prompt",
-                                content = currentQuery.orEmpty(),
-                                monospace = false,
-                                tone = GenUiCardTone.Primary
-                            )
-                        }
+                if (!currentQuery.isNullOrBlank()) {
+                    item {
+                        PromptSummaryCard(prompt = currentQuery.orEmpty())
                     }
+                }
 
+                if (debugMode) {
                     item {
                         StageProgressCard(
                             steps = steps,
@@ -974,6 +969,39 @@ private fun GenUiAssistantScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PromptSummaryCard(prompt: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f)
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.28f))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "User prompt",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = prompt,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

@@ -115,6 +115,12 @@ class AzureOpenAiResponsesBackend(
         ) {
             return InferenceBackend.ErrorClass.STRUCTURED_OUTPUT_CONFIG
         }
+        if (lower.contains("web_search") ||
+            lower.contains("web search") ||
+            (lower.contains("tool") && lower.contains("unsupported"))
+        ) {
+            return InferenceBackend.ErrorClass.SEARCH_TOOL_CONFIG
+        }
         if (lower.contains("timed out") ||
             lower.contains("timeout") ||
             lower.contains("http 408") ||
@@ -139,6 +145,13 @@ class AzureOpenAiResponsesBackend(
             addProperty("temperature", request.temperature)
             addProperty("max_output_tokens", min(request.maxOutputTokens, 8192))
             addProperty("store", false)
+            if (request.enableGoogleSearch && !request.jsonMode) {
+                add("tools", com.google.gson.JsonArray().apply {
+                    add(JsonObject().apply {
+                        addProperty("type", "web_search_preview")
+                    })
+                })
+            }
             if (request.jsonMode) {
                 add("text", JsonObject().apply {
                     add("format", JsonObject().apply {
@@ -150,7 +163,7 @@ class AzureOpenAiResponsesBackend(
     }
 
     private fun cleanDeployment(): String {
-        return deployment.trim().ifBlank { "gpt-5.4-mini" }
+        return deployment.trim().ifBlank { "gpt-5.4" }
     }
 
     private fun normalizeResponsesEndpoint(rawEndpoint: String): String {
