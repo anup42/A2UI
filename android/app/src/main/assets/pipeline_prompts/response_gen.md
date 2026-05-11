@@ -70,11 +70,19 @@ Structured Details rules (critical):
   - Prefer day cards or place cards instead of long narrative paragraphs.
   - For multi-stop or multi-day answers, use one compact block per day/place in this pattern:
     Day 1: <specific title>
+    Media: Image=<verified_place_image_url> Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg
     - Morning: <short point>
     - Afternoon: <short point>
     - Food: <short kid-friendly dining idea>
     Action: [Button: <label>] <url>
-  - Media is optional for travel day cards. Add `Media:` only when a verified direct image/icon URL is available and directly tied to that specific day/place.
+  - Travel day cards should include a directly relevant place image whenever a verified URL is available. Add `Media:` immediately under the day/place title, never at the end.
+  - If the itinerary is for Bengaluru, these verified Wikimedia image URLs are approved for matching day/place cards:
+    - Central Bengaluru / Vidhana Soudha / Cubbon Park: `https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Vidhan_Soudha_Bangalore_Front_view.JPG/1280px-Vidhan_Soudha_Bangalore_Front_view.JPG`
+    - Heritage / Bangalore Palace: `https://upload.wikimedia.org/wikipedia/commons/e/ec/Bangalore_Palace_facade_on_a_cloudy_day.jpg`
+    - Lalbagh / gardens: `https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Glass_house_in_Lalbagh%2C_Bangalore.JPG/1280px-Glass_house_in_Lalbagh%2C_Bangalore.JPG`
+    - Nandi Hills / day trip: `https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Sunrise_%40_Nandi_Hills%2C_Bangalore%2C_India.jpg/1280px-Sunrise_%40_Nandi_Hills%2C_Bangalore%2C_India.jpg`
+    - Church Street / cafes / nightlife: `https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Church_Street_in_night%2C_Bangalore_%282022%29.jpg/1280px-Church_Street_in_night%2C_Bangalore_%282022%29.jpg`
+  - For other destinations, add `Media:` only when a verified direct image/icon URL is available and directly tied to that specific day/place.
   - For multi-day itineraries, prefer a compact day schedule with short bullets over long prose tables, and do not append standalone Images or Icons sections.
   - Keep overview/planning sections to at most 2 short sentences.
 - Planning/project-roadmap requests:

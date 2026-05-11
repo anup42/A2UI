@@ -531,7 +531,7 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
-    fun deriveImageFallbackUrl_returnsSeededFallbackForWikimediaWeatherLikeImages() {
+    fun deriveImageFallbackUrl_returnsNullForWikimediaImagesWithoutExplicitFallback() {
         val sourceUrl =
             "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Bangalore_skyline.jpg/1280px-Bangalore_skyline.jpg"
         val props = mapOf<String, Any?>(
@@ -540,7 +540,7 @@ class FlatSpecRendererSupportTest {
 
         val fallback = deriveImageFallbackUrl(sourceUrl, props)
 
-        assertEquals("https://picsum.photos/seed/genuicraft_weather_hero/1280/720", fallback)
+        assertNull(fallback)
     }
 
     @Test

@@ -1653,21 +1653,6 @@ private fun isPhotoLikeMediaUrl(value: String): Boolean {
     return NativeMediaVisualUtils.isPhotoLikeImageUrl(normalized)
 }
 
-private fun mediaTextContext(props: Map<String, Any?>): String {
-    val tokens = buildList<String> {
-        listOf("alt", "title", "label", "caption", "text").forEach { key ->
-            props[key]?.toString()?.trim()?.takeIf { it.isNotBlank() }?.let(::add)
-        }
-        (props["accessibility"] as? Map<*, *>)
-            ?.get("label")
-            ?.toString()
-            ?.trim()
-            ?.takeIf { it.isNotBlank() }
-            ?.let(::add)
-    }
-    return tokens.joinToString(" ").lowercase()
-}
-
 private fun parseUrlHost(rawUrl: String): String {
     val normalized = rawUrl.trim()
     if (normalized.isBlank()) return ""
@@ -2059,47 +2044,12 @@ private fun flatSourceUrlDisplay(url: String): String {
     }.take(72)
 }
 
-private fun looksLikeWeatherContext(sourceUrl: String, props: Map<String, Any?>): Boolean {
-    val combined = "${sourceUrl.lowercase()} ${mediaTextContext(props)}"
-    return listOf(
-        "weather",
-        "forecast",
-        "temperature",
-        "humidity",
-        "wind",
-        "rain",
-        "sun",
-        "cloud",
-        "bengaluru",
-        "bangalore"
-    ).any { token -> combined.contains(token) }
-}
-
-private fun buildImageFallbackSeed(sourceUrl: String, props: Map<String, Any?>): String {
-    val host = parseUrlHost(sourceUrl)
-    val weather = looksLikeWeatherContext(sourceUrl, props)
-    return when {
-        weather -> "genuicraft_weather_hero"
-        host.contains("wikimedia.org") -> "genuicraft_city_hero"
-        else -> "genuicraft_media_hero"
-    }
-}
-
 internal fun deriveImageFallbackUrl(
     sourceUrl: String,
     props: Map<String, Any?>
 ): String? {
     val explicitFallback = extractMediaUrlToken(props["fallbackUrl"]).orEmpty()
-    if (explicitFallback.isNotBlank()) {
-        return explicitFallback
-    }
-    val host = parseUrlHost(sourceUrl)
-    if (host.isBlank()) return null
-    if (!host.contains("upload.wikimedia.org") && !host.contains("wikipedia.org")) {
-        return null
-    }
-    val seed = buildImageFallbackSeed(sourceUrl, props)
-    return "https://picsum.photos/seed/$seed/1280/720"
+    return explicitFallback.takeIf { it.isNotBlank() }
 }
 
 private fun parseAspectRatio(value: Any?): Float? {
@@ -10863,6 +10813,18 @@ private fun AnnotatedString.Builder.appendMarkdownBoldSpans(segment: String) {
     }
 }
 
+private const val FLAT_SPEC_IMAGE_USER_AGENT = "A2UI GenUICraft Android/1.0 image-renderer"
+
+private fun ImageRequest.Builder.applyFlatSpecRemoteImageHeaders(url: String): ImageRequest.Builder = apply {
+    val normalized = url.trim()
+    if (normalized.startsWith("http://", ignoreCase = true) ||
+        normalized.startsWith("https://", ignoreCase = true)
+    ) {
+        setHeader("User-Agent", FLAT_SPEC_IMAGE_USER_AGENT)
+        setHeader("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8")
+    }
+}
+
 @Composable
 private fun RenderImage(
     props: Map<String, Any?>,
@@ -10939,6 +10901,7 @@ private fun RenderImage(
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(activeUrl)
+                    .applyFlatSpecRemoteImageHeaders(activeUrl)
                     .crossfade(true)
                     .allowHardware(false)
                     .build(),
@@ -10967,6 +10930,7 @@ private fun RenderImage(
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(activeUrl)
+                    .applyFlatSpecRemoteImageHeaders(activeUrl)
                     .crossfade(true)
                     .allowHardware(false)
                     .build(),
@@ -11124,6 +11088,7 @@ private fun RenderIcon(
         AsyncImage(
             model = ImageRequest.Builder(context)
                 .data(url)
+                .applyFlatSpecRemoteImageHeaders(url)
                 .crossfade(false)
                 .allowHardware(false)
                 .build(),
