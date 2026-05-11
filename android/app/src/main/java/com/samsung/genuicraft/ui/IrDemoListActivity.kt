@@ -1,7 +1,9 @@
 package com.samsung.genuicraft
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
@@ -27,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -45,6 +48,13 @@ import androidx.compose.ui.unit.dp
 class IrDemoListActivity : AppCompatActivity() {
     private var session by mutableStateOf<IrDemoSessionStore.Session?>(null)
     private var errorMessage by mutableStateOf<String?>(null)
+
+    private val scenarioBundleImporter =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+            if (uri != null) {
+                importScenarioBundle(uri)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +75,9 @@ class IrDemoListActivity : AppCompatActivity() {
                     },
                     onDeleteItem = { index ->
                         deleteRecordAt(index)
+                    },
+                    onImportScenario = {
+                        scenarioBundleImporter.launch(arrayOf("application/json", "text/plain", "*/*"))
                     }
                 )
             }
@@ -122,6 +135,26 @@ class IrDemoListActivity : AppCompatActivity() {
         )
         session = IrDemoSessionStore.current()
     }
+
+    private fun importScenarioBundle(uri: Uri) {
+        try {
+            val record = IrDemoRecordRepository.importDemoArtifactBundle(this, uri)
+            if (record == null) {
+                errorMessage = "Selected file is not a GenUICraft scenario export."
+                return
+            }
+            val records = IrDemoRecordRepository.load(this).orEmpty()
+            IrDemoSessionStore.update(
+                sourceLabel = getString(R.string.ir_demo_source),
+                records = records
+            )
+            session = IrDemoSessionStore.current()
+            errorMessage = null
+        } catch (exc: Exception) {
+            val msg = exc.message?.trim().takeUnless { it.isNullOrBlank() } ?: exc.javaClass.simpleName
+            errorMessage = "Import failed: $msg"
+        }
+    }
 }
 
 @Composable
@@ -130,7 +163,8 @@ private fun IrDemoListScreen(
     session: IrDemoSessionStore.Session?,
     errorMessage: String?,
     onItemClick: (Int) -> Unit,
-    onDeleteItem: (Int) -> Unit
+    onDeleteItem: (Int) -> Unit,
+    onImportScenario: () -> Unit
 ) {
     val deviceConfig = rememberDeviceUiConfig()
     val horizontalPadding = when (deviceConfig.widthClass) {
@@ -150,6 +184,14 @@ private fun IrDemoListScreen(
                         text = stringResource(id = R.string.ir_demo_list_title),
                         style = MaterialTheme.typography.headlineSmall
                     )
+                },
+                actions = {
+                    TextButton(onClick = onImportScenario) {
+                        Text(
+                            text = "Import",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = genUiTopBarContainerColor(),

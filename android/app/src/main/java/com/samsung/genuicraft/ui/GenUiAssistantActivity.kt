@@ -7,7 +7,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
@@ -74,8 +76,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.gson.GsonBuilder
 import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class PipelineStepStatus {
     Pending,
@@ -426,6 +430,55 @@ private fun GenUiAssistantScreen(
         !currentQuery.isNullOrBlank() &&
         !stage2Text.isNullOrBlank() &&
         !stage3Json.isNullOrBlank()
+    val exportFolderLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { folderUri ->
+        if (folderUri == null) {
+            currentStatus = "Export cancelled"
+            return@rememberLauncherForActivityResult
+        }
+        val exportQuery = currentQuery.orEmpty()
+        val exportResponse = stage2Text.orEmpty()
+        val exportIr = stage3Json.orEmpty()
+        if (exportQuery.isBlank() || exportResponse.isBlank() || exportIr.isBlank()) {
+            currentStatus = "Nothing to export yet"
+            return@rememberLauncherForActivityResult
+        }
+        coroutineScope.launch {
+            currentStatus = "Exporting scenario..."
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    IrDemoRecordRepository.exportDemoArtifactBundle(
+                        context = context.applicationContext,
+                        folderUri = folderUri,
+                        queryText = exportQuery,
+                        responseText = exportResponse,
+                        genUiJson = exportIr
+                    )
+                }
+            }.onSuccess { result ->
+                val assetSummary = if (result.failedAssetCount > 0) {
+                    "${result.embeddedAssetCount} assets embedded, ${result.failedAssetCount} skipped"
+                } else {
+                    "${result.embeddedAssetCount} assets embedded"
+                }
+                currentStatus = "Exported ${result.fileName}"
+                logs += AssistantLogItem(
+                    title = "Exported",
+                    content = "Saved portable scenario bundle: ${result.fileName}\n$assetSummary",
+                    monospace = false
+                )
+            }.onFailure { error ->
+                val message = error.message ?: error.javaClass.simpleName
+                currentStatus = "Export failed"
+                errorText = "Export failed: $message"
+                logs += AssistantLogItem(
+                    title = "Export error",
+                    content = errorText.orEmpty()
+                )
+            }
+        }
+    }
     val hasConversation = inputText.isNotBlank() ||
         currentStatus.isNotBlank() ||
         errorText != null ||
@@ -451,7 +504,9 @@ private fun GenUiAssistantScreen(
                 title = {
                     Text(
                         text = stringResource(id = R.string.genui_assistant_title),
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 actions = {
@@ -460,16 +515,30 @@ private fun GenUiAssistantScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(end = 6.dp)
                     ) {
-                        TextButton(
-                            onClick = { clearConversation() },
-                            enabled = !isRunning && hasConversation,
-                            contentPadding = PaddingValues(horizontal = 8.dp)
-                        ) {
-                            Text(
-                                text = "Clear",
-                                style = MaterialTheme.typography.labelMedium
-                            )
+                        if (hasConversation) {
+                            TextButton(
+                                onClick = { clearConversation() },
+                                enabled = !isRunning,
+                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            ) {
+                                Text(
+                                    text = "Clear",
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            }
                         }
+                        if (canSaveToIrDemo) {
+                            TextButton(
+                                onClick = { exportFolderLauncher.launch(null) },
+                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            ) {
+                                Text(
+                                    text = "Export",
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            }
+                        }
+                        if (canSaveToIrDemo) {
                         IconButton(
                             onClick = {
                                 runCatching {
@@ -501,17 +570,14 @@ private fun GenUiAssistantScreen(
                                     )
                                 }
                             },
-                            enabled = canSaveToIrDemo
+                            enabled = true
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Save,
                                 contentDescription = stringResource(id = R.string.genui_assistant_save_ir_content_desc),
-                                tint = if (canSaveToIrDemo) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.outline
-                                }
+                                tint = MaterialTheme.colorScheme.primary
                             )
+                        }
                         }
                         Text(
                             text = "Debug",
