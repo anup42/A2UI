@@ -108,6 +108,7 @@ import com.samsung.genuicraft.renderer.native.intents.flight.NativeFlightSemanti
 import com.samsung.genuicraft.renderer.native.intents.flight.NativeFlightUiRenderer
 import com.samsung.genuicraft.renderer.native.intents.weather.NativeWeatherSemantics
 import com.samsung.genuicraft.renderer.native.intents.weather.NativeWeatherUiRenderer
+import com.samsung.genuicraft.renderer.native.media.NativeMediaVisualUtils
 import com.samsung.genuicraft.renderer.native.parser.NativeSourceParsing
 import com.samsung.genuicraft.renderer.native.parser.NativeStructureParsing
 import kotlinx.coroutines.launch
@@ -1635,6 +1636,21 @@ internal fun resolveMediaUrlCandidate(
     return preferredKeys.firstNotNullOfOrNull { key ->
         extractMediaUrlToken(props[key])
     }.orEmpty()
+}
+
+private fun isIconLikeMediaUrl(value: String): Boolean {
+    val normalized = value.trim()
+    if (normalized.isBlank()) return false
+    val lower = normalized.lowercase()
+    return NativeMediaVisualUtils.isVectorImagePath(lower) ||
+        NativeMediaVisualUtils.looksLikeCompactIconUrl(lower) ||
+        lower.contains("cdn.jsdelivr.net/npm/bootstrap-icons")
+}
+
+private fun isPhotoLikeMediaUrl(value: String): Boolean {
+    val normalized = value.trim()
+    if (normalized.isBlank() || isIconLikeMediaUrl(normalized)) return false
+    return NativeMediaVisualUtils.isPhotoLikeImageUrl(normalized)
 }
 
 private fun mediaTextContext(props: Map<String, Any?>): String {
@@ -4524,6 +4540,102 @@ private fun ItinerarySectionBlock(
 }
 
 @Composable
+private fun RenderGeneratedItineraryDayVisual(
+    day: String,
+    area: String?,
+    modifier: Modifier = Modifier
+) {
+    val title = area?.trim()?.takeIf { it.isNotBlank() } ?: day.ifBlank { "Itinerary" }
+    val palette = itineraryVisualPalette("$day|$title")
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Brush.linearGradient(listOf(palette.first, palette.second)))
+            .accessibilitySemantics(
+                props = emptyMap(),
+                fallbackLabel = "$title itinerary visual",
+                mergeDescendants = true
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(Color.White.copy(alpha = 0.26f), Color.Transparent)
+                    )
+                )
+        )
+        Text(
+            text = day.take(18).ifBlank { "Trip" },
+            color = Color.White.copy(alpha = 0.18f),
+            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Black),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 8.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Surface(
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                color = Color.White.copy(alpha = 0.20f)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Image,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Text(
+                        text = "Trip visual",
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold)
+                    )
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = title,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = day,
+                color = Color.White.copy(alpha = 0.82f),
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+private fun itineraryVisualPalette(seed: String): Pair<Color, Color> {
+    val palettes = listOf(
+        Color(0xFF0F766E) to Color(0xFF38BDF8),
+        Color(0xFF92400E) to Color(0xFFF59E0B),
+        Color(0xFF1D4ED8) to Color(0xFF7C3AED),
+        Color(0xFF9D174D) to Color(0xFFFF7A59),
+        Color(0xFF166534) to Color(0xFF84CC16)
+    )
+    val safeHash = seed.hashCode().let { if (it == Int.MIN_VALUE) 0 else kotlin.math.abs(it) }
+    return palettes[safeHash.rem(palettes.size)]
+}
+
+@Composable
 private fun TravelItineraryDayCard(
     headers: List<String>,
     row: List<String>
@@ -4537,6 +4649,10 @@ private fun TravelItineraryDayCard(
     val imageCell = cells.firstOrNull { (_, label, _) -> isImageColumnLabel(label) }
     val imageAltCell = cells.firstOrNull { (_, label, _) -> isImageAltColumnLabel(label) }
     val iconCell = cells.firstOrNull { (_, label, _) -> isIconColumnLabel(label) }
+    val rawImageUrl = imageCell?.third.orEmpty()
+    val imageUrl = rawImageUrl.takeIf(::isPhotoLikeMediaUrl).orEmpty()
+    val iconUrl = iconCell?.third?.takeIf { it.isNotBlank() }
+        ?: rawImageUrl.takeIf(::isIconLikeMediaUrl)
     val dateCell = cells.firstOrNull { (index, label, _) ->
         index != 0 && normalizeTableHeaderForMatch(label).contains("date")
     }
@@ -4580,7 +4696,6 @@ private fun TravelItineraryDayCard(
                 .padding(horizontal = 14.dp, vertical = 13.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            val imageUrl = imageCell?.third.orEmpty()
             if (imageUrl.isNotBlank()) {
                 RenderImage(
                     props = mapOf(
@@ -4592,13 +4707,19 @@ private fun TravelItineraryDayCard(
                     onOpenUrl = {},
                     modifier = Modifier.fillMaxWidth()
                 )
+            } else {
+                RenderGeneratedItineraryDayVisual(
+                    day = day,
+                    area = areaCell?.third,
+                    modifier = Modifier.fillMaxWidth().height(132.dp)
+                )
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                iconCell?.third?.takeIf { it.isNotBlank() }?.let { icon ->
+                iconUrl?.let { icon ->
                     RenderIcon(
                         props = mapOf("name" to icon, "size" to "sm", "decorative" to true),
                         modifier = Modifier
@@ -10800,6 +10921,7 @@ private fun RenderImage(
     var fallbackAttempted by remember(url) { mutableStateOf(false) }
     val imageLabel = accessibilityLabel(props, props["alt"]?.toString() ?: "Image")
     val placeholderBg = MaterialTheme.colorScheme.surfaceContainerHighest
+    val iconLikeImage = isIconLikeMediaUrl(resolvedUrl) || isIconLikeMediaUrl(url)
 
     Box(
         modifier = clickableModifier
@@ -10810,10 +10932,31 @@ private fun RenderImage(
                 semanticRole = Role.Button.takeIf { actionUrl.isNotBlank() },
                 state = "Image unavailable".takeIf { failed },
                 mergeDescendants = true
-            ),
+        ),
         contentAlignment = Alignment.Center
     ) {
-        if (failed) {
+        if (iconLikeImage && !failed) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(activeUrl)
+                    .crossfade(true)
+                    .allowHardware(false)
+                    .build(),
+                imageLoader = imageLoader,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+                modifier = Modifier.size(42.dp),
+                onSuccess = { failed = false },
+                onError = {
+                    failed = true
+                    Log.w(
+                        FLAT_SPEC_RENDERER_TAG,
+                        "RenderImage received icon-like media URL '$activeUrl'; compact icon load failed."
+                    )
+                }
+            )
+        } else if (failed) {
             Icon(
                 imageVector = Icons.Filled.Image,
                 contentDescription = null,

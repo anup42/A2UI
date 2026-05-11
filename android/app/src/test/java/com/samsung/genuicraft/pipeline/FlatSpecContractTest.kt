@@ -91,6 +91,47 @@ class FlatSpecContractTest {
     }
 
     @Test
+    fun coerceAndValidate_rejectsIconUrlInTableImageColumn() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": {
+                "days": [
+                  {
+                    "dayDate": "Day 1",
+                    "area": "Central Bengaluru",
+                    "image": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/signpost-split.svg"
+                  }
+                ]
+              },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["itinerary"] },
+                "itinerary": {
+                  "type": "Table",
+                  "props": {
+                    "columns": [
+                      {"key":"dayDate","label":"Day"},
+                      {"key":"area","label":"Area"},
+                      {"key":"image","label":"Image"}
+                    ],
+                    "statePath": "/days",
+                    "domain": "schedule",
+                    "preferredPresentation": "cards"
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertFalse(result.isValid)
+        assertTrue(result.error.orEmpty().contains("icon/vector media"))
+    }
+
+    @Test
     fun coerceAndValidate_acceptsFormulaElement() {
         val payload = JsonParser.parseString(
             """

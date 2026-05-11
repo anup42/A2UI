@@ -3,6 +3,7 @@ package com.samsung.genuicraft.pipeline
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import java.util.Locale
 
 internal object FlatSpecContract {
 
@@ -227,6 +228,7 @@ internal object FlatSpecContract {
         }
 
         val ids = elements.entrySet().map { it.key }.toSet()
+        val state = spec.get("state")?.takeIf { it.isJsonObject }?.asJsonObject ?: JsonObject()
         elements.entrySet().forEach { (id, rawElement) ->
             if (!rawElement.isJsonObject) {
                 return ValidationResult(false, "Element '$id' must be an object.")
@@ -262,6 +264,15 @@ internal object FlatSpecContract {
                 if (stackError != null) {
                     return ValidationResult(false, stackError)
                 }
+            }
+            val mediaError = validateMediaProps(
+                type = type.asString,
+                props = propsObject,
+                state = state,
+                id = id
+            )
+            if (mediaError != null) {
+                return ValidationResult(false, mediaError)
             }
 
             val children = element.get("children")
@@ -370,6 +381,144 @@ internal object FlatSpecContract {
             return "$context params must be an object when present."
         }
         return null
+    }
+
+    private data class TableMediaColumn(
+        val index: Int,
+        val key: String,
+        val label: String
+    )
+
+    private fun validateMediaProps(
+        type: String,
+        props: JsonObject,
+        state: JsonObject,
+        id: String
+    ): String? {
+        if (type.equals("image", ignoreCase = true)) {
+            val imageUrl = firstStringProp(props, "url", "src", "image", "source", "name")
+            if (imageUrl != null && isIconOnlyMediaUrl(imageUrl)) {
+                return "Element '$id' Image source points to icon/vector media. Use Icon instead of Image."
+            }
+        }
+        if (type.equals("table", ignoreCase = true)) {
+            return validateTableImageColumns(props, state, id)
+        }
+        return null
+    }
+
+    private fun validateTableImageColumns(
+        props: JsonObject,
+        state: JsonObject,
+        id: String
+    ): String? {
+        val imageColumns = tableImageColumns(props)
+        if (imageColumns.isEmpty()) return null
+        val rows = tableRows(props, state)
+        rows.forEach { row ->
+            imageColumns.forEach { column ->
+                val value = tableCell(row, column)?.trim().orEmpty()
+                if (value.isNotBlank() && isIconOnlyMediaUrl(value)) {
+                    return "Element '$id' Table image column '${column.label}' uses icon/vector media. Use an icon column or omit the image."
+                }
+            }
+        }
+        return null
+    }
+
+    private fun tableImageColumns(props: JsonObject): List<TableMediaColumn> {
+        val columns = props.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray ?: return emptyList()
+        return columns.mapIndexedNotNull { index, entry ->
+            val column = entry.takeIf { it.isJsonObject }?.asJsonObject ?: return@mapIndexedNotNull null
+            val key = column.get("key")?.takeIf { it.isJsonPrimitive }?.asString.orEmpty()
+            val label = column.get("label")?.takeIf { it.isJsonPrimitive }?.asString.orEmpty()
+            if (isImageColumnToken(key) || isImageColumnToken(label)) {
+                TableMediaColumn(
+                    index = index,
+                    key = key.ifBlank { label },
+                    label = label.ifBlank { key.ifBlank { "image" } }
+                )
+            } else {
+                null
+            }
+        }
+    }
+
+    private fun tableRows(props: JsonObject, state: JsonObject): JsonArray {
+        props.get("rows")?.takeIf { it.isJsonArray }?.asJsonArray?.let { return it }
+        val statePath = props.get("statePath")
+            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            ?.asString
+            .orEmpty()
+        return resolveStateElement(state, statePath)
+            ?.takeIf { it.isJsonArray }
+            ?.asJsonArray
+            ?: JsonArray()
+    }
+
+    private fun tableCell(row: JsonElement, column: TableMediaColumn): String? {
+        return when {
+            row.isJsonObject -> {
+                val obj = row.asJsonObject
+                listOf(column.key, column.label)
+                    .filter { it.isNotBlank() }
+                    .firstNotNullOfOrNull { key ->
+                        obj.get(key)?.let(::jsonPrimitiveString)
+                    }
+            }
+            row.isJsonArray -> row.asJsonArray.getOrNull(column.index)?.let(::jsonPrimitiveString)
+            else -> null
+        }
+    }
+
+    private fun JsonArray.getOrNull(index: Int): JsonElement? =
+        if (index in 0 until size()) get(index) else null
+
+    private fun firstStringProp(props: JsonObject, vararg keys: String): String? =
+        keys.firstNotNullOfOrNull { key -> props.get(key)?.let(::jsonPrimitiveString) }
+
+    private fun jsonPrimitiveString(value: JsonElement): String? {
+        return value
+            .takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            ?.asString
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    private fun isImageColumnToken(raw: String): Boolean {
+        val token = raw
+            .trim()
+            .lowercase(Locale.US)
+            .replace(Regex("[^a-z0-9]+"), " ")
+            .trim()
+        return token in setOf(
+            "image",
+            "photo",
+            "picture",
+            "thumbnail",
+            "hero image",
+            "image url",
+            "photo url",
+            "media image"
+        )
+    }
+
+    private fun isIconOnlyMediaUrl(raw: String): Boolean {
+        val lower = raw.trim().lowercase(Locale.US)
+        if (lower.isBlank()) return false
+        val path = lower.substringBefore('?').substringBefore('#')
+        return lower.contains("cdn.jsdelivr.net/npm/bootstrap-icons") ||
+            lower.contains("bootstrap-icons") ||
+            path.contains("/icons/") ||
+            path.contains("/icon/") ||
+            path.endsWith("-icon.svg") ||
+            path.endsWith("_icon.svg") ||
+            (
+                path.endsWith(".svg") && (
+                    lower.contains("weatherapi.com/weather/") ||
+                        lower.contains("openweathermap.org/img/wn/")
+                    )
+                )
     }
 
     private fun validateStackProps(props: JsonObject, id: String): String? {
@@ -1692,22 +1841,27 @@ internal object FlatSpecContract {
     }
 
     private fun resolveStateArraySize(state: JsonObject, path: String): Int {
+        val current = resolveStateElement(state, path) ?: return 0
+        return if (current.isJsonArray) current.asJsonArray.size() else 0
+    }
+
+    private fun resolveStateElement(state: JsonObject, path: String): JsonElement? {
         val tokens = pointerTokens(path)
-        if (tokens.isEmpty()) return 0
+        if (tokens.isEmpty()) return null
         var current: JsonElement = state
         tokens.forEach { token ->
             current = when {
-                current.isJsonObject -> current.asJsonObject.get(token) ?: return 0
+                current.isJsonObject -> current.asJsonObject.get(token) ?: return null
                 current.isJsonArray -> {
-                    val index = token.toIntOrNull() ?: return 0
+                    val index = token.toIntOrNull() ?: return null
                     val array = current.asJsonArray
-                    if (index < 0 || index >= array.size()) return 0
+                    if (index < 0 || index >= array.size()) return null
                     array[index]
                 }
-                else -> return 0
+                else -> return null
             }
         }
-        return if (current.isJsonArray) current.asJsonArray.size() else 0
+        return current
     }
 
     private fun pointerTokens(path: String): List<String> {
