@@ -5,6 +5,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.GenUiNativeRenderer
+import com.samsung.genuicraft.security.SafeContentPolicy
 import java.io.File
 import java.util.Locale
 
@@ -12,7 +13,6 @@ internal object NativePayloadParser {
     private val URL_REGEX = Regex(
         """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
     )
-    private val HOST_LABEL_REGEX = Regex("""(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$""")
 
     fun parseJsonOrJsonl(rawInput: String, warnings: MutableList<String>): JsonElement {
         val trimmed = rawInput.trim()
@@ -216,12 +216,6 @@ internal object NativePayloadParser {
         if (trimmed.isBlank()) {
             return null
         }
-        if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
-            return trimmed
-        }
-        if (trimmed.startsWith("//")) {
-            return "https:$trimmed"
-        }
         if (
             trimmed.startsWith("/") ||
             trimmed.startsWith("assets/", ignoreCase = true) ||
@@ -234,43 +228,14 @@ internal object NativePayloadParser {
         }
 
         val pathCandidate = trimmed.trimEnd('.', ',', ';', ')', ']', '}')
-        if (!URL_REGEX.matches(pathCandidate)) {
+        if (!URL_REGEX.matches(pathCandidate) && !pathCandidate.startsWith("https://", ignoreCase = true) && !pathCandidate.startsWith("//")) {
             return null
         }
-        val host = pathCandidate
-            .removePrefix("www.")
-            .substringBefore('/')
-            .substringBefore('?')
-            .substringBefore('#')
-            .lowercase(Locale.US)
-        if (!isLikelyPublicDomainHost(host)) {
-            return null
-        }
-        return "https://$pathCandidate"
+        return SafeContentPolicy.sanitizeActionUrl(pathCandidate)
     }
 
-    fun isLikelyPublicDomainHost(host: String): Boolean {
-        if (host.isBlank() || host.contains('_')) {
-            return false
-        }
-        val labels = host.split('.').filter { it.isNotBlank() }
-        if (labels.size < 2 || labels.any { !HOST_LABEL_REGEX.matches(it) }) {
-            return false
-        }
-        val tld = labels.last().lowercase(Locale.US)
-        if (!tld.all { it in 'a'..'z' } || tld.length !in 2..24) {
-            return false
-        }
-        if (
-            tld in setOf(
-                "png", "jpg", "jpeg", "svg", "webp", "gif", "bmp", "ico",
-                "json", "xml", "txt", "csv", "md", "pdf", "zip", "apk"
-            )
-        ) {
-            return false
-        }
-        return true
-    }
+    fun isLikelyPublicDomainHost(host: String): Boolean =
+        SafeContentPolicy.isLikelyPublicDomainHost(host)
 
     fun jsonPrimitive(value: String): JsonElement =
         JsonParser.parseString("\"${escapeJsonString(value)}\"")

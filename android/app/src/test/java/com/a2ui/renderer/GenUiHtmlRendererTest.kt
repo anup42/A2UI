@@ -54,9 +54,18 @@ class GenUiHtmlRendererTest {
             }
         """.trimIndent()
 
-        val result = GenUiHtmlRenderer.render(input, sourceDir = File("C:/dataset/run"))
-        assertTrue(result.html.contains("/assets/icon.svg"))
-        assertTrue(result.html.contains("file:/"))
+        val sourceDir = createTempDir(prefix = "genuicraft_html_assets_")
+        try {
+            val assetFile = File(sourceDir, "assets/icon.svg")
+            assetFile.parentFile?.mkdirs()
+            assetFile.writeText("<svg xmlns=\"http://www.w3.org/2000/svg\" />")
+
+            val result = GenUiHtmlRenderer.render(input, sourceDir = sourceDir)
+            assertTrue(result.html.contains("/assets/icon.svg"))
+            assertTrue(result.html.contains("file:/"))
+        } finally {
+            sourceDir.deleteRecursively()
+        }
     }
 
     @Test

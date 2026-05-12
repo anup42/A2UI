@@ -6,7 +6,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import java.net.URI
+import com.samsung.genuicraft.security.SafeContentPolicy
 import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -963,61 +963,15 @@ internal object PipelineMediaSanitizer {
             return text
         }
         return URL_TOKEN_REGEX.replace(text) { match ->
-            normalizeExternalUrlCandidate(match.value) ?: match.value
+            normalizeExternalUrlCandidate(match.value).orEmpty()
         }
     }
 
-    fun normalizeExternalUrlCandidate(value: String): String? {
-        val token = value.trim().trim('"', '\'').trimEnd('.', ',', ';', ')', ']', '}')
-        if (token.isBlank()) {
-            return null
-        }
-        if (token.startsWith("http://", ignoreCase = true) || token.startsWith("https://", ignoreCase = true)) {
-            return token
-        }
-        if (token.startsWith("//")) {
-            return "https:$token"
-        }
-        if (!token.startsWith("www.", ignoreCase = true) &&
-            !Regex("""(?i)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#].*)?""").matches(token)
-        ) {
-            return null
-        }
+    fun normalizeExternalUrlCandidate(value: String): String? =
+        SafeContentPolicy.sanitizeActionUrl(value)
 
-        val host = token
-            .removePrefix("www.")
-            .substringBefore('/')
-            .substringBefore('?')
-            .substringBefore('#')
-            .lowercase(Locale.US)
-        if (!isLikelyPublicDomainHost(host)) {
-            return null
-        }
-        return "https://$token"
-    }
-
-    fun isLikelyPublicDomainHost(host: String): Boolean {
-        if (host.isBlank() || host.contains('_')) {
-            return false
-        }
-        val labels = host.split('.').filter { it.isNotBlank() }
-        if (labels.size < 2 || labels.any { !HOST_LABEL_REGEX.matches(it) }) {
-            return false
-        }
-        val tld = labels.last().lowercase(Locale.US)
-        if (!tld.all { it in 'a'..'z' } || tld.length !in 2..24) {
-            return false
-        }
-        if (
-            tld in setOf(
-                "png", "jpg", "jpeg", "svg", "webp", "gif", "bmp", "ico",
-                "json", "xml", "txt", "csv", "md", "pdf", "zip", "apk"
-            )
-        ) {
-            return false
-        }
-        return true
-    }
+    fun isLikelyPublicDomainHost(host: String): Boolean =
+        SafeContentPolicy.isLikelyPublicDomainHost(host)
 
     fun quickActionLabelForUrl(url: String, index: Int): String {
         val host = runCatching { URL(url).host.lowercase(Locale.US) }.getOrDefault("")
@@ -1589,6 +1543,219 @@ internal object PipelineMediaSanitizer {
         return normalized
     }
 
+    data class SafeGenUiResult(
+        val jsonText: String,
+        val removedMediaCount: Int,
+        val removedActionCount: Int
+    ) {
+        val changed: Boolean get() = removedMediaCount > 0 || removedActionCount > 0
+    }
+
+    fun enforceSafeGenUiContent(jsonText: String): SafeGenUiResult {
+        val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull()
+            ?: return SafeGenUiResult(jsonText, 0, 0)
+        val payload = normalizeGenUiPayload(parsed)
+        if (!payload.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(payload)) {
+            return SafeGenUiResult(jsonText, 0, 0)
+        }
+        val spec = payload.asJsonObject
+        val elements = spec.getAsJsonObject("elements") ?: return SafeGenUiResult(jsonText, 0, 0)
+        val state = spec.get("state")?.takeIf { it.isJsonObject }?.asJsonObject
+        var removedMedia = 0
+        var removedActions = 0
+
+        elements.entrySet().forEach { (_, node) ->
+            if (!node.isJsonObject) return@forEach
+            val element = node.asJsonObject
+            val type = jsonStringOrNull(element.get("type")).orEmpty().lowercase(Locale.US)
+            val props = element.getAsJsonObject("props")
+            if (props != null) {
+                removedMedia += sanitizeElementMediaProps(type, props, state)
+                removedActions += sanitizeUrlFieldsInProps(type, props)
+            }
+            element.getAsJsonObject("on")?.let { removedActions += sanitizeActionObject(it) }
+            element.getAsJsonObject("watch")?.let { removedActions += sanitizeActionObject(it) }
+        }
+
+        return if (removedMedia > 0 || removedActions > 0) {
+            SafeGenUiResult(spec.toString(), removedMedia, removedActions)
+        } else {
+            SafeGenUiResult(jsonText, 0, 0)
+        }
+    }
+
+    private fun sanitizeElementMediaProps(
+        type: String,
+        props: JsonObject,
+        state: JsonObject?
+    ): Int {
+        var removed = 0
+        fun sanitizeKeys(keys: List<String>, kind: SafeContentPolicy.MediaKind) {
+            keys.forEach { key ->
+                val value = jsonStringOrNull(props.get(key)) ?: return@forEach
+                if (!SafeContentPolicy.looksLikeUrl(value) && !SafeContentPolicy.isLocalAssetUrl(value) && !SafeContentPolicy.isGeneratedVisualUrl(value)) {
+                    return@forEach
+                }
+                val safe = SafeContentPolicy.sanitizeMediaUrl(value, kind)
+                if (safe == null) {
+                    props.remove(key)
+                    removed += 1
+                } else if (safe != value) {
+                    props.addProperty(key, safe)
+                }
+            }
+        }
+
+        when (type) {
+            "image" -> sanitizeKeys(listOf("url", "src", "image", "source", "name"), SafeContentPolicy.MediaKind.IMAGE)
+            "icon" -> sanitizeKeys(listOf("name", "icon", "source", "url", "src"), SafeContentPolicy.MediaKind.ICON)
+            "video" -> sanitizeKeys(listOf("url", "src", "source"), SafeContentPolicy.MediaKind.VIDEO)
+            "audioplayer" -> sanitizeKeys(listOf("url", "src", "source"), SafeContentPolicy.MediaKind.AUDIO)
+            "table" -> {
+                removed += sanitizeTableMediaProps(props, state)
+            }
+        }
+        return removed
+    }
+
+    private fun sanitizeTableMediaProps(props: JsonObject, state: JsonObject?): Int {
+        var removed = 0
+        val imageKeys = setOf("image", "imageurl", "photo", "photourl", "thumbnail", "mediaimage")
+        val iconKeys = setOf("icon", "iconurl", "mediaicon")
+        val actionKeys = setOf("url", "href", "link", "actionurl", "bookingurl", "buttonurl", "sourceurl", "targeturl")
+        props.get("entityMedia")
+            ?.takeIf { it.isJsonObject }
+            ?.asJsonObject
+            ?.entrySet()
+            ?.forEach { (_, value) ->
+            if (!value.isJsonObject) return@forEach
+            val media = value.asJsonObject
+            listOf("image", "url", "src", "source", "path").forEach { key ->
+                val raw = jsonStringOrNull(media.get(key)) ?: return@forEach
+                val safe = SafeContentPolicy.sanitizeMediaUrl(raw, SafeContentPolicy.MediaKind.IMAGE)
+                if (safe == null) {
+                    media.remove(key)
+                    removed += 1
+                } else if (safe != raw) {
+                    media.addProperty(key, safe)
+                }
+            }
+        }
+
+        val rows = props.get("rows")
+            ?.takeIf { it.isJsonArray }
+            ?.asJsonArray
+            ?: jsonStringOrNull(props.get("statePath"))
+                ?.let { pointer -> state?.let { jsonAtPointer(it, pointer) } }
+                ?.takeIf { it.isJsonArray }
+                ?.asJsonArray
+            ?: return removed
+        rows.forEach { row ->
+            if (!row.isJsonObject) return@forEach
+            val rowObj = row.asJsonObject
+            rowObj.entrySet().toList().forEach { (key, value) ->
+                val normalizedKey = key.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
+                val raw = jsonStringOrNull(value) ?: return@forEach
+                val kind = when {
+                    normalizedKey in imageKeys -> SafeContentPolicy.MediaKind.IMAGE
+                    normalizedKey in iconKeys -> SafeContentPolicy.MediaKind.ICON
+                    normalizedKey in actionKeys -> null
+                    else -> return@forEach
+                }
+                val safe = if (kind == null) {
+                    SafeContentPolicy.sanitizeActionUrl(raw)
+                } else {
+                    SafeContentPolicy.sanitizeMediaUrl(raw, kind)
+                }
+                if (safe == null) {
+                    rowObj.remove(key)
+                    removed += 1
+                } else if (safe != raw) {
+                    rowObj.addProperty(key, safe)
+                }
+            }
+        }
+        return removed
+    }
+
+    private fun sanitizeUrlFieldsInProps(type: String, props: JsonObject): Int {
+        if (type in setOf("image", "icon", "video", "audioplayer", "table")) return 0
+        var removed = 0
+        val keys = listOf("url", "actionUrl", "bookingUrl", "buttonUrl", "sourceUrl", "targetUrl", "href", "link")
+        keys.forEach { key ->
+            val raw = jsonStringOrNull(props.get(key)) ?: return@forEach
+            if (!SafeContentPolicy.looksLikeUrl(raw)) return@forEach
+            val safe = SafeContentPolicy.sanitizeActionUrl(raw)
+            if (safe == null) {
+                props.remove(key)
+                removed += 1
+            } else if (safe != raw) {
+                props.addProperty(key, safe)
+            }
+        }
+        return removed
+    }
+
+    private fun jsonAtPointer(root: JsonObject, pointer: String): JsonElement? {
+        val normalized = pointer.trim()
+        if (normalized.isBlank()) return null
+        if (normalized == "/" || normalized == "$") return root
+        val tokens = normalized
+            .removePrefix("$")
+            .trimStart('/')
+            .split('/')
+            .filter { it.isNotBlank() }
+        var current: JsonElement = root
+        tokens.forEach { rawToken ->
+            val token = rawToken.replace("~1", "/").replace("~0", "~")
+            current = when {
+                current.isJsonObject -> current.asJsonObject.get(token) ?: return null
+                current.isJsonArray -> token.toIntOrNull()
+                    ?.takeIf { it >= 0 && it < current.asJsonArray.size() }
+                    ?.let { current.asJsonArray[it] }
+                    ?: return null
+                else -> return null
+            }
+        }
+        return current
+    }
+
+    private fun sanitizeActionObject(actions: JsonObject): Int {
+        var removed = 0
+        actions.entrySet().toList().forEach { (key, value) ->
+            val sanitized = sanitizeActionBinding(value)
+            if (sanitized == null) {
+                actions.remove(key)
+                removed += 1
+            } else if (sanitized !== value) {
+                actions.add(key, sanitized)
+            }
+        }
+        return removed
+    }
+
+    private fun sanitizeActionBinding(value: JsonElement): JsonElement? {
+        if (value.isJsonArray) {
+            val output = JsonArray()
+            value.asJsonArray.forEach { child ->
+                sanitizeActionBinding(child)?.let(output::add)
+            }
+            return output.takeIf { it.size() > 0 }
+        }
+        if (!value.isJsonObject) return value
+        val obj = value.asJsonObject
+        val action = jsonStringOrNull(obj.get("action")).orEmpty().lowercase(Locale.US)
+        if (action != "openurl") return value
+        val params = obj.get("params")?.takeIf { it.isJsonObject }?.asJsonObject ?: return value
+        val urlKey = listOf("url", "href", "link", "targetUrl").firstOrNull { params.has(it) } ?: return value
+        val raw = jsonStringOrNull(params.get(urlKey)) ?: return value
+        val safe = SafeContentPolicy.sanitizeActionUrl(raw) ?: return null
+        if (safe == raw) return value
+        val copy = obj.deepCopy()
+        copy.getAsJsonObject("params").addProperty(urlKey, safe)
+        return copy
+    }
+
     fun ensureGenUiHasInlineTextMedia(
         jsonText: String,
         queryText: String
@@ -1670,96 +1837,16 @@ internal object PipelineMediaSanitizer {
         value.trim().trim('\'', '"').trimEnd('.', ',', ';', ')', ']')
 
     fun looksLikeUsableInlineMediaUrl(value: String): Boolean {
-        val normalized = value.trim()
-        if (normalized.isBlank()) {
-            return false
-        }
-        val lower = normalized.lowercase(Locale.US)
-        if (
-            lower in setOf(
-                "<image_url>",
-                "<icon_url>",
-                "<url>",
-                "image_url",
-                "icon_url",
-                "url",
-                "n/a",
-                "na",
-                "none",
-                "null",
-                "--"
-            ) ||
-            lower.contains("placeholder") ||
-            lower.contains("<") ||
-            lower.contains(">")
-        ) {
-            return false
-        }
-        if (lower.startsWith("/assets/") || lower.startsWith("assets/")) {
-            return true
-        }
-
-        val pathWithoutQuery = lower.substringBefore('?').substringBefore('#')
-        if (
-            pathWithoutQuery.endsWith(".png") ||
-            pathWithoutQuery.endsWith(".jpg") ||
-            pathWithoutQuery.endsWith(".jpeg") ||
-            pathWithoutQuery.endsWith(".svg") ||
-            pathWithoutQuery.endsWith(".webp")
-        ) {
-            return true
-        }
-
-        val uri = runCatching { URI(normalized) }.getOrNull() ?: return false
-        val scheme = uri.scheme?.lowercase(Locale.US) ?: return false
-        if (scheme != "http" && scheme != "https") {
-            return false
-        }
-        val host = uri.host?.lowercase(Locale.US).orEmpty()
-        val path = uri.path?.lowercase(Locale.US).orEmpty()
-        if (
-            host.contains("cdn.jsdelivr.net") ||
-            host.contains("raw.githubusercontent.com") ||
-            host.contains("upload.wikimedia.org") ||
-            (host.contains("commons.wikimedia.org") && path.contains("/wiki/special:filepath/")) ||
-            host.contains("imgur.com") ||
-            host.contains("gstatic.com") ||
-            host.contains("googleusercontent.com") ||
-            host.contains("places.googleapis.com") ||
-            host.contains("twimg.com") ||
-            host.contains("loremflickr.com") ||
-            host.contains("picsum.photos")
-        ) {
-            return true
-        }
-        return path.contains("/icon") || path.contains("/icons/") || path.contains("/image") || path.contains("/images/")
+        return SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.IMAGE) ||
+            SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.ICON)
     }
 
     fun looksLikeUsableInlineImageUrl(value: String): Boolean {
-        val lower = value.trim().lowercase(Locale.US)
-        if (
-            lower.contains("loremflickr.com") ||
-            lower.contains("picsum.photos") ||
-            lower.contains("placehold.co") ||
-            lower.contains("dummyimage.com")
-        ) {
-            return false
-        }
-        return looksLikeUsableInlineMediaUrl(value) && !looksLikeIconOnlyMediaUrl(value)
+        return SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.IMAGE)
     }
 
     private fun looksLikeIconOnlyMediaUrl(value: String): Boolean {
-        val normalized = value.trim().lowercase(Locale.US)
-        if (normalized.isBlank()) {
-            return false
-        }
-        val uri = runCatching { URI(normalized) }.getOrNull() ?: return false
-        val host = uri.host.orEmpty()
-        val path = uri.path.orEmpty()
-        return (host.contains("cdn.jsdelivr.net") || host.contains("unpkg.com")) &&
-            path.contains("/bootstrap-icons") &&
-            path.contains("/icons/") &&
-            path.endsWith(".svg")
+        return SafeContentPolicy.isIconOnlyMediaUrl(value)
     }
 
     // -- Payload ------------------------------------------------------------

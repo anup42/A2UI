@@ -78,6 +78,7 @@ import com.samsung.genuicraft.renderer.native.NativeFormComponents
 import com.samsung.genuicraft.renderer.native.NativePayloadParser
 import com.samsung.genuicraft.renderer.native.NativeTextFormatter
 import com.samsung.genuicraft.renderer.native.*
+import com.samsung.genuicraft.security.SafeContentPolicy
 import com.samsung.genuicraft.renderer.native.media.NativeMediaVisualUtils
 import com.samsung.genuicraft.renderer.native.intents.NativeIntentRegistry
 import com.samsung.genuicraft.renderer.native.parser.NativeBlockHeuristics
@@ -3261,8 +3262,7 @@ object GenUiNativeRenderer {
             return null
         }
         val normalized = NativePayloadParser.canonicalizeNetworkUrlToken(value)
-        val scheme = runCatching { Uri.parse(normalized).scheme?.lowercase(Locale.US) }.getOrNull()
-        return if (scheme == "http" || scheme == "https") normalized else null
+        return SafeContentPolicy.sanitizeActionUrl(normalized)
     }
 
     private fun readChildren(component: JsonObject): List<String> =

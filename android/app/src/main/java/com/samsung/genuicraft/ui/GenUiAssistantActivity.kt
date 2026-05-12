@@ -77,6 +77,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.gson.GsonBuilder
 import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
+import com.samsung.genuicraft.security.SafeContentPolicy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -156,11 +157,9 @@ class GenUiAssistantActivity : AppCompatActivity() {
     }
 
     private fun openExternalUrl(url: String) {
-        val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return
-        val scheme = uri.scheme?.lowercase()
-        if (scheme == "http" || scheme == "https") {
-            startActivity(Intent(Intent.ACTION_VIEW, uri))
-        }
+        val safeUrl = SafeContentPolicy.sanitizeActionUrl(url) ?: return
+        val uri = runCatching { Uri.parse(safeUrl) }.getOrNull() ?: return
+        startActivity(Intent(Intent.ACTION_VIEW, uri))
     }
 
     private fun requestNotificationPermissionIfNeeded() {

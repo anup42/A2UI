@@ -3,6 +3,7 @@ package com.samsung.genuicraft.pipeline
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.samsung.genuicraft.security.SafeContentPolicy
 import java.util.Locale
 
 internal object FlatSpecContract {
@@ -274,6 +275,14 @@ internal object FlatSpecContract {
             if (mediaError != null) {
                 return ValidationResult(false, mediaError)
             }
+            val actionUrlError = validateActionUrlProps(
+                type = type.asString,
+                props = propsObject,
+                id = id
+            )
+            if (actionUrlError != null) {
+                return ValidationResult(false, actionUrlError)
+            }
 
             val children = element.get("children")
             if (children == null || !children.isJsonArray) {
@@ -380,6 +389,13 @@ internal object FlatSpecContract {
         if (params != null && !params.isJsonNull && !params.isJsonObject) {
             return "$context params must be an object when present."
         }
+        if (action.asString.equals("openUrl", ignoreCase = true) && params != null && params.isJsonObject) {
+            val paramsObject = params.asJsonObject
+            val url = firstStringProp(paramsObject, "url", "href", "link", "targetUrl")
+            if (url != null && SafeContentPolicy.sanitizeActionUrl(url) == null) {
+                return "$context openUrl contains unsafe URL."
+            }
+        }
         return null
     }
 
@@ -397,8 +413,33 @@ internal object FlatSpecContract {
     ): String? {
         if (type.equals("image", ignoreCase = true)) {
             val imageUrl = firstStringProp(props, "url", "src", "image", "source", "name")
-            if (imageUrl != null && isIconOnlyMediaUrl(imageUrl)) {
-                return "Element '$id' Image source points to icon/vector media. Use Icon instead of Image."
+            if (imageUrl != null && !SafeContentPolicy.isSafeMediaUrl(imageUrl, SafeContentPolicy.MediaKind.IMAGE)) {
+                return if (SafeContentPolicy.isIconOnlyMediaUrl(imageUrl)) {
+                    "Element '$id' Image source points to icon/vector media. Use Icon instead of Image."
+                } else {
+                    "Element '$id' Image source is not allowed by the safe media policy."
+                }
+            }
+        }
+        if (type.equals("icon", ignoreCase = true)) {
+            val iconUrl = firstStringProp(props, "name", "icon", "source", "url", "src")
+            if (iconUrl != null &&
+                (SafeContentPolicy.looksLikeUrl(iconUrl) || SafeContentPolicy.isLocalAssetUrl(iconUrl)) &&
+                !SafeContentPolicy.isSafeMediaUrl(iconUrl, SafeContentPolicy.MediaKind.ICON)
+            ) {
+                return "Element '$id' Icon source is not allowed by the safe media policy."
+            }
+        }
+        if (type.equals("video", ignoreCase = true)) {
+            val videoUrl = firstStringProp(props, "url", "src", "source")
+            if (videoUrl != null && !SafeContentPolicy.isSafeMediaUrl(videoUrl, SafeContentPolicy.MediaKind.VIDEO)) {
+                return "Element '$id' Video source is not allowed by the safe media policy."
+            }
+        }
+        if (type.equals("audioplayer", ignoreCase = true)) {
+            val audioUrl = firstStringProp(props, "url", "src", "source")
+            if (audioUrl != null && !SafeContentPolicy.isSafeMediaUrl(audioUrl, SafeContentPolicy.MediaKind.AUDIO)) {
+                return "Element '$id' AudioPlayer source is not allowed by the safe media policy."
             }
         }
         if (type.equals("table", ignoreCase = true)) {
@@ -418,9 +459,35 @@ internal object FlatSpecContract {
         rows.forEach { row ->
             imageColumns.forEach { column ->
                 val value = tableCell(row, column)?.trim().orEmpty()
-                if (value.isNotBlank() && isIconOnlyMediaUrl(value)) {
-                    return "Element '$id' Table image column '${column.label}' uses icon/vector media. Use an icon column or omit the image."
+                if (value.isNotBlank() && !SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.IMAGE)) {
+                    return if (SafeContentPolicy.isIconOnlyMediaUrl(value)) {
+                        "Element '$id' Table image column '${column.label}' uses icon/vector media. Use an icon column or omit the image."
+                    } else {
+                        "Element '$id' Table image column '${column.label}' uses media that is not allowed by the safe media policy."
+                    }
                 }
+            }
+        }
+        return null
+    }
+
+    private fun validateActionUrlProps(
+        type: String,
+        props: JsonObject,
+        id: String
+    ): String? {
+        if (type.equals("image", ignoreCase = true) ||
+            type.equals("icon", ignoreCase = true) ||
+            type.equals("video", ignoreCase = true) ||
+            type.equals("audioplayer", ignoreCase = true) ||
+            type.equals("table", ignoreCase = true)
+        ) {
+            return null
+        }
+        listOf("url", "actionUrl", "bookingUrl", "buttonUrl", "sourceUrl", "targetUrl", "href", "link").forEach { key ->
+            val value = firstStringProp(props, key) ?: return@forEach
+            if (SafeContentPolicy.looksLikeUrl(value) && SafeContentPolicy.sanitizeActionUrl(value) == null) {
+                return "Element '$id' prop '$key' contains unsafe URL."
             }
         }
         return null
@@ -501,24 +568,6 @@ internal object FlatSpecContract {
             "photo url",
             "media image"
         )
-    }
-
-    private fun isIconOnlyMediaUrl(raw: String): Boolean {
-        val lower = raw.trim().lowercase(Locale.US)
-        if (lower.isBlank()) return false
-        val path = lower.substringBefore('?').substringBefore('#')
-        return lower.contains("cdn.jsdelivr.net/npm/bootstrap-icons") ||
-            lower.contains("bootstrap-icons") ||
-            path.contains("/icons/") ||
-            path.contains("/icon/") ||
-            path.endsWith("-icon.svg") ||
-            path.endsWith("_icon.svg") ||
-            (
-                path.endsWith(".svg") && (
-                    lower.contains("weatherapi.com/weather/") ||
-                        lower.contains("openweathermap.org/img/wn/")
-                    )
-                )
     }
 
     private fun validateStackProps(props: JsonObject, id: String): String? {

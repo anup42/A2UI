@@ -111,6 +111,7 @@ import com.samsung.genuicraft.renderer.native.intents.weather.NativeWeatherUiRen
 import com.samsung.genuicraft.renderer.native.media.NativeMediaVisualUtils
 import com.samsung.genuicraft.renderer.native.parser.NativeSourceParsing
 import com.samsung.genuicraft.renderer.native.parser.NativeStructureParsing
+import com.samsung.genuicraft.security.SafeContentPolicy
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import java.util.UUID
@@ -971,8 +972,9 @@ internal object FlatActionRuntime {
             when (actionName) {
                 "openurl" -> {
                     val url = firstNonBlankString(resolvedParams, "url", "href", "link", "targetUrl")
-                    if (url.isNotBlank()) {
-                        onOpenUrl(url)
+                    val safeUrl = SafeContentPolicy.sanitizeActionUrl(url)
+                    if (!safeUrl.isNullOrBlank()) {
+                        onOpenUrl(safeUrl)
                     }
                 }
 
@@ -1182,7 +1184,9 @@ fun FlatSpecContent(
     val watchRuntime = remember(renderSpec) { FlatWatchRuntime(renderSpec.elements) }
 
     val onOpenUrl: (String) -> Unit = { url ->
-        runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+        SafeContentPolicy.sanitizeActionUrl(url)?.let { safeUrl ->
+            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(safeUrl))) }
+        }
     }
     val onSetState: (String, Any?) -> Unit = { path, value ->
         val normalizedPath = normalizePointer(path)
@@ -1759,9 +1763,7 @@ private fun toFlatExternalUrl(value: String?): String? {
     val normalized = NativePayloadParser.canonicalizeNetworkUrlToken(
         flatSanitizeUrlToken(value.orEmpty())
     )
-    if (normalized.isBlank()) return null
-    val scheme = runCatching { Uri.parse(normalized).scheme?.lowercase() }.getOrNull()
-    return normalized.takeIf { scheme == "http" || scheme == "https" }
+    return SafeContentPolicy.sanitizeActionUrl(normalized)
 }
 
 private fun flatSanitizeUrlToken(value: String): String =
@@ -5779,8 +5781,7 @@ private fun findTableColumnIndex(
 }
 
 private fun isLikelyHttpUrl(value: String): Boolean {
-    val normalized = value.trim().lowercase()
-    return normalized.startsWith("https://") || normalized.startsWith("http://")
+    return SafeContentPolicy.looksLikeUrl(value)
 }
 
 private fun bookingActionLabelIndex(headers: List<String>): Int? =
@@ -5859,7 +5860,7 @@ private fun renderBookingRowsIfPossible(
             val price = priceIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
             val secondary = secondaryIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
             val actionUrl = linkIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
-                ?.takeIf(::isLikelyHttpUrl)
+                ?.let(SafeContentPolicy::sanitizeActionUrl)
             val actionLabel = bookingRowActionLabel(headers, row) ?: "Open Option"
             val imageUrl = bookingRowImageUrl(headers, row).orEmpty()
             val chips = buildList {
@@ -8322,9 +8323,9 @@ private fun RenderEntityTableCards(
         rows.forEachIndexed { rowIndex, row ->
             val title = row.getOrNull(primaryIndex).orEmpty().trim().ifBlank { "Item ${rowIndex + 1}" }
             val actionUrlIndex = headers.indices.firstOrNull { index ->
-                isUrlColumnLabel(headers[index]) && isLikelyHttpUrl(row.getOrNull(index).orEmpty().trim())
-            } ?: row.indexOfFirst { value -> isLikelyHttpUrl(value.trim()) }.takeIf { it >= 0 }
-            val actionUrl = actionUrlIndex?.let { row.getOrNull(it).orEmpty().trim() }
+                isUrlColumnLabel(headers[index]) && SafeContentPolicy.isSafeActionUrl(row.getOrNull(index).orEmpty().trim())
+            } ?: row.indexOfFirst { value -> SafeContentPolicy.isSafeActionUrl(value.trim()) }.takeIf { it >= 0 }
+            val actionUrl = actionUrlIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
             val actionLabel = entityActionLabel(headers, row, title)
             val showProviderBadge = shouldShowEntityProviderBadge(title, actionUrl)
             val bodyIndexes = headers.indices.filterNot { index ->
@@ -10859,10 +10860,12 @@ private fun RenderImage(
 ) {
     val resolveAssetUrl = LocalFlatSpecAssetResolver.current
     val rawUrl = resolveMediaUrlCandidate(props, IMAGE_PROP_KEYS)
-    val resolvedUrl = resolveAssetUrl(rawUrl)
+    val safeRawUrl = SafeContentPolicy.sanitizeMediaUrl(rawUrl, SafeContentPolicy.MediaKind.IMAGE) ?: return
+    val resolvedUrl = resolveAssetUrl(safeRawUrl)
     val url = resolveCoilMediaModel(resolvedUrl)
     if (url.isBlank()) return
     val fallbackUrl = deriveImageFallbackUrl(resolvedUrl, props)
+        ?.let { SafeContentPolicy.sanitizeMediaUrl(it, SafeContentPolicy.MediaKind.IMAGE) }
         ?.let(resolveAssetUrl)
         ?.let(::resolveCoilMediaModel)
         .orEmpty()
@@ -10873,7 +10876,7 @@ private fun RenderImage(
             .components { add(SvgDecoder.Factory()) }
             .build()
     }
-    val actionUrl = extractMediaUrlToken(props["actionUrl"]).orEmpty()
+    val actionUrl = SafeContentPolicy.sanitizeActionUrl(extractMediaUrlToken(props["actionUrl"])).orEmpty()
     val widthDp = asDp(props["width"])
     val heightDp = asDp(props["height"])
     val aspectRatio = parseAspectRatio(props["aspectRatio"]) ?: if (heightDp == null) 16f / 9f else null
@@ -11080,7 +11083,8 @@ private fun RenderIcon(
 ) {
     val resolveAssetUrl = LocalFlatSpecAssetResolver.current
     val rawUrl = resolveMediaUrlCandidate(props, ICON_PROP_KEYS)
-    val url = resolveCoilMediaModel(resolveAssetUrl(rawUrl))
+    val safeRawUrl = SafeContentPolicy.sanitizeMediaUrl(rawUrl, SafeContentPolicy.MediaKind.ICON) ?: return
+    val url = resolveCoilMediaModel(resolveAssetUrl(safeRawUrl))
     if (url.isBlank()) return
     val context = LocalContext.current
     val imageLoader = remember(context) {
@@ -11554,7 +11558,10 @@ private fun RenderVideo(
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val url = props["url"]?.toString().orEmpty()
+    val url = SafeContentPolicy.sanitizeMediaUrl(
+        props["url"]?.toString().orEmpty(),
+        SafeContentPolicy.MediaKind.VIDEO
+    ).orEmpty()
     if (url.isBlank()) return
     val label = accessibilityLabel(props, "Video")
     Surface(
@@ -11588,7 +11595,10 @@ private fun RenderAudioPlayer(
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val url = props["url"]?.toString().orEmpty()
+    val url = SafeContentPolicy.sanitizeMediaUrl(
+        props["url"]?.toString().orEmpty(),
+        SafeContentPolicy.MediaKind.AUDIO
+    ).orEmpty()
     if (url.isBlank()) return
     val description = props["description"]?.toString().orEmpty().ifBlank { "Audio" }
     val label = accessibilityLabel(props, description)

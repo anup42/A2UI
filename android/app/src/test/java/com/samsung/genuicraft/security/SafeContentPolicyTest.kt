@@ -1,0 +1,91 @@
+package com.samsung.genuicraft.security
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class SafeContentPolicyTest {
+
+    @Test
+    fun actionUrls_acceptHttpsPublicDomainsAndNormalizeBareDomains() {
+        assertEquals(
+            "https://www.google.com/search?q=weather",
+            SafeContentPolicy.sanitizeActionUrl("https://www.google.com/search?q=weather")
+        )
+        assertEquals(
+            "https://www.makemytrip.com/flights/",
+            SafeContentPolicy.sanitizeActionUrl("www.makemytrip.com/flights/")
+        )
+    }
+
+    @Test
+    fun actionUrls_rejectUnsafeSchemesPrivateHostsAndPlaceholders() {
+        val unsafe = listOf(
+            "http://example.org/page",
+            "javascript:alert(1)",
+            "data:text/html,<b>x</b>",
+            "file:///sdcard/secret.txt",
+            "content://com.android.contacts/1",
+            "intent://scan/#Intent;scheme=zxing;end",
+            "https://localhost/admin",
+            "https://127.0.0.1/admin",
+            "https://192.168.1.12/admin",
+            "https://10.0.2.2/admin",
+            "https://service.local/path",
+            "https://example.com/path",
+            "https://placeholder.com/image.jpg",
+            "not a url"
+        )
+
+        unsafe.forEach { candidate ->
+            assertNull(candidate, SafeContentPolicy.sanitizeActionUrl(candidate))
+            assertFalse(candidate, SafeContentPolicy.isSafeActionUrl(candidate))
+        }
+    }
+
+    @Test
+    fun mediaPolicy_acceptsCuratedPhotoSourcesAndGeneratedVisualsForImages() {
+        val safeImages = listOf(
+            "../assets/bengaluru.jpg",
+            "genuicraft://visual/travel?title=Bengaluru",
+            "https://commons.wikimedia.org/wiki/Special:FilePath/Vidhana_Soudha.jpg",
+            "https://upload.wikimedia.org/wikipedia/commons/1/11/Vidhana_Soudha.jpg",
+            "https://places.googleapis.com/v1/places/abc/photos/def/media?key=redacted",
+            "https://images.unsplash.com/photo-1234567890"
+        )
+
+        safeImages.forEach { url ->
+            assertTrue(url, SafeContentPolicy.isSafeMediaUrl(url, SafeContentPolicy.MediaKind.IMAGE))
+        }
+    }
+
+    @Test
+    fun mediaPolicy_allowsIconHostsOnlyForIcons() {
+        val bootstrapIcon = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg"
+        val weatherIcon = "https://cdn.weatherapi.com/weather/64x64/day/116.png"
+
+        assertTrue(SafeContentPolicy.isSafeMediaUrl(bootstrapIcon, SafeContentPolicy.MediaKind.ICON))
+        assertTrue(SafeContentPolicy.isSafeMediaUrl(weatherIcon, SafeContentPolicy.MediaKind.ICON))
+        assertFalse(SafeContentPolicy.isSafeMediaUrl(bootstrapIcon, SafeContentPolicy.MediaKind.IMAGE))
+        assertFalse(SafeContentPolicy.isSafeMediaUrl(weatherIcon, SafeContentPolicy.MediaKind.IMAGE))
+        assertTrue(SafeContentPolicy.isIconOnlyMediaUrl(bootstrapIcon))
+    }
+
+    @Test
+    fun mediaPolicy_rejectsPlaceholderAndMalformedImageUrls() {
+        val unsafeImages = listOf(
+            "https://loremflickr.com/1200/800/travel",
+            "https://picsum.photos/800/600",
+            "http://upload.wikimedia.org/wikipedia/commons/a/a0/Test.jpg",
+            "https://localhost/image.jpg",
+            "https://example.com/image.jpg",
+            "not a url"
+        )
+
+        unsafeImages.forEach { url ->
+            assertFalse(url, SafeContentPolicy.isSafeMediaUrl(url, SafeContentPolicy.MediaKind.IMAGE))
+        }
+    }
+}

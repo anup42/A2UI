@@ -797,6 +797,25 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun actionRuntime_refusesUnsafeOpenUrl() {
+        var openedUrl: String? = null
+        val action = mapOf(
+            "action" to "openUrl",
+            "params" to mapOf("url" to "javascript:alert(1)")
+        )
+
+        FlatActionRuntime.execute(
+            actionCandidate = action,
+            stateStore = mutableMapOf(),
+            repeatScope = null,
+            computedFunctions = emptyMap(),
+            onOpenUrl = { openedUrl = it }
+        )
+
+        assertNull(openedUrl)
+    }
+
+    @Test
     fun actionRuntime_resolvesBindItemStatePathForSetState() {
         val state = mutableMapOf<String, Any?>(
             "items" to listOf(mapOf("name" to "Old"))

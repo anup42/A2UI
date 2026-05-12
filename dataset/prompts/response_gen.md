@@ -154,6 +154,8 @@ Link locality rule (strict for downstream UI binding):
 - Use final Quick Actions only for global actions (compare all, official docs, support home, etc.).
 - Every action/source link must be an absolute URL with scheme (prefer `https://`).
 - Do not output bare domains such as `timeanddate.com` or `www.example.com` without `https://`.
+- Action/source links must be `https://` public-domain URLs only. Never output `http://`, `javascript:`, `data:`, `file:`, `content:`, `intent:`, localhost, private IP ranges, `.local`, `.test`, `.example`, malformed hosts, placeholder hosts, or fake/test domains.
+- Media links must be local/grounded app assets, verified Wikimedia/Commons/Places/direct HTTPS photo URLs, or Bootstrap/weather icon URLs used as icon-only media. Never use icon URLs as photos.
 
 Quality constraints:
 - Keep 4-7 headings maximum.

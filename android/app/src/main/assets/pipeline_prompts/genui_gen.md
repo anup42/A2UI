@@ -63,6 +63,9 @@ Valid (flat-spec):
 ## Asset URL policy
 - If no Assets mapping is provided, preserve media URLs exactly as given.
 - Never invent placeholder paths like `/image.jpg` or `/asset/foo.png`.
+- Action/source URLs for Buttons, `openUrl`, `url`, `bookingUrl`, `actionUrl`, `href`, and `link` fields must be `https://` public-domain URLs only.
+- Do not emit `http://`, `javascript:`, `data:`, `file:`, `content:`, `intent:`, localhost, private IP ranges, `.local`, `.test`, `.example`, malformed hosts, placeholder hosts, or fake/test domains.
+- Media URLs must satisfy Android safe media policy: local app assets, generated `genuicraft:` visuals, verified Wikimedia/Commons/Places/direct HTTPS photo URLs for `Image` and table image fields, and Bootstrap/weather icon URLs for `Icon` only.
 
 ## Media preservation rules (compact)
 - Treat standalone media sections as metadata, not content sections. Headings such as `Images:`, `Icons:`, `Visual Guide`, `Key Feature Icons`, `Trip Imagery`, `Weather Icons`, or `Related Icons` MUST NOT become standalone Cards or trailing sections.

@@ -2,6 +2,7 @@ package com.samsung.genuicraft.renderer.native.media
 
 import android.net.Uri
 import androidx.compose.ui.layout.ContentScale
+import com.samsung.genuicraft.security.SafeContentPolicy
 import java.util.Locale
 
 internal object NativeMediaVisualUtils {
@@ -9,6 +10,11 @@ internal object NativeMediaVisualUtils {
         val normalized = value.trim()
         if (normalized.isBlank() || isLikelyPlaceholderMediaToken(normalized)) {
             return false
+        }
+        if (SafeContentPolicy.isSafeMediaUrl(normalized, SafeContentPolicy.MediaKind.IMAGE) ||
+            SafeContentPolicy.isSafeMediaUrl(normalized, SafeContentPolicy.MediaKind.ICON)
+        ) {
+            return true
         }
         val normalizedLower = normalized.lowercase(Locale.US)
         val pathWithoutQuery = normalizedLower.substringBefore('?').substringBefore('#')
@@ -106,52 +112,7 @@ internal object NativeMediaVisualUtils {
     }
 
     fun isPhotoLikeImageUrl(value: String): Boolean {
-        val normalized = value.trim()
-        if (normalized.isBlank()) {
-            return false
-        }
-        val lower = normalized.lowercase(Locale.US)
-        if (isVectorImagePath(lower) || looksLikeCompactIconUrl(lower)) {
-            return false
-        }
-        if (isRasterImagePath(lower)) {
-            return true
-        }
-
-        val uri = runCatching { Uri.parse(normalized) }.getOrNull() ?: return false
-        val scheme = uri.scheme?.lowercase(Locale.US)
-        if (scheme != "http" && scheme != "https") {
-            return false
-        }
-
-        val host = uri.host?.lowercase(Locale.US).orEmpty()
-        val path = uri.path?.lowercase(Locale.US).orEmpty()
-        if (host.isBlank()) {
-            return false
-        }
-
-        if (
-            host.contains("googleusercontent.com") ||
-            host.contains("gstatic.com") ||
-            host.contains("wikimedia.org") ||
-            host.contains("imgur.com") ||
-            host.contains("twimg.com") ||
-            host.contains("unsplash.com") ||
-            host.contains("pexels.com")
-        ) {
-            return true
-        }
-
-        return path.contains("/media") ||
-            path.contains("/image") ||
-            path.contains("/images/") ||
-            path.contains("/img/") ||
-            path.contains("/photo") ||
-            path.contains("/photos/") ||
-            path.contains("/thumbnail") ||
-            path.contains("/thumb/") ||
-            path.contains("/cover") ||
-            path.contains("/hero")
+        return SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.IMAGE)
     }
 
     fun defaultImageScale(

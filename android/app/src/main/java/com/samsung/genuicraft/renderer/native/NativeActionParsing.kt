@@ -1,10 +1,10 @@
 package com.samsung.genuicraft.renderer.native
 
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.Modifier
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.samsung.genuicraft.security.SafeContentPolicy
 import java.io.File
 import java.util.Locale
 
@@ -203,7 +203,6 @@ internal object NativeActionParsing {
             return null
         }
         val normalized = NativePayloadParser.canonicalizeNetworkUrlToken(value)
-        val scheme = runCatching { Uri.parse(normalized).scheme?.lowercase(Locale.US) }.getOrNull()
-        return if (scheme == "http" || scheme == "https") normalized else null
+        return SafeContentPolicy.sanitizeActionUrl(normalized)
     }
 }

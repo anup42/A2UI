@@ -132,6 +132,84 @@ class FlatSpecContractTest {
     }
 
     @Test
+    fun coerceAndValidate_rejectsUnsafeOpenUrlAction() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": {},
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["button"] },
+                "button": {
+                  "type": "Button",
+                  "props": { "label": "Open" },
+                  "on": {
+                    "press": { "action": "openUrl", "params": { "url": "javascript:alert(1)" } }
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertFalse(result.isValid)
+        assertTrue(result.error.orEmpty().contains("unsafe URL"))
+    }
+
+    @Test
+    fun coerceAndValidate_rejectsUnsafeMediaElementSources() {
+        val cases = listOf(
+            "Image" to """"url": "https://loremflickr.com/1200/800/travel"""",
+            "Video" to """"url": "file:///sdcard/clip.mp4"""",
+            "AudioPlayer" to """"url": "http://example.org/audio.mp3""""
+        )
+
+        cases.forEach { (type, props) ->
+            val payload = JsonParser.parseString(
+                """
+                {
+                  "root": "main",
+                  "state": {},
+                  "elements": {
+                    "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["media"] },
+                    "media": { "type": "$type", "props": { $props }, "children": [] }
+                  }
+                }
+                """.trimIndent()
+            )
+
+            val result = FlatSpecContract.coerceAndValidate(payload)
+            assertFalse("$type should be rejected", result.isValid)
+            assertTrue(result.error.orEmpty().contains("safe media policy"))
+        }
+    }
+
+    @Test
+    fun coerceAndValidate_acceptsBootstrapIconAsIconOnly() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": {},
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["icon"] },
+                "icon": {
+                  "type": "Icon",
+                  "props": { "name": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg" },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+        assertTrue(result.error.orEmpty(), result.isValid)
+    }
+
+    @Test
     fun coerceAndValidate_acceptsFormulaElement() {
         val payload = JsonParser.parseString(
             """
@@ -297,7 +375,7 @@ class FlatSpecContractTest {
                   "type": "Button",
                   "props": { "label": "Open" },
                   "on": {
-                    "press": { "action": "openUrl", "params": { "url": "https://example.com" } }
+                    "press": { "action": "openUrl", "params": { "url": "https://www.google.com/search?q=genui" } }
                   },
                   "children": []
                 }

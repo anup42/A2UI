@@ -70,7 +70,7 @@ class GenUiNativeRendererFlatSpecTest {
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
         assertNotNull(result.surfaces.single().flatSpec)
-        assertTrue(result.warnings.any { it.contains("flat-spec IR inside record metadata", ignoreCase = true) })
+        assertTrue(result.warnings.none { it.contains("fallback", ignoreCase = true) })
     }
 
     @Test

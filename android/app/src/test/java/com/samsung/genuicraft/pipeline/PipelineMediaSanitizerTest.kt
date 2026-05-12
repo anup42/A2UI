@@ -88,7 +88,7 @@ class PipelineMediaSanitizerTest {
         """.trimIndent()
         val response = """
             Day 1: City center
-            Media: Image=https://example.com/place-card.jpg Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg
+            Media: Image=https://commons.wikimedia.org/wiki/Special:FilePath/Vidhana_Soudha.jpg Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg
         """.trimIndent()
 
         val transformed = PipelineMediaSanitizer.ensureGenUiHasImageComponent(
@@ -98,7 +98,61 @@ class PipelineMediaSanitizerTest {
         )
 
         assertTrue(transformed.contains("\"type\":\"Image\""))
-        assertTrue(transformed.contains("place-card.jpg"))
+        assertTrue(transformed.contains("Vidhana_Soudha.jpg"))
         assertTrue(transformed.contains("\"auto_media_"))
+    }
+
+    @Test
+    fun normalizeUrlTokensForDisplay_removesUnsafeUrls() {
+        val response = "Open http://127.0.0.1/admin or https://www.google.com/search?q=bengaluru"
+
+        val transformed = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(response)
+
+        assertEquals(false, transformed.contains("127.0.0.1"))
+        assertTrue(transformed.contains("https://www.google.com/search?q=bengaluru"))
+    }
+
+    @Test
+    fun enforceSafeGenUiContent_removesUnsafeMediaAndOpenUrlActions() {
+        val json = """
+            {
+              "root": "rootStack",
+              "state": {
+                "rows": [
+                  {
+                    "name": "Unsafe row",
+                    "image": "https://loremflickr.com/1200/800/travel",
+                    "bookingUrl": "javascript:alert(1)"
+                  }
+                ]
+              },
+              "elements": {
+                "rootStack": { "type": "Stack", "props": {}, "children": ["image", "table", "button"] },
+                "image": { "type": "Image", "props": { "url": "https://picsum.photos/800/600" }, "children": [] },
+                "table": {
+                  "type": "Table",
+                  "props": {
+                    "columns": [{"key":"name","label":"Name"},{"key":"image","label":"Image"}],
+                    "statePath": "/rows"
+                  },
+                  "children": []
+                },
+                "button": {
+                  "type": "Button",
+                  "props": { "label": "Open" },
+                  "on": { "press": { "action": "openUrl", "params": { "url": "file:///sdcard/secret" } } },
+                  "children": []
+                }
+              }
+            }
+        """.trimIndent()
+
+        val result = PipelineMediaSanitizer.enforceSafeGenUiContent(json)
+
+        assertTrue(result.changed)
+        assertEquals(false, result.jsonText.contains("loremflickr"))
+        assertEquals(false, result.jsonText.contains("picsum"))
+        assertEquals(false, result.jsonText.contains("file:///sdcard"))
+        assertEquals(false, result.jsonText.contains("javascript:alert"))
     }
 }

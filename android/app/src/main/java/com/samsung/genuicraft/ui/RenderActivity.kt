@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
+import com.samsung.genuicraft.security.SafeContentPolicy
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.max
@@ -147,11 +148,8 @@ class RenderActivity : AppCompatActivity() {
     }
 
     private fun openExternalUrl(url: String) {
-        val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return
-        val scheme = uri.scheme?.lowercase()
-        if (scheme != "http" && scheme != "https") {
-            return
-        }
+        val safeUrl = SafeContentPolicy.sanitizeActionUrl(url) ?: return
+        val uri = runCatching { Uri.parse(safeUrl) }.getOrNull() ?: return
         startActivity(Intent(Intent.ACTION_VIEW, uri))
     }
 }

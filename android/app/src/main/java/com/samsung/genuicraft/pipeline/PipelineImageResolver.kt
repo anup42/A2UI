@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.samsung.genuicraft.security.SafeContentPolicy
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -113,17 +114,10 @@ internal object PipelineImageResolver {
         ) {
             return false
         }
-        if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
+        if (!lower.startsWith("https://")) {
             return false
         }
-        if (
-            lower.contains("cdn.jsdelivr.net") ||
-            lower.contains("bootstrap-icons") ||
-            lower.endsWith(".svg")
-        ) {
-            return false
-        }
-        return PipelineMediaSanitizer.looksLikeUsableInlineImageUrl(url)
+        return SafeContentPolicy.isSafeMediaUrl(url, SafeContentPolicy.MediaKind.IMAGE)
     }
 
     internal fun buildCommonsSearchQueryForTest(

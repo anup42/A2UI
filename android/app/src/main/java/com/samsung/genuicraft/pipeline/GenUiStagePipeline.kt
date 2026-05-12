@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
+import com.google.gson.JsonParser
 import com.samsung.genuicraft.inference.InferenceBackend
 import com.samsung.genuicraft.inference.InferenceBackendFactory
 import com.samsung.genuicraft.inference.LocalServerBackend
@@ -783,15 +784,21 @@ class GenUiStagePipeline(private val appContext: Context) {
         ) ?: run {
             val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
             persistStage3DiagnosticsArtifacts(stage3Diagnostics)
-            warnings += "Stage 3 strict validation failed; using deterministic fallback flat spec."
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
             postUpdate(
                 onStageUpdate,
                 Stage.STAGE3,
-                "Stage 3 strict validation failed; using fallback IR",
+                "Stage 3 strict validation failed; no safe IR rendered",
                 debugLog = strictDebug,
                 stage2Response = stage2Response
             )
-            FlatSpecContract.buildFallbackFlatSpec(stage2Response)
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Stage 3 output failed strict validation after repair. No fallback IR was rendered.",
+                stage2Response = stage2Response,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
@@ -837,6 +844,27 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = imageRepairResult.jsonText
             warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
         }
+        val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
+        if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE3,
+                "Stage 3 failed final safety validation",
+                debugLog = finalSafetyResult.error,
+                stage2Response = stage2Response,
+                stage3Json = stage3Json
+            )
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Stage 3 output failed final safety validation: ${finalSafetyResult.error}",
+                stage2Response = stage2Response,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        stage3Json = finalSafetyResult.jsonText
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -1282,15 +1310,21 @@ class GenUiStagePipeline(private val appContext: Context) {
         ) ?: run {
             val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
             persistStage3DiagnosticsArtifacts(stage3Diagnostics)
-            warnings += "Stage 3 strict validation failed; using deterministic fallback flat spec."
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
             postUpdate(
                 onStageUpdate,
                 Stage.STAGE3,
-                "Stage 3 strict validation failed; using fallback IR",
+                "Stage 3 strict validation failed; no safe IR rendered",
                 debugLog = strictDebug,
                 stage2Response = stage2Response
             )
-            FlatSpecContract.buildFallbackFlatSpec(stage2Response)
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Stage 3 output failed strict validation after repair. No fallback IR was rendered.",
+                stage2Response = stage2Response,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
@@ -1336,6 +1370,27 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = imageRepairResult.jsonText
             warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
         }
+        val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
+        if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE3,
+                "Stage 3 failed final safety validation",
+                debugLog = finalSafetyResult.error,
+                stage2Response = stage2Response,
+                stage3Json = stage3Json
+            )
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Stage 3 output failed final safety validation: ${finalSafetyResult.error}",
+                stage2Response = stage2Response,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        stage3Json = finalSafetyResult.jsonText
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -1598,15 +1653,21 @@ class GenUiStagePipeline(private val appContext: Context) {
         ) ?: run {
             val strictDebug = buildStrictStage3FailureDebugLog(stage3Diagnostics)
             persistStage3DiagnosticsArtifacts(stage3Diagnostics)
-            warnings += "Stage 3 strict validation failed; using deterministic fallback flat spec."
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
             postUpdate(
                 onStageUpdate,
                 Stage.STAGE3,
-                "Stage 3 strict validation failed; using fallback IR",
+                "Stage 3 strict validation failed; no safe IR rendered",
                 debugLog = strictDebug,
                 stage2Response = sanitizedResponse
             )
-            FlatSpecContract.buildFallbackFlatSpec(sanitizedResponse)
+            return Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Stage 3 output failed strict validation after repair. No fallback IR was rendered.",
+                stage2Response = sanitizedResponse,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
@@ -1650,6 +1711,27 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = imageRepairResult.jsonText
             warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
         }
+        val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
+        if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {
+            markDuration(Stage.STAGE3, stage3StartedAtMs)
+            postUpdate(
+                onStageUpdate,
+                Stage.STAGE3,
+                "Stage 3 failed final safety validation",
+                debugLog = finalSafetyResult.error,
+                stage2Response = sanitizedResponse,
+                stage3Json = stage3Json
+            )
+            return Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "Stage 3 output failed final safety validation: ${finalSafetyResult.error}",
+                stage2Response = sanitizedResponse,
+                stage3Json = stage3Json,
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
+        stage3Json = finalSafetyResult.jsonText
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(sanitizedResponse)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -1878,6 +1960,41 @@ class GenUiStagePipeline(private val appContext: Context) {
             appendLine("removed_field_count: ${table.removedFieldCount}")
             append("canonicalization_rewrites: $rewrites")
         }
+    }
+
+    private data class FinalStage3SafetyResult(
+        val jsonText: String?,
+        val error: String?
+    )
+
+    private fun enforceFinalStage3Safety(
+        stage3Json: String,
+        warnings: MutableList<String>
+    ): FinalStage3SafetyResult {
+        var candidate = stage3Json
+        val safeResult = PipelineMediaSanitizer.enforceSafeGenUiContent(candidate)
+        if (safeResult.changed) {
+            candidate = safeResult.jsonText
+            warnings += "Removed unsafe GenUI content: media=${safeResult.removedMediaCount}, actions=${safeResult.removedActionCount}."
+        }
+
+        val parsed = runCatching { JsonParser.parseString(candidate) }.getOrElse { error ->
+            return FinalStage3SafetyResult(
+                jsonText = null,
+                error = "Stage 3 safe IR is not valid JSON: ${error.message.orEmpty()}"
+            )
+        }
+        val validation = FlatSpecContract.coerceAndValidate(parsed)
+        if (!validation.isValid || validation.spec == null) {
+            return FinalStage3SafetyResult(
+                jsonText = null,
+                error = validation.error ?: "Stage 3 safe IR failed strict validation."
+            )
+        }
+        return FinalStage3SafetyResult(
+            jsonText = gson.toJson(validation.spec),
+            error = null
+        )
     }
 
     private fun buildStrictStage3FailureDebugLog(diagnostics: Stage3RepairDiagnostics): String {
