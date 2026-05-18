@@ -173,6 +173,10 @@ def looks_like_travel(
 def extract_travel_location_keyword(query_text: str) -> str:
     text = re.sub(r"\s+", " ", query_text or "").strip()
     patterns = [
+        r"\b(?:trip|vacation|itinerary|travel|visit|tour)\s+(?:to|in|for|around)\s+([A-Z][A-Za-z .'-]{2,50}(?:,\s*[A-Z][A-Za-z .'-]{2,40})?)(?=\s+(?:from|for|with|on|between|during)\b|[.;]|$)",
+        r"\b(?:trip|vacation|itinerary|travel|visit|tour)\s+(?:to|in|for|around)\s+([a-z][A-Za-z .'-]{2,50}(?:,\s*[A-Za-z .'-]{2,40})?)(?=\s+(?:from|for|with|on|between|during)\b|[.;]|$)",
+        r"\b(?:in|to|for|near|around)\s+([A-Z][A-Za-z .'-]{2,50}(?:,\s*[A-Z][A-Za-z .'-]{2,40})?)(?=\s+(?:from|for|with|on|between|during)\b|[.;]|$)",
+        r"\b(?:in|to|for|near|around)\s+([a-z][A-Za-z .'-]{2,50}(?:,\s*[A-Za-z .'-]{2,40})?)(?=\s+(?:from|for|with|on|between|during)\b|[.;]|$)",
         r"\b(?:in|to|for|near|around)\s+([A-Z][A-Za-z .'-]{2,50})$",
         r"\b(?:in|to|for|near|around)\s+([a-z][A-Za-z .'-]{2,50})$",
     ]

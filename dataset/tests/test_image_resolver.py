@@ -5,6 +5,13 @@ from pipeline import image_resolver
 
 
 class DatasetImageResolverTests(unittest.TestCase):
+    def test_travel_location_extraction_handles_date_range_after_city(self):
+        location = image_resolver.extract_travel_location_keyword(
+            "I’m planning a 5-day trip to Tokyo, Japan from 2026-04-10 to 2026-04-14 for 2 adults."
+        )
+
+        self.assertEqual(location, "Tokyo, Japan")
+
     def test_travel_queries_prioritize_destination_specific_place(self):
         queries = image_resolver.travel_search_queries_from_row(
             {
