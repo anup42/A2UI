@@ -15,6 +15,9 @@ dataset/data/cache
 dataset/data/cache/
 presentation_work/
 **/run.log
+**/.prompt_cache.jsonl
+dataset/.dataset_v1_*.log
+dataset/.dataset_v1_pid.txt
 
 # MkDocs build output
 site/

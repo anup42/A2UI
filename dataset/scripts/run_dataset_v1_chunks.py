@@ -156,7 +156,9 @@ def main() -> None:
 
     adapter = build_adapter(spec)
     rate_limiter = RateLimiter(rate_limit_qps, call_sleep_seconds)
-    cache = PromptCache(DATASET_ROOT / run_cfg.get("cache_dir", "data/cache"))
+    # Use a run-local cache so model/config experiments cannot poison the shared cache
+    # with partial or incompatible generations.
+    cache = PromptCache(run_paths.run_dir / ".prompt_cache.jsonl")
 
     prompts_dir = DATASET_ROOT / "prompts"
     schema_path = DATASET_ROOT / run_cfg.get("stage3_schema_file", "schema/genui_flatspec.schema.json")
