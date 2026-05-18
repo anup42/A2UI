@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -30,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -42,6 +44,8 @@ import com.samsung.genuicraft.mcp.McpSettings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,6 +57,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.samsung.genuicraft.inference.OnDeviceModelCatalog
+import com.samsung.genuicraft.inference.OnDeviceModelDownloader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -115,6 +121,10 @@ private fun SettingsScreen(
     var onDeviceModelPath by remember {
         mutableStateOf(InferenceBackendSettings.getOnDeviceModelPath(context))
     }
+    var onDeviceModelRefreshKey by remember { mutableIntStateOf(0) }
+    var onDeviceDownloadError by remember { mutableStateOf<String?>(null) }
+    val onDeviceDownloadProgress = remember { mutableStateMapOf<String, Float?>() }
+    val onDeviceDownloading = remember { mutableStateMapOf<String, Boolean>() }
     var availableModels by remember {
         mutableStateOf(defaultModelOptions(selectedResponseModel, selectedIrModel))
     }
@@ -510,21 +520,143 @@ private fun SettingsScreen(
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
-                                OutlinedTextField(
-                                    value = onDeviceModelPath,
-                                    onValueChange = {
-                                        onDeviceModelPath = it
-                                        InferenceBackendSettings.setOnDeviceModelPath(context, it)
-                                    },
-                                    label = { Text(stringResource(id = R.string.settings_on_device_model_path_label)) },
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
                                 Text(
                                     text = stringResource(id = R.string.settings_on_device_hint),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                OnDeviceModelCatalog.entries.forEach { entry ->
+                                    val downloaded = onDeviceModelRefreshKey.let { entry.isDownloaded(context) }
+                                    val selected = downloaded && onDeviceModelPath == entry.localPath(context)
+                                    val isDownloading = onDeviceDownloading[entry.id] == true
+                                    val progress = onDeviceDownloadProgress[entry.id]
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                                        colors = genUiCardColors(GenUiCardTone.Neutral),
+                                        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clickable(enabled = downloaded) {
+                                                        onDeviceModelPath = entry.localPath(context)
+                                                        InferenceBackendSettings.setOnDeviceModelPath(context, onDeviceModelPath)
+                                                    },
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                RadioButton(
+                                                    selected = selected,
+                                                    enabled = downloaded,
+                                                    onClick = if (downloaded) {
+                                                        {
+                                                            onDeviceModelPath = entry.localPath(context)
+                                                            InferenceBackendSettings.setOnDeviceModelPath(context, onDeviceModelPath)
+                                                        }
+                                                    } else {
+                                                        null
+                                                    }
+                                                )
+                                                Column(
+                                                    modifier = Modifier.weight(1f),
+                                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                                ) {
+                                                    Text(
+                                                        text = entry.displayName,
+                                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                                        color = MaterialTheme.colorScheme.onSurface,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis
+                                                    )
+                                                    Text(
+                                                        text = entry.subtitle,
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        maxLines = 2,
+                                                        overflow = TextOverflow.Ellipsis
+                                                    )
+                                                    Text(
+                                                        text = if (downloaded) {
+                                                            stringResource(id = R.string.settings_on_device_downloaded)
+                                                        } else {
+                                                            "${stringResource(id = R.string.settings_on_device_not_downloaded)} · ${entry.approximateSize}"
+                                                        },
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        color = if (downloaded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
+                                                }
+                                                Button(
+                                                    enabled = !isDownloading && (!downloaded || !selected),
+                                                    onClick = {
+                                                        if (downloaded) {
+                                                            onDeviceModelPath = entry.localPath(context)
+                                                            InferenceBackendSettings.setOnDeviceModelPath(context, onDeviceModelPath)
+                                                        } else {
+                                                            onDeviceDownloadError = null
+                                                            onDeviceDownloading[entry.id] = true
+                                                            onDeviceDownloadProgress[entry.id] = null
+                                                            coroutineScope.launch {
+                                                                val result = withContext(Dispatchers.IO) {
+                                                                    runCatching {
+                                                                        OnDeviceModelDownloader.download(context.applicationContext, entry) { itemProgress ->
+                                                                            coroutineScope.launch {
+                                                                                onDeviceDownloadProgress[entry.id] = itemProgress.fraction
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                                onDeviceDownloading[entry.id] = false
+                                                                onDeviceDownloadProgress.remove(entry.id)
+                                                                result.onSuccess { file ->
+                                                                    onDeviceModelPath = file.absolutePath
+                                                                    InferenceBackendSettings.setOnDeviceModelPath(context, file.absolutePath)
+                                                                    onDeviceModelRefreshKey++
+                                                                }.onFailure {
+                                                                    onDeviceDownloadError = it.message ?: it.javaClass.simpleName
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                ) {
+                                                    Text(
+                                                        text = when {
+                                                            isDownloading -> stringResource(id = R.string.settings_on_device_downloading)
+                                                            downloaded && selected -> stringResource(id = R.string.settings_on_device_selected)
+                                                            downloaded -> stringResource(id = R.string.settings_on_device_select)
+                                                            else -> stringResource(id = R.string.settings_on_device_download)
+                                                        },
+                                                        maxLines = 1
+                                                    )
+                                                }
+                                            }
+                                            if (isDownloading) {
+                                                if (progress != null) {
+                                                    LinearProgressIndicator(
+                                                        progress = { progress },
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                } else {
+                                                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (!onDeviceDownloadError.isNullOrBlank()) {
+                                    Text(
+                                        text = "${stringResource(id = R.string.settings_on_device_download_failed)}: ${onDeviceDownloadError.orEmpty()}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                     }
