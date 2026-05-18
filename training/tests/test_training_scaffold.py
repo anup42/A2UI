@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.data.build_pairs import prepare_dataset
+from ir_training.eval.metrics import aggregate_scores
 from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
 
@@ -52,6 +53,27 @@ def test_model_registry_formats_example():
     text = adapter.format_example({"messages": [{"role": "user", "content": "Hello"}]})
     assert "Hello" in text
     assert "gemma" in supported_families()
+
+
+def test_aggregate_scores_includes_overall_and_delta():
+    rows = [
+        {
+            "metrics": {
+                "schema_valid_strict": True,
+                "content_coverage": 0.8,
+                "lint_score": 1.0,
+                "dup_rate": 0.1,
+            }
+        }
+    ]
+    aggregate = aggregate_scores(
+        rows,
+        weights={"schema_valid_strict": 5.0, "content_coverage": 3.0, "lint_score": 2.0, "dup_rate": -1.0},
+        baseline_aggregate={"overall_score": 10.0},
+    )
+    assert "overall_score" in aggregate
+    assert aggregate["baseline_overall_score"] == 10.0
+    assert aggregate["overall_score_delta_vs_baseline"] == aggregate["overall_score"] - 10.0
 
 
 def test_export_manifest(tmp_path):

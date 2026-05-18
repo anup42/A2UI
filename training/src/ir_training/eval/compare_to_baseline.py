@@ -5,10 +5,20 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.jsonl import read_jsonl, write_jsonl
-from ir_training.eval.metrics import aggregate_scores, score_prediction
+from ir_training.eval.metrics import (
+    aggregate_scores,
+    load_baseline_aggregate,
+    load_dataset_weights,
+    score_prediction,
+)
 
 
-def evaluate_predictions(predictions_path: str | Path, output_dir: str | Path | None = None) -> dict[str, Any]:
+def evaluate_predictions(
+    predictions_path: str | Path,
+    output_dir: str | Path | None = None,
+    weights_config_path: str | Path | None = None,
+    baseline_aggregate_path: str | Path | None = None,
+) -> dict[str, Any]:
     rows_out: list[dict[str, Any]] = []
     for row in read_jsonl(predictions_path):
         response_text = str(row.get("response_text") or row.get("input") or "")
@@ -18,7 +28,9 @@ def evaluate_predictions(predictions_path: str | Path, output_dir: str | Path | 
         out = dict(row)
         out["metrics"] = metrics
         rows_out.append(out)
-    aggregate = aggregate_scores(rows_out)
+    weights = load_dataset_weights(weights_config_path)
+    baseline = load_baseline_aggregate(baseline_aggregate_path)
+    aggregate = aggregate_scores(rows_out, weights=weights, baseline_aggregate=baseline)
     if output_dir is not None:
         out_dir = Path(output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)

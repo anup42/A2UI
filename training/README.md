@@ -28,7 +28,15 @@ python training/scripts/train_sft.py --config training/configs/models/gemma_e2b_
 python training/scripts/evaluate.py --predictions training/outputs/eval/predictions.jsonl
 ```
 
-4. Export a model package for Android.
+4. Evaluate with dataset-compatible overall score.
+
+```powershell
+python training/scripts/evaluate.py --predictions training/outputs/eval/predictions.jsonl --weights-config dataset/configs/run.yaml --baseline-aggregate dataset/data/runs/<baseline>/aggregates.json
+```
+
+The evaluator writes `aggregate_metrics.json` with `overall_score`, `baseline_overall_score`, and `overall_score_delta_vs_baseline` when a baseline is provided.
+
+5. Export a model package for Android.
 
 ```powershell
 python training/scripts/export_model.py --config training/configs/export/litertlm_gemma.yaml

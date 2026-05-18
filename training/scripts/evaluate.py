@@ -22,6 +22,8 @@ def main() -> None:
     parser.add_argument("--split", help="Split JSONL to generate from.")
     parser.add_argument("--predictions", help="Existing predictions JSONL to score.")
     parser.add_argument("--output-dir", default="training/outputs/eval", help="Directory for evaluation artifacts.")
+    parser.add_argument("--weights-config", default="dataset/configs/run.yaml", help="Dataset run YAML containing evaluation.weights.")
+    parser.add_argument("--baseline-aggregate", help="Optional baseline aggregates.json for overall score delta.")
     parser.add_argument("--max-rows", type=int, default=None)
     args = parser.parse_args()
 
@@ -33,7 +35,12 @@ def main() -> None:
         print(f"generated={generated} predictions_path={predictions_path}")
     if not predictions_path.exists():
         raise SystemExit(f"Missing predictions file: {predictions_path}")
-    aggregate = evaluate_predictions(predictions_path, output_dir=output_dir)
+    aggregate = evaluate_predictions(
+        predictions_path,
+        output_dir=output_dir,
+        weights_config_path=args.weights_config,
+        baseline_aggregate_path=args.baseline_aggregate,
+    )
     print(json.dumps(aggregate, indent=2, ensure_ascii=False))
 
 
