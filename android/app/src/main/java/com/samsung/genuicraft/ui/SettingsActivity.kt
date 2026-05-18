@@ -112,6 +112,9 @@ private fun SettingsScreen(
     var localModelPath by remember {
         mutableStateOf(InferenceBackendSettings.getLocalModelPath(context))
     }
+    var onDeviceModelPath by remember {
+        mutableStateOf(InferenceBackendSettings.getOnDeviceModelPath(context))
+    }
     var availableModels by remember {
         mutableStateOf(defaultModelOptions(selectedResponseModel, selectedIrModel))
     }
@@ -143,6 +146,10 @@ private fun SettingsScreen(
     fun usesLocalBackend(): Boolean {
         return selectedResponseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER ||
             selectedIrProvider == InferenceBackendSettings.Provider.LOCAL_SERVER
+    }
+
+    fun usesOnDeviceBackend(): Boolean {
+        return selectedIrProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT
     }
 
     fun refreshModels() {
@@ -310,7 +317,8 @@ private fun SettingsScreen(
                             val irProviderRows = listOf(
                                 InferenceBackendSettings.Provider.AZURE_OPENAI to stringResource(id = R.string.settings_provider_azure_openai),
                                 InferenceBackendSettings.Provider.GEMINI to stringResource(id = R.string.settings_provider_gemini),
-                                InferenceBackendSettings.Provider.LOCAL_SERVER to stringResource(id = R.string.settings_provider_local_server)
+                                InferenceBackendSettings.Provider.LOCAL_SERVER to stringResource(id = R.string.settings_provider_local_server),
+                                InferenceBackendSettings.Provider.ON_DEVICE_LITERT to stringResource(id = R.string.settings_provider_on_device_litert)
                             )
                             irProviderRows.forEach { (provider, label) ->
                                 Row(
@@ -482,6 +490,46 @@ private fun SettingsScreen(
                     }
                 }
 
+                if (usesOnDeviceBackend()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                            colors = genUiCardColors(GenUiCardTone.Neutral),
+                            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                            border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.settings_on_device_title),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                OutlinedTextField(
+                                    value = onDeviceModelPath,
+                                    onValueChange = {
+                                        onDeviceModelPath = it
+                                        InferenceBackendSettings.setOnDeviceModelPath(context, it)
+                                    },
+                                    label = { Text(stringResource(id = R.string.settings_on_device_model_path_label)) },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.settings_on_device_hint),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
                 if (usesGeminiBackend()) {
                     item {
                         Card(
@@ -512,6 +560,8 @@ private fun SettingsScreen(
                                         "${stringResource(id = R.string.settings_model_response_title)}: $selectedResponseModel"
                                     } else if (selectedResponseProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
                                         "${stringResource(id = R.string.settings_model_response_title)}: $azureOpenAiDeployment"
+                                    } else if (selectedResponseProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+                                        "${stringResource(id = R.string.settings_model_response_title)}: ${stringResource(id = R.string.settings_provider_on_device_litert)}"
                                     } else {
                                         "${stringResource(id = R.string.settings_model_response_title)}: ${stringResource(id = R.string.settings_provider_local_server)}"
                                     },
@@ -523,6 +573,8 @@ private fun SettingsScreen(
                                         "${stringResource(id = R.string.settings_model_ir_title)}: $selectedIrModel"
                                     } else if (selectedIrProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
                                         "${stringResource(id = R.string.settings_model_ir_title)}: $azureOpenAiDeployment"
+                                    } else if (selectedIrProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+                                        "${stringResource(id = R.string.settings_model_ir_title)}: ${stringResource(id = R.string.settings_provider_on_device_litert)}"
                                     } else {
                                         "${stringResource(id = R.string.settings_model_ir_title)}: ${stringResource(id = R.string.settings_provider_local_server)}"
                                     },

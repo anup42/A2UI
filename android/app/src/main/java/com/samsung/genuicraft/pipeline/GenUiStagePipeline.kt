@@ -128,6 +128,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
+        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
         val stage2MaxOutputTokens = if (responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS
         } else {
@@ -205,6 +206,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                 message = "Azure OpenAI key is missing. Add AZURE_OPENAI_API_KEY (or AZURE_OPENAI_SUBSCRIPTION_KEY) at ${GeminiApiKeyProvider.setupHintPath(appContext)}"
             )
         }
+        if (irProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT && onDeviceModelPath.isBlank()) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "On-device IR model path is missing. Open Settings and select an exported model package."
+            )
+        }
         if ((responseProvider == InferenceBackendSettings.Provider.LOCAL_SERVER ||
                 irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) &&
             localServerBaseUrl.isBlank()
@@ -229,6 +236,16 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         }
+        if (irProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            postUpdate(onStageUpdate, Stage.STAGE3, "Checking on-device IR model")
+            val healthResult = com.samsung.genuicraft.inference.OnDeviceLitertBackend(onDeviceModelPath).checkHealth()
+            if (!healthResult.healthy) {
+                return@withContext Outcome.Failure(
+                    stage = Stage.STAGE3,
+                    message = healthResult.errorMessage ?: "On-device IR model is not ready."
+                )
+            }
+        }
 
         val responseBackend = InferenceBackendFactory.create(
             provider = responseProvider,
@@ -243,7 +260,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             azureOpenAiResponsesEndpoint = azureOpenAiResponsesEndpoint,
             azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
-            localModelPath = localModelPath
+            localModelPath = localModelPath,
+            onDeviceModelPath = onDeviceModelPath
         )
         val irBackend = InferenceBackendFactory.create(
             provider = irProvider,
@@ -258,7 +276,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             azureOpenAiResponsesEndpoint = azureOpenAiResponsesEndpoint,
             azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
-            localModelPath = localModelPath
+            localModelPath = localModelPath,
+            onDeviceModelPath = onDeviceModelPath
         )
 
         // -- MCP path: LLM routes query -> optional live data fetch ----------
@@ -980,6 +999,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         val localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(appContext)
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
+        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
         val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
         val stage3MaxOutputTokens = if (isLocalServer) LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS else STAGE3_MAX_OUTPUT_TOKENS
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
@@ -1040,6 +1060,14 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
+        if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT && onDeviceModelPath.isBlank()) {
+            return@withContext Outcome.Failure(
+                stage = Stage.STAGE3,
+                message = "On-device IR model path is missing. Open Settings and select an exported model package.",
+                stageDurationsMs = stageDurationsMs.toMap(),
+                stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+            )
+        }
         if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER && localServerBaseUrl.isBlank()) {
             return@withContext Outcome.Failure(
                 stage = Stage.STAGE3,
@@ -1060,6 +1088,18 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         }
+        if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            postUpdate(onStageUpdate, Stage.STAGE3, "Checking on-device IR model")
+            val healthResult = com.samsung.genuicraft.inference.OnDeviceLitertBackend(onDeviceModelPath).checkHealth()
+            if (!healthResult.healthy) {
+                return@withContext Outcome.Failure(
+                    stage = Stage.STAGE3,
+                    message = healthResult.errorMessage ?: "On-device IR model is not ready.",
+                    stageDurationsMs = stageDurationsMs.toMap(),
+                    stageStreamDurationsMs = stageStreamDurationsMs.toMap()
+                )
+            }
+        }
 
         val backend = InferenceBackendFactory.create(
             provider = provider,
@@ -1074,7 +1114,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             azureOpenAiResponsesEndpoint = azureOpenAiResponsesEndpoint,
             azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
-            localModelPath = localModelPath
+            localModelPath = localModelPath,
+            onDeviceModelPath = onDeviceModelPath
         )
 
         val genUiTemplate = runCatching {

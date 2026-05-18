@@ -11,6 +11,12 @@
 - Android runtime prompt copy is `android/app/src/main/assets/pipeline_prompts/genui_gen.md`.
 - When fixing a generated sample, do not manually rewrite the IR JSON. Fix the prompt/pipeline/renderer, regenerate the IR through Stage 3, then merge the generated record.
 
+## Training
+- `training/` owns response-to-IR model training code. It consumes completed dataset runs and should not generate Stage 1/2/3 data itself.
+- Keep training code model-agnostic: add new LLM families through `ir_training.models.ModelAdapter` implementations and YAML configs.
+- Default training source is `dataset/data/runs/dataset_v1`; input is Stage 2 `response_text`, output is strict flat-spec `genui_json`.
+- Do not commit training outputs/checkpoints unless a small manifest/report is intentionally needed.
+
 ## LLM/Auth
 - Dataset Gemini calls should use Vertex Express API keys, not AI Studio direct keys.
 - Env keys used in this repo include `VERTEX_EXPRESS_API_KEY` and `GEMINI_VERTEX_EXPRESS_API_KEY`; project id is `VERTEX_PROJECT_ID`.

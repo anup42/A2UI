@@ -16,6 +16,7 @@
     <string name="settings_provider_azure_openai">Azure OpenAI</string>
     <string name="settings_provider_gemini">Gemini API</string>
     <string name="settings_provider_local_server">Local Server</string>
+    <string name="settings_provider_on_device_litert">On-device LiteRT IR</string>
     <string name="settings_azure_openai_title">Azure OpenAI Settings</string>
     <string name="settings_azure_openai_description">Uses the Azure Responses API with the configured deployment.</string>
     <string name="settings_azure_openai_endpoint_label">Responses endpoint</string>
@@ -37,6 +38,9 @@
     <string name="settings_local_server_url_label">Server URL</string>
     <string name="settings_local_model_path_label">Model path</string>
     <string name="settings_local_server_hint">Use 10.0.2.2 for emulator access to a server running on your computer.</string>
+    <string name="settings_on_device_title">On-device IR Model</string>
+    <string name="settings_on_device_model_path_label">Model package path</string>
+    <string name="settings_on_device_hint">Select an exported training package manifest or .litertlm file. Stage 1 and Stage 2 remain cloud-backed; only Stage 3 IR generation uses the on-device model.</string>
     <string name="settings_model_title">Gemini Model</string>
     <string name="settings_model_description">Choose separate Gemini models for response generation and GenUICraft IR conversion.</string>
     <string name="settings_model_response_title">Response model</string>

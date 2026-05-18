@@ -17,7 +17,8 @@ object InferenceBackendFactory {
         azureOpenAiResponsesEndpoint: String,
         azureOpenAiDeployment: String,
         localServerBaseUrl: String,
-        localModelPath: String
+        localModelPath: String,
+        onDeviceModelPath: String
     ): InferenceBackend {
         return when (provider) {
             InferenceBackendSettings.Provider.AZURE_OPENAI ->
@@ -38,6 +39,8 @@ object InferenceBackendFactory {
                 )
             InferenceBackendSettings.Provider.LOCAL_SERVER ->
                 LocalServerBackend(localServerBaseUrl, localModelPath)
+            InferenceBackendSettings.Provider.ON_DEVICE_LITERT ->
+                OnDeviceLitertBackend(onDeviceModelPath)
         }
     }
 }

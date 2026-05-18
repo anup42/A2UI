@@ -1,0 +1,17 @@
+﻿run:
+  id: gemma_e2b_ir_litertlm
+  output_dir: outputs/export/gemma_e2b_ir_litertlm
+source:
+  base_model_id: google/gemma-4-E2B-it
+  adapter_dir: runs/gemma_e2b_ir_lora/final_adapter
+  merged_model_dir: runs/gemma_e2b_ir_lora/merged_hf
+export:
+  runtime: litertlm
+  format: litertlm
+  min_app_version: 1.1.0
+  max_input_tokens: 8192
+  max_output_tokens: 8192
+android:
+  package_name: gemma_e2b_ir
+  display_name: Gemma E2B IR Generator
+  stage: stage3_ir

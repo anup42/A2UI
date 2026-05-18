@@ -1,0 +1,12 @@
+﻿# Core training stack. Install in a separate env from the Android build.
+torch>=2.3
+transformers>=4.46
+accelerate>=0.33
+peft>=0.12
+trl>=0.9
+datasets>=2.20
+jsonschema>=4.22
+PyYAML>=6.0
+safetensors>=0.4
+tqdm>=4.66
+pytest>=8.0

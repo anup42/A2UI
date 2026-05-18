@@ -18,19 +18,22 @@ object InferenceBackendSettings {
     private const val KEY_AZURE_OPENAI_DEPLOYMENT = "azure_openai_deployment"
     private const val KEY_LOCAL_SERVER_BASE_URL = "local_server_base_url"
     private const val KEY_LOCAL_MODEL_PATH = "local_model_path"
+    private const val KEY_ON_DEVICE_MODEL_PATH = "on_device_model_path"
 
     const val DEFAULT_AZURE_OPENAI_RESPONSES_ENDPOINT =
         "https://genui1.openai.azure.com/openai/responses?api-version=2025-04-01-preview"
     const val DEFAULT_AZURE_OPENAI_DEPLOYMENT = "gpt-5.4"
     const val DEFAULT_LOCAL_SERVER_BASE_URL = "http://10.0.2.2:8000"
     const val DEFAULT_LOCAL_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
+    const val DEFAULT_ON_DEVICE_MODEL_PATH = ""
     private const val FALLBACK_VERTEX_PROJECT_ID = "gen-lang-client-0741138863"
     const val DEFAULT_VERTEX_LOCATION = "us-central1"
 
     enum class Provider(val rawValue: String) {
         AZURE_OPENAI("azure_openai"),
         GEMINI("gemini"),
-        LOCAL_SERVER("local_server");
+        LOCAL_SERVER("local_server"),
+        ON_DEVICE_LITERT("on_device_litert");
 
         companion object {
             fun fromRawValue(value: String?): Provider {
@@ -250,6 +253,20 @@ object InferenceBackendSettings {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_LOCAL_MODEL_PATH, normalized)
+            .apply()
+    }
+
+    fun getOnDeviceModelPath(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_ON_DEVICE_MODEL_PATH, DEFAULT_ON_DEVICE_MODEL_PATH)
+            .orEmpty()
+            .trim()
+    }
+
+    fun setOnDeviceModelPath(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_ON_DEVICE_MODEL_PATH, value.trim())
             .apply()
     }
 

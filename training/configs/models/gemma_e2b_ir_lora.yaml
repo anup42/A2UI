@@ -1,0 +1,27 @@
+﻿run:
+  id: gemma_e2b_ir_lora
+  dataset_dir: outputs/datasets/dataset_v1_stage3
+  output_dir: runs/gemma_e2b_ir_lora
+model:
+  family: gemma
+  model_id: google/gemma-4-E2B-it
+  trust_remote_code: false
+  load_in_4bit: true
+  dtype: bfloat16
+  max_context_tokens: 8192
+training:
+  method: qlora_sft
+  epochs: 2
+  learning_rate: 0.0002
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 16
+  warmup_ratio: 0.03
+  max_seq_length: 8192
+  save_steps: 500
+  eval_steps: 500
+  logging_steps: 20
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: auto
