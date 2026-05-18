@@ -26,6 +26,15 @@
       tpm: null
       rpd: null
       note: "set per your OpenAI account tier"
+  - name: azure_gpt54_mini
+    provider: azure_openai
+    model: gpt-5.4-mini
+    supports_json_mode: true
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Azure OpenAI Responses API deployment configured by AZURE_OPENAI_* env"
   - name: perplexity_gpt5
     provider: perplexity
     model: sonar-pro

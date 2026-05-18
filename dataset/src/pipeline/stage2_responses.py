@@ -12,6 +12,7 @@ import urllib.request
 from pathlib import Path
 
 from pipeline.common import extract_json, load_prompt, render_prompt
+from pipeline.image_resolver import enrich_response_with_commons_media
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.cache import PromptCache
 from llm.base import BaseLLMAdapter, LLMRateLimitError
@@ -1226,6 +1227,12 @@ def run_stage2(
                 icon_context,
             )
             selected_text = _sanitize_response_media(selected_text)
+            selected_text = enrich_response_with_commons_media(
+                selected_text,
+                query_text,
+                intent_value,
+                tags_list,
+            )
             selected_prompt = prompt
             selected_latency_ms = latency_ms
             selected_input_tokens = input_tokens
@@ -1252,6 +1259,12 @@ def run_stage2(
                     icon_context,
                 )
                 selected_text = _sanitize_response_media(selected_text)
+                selected_text = enrich_response_with_commons_media(
+                    selected_text,
+                    query_text,
+                    intent_value,
+                    tags_list,
+                )
                 assets, _, declared_assets_count = _download_assets(
                     selected_text,
                     response_id,
@@ -1394,6 +1407,12 @@ def run_stage2(
                 asset_retry_attempts = asset_attempt + 1
 
             selected_text = _sanitize_response_media(selected_text)
+            selected_text = enrich_response_with_commons_media(
+                selected_text,
+                query_text,
+                intent_value,
+                tags_list,
+            )
             selected_text = _strip_unresolved_media_images(selected_text, assets)
             final_asset_entries = _extract_asset_entries(selected_text)
             final_asset_urls = {entry["url"] for entry in final_asset_entries}

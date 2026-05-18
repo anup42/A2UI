@@ -21,6 +21,7 @@ from pipeline.flat_spec_contract import (
     coerce_and_validate,
     extract_json_element,
 )
+from pipeline.image_resolver import repair_flat_spec_images
 from pipeline.metrics import (
     content_coverage,
     dup_rate,
@@ -578,6 +579,7 @@ def run_stage3(
             intent_lookup[query_id] = {
                 "intent": row.get("intent"),
                 "tags": row.get("tags") if isinstance(row.get("tags"), list) else [],
+                "query_text": row.get("query_text") if isinstance(row.get("query_text"), str) else "",
             }
 
     existing_ids = {row.get("ui_id") for row in iter_jsonl(genui_path)}
@@ -708,6 +710,7 @@ def run_stage3(
         assets_list = task["assets_list"]
         intent_value = task.get("intent")
         tags_value = task.get("tags") if isinstance(task.get("tags"), list) else []
+        query_text = task.get("query_text") if isinstance(task.get("query_text"), str) else ""
         prompt = task["prompt"]
 
         parsed_ok = True
@@ -969,6 +972,13 @@ def run_stage3(
         genui_json = _rewrite_genui_asset_urls(genui_json, assets_list)
         if flat_spec_mode:
             genui_json = _normalize_flat_spec_text_content(genui_json)
+            genui_json, resolved_images = repair_flat_spec_images(
+                genui_json,
+                query_text,
+                response_text,
+            )
+            if resolved_images:
+                errors.append(f"dataset_image_resolver_added={resolved_images}")
 
         toon = encode_toon(genui_json)
         toon_ok = roundtrip_ok(genui_json, toon)
@@ -1277,6 +1287,7 @@ def run_stage3(
                     "assets_list": assets_list,
                     "intent": intent_info.get("intent"),
                     "tags": intent_info.get("tags"),
+                    "query_text": intent_info.get("query_text") or "",
                     "prompt": prompt,
                     "prompt_hash": prompt_hash,
                     "seed": seed + c_idx,

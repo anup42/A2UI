@@ -5,6 +5,7 @@ from typing import Dict
 from .base import BaseLLMAdapter, ModelSpec
 from .gemini_adapter import GeminiAdapter
 from .openai_adapter import OpenAIAdapter
+from .azure_openai_responses_adapter import AzureOpenAIResponsesAdapter
 from .local_adapter import LocalAdapter
 from .gauss_adapter import GaussAdapter
 from .openrouter_adapter import OpenRouterAdapter
@@ -15,6 +16,8 @@ def build_adapter(spec: ModelSpec) -> BaseLLMAdapter:
     provider = spec.provider.lower()
     if provider == "openai":
         return OpenAIAdapter(spec)
+    if provider == "azure_openai":
+        return AzureOpenAIResponsesAdapter(spec)
     if provider == "gemini":
         return GeminiAdapter(spec)
     if provider == "gauss":
