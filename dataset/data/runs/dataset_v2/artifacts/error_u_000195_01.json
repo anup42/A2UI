@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# Your 4-Week No-Equipment Home Workout Plan\n\n## Workout Plan Context\nThis beginner-friendly 30-minute daily home workout routine is designed for full-body strength and flexibility, requiring no equipment. It begins on **June 1, 2024**, and spans four weeks. For optimal results and recovery, aim for 5 active workout days and 2 active recovery days (e.g., light walking, gentle stretching) per week.\n\n## Daily Routine Breakdown & Weekly Progression\n\n### Daily Session Structure\nEach 30-minute session will follow this pattern, with progressions outlined in the weekly plan below:\n\n#### 1. Warm-up (5 minutes)\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "<urlopen error [Errno 11001] getaddrinfo failed>",
+  "raw_payload": null,
+  "response_id": "r_000195_01",
+  "query_id": "q_000195",
+  "ui_id": "u_000195_01"
+}
