@@ -1,0 +1,7 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Autumn's Gentle Farewell\n\n### Haiku: Falling Leaves\n\nGold and crimson fall,\nWind whispers through the bare trees,\nEarth's soft, quiet bed.\nA gentle goodbye.\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "raw_text": "{\n  \"root\": \"main_stack\",\n  \"state\": {},\n  \"elements\": {\n    \"main_stack\": {\n      \"type\": \"Stack\",\n      \"props\": {\n        \"direction\": \"vertical\",\n        \"gap\": \"md\"\n      },\n      \"children\": [\n        \"title_text\",\n        \"subtitle_text\",\n        \"haiku_text\"\n      ]\n    },\n    \"title_text\": {\n      \"type\": \"Text\",\n      \"props\": {\n        \"text\": \"Autumn's Gentle Farewell\",\n        \"variant\": \"h2\"\n      },\n      \"children\": []\n    },\n    \"subtitle_text\": {\n      \"type\": \"Text\",\n      \"props\": {\n        \"text\": \"Haiku: Falling Leaves\",\n        \"variant\": \"h3\"\n      },\n      \"children\": []\n    },\n    \"haiku_text\": {\n      \"type\": \"Text\",\n      \"props\": {\n        \"text\": \"Gold and crimson fall,\\nWind whispers through the bare trees,\\nEarth's soft, quiet bed.\\nA gentle goodbye.\"\n      },\n      \"children\": []\n    }\n  }\n}",
+  "errors": [
+    "fallback_generated"
+  ]
+}

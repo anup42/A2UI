@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# A Knightly Limerick\n\n## Sir Reginald's Dragon Adventure\n\nA knight who was clumsy and slow,\nMet a dragon with fiery glow.\nHe tripped on his sword,\nAnd let out a word,\nThen landed right in the dragon's big toe!\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "Remote end closed connection without response",
+  "raw_payload": null,
+  "response_id": "r_000170_01",
+  "query_id": "q_000170",
+  "ui_id": "u_000170_01"
+}

@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Reminder Confirmation\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calendar-check.svg\nYour reminder has been set. I will notify you at the specified time to call your dentist.\n\n## Reminder Details\n-   **Action**: Call your dentist's office\n-   **Purpose**: Confirm your appointment for August 1, 2024\n-   **Date**: Thursday, July 25, 2024\n-   **Time**: 09:00 AM PST (Pacific Standard Time)\n\n## Quick Actions\n-   Action: [Button: View all reminders] https://calendar.google.com/calendar/reminders\n-   Action: [Button: Edit this reminder] https://calendar.google.com/calendar/event\n-   Action: [Button: Cancel this reminder] https://calendar.google.com/calendar/event\n\nAsset URL policy for this request:\n- Use only local media paths from the provided Assets mapping.\n- Do not emit remote media URLs for images/icons.\n- Do not invent local placeholder paths not present in the mapping.\n\nAssets (local copies of any URLs in the response; use ONLY these local paths):\n- https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calendar-check.svg -> ../assets/r_000193_01_6_calendar-check.svg",
+  "error": "<urlopen error [Errno 11001] getaddrinfo failed>",
+  "raw_payload": null,
+  "response_id": "r_000197_01",
+  "query_id": "q_000197",
+  "ui_id": "u_000197_01"
+}
