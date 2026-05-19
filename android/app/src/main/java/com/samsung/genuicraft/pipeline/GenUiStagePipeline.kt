@@ -1,4 +1,4 @@
-﻿package com.samsung.genuicraft
+package com.samsung.genuicraft
 
 import android.content.Context
 import android.util.Log
@@ -81,6 +81,23 @@ class GenUiStagePipeline(private val appContext: Context) {
 
     private val cacheManager = PipelineCacheManager(appContext)
 
+    private fun loadStage3PromptTemplate(provider: InferenceBackendSettings.Provider): String {
+        val assetPath = if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET
+        } else {
+            PipelinePromptBuilder.STAGE3_PROMPT_ASSET
+        }
+        return PipelinePromptBuilder.loadPromptAsset(appContext.assets, assetPath)
+    }
+
+    private fun stage3MaxOutputTokensFor(provider: InferenceBackendSettings.Provider): Int {
+        return when (provider) {
+            InferenceBackendSettings.Provider.LOCAL_SERVER -> LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS
+            InferenceBackendSettings.Provider.ON_DEVICE_LITERT -> ON_DEVICE_STAGE3_MAX_OUTPUT_TOKENS
+            else -> STAGE3_MAX_OUTPUT_TOKENS
+        }
+    }
+
     suspend fun execute(
         queryText: String,
         onStageUpdate: (StageUpdate) -> Unit
@@ -134,11 +151,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             STAGE2_MAX_OUTPUT_TOKENS
         }
-        val stage3MaxOutputTokens = if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
-            LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS
-        } else {
-            STAGE3_MAX_OUTPUT_TOKENS
-        }
+        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(irProvider)
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
 
         val responseApiKey = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
@@ -479,7 +492,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         val genUiTemplate = runCatching {
-            PipelinePromptBuilder.loadPromptAsset(appContext.assets, PipelinePromptBuilder.STAGE3_PROMPT_ASSET)
+            loadStage3PromptTemplate(irProvider)
         }
             .getOrElse {
                 return@withContext Outcome.Failure(
@@ -658,6 +671,10 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else if (irProvider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
             warnings += "Azure OpenAI IR deployment: $azureOpenAiDeployment"
             warnings += "Azure OpenAI endpoint: $azureOpenAiResponsesEndpoint"
+        } else if (irProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            warnings += "On-device Gemma IR model: $onDeviceModelPath"
+            warnings += "On-device Gemma prompt: ${PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET}"
+            warnings += "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=$ON_DEVICE_STAGE3_REPAIR_ATTEMPTS"
         } else {
             warnings += "Local server (IR): $localServerBaseUrl"
             warnings += "Local model path (IR): $localModelPath"
@@ -1001,7 +1018,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
         val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
         val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
-        val stage3MaxOutputTokens = if (isLocalServer) LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS else STAGE3_MAX_OUTPUT_TOKENS
+        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(provider)
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
 
         val apiKey = if (provider == InferenceBackendSettings.Provider.GEMINI) {
@@ -1119,7 +1136,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
 
         val genUiTemplate = runCatching {
-            PipelinePromptBuilder.loadPromptAsset(appContext.assets, PipelinePromptBuilder.STAGE3_PROMPT_ASSET)
+            loadStage3PromptTemplate(provider)
         }
             .getOrElse {
                 return@withContext Outcome.Failure(
@@ -1206,6 +1223,10 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else if (provider == InferenceBackendSettings.Provider.AZURE_OPENAI) {
             warnings += "Azure OpenAI IR deployment: $azureOpenAiDeployment"
             warnings += "Azure OpenAI endpoint: $azureOpenAiResponsesEndpoint"
+        } else if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            warnings += "On-device Gemma IR model: $onDeviceModelPath"
+            warnings += "On-device Gemma prompt: ${PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET}"
+            warnings += "On-device token cap: stage3=$stage3MaxOutputTokens repairAttempts=$ON_DEVICE_STAGE3_REPAIR_ATTEMPTS"
         } else {
             warnings += "Using local server: $localServerBaseUrl"
             warnings += "Local model path: $localModelPath"
@@ -1576,7 +1597,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
 
         val genUiTemplate = runCatching {
-            PipelinePromptBuilder.loadPromptAsset(appContext.assets, PipelinePromptBuilder.STAGE3_PROMPT_ASSET)
+            loadStage3PromptTemplate(irProvider)
         }.getOrElse {
             return Outcome.Failure(
                 stage = Stage.STAGE3,
@@ -1628,11 +1649,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val localStage3SystemPromptCacheKey: String? = null
         val localSendStage3SystemPrompt = true
 
-        val stage3MaxOutputTokens = if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
-            LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS
-        } else {
-            STAGE3_MAX_OUTPUT_TOKENS
-        }
+        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(irProvider)
         val stage3StructuredOutput = shouldUseStructuredOutput(
             irProvider,
             InferenceBackendSettings.getGeminiApiMode(appContext)
@@ -1887,7 +1904,11 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         var rawForRepair = stage3RawText
         var reasonForRepair = initialReason
-        val repairAttempts = 3
+        val repairAttempts = if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            ON_DEVICE_STAGE3_REPAIR_ATTEMPTS
+        } else {
+            3
+        }
 
         for (attempt in 1..repairAttempts) {
             val escalatedReason = if (attempt == 1) {
@@ -2432,9 +2453,13 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val MODEL_GEMINI_2_5_PRO = "gemini-2.5-pro"
         const val STAGE2_MAX_OUTPUT_TOKENS = 4096
         const val STAGE3_MAX_OUTPUT_TOKENS = 8192
+        const val ON_DEVICE_STAGE3_MAX_OUTPUT_TOKENS = 3072
+        const val ON_DEVICE_STAGE3_REPAIR_ATTEMPTS = 1
         const val LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS = 2048
         const val LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS = 15000
         const val LOG_TAG = "GenUiStagePipeline"
         val gson = GsonBuilder().disableHtmlEscaping().create()
     }
 }
+
+
