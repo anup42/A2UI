@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## The Button Collector Squirrel\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/tree.svg\n\n### Nutkin's Shiny Hoard\n\nIn an oak tree, tall and grand,\nLived Nutkin, with a silver tongue,\nWho'd chat with creatures, paw in hand,\nAnd tales of acorns, often sung.\n\nBut more than nuts, or berries sweet,\nHis heart yearned for a different gleam,\nFor shiny buttons, oh so neat,\nThe subject of his every dream.\n\nHe'd whisper, \"Oh, a pearly white!\"\nOr \"Look, a brass one, round and bold!\"\nAnd tuck them safe, from morning light,\nA treasure trove, more precious than gold.\n\nSo if you hear a tiny voice,\nAnd see a flash of squirrelly grace,\nHe's found a button, his first choice,\nAnd smiles, with joy upon his face.\n\nAsset URL policy for this request:\n- Use only local media paths from the provided Assets mapping.\n- Do not emit remote media URLs for images/icons.\n- Do not invent local placeholder paths not present in the mapping.\n\nAssets (local copies of any URLs in the response; use ONLY these local paths):\n- https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/tree.svg -> ../assets/r_000056_01_1_tree.svg",
+  "error": "Remote end closed connection without response",
+  "raw_payload": null,
+  "response_id": "r_000056_01",
+  "query_id": "q_000056",
+  "ui_id": "u_000056_01"
+}

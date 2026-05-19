@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# Loan Payment Calculation\n\nThis calculation determines the fixed monthly payment required to repay a loan, including both principal and interest, over a specified term.\n\n## Monthly Payment Details\n\nThe monthly payment for your loan of $20,000 with an annual interest rate of 5% over 3 years, compounded monthly, is **$599.29**.\n\nFormula:\n`M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1]`\n- `M`: Monthly Payment\n- `P`: Principal Loan Amount\n- `i`: Monthly Interest Rate\n- `n`: Total Number of Payments\n\nLoan Variables:\n- Principal Loan Amount (P): $20,000\n- Annual Interest Rate: 5%\n- Monthly Interest Rate (i): 0.05 / 12 = 0.00416667\n- Loan Term (Years): 3\n- Total Number of Payments (n): 3 years * 12 months/year = 36 payments\n\n## Quick Actions\n- **[Explore Loan Options]** https://www.bankrate.com/loans/personal-loans/\n- **[Financial Planning Tools]** https://www.consumerfinance.gov/consumer-tools/money-management/\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>",
+  "raw_payload": null,
+  "response_id": "r_000078_01",
+  "query_id": "q_000078",
+  "ui_id": "u_000078_01"
+}
