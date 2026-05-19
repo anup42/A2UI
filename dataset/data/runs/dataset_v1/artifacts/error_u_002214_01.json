@@ -1,0 +1,7 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\nI'm sorry, but I cannot assist with that request.\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "raw_text": "{\"root\":\"main\",\"state\":{},\"elements\":{\"main\":{\"type\":\"Card\",\"props\":{},\"children\":[\"msg\"]},\"msg\":{\"type\":\"Text\",\"props\":{\"text\":\"I'm sorry, but I cannot assist with that request.\",\"variant\":\"body\"},\"children\":[]}}}",
+  "errors": [
+    "fallback_generated"
+  ]
+}
