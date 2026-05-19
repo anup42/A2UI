@@ -509,16 +509,20 @@ def _prepare_prompt_context(
     adapter: BaseLLMAdapter,
     logger,
 ) -> tuple[str | None, str]:
-    """Split Gemini Stage3 prompt into static system + small per-item user prompt."""
+    """Split Stage3 prompt into static system + small per-item user prompt."""
     provider = (adapter.spec.provider or "").lower()
-    mode = os.getenv("GEMINI_STAGE3_PROMPT_MODE", "system_prefix").strip().lower()
-    if provider != "gemini" or mode in {"inline", "legacy", "off", "0", "false"}:
+    mode = (
+        os.getenv("STAGE3_PROMPT_MODE")
+        or os.getenv("GEMINI_STAGE3_PROMPT_MODE")
+        or "system_prefix"
+    ).strip().lower()
+    if provider not in {"gemini", "azure_openai", "openai"} or mode in {"inline", "legacy", "off", "0", "false"}:
         return None, template
 
     placeholder = "{response_text}"
     if placeholder not in template:
         logger.warning(
-            "Stage3 Gemini system-prefix mode requested but prompt has no %s; using inline mode.",
+            "Stage3 system-prefix mode requested but prompt has no %s; using inline mode.",
             placeholder,
         )
         return None, template
@@ -533,7 +537,8 @@ def _prepare_prompt_context(
         "Response:\n{response_text}"
     )
     logger.info(
-        "Stage3 Gemini prompt mode=system_prefix system_tokens=%s user_template_tokens=%s",
+        "Stage3 prompt mode=system_prefix provider=%s system_tokens=%s user_template_tokens=%s",
+        provider,
         count_tokens(system_prompt),
         count_tokens(user_template),
     )
