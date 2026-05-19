@@ -769,6 +769,11 @@ internal object FlatSpecContract {
             elements = canonicalElements,
             rewrites = rewrites
         )
+        alignTableColumnsWithRows(
+            elements = canonicalElements,
+            state = stateObject,
+            rewrites = rewrites
+        )
         stats.removedFieldCount += pruneRedundantElementPayload(
             elements = canonicalElements,
             rewrites = rewrites
@@ -1073,6 +1078,131 @@ internal object FlatSpecContract {
                         "Element '${candidate.tableElementId}': rewrote props.preferredPresentation from table to cards for ${candidate.domain} domain."
                 }
             }
+    }
+
+    private fun alignTableColumnsWithRows(
+        elements: JsonObject,
+        state: JsonObject,
+        rewrites: MutableList<String>
+    ) {
+        elements.entrySet().forEach { (elementId, elementValue) ->
+            val element = elementValue.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            val type = element.get("type")
+                ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                ?.asString
+                ?.trim()
+                ?.lowercase()
+                .orEmpty()
+            if (type != "table") return@forEach
+
+            val props = element.get("props")?.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            val rowKeys = firstTableRowKeys(props, state)
+            if (rowKeys.size < 2) return@forEach
+
+            val columns = props.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray
+            val columnObjects = columns
+                ?.mapNotNull { it.takeIf { value -> value.isJsonObject }?.asJsonObject }
+                .orEmpty()
+            val declaredKeys = columnObjects.mapNotNull { column ->
+                column.get("key")
+                    ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                    ?.asString
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+            }
+            val matchingKeys = declaredKeys.count { it in rowKeys }
+            val shouldRewriteColumns = columns == null || columns.size() < 2 || matchingKeys == 0
+            if (shouldRewriteColumns) {
+                val rewrittenColumns = JsonArray()
+                rowKeys.forEachIndexed { index, rowKey ->
+                    val label = columnObjects
+                        .getOrNull(index)
+                        ?.get("label")
+                        ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                        ?.asString
+                        ?.trim()
+                        ?.takeIf { it.isNotBlank() }
+                        ?: humanizeTableColumnKey(rowKey)
+                    rewrittenColumns.add(
+                        JsonObject().apply {
+                            addProperty("key", rowKey)
+                            addProperty("label", label)
+                        }
+                    )
+                }
+                props.add("columns", rewrittenColumns)
+                rewrites += "Element '$elementId': aligned table columns to row keys ${rowKeys.joinToString(prefix = "[", postfix = "]")}."
+            }
+
+            val primaryColumn = props.get("primaryColumn")
+                ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                ?.asString
+                ?.trim()
+                .orEmpty()
+            if (primaryColumn !in rowKeys) {
+                props.addProperty("primaryColumn", rowKeys.first())
+                rewrites += "Element '$elementId': set props.primaryColumn=${rowKeys.first()} to match table rows."
+            }
+
+            val existingHighlights = props.get("highlightColumns")
+                ?.takeIf { it.isJsonArray }
+                ?.asJsonArray
+                ?.mapNotNull { value ->
+                    value.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                        ?.asString
+                        ?.trim()
+                        ?.takeIf { it.isNotBlank() }
+                }
+                .orEmpty()
+            val validHighlights = existingHighlights.filter { it in rowKeys && it != rowKeys.first() }
+            if (existingHighlights.isNotEmpty() && validHighlights.size != existingHighlights.size) {
+                props.add(
+                    "highlightColumns",
+                    JsonArray().apply {
+                        val replacements = validHighlights.ifEmpty { rowKeys.drop(1).take(2) }
+                        replacements.forEach(::add)
+                    }
+                )
+                rewrites += "Element '$elementId': filtered props.highlightColumns to match table rows."
+            } else if (existingHighlights.isEmpty() && props.has("preferredPresentation")) {
+                props.add(
+                    "highlightColumns",
+                    JsonArray().apply { rowKeys.drop(1).take(2).forEach(::add) }
+                )
+            }
+        }
+    }
+
+    private fun firstTableRowKeys(
+        props: JsonObject,
+        state: JsonObject
+    ): List<String> {
+        val firstObject = tableRows(props, state)
+            .firstOrNull { it.isJsonObject }
+            ?.asJsonObject
+            ?: return emptyList()
+        val keys = firstObject.entrySet()
+            .map { it.key.trim() }
+            .filter { it.isNotBlank() }
+        if (keys.size <= 2) return keys
+        val nonTechnicalKeys = keys.filterNot { it in setOf("id", "_id", "row_id", "key") }
+        return nonTechnicalKeys.ifEmpty { keys }
+    }
+
+    private fun humanizeTableColumnKey(key: String): String {
+        val spaced = key
+            .replace(Regex("([a-z])([A-Z])"), "$1 $2")
+            .replace(Regex("[_\\-]+"), " ")
+            .trim()
+        return spaced
+            .split(Regex("\\s+"))
+            .filter { it.isNotBlank() }
+            .joinToString(" ") { token ->
+                token.replaceFirstChar { char ->
+                    if (char.isLowerCase()) char.titlecase(Locale.US) else char.toString()
+                }
+            }
+            .ifBlank { key }
     }
 
     private fun pruneRedundantElementPayload(

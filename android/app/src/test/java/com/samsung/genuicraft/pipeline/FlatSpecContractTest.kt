@@ -910,4 +910,231 @@ class FlatSpecContractTest {
         assertFalse(elements.has("orphan"))
         assertTrue(result.warnings.any { it.contains("unreachable element", ignoreCase = true) })
     }
+
+    @Test
+    fun coerceAndValidate_acceptsGemmaCompactWeatherRepairShape() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "root",
+              "state": {
+                "rows": [
+                  {
+                    "day": "Tue, May 19",
+                    "conditions": "Warm with afternoon/evening showers possible",
+                    "high": "29C",
+                    "low": "22C",
+                    "rain": "High"
+                  },
+                  {
+                    "day": "Wed, May 20",
+                    "conditions": "Partly cloudy",
+                    "high": "30C",
+                    "low": "21C",
+                    "rain": "Low"
+                  }
+                ]
+              },
+              "elements": {
+                "root": {
+                  "type": "Stack",
+                  "props": { "direction": "vertical", "gap": "md" },
+                  "children": ["title", "summary", "table"]
+                },
+                "title": {
+                  "type": "Text",
+                  "props": { "text": "Bengaluru Weather", "variant": "h2" },
+                  "children": []
+                },
+                "summary": {
+                  "type": "Card",
+                  "props": {},
+                  "children": ["summaryText"]
+                },
+                "summaryText": {
+                  "type": "Text",
+                  "props": { "text": "Warm conditions with possible showers later." },
+                  "children": []
+                },
+                "table": {
+                  "type": "Table",
+                  "props": {
+                    "columns": [
+                      { "key": "day", "label": "Day" },
+                      { "key": "conditions", "label": "Conditions" },
+                      { "key": "high", "label": "High" },
+                      { "key": "low", "label": "Low" },
+                      { "key": "rain", "label": "Rain" }
+                    ],
+                    "statePath": "/rows",
+                    "domain": "weather",
+                    "preferredPresentation": "cards",
+                    "primaryColumn": "day",
+                    "highlightColumns": ["high", "low"]
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+
+        assertTrue(result.error.orEmpty(), result.isValid)
+        assertEquals("weather", result.tableDiagnostics.tableDomain)
+        assertEquals("cards", result.tableDiagnostics.preferredPresentation)
+    }
+
+    @Test
+    fun coerceAndValidate_alignsGemmaTableColumnsToActualRowKeys() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "root",
+              "state": {
+                "rows": [
+                  {
+                    "label": "Tue, May 19",
+                    "value": "Cloudy, thunderstorms likely later"
+                  },
+                  {
+                    "label": "Wed, May 20",
+                    "value": "Cloudy with sunny breaks"
+                  }
+                ]
+              },
+              "elements": {
+                "root": {
+                  "type": "Stack",
+                  "props": { "direction": "vertical", "gap": "md" },
+                  "children": ["title", "summary", "table"]
+                },
+                "title": {
+                  "type": "Text",
+                  "props": { "text": "Bengaluru Weather", "variant": "h1" },
+                  "children": []
+                },
+                "summary": {
+                  "type": "Card",
+                  "props": {},
+                  "children": ["summaryText"]
+                },
+                "summaryText": {
+                  "type": "Text",
+                  "props": { "text": "A compact forecast for Bengaluru." },
+                  "children": []
+                },
+                "table": {
+                  "type": "Table",
+                  "props": {
+                    "columns": [
+                      { "key": "day", "label": "Day" },
+                      { "key": "conditions", "label": "Conditions" },
+                      { "key": "highLow", "label": "High/Low" },
+                      { "key": "rainChance", "label": "Rain Chance" }
+                    ],
+                    "statePath": "/rows",
+                    "domain": "weather",
+                    "preferredPresentation": "cards",
+                    "primaryColumn": "day",
+                    "highlightColumns": ["highLow", "rainChance"]
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+
+        assertTrue(result.error.orEmpty(), result.isValid)
+        val props = result.spec!!
+            .getAsJsonObject("elements")
+            .getAsJsonObject("table")
+            .getAsJsonObject("props")
+        val columns = props.getAsJsonArray("columns")
+        assertEquals("label", columns[0].asJsonObject.get("key").asString)
+        assertEquals("Day", columns[0].asJsonObject.get("label").asString)
+        assertEquals("value", columns[1].asJsonObject.get("key").asString)
+        assertEquals("Conditions", columns[1].asJsonObject.get("label").asString)
+        assertEquals("label", props.get("primaryColumn").asString)
+        assertEquals("value", props.getAsJsonArray("highlightColumns")[0].asString)
+        assertTrue(
+            result.tableDiagnostics.canonicalizationRewrites.any {
+                it.contains("aligned table columns to row keys")
+            }
+        )
+    }
+
+    @Test
+    fun coerceAndValidate_acceptsCompactFlightTableForGemma() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "root",
+              "state": {
+                "rows": [
+                  {
+                    "rank": "1",
+                    "airline": "IndiGo",
+                    "cost": "INR 7,400",
+                    "duration": "2h 45m",
+                    "stops": "Nonstop",
+                    "reason": "Lowest direct option"
+                  }
+                ]
+              },
+              "elements": {
+                "root": {
+                  "type": "Stack",
+                  "props": { "direction": "vertical", "gap": "md" },
+                  "children": ["title", "summary", "table"]
+                },
+                "title": {
+                  "type": "Text",
+                  "props": { "text": "Flight Options", "variant": "h2" },
+                  "children": []
+                },
+                "summary": {
+                  "type": "Card",
+                  "props": {},
+                  "children": ["summaryText"]
+                },
+                "summaryText": {
+                  "type": "Text",
+                  "props": { "text": "Best available flight choices sorted by value." },
+                  "children": []
+                },
+                "table": {
+                  "type": "Table",
+                  "props": {
+                    "columns": [
+                      { "key": "rank", "label": "Rank" },
+                      { "key": "airline", "label": "Airline" },
+                      { "key": "cost", "label": "Cost" },
+                      { "key": "duration", "label": "Duration" },
+                      { "key": "stops", "label": "Stops" },
+                      { "key": "reason", "label": "Why" }
+                    ],
+                    "statePath": "/rows",
+                    "domain": "flight",
+                    "preferredPresentation": "cards",
+                    "primaryColumn": "airline",
+                    "highlightColumns": ["cost", "duration"]
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val result = FlatSpecContract.coerceAndValidate(payload)
+
+        assertTrue(result.error.orEmpty(), result.isValid)
+        assertEquals("flight", result.tableDiagnostics.tableDomain)
+        assertEquals("cards", result.tableDiagnostics.preferredPresentation)
+    }
 }

@@ -98,6 +98,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
     }
 
+    private fun stage3TemperatureFor(provider: InferenceBackendSettings.Provider): Double {
+        return if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            0.0
+        } else {
+            0.2
+        }
+    }
+
     suspend fun execute(
         queryText: String,
         onStageUpdate: (StageUpdate) -> Unit
@@ -770,7 +778,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = irProvider,
             prompt = stage3Prompt,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
-            temperature = 0.2,
+            temperature = stage3TemperatureFor(irProvider),
             maxOutputTokens = stage3MaxOutputTokens,
             jsonMode = true,
             enableGoogleSearch = false,
@@ -1322,7 +1330,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = provider,
             prompt = stage3Prompt,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
-            temperature = 0.2,
+            temperature = stage3TemperatureFor(provider),
             maxOutputTokens = stage3MaxOutputTokens,
             jsonMode = true,
             enableGoogleSearch = false,
@@ -1665,7 +1673,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = irProvider,
             prompt = stage3Prompt,
             systemPrompt = promptContext.systemPrompt,
-            temperature = 0.2,
+            temperature = stage3TemperatureFor(irProvider),
             maxOutputTokens = stage3MaxOutputTokens,
             jsonMode = true,
             enableGoogleSearch = false,
@@ -1894,11 +1902,11 @@ class GenUiStagePipeline(private val appContext: Context) {
             return initialCoerce.spec
         }
 
-        val initialReason = if (initialJsonElement == null) {
-            "Stage 3 JSON parse failed."
-        } else {
-            initialCoerce.error ?: "Stage 3 flat-spec validation failed."
-        }
+        val initialReason = flatSpecValidationFailureReason(
+            jsonElement = initialJsonElement,
+            coerceError = initialCoerce.error,
+            parseFailureReason = "Stage 3 JSON parse failed."
+        )
         diagnostics.initialValidationError = initialReason
         warnings += "$initialReason Running strict flat-spec repair."
 
@@ -1921,10 +1929,15 @@ class GenUiStagePipeline(private val appContext: Context) {
                 provider = provider,
                 prompt = PipelineJsonExtractor.buildFlatSpecRepairPrompt(
                     rawText = rawForRepair,
-                    failureReason = escalatedReason
+                    failureReason = escalatedReason,
+                    mode = if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+                        PipelineJsonExtractor.FlatSpecRepairMode.ON_DEVICE_LITERT
+                    } else {
+                        PipelineJsonExtractor.FlatSpecRepairMode.GENERAL
+                    }
                 ),
                 systemPrompt = systemPrompt,
-                temperature = 0.2,
+                temperature = stage3TemperatureFor(provider),
                 maxOutputTokens = stage3RepairMaxOutputTokens,
                 jsonMode = true,
                 enableGoogleSearch = false,
@@ -1959,11 +1972,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                 return repairedCoerce.spec
             }
 
-            val repairedReason = if (repairedElement == null) {
-                "Repair attempt $attempt produced unparseable JSON."
-            } else {
-                repairedCoerce.error ?: "Repair attempt $attempt failed flat-spec validation."
-            }
+            val repairedReason = flatSpecValidationFailureReason(
+                jsonElement = repairedElement,
+                coerceError = repairedCoerce.error,
+                parseFailureReason = "Repair attempt $attempt produced unparseable JSON."
+            )
             diagnostics.repairValidationErrors += "Attempt $attempt: $repairedReason"
             warnings += "Stage 3 repair attempt $attempt invalid ($repairedReason)."
             reasonForRepair = repairedReason
@@ -1972,6 +1985,20 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         warnings += "Stage 3 repaired output is still invalid after $repairAttempts attempts."
         return null
+    }
+
+    private fun flatSpecValidationFailureReason(
+        jsonElement: JsonElement?,
+        coerceError: String?,
+        parseFailureReason: String
+    ): String {
+        if (jsonElement == null) {
+            return parseFailureReason
+        }
+        if (!FlatSpecContract.looksLikeFlatSpec(jsonElement)) {
+            return "Stage 3 output did not contain a valid flat-spec object with root/elements."
+        }
+        return coerceError ?: "Stage 3 flat-spec validation failed."
     }
 
     private fun shouldUseStructuredOutput(

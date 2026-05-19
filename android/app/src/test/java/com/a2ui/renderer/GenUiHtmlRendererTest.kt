@@ -5,6 +5,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import kotlin.io.path.createTempDirectory
 
 class GenUiHtmlRendererTest {
     @Test
@@ -54,7 +55,7 @@ class GenUiHtmlRendererTest {
             }
         """.trimIndent()
 
-        val sourceDir = createTempDir(prefix = "genuicraft_html_assets_")
+        val sourceDir = createTempDirectory(prefix = "genuicraft_html_assets_").toFile()
         try {
             val assetFile = File(sourceDir, "assets/icon.svg")
             assetFile.parentFile?.mkdirs()
