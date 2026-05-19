@@ -5,6 +5,7 @@ plugins {
 }
 
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
@@ -202,13 +203,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
@@ -300,6 +303,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("io.coil-kt:coil-svg:2.7.0")
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.12.0")
 
     debugImplementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")
