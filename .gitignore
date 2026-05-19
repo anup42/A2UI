@@ -46,6 +46,7 @@ site/
 .venv/
 dataset/.dataset_auto_commit.log
 dataset/.dataset_worker_watchdog.log
+dataset/.dataset_v0_stage3_vertex_batch_*
 
 # Dataset producer scratch files
 dataset/data/runs/*/.prompt_cache_stage1_producer.jsonl
