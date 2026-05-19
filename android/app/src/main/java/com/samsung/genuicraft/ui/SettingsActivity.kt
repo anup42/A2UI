@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -40,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.TextButton
 import com.samsung.genuicraft.mcp.McpSettings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -577,23 +577,23 @@ private fun SettingsScreen(
                                                         overflow = TextOverflow.Ellipsis
                                                     )
                                                     Text(
-                                                        text = entry.subtitle,
+                                                        text = entry.repoId,
                                                         style = MaterialTheme.typography.bodySmall,
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        maxLines = 2,
+                                                        maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis
                                                     )
                                                     Text(
                                                         text = if (downloaded) {
                                                             stringResource(id = R.string.settings_on_device_downloaded)
                                                         } else {
-                                                            "${stringResource(id = R.string.settings_on_device_not_downloaded)} · ${entry.approximateSize}"
+                                                            "${stringResource(id = R.string.settings_on_device_not_downloaded)} - ${entry.approximateSize}"
                                                         },
                                                         style = MaterialTheme.typography.labelSmall,
                                                         color = if (downloaded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
-                                                Button(
+                                                TextButton(
                                                     enabled = !isDownloading && (!downloaded || !selected),
                                                     onClick = {
                                                         if (downloaded) {
