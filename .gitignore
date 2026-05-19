@@ -28,3 +28,4 @@ site/
 
 # Python virtual environment
 .venv/
+dataset/.dataset_auto_commit.log
