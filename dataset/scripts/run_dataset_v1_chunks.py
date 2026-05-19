@@ -65,6 +65,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", default="azure_gpt54_mini")
     parser.add_argument("--rate_limit_qps", type=float, default=None)
     parser.add_argument("--call_sleep_seconds", type=float, default=None)
+    parser.add_argument(
+        "--stage1_per_intent_batch_size",
+        type=int,
+        default=10,
+        help="Maximum number of queries requested per intent in one Stage 1 API call.",
+    )
+    parser.add_argument(
+        "--max_extra_source",
+        type=int,
+        default=1000,
+        help=(
+            "Extra query/response budget used only when Stage 3 has permanently "
+            "failed records but still needs more valid IR rows."
+        ),
+    )
+    parser.add_argument(
+        "--replacement_batch_size",
+        type=int,
+        default=8,
+        help="How many extra query/response records to add after a Stage 3 no-progress pass.",
+    )
     parser.add_argument("--max_cycles", type=int, default=None)
     parser.add_argument("--dry_run", action="store_true")
     return parser.parse_args()
@@ -97,9 +118,17 @@ def main() -> None:
         raise SystemExit(f"No intents found in {intents_file}")
 
     stage1_intent_batch_size = min(intent_count, int(run_cfg.get("stage1_intent_batch_size", intent_count)))
-    # For the current 32-intent setup, this yields 10 per intent, i.e. exactly 320 queries/cycle.
-    stage1_batch_size = max(1, math.ceil(args.chunk_size / max(1, stage1_intent_batch_size)))
-    target_per_intent = math.ceil(args.target / intent_count)
+    # Keep per-intent calls small enough for reliable JSON parsing even when the
+    # requested chunk is large (for example, 10k sequential dataset generation).
+    stage1_batch_size = max(
+        1,
+        min(
+            int(args.stage1_per_intent_batch_size),
+            math.ceil(args.chunk_size / max(1, stage1_intent_batch_size)),
+        ),
+    )
+    source_ceiling = args.target + max(0, int(args.max_extra_source))
+    target_per_intent = math.ceil(source_ceiling / intent_count)
     k_per_intent = max(int(run_cfg.get("k_queries_per_intent", 1)), target_per_intent)
 
     rate_limit_qps = float(args.rate_limit_qps if args.rate_limit_qps is not None else run_cfg.get("rate_limit_qps", 1.0))
@@ -113,6 +142,8 @@ def main() -> None:
         "run_id": args.run_id,
         "target": args.target,
         "chunk_size": args.chunk_size,
+        "max_extra_source": max(0, int(args.max_extra_source)),
+        "replacement_batch_size": max(1, int(args.replacement_batch_size)),
         "model": args.model,
         "intent_count": intent_count,
         "k_per_intent": k_per_intent,
@@ -170,6 +201,64 @@ def main() -> None:
 
     max_cycles = args.max_cycles
     cycle = 0
+    def _ensure_stage1_source(source_target: int) -> None:
+        while count_jsonl(run_paths.queries_path) < source_target:
+            before = count_jsonl(run_paths.queries_path)
+            cycle_k_per_intent = min(k_per_intent, math.ceil(source_target / intent_count))
+            logger.info("dataset_v1 stage1 cycle_k_per_intent=%s source_target=%s", cycle_k_per_intent, source_target)
+            run_stage1(
+                intents_file=intents_file,
+                prompt_path=prompts_dir / "query_gen.md",
+                adapter=adapter,
+                run_dir=run_paths.run_dir,
+                queries_path=run_paths.queries_path,
+                k_per_intent=cycle_k_per_intent,
+                batch_size=stage1_batch_size,
+                intent_batch_size=stage1_intent_batch_size,
+                seed=int(run_cfg.get("seed", 42)),
+                temperature=0.7,
+                max_tokens=int(run_cfg.get("query_max_tokens", 2048)),
+                rate_limiter=rate_limiter,
+                cache=cache,
+                logger=logger,
+                max_total=source_target - before,
+                max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 50)),
+                fill_missing_with_fallback=False,
+                max_attempts=int(run_cfg.get("max_attempts", 6)),
+            )
+            after = count_jsonl(run_paths.queries_path)
+            logger.info("dataset_v1 progress stage1 queries=%s/%s created=%s", after, source_target, after - before)
+            if after <= before:
+                raise RuntimeError(f"Stage1 made no progress toward {source_target}; current={after}")
+
+    def _ensure_stage2_source(source_target: int) -> None:
+        while count_jsonl(run_paths.responses_path) < source_target:
+            before = count_jsonl(run_paths.responses_path)
+            run_stage2(
+                queries_path=run_paths.queries_path,
+                prompt_path=prompts_dir / "response_gen.md",
+                batch_prompt_path=prompts_dir / "response_gen_batch.md",
+                adapter=adapter,
+                responses_path=run_paths.responses_path,
+                n_per_query=1,
+                batch_size=int(run_cfg.get("response_batch_size", 1)),
+                query_batch_size=int(run_cfg.get("query_batch_size", 1)),
+                group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
+                batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
+                temperatures=[0.7],
+                max_tokens=int(run_cfg.get("response_max_tokens", 4096)),
+                seed=int(run_cfg.get("seed", 42)),
+                rate_limiter=rate_limiter,
+                cache=cache,
+                logger=logger,
+                max_total=source_target - before,
+                max_attempts=int(run_cfg.get("max_attempts", 6)),
+            )
+            after = count_jsonl(run_paths.responses_path)
+            logger.info("dataset_v1 progress stage2 responses=%s/%s created=%s", after, source_target, after - before)
+            if after <= before:
+                raise RuntimeError(f"Stage2 made no progress toward {source_target}; current={after}")
+
     while True:
         counts = {
             "queries": count_jsonl(run_paths.queries_path),
@@ -188,6 +277,7 @@ def main() -> None:
         cycle += 1
         floor_count = min(counts.values())
         cycle_target = min(args.target, floor_count + args.chunk_size)
+        source_target = min(source_ceiling, max(cycle_target, counts["responses"]))
         logger.info("dataset_v1 cycle=%s target=%s counts=%s", cycle, cycle_target, counts)
         write_progress(
             progress_path,
@@ -195,66 +285,14 @@ def main() -> None:
                 **settings,
                 "cycle": cycle,
                 "cycle_target": cycle_target,
+                "source_target": source_target,
                 "counts": counts,
                 "updated_at": datetime.utcnow().isoformat() + "Z",
             },
         )
 
-        while count_jsonl(run_paths.queries_path) < cycle_target:
-            before = count_jsonl(run_paths.queries_path)
-            cycle_k_per_intent = min(k_per_intent, math.ceil(cycle_target / intent_count))
-            logger.info("dataset_v1 stage1 cycle_k_per_intent=%s", cycle_k_per_intent)
-            run_stage1(
-                intents_file=intents_file,
-                prompt_path=prompts_dir / "query_gen.md",
-                adapter=adapter,
-                run_dir=run_paths.run_dir,
-                queries_path=run_paths.queries_path,
-                k_per_intent=cycle_k_per_intent,
-                batch_size=stage1_batch_size,
-                intent_batch_size=stage1_intent_batch_size,
-                seed=int(run_cfg.get("seed", 42)),
-                temperature=0.7,
-                max_tokens=int(run_cfg.get("query_max_tokens", 2048)),
-                rate_limiter=rate_limiter,
-                cache=cache,
-                logger=logger,
-                max_total=cycle_target - before,
-                max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 50)),
-                fill_missing_with_fallback=False,
-                max_attempts=int(run_cfg.get("max_attempts", 6)),
-            )
-            after = count_jsonl(run_paths.queries_path)
-            logger.info("dataset_v1 progress stage1 queries=%s/%s created=%s", after, cycle_target, after - before)
-            if after <= before:
-                raise RuntimeError(f"Stage1 made no progress toward {cycle_target}; current={after}")
-
-        while count_jsonl(run_paths.responses_path) < cycle_target:
-            before = count_jsonl(run_paths.responses_path)
-            run_stage2(
-                queries_path=run_paths.queries_path,
-                prompt_path=prompts_dir / "response_gen.md",
-                batch_prompt_path=prompts_dir / "response_gen_batch.md",
-                adapter=adapter,
-                responses_path=run_paths.responses_path,
-                n_per_query=1,
-                batch_size=1,
-                query_batch_size=1,
-                group_by_intent=False,
-                batch_fallback_per_query=True,
-                temperatures=[0.7],
-                max_tokens=int(run_cfg.get("response_max_tokens", 4096)),
-                seed=int(run_cfg.get("seed", 42)),
-                rate_limiter=rate_limiter,
-                cache=cache,
-                logger=logger,
-                max_total=cycle_target - before,
-                max_attempts=int(run_cfg.get("max_attempts", 6)),
-            )
-            after = count_jsonl(run_paths.responses_path)
-            logger.info("dataset_v1 progress stage2 responses=%s/%s created=%s", after, cycle_target, after - before)
-            if after <= before:
-                raise RuntimeError(f"Stage2 made no progress toward {cycle_target}; current={after}")
+        _ensure_stage1_source(source_target)
+        _ensure_stage2_source(source_target)
 
         while count_jsonl(run_paths.genui_path) < cycle_target:
             before = count_jsonl(run_paths.genui_path)
@@ -283,7 +321,39 @@ def main() -> None:
             after = count_jsonl(run_paths.genui_path)
             logger.info("dataset_v1 progress stage3 genui=%s/%s created=%s", after, cycle_target, after - before)
             if after <= before:
-                raise RuntimeError(f"Stage3 made no progress toward {cycle_target}; current={after}")
+                source_counts = {
+                    "queries": count_jsonl(run_paths.queries_path),
+                    "responses": count_jsonl(run_paths.responses_path),
+                    "genui": after,
+                }
+                if source_counts["responses"] >= source_ceiling:
+                    raise RuntimeError(
+                        "Stage3 made no progress and replacement source ceiling was reached; "
+                        f"target={cycle_target} counts={source_counts}"
+                    )
+                source_target = min(
+                    source_ceiling,
+                    source_counts["responses"] + max(1, int(args.replacement_batch_size)),
+                )
+                logger.warning(
+                    "dataset_v1 Stage3 made no progress, likely due permanently filtered responses. "
+                    "Adding replacement source records source_target=%s counts=%s",
+                    source_target,
+                    source_counts,
+                )
+                write_progress(
+                    progress_path,
+                    {
+                        **settings,
+                        "cycle": cycle,
+                        "cycle_target": cycle_target,
+                        "source_target": source_target,
+                        "counts": source_counts,
+                        "stage3_no_progress_at": datetime.utcnow().isoformat() + "Z",
+                    },
+                )
+                _ensure_stage1_source(source_target)
+                _ensure_stage2_source(source_target)
 
 
 if __name__ == "__main__":
