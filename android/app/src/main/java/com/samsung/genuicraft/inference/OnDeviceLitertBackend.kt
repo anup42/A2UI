@@ -139,7 +139,7 @@ class OnDeviceLitertBackend(
         Log.i(
             LOG_TAG,
             "LiteRT IR generation start backend=${holder.backendName} context=${holder.maxContextTokens} " +
-                "inputTokens≈${estimateTokens(promptParts.combinedForEstimates)}"
+                "inputTokensApprox=${estimateTokens(promptParts.combinedForEstimates)}"
         )
         val conversationConfig = ConversationConfig(
             systemInstruction = promptParts.system?.let { Contents.of(it) },
@@ -161,7 +161,7 @@ class OnDeviceLitertBackend(
         Log.i(
             LOG_TAG,
             "LiteRT IR generation complete backend=${holder.backendName} elapsedMs=${System.currentTimeMillis() - startedAt} " +
-                "outputTokens≈${estimateTokens(text)}"
+                "outputTokensApprox=${estimateTokens(text)}"
         )
         return text
     }
@@ -213,9 +213,7 @@ class OnDeviceLitertBackend(
                     }
                     closeCachedEngineLocked()
                 }
-                val cacheDir = File(modelFile.parentFile, ".litert_cache").apply {
-                    mkdirs()
-                }
+                val cacheDir = cacheDirFor(canonicalPath, modelFile)
 
                 val backendCandidates = if (forceCpu) {
                     listOf(BACKEND_CPU to cpuBackend())
@@ -234,7 +232,7 @@ class OnDeviceLitertBackend(
                                 modelPath = canonicalPath,
                                 backend = backend,
                                 maxNumTokens = maxContextTokens,
-                                cacheDir = cacheDir.absolutePath
+                                cacheDir = cacheDir
                             )
                         )
                         engine.initialize()
@@ -274,6 +272,15 @@ class OnDeviceLitertBackend(
         private fun cpuBackend(): Backend.CPU {
             val threads = Runtime.getRuntime().availableProcessors().coerceIn(2, 6)
             return Backend.CPU(threads)
+        }
+
+        private fun cacheDirFor(canonicalPath: String, modelFile: File): String? {
+            if (!canonicalPath.startsWith("/data/local/tmp")) {
+                return null
+            }
+            return File(modelFile.parentFile, ".litert_cache").apply {
+                mkdirs()
+            }.absolutePath
         }
     }
 }

@@ -16,6 +16,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GenUiCraftRenderer"
         android:usesCleartextTraffic="true">
+        <!-- Matches Google AI Edge Gallery's optional accelerator declarations. These allow
+             LiteRT to open device GPU/NPU runtime libraries when present and harmlessly fall
+             back when the device does not expose them. -->
+        <uses-native-library android:name="libvndksupport.so" android:required="false" />
+        <uses-native-library android:name="libOpenCL.so" android:required="false" />
+        <uses-native-library android:name="libcdsprpc.so" android:required="false" />
+        <uses-native-library android:name="libedgetpu_litert.so" android:required="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
