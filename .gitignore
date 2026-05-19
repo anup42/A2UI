@@ -18,6 +18,11 @@ presentation_work/
 **/.prompt_cache.jsonl
 dataset/.dataset_v1_*.log
 dataset/.dataset_v1_pid.txt
+dataset/.dataset_v1_stage2_pid.txt
+dataset/.dataset_v1_stage3_pid.txt
+dataset/data/runs/*/progress_stage2_watch.json
+dataset/data/runs/*/progress_stage3_watch.json
+dataset/data/runs/*/.prompt_cache_stage3_watch.jsonl
 training/outputs/
 training/runs/
 training/checkpoints/
