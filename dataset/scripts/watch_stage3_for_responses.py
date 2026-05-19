@@ -67,7 +67,12 @@ def write_progress(path: Path, payload: dict) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Watch responses.jsonl and generate missing Stage 3 IR.")
     parser.add_argument("--run_id", default="dataset_v1")
-    parser.add_argument("--target", type=int, default=10000)
+    parser.add_argument(
+        "--target",
+        type=int,
+        default=0,
+        help="Optional response target. Use 0 to keep watching until the process is stopped.",
+    )
     parser.add_argument("--model", default="azure_gpt54_mini")
     parser.add_argument("--pass_size", type=int, default=8)
     parser.add_argument("--poll_seconds", type=float, default=60.0)
@@ -180,7 +185,7 @@ def main() -> None:
                 time.sleep(max(1.0, args.poll_seconds))
             continue
 
-        if counts["responses"] >= args.target:
+        if args.target > 0 and counts["responses"] >= args.target:
             if last_counts == counts:
                 idle_count += 1
             else:
