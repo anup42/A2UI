@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# Latest Episode: Stuff You Should Know\n## How to Be a Good Patient\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/play-circle.svg\n- Released: June 18, 2024\n- Description: Josh and Chuck delve into the essential strategies for patients to effectively manage their health, communicate clearly with medical professionals, and navigate the complexities of the healthcare system.\nAction: [Button: Play Episode] https://www.iheart.com/podcast/105-stuff-you-should-know-29004047/episode/how-to-be-a-good-patient-203582103/\n\n## About the Podcast\nStuff You Should Know is a popular podcast hosted by Josh Clark and Charles W. \"Chuck\" Bryant, which explores a vast array of topics, breaking down complex subjects into digestible and entertaining explanations, covering everything from science and history to pop culture and obscure facts.\n\n## Quick Actions\n- See All Episodes: https://www.iheart.com/podcast/105-stuff-you-should-know-29004047/\n\n## Sources\n- iHeartRadio: https://www.iheart.com/podcast/105-stuff-you-should-know-29004047/\n\nAsset URL policy for this request:\n- Use only local media paths from the provided Assets mapping.\n- Do not emit remote media URLs for images/icons.\n- Do not invent local placeholder paths not present in the mapping.\n\nAssets (local copies of any URLs in the response; use ONLY these local paths):\n- https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/play-circle.svg -> ../assets/r_000102_01_1_play-circle.svg",
+  "error": "Remote end closed connection without response",
+  "raw_payload": null,
+  "response_id": "r_000105_01",
+  "query_id": "q_000105",
+  "ui_id": "u_000105_01"
+}
