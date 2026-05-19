@@ -70,16 +70,28 @@ $workers = @(
         Args = @("dataset/scripts/continue_stage2_dataset_v1.py", "--run_id", "dataset_v1", "--target", "20000", "--model", "azure_gpt54_mini", "--pass_size", "32", "--query_chunk_size", "10000", "--stage1_per_intent_batch_size", "10")
     },
     @{
-        Name = "dataset_v1_stage3"
+        Name = "dataset_v1_stage3_0"
         RunId = "dataset_v1"
         Stage = "stage3"
         TargetPath = "dataset/data/runs/dataset_v1/genui.jsonl"
         Target = 20000
-        PidPath = "dataset/.dataset_v1_stage3_pid.txt"
+        PidPath = "dataset/.dataset_v1_stage3_0_pid.txt"
         ScriptName = "watch_stage3_for_responses.py"
-        Stdout = "dataset/.dataset_v1_stage3_stdout.log"
-        Stderr = "dataset/.dataset_v1_stage3_stderr.log"
-        Args = @("dataset/scripts/watch_stage3_for_responses.py", "--run_id", "dataset_v1", "--target", "20000", "--model", "azure_gpt54_mini", "--pass_size", "8", "--poll_seconds", "60", "--idle_checks", "5")
+        Stdout = "dataset/.dataset_v1_stage3_0_stdout.log"
+        Stderr = "dataset/.dataset_v1_stage3_0_stderr.log"
+        Args = @("dataset/scripts/watch_stage3_for_responses.py", "--run_id", "dataset_v1", "--target", "20000", "--model", "azure_gpt54_mini", "--worker_index", "0", "--worker_count", "2", "--pass_size", "8", "--poll_seconds", "45", "--idle_checks", "5")
+    },
+    @{
+        Name = "dataset_v1_stage3_1"
+        RunId = "dataset_v1"
+        Stage = "stage3"
+        TargetPath = "dataset/data/runs/dataset_v1/genui.jsonl"
+        Target = 20000
+        PidPath = "dataset/.dataset_v1_stage3_1_pid.txt"
+        ScriptName = "watch_stage3_for_responses.py"
+        Stdout = "dataset/.dataset_v1_stage3_1_stdout.log"
+        Stderr = "dataset/.dataset_v1_stage3_1_stderr.log"
+        Args = @("dataset/scripts/watch_stage3_for_responses.py", "--run_id", "dataset_v1", "--target", "20000", "--model", "azure_gpt54_mini", "--worker_index", "1", "--worker_count", "2", "--pass_size", "8", "--poll_seconds", "45", "--idle_checks", "5")
     },
     @{
         Name = "dataset_v3_stage1"
