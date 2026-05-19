@@ -1,0 +1,49 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Mumbai Outdoor Sightseeing Weather Windows\n\nWindow **B (2026-08-10 to 2026-08-12)** is clearly better for outdoor sightseeing. It has much lower rain chances, more sun breaks, and fewer disruption risks than Window A.\n\n## Ranked Comparison: Window B vs Window A\n\n| Rank | Window | Sightseeing Fit | Why |\n|---|---|---|---|\n| 1 | **B: Aug 10–12** | **Best** | Lower rain risk overall; mostly dry conditions; better visibility and easier movement outdoors |\n| 2 | **A: Aug 3–5** | **Poor** | High rain chances every day; thunderstorms and heavy showers make outdoor plans unreliable |\n\n### Window A: 2026-08-03 to 2026-08-05\n- **Aug 3:** 30°C / 26°C, **85% rain**, heavy showers\n- **Aug 4:** 29°C / 25°C, **90% rain**, thunderstorms\n- **Aug 5:** 31°C / 26°C, **70% rain**, rain likely\n\n**Tradeoff:** Temperatures are warm, but the persistent rain and storm risk mean you’ll likely spend more time dodging weather than sightseeing. This window is better for indoor plans, flexible transport, and backup activities.\n\n### Window B: 2026-08-10 to 2026-08-12\n- **Aug 10:** 32°C / 26°C, **35% rain**, partly cloudy\n- **Aug 11:** 33°C / 27°C, **20% rain**, sunny intervals\n- **Aug 12:** 31°C / 26°C, **25% rain**, mostly clear\n\n**Tradeoff:** It is hotter and more humid, but the weather is far more usable for walking tours, waterfront views, and open-air attractions. You still may get brief showers, but they’re much less likely to derail the day.\n\n## Best Choice for Outdoor Plans\n\n**Pick Window B.**\n\nWhy it wins:\n- Lower rain probability on all 3 days\n- No thunderstorms listed\n- Better chance of clear photos, walking comfort, and schedule reliability\n- More suitable for beaches, promenades, forts, markets, and city viewpoints\n\n## Packing Suggestion\n\n- **For Window B:** light breathable clothes, compact umbrella, sunscreen, hat, sunglasses, water bottle, quick-dry shoes\n- **For Window A:** waterproof jacket or poncho, sturdy sandals/shoes, extra socks, small dry bag, umbrella, and a backup indoor itinerary\n\n## Sources\n\n- Mumbai weather context and seasonal norms: https://www.timeanddate.com/weather/india/mumbai/climate\n- General monsoon reference for Mumbai: https://www.britannica.com/place/Mumbai/Climate\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 400: The response was filtered due to the prompt triggering Azure OpenAI’s content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766",
+  "raw_payload": {
+    "error": {
+      "message": "The response was filtered due to the prompt triggering Azure OpenAI’s content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766",
+      "type": "invalid_request_error",
+      "param": "prompt",
+      "code": "content_filter",
+      "content_filters": [
+        {
+          "blocked": true,
+          "source_type": "prompt",
+          "content_filter_raw": [],
+          "content_filter_results": {
+            "jailbreak": {
+              "detected": false,
+              "filtered": false
+            },
+            "hate": {
+              "filtered": true,
+              "severity": "medium"
+            },
+            "sexual": {
+              "filtered": false,
+              "severity": "safe"
+            },
+            "violence": {
+              "filtered": false,
+              "severity": "safe"
+            },
+            "self_harm": {
+              "filtered": false,
+              "severity": "safe"
+            }
+          },
+          "content_filter_offsets": {
+            "start_offset": 0,
+            "end_offset": 3395,
+            "check_offset": 0
+          }
+        }
+      ]
+    }
+  },
+  "response_id": "r_001854_01",
+  "query_id": "q_001854",
+  "ui_id": "u_001854_01"
+}

@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## New Hobby Excitement\n## A Friendly Chat\n\nMaya: Guess what? I just signed up for a pottery class! I'm so excited!\nChloe: Pottery? Really? Isn't that... messy? And a bit slow?\nMaya: It is a little messy, but it's so therapeutic! Shaping the clay is incredibly satisfying.\nChloe: I can imagine. Well, if it makes you happy, go for it. Just don't expect me to join.\nMaya: Aw, come on! You might actually love it. Think of the handmade mugs!\nChloe: Hmm, maybe I'll stick to admiring your creations. But I'll cheer you on from the sidelines!\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "<urlopen error [Errno 11001] getaddrinfo failed>",
+  "raw_payload": null,
+  "response_id": "r_000220_01",
+  "query_id": "q_000220",
+  "ui_id": "u_000220_01"
+}

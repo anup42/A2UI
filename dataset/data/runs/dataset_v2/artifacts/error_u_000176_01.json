@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## London to New York Flight Search\n\nPlanning a round-trip from London Heathrow (LHR) to New York JFK (JFK) for two adults, departing on September 15, 2024, and returning on September 22, 2024. The flights are for economy class, with a budget of 800 GBP per person.\n\n## LHR to JFK Economy Flights: Sep 15 - Sep 22\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/airplane.svg\nHere are several direct economy flight options that fit your criteria for your trip to New York.\n\n| Airline | Departure | Arrival | Duration | Stops | Fare |\n\nAsset URL policy for this request:\n- Use only local media paths from the provided Assets mapping.\n- Do not emit remote media URLs for images/icons.\n- Do not invent local placeholder paths not present in the mapping.\n\nAssets (local copies of any URLs in the response; use ONLY these local paths):\n- https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/airplane.svg -> ../assets/r_000176_01_1_airplane.svg",
+  "error": "Remote end closed connection without response",
+  "raw_payload": null,
+  "response_id": "r_000176_01",
+  "query_id": "q_000176",
+  "ui_id": "u_000176_01"
+}
