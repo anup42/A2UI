@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime
@@ -42,7 +43,16 @@ def count_jsonl(path: Path) -> int:
     return sum(1 for _ in iter_jsonl(path))
 
 
-def expected_ui_ids(responses_path: Path) -> set[str]:
+def query_number(query_id: str) -> int:
+    match = re.search(r"(\d+)$", query_id)
+    return int(match.group(1)) if match else 0
+
+
+def is_assigned(query_id: str, worker_index: int, worker_count: int) -> bool:
+    return query_number(query_id) % worker_count == worker_index
+
+
+def expected_ui_ids(responses_path: Path, worker_index: int, worker_count: int) -> set[str]:
     expected: set[str] = set()
     for row in iter_jsonl(responses_path):
         query_id = row.get("query_id")
@@ -50,9 +60,24 @@ def expected_ui_ids(responses_path: Path) -> set[str]:
         response_text = row.get("response_text")
         if not query_id or not response_id or not response_text:
             continue
+        if not is_assigned(str(query_id), worker_index, worker_count):
+            continue
         n_idx = int(row.get("n_idx", 1))
         expected.add(_make_ui_id(str(query_id), n_idx, 1))
     return expected
+
+
+def write_assigned_responses(source_path: Path, target_path: Path, worker_index: int, worker_count: int) -> int:
+    count = 0
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    with target_path.open("w", encoding="utf-8") as handle:
+        for row in iter_jsonl(source_path):
+            query_id = row.get("query_id")
+            if not isinstance(query_id, str) or not is_assigned(query_id, worker_index, worker_count):
+                continue
+            handle.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
+            count += 1
+    return count
 
 
 def existing_ui_ids(genui_path: Path) -> set[str]:
@@ -75,6 +100,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--model", default="azure_gpt54_mini")
     parser.add_argument("--pass_size", type=int, default=8)
+    parser.add_argument("--worker_index", type=int, default=0)
+    parser.add_argument("--worker_count", type=int, default=1)
     parser.add_argument("--poll_seconds", type=float, default=60.0)
     parser.add_argument("--idle_checks", type=int, default=5)
     parser.add_argument("--rate_limit_qps", type=float, default=None)
@@ -109,7 +136,12 @@ def main() -> None:
         ),
     )
     cache = PromptCache(run_paths.run_dir / ".prompt_cache_stage3_watch.jsonl")
+    if args.worker_count > 1:
+        cache = PromptCache(run_paths.run_dir / f".prompt_cache_stage3_worker_{args.worker_index}.jsonl")
     progress_path = run_paths.run_dir / "progress_stage3_watch.json"
+    if args.worker_count > 1:
+        progress_path = run_paths.run_dir / f"progress_stage3_worker_{args.worker_index}.json"
+    shard_responses_path = run_paths.run_dir / f".stage3_worker_{args.worker_index}_responses.jsonl"
 
     schema_path = DATASET_ROOT / run_cfg.get("stage3_schema_file", "schema/genui_flatspec.schema.json")
     if not schema_path.exists():
@@ -119,16 +151,18 @@ def main() -> None:
         prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md"
 
     logger.info(
-        "Stage3 response watcher started run_id=%s target=%s pass_size=%s model=%s",
+        "Stage3 response watcher started run_id=%s target=%s pass_size=%s model=%s worker=%s/%s",
         args.run_id,
         args.target,
         args.pass_size,
         args.model,
+        args.worker_index,
+        args.worker_count,
     )
     idle_count = 0
     last_counts: dict[str, int] | None = None
     while True:
-        expected = expected_ui_ids(run_paths.responses_path)
+        expected = expected_ui_ids(run_paths.responses_path, args.worker_index, args.worker_count)
         existing = existing_ui_ids(run_paths.genui_path)
         missing = expected - existing
         counts = {
@@ -150,9 +184,10 @@ def main() -> None:
         if missing:
             before = len(existing)
             max_total = min(max(1, args.pass_size), len(missing))
+            write_assigned_responses(run_paths.responses_path, shard_responses_path, args.worker_index, args.worker_count)
             run_stage3(
                 queries_path=run_paths.queries_path,
-                responses_path=run_paths.responses_path,
+                responses_path=shard_responses_path,
                 prompt_path=prompt_path,
                 adapter=adapter,
                 genui_path=run_paths.genui_path,
