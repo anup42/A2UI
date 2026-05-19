@@ -17,6 +17,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from llm.factory import build_adapter, load_model_specs  # noqa: E402
+from llm.base import LLMRateLimitError  # noqa: E402
 from pipeline.cache import PromptCache  # noqa: E402
 from pipeline.stage2_responses import run_stage2  # noqa: E402
 from pipeline.storage import get_run_paths, iter_jsonl  # noqa: E402
@@ -78,6 +79,17 @@ def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
 def write_progress(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def rate_limit_sleep_seconds(exc: LLMRateLimitError, worker_index: int, default: float = 90.0) -> float:
+    headers = exc.headers or {}
+    values: list[float] = []
+    for key in ("x-ratelimit-reset-tokens", "x-ratelimit-reset-requests"):
+        try:
+            values.append(float(headers.get(key, 0)))
+        except (TypeError, ValueError):
+            pass
+    return max([default, *values]) + 15.0 + (worker_index * 10.0)
 
 
 def parse_args() -> argparse.Namespace:
@@ -160,26 +172,36 @@ def main() -> None:
         write_jsonl(shard_queries_path, assigned)
         before = count_jsonl(run_paths.responses_path)
         max_total = min(max(1, args.pass_size), args.target - before, len(pending))
-        run_stage2(
-            queries_path=shard_queries_path,
-            prompt_path=DATASET_ROOT / "prompts" / "response_gen.md",
-            batch_prompt_path=DATASET_ROOT / "prompts" / "response_gen_batch.md",
-            adapter=adapter,
-            responses_path=run_paths.responses_path,
-            n_per_query=1,
-            batch_size=int(run_cfg.get("response_batch_size", 1)),
-            query_batch_size=int(run_cfg.get("query_batch_size", 1)),
-            group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
-            batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
-            temperatures=[0.7],
-            max_tokens=int(run_cfg.get("response_max_tokens", 4096)),
-            seed=int(run_cfg.get("seed", 42)) + args.worker_index,
-            rate_limiter=rate_limiter,
-            cache=cache,
-            logger=logger,
-            max_total=max_total,
-            max_attempts=int(run_cfg.get("max_attempts", 6)),
-        )
+        try:
+            run_stage2(
+                queries_path=shard_queries_path,
+                prompt_path=DATASET_ROOT / "prompts" / "response_gen.md",
+                batch_prompt_path=DATASET_ROOT / "prompts" / "response_gen_batch.md",
+                adapter=adapter,
+                responses_path=run_paths.responses_path,
+                n_per_query=1,
+                batch_size=int(run_cfg.get("response_batch_size", 1)),
+                query_batch_size=int(run_cfg.get("query_batch_size", 1)),
+                group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
+                batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
+                temperatures=[0.7],
+                max_tokens=int(run_cfg.get("response_max_tokens", 4096)),
+                seed=int(run_cfg.get("seed", 42)) + args.worker_index,
+                rate_limiter=rate_limiter,
+                cache=cache,
+                logger=logger,
+                max_total=max_total,
+                max_attempts=int(run_cfg.get("max_attempts", 6)),
+            )
+        except LLMRateLimitError as exc:
+            sleep_seconds = rate_limit_sleep_seconds(exc, args.worker_index)
+            logger.warning(
+                "Stage2 worker rate limited; sleeping %.1fs before retry worker=%s",
+                sleep_seconds,
+                args.worker_index,
+            )
+            time.sleep(sleep_seconds)
+            continue
         after = count_jsonl(run_paths.responses_path)
         logger.info("Stage2 worker progress responses=%s/%s created=%s", after, args.target, after - before)
         if after <= before:

@@ -16,6 +16,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from llm.factory import build_adapter, load_model_specs  # noqa: E402
+from llm.base import LLMRateLimitError  # noqa: E402
 from pipeline.cache import PromptCache  # noqa: E402
 from pipeline.stage1_queries import run_stage1  # noqa: E402
 from pipeline.storage import get_run_paths, iter_jsonl  # noqa: E402
@@ -50,6 +51,17 @@ def count_intents(path: Path) -> int:
 def write_progress(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def rate_limit_sleep_seconds(exc: LLMRateLimitError, default: float = 90.0) -> float:
+    headers = exc.headers or {}
+    values: list[float] = []
+    for key in ("x-ratelimit-reset-tokens", "x-ratelimit-reset-requests"):
+        try:
+            values.append(float(headers.get(key, 0)))
+        except (TypeError, ValueError):
+            pass
+    return max([default, *values]) + 15.0
 
 
 def parse_args() -> argparse.Namespace:
@@ -139,26 +151,32 @@ def main() -> None:
                 "updated_at": datetime.utcnow().isoformat() + "Z",
             },
         )
-        run_stage1(
-            intents_file=intents_file,
-            prompt_path=DATASET_ROOT / "prompts" / "query_gen.md",
-            adapter=adapter,
-            run_dir=run_paths.run_dir,
-            queries_path=run_paths.queries_path,
-            k_per_intent=k_per_intent,
-            batch_size=stage1_batch_size,
-            intent_batch_size=stage1_intent_batch_size,
-            seed=int(run_cfg.get("seed", 42)),
-            temperature=0.7,
-            max_tokens=int(run_cfg.get("query_max_tokens", 2048)),
-            rate_limiter=rate_limiter,
-            cache=cache,
-            logger=logger,
-            max_total=source_target - before,
-            max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 50)),
-            fill_missing_with_fallback=False,
-            max_attempts=int(run_cfg.get("max_attempts", 6)),
-        )
+        try:
+            run_stage1(
+                intents_file=intents_file,
+                prompt_path=DATASET_ROOT / "prompts" / "query_gen.md",
+                adapter=adapter,
+                run_dir=run_paths.run_dir,
+                queries_path=run_paths.queries_path,
+                k_per_intent=k_per_intent,
+                batch_size=stage1_batch_size,
+                intent_batch_size=stage1_intent_batch_size,
+                seed=int(run_cfg.get("seed", 42)),
+                temperature=0.7,
+                max_tokens=int(run_cfg.get("query_max_tokens", 2048)),
+                rate_limiter=rate_limiter,
+                cache=cache,
+                logger=logger,
+                max_total=source_target - before,
+                max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 50)),
+                fill_missing_with_fallback=False,
+                max_attempts=int(run_cfg.get("max_attempts", 6)),
+            )
+        except LLMRateLimitError as exc:
+            sleep_seconds = rate_limit_sleep_seconds(exc)
+            logger.warning("Stage1 rate limited; sleeping %.1fs before retry", sleep_seconds)
+            time.sleep(sleep_seconds)
+            continue
         after = count_jsonl(run_paths.queries_path)
         logger.info("Stage1 progress queries=%s/%s created=%s", after, args.target, after - before)
         if after <= before:

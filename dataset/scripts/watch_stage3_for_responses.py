@@ -16,6 +16,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from llm.factory import build_adapter, load_model_specs  # noqa: E402
+from llm.base import LLMRateLimitError  # noqa: E402
 from pipeline.cache import PromptCache  # noqa: E402
 from pipeline.stage3_genui import _make_ui_id, run_stage3  # noqa: E402
 from pipeline.storage import get_run_paths, iter_jsonl  # noqa: E402
@@ -87,6 +88,17 @@ def existing_ui_ids(genui_path: Path) -> set[str]:
 def write_progress(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def rate_limit_sleep_seconds(exc: LLMRateLimitError, worker_index: int, default: float = 90.0) -> float:
+    headers = exc.headers or {}
+    values: list[float] = []
+    for key in ("x-ratelimit-reset-tokens", "x-ratelimit-reset-requests"):
+        try:
+            values.append(float(headers.get(key, 0)))
+        except (TypeError, ValueError):
+            pass
+    return max([default, *values]) + 15.0 + (worker_index * 10.0)
 
 
 def parse_args() -> argparse.Namespace:
@@ -185,28 +197,38 @@ def main() -> None:
             before = len(existing)
             max_total = min(max(1, args.pass_size), len(missing))
             write_assigned_responses(run_paths.responses_path, shard_responses_path, args.worker_index, args.worker_count)
-            run_stage3(
-                queries_path=run_paths.queries_path,
-                responses_path=shard_responses_path,
-                prompt_path=prompt_path,
-                adapter=adapter,
-                genui_path=run_paths.genui_path,
-                schema_path=schema_path,
-                artifacts_dir=run_paths.artifacts_dir,
-                candidates_per_response=1,
-                max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
-                max_tokens=int(run_cfg.get("genui_max_tokens", 8192)),
-                prompt_max_tokens=int(run_cfg.get("genui_prompt_max_tokens", 60000)),
-                batch_size=int(run_cfg.get("genui_batch_size", 1)),
-                seed=int(run_cfg.get("seed", 42)),
-                rate_limiter=rate_limiter,
-                cache=cache,
-                logger=logger,
-                max_total=max_total,
-                max_attempts=int(run_cfg.get("max_attempts", 6)),
-                aggregates_path=run_paths.aggregates_path,
-                aggregate_weights=eval_cfg.get("weights", {}),
-            )
+            try:
+                run_stage3(
+                    queries_path=run_paths.queries_path,
+                    responses_path=shard_responses_path,
+                    prompt_path=prompt_path,
+                    adapter=adapter,
+                    genui_path=run_paths.genui_path,
+                    schema_path=schema_path,
+                    artifacts_dir=run_paths.artifacts_dir,
+                    candidates_per_response=1,
+                    max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
+                    max_tokens=int(run_cfg.get("genui_max_tokens", 8192)),
+                    prompt_max_tokens=int(run_cfg.get("genui_prompt_max_tokens", 60000)),
+                    batch_size=int(run_cfg.get("genui_batch_size", 1)),
+                    seed=int(run_cfg.get("seed", 42)),
+                    rate_limiter=rate_limiter,
+                    cache=cache,
+                    logger=logger,
+                    max_total=max_total,
+                    max_attempts=int(run_cfg.get("max_attempts", 6)),
+                    aggregates_path=run_paths.aggregates_path,
+                    aggregate_weights=eval_cfg.get("weights", {}),
+                )
+            except LLMRateLimitError as exc:
+                sleep_seconds = rate_limit_sleep_seconds(exc, args.worker_index)
+                logger.warning(
+                    "Stage3 watcher rate limited; sleeping %.1fs before retry worker=%s",
+                    sleep_seconds,
+                    args.worker_index,
+                )
+                time.sleep(sleep_seconds)
+                continue
             after = count_jsonl(run_paths.genui_path)
             logger.info(
                 "Stage3 watcher progress genui=%s responses=%s created=%s",
