@@ -17,6 +17,7 @@ from .http_transport import urlopen
 class GeminiAdapter(BaseLLMAdapter):
     _rate_lock = threading.Lock()
     _last_request_at: dict[str, float] = {}
+    _disabled_keys: dict[str, str] = {}
 
     def __init__(self, spec):
         super().__init__(spec)
@@ -34,6 +35,11 @@ class GeminiAdapter(BaseLLMAdapter):
         if raw_value is None:
             return False
         return raw_value.strip().lower() in {"1", "true", "yes", "y", "on"}
+
+    def _key_fingerprint(self, api_key: str) -> str:
+        if len(api_key) <= 10:
+            return api_key
+        return f"{api_key[:6]}...{api_key[-4:]}"
 
     def _load_keys(self) -> list[str]:
         keys: list[str] = []
@@ -57,6 +63,14 @@ class GeminiAdapter(BaseLLMAdapter):
             if key and key not in keys:
                 keys.append(key)
         return keys
+
+    def _available_keys(self, keys: list[str]) -> list[str]:
+        with self._rate_lock:
+            return [key for key in keys if key not in self._disabled_keys]
+
+    def _mark_key_disabled(self, api_key: str, reason: str) -> None:
+        with self._rate_lock:
+            self._disabled_keys[api_key] = reason[:300]
 
     def _normalize_model_name(self, raw_model: str) -> str:
         model = (raw_model or "").strip()
@@ -117,6 +131,17 @@ class GeminiAdapter(BaseLLMAdapter):
     def _single_call_batch_sequential_fallback_enabled(self) -> bool:
         raw = os.getenv("GEMINI_EXPRESS_SINGLE_CALL_BATCH_SEQUENTIAL_FALLBACK", "1")
         return self._is_truthy(raw)
+
+    def _disable_key_on_rate_limit(self) -> bool:
+        raw = os.getenv("GEMINI_DISABLE_KEY_ON_RATE_LIMIT", "0")
+        return self._is_truthy(raw)
+
+    def _rate_limit_disable_after(self) -> int:
+        raw = os.getenv("GEMINI_RATE_LIMIT_DISABLE_AFTER", "3")
+        try:
+            return max(1, int(raw))
+        except Exception:
+            return 3
 
     def _request_timeout(self) -> float:
         raw = os.getenv("GEMINI_TIMEOUT_SECONDS", "180")
@@ -481,7 +506,10 @@ class GeminiAdapter(BaseLLMAdapter):
         attempts = 0
 
         for _ in range(cycles):
-            for api_key in keys:
+            available_keys = self._available_keys(keys)
+            if not available_keys:
+                break
+            for api_key in available_keys:
                 attempts += 1
                 params = urllib.parse.urlencode({"key": api_key})
                 endpoint = self._endpoint_for_key(api_key, model_name)
@@ -523,6 +551,12 @@ class GeminiAdapter(BaseLLMAdapter):
                             retry_after = self._infer_retry_delay_seconds(detail)
                             last_rate_retry_after = retry_after
                             rate_limit_retries += 1
+                            if (
+                                self._disable_key_on_rate_limit()
+                                and rate_limit_retries >= self._rate_limit_disable_after()
+                            ):
+                                self._mark_key_disabled(api_key, detail or f"HTTP {exc.code}")
+                                break
                             if rate_limit_retries > max_rate_limit_retries:
                                 break
                             sleep_seconds = max(

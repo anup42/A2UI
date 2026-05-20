@@ -20,7 +20,7 @@
   response_max_tokens: 4096
   response_batch_size: 1
   query_batch_size: 16
-  genui_batch_size: 1
+  genui_batch_size: 8
   response_group_by_intent: true
   response_batch_fallback_per_query: false
   query_max_tokens: 2048
