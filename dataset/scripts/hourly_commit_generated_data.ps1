@@ -18,17 +18,17 @@ function Write-CommitLog {
 }
 
 function Invoke-Git {
-    param([string[]]$Args)
+    param([string[]]$GitArgs)
     $previousErrorActionPreference = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
     try {
-        $output = & git @Args 2>&1
+        $output = & git @GitArgs 2>&1
         $exit = $LASTEXITCODE
     } finally {
         $ErrorActionPreference = $previousErrorActionPreference
     }
     if ($exit -ne 0) {
-        throw "git $($Args -join ' ') failed ($exit): $($output -join [Environment]::NewLine)"
+        throw "git $($GitArgs -join ' ') failed ($exit): $($output -join [Environment]::NewLine)"
     }
     return $output
 }
@@ -53,7 +53,7 @@ function Add-GeneratedRunFiles {
     $excluded = New-Object System.Collections.Generic.List[string]
 
     for ($attempt = 1; $attempt -le 12; $attempt++) {
-        $args = @(
+        $gitAddArgs = @(
             "add",
             "-A",
             "--",
@@ -61,13 +61,13 @@ function Add-GeneratedRunFiles {
             ":(exclude)dataset/data/runs/*/artifacts/error_*.json"
         )
         foreach ($path in $excluded) {
-            $args += ":(exclude)$path"
+            $gitAddArgs += ":(exclude)$path"
         }
 
         $previousErrorActionPreference = $ErrorActionPreference
         $ErrorActionPreference = "Continue"
         try {
-            $output = & git @args 2>&1
+            $output = & git @gitAddArgs 2>&1
             $exit = $LASTEXITCODE
         } finally {
             $ErrorActionPreference = $previousErrorActionPreference
@@ -188,10 +188,10 @@ function Invoke-GeneratedDataSnapshot {
 
         $message = "Hourly generated dataset snapshot $timestamp"
         $body = ($summaries -join [Environment]::NewLine)
-        Invoke-Git -Args @("commit", "-m", $message, "-m", $body) | Out-Null
+        Invoke-Git -GitArgs @("commit", "-m", $message, "-m", $body) | Out-Null
         Write-CommitLog "committed: $message; $($summaries -join '; ')"
 
-        Invoke-Git -Args @("push", "origin", "HEAD") | Out-Null
+        Invoke-Git -GitArgs @("push", "origin", "HEAD") | Out-Null
         Write-CommitLog "pushed snapshot commit"
     } catch {
         Write-CommitLog "snapshot failed: $($_.Exception.Message)"
