@@ -40,6 +40,8 @@ class GeminiAdapter(BaseLLMAdapter):
         for env_name in (
             "VERTEX_EXPRESS_API_KEYS",
             "GEMINI_VERTEX_EXPRESS_API_KEYS",
+            "GEMINI_API_KEYS",
+            "GOOGLE_AI_API_KEYS",
         ):
             for key in self._split_keys(os.getenv(env_name)):
                 if key not in keys:
@@ -48,6 +50,8 @@ class GeminiAdapter(BaseLLMAdapter):
         for env_name in (
             "VERTEX_EXPRESS_API_KEY",
             "GEMINI_VERTEX_EXPRESS_API_KEY",
+            "GEMINI_API_KEY",
+            "GOOGLE_AI_API_KEY",
         ):
             key = (os.getenv(env_name) or "").strip()
             if key and key not in keys:
@@ -61,6 +65,11 @@ class GeminiAdapter(BaseLLMAdapter):
         if model.startswith("models/"):
             return model[len("models/") :].strip()
         return model
+
+    def _endpoint_for_key(self, api_key: str, model_name: str) -> str:
+        if api_key.strip().startswith("AIza"):
+            return f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+        return f"https://aiplatform.googleapis.com/v1/publishers/google/models/{model_name}:generateContent"
 
     def _single_call_batch_enabled(self) -> bool:
         # Vertex AI Express mode exposes generateContent/streamGenerateContent,
@@ -104,6 +113,10 @@ class GeminiAdapter(BaseLLMAdapter):
         if parsed and parsed > 0:
             value = parsed
         return max(512, value)
+
+    def _single_call_batch_sequential_fallback_enabled(self) -> bool:
+        raw = os.getenv("GEMINI_EXPRESS_SINGLE_CALL_BATCH_SEQUENTIAL_FALLBACK", "1")
+        return self._is_truthy(raw)
 
     def _request_timeout(self) -> float:
         raw = os.getenv("GEMINI_TIMEOUT_SECONDS", "180")
@@ -403,13 +416,11 @@ class GeminiAdapter(BaseLLMAdapter):
                 model=self.spec.model,
                 provider=self.spec.provider,
                 error=(
-                    "VERTEX_EXPRESS_API_KEY/GEMINI_VERTEX_EXPRESS_API_KEY not set. "
-                    "Dataset Gemini calls require Vertex AI Express API keys."
+                    "VERTEX_EXPRESS_API_KEY/GEMINI_VERTEX_EXPRESS_API_KEY/GEMINI_API_KEY not set."
                 ),
             )
 
         model_name = self._normalize_model_name(self.spec.model)
-        endpoint = f"https://aiplatform.googleapis.com/v1/publishers/google/models/{model_name}:generateContent"
 
         limits = self.spec.limits if isinstance(self.spec.limits, dict) else {}
         spec_cap = limits.get("max_output_tokens")
@@ -473,6 +484,7 @@ class GeminiAdapter(BaseLLMAdapter):
             for api_key in keys:
                 attempts += 1
                 params = urllib.parse.urlencode({"key": api_key})
+                endpoint = self._endpoint_for_key(api_key, model_name)
                 url = f"{endpoint}?{params}"
 
                 rate_limit_retries = 0
@@ -650,6 +662,25 @@ class GeminiAdapter(BaseLLMAdapter):
             self.single_call_batch_successes += 1
             return batched
         self.single_call_batch_fallbacks += 1
+        if (
+            self._single_call_batch_enabled()
+            and len(prompts) > 1
+            and not self._single_call_batch_sequential_fallback_enabled()
+        ):
+            return [
+                LLMResult(
+                    text="",
+                    raw=None,
+                    latency_ms=0.0,
+                    input_tokens=0,
+                    output_tokens=0,
+                    cost_usd=None,
+                    model=self.spec.model,
+                    provider=self.spec.provider,
+                    error="single-call batch failed; sequential fallback disabled",
+                )
+                for _ in prompts
+            ]
         return self._generate_batch_sequential(
             prompts=prompts,
             system=system,
