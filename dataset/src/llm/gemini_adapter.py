@@ -432,6 +432,65 @@ class GeminiAdapter(BaseLLMAdapter):
             results.append(result)
         return results
 
+    def _generate_batch_split_fallback(
+        self,
+        prompts: list[str],
+        system: Optional[str],
+        temperature: float,
+        max_tokens: int,
+        seeds: Optional[list[int]],
+        json_mode: bool,
+        batch_name: Optional[str],
+    ) -> Optional[list[LLMResult]]:
+        if len(prompts) <= 1:
+            return None
+        if not self._is_truthy(os.getenv("GEMINI_EXPRESS_SINGLE_CALL_BATCH_SPLIT_FALLBACK", "1")):
+            return None
+        mid = len(prompts) // 2
+        left = self._try_single_call_batch(
+            prompts=prompts[:mid],
+            system=system,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            seeds=seeds[:mid] if seeds else None,
+            json_mode=json_mode,
+            batch_name=f"{batch_name or 'batch'}_split_left",
+        )
+        if left is None:
+            left = self._generate_batch_split_fallback(
+                prompts=prompts[:mid],
+                system=system,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                seeds=seeds[:mid] if seeds else None,
+                json_mode=json_mode,
+                batch_name=f"{batch_name or 'batch'}_split_left",
+            )
+
+        right = self._try_single_call_batch(
+            prompts=prompts[mid:],
+            system=system,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            seeds=seeds[mid:] if seeds else None,
+            json_mode=json_mode,
+            batch_name=f"{batch_name or 'batch'}_split_right",
+        )
+        if right is None:
+            right = self._generate_batch_split_fallback(
+                prompts=prompts[mid:],
+                system=system,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                seeds=seeds[mid:] if seeds else None,
+                json_mode=json_mode,
+                batch_name=f"{batch_name or 'batch'}_split_right",
+            )
+
+        if left is None or right is None:
+            return None
+        return left + right
+
     def generate(
         self,
         prompt: str,
@@ -708,6 +767,17 @@ class GeminiAdapter(BaseLLMAdapter):
             self.single_call_batch_successes += 1
             return batched
         self.single_call_batch_fallbacks += 1
+        split = self._generate_batch_split_fallback(
+            prompts=prompts,
+            system=system,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            seeds=seeds,
+            json_mode=json_mode,
+            batch_name=batch_name,
+        )
+        if split is not None:
+            return split
         if (
             self._single_call_batch_enabled()
             and len(prompts) > 1
