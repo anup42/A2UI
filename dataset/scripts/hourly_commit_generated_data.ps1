@@ -27,6 +27,53 @@ function Invoke-Git {
     return $output
 }
 
+function Get-FailedIndexPath {
+    param([string]$GitOutput)
+
+    $patterns = @(
+        "unable to index file '([^']+)'",
+        "short read while indexing ([^\r\n]+)"
+    )
+    foreach ($pattern in $patterns) {
+        $match = [regex]::Match($GitOutput, $pattern)
+        if ($match.Success) {
+            return $match.Groups[1].Value.Trim()
+        }
+    }
+    return $null
+}
+
+function Add-GeneratedRunFiles {
+    $excluded = New-Object System.Collections.Generic.List[string]
+
+    for ($attempt = 1; $attempt -le 12; $attempt++) {
+        $args = @("add", "-A", "--", "dataset/data/runs")
+        foreach ($path in $excluded) {
+            $args += ":(exclude)$path"
+        }
+
+        $output = & git @args 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            if ($excluded.Count -gt 0) {
+                Write-CommitLog "git add skipped active writer files: $($excluded -join ', ')"
+            }
+            return
+        }
+
+        $joined = $output -join [Environment]::NewLine
+        $badPath = Get-FailedIndexPath $joined
+        if ([string]::IsNullOrWhiteSpace($badPath) -or $excluded.Contains($badPath)) {
+            throw "git add failed: $joined"
+        }
+
+        Write-CommitLog "git add hit active writer file, skipping for this snapshot: $badPath"
+        $excluded.Add($badPath) | Out-Null
+        Start-Sleep -Seconds 2
+    }
+
+    throw "git add failed after excluding active writer files: $($excluded -join ', ')"
+}
+
 function Get-JsonlCount {
     param([string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) {
@@ -100,10 +147,7 @@ function Invoke-GeneratedDataSnapshot {
     try {
         Write-CommitLog "snapshot started"
 
-        & git add -A -- dataset/data/runs | Out-Null
-        if ($LASTEXITCODE -ne 0) {
-            throw "git add failed"
-        }
+        Add-GeneratedRunFiles
 
         Unstage-ForbiddenGeneratedFiles
 
