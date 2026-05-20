@@ -317,7 +317,7 @@ class GeminiAdapter(BaseLLMAdapter):
             temperature=temperature,
             max_tokens=batch_max_tokens,
             seed=base_seed,
-            json_mode=True if json_mode else False,
+            json_mode=True,
         )
         if batch_result.error:
             return None
