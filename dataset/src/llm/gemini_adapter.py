@@ -287,10 +287,19 @@ class GeminiAdapter(BaseLLMAdapter):
         self,
         prompts: list[str],
         seeds: Optional[list[int]],
+        system: Optional[str] = None,
     ) -> str:
         tasks: list[dict[str, Any]] = []
         for idx, prompt in enumerate(prompts):
-            task: dict[str, Any] = {"id": idx, "prompt": prompt}
+            task_prompt = prompt
+            if system:
+                task_prompt = (
+                    "System instructions for this task:\n"
+                    f"{system}\n\n"
+                    "User task prompt:\n"
+                    f"{prompt}"
+                )
+            task: dict[str, Any] = {"id": idx, "prompt": task_prompt}
             if seeds and idx < len(seeds):
                 task["seed"] = seeds[idx]
             tasks.append(task)
@@ -326,11 +335,11 @@ class GeminiAdapter(BaseLLMAdapter):
             return None
         if len(prompts) > self._single_call_batch_max_prompts():
             return None
-        total_chars = sum(len(p or "") for p in prompts)
+        total_chars = sum(len(p or "") for p in prompts) + (len(system or "") * len(prompts))
         if total_chars > self._single_call_batch_max_chars():
             return None
 
-        merged_prompt = self._build_single_call_batch_prompt(prompts, seeds)
+        merged_prompt = self._build_single_call_batch_prompt(prompts, seeds, system=system)
         base_seed = seeds[0] if seeds else None
         requested = max(1, len(prompts)) * max(1, max_tokens)
         batch_cap = self._single_call_batch_max_output_tokens()
@@ -338,7 +347,7 @@ class GeminiAdapter(BaseLLMAdapter):
 
         batch_result = self.generate(
             prompt=merged_prompt,
-            system=system,
+            system=None,
             temperature=temperature,
             max_tokens=batch_max_tokens,
             seed=base_seed,
@@ -347,7 +356,10 @@ class GeminiAdapter(BaseLLMAdapter):
         if batch_result.error:
             return None
 
-        parsed = self._extract_json_blob(batch_result.text)
+        try:
+            parsed = json.loads(batch_result.text)
+        except Exception:
+            parsed = self._extract_json_blob(batch_result.text)
         if not isinstance(parsed, dict):
             return None
         records = parsed.get("results")
