@@ -47,6 +47,9 @@ site/
 dataset/.dataset_auto_commit.log
 dataset/.dataset_worker_watchdog.log
 dataset/.dataset_v0_stage3_vertex_batch_*
+dataset/.hourly_generated_commit.log
+dataset/.hourly_generated_commit.pid
+dataset/.hourly_generated_commit.lock
 
 # Dataset producer scratch files
 dataset/data/runs/*/.prompt_cache_stage1_producer.jsonl
