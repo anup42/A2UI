@@ -74,6 +74,8 @@ def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
 def _asset_ext(url: str, safe_name: str, content_type: str | None) -> str:
     # Prefer the actual response type over sometimes-hallucinated file suffixes.
     ctype = (content_type or "").split(";", 1)[0].strip().lower()
+    if ctype == "image/avif":
+        return ".avif"
     if ctype in _MIME_EXTENSION_MAP:
         return _MIME_EXTENSION_MAP[ctype]
     suffix = Path(safe_name).suffix.lower() or Path(urllib.parse.urlparse(url).path).suffix.lower()
@@ -253,13 +255,25 @@ def _wikimedia_search_url(original_url: str, timeout: int) -> str | None:
 
 
 def _content_valid(url: str, safe_name: str, content_type: str | None, data: bytes) -> tuple[bool, str]:
+    declared = (content_type or "").split(";", 1)[0].strip().lower()
+    if declared in {
+        "application/javascript",
+        "application/x-javascript",
+        "text/javascript",
+        "text/css",
+        "text/plain",
+    }:
+        return False, f"downloaded non-media content ({declared})"
+    prefix = data[:128].lstrip().lower()
+    if prefix.startswith(b"/*!") or prefix.startswith(b"//") or prefix.startswith(b"function "):
+        return False, "downloaded script/text instead of an asset"
+
     valid, reason = _downloaded_asset_content_valid(url, safe_name, content_type, data)
     if valid:
         return True, reason
     # Some CDNs negotiate WebP/AVIF while keeping a .png/.jpg URL. For a local
     # renderer asset, the actual image bytes matter more than the original suffix.
     sniffed = _sniff_asset_mime(data)
-    declared = (content_type or "").split(";", 1)[0].strip().lower()
     if sniffed and sniffed.startswith("image/"):
         return True, "ok"
     if declared in {"image/avif"}:
@@ -358,6 +372,71 @@ def _download_one(
     )
 
 
+def _canonicalize_asset_files(
+    downloaded: dict[str, dict[str, Any]],
+    assets_dir: Path,
+) -> dict[str, int]:
+    """Map duplicate asset bytes to one file and remove unreferenced copies."""
+    by_sha: dict[str, list[Path]] = {}
+    for asset in downloaded.values():
+        rel_path = str(asset.get("path") or "")
+        sha = str(asset.get("sha256") or "")
+        if not rel_path or not sha:
+            continue
+        path = assets_dir.parent / rel_path
+        if path.is_file():
+            by_sha.setdefault(sha, []).append(path)
+
+    canonical_by_sha: dict[str, Path] = {}
+    removed = 0
+    for sha, paths in by_sha.items():
+        unique_paths = sorted({path.resolve() for path in paths}, key=lambda p: (len(p.name), p.name.lower()))
+        if not unique_paths:
+            continue
+        canonical_by_sha[sha] = unique_paths[0]
+        for duplicate in unique_paths[1:]:
+            if duplicate == unique_paths[0]:
+                continue
+            try:
+                duplicate.unlink()
+                removed += 1
+            except FileNotFoundError:
+                pass
+
+    referenced: set[Path] = set()
+    for asset in downloaded.values():
+        sha = str(asset.get("sha256") or "")
+        canonical = canonical_by_sha.get(sha)
+        if not canonical:
+            continue
+        rel = canonical.relative_to(assets_dir.parent)
+        asset["path"] = str(rel)
+        try:
+            asset["bytes"] = canonical.stat().st_size
+        except FileNotFoundError:
+            pass
+        referenced.add(canonical.resolve())
+
+    for path in assets_dir.glob("*"):
+        if not path.is_file():
+            continue
+        resolved = path.resolve()
+        if resolved in referenced:
+            continue
+        try:
+            path.unlink()
+            removed += 1
+        except FileNotFoundError:
+            pass
+
+    physical_files = [path for path in assets_dir.glob("*") if path.is_file()]
+    return {
+        "physical_asset_files": len(physical_files),
+        "physical_asset_bytes": sum(path.stat().st_size for path in physical_files),
+        "deduped_asset_files_removed": removed,
+    }
+
+
 def _selected_response_ids(run_dir: Path, scope: str) -> set[str] | None:
     if scope == "all":
         return None
@@ -432,6 +511,8 @@ def main() -> None:
                     flush=True,
                 )
 
+    asset_file_stats = _canonicalize_asset_files(downloaded, assets_dir)
+
     response_assets_by_id: dict[str, list[dict[str, Any]]] = {}
     updated_responses = 0
     for row in responses:
@@ -465,15 +546,33 @@ def main() -> None:
     updated_genui = 0
     for row in genui_rows:
         response_id = str(row.get("response_id") or "")
+        old_asset_path_by_url: dict[str, str] = {}
+        for old_asset in row.get("assets") or []:
+            if not isinstance(old_asset, dict):
+                continue
+            old_url = str(old_asset.get("url") or "")
+            old_path = str(old_asset.get("path") or "")
+            if old_url and old_path:
+                old_asset_path_by_url[old_url] = _local_asset_ref(old_path)
+
         assets = response_assets_by_id.get(response_id)
         if assets is None:
             continue
         row["assets"] = assets
-        url_to_local = {
-            str(item.get("url") or ""): _local_asset_ref(str(item.get("path") or ""))
-            for item in assets
-            if item.get("url") and item.get("path")
-        }
+        url_to_local: dict[str, str] = {}
+        for item in assets:
+            item_url = str(item.get("url") or "")
+            item_path = str(item.get("path") or "")
+            if not item_url or not item_path:
+                continue
+            local_ref = _local_asset_ref(item_path)
+            url_to_local[item_url] = local_ref
+            source_url = str(item.get("source_url") or "")
+            if source_url:
+                url_to_local[source_url] = local_ref
+            old_ref = old_asset_path_by_url.get(item_url)
+            if old_ref:
+                url_to_local[old_ref] = local_ref
         if url_to_local and isinstance(row.get("genui_json"), dict):
             row["genui_json"] = _rewrite_urls(row["genui_json"], url_to_local)
             toon = encode_toon(row["genui_json"])
@@ -501,6 +600,7 @@ def main() -> None:
         "failed_unique_urls": len(failures),
         "updated_responses": updated_responses,
         "updated_genui_rows": updated_genui,
+        **asset_file_stats,
         "failures_sample": [
             {"url": url, "error": failures[url]}
             for url in sorted(failures)[:50]

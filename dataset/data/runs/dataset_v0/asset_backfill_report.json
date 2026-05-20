@@ -3,10 +3,13 @@
   "scope": "genui",
   "responses_with_asset_entries": 1381,
   "unique_urls": 1114,
-  "downloaded_unique_urls": 401,
-  "failed_unique_urls": 713,
+  "downloaded_unique_urls": 405,
+  "failed_unique_urls": 709,
   "updated_responses": 1381,
   "updated_genui_rows": 1381,
+  "physical_asset_files": 191,
+  "physical_asset_bytes": 201174231,
+  "deduped_asset_files_removed": 214,
   "failures_sample": [
     {
       "url": "https://assets.bose.com/content/dam/QCUL-Headphone-Black-Product-Silo-1.psd",
@@ -31,6 +34,10 @@
     {
       "url": "https://cdn.jsdelivr.net/npm",
       "error": "HTTP Error 400: Bad Request"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap",
+      "error": "downloaded non-media content (application/javascript)"
     },
     {
       "url": "https://cdn.jsdelivr.net/npm/bootstrap-",
@@ -153,24 +160,8 @@
       "error": "HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)"
     },
     {
-      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques.jpg",
-      "error": "HTTP Error 429: Too many requests (f061ab2)"
-    },
-    {
       "url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Binary_code_and_lock_icon.png",
       "error": "HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)"
-    },
-    {
-      "url": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Laura_1944_poster.jpg",
-      "error": "HTTP Error 429: Too many requests (f061ab2)"
-    },
-    {
-      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Office_Chair_on_Wheels.jpg",
-      "error": "HTTP Error 429: Your request does not comply with our robot policy, https://w.wiki/4wJS. Please contact noc@wikimedia.org for further information (0fa5166)"
-    },
-    {
-      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Canon_EOS_R50_01.jpg",
-      "error": "HTTP Error 429: Your request does not comply with our robot policy, https://w.wiki/4wJS. Please contact noc@wikimedia.org for further information (0fa5166)"
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/2020_Kia_Telluride_SX_AWD_front_6.23.19.jpg/1200px-2020_Kia_Telluride_SX_AWD_front_6.23.19.jpg",
@@ -182,11 +173,11 @@
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Grindelwald_and_the_Wetterhorn.jpg/1200px-Grindelwald_and_the_Wetterhorn.jpg",
-      "error": "HTTP Error 429: Your request does not comply with our robot policy, https://w.wiki/4wJS. Please contact noc@wikimedia.org for further information (0fa5166)"
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Warner_Bros._Studio_Tour_London_-_The_Great_Hall.jpg/1200px-Warner_Bros._Studio_Tour_London_-_The_Great_Hall.jpg",
-      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/2019_Toyota_Prius_LE_AWD-e_front_3.30.19.jpg/1200px-2019_Toyota_Prius_LE_AWD-e_front_3.30.19.jpg",
@@ -194,18 +185,30 @@
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Canon_EOS_R5_body.jpg/1200px-Canon_EOS_R5_body.jpg",
-      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
-    },
-    {
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Kanban_Board_Example.jpg/1200px-Kanban_Board_Example.jpg",
-      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Kinkaku-ji_2011.jpg/1200px-Kinkaku-ji_2011.jpg",
-      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
     },
     {
       "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/San_Francisco_from_Twin_Peaks_at_night.jpg/1200px-San_Francisco_from_Twin_Peaks_at_night.jpg",
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Software_code_on_screen.jpg/1200px-Software_code_on_screen.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Portland_and_Mt._Hood_from_Pittock_Mansion.jpg/1200px-Portland_and_Mt._Hood_from_Pittock_Mansion.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Air_fryer_chicken_breast.jpg/1200px-Air_fryer_chicken_breast.jpg",
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Healthy_Eating_Plate.jpg/1200px-Healthy_Eating_Plate.jpg",
       "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
     }
   ]
