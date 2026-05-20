@@ -283,6 +283,82 @@ class GeminiAdapter(BaseLLMAdapter):
             start = raw.find("{", start + 1)
         return None
 
+    def _parse_json_object_at(self, raw: str, start: int) -> Optional[Any]:
+        if start < 0 or start >= len(raw) or raw[start] != "{":
+            return None
+        depth = 0
+        in_string = False
+        escape = False
+        for idx in range(start, len(raw)):
+            ch = raw[idx]
+            if in_string:
+                if escape:
+                    escape = False
+                    continue
+                if ch == "\\":
+                    escape = True
+                    continue
+                if ch == '"':
+                    in_string = False
+                continue
+            if ch == '"':
+                in_string = True
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(raw[start : idx + 1])
+                    except Exception:
+                        return None
+        return None
+
+    def _extract_batch_records(self, text: str) -> list[dict[str, Any]]:
+        """Recover batch result items even if Gemini appends malformed tail JSON."""
+        raw = (text or "").strip()
+        if not raw:
+            return []
+
+        records: list[dict[str, Any]] = []
+        seen: set[int] = set()
+
+        def _add_record(value: Any) -> None:
+            if not isinstance(value, dict):
+                return
+            idx = value.get("id")
+            if not isinstance(idx, int) or idx in seen or "output" not in value:
+                return
+            seen.add(idx)
+            records.append(value)
+
+        try:
+            parsed = json.loads(raw)
+        except Exception:
+            parsed = None
+        if isinstance(parsed, dict) and isinstance(parsed.get("results"), list):
+            for item in parsed["results"]:
+                _add_record(item)
+            if records:
+                return records
+
+        extracted = self._extract_json_blob(raw)
+        if isinstance(extracted, dict):
+            if isinstance(extracted.get("results"), list):
+                for item in extracted["results"]:
+                    _add_record(item)
+                if records:
+                    return records
+            else:
+                _add_record(extracted)
+
+        # If the outer {"results":[...]} wrapper is malformed near the end,
+        # individual {"id":N,"output":...} result objects are often balanced.
+        for match in re.finditer(r'\{\s*"id"\s*:\s*\d+\s*,\s*"output"\s*:', raw):
+            _add_record(self._parse_json_object_at(raw, match.start()))
+        return records
+
     def _build_single_call_batch_prompt(
         self,
         prompts: list[str],
@@ -356,14 +432,8 @@ class GeminiAdapter(BaseLLMAdapter):
         if batch_result.error:
             return None
 
-        try:
-            parsed = json.loads(batch_result.text)
-        except Exception:
-            parsed = self._extract_json_blob(batch_result.text)
-        if not isinstance(parsed, dict):
-            return None
-        records = parsed.get("results")
-        if not isinstance(records, list):
+        records = self._extract_batch_records(batch_result.text)
+        if not records:
             return None
 
         by_id: dict[int, Any] = {}
