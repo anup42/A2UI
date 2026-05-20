@@ -29,6 +29,8 @@ dataset/data/runs/*/progress_stage1_watch.json
 dataset/data/runs/*/progress_stage2_worker_*.json
 dataset/data/runs/*/progress_stage3_worker_*.json
 dataset/data/runs/*/stage*_worker*.log
+dataset/data/runs/*/*worker*.log
+dataset/data/runs/*/gemini_worker_manager*.log
 dataset/data/runs/*/.stage2_worker_*_queries.jsonl
 dataset/data/runs/*/.stage3_worker_*_responses.jsonl
 dataset/data/runs/*/.prompt_cache_stage3_watch.jsonl
