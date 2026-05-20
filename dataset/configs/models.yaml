@@ -144,6 +144,19 @@
       checked_at: "2026-04-18"
       source: "vertex_generatecontent_range_probe"
       note: "rate limits remain project-tier specific"
+  - name: gemini_3_1_flash_lite
+    provider: gemini
+    model: gemini-3.1-flash-lite
+    supports_json_mode: true
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      max_output_tokens: 65536
+      availability: requested
+      checked_at: "2026-05-20"
+      source: "user_requested_restart_model"
+      note: "rate limits remain project-tier specific"
   - name: gauss_default
     provider: gauss
     model: GAUSS_MODEL_ID
