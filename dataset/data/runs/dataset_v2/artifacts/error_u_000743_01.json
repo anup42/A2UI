@@ -1,0 +1,8 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Small Business Loan Landscape: California vs. Texas\n\nObtaining a small business loan in both California and Texas involves a similar core process, primarily driven by lender requirements and federal regulations. However, state-specific financial regulations and business environments can introduce subtle differences in documentation emphasis and average processing times. As of 2023, both states offer a robust lending market, from traditional banks to online lenders, each with varying speed and documentation needs.\n\n## Key Requirements & Timelines (2023)\n\nThe typical documentation required by lenders remains largely consistent across both California and Texas, focusing on assessing the business's financial health and the applicant's creditworthiness. Processing times can vary significantly based on the lender type (e.g., traditional bank vs. online lender) and the complexity of the application.\n\n| Category                      | California\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "Remote end closed connection without response",
+  "raw_payload": null,
+  "response_id": "r_000743_01",
+  "query_id": "q_000743",
+  "ui_id": "u_000743_01"
+}
