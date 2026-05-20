@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## 2,000 EUR Conversion Snapshot\n\nUsing the rates provided, **2,000 EUR** converts to:\n- **USD:** 2,160.00\n- **JPY:** 326,800.00\n- **GBP:** 1,720.00\n\n## Currency-by-Currency Comparison\n\n| Currency | Rate Used | Converted Amount |\n|---|---:|---:|\n| USD | 1 EUR = 1.08 USD | 2,160.00 USD |\n| JPY | 1 EUR = 163.4 JPY | 326,800.00 JPY |\n| GBP | 1 EUR = 0.86 GBP | 1,720.00 GBP |\n\n**Highest nominal amount:** **JPY**\nThat is expected because yen uses a much smaller unit value, so the number looks much larger even though the real purchasing power may not be higher.\n\n## Travel Rate Sanity Check\n\nA simple rule:\n- **Multiply** when converting from the base currency to the quoted currency.\n- **Divide** when converting back.\n- Do a quick reality check: if the result looks wildly too high or too low, re-check whether the rate is quoted as:\n  - **1 EUR = X USD**, or\n  - **1 USD = X EUR**\n\nQuick mental check for your example:\n- 2,000 EUR × 1.08 ≈ 2,160 USD\n- 2,000 EUR × 163.4 ≈ 326,800 JPY\n- 2,000 EUR × 0.86 ≈ 1,720 GBP\n\n## Quick Actions\n\nAction: [Button: Convert another amount] https://www.xe.com/currencyconverter/\nAction: [Button: Check live rates] https://www.oanda.com/currency-converter/\n\n## Sources\n\n- XE Currency Converter: https://www.xe.com/currencyconverter/\n- OANDA Currency Converter: https://www.oanda.com/currency-converter/\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_003764_01",
+  "query_id": "q_003764",
+  "ui_id": "u_003764_01"
+}

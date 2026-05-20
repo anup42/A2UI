@@ -1,0 +1,49 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# Brunch Menu for 6 on a $60 Budget\n\nA special-feeling, low-stress brunch is easiest with one make-ahead savory, one stovetop savory, one baked sweet, and two batch drinks. This plan keeps the vegetarian and lactose-free needs covered without making separate meals.\n\n## Menu Plan and Cost Breakdown\n\n| Item | What it is | Est. cost |\n|---|---|---:|\n| Savory 1 | Veggie frittata with spinach, peppers, onion, and potatoes | $14 |\n| Savory 2 | Savory breakfast toasts with smashed avocado, tomato, and everything seasoning | $12 |\n| Sweet | Cinnamon-baked French toast casserole with berries | $15 |\n| Drink 1 | Citrus-mint iced tea | $5 |\n| Drink 2 | Orange-ginger sparkling cooler | $8 |\n| Pantry / garnish buffer | Eggs, bread, butter/oil, seasoning, herbs, ice, extras | $6 |\n| Total |  | **$60** |\n\n## Brunch Game Plan for 6\n\n### 1) Veggie Frittata\n- Fits the vegetarian guest.\n- Naturally lactose-free if you skip cheese or use a small dairy-free topping.\n- Uses the stovetop first, then finishes in the oven.\n\n### 2) Avocado Tomato Toasts\n- Quick, fresh, and feels brunchy.\n- Easy to keep dairy-free.\n- Best assembled right before serving so the bread stays crisp.\n\n### 3) Cinnamon-Baked French Toast Casserole\n- Make-ahead sweet dish that serves a crowd.\n- Can be baked while you prep the savory items.\n- Use plant milk or regular milk depending on what you have; plant milk keeps it safe for the lactose-intolerant guest.\n\n### 4) Citrus-Mint Iced Tea\n- Light and refreshing.\n- Brew early and chill.\n\n### 5) Orange-Ginger Sparkling Cooler\n- Festive, non-alcoholic, and easy to batch.\n- Add sparkling water at the end so it stays fizzy.\n\n## Prep Timeline and Serving Order\n\n### 2 to 3 Hours Before Guests Arrive\n- Start the iced tea first so it can cool.\n- Prep the French toast casserole and let it soak.\n- Chop vegetables for the frittata.\n- Mix the orange-ginger cooler base and chill it.\n\n### 90 Minutes Before\n- Bake the French toast casserole.\n- While it bakes, cook the frittata filling on the stovetop.\n- Whisk eggs and pour the frittata mixture into the pan.\n\n### 45 Minutes Before\n- Move the frittata to the oven to finish.\n- Slice bread for toast.\n- Mash avocado and prep tomato topping.\n- Set the table and drinks.\n\n### 20 Minutes Before\n- Remove French toast casserole and cover loosely.\n- Pull the frittata and let it rest 5 to 10 minutes.\n- Toast bread right before serving.\n- Add sparkling water to the cooler.\n\n### Serving Order\n1. Put out drinks first so guests have something right away.\n2. Serve fruit or a small bread basket if you have it.\n3. Bring out the frittata and avocado toasts together.\n4. Serve the French toast casserole last as the sweet finish.\n\n## Shopping List\n\n### Produce\n- 1 bag spinach\n- 2 bell peppers\n- 1 onion\n- 3–4 potatoes\n- 3 avocados\n- 4–5 tomatoes\n- 1 lemon\n- 2 oranges\n- 1 piece fresh ginger\n- 1 bunch mint\n- 1 pint berries\n\n### Dairy / Eggs\n- 12 eggs\n- Milk or oat milk\n- Butter or plant-based spread\n\n### Bread / Dry Goods\n- 1 loaf sturdy bread or sourdough\n- Sandwich bread or brioche for French toast\n- Oats or sugar if you want to sweeten the drinks lightly\n- Cinnamon\n- Everything seasoning or salt and pepper\n\n### Drinks / Pantry\n- Black tea bags\n- Sparkling water\n- Honey or sugar\n- Ice\n\n### Optional Extras\n- Fresh herbs\n- Powdered sugar for the French toast\n- Yogurt or dairy-free yogurt if you want a side topping\n\n## Quick Hosting Notes\n\n- Keep the frittata and French toast warm in a low oven if needed.\n- Make the avocado toast last so it doesn’t brown.\n- If you want the menu to feel more elevated, use one garnish on each dish: herbs on the frittata, sliced tomatoes on toast, and powdered sugar or berries on the French toast.\n\n## Sources\n\n- USDA Food Plans for budget guidance: https://www.fns.usda.gov/cnpp/usda-food-plans-cost-food-monthly-reports\n- Food safety and holding temperatures: https://www.foodsafety.gov/keep-food-safe/foodkeeper-app\n- Brunch planning basics: https://www.allrecipes.com/article/brunch-menu-ideas/\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 400: The response was filtered due to the prompt triggering Azure OpenAI’s content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766",
+  "raw_payload": {
+    "error": {
+      "message": "The response was filtered due to the prompt triggering Azure OpenAI’s content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766",
+      "type": "invalid_request_error",
+      "param": "prompt",
+      "code": "content_filter",
+      "content_filters": [
+        {
+          "blocked": true,
+          "source_type": "prompt",
+          "content_filter_raw": [],
+          "content_filter_results": {
+            "jailbreak": {
+              "detected": false,
+              "filtered": false
+            },
+            "hate": {
+              "filtered": true,
+              "severity": "medium"
+            },
+            "sexual": {
+              "filtered": false,
+              "severity": "safe"
+            },
+            "violence": {
+              "filtered": false,
+              "severity": "safe"
+            },
+            "self_harm": {
+              "filtered": false,
+              "severity": "safe"
+            }
+          },
+          "content_filter_offsets": {
+            "start_offset": 0,
+            "end_offset": 5254,
+            "check_offset": 0
+          }
+        }
+      ]
+    }
+  },
+  "response_id": "r_003210_01",
+  "query_id": "q_003210",
+  "ui_id": "u_003210_01"
+}

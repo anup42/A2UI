@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Melbourne Remote Work Café Shortlist\n\nFor a 4-person laptop session from **09:00 to 13:00 on 2026-03-18**, **Café A** is the best overall balance of connectivity, comfort, quiet, and cost. **Café C** is the strongest for power and Wi‑Fi, while **Café B** is the most comfortable but also the noisiest and most expensive.\n\n## Ranked Café Comparison\n\n| Rank | Café | Wi‑Fi | Seating | Noise | Outlets | Total Cost | Work-Fit Take |\n|---|---|---:|---:|---:|---:|---:|---|\n| 1 | Café A | 4.7 | 4.0 | 3.0 | 8 | AUD 52 | Best all-rounder: strong Wi‑Fi, decent comfort, quieter, lowest cost |\n| 2 | Café C | 4.9 | 3.5 | 2.8 | 10 | AUD 60 | Best for power + internet; slightly weaker seating comfort |\n| 3 | Café B | 4.2 | 4.8 | 4.1 | 4 | AUD 68 | Most comfortable seating, but weaker for focus work and costlier |\n\n### Why the ranking lands this way\n- **Café A** wins on the best mix of practical remote-work factors: good Wi‑Fi, enough outlets, quieter environment, and the lowest spend.\n- **Café C** is ideal if your team needs the most reliable connection and plenty of charging, but the seating is less comfortable for a 4-hour block.\n- **Café B** is only the best choice if seating comfort is the top priority and noise is less important.\n\n### Best pick by priority\n- **Best overall:** Café A\n- **Best for connectivity:** Café C\n- **Best for comfort:** Café B\n- **Best value:** Café A\n\n## Quick Actions\nAction: [Button: Compare weights] https://www.calculator.net/weighted-average-calculator.html\nAction: [Button: Melbourne time check] https://www.timeanddate.com/worldclock/australia/melbourne\n\n## Sources\n- Weighted decision support: https://www.calculator.net/weighted-average-calculator.html\n- Melbourne local time reference: https://www.timeanddate.com/worldclock/australia/melbourne\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_003724_01",
+  "query_id": "q_003724",
+  "ui_id": "u_003724_01"
+}
