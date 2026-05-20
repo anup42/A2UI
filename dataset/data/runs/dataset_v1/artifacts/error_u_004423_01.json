@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Graduate Laptop Fit for Berlin\n\nFor coding, writing, and light photo editing, the best balance is **Option B**: it stays within budget, matches the preferred 14-inch size, and gives the most storage without pushing price too high. Option A is the lightest and cheapest, while Option C has the strongest memory but misses the budget ceiling.\n\n## Laptop Comparison for Study, Coding, and Editing\n\n| Option | Screen | RAM | Storage | Price | Weight | Best For |\n|---|---:|---:|---:|---:|---:|---|\n| A | 13.6-inch | 16 GB | 512 GB | €1,050 | 1.2 kg | Maximum portability |\n| B | 14-inch | 16 GB | 1 TB | €1,180 | 1.5 kg | Best overall balance |\n| C | 14-inch | 32 GB | 512 GB | €1,240 | 1.6 kg | Heavier multitasking, but over budget |\n\n### Why Option B is the best pick\n- **Fits the budget** with room to spare compared with C.\n- **14-inch display** is the sweet spot for productivity and photo work.\n- **1 TB SSD** is the most practical for code projects, files, and photo libraries.\n- **16 GB RAM** is enough for graduate-level coding, office work, and light editing.\n- The **1.5 kg weight** is still reasonable for carrying around Berlin campus life.\n\n### Trade-offs by option\n- **A**: Best if you prioritize portability and lower cost over storage.\n- **B**: Best all-rounder for your stated needs.\n- **C**: Best raw memory, but it exceeds your budget and adds weight without a clear benefit for light photo editing.\n\n## Quick Actions\n- Action: [Button: Compare by priority](https://www.notebookcheck.net/)\n- Action: [Button: Check Berlin prices](https://www.idealo.de/)\n\n## Sources\n- Notebookcheck laptop reviews and testing: https://www.notebookcheck.net/\n- Idealo Germany price comparison: https://www.idealo.de/\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004423_01",
+  "query_id": "q_004423",
+  "ui_id": "u_004423_01"
+}

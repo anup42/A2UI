@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# Melbourne Coffee Shop Sales Snapshot\n\nA 5-day view shows steady growth in orders and revenue, with ad spend scaling alongside performance. I used **revenue per order** and **return on ad spend (ROAS)** to compare each day.\n\n# Daily Performance and Best Day\n\n| Date | Orders | Revenue (AUD) | Ad Spend (AUD) | Revenue / Order (AUD) | ROAS |\n|---|---:|---:|---:|---:|---:|\n| 2025-03-01 | 120 | 840 | 60 | 7.00 | 14.00 |\n| 2025-03-02 | 135 | 945 | 75 | 7.00 | 12.60 |\n| 2025-03-03 | 128 | 896 | 70 | 7.00 | 12.80 |\n| 2025-03-04 | 150 | 1080 | 90 | 7.20 | 12.00 |\n| 2025-03-05 | 142 | 994 | 80 | 7.00 | 12.43 |\n\n**Best-performing day: 2025-03-01**\n- Highest **ROAS: 14.00**\n- Strong revenue efficiency at **AUD 7.00 per order**\n- Lowest ad spend in the set, which boosted efficiency\n\n# Key Takeaways and Chart Recommendations\n\n- **Revenue per order** is very stable at about **AUD 7.00**, with a small lift on **2025-03-04** to **AUD 7.20**.\n- **ROAS declines** as ad spend rises across the week, suggesting diminishing efficiency on higher-spend days.\n- **2025-03-04** had the highest revenue and order volume, but not the best efficiency.\n\nRecommended charts:\n- **Line chart:** Date on the x-axis, with lines for **Revenue**, **Orders**, and **Ad Spend** to show trend movement over time.\n- **Combo chart:** Bars for **Revenue** and **Ad Spend**, plus a line for **ROAS** to make efficiency changes easy to spot.\n\n# Quick Actions\n\n- Action: [Button: View formulas] https://www.investopedia.com/terms/r/returnonadspend.asp\n- Action: [Button: Build chart] https://www.google.com/sheets/about/\n\n# Sources\n\n- ROAS definition: https://www.investopedia.com/terms/r/returnonadspend.asp\n- Charting in spreadsheets: https://www.google.com/sheets/about/\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004445_01",
+  "query_id": "q_004445",
+  "ui_id": "u_004445_01"
+}

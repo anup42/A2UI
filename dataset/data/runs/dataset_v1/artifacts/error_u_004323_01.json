@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Student Phone Snapshot\n\nA quick ranking for a **$450 budget** with priorities of **battery life, camera quality, and software support**.\nAll three are close on camera, so battery and update policy are the main separators.\n\n## Ranked Comparison\n\n| Phone | Battery | Camera | Software Support | Best Fit |\n|---|---:|---:|---:|---|\n| Phone A | 5000 mAh | 48 MP | 3 years | Lowest-cost balanced pick |\n| Phone B | 4300 mAh | 64 MP | 5 years | Best camera + longest support |\n| Phone C | 5200 mAh | 50 MP | 4 years | Best battery + strong all-around value |\n\n## Best Overall Choice\n\n**Phone C** is the best overall choice for this student.\n\n- **Battery:** strongest at **5200 mAh**, which is ideal for long school days\n- **Camera:** **50 MP** is solid and close to the others in practical use\n- **Support:** **4 years of updates** is a good middle ground, better than Phone A and only one year behind Phone B\n- **Value:** it gives the best balance of the three priorities without sacrificing too much in camera or longevity\n\n## If Battery Matters Most\n\n**Phone C** is the clear winner if battery life is the top priority.\n\n- It has the **largest battery**\n- It should offer the **best endurance**\n- Phone A is next, but still behind C\n- Phone B is the weakest for battery despite its stronger camera and support\n\n## Quick Actions\n\nAction: [Button: Compare Again](https://www.gsmarena.com/)\nAction: [Button: Check Prices](https://www.bestbuy.com/)\n\n## Sources\n\n- GSMArena phone specs database: https://www.gsmarena.com/\n- Best Buy price lookup: https://www.bestbuy.com/\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004323_01",
+  "query_id": "q_004323",
+  "ui_id": "u_004323_01"
+}

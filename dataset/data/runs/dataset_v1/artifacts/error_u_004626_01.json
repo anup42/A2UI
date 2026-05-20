@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# New York to Madrid Flight Value Comparison\n\nYour budget cap is **$900 round trip**, and you want a balance of comfort and value for **1 adult, economy, 1 carry-on**. Based on price, nonstop convenience, and total trip efficiency, **Option A** is the best fit.\n\n## Ranked Flight Options\n\n| Option | Route Type | Each Way | Round Trip Fare | Carry-on | Overall Value |\n|---|---|---:|---:|---|---|\n| A | Nonstop | 7h 10m | **$880** | Included | **Best overall** |\n| B | 1 stop | 10h 40m | **$720** | Included | Best budget pick |\n| C | Nonstop | 7h 25m | **$960** | Included | Best comfort, over budget |\n\n### Best fit by value\n- **Option A**: Strongest balance of price and comfort. It stays **within budget**, is **nonstop**, and is only slightly more expensive than the cheapest choice.\n- **Option B**: Lowest fare, but the **extra 3h 30m each way** makes it the least comfortable of the three.\n- **Option C**: Also nonstop and slightly longer than A, but it **exceeds your $900 limit**, so it is not the best match unless you can stretch the budget.\n\n### Recommendation\n- Choose **A** if you want the best overall trip experience while staying under budget.\n- Choose **B** only if saving **$160** matters more than travel time.\n- Choose **C** only if you are willing to go **$60 over budget** for a slightly different nonstop option.\n\n## Quick Actions\nAction: [Button: Compare fares] https://www.google.com/travel/flights\nAction: [Button: Check date flexibility] https://www.kayak.com/flights\n\n## Sources\n- Google Flights: https://www.google.com/travel/flights\n- KAYAK Flights: https://www.kayak.com/flights\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004626_01",
+  "query_id": "q_004626",
+  "ui_id": "u_004626_01"
+}

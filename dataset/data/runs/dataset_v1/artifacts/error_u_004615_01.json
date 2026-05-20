@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## 5-Year Investment Growth Snapshot\n\nA $12,000 lump sum grows differently depending on return and risk. With annual compounding and no extra contributions, the higher-return option also carries the most volatility.\n\n## Estimated Ending Values by Investment Choice\n\n| Option | Annual Return | Risk Level | Ending Value | Total Gain |\n|---|---:|---|---:|---:|\n| High-yield savings account | 4.2% APY | Low | $14,676.36 | $2,676.36 |\n| Bond fund | 5.1% avg. annually | Moderate | $15,358.47 | $3,358.47 |\n| Broad stock index fund | 8.0% avg. annually | High | $17,626.10 | $5,626.10 |\n\n### Risk Comparison\n- **High-yield savings account:** Lowest risk; principal is typically stable, but returns are modest and may change with interest rates.\n- **Bond fund:** Moderate risk; can fluctuate with interest rates and credit conditions, but usually less volatile than stocks.\n- **Broad stock index fund:** Highest risk; values can swing significantly year to year, but it offers the best long-term growth potential of the three.\n\n## Quick Actions\n- Action: [Button: Recalculate] https://www.calculator.net/interest-calculator.html\n- Action: [Button: Compare Funds] https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-etfs\n\n## Sources\n- Compound interest formula reference: https://www.investor.gov/introduction-investing/getting-started/what-is-investing\n- Savings and investment basics: https://www.finra.org/investors/insights/saving-and-investing\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004615_01",
+  "query_id": "q_004615",
+  "ui_id": "u_004615_01"
+}

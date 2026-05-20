@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Chicago Apartment Drain Service Snapshot\n\nFor a 3-bedroom apartment with a clogged kitchen sink and a slow bathroom drain, **Service B** is the stronger overall choice if the tenant values **urgency and warranty coverage** most.\nIf minimizing upfront spend is the top priority, **Service A** is cheaper.\n\n## Service A vs Service B: Best Fit Comparison\n\n| Service | Flat Rate | Parts | Arrival | Warranty | Best For |\n|---|---:|---|---|---|---|\n| Service A | **$95** | Extra | **2 days** | **30 days** | Lowest upfront cost |\n| Service B | **$140** | Included | **Same day** | **90 days** | Fastest response, strongest coverage |\n\n**Decision:** Choose **Service B**.\n\nWhy:\n- **Urgency:** Same-day arrival is much better for active drain problems in a multi-sink apartment.\n- **Warranty:** 90 days gives 3× the coverage of Service A.\n- **Total value:** The extra **$45** buys faster service, parts included, and longer protection.\n\n## Cost and Value Tradeoff\n\n- **Service A total:** $95 plus parts, with a longer wait and shorter warranty.\n- **Service B total:** $140 all-in, with immediate help and better post-repair protection.\n- For a clogged kitchen sink plus a slow bathroom sink, the risk of the issue worsening makes **speed and warranty** more valuable than the lower base price.\n\n## Quick Actions\n\nAction: [Button: Compare repair quotes](https://www.angi.com/)\nAction: [Button: Find same-day plumbers](https://www.thumbtack.com/)\nAction: [Button: Review Chicago tenant plumbing rights](https://www.illinoislegalaid.org/)\n\n## Sources\n\n- Consumer repair and service comparison guidance: https://www.consumer.ftc.gov/\n- Illinois tenant resources: https://www.illinoislegalaid.org/\n- Local service marketplace reference: https://www.thumbtack.com/\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004574_01",
+  "query_id": "q_004574",
+  "ui_id": "u_004574_01"
+}
