@@ -123,10 +123,10 @@ function Invoke-GeneratedDataSnapshot {
 
         $message = "Hourly generated dataset snapshot $timestamp"
         $body = ($summaries -join [Environment]::NewLine)
-        Invoke-Git @("commit", "-m", $message, "-m", $body) | Out-Null
+        Invoke-Git -Args @("commit", "-m", $message, "-m", $body) | Out-Null
         Write-CommitLog "committed: $message; $($summaries -join '; ')"
 
-        Invoke-Git @("push", "origin", "HEAD") | Out-Null
+        Invoke-Git -Args @("push", "origin", "HEAD") | Out-Null
         Write-CommitLog "pushed snapshot commit"
     } catch {
         Write-CommitLog "snapshot failed: $($_.Exception.Message)"
