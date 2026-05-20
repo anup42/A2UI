@@ -53,7 +53,13 @@ function Add-GeneratedRunFiles {
     $excluded = New-Object System.Collections.Generic.List[string]
 
     for ($attempt = 1; $attempt -le 12; $attempt++) {
-        $args = @("add", "-A", "--", "dataset/data/runs")
+        $args = @(
+            "add",
+            "-A",
+            "--",
+            "dataset/data/runs",
+            ":(exclude)dataset/data/runs/*/artifacts/error_*.json"
+        )
         foreach ($path in $excluded) {
             $args += ":(exclude)$path"
         }
@@ -128,6 +134,7 @@ function Unstage-ForbiddenGeneratedFiles {
         "/progress_stage[123]",
         "/\.stage[123]_worker",
         "/vertex_batch_stage3/",
+        "/artifacts/error_.*\.json$",
         "^dataset/\.dataset_",
         "^dataset/\.hourly_generated_commit"
     )

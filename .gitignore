@@ -34,6 +34,7 @@ dataset/data/runs/*/.prompt_cache_stage3_watch.jsonl
 dataset/data/runs/*/.prompt_cache_stage3_vertex_batch.jsonl
 dataset/data/runs/*/.prompt_cache_stage*_worker*.jsonl
 dataset/data/runs/*/vertex_batch_stage3/
+dataset/data/runs/*/artifacts/error_*.json
 training/outputs/
 training/runs/
 training/checkpoints/
