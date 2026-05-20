@@ -1,0 +1,212 @@
+{
+  "run_id": "dataset_v0",
+  "scope": "genui",
+  "responses_with_asset_entries": 1381,
+  "unique_urls": 1114,
+  "downloaded_unique_urls": 401,
+  "failed_unique_urls": 713,
+  "updated_responses": 1381,
+  "updated_genui_rows": 1381,
+  "failures_sample": [
+    {
+      "url": "https://assets.bose.com/content/dam/QCUL-Headphone-Black-Product-Silo-1.psd",
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "url": "https://assets2.razerzone.com/images/pn-90000001/razer-blade-14-2023-500x500.png",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "url": "https://cdn",
+      "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+    },
+    {
+      "url": "https://cdn.jsdelivr",
+      "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net",
+      "error": "downloaded HTML instead of an asset"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm",
+      "error": "HTTP Error 400: Bad Request"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/",
+      "error": "downloaded HTML instead of an asset"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/",
+      "error": "downloaded HTML instead of an asset"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/mountain.svg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/ship.svg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/signpost",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://chicago-summit.com/itinerary.pdf",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://dlcdnwebimgs.asus.com/gain/3D5B5B5B-5B5B-5B5B-5B5B-5B5B5B5B5B5B/w1200",
+      "error": "downloaded HTML instead of an asset"
+    },
+    {
+      "url": "https://dlcdnwebmenu.asus.com/dms/global/products/rog-zephyrus-g16-2023-series/product.png",
+      "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+    },
+    {
+      "url": "https://en.akkogear.com/wp-content/uploads/2021/11/3068B-Plus-1.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://en.akkogear.com/wp-content/uploads/2022/03/3068B-Plus-BlackGold-1.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://hifiman.com/cdn-cgi/image/width=1200,quality=85/storage/app/media/Sundara/Sundara-1.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://images.app.com/jdoe.png",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "url": "https://images.thdstatic.com/productImages/3e91500d-304d-4e94-9878-10f745778a63/svn/brushed-stainless-steel-breville-espresso-machines-bes500bss1bus1-64_1000.jpg",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/71vS-o-tG9L._AC_SL1500_.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/81R98D7661L._AC_SL1500_.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://nebula-x.com/support/2023-B-manual.pdf",
+      "error": "<urlopen error [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)>"
+    },
+    {
+      "url": "https://nuphy.com/cdn/shop/files/Air75V2_1.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://nuphy.com/cdn/shop/products/Halo75_1_1200x.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://static.tp-link.com/Archer-A7_1531201509351g.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://static.tp-link.com/Archer-AX50_01_1567584615217z.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://static.tp-link.com/upload/product-overview/2021/202101/20210115/Archer%20AX21(US)1.0_01.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://static.tp-link.com/upload/product-overview/2021/202108/20210826/Archer%20AX55(US)1.0_01.jpg",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://thegreenbistro.com/menu.pdf",
+      "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+    },
+    {
+      "url": "https://upload",
+      "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+    },
+    {
+      "url": "https://upload.wikimedia",
+      "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/3d/High_density_racking.jpg",
+      "error": "HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques.jpg",
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Binary_code_and_lock_icon.png",
+      "error": "HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Laura_1944_poster.jpg",
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Office_Chair_on_Wheels.jpg",
+      "error": "HTTP Error 429: Your request does not comply with our robot policy, https://w.wiki/4wJS. Please contact noc@wikimedia.org for further information (0fa5166)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Canon_EOS_R50_01.jpg",
+      "error": "HTTP Error 429: Your request does not comply with our robot policy, https://w.wiki/4wJS. Please contact noc@wikimedia.org for further information (0fa5166)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/2020_Kia_Telluride_SX_AWD_front_6.23.19.jpg/1200px-2020_Kia_Telluride_SX_AWD_front_6.23.19.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/2023_Honda_Pilot_Elite_front_5.22.23.jpg/1200px-2023_Honda_Pilot_Elite_front_5.22.23.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Grindelwald_and_the_Wetterhorn.jpg/1200px-Grindelwald_and_the_Wetterhorn.jpg",
+      "error": "HTTP Error 429: Your request does not comply with our robot policy, https://w.wiki/4wJS. Please contact noc@wikimedia.org for further information (0fa5166)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Warner_Bros._Studio_Tour_London_-_The_Great_Hall.jpg/1200px-Warner_Bros._Studio_Tour_London_-_The_Great_Hall.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/2019_Toyota_Prius_LE_AWD-e_front_3.30.19.jpg/1200px-2019_Toyota_Prius_LE_AWD-e_front_3.30.19.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Canon_EOS_R5_body.jpg/1200px-Canon_EOS_R5_body.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Kanban_Board_Example.jpg/1200px-Kanban_Board_Example.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Kinkaku-ji_2011.jpg/1200px-Kinkaku-ji_2011.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/San_Francisco_from_Twin_Peaks_at_night.jpg/1200px-San_Francisco_from_Twin_Peaks_at_night.jpg",
+      "error": "HTTP Error 400: Use thumbnail sizes listed on https://w.wiki/GHai"
+    }
+  ]
+}
