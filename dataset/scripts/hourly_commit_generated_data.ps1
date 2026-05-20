@@ -19,8 +19,14 @@ function Write-CommitLog {
 
 function Invoke-Git {
     param([string[]]$Args)
-    $output = & git @Args 2>&1
-    $exit = $LASTEXITCODE
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $output = & git @Args 2>&1
+        $exit = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
     if ($exit -ne 0) {
         throw "git $($Args -join ' ') failed ($exit): $($output -join [Environment]::NewLine)"
     }
@@ -52,8 +58,16 @@ function Add-GeneratedRunFiles {
             $args += ":(exclude)$path"
         }
 
-        $output = & git @args 2>&1
-        if ($LASTEXITCODE -eq 0) {
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            $output = & git @args 2>&1
+            $exit = $LASTEXITCODE
+        } finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
+
+        if ($exit -eq 0) {
             if ($excluded.Count -gt 0) {
                 Write-CommitLog "git add skipped active writer files: $($excluded -join ', ')"
             }
