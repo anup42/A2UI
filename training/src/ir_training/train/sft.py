@@ -17,12 +17,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     try:
         from datasets import load_dataset  # type: ignore
         from peft import get_peft_model, prepare_model_for_kbit_training  # type: ignore
-        from transformers import TrainingArguments  # type: ignore
-        from trl import SFTTrainer  # type: ignore
-        try:
-            from trl import SFTConfig  # type: ignore
-        except Exception:  # pragma: no cover - older TRL versions
-            SFTConfig = None
+        from transformers import Trainer, TrainingArguments  # type: ignore
     except Exception as exc:  # pragma: no cover - dependency failure path
         raise RuntimeError("Install training/requirements-training.txt before running SFT training.") from exc
 
@@ -57,7 +52,27 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     def formatting_func(example: dict[str, Any]) -> str:
         return adapter.format_example(example, tokenizer=tokenizer, include_assistant=True)
 
-    args_cls = SFTConfig if SFTConfig is not None else TrainingArguments
+    trainer_backend = str(training_cfg.get("trainer_backend", "hf")).strip().lower() or "hf"
+    if trainer_backend not in {"hf", "trl"}:
+        raise ValueError(f"Unsupported training.trainer_backend: {trainer_backend!r}. Use 'hf' or 'trl'.")
+
+    SFTTrainer = None
+    SFTConfig = None
+    if trainer_backend == "trl":
+        try:
+            from trl import SFTTrainer as ImportedSFTTrainer  # type: ignore
+
+            SFTTrainer = ImportedSFTTrainer
+            try:
+                from trl import SFTConfig as ImportedSFTConfig  # type: ignore
+
+                SFTConfig = ImportedSFTConfig
+            except Exception:  # pragma: no cover - older TRL versions
+                SFTConfig = None
+        except Exception as exc:  # pragma: no cover - optional dependency path
+            raise RuntimeError("training.trainer_backend='trl' requires the trl package.") from exc
+
+    args_cls = SFTConfig if trainer_backend == "trl" and SFTConfig is not None else TrainingArguments
     args_params = inspect.signature(args_cls.__init__).parameters
     eval_strategy_name = (
         "eval_strategy"
@@ -80,14 +95,12 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "report_to": "none",
     }
     max_seq_length = int(training_cfg.get("max_seq_length", adapter.max_context()))
-    if "completion_only_loss" in args_params:
+    if trainer_backend == "trl" and "completion_only_loss" in args_params:
         # formatting_func produces a full language-modeling text record.
         # TRL's completion-only loss is incompatible with that path.
         training_args_kwargs["completion_only_loss"] = bool(training_cfg.get("completion_only_loss", False))
-    if "assistant_only_loss" in args_params:
+    if trainer_backend == "trl" and "assistant_only_loss" in args_params:
         training_args_kwargs["assistant_only_loss"] = bool(training_cfg.get("assistant_only_loss", False))
-    trainer_params = inspect.signature(SFTTrainer.__init__).parameters
-    supports_text_dataset = "dataset_text_field" in args_params or "dataset_text_field" in trainer_params
     sft_text_dataset = _materialize_sft_text_dataset(dataset, formatting_func)
     _validate_sft_token_ids(
         dataset=sft_text_dataset,
@@ -97,36 +110,65 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
         tokenizer_size=len(tokenizer) if hasattr(tokenizer, "__len__") else None,
     )
-    if supports_text_dataset:
+
+    if trainer_backend == "trl":
+        if SFTTrainer is None:
+            raise RuntimeError("TRL trainer backend was selected but SFTTrainer is unavailable.")
+        trainer_params = inspect.signature(SFTTrainer.__init__).parameters
+        supports_text_dataset = "dataset_text_field" in args_params or "dataset_text_field" in trainer_params
+        if not supports_text_dataset:
+            raise RuntimeError(
+                "Configured TRL SFTTrainer does not support dataset_text_field. "
+                "Use the default HF trainer backend or upgrade TRL."
+            )
         dataset = sft_text_dataset
         if "dataset_text_field" in args_params:
             training_args_kwargs["dataset_text_field"] = "text"
         if "packing" in args_params:
             training_args_kwargs["packing"] = bool(training_cfg.get("packing", False))
-    if "max_seq_length" in args_params:
-        training_args_kwargs["max_seq_length"] = max_seq_length
-    elif "max_length" in args_params:
-        training_args_kwargs["max_length"] = max_seq_length
+        if "max_seq_length" in args_params:
+            training_args_kwargs["max_seq_length"] = max_seq_length
+        elif "max_length" in args_params:
+            training_args_kwargs["max_length"] = max_seq_length
     args = args_cls(**training_args_kwargs)
 
-    trainer_kwargs = {
-        "model": model,
-        "train_dataset": dataset["train"],
-        "eval_dataset": dataset.get("validation"),
-        "args": args,
-    }
-    if supports_text_dataset:
+    if trainer_backend == "trl":
+        trainer_kwargs = {
+            "model": model,
+            "train_dataset": dataset["train"],
+            "eval_dataset": dataset.get("validation"),
+            "args": args,
+        }
         if "dataset_text_field" in trainer_params:
             trainer_kwargs["dataset_text_field"] = "text"
+        if "tokenizer" in trainer_params:
+            trainer_kwargs["tokenizer"] = tokenizer
+        elif "processing_class" in trainer_params:
+            trainer_kwargs["processing_class"] = tokenizer
+        if "max_seq_length" in trainer_params and "max_seq_length" not in training_args_kwargs:
+            trainer_kwargs["max_seq_length"] = max_seq_length
+        trainer = SFTTrainer(**trainer_kwargs)
     else:
-        trainer_kwargs["formatting_func"] = formatting_func
-    if "tokenizer" in trainer_params:
-        trainer_kwargs["tokenizer"] = tokenizer
-    elif "processing_class" in trainer_params:
-        trainer_kwargs["processing_class"] = tokenizer
-    if "max_seq_length" in trainer_params and "max_seq_length" not in training_args_kwargs:
-        trainer_kwargs["max_seq_length"] = max_seq_length
-    trainer = SFTTrainer(**trainer_kwargs)
+        print("Using explicit HF Trainer causal-LM backend for SFT.", flush=True)
+        tokenized_dataset = _tokenize_sft_text_dataset(sft_text_dataset, tokenizer, max_seq_length)
+        _validate_tokenized_sft_dataset(
+            dataset=tokenized_dataset,
+            vocab_size=_model_vocab_size(model),
+            max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
+        )
+        trainer_params = inspect.signature(Trainer.__init__).parameters
+        trainer_kwargs = {
+            "model": model,
+            "train_dataset": tokenized_dataset["train"],
+            "eval_dataset": tokenized_dataset.get("validation"),
+            "args": args,
+            "data_collator": _CausalLMDataCollator(tokenizer),
+        }
+        if "tokenizer" in trainer_params:
+            trainer_kwargs["tokenizer"] = tokenizer
+        elif "processing_class" in trainer_params:
+            trainer_kwargs["processing_class"] = tokenizer
+        trainer = Trainer(**trainer_kwargs)
 
     golden_callback = _build_optional_golden_callback(
         golden_eval_cfg=golden_eval_cfg,
@@ -168,7 +210,55 @@ def _materialize_sft_text_dataset(dataset: Any, formatting_func: Callable[[dict[
     return dataset.map(add_text, desc="Formatting SFT text")
 
 
+def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int) -> Any:
+    def tokenize_batch(batch: dict[str, list[Any]]) -> dict[str, Any]:
+        return tokenizer(
+            [str(text) for text in batch.get("text", [])],
+            truncation=True,
+            max_length=max_seq_length,
+            add_special_tokens=True,
+            padding=False,
+        )
+
+    tokenized_splits: dict[str, Any] = {}
+    for split_name in dataset.keys():
+        split = dataset[split_name]
+        tokenized_splits[split_name] = split.map(
+            tokenize_batch,
+            batched=True,
+            remove_columns=split.column_names,
+            desc=f"Tokenizing {split_name} SFT text",
+        )
+    return tokenized_splits
+
+
+class _CausalLMDataCollator:
+    def __init__(self, tokenizer: Any) -> None:
+        self.tokenizer = tokenizer
+
+    def __call__(self, features: list[dict[str, Any]]) -> dict[str, Any]:
+        import torch
+
+        input_features = [
+            {key: value for key, value in feature.items() if key in {"input_ids", "attention_mask"}}
+            for feature in features
+        ]
+        batch = self.tokenizer.pad(input_features, padding=True, return_tensors="pt")
+        labels = batch["input_ids"].clone()
+        attention_mask = batch.get("attention_mask")
+        if attention_mask is not None:
+            labels = labels.masked_fill(attention_mask == 0, -100)
+        else:
+            pad_token_id = getattr(self.tokenizer, "pad_token_id", None)
+            if pad_token_id is not None:
+                labels = labels.masked_fill(batch["input_ids"] == pad_token_id, -100)
+        batch["labels"] = labels
+        return batch
+
+
 def _align_tokenizer_and_model(tokenizer: Any, model: Any) -> None:
+    if getattr(tokenizer, "pad_token", None) is None and getattr(tokenizer, "eos_token", None) is not None:
+        tokenizer.pad_token = tokenizer.eos_token
     token_count = len(tokenizer) if hasattr(tokenizer, "__len__") else None
     vocab_size = _model_vocab_size(model)
     if token_count is not None and vocab_size is not None and token_count > vocab_size:
@@ -240,6 +330,43 @@ def _validate_sft_token_ids(
         f"model_vocab_size={vocab_size}, "
         f"max_token_id={max_seen_token_id}, "
         f"max_seq_length={max_seq_length}",
+        flush=True,
+    )
+
+
+def _validate_tokenized_sft_dataset(
+    *,
+    dataset: Any,
+    vocab_size: int | None,
+    max_rows: int,
+) -> None:
+    if vocab_size is None:
+        print("Tokenized SFT preflight skipped: model vocabulary size is unavailable.", flush=True)
+        return
+    split_names = list(dataset.keys()) if hasattr(dataset, "keys") else []
+    total_rows_checked = 0
+    max_seen_token_id = -1
+    for split_name in split_names:
+        split = dataset[split_name]
+        limit = len(split) if max_rows <= 0 else min(len(split), max_rows)
+        for row_index in range(limit):
+            total_rows_checked += 1
+            input_ids = split[row_index].get("input_ids") or []
+            if not input_ids:
+                raise ValueError(f"Tokenized SFT preflight failed: empty input_ids at {split_name}[{row_index}]")
+            for token_id in input_ids:
+                if isinstance(token_id, int):
+                    max_seen_token_id = max(max_seen_token_id, token_id)
+                if not isinstance(token_id, int) or token_id < 0 or token_id >= vocab_size:
+                    raise ValueError(
+                        "Tokenized SFT preflight failed: token id outside model vocabulary "
+                        f"at {split_name}[{row_index}] token={token_id} vocab_size={vocab_size}."
+                    )
+    print(
+        "Tokenized SFT preflight passed: "
+        f"rows_checked={total_rows_checked}, "
+        f"model_vocab_size={vocab_size}, "
+        f"max_token_id={max_seen_token_id}",
         flush=True,
     )
 

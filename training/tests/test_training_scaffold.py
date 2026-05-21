@@ -17,6 +17,7 @@ from ir_training.train.sft import (
     _align_tokenizer_and_model,
     _summarize_training_sample_models,
     _validate_sft_token_ids,
+    _validate_tokenized_sft_dataset,
 )
 
 
@@ -264,6 +265,19 @@ def test_sft_preflight_rejects_out_of_vocab_token_id():
         assert "outside model vocabulary" in str(exc)
     else:
         raise AssertionError("Expected invalid token id to fail preflight")
+
+
+def test_tokenized_sft_preflight_rejects_out_of_vocab_token_id():
+    try:
+        _validate_tokenized_sft_dataset(
+            dataset={"train": [{"input_ids": [0, 5]}]},
+            vocab_size=5,
+            max_rows=0,
+        )
+    except ValueError as exc:
+        assert "outside model vocabulary" in str(exc)
+    else:
+        raise AssertionError("Expected invalid token id to fail tokenized preflight")
 
 
 def test_sft_training_sample_summary_counts_models():
