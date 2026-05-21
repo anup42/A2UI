@@ -13,6 +13,7 @@ from ir_training.eval.metrics import aggregate_scores
 from ir_training.export.edge_gallery import build_litert_export_command
 from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
+from ir_training.train.sft import _align_tokenizer_and_model, _validate_sft_token_ids
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -177,6 +178,62 @@ def test_gemma4_lora_targets_inner_linear_modules():
     targets = adapter.default_lora_targets()
     assert "q_proj.linear" in targets
     assert "q_proj" not in targets
+
+
+def test_sft_tokenizer_model_alignment_resizes_and_sets_special_ids():
+    class Embeddings:
+        num_embeddings = 4
+
+    class Config:
+        pad_token_id = None
+        bos_token_id = None
+        eos_token_id = None
+
+    class Model:
+        def __init__(self):
+            self.config = Config()
+            self.generation_config = Config()
+            self.embeddings = Embeddings()
+
+        def get_input_embeddings(self):
+            return self.embeddings
+
+        def resize_token_embeddings(self, size):
+            self.embeddings.num_embeddings = size
+
+    class Tokenizer:
+        pad_token_id = 0
+        bos_token_id = 2
+        eos_token_id = 1
+
+        def __len__(self):
+            return 6
+
+    model = Model()
+    _align_tokenizer_and_model(Tokenizer(), model)
+
+    assert model.get_input_embeddings().num_embeddings == 6
+    assert model.config.pad_token_id == 0
+    assert model.generation_config.eos_token_id == 1
+
+
+def test_sft_preflight_rejects_out_of_vocab_token_id():
+    class Tokenizer:
+        def __call__(self, *_args, **_kwargs):
+            return {"input_ids": [0, 4, 5]}
+
+    try:
+        _validate_sft_token_ids(
+            dataset={"train": [{"text": "bad"}]},
+            tokenizer=Tokenizer(),
+            max_seq_length=8,
+            vocab_size=5,
+            max_rows=0,
+        )
+    except ValueError as exc:
+        assert "outside model vocabulary" in str(exc)
+    else:
+        raise AssertionError("Expected invalid token id to fail preflight")
 
 
 def test_edge_gallery_export_command_for_gemma4_e2b():
