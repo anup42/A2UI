@@ -248,6 +248,59 @@ def test_sft_tokenizer_model_alignment_resizes_and_sets_special_ids():
     assert model.generation_config.eos_token_id == 1
 
 
+def test_sft_alignment_replaces_out_of_vocab_pad_token_with_eos():
+    class Embeddings:
+        num_embeddings = 6
+
+    class Config:
+        pad_token_id = None
+        bos_token_id = None
+        eos_token_id = None
+
+    class Model:
+        def __init__(self):
+            self.config = Config()
+            self.generation_config = Config()
+            self.embeddings = Embeddings()
+
+        def get_input_embeddings(self):
+            return self.embeddings
+
+    class Tokenizer:
+        bos_token_id = 2
+        eos_token = "<eos>"
+        eos_token_id = 1
+
+        def __init__(self):
+            self._pad_token = "<bad-pad>"
+            self._pad_token_id = 6
+
+        def __len__(self):
+            return 6
+
+        @property
+        def pad_token(self):
+            return self._pad_token
+
+        @pad_token.setter
+        def pad_token(self, value):
+            self._pad_token = value
+            if value == self.eos_token:
+                self._pad_token_id = self.eos_token_id
+
+        @property
+        def pad_token_id(self):
+            return self._pad_token_id
+
+    model = Model()
+    tokenizer = Tokenizer()
+
+    _align_tokenizer_and_model(tokenizer, model)
+
+    assert tokenizer.pad_token_id == 1
+    assert model.config.pad_token_id == 1
+
+
 def test_sft_preflight_rejects_out_of_vocab_token_id():
     class Tokenizer:
         def __call__(self, *_args, **_kwargs):

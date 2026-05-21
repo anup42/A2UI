@@ -39,6 +39,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     tokenizer = adapter.load_tokenizer()
     model = adapter.load_model()
     _align_tokenizer_and_model(tokenizer, model)
+    _print_tokenizer_model_alignment(tokenizer, model)
     if bool(model_cfg.get("load_in_4bit", False)):
         model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, build_lora_config(adapter, lora_cfg))
@@ -162,7 +163,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             "train_dataset": tokenized_dataset["train"],
             "eval_dataset": tokenized_dataset.get("validation"),
             "args": args,
-            "data_collator": _CausalLMDataCollator(tokenizer),
+            "data_collator": _CausalLMDataCollator(tokenizer, vocab_size=_model_vocab_size(model)),
         }
         if "tokenizer" in trainer_params:
             trainer_kwargs["tokenizer"] = tokenizer
@@ -233,8 +234,9 @@ def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int
 
 
 class _CausalLMDataCollator:
-    def __init__(self, tokenizer: Any) -> None:
+    def __init__(self, tokenizer: Any, vocab_size: int | None = None) -> None:
         self.tokenizer = tokenizer
+        self.vocab_size = vocab_size
 
     def __call__(self, features: list[dict[str, Any]]) -> dict[str, Any]:
         import torch
@@ -244,6 +246,7 @@ class _CausalLMDataCollator:
             for feature in features
         ]
         batch = self.tokenizer.pad(input_features, padding=True, return_tensors="pt")
+        _validate_padded_input_id_tensor(batch["input_ids"], self.vocab_size, self.tokenizer)
         labels = batch["input_ids"].clone()
         attention_mask = batch.get("attention_mask")
         if attention_mask is not None:
@@ -257,12 +260,12 @@ class _CausalLMDataCollator:
 
 
 def _align_tokenizer_and_model(tokenizer: Any, model: Any) -> None:
-    if getattr(tokenizer, "pad_token", None) is None and getattr(tokenizer, "eos_token", None) is not None:
-        tokenizer.pad_token = tokenizer.eos_token
     token_count = len(tokenizer) if hasattr(tokenizer, "__len__") else None
     vocab_size = _model_vocab_size(model)
     if token_count is not None and vocab_size is not None and token_count > vocab_size:
         model.resize_token_embeddings(token_count)
+        vocab_size = token_count
+    _ensure_safe_pad_token(tokenizer, vocab_size)
     for attr in ("pad_token_id", "bos_token_id", "eos_token_id"):
         value = getattr(tokenizer, attr, None)
         if value is None:
@@ -272,6 +275,88 @@ def _align_tokenizer_and_model(tokenizer: Any, model: Any) -> None:
         generation_config = getattr(model, "generation_config", None)
         if generation_config is not None:
             setattr(generation_config, attr, value)
+
+
+def _ensure_safe_pad_token(tokenizer: Any, vocab_size: int | None) -> None:
+    pad_token_id = getattr(tokenizer, "pad_token_id", None)
+    if _is_valid_token_id(pad_token_id, vocab_size):
+        return
+
+    for token_attr, id_attr in (
+        ("eos_token", "eos_token_id"),
+        ("bos_token", "bos_token_id"),
+        ("unk_token", "unk_token_id"),
+    ):
+        candidate_id = getattr(tokenizer, id_attr, None)
+        candidate_token = getattr(tokenizer, token_attr, None)
+        if not _is_valid_token_id(candidate_id, vocab_size):
+            continue
+        if candidate_token is not None:
+            try:
+                tokenizer.pad_token = candidate_token
+            except Exception:
+                pass
+        if not _is_valid_token_id(getattr(tokenizer, "pad_token_id", None), vocab_size):
+            try:
+                tokenizer.pad_token_id = candidate_id
+            except Exception:
+                pass
+        if _is_valid_token_id(getattr(tokenizer, "pad_token_id", None), vocab_size):
+            print(
+                "Adjusted tokenizer pad token for safe training: "
+                f"pad_token_id={getattr(tokenizer, 'pad_token_id', None)}",
+                flush=True,
+            )
+            return
+
+    if _is_valid_token_id(0, vocab_size):
+        try:
+            tokenizer.pad_token_id = 0
+        except Exception:
+            pass
+        if _is_valid_token_id(getattr(tokenizer, "pad_token_id", None), vocab_size):
+            print("Adjusted tokenizer pad token for safe training: pad_token_id=0", flush=True)
+            return
+
+    raise ValueError(
+        "Tokenizer pad_token_id is missing or outside model vocabulary and no safe fallback token is available. "
+        f"pad_token_id={pad_token_id} vocab_size={vocab_size}"
+    )
+
+
+def _is_valid_token_id(value: Any, vocab_size: int | None) -> bool:
+    if not isinstance(value, int):
+        return False
+    if value < 0:
+        return False
+    return vocab_size is None or value < vocab_size
+
+
+def _validate_padded_input_id_tensor(input_ids: Any, vocab_size: int | None, tokenizer: Any) -> None:
+    if vocab_size is None:
+        return
+    if getattr(input_ids, "numel", lambda: 0)() == 0:
+        raise ValueError("Padded SFT batch contains no input_ids.")
+    min_token_id = int(input_ids.min().item())
+    max_token_id = int(input_ids.max().item())
+    if min_token_id < 0 or max_token_id >= vocab_size:
+        raise ValueError(
+            "Padded SFT batch has token IDs outside the model vocabulary before CUDA execution. "
+            f"min_token_id={min_token_id} max_token_id={max_token_id} vocab_size={vocab_size} "
+            f"pad_token_id={getattr(tokenizer, 'pad_token_id', None)}"
+        )
+
+
+def _print_tokenizer_model_alignment(tokenizer: Any, model: Any) -> None:
+    print(
+        "Tokenizer/model alignment: "
+        f"tokenizer_size={len(tokenizer) if hasattr(tokenizer, '__len__') else 'unknown'}, "
+        f"model_vocab_size={_model_vocab_size(model) if _model_vocab_size(model) is not None else 'unknown'}, "
+        f"pad_token_id={getattr(tokenizer, 'pad_token_id', None)}, "
+        f"bos_token_id={getattr(tokenizer, 'bos_token_id', None)}, "
+        f"eos_token_id={getattr(tokenizer, 'eos_token_id', None)}",
+        flush=True,
+    )
 
 
 def _model_vocab_size(model: Any) -> int | None:
