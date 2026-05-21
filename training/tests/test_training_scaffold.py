@@ -100,6 +100,13 @@ def test_model_registry_formats_example():
     assert "gemma" in supported_families()
 
 
+def test_gemma4_lora_targets_inner_linear_modules():
+    adapter = create_adapter({"family": "gemma", "model_id": "google/gemma-4-E2B-it"})
+    targets = adapter.default_lora_targets()
+    assert "q_proj.linear" in targets
+    assert "q_proj" not in targets
+
+
 def test_edge_gallery_export_command_for_gemma4_e2b():
     command = build_litert_export_command(
         model_source="runs/gemma4_e2b_ir_lora/merged_hf",
