@@ -9,7 +9,7 @@ from typing import Any
 from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
 from ir_training.models.registry import create_adapter
-from ir_training.train.callbacks import TrainingMetadataCallback
+from ir_training.train.callbacks import TrainingMetadataCallback, build_golden_set_eval_callback
 from ir_training.train.lora_config import build_lora_config
 
 
@@ -26,6 +26,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
     training_cfg = config.get("training") if isinstance(config.get("training"), dict) else {}
     lora_cfg = config.get("lora") if isinstance(config.get("lora"), dict) else {}
+    golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
 
     base = training_root()
     dataset_dir = resolve_path(run_cfg.get("dataset_dir", "outputs/datasets/dataset_v1_stage3"), base)
@@ -87,6 +88,18 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     if "max_seq_length" in trainer_params:
         trainer_kwargs["max_seq_length"] = int(training_cfg.get("max_seq_length", adapter.max_context()))
     trainer = SFTTrainer(**trainer_kwargs)
+
+    golden_callback = _build_optional_golden_callback(
+        golden_eval_cfg=golden_eval_cfg,
+        base=base,
+        output_dir=output_dir,
+        adapter=adapter,
+        tokenizer=tokenizer,
+        model_cfg=model_cfg,
+    )
+    if golden_callback is not None:
+        trainer.add_callback(golden_callback)
+
     trainer.train()
     final_adapter = output_dir / "final_adapter"
     trainer.model.save_pretrained(str(final_adapter))
@@ -97,6 +110,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "model": model_cfg,
         "training": training_cfg,
         "lora": lora_cfg,
+        "golden_eval": golden_eval_cfg,
         "dataset_dir": str(dataset_dir),
         "final_adapter": str(final_adapter),
         "git_commit": current_commit(repo_root()),
@@ -106,3 +120,40 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         shutil.copy2(config_path, output_dir / "config.yaml")
     TrainingMetadataCallback(output_dir, metadata).write()
     return metadata
+
+
+def _build_optional_golden_callback(
+    *,
+    golden_eval_cfg: dict[str, Any],
+    base: Path,
+    output_dir: Path,
+    adapter: Any,
+    tokenizer: Any,
+    model_cfg: dict[str, Any],
+) -> Any | None:
+    if not bool(golden_eval_cfg.get("enabled", False)):
+        return None
+    split_path_value = golden_eval_cfg.get("split_path")
+    if not split_path_value:
+        dataset_dir = resolve_path(golden_eval_cfg.get("dataset_dir", "outputs/datasets/golden50_stage3_eval"), base)
+        split_name = str(golden_eval_cfg.get("split", "all")).strip() or "all"
+        split_path = dataset_dir / f"{split_name}.jsonl"
+    else:
+        split_path = resolve_path(split_path_value, base)
+    eval_output_dir = resolve_path(
+        golden_eval_cfg.get("output_dir", output_dir / "golden_eval"),
+        base,
+    )
+    weights_config_path = golden_eval_cfg.get("weights_config")
+    baseline_aggregate_path = golden_eval_cfg.get("baseline_aggregate")
+    return build_golden_set_eval_callback(
+        enabled=True,
+        split_path=split_path,
+        output_dir=eval_output_dir,
+        adapter=adapter,
+        tokenizer=tokenizer,
+        max_rows=int(golden_eval_cfg.get("max_rows", 50)),
+        max_new_tokens=int(golden_eval_cfg.get("max_new_tokens", model_cfg.get("max_output_tokens", 8192))),
+        weights_config_path=resolve_path(weights_config_path, base) if weights_config_path else None,
+        baseline_aggregate_path=resolve_path(baseline_aggregate_path, base) if baseline_aggregate_path else None,
+    )

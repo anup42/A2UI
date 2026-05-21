@@ -1,0 +1,21 @@
+run:
+  id: golden50_stage3_eval
+  seed: 42
+  source_run_dir: ../dataset/data/runs/golden50_g25pro_20260309_204033
+  output_dir: outputs/datasets/golden50_stage3_eval
+  prompt_version: genui_gen_mobile_flatspec_v11
+  schema_path: ../dataset/schema/genui_flatspec.schema.json
+  system_prompt: |
+    You convert response text into compact Android flat-spec GenUI IR.
+    Return JSON only with top-level keys root, state, and elements.
+    Keep tables compact as Table props plus state rows. Do not output markdown fences or prose.
+filters:
+  require_strict_flat_spec: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+split:
+  train: 1.0
+  val: 0.0
+  test: 0.0
+  stratify_by: intent_bucket

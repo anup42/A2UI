@@ -1,0 +1,22 @@
+run:
+  id: stage3_folder_90_10
+  seed: 42
+  source_genui_dir: ../dataset/data/runs
+  source_glob: "**/genui.jsonl"
+  output_dir: outputs/datasets/stage3_folder_90_10
+  prompt_version: genui_gen_mobile_flatspec_v11
+  schema_path: ../dataset/schema/genui_flatspec.schema.json
+  system_prompt: |
+    You convert response text into compact Android flat-spec GenUI IR.
+    Return JSON only with top-level keys root, state, and elements.
+    Keep tables compact as Table props plus state rows. Do not output markdown fences or prose.
+filters:
+  require_strict_flat_spec: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+split:
+  train: 0.90
+  val: 0.10
+  test: 0.0
+  stratify_by: intent_bucket

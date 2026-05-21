@@ -35,8 +35,10 @@ def stratified_split(
         n_val = int(round(n * val_ratio))
         n_test = int(round(n * test_ratio))
         if n >= 10:
-            n_val = max(1, n_val)
-            n_test = max(1, n_test)
+            if val_ratio > 0:
+                n_val = max(1, n_val)
+            if test_ratio > 0:
+                n_test = max(1, n_test)
         if n_val + n_test >= n:
             n_val = min(n_val, max(0, n - 1))
             n_test = min(n_test, max(0, n - 1 - n_val))

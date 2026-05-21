@@ -48,6 +48,50 @@ def test_prepare_dataset_filters_and_splits(tmp_path):
     assert (out_dir / "train.jsonl").exists()
 
 
+def test_prepare_dataset_reads_stage3_folder_and_uses_90_10_split(tmp_path):
+    source_dir = tmp_path / "stage3"
+    spec = {
+        "root": "root",
+        "state": {},
+        "elements": {"root": {"type": "Text", "props": {"text": "Weather"}, "children": []}},
+    }
+    rows = [
+        {
+            "response_id": f"r{i:03d}",
+            "ui_id": f"u{i:03d}",
+            "intent_bucket": "weather",
+            "response_text": f"Weather sample {i}",
+            "genui_json": spec,
+        }
+        for i in range(10)
+    ]
+    _write_jsonl(source_dir / "part_a.jsonl", rows[:5])
+    _write_jsonl(source_dir / "part_b.jsonl", rows[5:])
+    out_dir = tmp_path / "prepared_folder"
+
+    manifest = prepare_dataset(
+        {
+            "run": {
+                "source_genui_dir": str(source_dir),
+                "source_glob": "*.jsonl",
+                "output_dir": str(out_dir),
+                "seed": 123,
+                "system_prompt": "Return JSON.",
+            },
+            "filters": {"require_strict_flat_spec": True, "max_input_chars": 1000, "max_output_chars": 1000},
+            "split": {"train": 0.9, "val": 0.1, "test": 0.0, "stratify_by": "intent_bucket"},
+        }
+    )
+
+    assert manifest["counts"]["accepted"] == 10
+    assert manifest["counts"]["train"] == 9
+    assert manifest["counts"]["val"] == 1
+    assert manifest["counts"]["test"] == 0
+    assert manifest["counts"]["all"] == 10
+    assert len(manifest["source_genui_paths"]) == 2
+    assert (out_dir / "all.jsonl").exists()
+
+
 def test_model_registry_formats_example():
     adapter = create_adapter({"family": "gemma", "model_id": "google/gemma-4-E2B-it"})
     text = adapter.format_example({"messages": [{"role": "user", "content": "Hello"}]})

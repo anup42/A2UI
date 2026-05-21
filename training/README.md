@@ -16,11 +16,38 @@ This folder trains local Stage 3 models that convert Stage 2 response text into 
 python training/scripts/prepare_dataset.py --config training/configs/datasets/dataset_v1_stage3.yaml
 ```
 
+For Gemma 4 training from a folder that contains one or more Stage 3 `genui.jsonl`
+files, prepare a deterministic 90/10 train/validation split with:
+
+```powershell
+python training/scripts/prepare_dataset.py --config training/configs/datasets/stage3_folder_90_10.yaml --source-genui-dir dataset/data/runs/dataset_v3 --output-dir training/outputs/datasets/stage3_folder_90_10
+```
+
+The folder reader is recursive by default (`**/genui.jsonl`). It writes
+`train.jsonl`, `val.jsonl`, `test.jsonl`, and `all.jsonl`; `all.jsonl` is used for
+fixed-set evaluation jobs.
+
+Prepare the golden50 set once before training:
+
+```powershell
+python training/scripts/prepare_dataset.py --config training/configs/datasets/golden50_stage3_eval.yaml
+```
+
 2. Train an adapter model.
 
 ```powershell
 python training/scripts/train_sft.py --config training/configs/models/gemma_e2b_ir_lora.yaml
 ```
+
+Start Gemma 4 QLoRA training with golden50 evaluation at the end of every epoch:
+
+```powershell
+python training/scripts/train_sft.py --config training/configs/models/gemma4_ir_lora.yaml
+```
+
+This requires a GPU machine with the packages in
+`training/requirements-training.txt`. On CPU-only machines, use compile/tests only;
+do not run the training command.
 
 3. Evaluate generated IR against the flat-spec contract and existing UI metrics.
 
