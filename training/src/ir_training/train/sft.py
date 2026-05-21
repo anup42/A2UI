@@ -19,6 +19,10 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         from peft import get_peft_model, prepare_model_for_kbit_training  # type: ignore
         from transformers import TrainingArguments  # type: ignore
         from trl import SFTTrainer  # type: ignore
+        try:
+            from trl import SFTConfig  # type: ignore
+        except Exception:  # pragma: no cover - older TRL versions
+            SFTConfig = None
     except Exception as exc:  # pragma: no cover - dependency failure path
         raise RuntimeError("Install training/requirements-training.txt before running SFT training.") from exc
 
@@ -51,9 +55,11 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     def formatting_func(example: dict[str, Any]) -> str:
         return adapter.format_example(example, tokenizer=tokenizer, include_assistant=True)
 
+    args_cls = SFTConfig if SFTConfig is not None else TrainingArguments
+    args_params = inspect.signature(args_cls.__init__).parameters
     eval_strategy_name = (
         "eval_strategy"
-        if "eval_strategy" in inspect.signature(TrainingArguments.__init__).parameters
+        if "eval_strategy" in args_params
         else "evaluation_strategy"
     )
     training_args_kwargs = {
@@ -71,7 +77,18 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "bf16": str(model_cfg.get("dtype", "bfloat16")).lower() == "bfloat16",
         "report_to": "none",
     }
-    args = TrainingArguments(**training_args_kwargs)
+    max_seq_length = int(training_cfg.get("max_seq_length", adapter.max_context()))
+    if "completion_only_loss" in args_params:
+        # formatting_func produces a full language-modeling text record.
+        # TRL's completion-only loss is incompatible with that path.
+        training_args_kwargs["completion_only_loss"] = bool(training_cfg.get("completion_only_loss", False))
+    if "assistant_only_loss" in args_params:
+        training_args_kwargs["assistant_only_loss"] = bool(training_cfg.get("assistant_only_loss", False))
+    if "max_seq_length" in args_params:
+        training_args_kwargs["max_seq_length"] = max_seq_length
+    elif "max_length" in args_params:
+        training_args_kwargs["max_length"] = max_seq_length
+    args = args_cls(**training_args_kwargs)
 
     trainer_kwargs = {
         "model": model,
@@ -85,8 +102,8 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         trainer_kwargs["tokenizer"] = tokenizer
     elif "processing_class" in trainer_params:
         trainer_kwargs["processing_class"] = tokenizer
-    if "max_seq_length" in trainer_params:
-        trainer_kwargs["max_seq_length"] = int(training_cfg.get("max_seq_length", adapter.max_context()))
+    if "max_seq_length" in trainer_params and "max_seq_length" not in training_args_kwargs:
+        trainer_kwargs["max_seq_length"] = max_seq_length
     trainer = SFTTrainer(**trainer_kwargs)
 
     golden_callback = _build_optional_golden_callback(
