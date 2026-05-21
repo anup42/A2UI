@@ -367,23 +367,22 @@ class GeminiAdapter(BaseLLMAdapter):
     ) -> str:
         tasks: list[dict[str, Any]] = []
         for idx, prompt in enumerate(prompts):
-            task_prompt = prompt
-            if system:
-                task_prompt = (
-                    "System instructions for this task:\n"
-                    f"{system}\n\n"
-                    "User task prompt:\n"
-                    f"{prompt}"
-                )
-            task: dict[str, Any] = {"id": idx, "prompt": task_prompt}
+            task: dict[str, Any] = {"id": idx, "prompt": prompt}
             if seeds and idx < len(seeds):
                 task["seed"] = seeds[idx]
             tasks.append(task)
 
         envelope = {"tasks": tasks}
         envelope_json = json.dumps(envelope, ensure_ascii=False)
+        common_system = ""
+        if system:
+            common_system = (
+                "Common system instructions for every task:\n"
+                f"{system}\n\n"
+            )
         return (
             "You are running independent generation tasks in one request.\n"
+            f"{common_system}"
             "For each task, execute only that task prompt and produce exactly the JSON value requested by that prompt.\n"
             "Return only one compact JSON object with this shape:\n"
             '{"results":[{"id":<integer>,"output":<json value>}, ...]}\n'
