@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime
@@ -15,6 +16,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from llm.factory import build_adapter, load_model_specs  # noqa: E402
+from llm.base import LLMRateLimitError  # noqa: E402
 from pipeline.cache import PromptCache  # noqa: E402
 from pipeline.stage3_genui import _make_ui_id, run_stage3  # noqa: E402
 from pipeline.storage import get_run_paths, iter_jsonl  # noqa: E402
@@ -42,7 +44,16 @@ def count_jsonl(path: Path) -> int:
     return sum(1 for _ in iter_jsonl(path))
 
 
-def expected_ui_ids(responses_path: Path) -> set[str]:
+def query_number(query_id: str) -> int:
+    match = re.search(r"(\d+)$", query_id)
+    return int(match.group(1)) if match else 0
+
+
+def is_assigned(query_id: str, worker_index: int, worker_count: int) -> bool:
+    return query_number(query_id) % worker_count == worker_index
+
+
+def expected_ui_ids(responses_path: Path, worker_index: int, worker_count: int) -> set[str]:
     expected: set[str] = set()
     for row in iter_jsonl(responses_path):
         query_id = row.get("query_id")
@@ -50,9 +61,24 @@ def expected_ui_ids(responses_path: Path) -> set[str]:
         response_text = row.get("response_text")
         if not query_id or not response_id or not response_text:
             continue
+        if not is_assigned(str(query_id), worker_index, worker_count):
+            continue
         n_idx = int(row.get("n_idx", 1))
         expected.add(_make_ui_id(str(query_id), n_idx, 1))
     return expected
+
+
+def write_assigned_responses(source_path: Path, target_path: Path, worker_index: int, worker_count: int) -> int:
+    count = 0
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    with target_path.open("w", encoding="utf-8") as handle:
+        for row in iter_jsonl(source_path):
+            query_id = row.get("query_id")
+            if not isinstance(query_id, str) or not is_assigned(query_id, worker_index, worker_count):
+                continue
+            handle.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
+            count += 1
+    return count
 
 
 def existing_ui_ids(genui_path: Path) -> set[str]:
@@ -62,6 +88,17 @@ def existing_ui_ids(genui_path: Path) -> set[str]:
 def write_progress(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def rate_limit_sleep_seconds(exc: LLMRateLimitError, worker_index: int, default: float = 90.0) -> float:
+    headers = exc.headers or {}
+    values: list[float] = []
+    for key in ("x-ratelimit-reset-tokens", "x-ratelimit-reset-requests"):
+        try:
+            values.append(float(headers.get(key, 0)))
+        except (TypeError, ValueError):
+            pass
+    return max([default, *values]) + 15.0 + (worker_index * 10.0)
 
 
 def parse_args() -> argparse.Namespace:
@@ -75,10 +112,21 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--model", default="azure_gpt54_mini")
     parser.add_argument("--pass_size", type=int, default=8)
+    parser.add_argument("--worker_index", type=int, default=0)
+    parser.add_argument("--worker_count", type=int, default=1)
     parser.add_argument("--poll_seconds", type=float, default=60.0)
     parser.add_argument("--idle_checks", type=int, default=5)
     parser.add_argument("--rate_limit_qps", type=float, default=None)
     parser.add_argument("--call_sleep_seconds", type=float, default=None)
+    parser.add_argument(
+        "--min_pending",
+        type=int,
+        default=1,
+        help=(
+            "Minimum missing IR backlog before making Stage 3 API calls. "
+            "The watcher still drains the final backlog when target responses are reached."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -109,7 +157,12 @@ def main() -> None:
         ),
     )
     cache = PromptCache(run_paths.run_dir / ".prompt_cache_stage3_watch.jsonl")
+    if args.worker_count > 1:
+        cache = PromptCache(run_paths.run_dir / f".prompt_cache_stage3_worker_{args.worker_index}.jsonl")
     progress_path = run_paths.run_dir / "progress_stage3_watch.json"
+    if args.worker_count > 1:
+        progress_path = run_paths.run_dir / f"progress_stage3_worker_{args.worker_index}.json"
+    shard_responses_path = run_paths.run_dir / f".stage3_worker_{args.worker_index}_responses.jsonl"
 
     schema_path = DATASET_ROOT / run_cfg.get("stage3_schema_file", "schema/genui_flatspec.schema.json")
     if not schema_path.exists():
@@ -119,16 +172,18 @@ def main() -> None:
         prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md"
 
     logger.info(
-        "Stage3 response watcher started run_id=%s target=%s pass_size=%s model=%s",
+        "Stage3 response watcher started run_id=%s target=%s pass_size=%s model=%s worker=%s/%s",
         args.run_id,
         args.target,
         args.pass_size,
         args.model,
+        args.worker_index,
+        args.worker_count,
     )
     idle_count = 0
     last_counts: dict[str, int] | None = None
     while True:
-        expected = expected_ui_ids(run_paths.responses_path)
+        expected = expected_ui_ids(run_paths.responses_path, args.worker_index, args.worker_count)
         existing = existing_ui_ids(run_paths.genui_path)
         missing = expected - existing
         counts = {
@@ -147,31 +202,46 @@ def main() -> None:
             },
         )
 
-        if missing:
+        min_pending = max(1, args.min_pending)
+        target_reached = args.target > 0 and counts["responses"] >= args.target
+        enough_backlog = len(missing) >= min_pending or target_reached
+
+        if missing and enough_backlog:
             before = len(existing)
             max_total = min(max(1, args.pass_size), len(missing))
-            run_stage3(
-                queries_path=run_paths.queries_path,
-                responses_path=run_paths.responses_path,
-                prompt_path=prompt_path,
-                adapter=adapter,
-                genui_path=run_paths.genui_path,
-                schema_path=schema_path,
-                artifacts_dir=run_paths.artifacts_dir,
-                candidates_per_response=1,
-                max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
-                max_tokens=int(run_cfg.get("genui_max_tokens", 8192)),
-                prompt_max_tokens=int(run_cfg.get("genui_prompt_max_tokens", 60000)),
-                batch_size=int(run_cfg.get("genui_batch_size", 1)),
-                seed=int(run_cfg.get("seed", 42)),
-                rate_limiter=rate_limiter,
-                cache=cache,
-                logger=logger,
-                max_total=max_total,
-                max_attempts=int(run_cfg.get("max_attempts", 6)),
-                aggregates_path=run_paths.aggregates_path,
-                aggregate_weights=eval_cfg.get("weights", {}),
-            )
+            write_assigned_responses(run_paths.responses_path, shard_responses_path, args.worker_index, args.worker_count)
+            try:
+                run_stage3(
+                    queries_path=run_paths.queries_path,
+                    responses_path=shard_responses_path,
+                    prompt_path=prompt_path,
+                    adapter=adapter,
+                    genui_path=run_paths.genui_path,
+                    schema_path=schema_path,
+                    artifacts_dir=run_paths.artifacts_dir,
+                    candidates_per_response=1,
+                    max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
+                    max_tokens=int(run_cfg.get("genui_max_tokens", 8192)),
+                    prompt_max_tokens=int(run_cfg.get("genui_prompt_max_tokens", 60000)),
+                    batch_size=int(run_cfg.get("genui_batch_size", 1)),
+                    seed=int(run_cfg.get("seed", 42)),
+                    rate_limiter=rate_limiter,
+                    cache=cache,
+                    logger=logger,
+                    max_total=max_total,
+                    max_attempts=int(run_cfg.get("max_attempts", 6)),
+                    aggregates_path=run_paths.aggregates_path,
+                    aggregate_weights=eval_cfg.get("weights", {}),
+                )
+            except LLMRateLimitError as exc:
+                sleep_seconds = rate_limit_sleep_seconds(exc, args.worker_index)
+                logger.warning(
+                    "Stage3 watcher rate limited; sleeping %.1fs before retry worker=%s",
+                    sleep_seconds,
+                    args.worker_index,
+                )
+                time.sleep(sleep_seconds)
+                continue
             after = count_jsonl(run_paths.genui_path)
             logger.info(
                 "Stage3 watcher progress genui=%s responses=%s created=%s",
@@ -184,6 +254,16 @@ def main() -> None:
                 logger.warning("Stage3 watcher made no progress with missing_ir=%s; sleeping", len(missing))
                 time.sleep(max(1.0, args.poll_seconds))
             continue
+
+        if missing and not enough_backlog:
+            logger.info(
+                "Stage3 watcher waiting for backlog missing_ir=%s min_pending=%s responses=%s target=%s",
+                len(missing),
+                min_pending,
+                counts["responses"],
+                args.target,
+            )
+            idle_count = 0
 
         if args.target > 0 and counts["responses"] >= args.target:
             if last_counts == counts:

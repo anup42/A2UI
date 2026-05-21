@@ -17,6 +17,7 @@ from .http_transport import urlopen
 class GeminiAdapter(BaseLLMAdapter):
     _rate_lock = threading.Lock()
     _last_request_at: dict[str, float] = {}
+    _disabled_keys: dict[str, str] = {}
 
     def __init__(self, spec):
         super().__init__(spec)
@@ -35,11 +36,18 @@ class GeminiAdapter(BaseLLMAdapter):
             return False
         return raw_value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
+    def _key_fingerprint(self, api_key: str) -> str:
+        if len(api_key) <= 10:
+            return api_key
+        return f"{api_key[:6]}...{api_key[-4:]}"
+
     def _load_keys(self) -> list[str]:
         keys: list[str] = []
         for env_name in (
             "VERTEX_EXPRESS_API_KEYS",
             "GEMINI_VERTEX_EXPRESS_API_KEYS",
+            "GEMINI_API_KEYS",
+            "GOOGLE_AI_API_KEYS",
         ):
             for key in self._split_keys(os.getenv(env_name)):
                 if key not in keys:
@@ -48,11 +56,21 @@ class GeminiAdapter(BaseLLMAdapter):
         for env_name in (
             "VERTEX_EXPRESS_API_KEY",
             "GEMINI_VERTEX_EXPRESS_API_KEY",
+            "GEMINI_API_KEY",
+            "GOOGLE_AI_API_KEY",
         ):
             key = (os.getenv(env_name) or "").strip()
             if key and key not in keys:
                 keys.append(key)
         return keys
+
+    def _available_keys(self, keys: list[str]) -> list[str]:
+        with self._rate_lock:
+            return [key for key in keys if key not in self._disabled_keys]
+
+    def _mark_key_disabled(self, api_key: str, reason: str) -> None:
+        with self._rate_lock:
+            self._disabled_keys[api_key] = reason[:300]
 
     def _normalize_model_name(self, raw_model: str) -> str:
         model = (raw_model or "").strip()
@@ -61,6 +79,11 @@ class GeminiAdapter(BaseLLMAdapter):
         if model.startswith("models/"):
             return model[len("models/") :].strip()
         return model
+
+    def _endpoint_for_key(self, api_key: str, model_name: str) -> str:
+        if api_key.strip().startswith("AIza"):
+            return f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+        return f"https://aiplatform.googleapis.com/v1/publishers/google/models/{model_name}:generateContent"
 
     def _single_call_batch_enabled(self) -> bool:
         # Vertex AI Express mode exposes generateContent/streamGenerateContent,
@@ -104,6 +127,21 @@ class GeminiAdapter(BaseLLMAdapter):
         if parsed and parsed > 0:
             value = parsed
         return max(512, value)
+
+    def _single_call_batch_sequential_fallback_enabled(self) -> bool:
+        raw = os.getenv("GEMINI_EXPRESS_SINGLE_CALL_BATCH_SEQUENTIAL_FALLBACK", "1")
+        return self._is_truthy(raw)
+
+    def _disable_key_on_rate_limit(self) -> bool:
+        raw = os.getenv("GEMINI_DISABLE_KEY_ON_RATE_LIMIT", "0")
+        return self._is_truthy(raw)
+
+    def _rate_limit_disable_after(self) -> int:
+        raw = os.getenv("GEMINI_RATE_LIMIT_DISABLE_AFTER", "3")
+        try:
+            return max(1, int(raw))
+        except Exception:
+            return 3
 
     def _request_timeout(self) -> float:
         raw = os.getenv("GEMINI_TIMEOUT_SECONDS", "180")
@@ -245,10 +283,87 @@ class GeminiAdapter(BaseLLMAdapter):
             start = raw.find("{", start + 1)
         return None
 
+    def _parse_json_object_at(self, raw: str, start: int) -> Optional[Any]:
+        if start < 0 or start >= len(raw) or raw[start] != "{":
+            return None
+        depth = 0
+        in_string = False
+        escape = False
+        for idx in range(start, len(raw)):
+            ch = raw[idx]
+            if in_string:
+                if escape:
+                    escape = False
+                    continue
+                if ch == "\\":
+                    escape = True
+                    continue
+                if ch == '"':
+                    in_string = False
+                continue
+            if ch == '"':
+                in_string = True
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(raw[start : idx + 1])
+                    except Exception:
+                        return None
+        return None
+
+    def _extract_batch_records(self, text: str) -> list[dict[str, Any]]:
+        """Recover batch result items even if Gemini appends malformed tail JSON."""
+        raw = (text or "").strip()
+        if not raw:
+            return []
+
+        records: list[dict[str, Any]] = []
+        seen: set[int] = set()
+
+        def _add_record(value: Any) -> None:
+            if not isinstance(value, dict):
+                return
+            idx = value.get("id")
+            if not isinstance(idx, int) or idx in seen or "output" not in value:
+                return
+            seen.add(idx)
+            records.append(value)
+
+        try:
+            parsed = json.loads(raw)
+        except Exception:
+            parsed = None
+        if isinstance(parsed, dict) and isinstance(parsed.get("results"), list):
+            for item in parsed["results"]:
+                _add_record(item)
+            if records:
+                return records
+
+        extracted = self._extract_json_blob(raw)
+        if isinstance(extracted, dict):
+            if isinstance(extracted.get("results"), list):
+                for item in extracted["results"]:
+                    _add_record(item)
+                if records:
+                    return records
+            else:
+                _add_record(extracted)
+
+        # If the outer {"results":[...]} wrapper is malformed near the end,
+        # individual {"id":N,"output":...} result objects are often balanced.
+        for match in re.finditer(r'\{\s*"id"\s*:\s*\d+\s*,\s*"output"\s*:', raw):
+            _add_record(self._parse_json_object_at(raw, match.start()))
+        return records
+
     def _build_single_call_batch_prompt(
         self,
         prompts: list[str],
         seeds: Optional[list[int]],
+        system: Optional[str] = None,
     ) -> str:
         tasks: list[dict[str, Any]] = []
         for idx, prompt in enumerate(prompts):
@@ -259,8 +374,15 @@ class GeminiAdapter(BaseLLMAdapter):
 
         envelope = {"tasks": tasks}
         envelope_json = json.dumps(envelope, ensure_ascii=False)
+        common_system = ""
+        if system:
+            common_system = (
+                "Common system instructions for every task:\n"
+                f"{system}\n\n"
+            )
         return (
             "You are running independent generation tasks in one request.\n"
+            f"{common_system}"
             "For each task, execute only that task prompt and produce exactly the JSON value requested by that prompt.\n"
             "Return only one compact JSON object with this shape:\n"
             '{"results":[{"id":<integer>,"output":<json value>}, ...]}\n'
@@ -288,11 +410,11 @@ class GeminiAdapter(BaseLLMAdapter):
             return None
         if len(prompts) > self._single_call_batch_max_prompts():
             return None
-        total_chars = sum(len(p or "") for p in prompts)
+        total_chars = sum(len(p or "") for p in prompts) + (len(system or "") * len(prompts))
         if total_chars > self._single_call_batch_max_chars():
             return None
 
-        merged_prompt = self._build_single_call_batch_prompt(prompts, seeds)
+        merged_prompt = self._build_single_call_batch_prompt(prompts, seeds, system=system)
         base_seed = seeds[0] if seeds else None
         requested = max(1, len(prompts)) * max(1, max_tokens)
         batch_cap = self._single_call_batch_max_output_tokens()
@@ -300,20 +422,17 @@ class GeminiAdapter(BaseLLMAdapter):
 
         batch_result = self.generate(
             prompt=merged_prompt,
-            system=system,
+            system=None,
             temperature=temperature,
             max_tokens=batch_max_tokens,
             seed=base_seed,
-            json_mode=True if json_mode else False,
+            json_mode=True,
         )
         if batch_result.error:
             return None
 
-        parsed = self._extract_json_blob(batch_result.text)
-        if not isinstance(parsed, dict):
-            return None
-        records = parsed.get("results")
-        if not isinstance(records, list):
+        records = self._extract_batch_records(batch_result.text)
+        if not records:
             return None
 
         by_id: dict[int, Any] = {}
@@ -382,6 +501,65 @@ class GeminiAdapter(BaseLLMAdapter):
             results.append(result)
         return results
 
+    def _generate_batch_split_fallback(
+        self,
+        prompts: list[str],
+        system: Optional[str],
+        temperature: float,
+        max_tokens: int,
+        seeds: Optional[list[int]],
+        json_mode: bool,
+        batch_name: Optional[str],
+    ) -> Optional[list[LLMResult]]:
+        if len(prompts) <= 1:
+            return None
+        if not self._is_truthy(os.getenv("GEMINI_EXPRESS_SINGLE_CALL_BATCH_SPLIT_FALLBACK", "1")):
+            return None
+        mid = len(prompts) // 2
+        left = self._try_single_call_batch(
+            prompts=prompts[:mid],
+            system=system,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            seeds=seeds[:mid] if seeds else None,
+            json_mode=json_mode,
+            batch_name=f"{batch_name or 'batch'}_split_left",
+        )
+        if left is None:
+            left = self._generate_batch_split_fallback(
+                prompts=prompts[:mid],
+                system=system,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                seeds=seeds[:mid] if seeds else None,
+                json_mode=json_mode,
+                batch_name=f"{batch_name or 'batch'}_split_left",
+            )
+
+        right = self._try_single_call_batch(
+            prompts=prompts[mid:],
+            system=system,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            seeds=seeds[mid:] if seeds else None,
+            json_mode=json_mode,
+            batch_name=f"{batch_name or 'batch'}_split_right",
+        )
+        if right is None:
+            right = self._generate_batch_split_fallback(
+                prompts=prompts[mid:],
+                system=system,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                seeds=seeds[mid:] if seeds else None,
+                json_mode=json_mode,
+                batch_name=f"{batch_name or 'batch'}_split_right",
+            )
+
+        if left is None or right is None:
+            return None
+        return left + right
+
     def generate(
         self,
         prompt: str,
@@ -403,13 +581,11 @@ class GeminiAdapter(BaseLLMAdapter):
                 model=self.spec.model,
                 provider=self.spec.provider,
                 error=(
-                    "VERTEX_EXPRESS_API_KEY/GEMINI_VERTEX_EXPRESS_API_KEY not set. "
-                    "Dataset Gemini calls require Vertex AI Express API keys."
+                    "VERTEX_EXPRESS_API_KEY/GEMINI_VERTEX_EXPRESS_API_KEY/GEMINI_API_KEY not set."
                 ),
             )
 
         model_name = self._normalize_model_name(self.spec.model)
-        endpoint = f"https://aiplatform.googleapis.com/v1/publishers/google/models/{model_name}:generateContent"
 
         limits = self.spec.limits if isinstance(self.spec.limits, dict) else {}
         spec_cap = limits.get("max_output_tokens")
@@ -470,9 +646,13 @@ class GeminiAdapter(BaseLLMAdapter):
         attempts = 0
 
         for _ in range(cycles):
-            for api_key in keys:
+            available_keys = self._available_keys(keys)
+            if not available_keys:
+                break
+            for api_key in available_keys:
                 attempts += 1
                 params = urllib.parse.urlencode({"key": api_key})
+                endpoint = self._endpoint_for_key(api_key, model_name)
                 url = f"{endpoint}?{params}"
 
                 rate_limit_retries = 0
@@ -511,6 +691,12 @@ class GeminiAdapter(BaseLLMAdapter):
                             retry_after = self._infer_retry_delay_seconds(detail)
                             last_rate_retry_after = retry_after
                             rate_limit_retries += 1
+                            if (
+                                self._disable_key_on_rate_limit()
+                                and rate_limit_retries >= self._rate_limit_disable_after()
+                            ):
+                                self._mark_key_disabled(api_key, detail or f"HTTP {exc.code}")
+                                break
                             if rate_limit_retries > max_rate_limit_retries:
                                 break
                             sleep_seconds = max(
@@ -650,6 +836,36 @@ class GeminiAdapter(BaseLLMAdapter):
             self.single_call_batch_successes += 1
             return batched
         self.single_call_batch_fallbacks += 1
+        split = self._generate_batch_split_fallback(
+            prompts=prompts,
+            system=system,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            seeds=seeds,
+            json_mode=json_mode,
+            batch_name=batch_name,
+        )
+        if split is not None:
+            return split
+        if (
+            self._single_call_batch_enabled()
+            and len(prompts) > 1
+            and not self._single_call_batch_sequential_fallback_enabled()
+        ):
+            return [
+                LLMResult(
+                    text="",
+                    raw=None,
+                    latency_ms=0.0,
+                    input_tokens=0,
+                    output_tokens=0,
+                    cost_usd=None,
+                    model=self.spec.model,
+                    provider=self.spec.provider,
+                    error="single-call batch failed; sequential fallback disabled",
+                )
+                for _ in prompts
+            ]
         return self._generate_batch_sequential(
             prompts=prompts,
             system=system,

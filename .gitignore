@@ -20,9 +20,26 @@ dataset/.dataset_v1_*.log
 dataset/.dataset_v1_pid.txt
 dataset/.dataset_v1_stage2_pid.txt
 dataset/.dataset_v1_stage3_pid.txt
+dataset/.dataset_v*_stage*_pid.txt
+dataset/.dataset_v*_stage*_stdout.log
+dataset/.dataset_v*_stage*_stderr.log
 dataset/data/runs/*/progress_stage2_watch.json
 dataset/data/runs/*/progress_stage3_watch.json
+dataset/data/runs/*/progress_stage1_watch.json
+dataset/data/runs/*/progress_stage2_worker_*.json
+dataset/data/runs/*/progress_stage3_worker_*.json
+dataset/data/runs/*/stage*_worker*.log
+dataset/data/runs/*/*worker*.log
+dataset/data/runs/*/gemini_worker_manager*.log
+dataset/data/runs/*.log
+dataset/data/runs/*/stage*.log
+dataset/data/runs/*/.stage2_worker_*_queries.jsonl
+dataset/data/runs/*/.stage3_worker_*_responses.jsonl
 dataset/data/runs/*/.prompt_cache_stage3_watch.jsonl
+dataset/data/runs/*/.prompt_cache_stage3_vertex_batch.jsonl
+dataset/data/runs/*/.prompt_cache_stage*_worker*.jsonl
+dataset/data/runs/*/vertex_batch_stage3/
+dataset/data/runs/*/artifacts/error_*.json
 training/outputs/
 training/runs/
 training/checkpoints/
@@ -34,3 +51,12 @@ site/
 # Python virtual environment
 .venv/
 dataset/.dataset_auto_commit.log
+dataset/.dataset_worker_watchdog.log
+dataset/.dataset_v0_stage3_vertex_batch_*
+dataset/.hourly_generated_commit.log
+dataset/.hourly_generated_commit.pid
+dataset/.hourly_generated_commit.lock
+
+# Dataset producer scratch files
+dataset/data/runs/*/.prompt_cache_stage1_producer.jsonl
+dataset/data/runs/*/progress_stage1_producer.json

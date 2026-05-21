@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## University Laptop Fit for a Sydney Student\n\nA, B, and C are close in price, but only one clearly matches your university needs, especially the RAM, storage, battery, and weight limits.\n\n## Laptop Comparison and Best Pick\n\n| Option | Price | RAM | SSD | Weight | Battery | Meets Budget? | Meets Must-Haves? | Verdict |\n|---|---:|---:|---:|---:|---:|---|---|---|\n| A | AUD 1,299 | 16 GB | 512 GB | 1.2 kg | Over 8 hours | Yes | Yes | **Best overall** |\n| B | AUD 1,349 | 16 GB | 1 TB | 1.8 kg | Over 8 hours | Yes | No | Too heavy |\n| C | AUD 1,099 | 8 GB | 512 GB | 1.1 kg | Over 8 hours | Yes | No | Not enough RAM |\n\n### Why A is the best choice\n- **Fits every requirement**: 16 GB RAM, at least 512 GB SSD, over 8 hours battery, and under 1.5 kg.\n- **Best balance for uni use**: light enough to carry around campus all day, with enough memory for multitasking, notes, browser tabs, and study apps.\n- **Stays within budget**: leaves a little room for a sleeve, mouse, or extended warranty.\n\n### Why the others fall short\n- **B**: strong storage and RAM, but **1.8 kg is over your weight limit**, so it fails a key portability requirement.\n- **C**: light and affordable, but **8 GB RAM is below your minimum**, which makes it less suitable for long-term university use.\n\n## Quick Actions\nAction: [Button: Compare specs] https://www.lenovo.com/au/en/laptops/c/LAPTOPS\nAction: [Button: Check student deals] https://www.apple.com/au-edu/store\nAction: [Button: Shop laptops in Australia] https://www.jbhifi.com.au/collections/laptops\n\n## Sources\n- Australian consumer context and shopping reference: https://www.accc.gov.au/consumers\n- Student pricing reference: https://www.apple.com/au-edu/store\n- Laptop shopping category reference: https://www.jbhifi.com.au/collections/laptops\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_003790_01",
+  "query_id": "q_003790",
+  "ui_id": "u_003790_01"
+}

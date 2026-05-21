@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Cheapest Way to Send 2,000 EUR to Madrid\n\nUsing the provided exchange rates and fees, **Provider B** is the cheapest option overall.\n\n## Cost Comparison for 2,000 EUR\n\n| Provider | Exchange Rate (USD/EUR) | Transfer Fee | FX Cost for 2,000 EUR | Total USD Cost |\n|---|---:|---:|---:|---:|\n| Provider A | 1.09 | $12 flat | $2,180.00 | **$2,192.00** |\n| Provider B | 1.11 | $0 | $2,220.00 | **$2,220.00** |\n| Provider C | 1.08 | 1.5% fee | $2,160.00 | **$2,192.40** |\n\n### How the totals were calculated\n- **Provider A:** 2,000 × 1.09 = $2,180, then + $12 fee = **$2,192**\n- **Provider B:** 2,000 × 1.11 = **$2,220**\n- **Provider C:** 2,000 × 1.08 = $2,160, then + 1.5% fee on $2,160 = $32.40, total **$2,192.40**\n\n## Best Choice\n\n**Recommended: Provider A? No — Provider B is still best?**\nActually, comparing the totals:\n\n- **Provider A:** $2,192.00\n- **Provider B:** **$2,220.00**\n- **Provider C:** $2,192.40\n\nSo the cheapest option is **Provider A**, by a small margin.\n\n### Final recommendation\n- **Best option: Provider A**\n- **Total cost: $2,192.00**\n- **Savings vs Provider B: $28.00**\n- **Savings vs Provider C: $0.40**\n\n## Quick Actions\n- Action: [Button: Recalculate] https://www.xe.com/currencyconverter/\n- Action: [Button: Compare fees] https://wise.com/us/pricing/\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004426_01",
+  "query_id": "q_004426",
+  "ui_id": "u_004426_01"
+}

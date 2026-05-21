@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Auckland Move-Out Deep Clean Snapshot\n\nA 2-bedroom move-out deep clean can fit your budget, but only one option clearly matches your eco-friendly preference while staying under NZD 220.\n\n## Service Comparison for 2026-06-15\n\n| Service | Price | Availability on 2026-06-15 | Eco-Friendly Products | Suitability | Best Fit |\n|---|---:|---|---|---|---|\n| Service A | NZD 180 | Available | No | Good value, but misses eco preference | Budget-first choice |\n| Service B | NZD 210 | Available | Yes | Strong match for your needs | **Best overall** |\n| Service C | NZD 165 | No weekend availability | Not stated | Lowest price, but fails availability constraint | Not suitable |\n\n**Recommendation:** **Service B** is the best choice. It stays within budget, is available on the requested date, and matches your eco-friendly preference.\n\n## Best Choice by Priority\n\n- **Service B**: Best overall balance of price, availability, and eco-friendly products.\n- **Service A**: Better if you want to save NZD 30 and can compromise on product type.\n- **Service C**: Cheapest, but not viable if 2026-06-15 falls on a weekend or if weekend service is required.\n\n## Quick Actions\n\nAction: [Button: Compare again] https://www.google.com/search?q=Auckland+move+out+cleaning+eco+friendly+2+bedroom+deep+clean\nAction: [Button: Check availability] https://www.google.com/search?q=2026-06-15+Auckland+cleaning+service+availability\n\n## Sources\n\n- Auckland cleaning service search: https://www.google.com/search?q=Auckland+cleaning+service+eco+friendly+deep+clean\n- Move-out cleaning guidance: https://www.consumer.org.nz/articles/end-of-tenancy-cleaning\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004622_01",
+  "query_id": "q_004622",
+  "ui_id": "u_004622_01"
+}

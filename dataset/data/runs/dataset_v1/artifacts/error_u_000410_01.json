@@ -1,0 +1,49 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# Austin Household Monthly Budget Snapshot\n\nYou have **$3,210** in monthly spending across the categories you listed. To save **at least $600**, your total monthly take-home needs to be **$3,810+**.\n\n## Budget Breakdown and Savings Target\n\n| Category | Amount | Type |\n|---|---:|---|\n| Rent | $1,650 | Fixed |\n| Groceries | $520 | Variable |\n| Transportation | $240 | Variable |\n| Utilities | $180 | Variable |\n| Internet | $70 | Fixed |\n| Phone | $95 | Fixed |\n| Subscriptions | $45 | Variable |\n| Dining out | $260 | Variable |\n| Miscellaneous | $150 | Variable |\n| **Total spending** | **$3,210** |  |\n| **Target savings** | **$600** |  |\n| **Income needed to save $600** | **$3,810** |  |\n\n## Expense Classification and Cut Targets\n\n- **Fixed costs:** Rent, Internet, Phone\n- **Variable costs:** Groceries, Transportation, Utilities, Subscriptions, Dining out, Miscellaneous\n\n### Best places to cut without touching rent or groceries\n\n1. **Dining out — save $100 to $150**\n   - Set a weekly cap instead of a monthly open budget.\n   - Replace 2–3 restaurant meals with home meals or leftovers.\n\n2. **Subscriptions — save $20 to $35**\n   - Cancel unused services or rotate them month to month.\n   - Keep only the one or two you use most often.\n\n3. **Transportation — save $30 to $60**\n   - Combine errands, use public transit for some trips, or carpool.\n   - Reduce rideshares and nonessential driving.\n\n## Savings Impact\n\n- Current spending: **$3,210**\n- If you cut $150 from dining out, $25 from subscriptions, and $45 from transportation:\n  - New spending: **$2,990**\n  - Left after $600 savings: **$220**\n- That gives you a comfortable buffer beyond your savings goal.\n\n## Quick Actions\n\n- Action: [Button: Build a lean budget] https://www.consumer.gov/articles/1002-budgeting\n- Action: [Button: Track monthly spending] https://www.nerdwallet.com/article/finance/budget-worksheet\n\n## Sources\n\n- Consumer budgeting guide: https://www.consumer.gov/articles/1002-budgeting\n- Budget worksheet reference: https://www.nerdwallet.com/article/finance/budget-worksheet\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 400: The response was filtered due to the prompt triggering Azure OpenAI’s content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766",
+  "raw_payload": {
+    "error": {
+      "message": "The response was filtered due to the prompt triggering Azure OpenAI’s content management policy. Please modify your prompt and retry. To learn more about our content filtering policies please read our documentation: https://go.microsoft.com/fwlink/?linkid=2198766",
+      "type": "invalid_request_error",
+      "param": "prompt",
+      "code": "content_filter",
+      "content_filters": [
+        {
+          "blocked": true,
+          "source_type": "prompt",
+          "content_filter_raw": [],
+          "content_filter_results": {
+            "jailbreak": {
+              "detected": false,
+              "filtered": false
+            },
+            "hate": {
+              "filtered": false,
+              "severity": "safe"
+            },
+            "sexual": {
+              "filtered": false,
+              "severity": "safe"
+            },
+            "violence": {
+              "filtered": false,
+              "severity": "safe"
+            },
+            "self_harm": {
+              "filtered": true,
+              "severity": "medium"
+            }
+          },
+          "content_filter_offsets": {
+            "start_offset": 0,
+            "end_offset": 3257,
+            "check_offset": 0
+          }
+        }
+      ]
+    }
+  },
+  "response_id": "r_000410_01",
+  "query_id": "q_000410",
+  "ui_id": "u_000410_01"
+}

@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Toronto Apartment Fit for a Single Renter\n\nYou have a **CAD 2,600/month** ceiling, need **pet-friendly**, and want a **30-minute max transit commute** to downtown. Both options fit the budget and pet requirement, but only one cleanly fits the commute limit.\n\n## Option Comparison\n\n| Option | Rent | Size | Commute to Downtown | Pet-Friendly | Parking | Fit |\n|---|---:|---:|---:|---|---|---|\n| Option A | CAD 2,450 | 650 sq ft | 22 min | Yes | No | Strong fit |\n| Option B | CAD 2,150 | 500 sq ft | 35 min | Yes | Extra cost | Weak fit |\n\n### Best Fit: Option A\n- **Meets all must-haves**: under budget, pet-friendly, and within the 30-minute commute cap.\n- **Better space**: 650 sq ft gives you more comfort for single living, work-from-home, and pet needs.\n- **More predictable cost**: no parking add-on to worry about.\n\n### Why Option B Falls Short\n- The **35-minute commute** misses your maximum by 5 minutes.\n- It is cheaper, but the savings come with a **trade-off on commute time**.\n- Parking is extra, which can reduce the apparent price advantage if you ever need it.\n\n## Recommendation\n\n**Choose Option A** if your commute limit is firm.\nIt is the better overall fit because it satisfies every priority you listed, while Option B breaks the commute requirement.\n\n## Quick Actions\n\nAction: [Button: Compare commute map](https://www.google.com/maps)\nAction: [Button: Search pet-friendly rentals](https://www.realtor.ca/)\nAction: [Button: Toronto transit planner](https://www.ttc.ca/)\n\n## Sources\n\n- Toronto Transit Commission: https://www.ttc.ca/\n- REALTOR.ca rentals: https://www.realtor.ca/\n- Google Maps transit directions: https://www.google.com/maps\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004630_01",
+  "query_id": "q_004630",
+  "ui_id": "u_004630_01"
+}

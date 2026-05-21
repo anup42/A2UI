@@ -1153,6 +1153,8 @@ def run_stage3(
                         exc.limits or "unset",
                         exc.headers or "none",
                     )
+                if getattr(adapter, "batch_only", False):
+                    raise
                 logger.warning("Stage3 batch failed; falling back to single calls: %s", exc)
                 results = None
 

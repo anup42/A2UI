@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n# Weekly Electricity Usage Snapshot\n\nA small office used **290 kWh** over the week, averaging **41.4 kWh/day**. Usage rose steadily through the workweek, then dropped sharply on the weekend.\n\n# Usage Pattern, Totals, and Efficiency Opportunities\n\n## Daily Breakdown\n| Day | Usage | Note |\n|---|---:|---|\n| Mon | 42 kWh | Start of week baseline |\n| Tue | 45 kWh | Slight increase |\n| Wed | 47 kWh | Midweek rise |\n| Thu | 50 kWh | **Highest usage** |\n| Fri | 48 kWh | Still elevated |\n| Sat | 30 kWh | Weekend drop |\n| Sun | 28 kWh | **Lowest usage** |\n\n- **Weekly total:** **290 kWh**\n- **Average daily usage:** **41.4 kWh**\n- **Highest day:** **Thursday, 50 kWh**\n- **Lowest day:** **Sunday, 28 kWh**\n\n## Pattern Insight\n- Usage climbs from Monday to Thursday, suggesting higher weekday occupancy, equipment use, or HVAC load.\n- Friday stays high, which may indicate systems left running longer than needed.\n- The weekend reduction shows the office can operate at much lower consumption when occupancy is lower.\n\n## Two Practical Ways to Reduce Consumption\n1. **Tighten after-hours shutoff routines**\n   - Turn off lights, monitors, printers, and nonessential devices at the end of the day.\n   - Use smart plugs or scheduled power strips for shared equipment.\n\n2. **Reduce HVAC and lighting waste**\n   - Adjust thermostat settings for occupied vs. unoccupied hours.\n   - Replace remaining bulbs with LEDs and add motion sensors in low-traffic areas.\n\n## Quick Actions\nAction: [Button: Download Report](https://www.timeanddate.com/)\n\nAction: [Button: Energy Saving Tips](https://www.energy.gov/energysaver)\n\n## Sources\n- Energy Saver overview: https://www.energy.gov/energysaver\n- Office efficiency guidance: https://www.epa.gov/statelocalenergy/energy-efficiency-buildings\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004486_01",
+  "query_id": "q_004486",
+  "ui_id": "u_004486_01"
+}

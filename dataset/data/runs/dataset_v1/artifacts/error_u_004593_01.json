@@ -1,0 +1,13 @@
+{
+  "prompt": "Convert the response text into valid GenUICraft JSON.\nReturn ONLY JSON.\n\nResponse:\n## Vancouver Apartment Internet Plan Snapshot\n\nFor a 2-remote-worker, 1-gamer household, **Plan B** is the best overall value: it balances speed, flexibility, and low setup cost without locking you into a long contract.\n\n## Plan Comparison and Best Value\n\n| Plan | Speed | Monthly | Contract | Installation | Best Fit |\n|---|---:|---:|---|---:|---|\n| Plan A | 300 Mbps | $55 | 12 months | $100 | Lowest monthly price, basic value |\n| Plan B | 500 Mbps | $68 | None | Free | Best balance for work + gaming |\n| Plan C | 1 Gbps | $82 | 24 months | Free | Highest speed, highest commitment |\n\n### Cost and fit by plan\n- **Plan A**: Lowest monthly bill, but the installation fee and slower speed make it less attractive for a busy apartment.\n- **Plan B**: Strong middle ground; fast enough for multiple video calls, cloud sync, streaming, and gaming, while keeping flexibility.\n- **Plan C**: Best raw speed, but the 24-month contract is a big commitment and the extra speed is likely more than this household needs.\n\n### Best value verdict\n- **Best overall value: Plan B**\n- **Best budget choice: Plan A** if upfront cost matters most\n- **Best performance choice: Plan C** only if you want maximum headroom and are comfortable with a long contract\n\n## Quick Actions\n\nAction: [Button: Compare monthly cost] https://www.calculator.net/monthly-payment-calculator.html\nAction: [Button: Check provider availability] https://www.canadapost-postescanada.ca/\n\n## Sources\n\n- Internet speed guidance for households: https://www.highspeedinternet.com/resources/how-much-speed-do-i-need\n- Remote work bandwidth basics: https://www.fcc.gov/consumers/guides/how-much-bandwidth-do-i-need\n- Gaming latency and connection tips: https://www.xfinity.com/hub/internet/gaming-internet-speed-requirements\n\nAsset URL policy for this request:\n- No local asset mapping is provided.\n- Preserve media URLs from the response exactly as written.\n- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png.",
+  "error": "HTTP 401: Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.",
+  "raw_payload": {
+    "error": {
+      "code": "401",
+      "message": "Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource."
+    }
+  },
+  "response_id": "r_004593_01",
+  "query_id": "q_004593",
+  "ui_id": "u_004593_01"
+}

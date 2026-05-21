@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
+import time
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -24,8 +27,36 @@ class JsonlWriter:
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     def append(self, record: dict[str, Any]) -> None:
-        with self.path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n")
+        with _jsonl_append_lock(self.path):
+            with self.path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n")
+
+
+@contextmanager
+def _jsonl_append_lock(path: Path):
+    """Small cross-process lock for multi-worker JSONL appends."""
+    lock_path = path.with_suffix(path.suffix + ".lock")
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    fd: int | None = None
+    while fd is None:
+        try:
+            fd = os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_RDWR)
+            os.write(fd, str(os.getpid()).encode("ascii", errors="ignore"))
+        except FileExistsError:
+            try:
+                if time.time() - lock_path.stat().st_mtime > 1800:
+                    lock_path.unlink(missing_ok=True)
+                    continue
+            except OSError:
+                pass
+            time.sleep(0.05)
+    try:
+        yield
+    finally:
+        try:
+            os.close(fd)
+        finally:
+            lock_path.unlink(missing_ok=True)
 
 
 def iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:

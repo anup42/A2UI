@@ -1,0 +1,70 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-05-19T15:34:14Z",
+  "run_id": "dataset_v3",
+  "stage": "stage1_watch",
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "3bdb4300039f284b3f777fabb855e2b2cf449470",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "azure_gpt54_mini",
+    "provider": "azure_openai",
+    "model": "gpt-5.4-mini"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "ed7adf4aad5c246d3555ae4507e66d7cd3d6dfe0170f41aae9ec8618e993937a",
+      "configs\\models.yaml": "6cad947edd4eab008d58deb15cbb3fae2a02d94de1681fc0ca78655b75fb3a78"
+    },
+    "combined_sha256": "3f04cc3f82037945373ff8fc3bceb0670d52a4c7ba48c5701a379dc0c5edbf1b"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\dataset_v3",
+    "queries_path": "data\\runs\\dataset_v3\\queries.jsonl",
+    "responses_path": "data\\runs\\dataset_v3\\responses.jsonl",
+    "genui_path": "data\\runs\\dataset_v3\\genui.jsonl",
+    "metrics_path": "data\\runs\\dataset_v3\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\dataset_v3\\aggregates.json",
+    "artifacts_dir": "data\\runs\\dataset_v3\\artifacts",
+    "manifest_path": "data\\runs\\dataset_v3\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "dataset/scripts/watch_stage1_queries.py",
+      "--run_id",
+      "dataset_v3",
+      "--target",
+      "10000",
+      "--model",
+      "azure_gpt54_mini",
+      "--pass_size",
+      "320",
+      "--stage1_per_intent_batch_size",
+      "10"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI"
+  },
+  "dataset_worker_settings": {
+    "run_id": "dataset_v3",
+    "stage": "stage1",
+    "target": 10000,
+    "pass_size": 320,
+    "model": "azure_gpt54_mini",
+    "started_at": "2026-05-19T15:34:15.075943Z"
+  }
+}
