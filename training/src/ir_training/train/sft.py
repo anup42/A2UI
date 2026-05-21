@@ -52,6 +52,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     if val_path.exists():
         data_files["validation"] = str(val_path)
     dataset = load_dataset("json", data_files=data_files)
+    _print_training_sample_summary(dataset)
 
     def formatting_func(example: dict[str, Any]) -> str:
         return adapter.format_example(example, tokenizer=tokenizer, include_assistant=True)
@@ -218,6 +219,64 @@ def _validate_sft_token_ids(
                         f"at {split_name}[{row_index}] token={token_id} vocab_size={vocab_size}. "
                         "Check tokenizer/model pairing before running CUDA training."
                     )
+
+
+def _print_training_sample_summary(dataset: Any) -> None:
+    summary = _summarize_training_sample_models(dataset)
+    print("Training sample source summary:", flush=True)
+    for split_name, split_summary in summary.items():
+        print(f"  {split_name}: {split_summary['total']} samples", flush=True)
+        _print_count_section("response models", split_summary["response_generation"])
+        _print_count_section("IR models", split_summary["ir_generation"])
+        _print_count_section("response -> IR model pairs", split_summary["response_to_ir_generation"])
+
+
+def _print_count_section(title: str, counts: dict[str, int]) -> None:
+    if not counts:
+        print(f"    {title}: none", flush=True)
+        return
+    print(f"    {title}:", flush=True)
+    for label, count in counts.items():
+        print(f"      {label}: {count}", flush=True)
+
+
+def _summarize_training_sample_models(dataset: Any) -> dict[str, dict[str, Any]]:
+    summary: dict[str, dict[str, Any]] = {}
+    split_names = list(dataset.keys()) if hasattr(dataset, "keys") else []
+    for split_name in split_names:
+        split = dataset[split_name]
+        split_summary: dict[str, Any] = {
+            "total": len(split),
+            "response_generation": {},
+            "ir_generation": {},
+            "response_to_ir_generation": {},
+        }
+        for row in split:
+            metadata = row.get("metadata") if isinstance(row, dict) else {}
+            if not isinstance(metadata, dict):
+                metadata = {}
+            response_label = _generation_label(metadata.get("response_generation"))
+            ir_label = _generation_label(metadata.get("ir_generation") or metadata.get("source_generation"))
+            pair_label = f"{response_label} -> {ir_label}"
+            _increment_count(split_summary["response_generation"], response_label)
+            _increment_count(split_summary["ir_generation"], ir_label)
+            _increment_count(split_summary["response_to_ir_generation"], pair_label)
+        for key in ("response_generation", "ir_generation", "response_to_ir_generation"):
+            split_summary[key] = dict(sorted(split_summary[key].items()))
+        summary[str(split_name)] = split_summary
+    return summary
+
+
+def _increment_count(counts: dict[str, int], key: str) -> None:
+    counts[key] = counts.get(key, 0) + 1
+
+
+def _generation_label(value: Any) -> str:
+    if not isinstance(value, dict):
+        return "unknown/unknown"
+    provider = str(value.get("provider") or "unknown").strip() or "unknown"
+    model = str(value.get("model") or "unknown").strip() or "unknown"
+    return f"{provider}/{model}"
 
 
 def _build_optional_golden_callback(

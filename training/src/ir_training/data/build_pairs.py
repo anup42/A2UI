@@ -88,6 +88,8 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
             intent_bucket = genui.get("intent_bucket") or response.get("intent_bucket") or intent
             row_id = genui.get("ui_id") or f"u_{response_id}"
             prompt = build_prompt(system_prompt, url_processed.response_text)
+            response_generation = _generation_metadata(response.get("gen"))
+            ir_generation = _generation_metadata(genui.get("gen"))
             accepted.append(
                 {
                     "id": f"{source_key}:{row_id}",
@@ -107,6 +109,9 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                         "source_row_index": row_index,
                         "input_chars": len(url_processed.response_text),
                         "output_chars": len(completion),
+                        "response_generation": response_generation,
+                        "ir_generation": ir_generation,
+                        "source_generation": ir_generation,
                         "url_preprocessing": {
                             "enabled": url_preprocessing_enabled,
                             "url_map": url_processed.url_map,
@@ -139,6 +144,7 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
         "schema_path": run_cfg.get("schema_path"),
         "git_commit": current_commit(repo_root()),
         "counts": {**counts, "all": all_count, "accepted": len(accepted), "rejected": rejected_count},
+        "model_counts": _model_counts_by_generation(accepted),
         "filters": filter_cfg,
         "split": split_cfg,
         "url_preprocessing": {"enabled": url_preprocessing_enabled},
@@ -190,3 +196,39 @@ def _stable_source_key(path: Path, base: Path) -> str:
         return path.resolve().relative_to(base.resolve()).as_posix()
     except ValueError:
         return path.resolve().as_posix()
+
+
+def _generation_metadata(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    out: dict[str, Any] = {}
+    for key in ("provider", "model", "prompt_version"):
+        raw = value.get(key)
+        if raw is not None:
+            out[key] = raw
+    return out
+
+
+def _model_counts_by_generation(rows: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {
+        "response_generation": {},
+        "ir_generation": {},
+        "response_to_ir_generation": {},
+    }
+    for row in rows:
+        metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+        response_label = _generation_label(metadata.get("response_generation"))
+        ir_label = _generation_label(metadata.get("ir_generation") or metadata.get("source_generation"))
+        counts["response_generation"][response_label] = counts["response_generation"].get(response_label, 0) + 1
+        counts["ir_generation"][ir_label] = counts["ir_generation"].get(ir_label, 0) + 1
+        pair_label = f"{response_label} -> {ir_label}"
+        counts["response_to_ir_generation"][pair_label] = counts["response_to_ir_generation"].get(pair_label, 0) + 1
+    return {section: dict(sorted(section_counts.items())) for section, section_counts in counts.items()}
+
+
+def _generation_label(value: Any) -> str:
+    if not isinstance(value, dict):
+        return "unknown/unknown"
+    provider = str(value.get("provider") or "unknown").strip() or "unknown"
+    model = str(value.get("model") or "unknown").strip() or "unknown"
+    return f"{provider}/{model}"

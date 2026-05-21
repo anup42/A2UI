@@ -13,7 +13,11 @@ from ir_training.eval.metrics import aggregate_scores
 from ir_training.export.edge_gallery import build_litert_export_command
 from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
-from ir_training.train.sft import _align_tokenizer_and_model, _validate_sft_token_ids
+from ir_training.train.sft import (
+    _align_tokenizer_and_model,
+    _summarize_training_sample_models,
+    _validate_sft_token_ids,
+)
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -31,6 +35,7 @@ def test_prepare_dataset_filters_and_splits(tmp_path):
         "intent": "Weather",
         "intent_bucket": "weather",
         "response_text": "Weather in Bengaluru is mild.",
+        "gen": {"provider": "gemini", "model": "gemini-2.5-flash", "prompt_version": "response_v1"},
     }
     spec = {
         "root": "root",
@@ -38,7 +43,17 @@ def test_prepare_dataset_filters_and_splits(tmp_path):
         "elements": {"root": {"type": "Text", "props": {"text": "Weather"}, "children": []}},
     }
     _write_jsonl(run_dir / "responses.jsonl", [response])
-    _write_jsonl(run_dir / "genui.jsonl", [{"response_id": "r1", "ui_id": "u1", "genui_json": spec}])
+    _write_jsonl(
+        run_dir / "genui.jsonl",
+        [
+            {
+                "response_id": "r1",
+                "ui_id": "u1",
+                "genui_json": spec,
+                "gen": {"provider": "azure_openai", "model": "gpt-5.4-mini", "prompt_version": "genui_v1"},
+            }
+        ],
+    )
     out_dir = tmp_path / "prepared"
     manifest = prepare_dataset(
         {
@@ -48,7 +63,12 @@ def test_prepare_dataset_filters_and_splits(tmp_path):
         }
     )
     assert manifest["counts"]["accepted"] == 1
+    assert manifest["model_counts"]["response_generation"]["gemini/gemini-2.5-flash"] == 1
+    assert manifest["model_counts"]["ir_generation"]["azure_openai/gpt-5.4-mini"] == 1
     assert (out_dir / "train.jsonl").exists()
+    row = json.loads((out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    assert row["metadata"]["response_generation"]["model"] == "gemini-2.5-flash"
+    assert row["metadata"]["ir_generation"]["model"] == "gpt-5.4-mini"
 
 
 def test_prepare_dataset_reads_stage3_folder_and_uses_90_10_split(tmp_path):
@@ -147,7 +167,17 @@ def test_prepare_dataset_writes_url_map_metadata(tmp_path):
         },
     }
     _write_jsonl(run_dir / "responses.jsonl", [response])
-    _write_jsonl(run_dir / "genui.jsonl", [{"response_id": "r1", "ui_id": "u1", "genui_json": spec}])
+    _write_jsonl(
+        run_dir / "genui.jsonl",
+        [
+            {
+                "response_id": "r1",
+                "ui_id": "u1",
+                "genui_json": spec,
+                "gen": {"provider": "azure_openai", "model": "gpt-5.4-mini", "prompt_version": "genui_v1"},
+            }
+        ],
+    )
     out_dir = tmp_path / "prepared_urls"
 
     prepare_dataset(
@@ -234,6 +264,42 @@ def test_sft_preflight_rejects_out_of_vocab_token_id():
         assert "outside model vocabulary" in str(exc)
     else:
         raise AssertionError("Expected invalid token id to fail preflight")
+
+
+def test_sft_training_sample_summary_counts_models():
+    dataset = {
+        "train": [
+            {
+                "metadata": {
+                    "response_generation": {"provider": "gemini", "model": "gemini-2.5-flash"},
+                    "ir_generation": {"provider": "azure_openai", "model": "gpt-5.4-mini"},
+                }
+            },
+            {
+                "metadata": {
+                    "response_generation": {"provider": "gemini", "model": "gemini-2.5-flash"},
+                    "ir_generation": {"provider": "azure_openai", "model": "gpt-5.4-mini"},
+                }
+            },
+            {"metadata": {}},
+        ],
+        "validation": [
+            {
+                "metadata": {
+                    "response_generation": {"provider": "gemini", "model": "gemini-3-flash"},
+                    "source_generation": {"provider": "gemini", "model": "gemini-2.5-pro"},
+                }
+            }
+        ],
+    }
+
+    summary = _summarize_training_sample_models(dataset)
+
+    assert summary["train"]["total"] == 3
+    assert summary["train"]["response_generation"]["gemini/gemini-2.5-flash"] == 2
+    assert summary["train"]["ir_generation"]["azure_openai/gpt-5.4-mini"] == 2
+    assert summary["train"]["response_generation"]["unknown/unknown"] == 1
+    assert summary["validation"]["ir_generation"]["gemini/gemini-2.5-pro"] == 1
 
 
 def test_edge_gallery_export_command_for_gemma4_e2b():
