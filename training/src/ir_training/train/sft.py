@@ -88,15 +88,17 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         training_args_kwargs["assistant_only_loss"] = bool(training_cfg.get("assistant_only_loss", False))
     trainer_params = inspect.signature(SFTTrainer.__init__).parameters
     supports_text_dataset = "dataset_text_field" in args_params or "dataset_text_field" in trainer_params
+    sft_text_dataset = _materialize_sft_text_dataset(dataset, formatting_func)
+    _validate_sft_token_ids(
+        dataset=sft_text_dataset,
+        tokenizer=tokenizer,
+        max_seq_length=max_seq_length,
+        vocab_size=_model_vocab_size(model),
+        max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
+        tokenizer_size=len(tokenizer) if hasattr(tokenizer, "__len__") else None,
+    )
     if supports_text_dataset:
-        dataset = _materialize_sft_text_dataset(dataset, formatting_func)
-        _validate_sft_token_ids(
-            dataset=dataset,
-            tokenizer=tokenizer,
-            max_seq_length=max_seq_length,
-            vocab_size=_model_vocab_size(model),
-            max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
-        )
+        dataset = sft_text_dataset
         if "dataset_text_field" in args_params:
             training_args_kwargs["dataset_text_field"] = "text"
         if "packing" in args_params:
@@ -183,8 +185,13 @@ def _align_tokenizer_and_model(tokenizer: Any, model: Any) -> None:
 
 
 def _model_vocab_size(model: Any) -> int | None:
+    if model is None:
+        return None
     embeddings = model.get_input_embeddings() if hasattr(model, "get_input_embeddings") else None
-    return getattr(embeddings, "num_embeddings", None)
+    vocab_size = getattr(embeddings, "num_embeddings", None)
+    if vocab_size is not None:
+        return vocab_size
+    return _model_vocab_size(getattr(model, "base_model", None))
 
 
 def _validate_sft_token_ids(
@@ -194,14 +201,19 @@ def _validate_sft_token_ids(
     max_seq_length: int,
     vocab_size: int | None,
     max_rows: int,
+    tokenizer_size: int | None = None,
 ) -> None:
     if vocab_size is None:
+        print("SFT token preflight skipped: model vocabulary size is unavailable.", flush=True)
         return
     split_names = [name for name in ("train", "validation") if name in dataset]
+    total_rows_checked = 0
+    max_seen_token_id = -1
     for split_name in split_names:
         split = dataset[split_name]
         limit = len(split) if max_rows <= 0 else min(len(split), max_rows)
         for row_index in range(limit):
+            total_rows_checked += 1
             text = str(split[row_index].get("text", ""))
             encoded = tokenizer(
                 text,
@@ -213,12 +225,23 @@ def _validate_sft_token_ids(
             if not input_ids:
                 raise ValueError(f"SFT preflight failed: empty tokenization at {split_name}[{row_index}]")
             for token_id in input_ids:
+                if isinstance(token_id, int):
+                    max_seen_token_id = max(max_seen_token_id, token_id)
                 if not isinstance(token_id, int) or token_id < 0 or token_id >= vocab_size:
                     raise ValueError(
                         "SFT preflight failed: token id outside model vocabulary "
                         f"at {split_name}[{row_index}] token={token_id} vocab_size={vocab_size}. "
                         "Check tokenizer/model pairing before running CUDA training."
                     )
+    print(
+        "SFT token preflight passed: "
+        f"rows_checked={total_rows_checked}, "
+        f"tokenizer_size={tokenizer_size if tokenizer_size is not None else 'unknown'}, "
+        f"model_vocab_size={vocab_size}, "
+        f"max_token_id={max_seen_token_id}, "
+        f"max_seq_length={max_seq_length}",
+        flush=True,
+    )
 
 
 def _print_training_sample_summary(dataset: Any) -> None:
