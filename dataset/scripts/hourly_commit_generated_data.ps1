@@ -179,12 +179,10 @@ function Invoke-GeneratedDataSnapshot {
         }
 
         $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-        $summaries = @(
-            Get-RunSummary "dataset_v0",
-            Get-RunSummary "dataset_v1",
-            Get-RunSummary "dataset_v2",
-            Get-RunSummary "dataset_v3"
-        )
+        $summaries = @()
+        foreach ($runName in @("dataset_v0", "dataset_v1", "dataset_v2", "dataset_v3")) {
+            $summaries += Get-RunSummary $runName
+        }
 
         $message = "Hourly generated dataset snapshot $timestamp"
         $body = ($summaries -join [Environment]::NewLine)
