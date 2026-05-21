@@ -39,10 +39,10 @@ python training/scripts/prepare_dataset.py --config training/configs/datasets/go
 python training/scripts/train_sft.py --config training/configs/models/gemma_e2b_ir_lora.yaml
 ```
 
-Start Gemma 4 QLoRA training with golden50 evaluation at the end of every epoch:
+Start Gemma 4 E2B QLoRA training with golden50 evaluation at the end of every epoch:
 
 ```powershell
-python training/scripts/train_sft.py --config training/configs/models/gemma4_ir_lora.yaml
+python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_lora.yaml
 ```
 
 This requires a GPU machine with the packages in
@@ -63,7 +63,31 @@ python training/scripts/evaluate.py --predictions training/outputs/eval/predicti
 
 The evaluator writes `aggregate_metrics.json` with `overall_score`, `baseline_overall_score`, and `overall_score_delta_vs_baseline` when a baseline is provided.
 
-5. Export a model package for Android.
+5. Export a trained Gemma 4 E2B model for Google AI Edge Gallery.
+
+Google AI Edge Gallery imports local LLMs as `.litertlm` files. After training,
+merge the LoRA adapter into a Hugging Face model directory and run Google's
+LiteRT Torch Hugging Face exporter:
+
+```powershell
+python -m pip install -r training/requirements-edge-export.txt
+hf auth login
+python training/scripts/export_edge_gallery_model.py --config training/configs/export/edge_gallery_gemma4_e2b.yaml --merge-lora
+adb push training/outputs/export/gemma4_e2b_ir_edge_gallery/litertlm/<model>.litertlm /sdcard/Download/
+```
+
+For CI or CPU-only machines, validate the generated command/manifest without
+running conversion:
+
+```powershell
+python training/scripts/export_edge_gallery_model.py --config training/configs/export/edge_gallery_gemma4_e2b.yaml --dry-run
+```
+
+The export wrapper writes `edge_gallery_export_plan.json`,
+`run_litert_export.ps1`, `EDGE_GALLERY_IMPORT.md`, and `model_manifest.json`
+under `training/outputs/export/gemma4_e2b_ir_edge_gallery`.
+
+6. Export a legacy Android metadata package.
 
 ```powershell
 python training/scripts/export_model.py --config training/configs/export/litertlm_gemma.yaml

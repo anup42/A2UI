@@ -35,13 +35,31 @@ class ModelAdapter(ABC):
     def load_tokenizer(self):
         from transformers import AutoTokenizer  # type: ignore
 
-        tokenizer = AutoTokenizer.from_pretrained(
-            self.model_id,
-            trust_remote_code=bool(self.config.get("trust_remote_code", False)),
-        )
+        loader = str(self.config.get("tokenizer_loader", "auto_tokenizer")).strip().lower()
+        if loader in {"auto_processor", "processor"}:
+            tokenizer = self._load_tokenizer_from_processor()
+        else:
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(
+                    self.model_id,
+                    trust_remote_code=bool(self.config.get("trust_remote_code", False)),
+                )
+            except Exception:
+                if not bool(self.config.get("processor_fallback", False)):
+                    raise
+                tokenizer = self._load_tokenizer_from_processor()
         if getattr(tokenizer, "pad_token", None) is None and getattr(tokenizer, "eos_token", None) is not None:
             tokenizer.pad_token = tokenizer.eos_token
         return tokenizer
+
+    def _load_tokenizer_from_processor(self):
+        from transformers import AutoProcessor  # type: ignore
+
+        processor = AutoProcessor.from_pretrained(
+            self.model_id,
+            trust_remote_code=bool(self.config.get("trust_remote_code", False)),
+        )
+        return getattr(processor, "tokenizer", processor)
 
     def load_model(self):
         from transformers import AutoModelForCausalLM, BitsAndBytesConfig  # type: ignore

@@ -9,6 +9,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.data.build_pairs import prepare_dataset
 from ir_training.eval.metrics import aggregate_scores
+from ir_training.export.edge_gallery import build_litert_export_command
 from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
 
@@ -97,6 +98,23 @@ def test_model_registry_formats_example():
     text = adapter.format_example({"messages": [{"role": "user", "content": "Hello"}]})
     assert "Hello" in text
     assert "gemma" in supported_families()
+
+
+def test_edge_gallery_export_command_for_gemma4_e2b():
+    command = build_litert_export_command(
+        model_source="runs/gemma4_e2b_ir_lora/merged_hf",
+        output_dir="outputs/export/gemma4_e2b_ir_edge_gallery/litertlm",
+        export_cfg={
+            "command": "litert-torch",
+            "externalize_embedder": True,
+            "jinja_chat_template_override": "litert-community/gemma-4-E2B-it-litert-lm",
+        },
+    )
+    assert command[:2] == ["litert-torch", "export_hf"]
+    assert "--model=runs/gemma4_e2b_ir_lora/merged_hf" in command
+    assert "--output_dir=outputs/export/gemma4_e2b_ir_edge_gallery/litertlm" in command
+    assert "--externalize_embedder" in command
+    assert "--jinja_chat_template_override=litert-community/gemma-4-E2B-it-litert-lm" in command
 
 
 def test_aggregate_scores_includes_overall_and_delta():

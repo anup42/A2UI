@@ -1,0 +1,8 @@
+﻿# Install this in a separate conversion environment on the machine that will run Google AI Edge export.
+# The training env can stay separate; LiteRT export tooling is large and hardware/platform sensitive.
+litert-torch>=0.8.0
+huggingface_hub[cli]>=0.23
+safetensors>=0.4
+
+# Optional for NPU ahead-of-time compilation paths documented by Google AI Edge:
+# ai-edge-litert[npu-sdk]
