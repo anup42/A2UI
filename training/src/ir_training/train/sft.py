@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import inspect
@@ -40,6 +40,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     model = adapter.load_model()
     _align_tokenizer_and_model(tokenizer, model)
     _print_tokenizer_model_alignment(tokenizer, model)
+    max_position_embeddings = _model_position_limit(model)
     if bool(model_cfg.get("load_in_4bit", False)):
         model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, build_lora_config(adapter, lora_cfg))
@@ -95,7 +96,10 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "bf16": str(model_cfg.get("dtype", "bfloat16")).lower() == "bfloat16",
         "report_to": "none",
     }
-    max_seq_length = int(training_cfg.get("max_seq_length", adapter.max_context()))
+    max_seq_length = _effective_max_seq_length(
+        configured=int(training_cfg.get("max_seq_length", adapter.max_context())),
+        max_position_embeddings=max_position_embeddings,
+    )
     if trainer_backend == "trl" and "completion_only_loss" in args_params:
         # formatting_func produces a full language-modeling text record.
         # TRL's completion-only loss is incompatible with that path.
@@ -163,7 +167,11 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             "train_dataset": tokenized_dataset["train"],
             "eval_dataset": tokenized_dataset.get("validation"),
             "args": args,
-            "data_collator": _CausalLMDataCollator(tokenizer, vocab_size=_model_vocab_size(model)),
+            "data_collator": _CausalLMDataCollator(
+                tokenizer,
+                vocab_size=_model_vocab_size(model),
+                max_position_embeddings=max_position_embeddings,
+            ),
         }
         if "tokenizer" in trainer_params:
             trainer_kwargs["tokenizer"] = tokenizer
@@ -234,9 +242,15 @@ def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int
 
 
 class _CausalLMDataCollator:
-    def __init__(self, tokenizer: Any, vocab_size: int | None = None) -> None:
+    def __init__(
+        self,
+        tokenizer: Any,
+        vocab_size: int | None = None,
+        max_position_embeddings: int | None = None,
+    ) -> None:
         self.tokenizer = tokenizer
         self.vocab_size = vocab_size
+        self.max_position_embeddings = max_position_embeddings
 
     def __call__(self, features: list[dict[str, Any]]) -> dict[str, Any]:
         import torch
@@ -247,6 +261,7 @@ class _CausalLMDataCollator:
         ]
         batch = self.tokenizer.pad(input_features, padding=True, return_tensors="pt")
         _validate_padded_input_id_tensor(batch["input_ids"], self.vocab_size, self.tokenizer)
+        _validate_padded_sequence_length(batch["input_ids"], self.max_position_embeddings)
         labels = batch["input_ids"].clone()
         attention_mask = batch.get("attention_mask")
         if attention_mask is not None:
@@ -347,16 +362,49 @@ def _validate_padded_input_id_tensor(input_ids: Any, vocab_size: int | None, tok
         )
 
 
+def _validate_padded_sequence_length(input_ids: Any, max_position_embeddings: int | None) -> None:
+    if max_position_embeddings is None:
+        return
+    shape = getattr(input_ids, "shape", None)
+    if not shape:
+        return
+    sequence_length = int(shape[-1])
+    if sequence_length > max_position_embeddings:
+        raise ValueError(
+            "Padded SFT batch sequence length exceeds model position limit before CUDA execution. "
+            f"sequence_length={sequence_length} max_position_embeddings={max_position_embeddings}"
+        )
+
+
 def _print_tokenizer_model_alignment(tokenizer: Any, model: Any) -> None:
+    vocab_size = _model_vocab_size(model)
+    position_limit = _model_position_limit(model)
     print(
         "Tokenizer/model alignment: "
         f"tokenizer_size={len(tokenizer) if hasattr(tokenizer, '__len__') else 'unknown'}, "
-        f"model_vocab_size={_model_vocab_size(model) if _model_vocab_size(model) is not None else 'unknown'}, "
+        f"model_vocab_size={vocab_size if vocab_size is not None else 'unknown'}, "
+        f"max_position_embeddings={position_limit if position_limit is not None else 'unknown'}, "
         f"pad_token_id={getattr(tokenizer, 'pad_token_id', None)}, "
         f"bos_token_id={getattr(tokenizer, 'bos_token_id', None)}, "
         f"eos_token_id={getattr(tokenizer, 'eos_token_id', None)}",
         flush=True,
     )
+
+
+def _effective_max_seq_length(configured: int, max_position_embeddings: int | None) -> int:
+    if max_position_embeddings is None or configured <= max_position_embeddings:
+        print(
+            "Effective SFT max sequence length: "
+            f"{configured} (configured={configured}, model_position_limit={max_position_embeddings or 'unknown'})",
+            flush=True,
+        )
+        return configured
+    print(
+        "Clamping SFT max sequence length to model position limit: "
+        f"configured={configured}, model_position_limit={max_position_embeddings}",
+        flush=True,
+    )
+    return max_position_embeddings
 
 
 def _model_vocab_size(model: Any) -> int | None:
@@ -367,6 +415,31 @@ def _model_vocab_size(model: Any) -> int | None:
     if vocab_size is not None:
         return vocab_size
     return _model_vocab_size(getattr(model, "base_model", None))
+
+
+def _model_position_limit(model: Any) -> int | None:
+    if model is None:
+        return None
+    config = getattr(model, "config", None)
+    candidates: list[int] = []
+    _collect_position_limit_candidates(config, candidates)
+    base_limit = _model_position_limit(getattr(model, "base_model", None))
+    if base_limit is not None:
+        candidates.append(base_limit)
+    return min(candidates) if candidates else None
+
+
+def _collect_position_limit_candidates(value: Any, candidates: list[int]) -> None:
+    if value is None:
+        return
+    for attr in ("max_position_embeddings", "max_sequence_length", "seq_length"):
+        attr_value = getattr(value, attr, None)
+        if isinstance(attr_value, int) and attr_value > 0:
+            candidates.append(attr_value)
+    for nested_attr in ("text_config", "llm_config", "language_config"):
+        nested = getattr(value, nested_attr, None)
+        if nested is not None and nested is not value:
+            _collect_position_limit_candidates(nested, candidates)
 
 
 def _validate_sft_token_ids(

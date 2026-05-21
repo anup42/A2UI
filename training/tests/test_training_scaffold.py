@@ -15,6 +15,7 @@ from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
 from ir_training.train.sft import (
     _align_tokenizer_and_model,
+    _effective_max_seq_length,
     _summarize_training_sample_models,
     _validate_sft_token_ids,
     _validate_tokenized_sft_dataset,
@@ -299,6 +300,11 @@ def test_sft_alignment_replaces_out_of_vocab_pad_token_with_eos():
 
     assert tokenizer.pad_token_id == 1
     assert model.config.pad_token_id == 1
+
+
+def test_sft_effective_max_seq_length_clamps_to_position_limit():
+    assert _effective_max_seq_length(configured=8192, max_position_embeddings=4096) == 4096
+    assert _effective_max_seq_length(configured=2048, max_position_embeddings=4096) == 2048
 
 
 def test_sft_preflight_rejects_out_of_vocab_token_id():
