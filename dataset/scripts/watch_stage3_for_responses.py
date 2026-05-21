@@ -118,6 +118,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--idle_checks", type=int, default=5)
     parser.add_argument("--rate_limit_qps", type=float, default=None)
     parser.add_argument("--call_sleep_seconds", type=float, default=None)
+    parser.add_argument(
+        "--min_pending",
+        type=int,
+        default=1,
+        help=(
+            "Minimum missing IR backlog before making Stage 3 API calls. "
+            "The watcher still drains the final backlog when target responses are reached."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -193,7 +202,11 @@ def main() -> None:
             },
         )
 
-        if missing:
+        min_pending = max(1, args.min_pending)
+        target_reached = args.target > 0 and counts["responses"] >= args.target
+        enough_backlog = len(missing) >= min_pending or target_reached
+
+        if missing and enough_backlog:
             before = len(existing)
             max_total = min(max(1, args.pass_size), len(missing))
             write_assigned_responses(run_paths.responses_path, shard_responses_path, args.worker_index, args.worker_count)
@@ -241,6 +254,16 @@ def main() -> None:
                 logger.warning("Stage3 watcher made no progress with missing_ir=%s; sleeping", len(missing))
                 time.sleep(max(1.0, args.poll_seconds))
             continue
+
+        if missing and not enough_backlog:
+            logger.info(
+                "Stage3 watcher waiting for backlog missing_ir=%s min_pending=%s responses=%s target=%s",
+                len(missing),
+                min_pending,
+                counts["responses"],
+                args.target,
+            )
+            idle_count = 0
 
         if args.target > 0 and counts["responses"] >= args.target:
             if last_counts == counts:

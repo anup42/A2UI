@@ -76,6 +76,7 @@ def start_worker(
     target: int,
     keys: list[str],
     log_path: Path,
+    stage3_min_pending: int,
 ) -> subprocess.Popen:
     run_dir = DATASET_ROOT / "data" / "runs" / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -127,6 +128,8 @@ def start_worker(
             "0.2",
             "--call_sleep_seconds",
             "1",
+            "--min_pending",
+            str(stage3_min_pending),
         ]
         env = common_env(keys, batch_prompts=8, batch_output_tokens=65536)
     else:
@@ -162,6 +165,12 @@ def main() -> None:
     parser.add_argument("--runs", default="dataset_v3,dataset_v1")
     parser.add_argument("--target", type=int, default=10000)
     parser.add_argument("--poll_seconds", type=float, default=300.0)
+    parser.add_argument(
+        "--stage3_min_pending",
+        type=int,
+        default=int(os.getenv("GEMINI_STAGE3_MIN_PENDING", "256")),
+        help="Only run Stage 3 when this many missing IR records are available, unless responses reached target.",
+    )
     args = parser.parse_args()
 
     load_env()
@@ -191,14 +200,31 @@ def main() -> None:
 
         if responses < args.target and queries > 0:
             if stage2_proc is None or stage2_proc.poll() is not None:
-                stage2_proc = start_worker(run_id, "stage2", args.target, stage2_keys, log_path)
+                stage2_proc = start_worker(
+                    run_id,
+                    "stage2",
+                    args.target,
+                    stage2_keys,
+                    log_path,
+                    args.stage3_min_pending,
+                )
         else:
             stop_worker(stage2_proc, "stage2", log_path)
             stage2_proc = None
 
-        if genui < min(args.target, max(responses, 0)) and responses > 0:
+        stage3_target = min(args.target, max(responses, 0))
+        stage3_backlog = max(0, stage3_target - genui)
+        stage3_enough_backlog = stage3_backlog >= max(1, args.stage3_min_pending) or responses >= args.target
+        if genui < stage3_target and responses > 0 and stage3_enough_backlog:
             if stage3_proc is None or stage3_proc.poll() is not None:
-                stage3_proc = start_worker(run_id, "stage3", args.target, stage3_keys, log_path)
+                stage3_proc = start_worker(
+                    run_id,
+                    "stage3",
+                    args.target,
+                    stage3_keys,
+                    log_path,
+                    args.stage3_min_pending,
+                )
         else:
             stop_worker(stage3_proc, "stage3", log_path)
             stage3_proc = None
