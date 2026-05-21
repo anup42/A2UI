@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.jsonl import read_jsonl, write_jsonl
+from ir_training.data.url_preprocess import restore_url_placeholders
 from ir_training.eval.metrics import (
     aggregate_scores,
     load_baseline_aggregate,
@@ -21,11 +22,15 @@ def evaluate_predictions(
 ) -> dict[str, Any]:
     rows_out: list[dict[str, Any]] = []
     for row in read_jsonl(predictions_path):
-        response_text = str(row.get("response_text") or row.get("input") or "")
+        url_map = row.get("url_map") if isinstance(row.get("url_map"), dict) else {}
+        response_text = str(restore_url_placeholders(row.get("response_text") or row.get("input") or "", url_map))
         generated_text = str(row.get("generated_text") or row.get("prediction") or "")
-        expected = row.get("expected") or row.get("expected_json")
-        metrics = score_prediction(response_text, expected, generated_text)
+        expected = restore_url_placeholders(row.get("expected") or row.get("expected_json"), url_map)
+        restored_generated_text = str(restore_url_placeholders(generated_text, url_map))
+        metrics = score_prediction(response_text, expected, restored_generated_text)
         out = dict(row)
+        if restored_generated_text != generated_text:
+            out["generated_text_restored"] = restored_generated_text
         out["metrics"] = metrics
         rows_out.append(out)
     weights = load_dataset_weights(weights_config_path)

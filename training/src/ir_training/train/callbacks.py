@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.jsonl import read_jsonl, write_jsonl
+from ir_training.data.url_preprocess import restore_url_placeholders
 from ir_training.eval.compare_to_baseline import evaluate_predictions
 
 
@@ -114,13 +115,15 @@ def _generate_predictions_with_model(
             )
         input_length = inputs["input_ids"].shape[-1]
         generated = tokenizer.decode(output[0][input_length:], skip_special_tokens=True)
+        url_map = _extract_url_map(row)
         rows_out.append(
             {
                 "id": row.get("id"),
                 "response_id": row.get("response_id"),
-                "response_text": _extract_user_text(row),
-                "expected": _safe_load_json(row.get("completion")),
+                "response_text": restore_url_placeholders(_extract_user_text(row), url_map),
+                "expected": restore_url_placeholders(_safe_load_json(row.get("completion")), url_map),
                 "generated_text": generated,
+                "url_map": url_map,
             }
         )
     if was_training:
@@ -144,6 +147,13 @@ def _safe_load_json(value: Any) -> Any | None:
         return json.loads(value)
     except Exception:
         return None
+
+
+def _extract_url_map(row: dict[str, Any]) -> dict[str, Any]:
+    metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+    url_preprocessing = metadata.get("url_preprocessing") if isinstance(metadata.get("url_preprocessing"), dict) else {}
+    url_map = url_preprocessing.get("url_map")
+    return url_map if isinstance(url_map, dict) else {}
 
 
 def _epoch_label(value: Any) -> str:

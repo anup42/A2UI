@@ -17,6 +17,8 @@ filters:
   max_input_chars: 60000
   max_output_chars: 60000
   deduplicate: true
+url_preprocessing:
+  enabled: true
 split:
   train: 0.90
   val: 0.10

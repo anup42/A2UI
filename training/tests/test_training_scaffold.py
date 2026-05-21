@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.data.build_pairs import prepare_dataset
+from ir_training.data.url_preprocess import preprocess_training_urls, restore_url_placeholders
 from ir_training.eval.metrics import aggregate_scores
 from ir_training.export.edge_gallery import build_litert_export_command
 from ir_training.models.registry import create_adapter, supported_families
@@ -91,6 +92,77 @@ def test_prepare_dataset_reads_stage3_folder_and_uses_90_10_split(tmp_path):
     assert manifest["counts"]["all"] == 10
     assert len(manifest["source_genui_paths"]) == 2
     assert (out_dir / "all.jsonl").exists()
+
+
+def test_url_preprocessing_placeholderizes_and_restores_roles():
+    spec = {
+        "root": "root",
+        "state": {},
+        "elements": {
+            "root": {"type": "Stack", "props": {}, "children": ["image", "cta"]},
+            "image": {
+                "type": "Image",
+                "props": {"url": "https://upload.wikimedia.org/example.jpg"},
+                "children": [],
+            },
+            "cta": {
+                "type": "Button",
+                "props": {"label": "Open"},
+                "on": {"press": {"action": "openUrl", "params": {"url": "https://example.org/details"}}},
+                "children": [],
+            },
+        },
+    }
+    result = preprocess_training_urls(
+        "Images: https://upload.wikimedia.org/example.jpg\nAction: [Button: Open] https://example.org/details",
+        spec,
+    )
+    assert "[IMAGE_URL_1]" in result.response_text
+    assert "[ACTION_URL_1]" in result.response_text
+    assert result.genui_json["elements"]["image"]["props"]["url"] == "[IMAGE_URL_1]"
+    assert result.genui_json["elements"]["cta"]["on"]["press"]["params"]["url"] == "[ACTION_URL_1]"
+    assert restore_url_placeholders(result.genui_json, result.url_map) == spec
+
+
+def test_prepare_dataset_writes_url_map_metadata(tmp_path):
+    run_dir = tmp_path / "run"
+    response = {
+        "response_id": "r1",
+        "query_id": "q1",
+        "intent": "Travel",
+        "intent_bucket": "travel",
+        "response_text": "Action: [Button: Open] https://example.org/details",
+    }
+    spec = {
+        "root": "root",
+        "state": {},
+        "elements": {
+            "root": {
+                "type": "Button",
+                "props": {"label": "Open"},
+                "on": {"press": {"action": "openUrl", "params": {"url": "https://example.org/details"}}},
+                "children": [],
+            }
+        },
+    }
+    _write_jsonl(run_dir / "responses.jsonl", [response])
+    _write_jsonl(run_dir / "genui.jsonl", [{"response_id": "r1", "ui_id": "u1", "genui_json": spec}])
+    out_dir = tmp_path / "prepared_urls"
+
+    prepare_dataset(
+        {
+            "run": {"source_run_dir": str(run_dir), "output_dir": str(out_dir), "system_prompt": "Return JSON."},
+            "filters": {"require_strict_flat_spec": True, "max_input_chars": 1000, "max_output_chars": 1000},
+            "url_preprocessing": {"enabled": True},
+            "split": {"train": 1, "val": 0, "test": 0, "stratify_by": "intent_bucket"},
+        }
+    )
+
+    row = json.loads((out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    assert "[ACTION_URL_1]" in row["prompt"]
+    assert "[ACTION_URL_1]" in row["completion"]
+    url_map = row["metadata"]["url_preprocessing"]["url_map"]
+    assert url_map["[ACTION_URL_1]"]["url"] == "https://example.org/details"
 
 
 def test_model_registry_formats_example():

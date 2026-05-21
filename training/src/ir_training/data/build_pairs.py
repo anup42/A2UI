@@ -11,12 +11,14 @@ from ir_training.common.jsonl import load_by_key, read_jsonl, write_jsonl
 from ir_training.data.chat_templates import build_messages, build_prompt, minify_json
 from ir_training.data.filters import FlatSpecValidator, row_passes_basic_filters
 from ir_training.data.splits import stratified_split
+from ir_training.data.url_preprocess import preprocess_training_urls
 
 
 def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> dict[str, Any]:
     run_cfg = config.get("run") if isinstance(config.get("run"), dict) else {}
     filter_cfg = config.get("filters") if isinstance(config.get("filters"), dict) else {}
     split_cfg = config.get("split") if isinstance(config.get("split"), dict) else {}
+    url_cfg = config.get("url_preprocessing") if isinstance(config.get("url_preprocessing"), dict) else {}
 
     base = training_root()
     output_dir = resolve_path(run_cfg.get("output_dir", "outputs/datasets/dataset_v1_stage3"), base)
@@ -27,6 +29,7 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
     max_output_chars = int(filter_cfg.get("max_output_chars", 60000))
     deduplicate = bool(filter_cfg.get("deduplicate", True))
     system_prompt = str(run_cfg.get("system_prompt") or "").strip()
+    url_preprocessing_enabled = bool(url_cfg.get("enabled", True))
 
     accepted: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
@@ -67,8 +70,13 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
             if not validation.valid:
                 rejected.append({"response_id": response_id, "source_path": source_key, "reason": validation.reason})
                 continue
-            completion = minify_json(genui_json)
-            dedupe_key = hashlib.sha256((response_text + "\n" + completion).encode("utf-8")).hexdigest()
+            url_processed = preprocess_training_urls(
+                response_text,
+                genui_json,
+                enabled=url_preprocessing_enabled,
+            )
+            completion = minify_json(url_processed.genui_json)
+            dedupe_key = hashlib.sha256((url_processed.response_text + "\n" + completion).encode("utf-8")).hexdigest()
             if deduplicate and dedupe_key in seen_hashes:
                 rejected.append({"response_id": response_id, "source_path": source_key, "reason": "duplicate_pair"})
                 continue
@@ -79,12 +87,12 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
             tags = genui.get("tags") or response.get("tags") or []
             intent_bucket = genui.get("intent_bucket") or response.get("intent_bucket") or intent
             row_id = genui.get("ui_id") or f"u_{response_id}"
-            prompt = build_prompt(system_prompt, response_text)
+            prompt = build_prompt(system_prompt, url_processed.response_text)
             accepted.append(
                 {
                     "id": f"{source_key}:{row_id}",
                     "response_id": response_id,
-                    "messages": build_messages(system_prompt, response_text, genui_json),
+                    "messages": build_messages(system_prompt, url_processed.response_text, url_processed.genui_json),
                     "prompt": prompt,
                     "completion": completion,
                     "metadata": {
@@ -97,8 +105,13 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                         "schema_path": run_cfg.get("schema_path"),
                         "source_path": source_key,
                         "source_row_index": row_index,
-                        "input_chars": len(response_text),
+                        "input_chars": len(url_processed.response_text),
                         "output_chars": len(completion),
+                        "url_preprocessing": {
+                            "enabled": url_preprocessing_enabled,
+                            "url_map": url_processed.url_map,
+                            "metrics": url_processed.metrics,
+                        },
                     },
                 }
             )
@@ -128,6 +141,7 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
         "counts": {**counts, "all": all_count, "accepted": len(accepted), "rejected": rejected_count},
         "filters": filter_cfg,
         "split": split_cfg,
+        "url_preprocessing": {"enabled": url_preprocessing_enabled},
     }
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     if config_path is not None:
