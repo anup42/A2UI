@@ -1,7 +1,7 @@
 run:
   id: golden50_stage3_eval
   seed: 42
-  source_run_dir: ../dataset/data/runs/golden50_g25pro_20260309_204033
+  source_run_dir: ../dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4
   output_dir: outputs/datasets/golden50_stage3_eval
   prompt_version: genui_gen_mobile_flatspec_v11
   schema_path: ../dataset/schema/genui_flatspec.schema.json

@@ -1,8 +1,10 @@
 run:
   id: stage3_folder_90_10
   seed: 42
-  source_genui_dir: ../dataset/data/runs
-  source_glob: "**/genui.jsonl"
+  source_genui_files:
+    - ../dataset/data/runs/dataset_v1/genui.jsonl
+    - ../dataset/data/runs/dataset_v2/genui.jsonl
+    - ../dataset/data/runs/dataset_v3/genui.jsonl
   output_dir: outputs/datasets/stage3_folder_90_10
   prompt_version: genui_gen_mobile_flatspec_v11
   schema_path: ../dataset/schema/genui_flatspec.schema.json
