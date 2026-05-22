@@ -8,6 +8,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from ir_training.common.cuda_env import normalize_cuda_visible_devices
+
+EARLY_CUDA_VISIBLE_DEVICES = normalize_cuda_visible_devices()
+
 from ir_training.common.config import load_yaml
 from ir_training.common.logging import configure_logging
 from ir_training.train.sft import train_sft
@@ -18,6 +22,7 @@ def main() -> None:
     parser.add_argument("--config", required=True, help="Path to model training YAML config.")
     args = parser.parse_args()
     configure_logging()
+    print(f"CUDA_VISIBLE_DEVICES={EARLY_CUDA_VISIBLE_DEVICES}", flush=True)
     config_path = Path(args.config).resolve()
     result = train_sft(load_yaml(config_path), config_path=config_path)
     print(json.dumps(result, indent=2, ensure_ascii=False))

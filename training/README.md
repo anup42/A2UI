@@ -96,6 +96,21 @@ If that reports `cuda available: False`, fix the environment rather than waiting
 for training: install a CUDA-enabled PyTorch build and launch Singularity with
 GPU passthrough, for example `singularity exec --nv <image> ...`.
 
+The training entrypoint normalizes `CUDA_VISIBLE_DEVICES` before importing
+PyTorch. If the shell inherits a multi-GPU value such as `0,1,2,3`, it defaults
+to `0` so an unhealthy GPU does not break PyTorch CUDA initialization. To use a
+specific healthy set, pass it explicitly:
+
+```bash
+A2UI_CUDA_VISIBLE_DEVICES=0 python3 training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_lora.yaml
+```
+
+For multi-GPU experiments, exclude unhealthy devices and opt in explicitly:
+
+```bash
+A2UI_CUDA_VISIBLE_DEVICES=0,1,3 A2UI_ALLOW_MULTI_GPU_VISIBLE=1 python3 training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_lora.yaml
+```
+
 Shell and sbatch files are forced to LF line endings through `.gitattributes`.
 This avoids Linux shebang failures such as `cannot execute: required file not
 found` caused by CRLF files copied from Windows.

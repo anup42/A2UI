@@ -13,6 +13,7 @@ from ir_training.eval.metrics import aggregate_scores
 from ir_training.export.edge_gallery import build_litert_export_command
 from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
+from ir_training.common.cuda_env import normalize_cuda_visible_devices
 from ir_training.train import sft as sft_module
 from ir_training.train.sft import (
     _align_tokenizer_and_model,
@@ -150,6 +151,32 @@ def test_url_preprocessing_placeholderizes_and_restores_roles():
     assert result.genui_json["elements"]["image"]["props"]["url"] == "[IMAGE_URL_1]"
     assert result.genui_json["elements"]["cta"]["on"]["press"]["params"]["url"] == "[ACTION_URL_1]"
     assert restore_url_placeholders(result.genui_json, result.url_map) == spec
+
+
+def test_cuda_visible_devices_normalizes_bad_multi_gpu_default():
+    env = {"CUDA_VISIBLE_DEVICES": "0,1,2,3"}
+
+    result = normalize_cuda_visible_devices(env)
+
+    assert result == "0"
+    assert env["CUDA_VISIBLE_DEVICES"] == "0"
+
+
+def test_cuda_visible_devices_allows_explicit_healthy_multi_gpu_set():
+    env = {"CUDA_VISIBLE_DEVICES": "0,1,2,3", "A2UI_CUDA_VISIBLE_DEVICES": "0,1,3"}
+
+    result = normalize_cuda_visible_devices(env)
+
+    assert result == "0,1,3"
+    assert env["CUDA_VISIBLE_DEVICES"] == "0,1,3"
+
+
+def test_cuda_visible_devices_keeps_multi_gpu_when_opted_in():
+    env = {"CUDA_VISIBLE_DEVICES": "0,1,3", "A2UI_ALLOW_MULTI_GPU_VISIBLE": "1"}
+
+    result = normalize_cuda_visible_devices(env)
+
+    assert result == "0,1,3"
 
 
 def test_prepare_dataset_writes_url_map_metadata(tmp_path):
