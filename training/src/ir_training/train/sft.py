@@ -23,9 +23,13 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
 
     run_cfg = config.get("run") if isinstance(config.get("run"), dict) else {}
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
+    model_cfg = dict(model_cfg)
     training_cfg = config.get("training") if isinstance(config.get("training"), dict) else {}
     lora_cfg = config.get("lora") if isinstance(config.get("lora"), dict) else {}
     golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
+    requested_dtype = str(model_cfg.get("dtype", "bfloat16")).lower()
+    resolved_dtype = _resolve_training_dtype(requested_dtype)
+    model_cfg["dtype"] = resolved_dtype
 
     base = training_root()
     dataset_dir = resolve_path(run_cfg.get("dataset_dir", "outputs/datasets/dataset_v1_stage3"), base)
@@ -81,6 +85,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         if "eval_strategy" in args_params
         else "evaluation_strategy"
     )
+    precision_flags = _training_precision_flags(resolved_dtype)
     training_args_kwargs = {
         "output_dir": str(output_dir),
         "num_train_epochs": float(training_cfg.get("epochs", 2)),
@@ -93,7 +98,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "eval_steps": int(training_cfg.get("eval_steps", 500)),
         eval_strategy_name: "steps" if "validation" in dataset else "no",
         "save_total_limit": 3,
-        "bf16": str(model_cfg.get("dtype", "bfloat16")).lower() == "bfloat16",
+        **precision_flags,
         "report_to": "none",
     }
     max_seq_length = _effective_max_seq_length(
@@ -405,6 +410,73 @@ def _effective_max_seq_length(configured: int, max_position_embeddings: int | No
         flush=True,
     )
     return max_position_embeddings
+
+
+def _resolve_training_dtype(requested_dtype: str) -> str:
+    dtype = (requested_dtype or "bfloat16").strip().lower()
+    if dtype in {"bf16", "bfloat16"}:
+        if _cuda_bf16_supported():
+            print("Training precision: bfloat16", flush=True)
+            return "bfloat16"
+        if _cuda_available():
+            print(
+                "Training precision fallback: requested bfloat16, but this GPU/PyTorch setup "
+                "does not support bf16. Using float16 instead.",
+                flush=True,
+            )
+            return "float16"
+        print(
+            "Training precision fallback: requested bfloat16, but CUDA is unavailable. "
+            "Using float32 so TrainingArguments does not fail before reporting the real device issue.",
+            flush=True,
+        )
+        return "float32"
+    if dtype in {"fp16", "float16", "half"}:
+        if _cuda_available():
+            print("Training precision: float16", flush=True)
+            return "float16"
+        print(
+            "Training precision fallback: requested float16, but CUDA is unavailable. Using float32.",
+            flush=True,
+        )
+        return "float32"
+    if dtype in {"fp32", "float32", "full"}:
+        print("Training precision: float32", flush=True)
+        return "float32"
+    print(f"Training precision: unknown dtype {requested_dtype!r}; using float32.", flush=True)
+    return "float32"
+
+
+def _training_precision_flags(dtype_name: str) -> dict[str, bool]:
+    dtype = dtype_name.strip().lower()
+    return {
+        "bf16": dtype == "bfloat16",
+        "fp16": dtype == "float16",
+    }
+
+
+def _cuda_available() -> bool:
+    try:
+        import torch  # type: ignore
+
+        return bool(torch.cuda.is_available())
+    except Exception:
+        return False
+
+
+def _cuda_bf16_supported() -> bool:
+    try:
+        import torch  # type: ignore
+
+        if not torch.cuda.is_available():
+            return False
+        checker = getattr(torch.cuda, "is_bf16_supported", None)
+        if callable(checker):
+            return bool(checker())
+        major, _minor = torch.cuda.get_device_capability(0)
+        return int(major) >= 8
+    except Exception:
+        return False
 
 
 def _model_vocab_size(model: Any, seen: set[int] | None = None) -> int | None:

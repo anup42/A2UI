@@ -13,11 +13,14 @@ from ir_training.eval.metrics import aggregate_scores
 from ir_training.export.edge_gallery import build_litert_export_command
 from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
+from ir_training.train import sft as sft_module
 from ir_training.train.sft import (
     _align_tokenizer_and_model,
     _effective_max_seq_length,
     _model_position_limit,
+    _resolve_training_dtype,
     _summarize_training_sample_models,
+    _training_precision_flags,
     _validate_sft_token_ids,
     _validate_tokenized_sft_dataset,
 )
@@ -306,6 +309,38 @@ def test_sft_alignment_replaces_out_of_vocab_pad_token_with_eos():
 def test_sft_effective_max_seq_length_clamps_to_position_limit():
     assert _effective_max_seq_length(configured=8192, max_position_embeddings=4096) == 4096
     assert _effective_max_seq_length(configured=2048, max_position_embeddings=4096) == 2048
+
+
+def test_sft_precision_falls_back_from_bf16_to_fp16_when_cuda_lacks_bf16():
+    old_cuda_available = sft_module._cuda_available
+    old_cuda_bf16_supported = sft_module._cuda_bf16_supported
+    try:
+        sft_module._cuda_available = lambda: True
+        sft_module._cuda_bf16_supported = lambda: False
+
+        resolved = _resolve_training_dtype("bfloat16")
+
+        assert resolved == "float16"
+        assert _training_precision_flags(resolved) == {"bf16": False, "fp16": True}
+    finally:
+        sft_module._cuda_available = old_cuda_available
+        sft_module._cuda_bf16_supported = old_cuda_bf16_supported
+
+
+def test_sft_precision_keeps_bf16_when_supported():
+    old_cuda_available = sft_module._cuda_available
+    old_cuda_bf16_supported = sft_module._cuda_bf16_supported
+    try:
+        sft_module._cuda_available = lambda: True
+        sft_module._cuda_bf16_supported = lambda: True
+
+        resolved = _resolve_training_dtype("bf16")
+
+        assert resolved == "bfloat16"
+        assert _training_precision_flags(resolved) == {"bf16": True, "fp16": False}
+    finally:
+        sft_module._cuda_available = old_cuda_available
+        sft_module._cuda_bf16_supported = old_cuda_bf16_supported
 
 
 def test_sft_model_position_limit_handles_wrapped_model_cycles():

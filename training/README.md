@@ -49,6 +49,36 @@ This requires a GPU machine with the packages in
 `training/requirements-training.txt`. On CPU-only machines, use compile/tests only;
 do not run the training command.
 
+For Slurm machines, submit the repo-owned sbatch entrypoint instead of writing an
+ad-hoc script:
+
+```bash
+sbatch training/scripts/slurm_train_gemma4_e2b.sbatch
+```
+
+The sbatch file runs the training command through `srun`, activates
+`/home/k_anup/gemma4_env` by default, and exposes only GPU 0 so the job uses the
+RTX A6000 instead of the Quadro P400. The training runner also downgrades
+`bfloat16` to `float16` automatically when the visible GPU/PyTorch setup does
+not support BF16. Override paths without editing the file:
+
+```bash
+sbatch --export=ALL,A2UI_REPO_DIR=/home/k_anup/code/GenUI,A2UI_VENV=/home/k_anup/gemma4_env,A2UI_CUDA_VISIBLE_DEVICES=0 training/scripts/slurm_train_gemma4_e2b.sbatch
+```
+
+If a Slurm job fails, inspect both Slurm state and the training log:
+
+```bash
+sacct -j <jobid> -o JobID,JobName%30,State,ExitCode,DerivedExitCode,Elapsed,Timelimit,MaxRSS,ReqMem,NodeList,Reason -P
+scontrol show job -dd <jobid>
+tail -200 training/logs/slurm-<jobid>.err
+tail -200 training/logs/slurm-<jobid>.out
+```
+
+Shell and sbatch files are forced to LF line endings through `.gitattributes`.
+This avoids Linux shebang failures such as `cannot execute: required file not
+found` caused by CRLF files copied from Windows.
+
 3. Evaluate generated IR against the flat-spec contract and existing UI metrics.
 
 ```powershell
