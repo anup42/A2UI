@@ -16,6 +16,7 @@ from ir_training.export.manifest import build_manifest, write_manifest
 from ir_training.train.sft import (
     _align_tokenizer_and_model,
     _effective_max_seq_length,
+    _model_position_limit,
     _summarize_training_sample_models,
     _validate_sft_token_ids,
     _validate_tokenized_sft_dataset,
@@ -305,6 +306,36 @@ def test_sft_alignment_replaces_out_of_vocab_pad_token_with_eos():
 def test_sft_effective_max_seq_length_clamps_to_position_limit():
     assert _effective_max_seq_length(configured=8192, max_position_embeddings=4096) == 4096
     assert _effective_max_seq_length(configured=2048, max_position_embeddings=4096) == 2048
+
+
+def test_sft_model_position_limit_handles_wrapped_model_cycles():
+    class Config:
+        def __init__(self):
+            self.max_position_embeddings = 4096
+
+    class Model:
+        def __init__(self):
+            self.config = Config()
+            self.base_model = self
+            self.model = self
+
+    assert _model_position_limit(Model()) == 4096
+
+
+def test_sft_model_position_limit_ignores_recursive_config_getattr():
+    class RecursiveConfig:
+        def __init__(self):
+            self.text_config = {"max_position_embeddings": 2048}
+
+        def __getattribute__(self, name):
+            if name == "max_position_embeddings":
+                raise RecursionError("simulated transformers attribute_map recursion")
+            return object.__getattribute__(self, name)
+
+    class Model:
+        config = RecursiveConfig()
+
+    assert _model_position_limit(Model()) == 2048
 
 
 def test_sft_preflight_rejects_out_of_vocab_token_id():

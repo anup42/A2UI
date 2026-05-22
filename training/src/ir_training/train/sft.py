@@ -407,39 +407,92 @@ def _effective_max_seq_length(configured: int, max_position_embeddings: int | No
     return max_position_embeddings
 
 
-def _model_vocab_size(model: Any) -> int | None:
+def _model_vocab_size(model: Any, seen: set[int] | None = None) -> int | None:
     if model is None:
         return None
+    if seen is None:
+        seen = set()
+    model_id = id(model)
+    if model_id in seen:
+        return None
+    seen.add(model_id)
+
     embeddings = model.get_input_embeddings() if hasattr(model, "get_input_embeddings") else None
-    vocab_size = getattr(embeddings, "num_embeddings", None)
+    vocab_size = _safe_getattr(embeddings, "num_embeddings")
     if vocab_size is not None:
         return vocab_size
-    return _model_vocab_size(getattr(model, "base_model", None))
+    for nested_attr in ("base_model", "model"):
+        nested = _safe_getattr(model, nested_attr)
+        nested_vocab_size = _model_vocab_size(nested, seen)
+        if nested_vocab_size is not None:
+            return nested_vocab_size
+    return None
 
 
-def _model_position_limit(model: Any) -> int | None:
+def _model_position_limit(model: Any, seen: set[int] | None = None) -> int | None:
     if model is None:
         return None
-    config = getattr(model, "config", None)
+    if seen is None:
+        seen = set()
+    model_id = id(model)
+    if model_id in seen:
+        return None
+    seen.add(model_id)
+
+    config = _safe_getattr(model, "config")
     candidates: list[int] = []
     _collect_position_limit_candidates(config, candidates)
-    base_limit = _model_position_limit(getattr(model, "base_model", None))
-    if base_limit is not None:
-        candidates.append(base_limit)
+    for nested_attr in ("base_model", "model"):
+        nested = _safe_getattr(model, nested_attr)
+        nested_limit = _model_position_limit(nested, seen)
+        if nested_limit is not None:
+            candidates.append(nested_limit)
     return min(candidates) if candidates else None
 
 
-def _collect_position_limit_candidates(value: Any, candidates: list[int]) -> None:
+def _collect_position_limit_candidates(
+    value: Any,
+    candidates: list[int],
+    seen: set[int] | None = None,
+    depth: int = 0,
+) -> None:
     if value is None:
         return
+    if seen is None:
+        seen = set()
+    value_id = id(value)
+    if value_id in seen or depth > 4:
+        return
+    seen.add(value_id)
+
+    mapping = _safe_mapping(value)
     for attr in ("max_position_embeddings", "max_sequence_length", "seq_length"):
-        attr_value = getattr(value, attr, None)
+        attr_value = mapping.get(attr) if attr in mapping else _safe_getattr(value, attr)
         if isinstance(attr_value, int) and attr_value > 0:
             candidates.append(attr_value)
     for nested_attr in ("text_config", "llm_config", "language_config"):
-        nested = getattr(value, nested_attr, None)
+        nested = mapping.get(nested_attr) if nested_attr in mapping else _safe_getattr(value, nested_attr)
         if nested is not None and nested is not value:
-            _collect_position_limit_candidates(nested, candidates)
+            _collect_position_limit_candidates(nested, candidates, seen, depth + 1)
+
+
+def _safe_getattr(value: Any, attr: str, default: Any = None) -> Any:
+    try:
+        return getattr(value, attr, default)
+    except RecursionError:
+        return default
+    except Exception:
+        return default
+
+
+def _safe_mapping(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    try:
+        mapping = object.__getattribute__(value, "__dict__")
+        return mapping if isinstance(mapping, dict) else {}
+    except Exception:
+        return {}
 
 
 def _validate_sft_token_ids(
