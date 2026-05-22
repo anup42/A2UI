@@ -27,6 +27,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     training_cfg = config.get("training") if isinstance(config.get("training"), dict) else {}
     lora_cfg = config.get("lora") if isinstance(config.get("lora"), dict) else {}
     golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
+    _enforce_cuda_requirement(model_cfg, training_cfg)
     requested_dtype = str(model_cfg.get("dtype", "bfloat16")).lower()
     resolved_dtype = _resolve_training_dtype(requested_dtype)
     model_cfg["dtype"] = resolved_dtype
@@ -412,6 +413,22 @@ def _effective_max_seq_length(configured: int, max_position_embeddings: int | No
     return max_position_embeddings
 
 
+def _enforce_cuda_requirement(model_cfg: dict[str, Any], training_cfg: dict[str, Any]) -> None:
+    allow_cpu = bool(model_cfg.get("allow_cpu", False) or training_cfg.get("allow_cpu", False))
+    if allow_cpu:
+        return
+    if _cuda_available():
+        return
+    raise RuntimeError(
+        "CUDA is not available to PyTorch, so SFT training would run on CPU and be extremely slow. "
+        f"{_cuda_diagnostic_summary()} "
+        "Fix the launch environment before training: use the CUDA-enabled torch wheel, run Singularity "
+        "with GPU passthrough (`singularity exec --nv ...`), and submit Slurm jobs with a GPU allocation "
+        "through `training/scripts/slurm_train_gemma4_e2b.sbatch` or equivalent `srun --gres=gpu:1`. "
+        "If you intentionally want a CPU smoke run, set `training.allow_cpu: true` or `model.allow_cpu: true`."
+    )
+
+
 def _resolve_training_dtype(requested_dtype: str) -> str:
     dtype = (requested_dtype or "bfloat16").strip().lower()
     if dtype in {"bf16", "bfloat16"}:
@@ -477,6 +494,22 @@ def _cuda_bf16_supported() -> bool:
         return int(major) >= 8
     except Exception:
         return False
+
+
+def _cuda_diagnostic_summary() -> str:
+    try:
+        import os
+        import torch  # type: ignore
+
+        return (
+            f"torch={getattr(torch, '__version__', 'unknown')}, "
+            f"torch_cuda={getattr(getattr(torch, 'version', None), 'cuda', None)}, "
+            f"cuda_available={torch.cuda.is_available()}, "
+            f"device_count={torch.cuda.device_count() if hasattr(torch, 'cuda') else 'unknown'}, "
+            f"CUDA_VISIBLE_DEVICES={os.environ.get('CUDA_VISIBLE_DEVICES')!r}."
+        )
+    except Exception as exc:
+        return f"Unable to collect torch CUDA diagnostics: {exc!r}."
 
 
 def _model_vocab_size(model: Any, seen: set[int] | None = None) -> int | None:

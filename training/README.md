@@ -60,7 +60,9 @@ The sbatch file runs the training command through `srun`, activates
 `/home/k_anup/gemma4_env` by default, and exposes only GPU 0 so the job uses the
 RTX A6000 instead of the Quadro P400. The training runner also downgrades
 `bfloat16` to `float16` automatically when the visible GPU/PyTorch setup does
-not support BF16. Override paths without editing the file:
+not support BF16. By default, SFT training fails fast when PyTorch cannot see
+CUDA, because otherwise the job silently runs on CPU and appears stuck even when
+`nvidia-smi` shows idle GPUs. Override paths without editing the file:
 
 ```bash
 sbatch --export=ALL,A2UI_REPO_DIR=/home/k_anup/code/GenUI,A2UI_VENV=/home/k_anup/gemma4_env,A2UI_CUDA_VISIBLE_DEVICES=0 training/scripts/slurm_train_gemma4_e2b.sbatch
@@ -74,6 +76,25 @@ scontrol show job -dd <jobid>
 tail -200 training/logs/slurm-<jobid>.err
 tail -200 training/logs/slurm-<jobid>.out
 ```
+
+If `nvidia-smi` shows GPUs but only Xorg/display processes and `0%` utilization,
+verify PyTorch from the same environment/container:
+
+```bash
+python - <<'PY'
+import torch
+print("torch:", torch.__version__)
+print("torch cuda build:", torch.version.cuda)
+print("cuda available:", torch.cuda.is_available())
+print("device count:", torch.cuda.device_count())
+if torch.cuda.is_available():
+    print("device 0:", torch.cuda.get_device_name(0))
+PY
+```
+
+If that reports `cuda available: False`, fix the environment rather than waiting
+for training: install a CUDA-enabled PyTorch build and launch Singularity with
+GPU passthrough, for example `singularity exec --nv <image> ...`.
 
 Shell and sbatch files are forced to LF line endings through `.gitattributes`.
 This avoids Linux shebang failures such as `cannot execute: required file not

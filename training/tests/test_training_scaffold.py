@@ -16,6 +16,7 @@ from ir_training.export.manifest import build_manifest, write_manifest
 from ir_training.train import sft as sft_module
 from ir_training.train.sft import (
     _align_tokenizer_and_model,
+    _enforce_cuda_requirement,
     _effective_max_seq_length,
     _model_position_limit,
     _resolve_training_dtype,
@@ -341,6 +342,33 @@ def test_sft_precision_keeps_bf16_when_supported():
     finally:
         sft_module._cuda_available = old_cuda_available
         sft_module._cuda_bf16_supported = old_cuda_bf16_supported
+
+
+def test_sft_requires_cuda_by_default():
+    old_cuda_available = sft_module._cuda_available
+    try:
+        sft_module._cuda_available = lambda: False
+
+        try:
+            _enforce_cuda_requirement({}, {})
+        except RuntimeError as exc:
+            assert "CUDA is not available to PyTorch" in str(exc)
+            assert "singularity exec --nv" in str(exc)
+        else:
+            raise AssertionError("Expected missing CUDA to fail fast")
+    finally:
+        sft_module._cuda_available = old_cuda_available
+
+
+def test_sft_can_allow_cpu_smoke_run_explicitly():
+    old_cuda_available = sft_module._cuda_available
+    try:
+        sft_module._cuda_available = lambda: False
+
+        _enforce_cuda_requirement({}, {"allow_cpu": True})
+        _enforce_cuda_requirement({"allow_cpu": True}, {})
+    finally:
+        sft_module._cuda_available = old_cuda_available
 
 
 def test_sft_model_position_limit_handles_wrapped_model_cycles():
