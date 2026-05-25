@@ -584,6 +584,14 @@ def _run_forward_smoke_check(
 
 def _model_input_device(model: Any) -> Any:
     try:
+        embeddings = model.get_input_embeddings() if hasattr(model, "get_input_embeddings") else None
+        weight = _safe_getattr(embeddings, "weight")
+        device = _safe_getattr(weight, "device")
+        if device is not None:
+            return device
+    except Exception:
+        pass
+    try:
         return next(model.parameters()).device
     except Exception:
         try:
