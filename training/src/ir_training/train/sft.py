@@ -104,7 +104,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         if "eval_strategy" in args_params
         else "evaluation_strategy"
     )
-    precision_flags = _training_precision_flags(resolved_dtype)
+    precision_flags = _training_precision_flags(resolved_dtype, training_cfg)
     training_args_kwargs = {
         "output_dir": str(output_dir),
         "num_train_epochs": float(training_cfg.get("epochs", 2)),
@@ -1047,7 +1047,16 @@ def _resolve_training_dtype(requested_dtype: str) -> str:
     return "float32"
 
 
-def _training_precision_flags(dtype_name: str) -> dict[str, bool]:
+def _training_precision_flags(dtype_name: str, training_cfg: dict[str, Any] | None = None) -> dict[str, bool]:
+    cfg = training_cfg if isinstance(training_cfg, dict) else {}
+    precision_mode = str(cfg.get("mixed_precision", "auto")).strip().lower()
+    if precision_mode in {"none", "off", "false", "disabled", "no"}:
+        print("Trainer mixed precision disabled; model dtype still comes from model.dtype.", flush=True)
+        return {"bf16": False, "fp16": False}
+    if precision_mode in {"bf16", "bfloat16"}:
+        return {"bf16": True, "fp16": False}
+    if precision_mode in {"fp16", "float16", "half"}:
+        return {"bf16": False, "fp16": True}
     dtype = dtype_name.strip().lower()
     return {
         "bf16": dtype == "bfloat16",
