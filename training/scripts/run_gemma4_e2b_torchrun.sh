@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env sh
+set -eu
 
 # Run Gemma4 E2B IR LoRA training with one process per GPU.
 # Override any value at launch time, for example:
@@ -11,17 +11,16 @@ TRAIN_CONFIG="${A2UI_TRAIN_CONFIG:-training/configs/models/gemma4_e2b_ir_lora.ya
 GPU_IDS="${A2UI_GPU_IDS:-0,1,2,3}"
 NUM_GPUS="${A2UI_NUM_GPUS:-}"
 
-if [[ -z "$NUM_GPUS" ]]; then
-  # Count comma-separated GPU ids without depending on Python.
-  IFS=',' read -r -a _a2ui_gpu_array <<< "$GPU_IDS"
-  NUM_GPUS="${#_a2ui_gpu_array[@]}"
+if [ -z "$NUM_GPUS" ]; then
+  # Count comma-separated GPU ids without depending on Bash arrays or Python.
+  NUM_GPUS="$(printf '%s' "$GPU_IDS" | awk -F',' '{ print NF }')"
 fi
 
 cd "$REPO_DIR"
 
-if [[ -f "$VENV_DIR/bin/activate" ]]; then
+if [ -f "$VENV_DIR/bin/activate" ]; then
   # shellcheck disable=SC1090
-  source "$VENV_DIR/bin/activate"
+  . "$VENV_DIR/bin/activate"
 else
   echo "ERROR: virtualenv not found at $VENV_DIR" >&2
   echo "Set A2UI_VENV=/path/to/venv or create the expected environment." >&2
