@@ -462,6 +462,7 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
                 return super().compute_loss(model, inputs, return_outputs=return_outputs)
             model_inputs = dict(inputs)
             labels = model_inputs.pop("labels")
+            _drop_trivial_attention_mask(model_inputs)
             try:
                 outputs = model(**model_inputs)
             except Exception as exc:
@@ -554,6 +555,7 @@ def _run_forward_smoke_check(
                 model_inputs = {"input_ids": input_ids}
                 if attention_mask is not None:
                     model_inputs["attention_mask"] = attention_mask
+                _drop_trivial_attention_mask(model_inputs)
                 outputs = model(**model_inputs)
                 logits = _extract_logits(outputs)
                 _validate_labels_against_logits_vocab(labels.to(logits.device), int(logits.shape[-1]))
@@ -696,6 +698,24 @@ def _batch_debug_summary(model_inputs: dict[str, Any], labels: Any | None = None
         parts.append(f"label_range={_tensor_label_range(labels)}")
         parts.append(f"label_device={getattr(labels, 'device', 'unknown')}")
     return ", ".join(parts) if parts else "no_batch_tensors"
+
+
+def _drop_trivial_attention_mask(model_inputs: dict[str, Any]) -> bool:
+    attention_mask = model_inputs.get("attention_mask")
+    if attention_mask is None:
+        return False
+    try:
+        if getattr(attention_mask, "numel", lambda: 0)() == 0:
+            model_inputs.pop("attention_mask", None)
+            return True
+        # With batch size 1 there is usually no padding. Passing an all-ones
+        # CUDA mask can hit environment-specific Gemma/SDPA mask kernels.
+        if int(attention_mask.min().item()) == 1:
+            model_inputs.pop("attention_mask", None)
+            return True
+    except Exception:
+        return False
+    return False
 
 
 def _tensor_shape(tensor: Any) -> str:
