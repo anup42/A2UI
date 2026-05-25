@@ -70,8 +70,11 @@ class ModelAdapter(ABC):
         kwargs: dict[str, Any] = {
             "trust_remote_code": bool(self.config.get("trust_remote_code", False)),
             "torch_dtype": dtype,
-            "device_map": "auto",
+            "device_map": self.config.get("device_map", "auto"),
         }
+        attn_implementation = str(self.config.get("attn_implementation", "")).strip()
+        if attn_implementation:
+            kwargs["attn_implementation"] = attn_implementation
         if bool(self.config.get("load_in_4bit", False)):
             kwargs["quantization_config"] = BitsAndBytesConfig(
                 load_in_4bit=True,

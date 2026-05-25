@@ -178,6 +178,14 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             label_vocab_size=label_vocab_size,
             max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
         )
+        _run_forward_smoke_check(
+            model=model,
+            split=tokenized_dataset["train"],
+            tokenizer=tokenizer,
+            input_vocab_size=input_vocab_size,
+            label_vocab_size=label_vocab_size,
+            max_position_embeddings=max_position_embeddings,
+        )
         checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer)
         trainer_params = inspect.signature(Trainer.__init__).parameters
         trainer_kwargs = {
@@ -376,6 +384,116 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
             return loss
 
     return CheckedCausalLMTrainer
+
+
+def _run_forward_smoke_check(
+    *,
+    model: Any,
+    split: Any,
+    tokenizer: Any,
+    input_vocab_size: int,
+    label_vocab_size: int,
+    max_position_embeddings: int | None,
+) -> None:
+    try:
+        import torch
+    except Exception as exc:  # pragma: no cover - dependency failure path
+        print(f"Skipping forward smoke check because torch import failed: {exc!r}", flush=True)
+        return
+
+    if len(split) <= 0:
+        raise ValueError("Cannot run SFT forward smoke check: train split is empty.")
+    row = split[0]
+    features = [
+        {
+            "input_ids": row.get("input_ids") or [],
+            "attention_mask": row.get("attention_mask") or [],
+            "labels": row.get("labels") or [],
+        }
+    ]
+    collator = _CausalLMDataCollator(
+        tokenizer,
+        input_vocab_size=input_vocab_size,
+        label_vocab_size=label_vocab_size,
+        max_position_embeddings=max_position_embeddings,
+    )
+    batch = collator(features)
+    device = _model_input_device(model)
+    input_ids = batch["input_ids"].to(device)
+    attention_mask = batch.get("attention_mask")
+    if attention_mask is not None:
+        attention_mask = attention_mask.to(device)
+    labels = batch["labels"]
+    print(
+        "SFT forward smoke check: "
+        f"input_shape={tuple(input_ids.shape)}, "
+        f"attention_shape={tuple(attention_mask.shape) if attention_mask is not None else 'none'}, "
+        f"input_range={_tensor_int_range(input_ids)}, "
+        f"label_range={_tensor_label_range(labels)}, "
+        f"input_vocab_size={input_vocab_size}, "
+        f"label_vocab_size={label_vocab_size}, "
+        f"model_device={device}, "
+        f"hf_device_map={_summarize_device_map(getattr(model, 'hf_device_map', None))}",
+        flush=True,
+    )
+    try:
+        model.eval()
+        with torch.no_grad():
+            model_inputs = {"input_ids": input_ids}
+            if attention_mask is not None:
+                model_inputs["attention_mask"] = attention_mask
+            outputs = model(**model_inputs)
+            logits = _extract_logits(outputs)
+            _validate_labels_against_logits_vocab(labels.to(logits.device), int(logits.shape[-1]))
+            print(
+                "SFT forward smoke check passed: "
+                f"logits_shape={tuple(logits.shape)}, logits_device={logits.device}, "
+                f"logits_vocab_size={int(logits.shape[-1])}",
+                flush=True,
+            )
+    except Exception as exc:
+        raise RuntimeError(
+            "SFT forward smoke check failed before training. "
+            "Token preflight passed, so this is likely a model-forward/CUDA environment issue, "
+            "not a dataset tokenization issue. Compare torch/transformers/bitsandbytes/CUDA versions "
+            "with the PC where the same code works; also verify the Hugging Face model cache is not stale. "
+            f"Diagnostics: input_shape={tuple(input_ids.shape)}, input_range={_tensor_int_range(input_ids)}, "
+            f"label_range={_tensor_label_range(labels)}, input_vocab_size={input_vocab_size}, "
+            f"label_vocab_size={label_vocab_size}, model_device={device}, "
+            f"hf_device_map={_summarize_device_map(getattr(model, 'hf_device_map', None))}, "
+            f"error={exc!r}"
+        ) from exc
+
+
+def _model_input_device(model: Any) -> Any:
+    try:
+        return next(model.parameters()).device
+    except Exception:
+        try:
+            import torch
+
+            return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        except Exception:
+            return "cpu"
+
+
+def _tensor_int_range(tensor: Any) -> str:
+    try:
+        if getattr(tensor, "numel", lambda: 0)() == 0:
+            return "empty"
+        return f"min={int(tensor.min().item())}, max={int(tensor.max().item())}, count={int(tensor.numel())}"
+    except Exception as exc:
+        return f"unavailable:{exc!r}"
+
+
+def _summarize_device_map(device_map: Any) -> str:
+    if not isinstance(device_map, dict):
+        return "none"
+    counts: dict[str, int] = {}
+    for value in device_map.values():
+        label = str(value)
+        counts[label] = counts.get(label, 0) + 1
+    return ",".join(f"{device}:{count}" for device, count in sorted(counts.items()))
 
 
 def _extract_logits(outputs: Any) -> Any:
