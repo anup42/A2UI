@@ -14,6 +14,7 @@ from ir_training.train.lora_config import build_lora_config
 
 
 def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[str, Any]:
+    _stabilize_torch_runtime()
     try:
         from datasets import load_dataset  # type: ignore
         from peft import get_peft_model, prepare_model_for_kbit_training  # type: ignore
@@ -46,9 +47,16 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     _align_tokenizer_and_model(tokenizer, model)
     _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="initial model load")
     max_position_embeddings = _model_position_limit(model)
+    gradient_checkpointing = bool(training_cfg.get("gradient_checkpointing", False))
+    _disable_model_cache_for_training(model)
     if bool(model_cfg.get("load_in_4bit", False)):
-        model = prepare_model_for_kbit_training(model)
+        model = _prepare_kbit_model_for_training(
+            prepare_model_for_kbit_training,
+            model,
+            use_gradient_checkpointing=gradient_checkpointing,
+        )
     model = get_peft_model(model, build_lora_config(adapter, lora_cfg))
+    _disable_model_cache_for_training(model)
     _align_tokenizer_and_model(tokenizer, model)
     _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="after LoRA wrapping")
     input_vocab_size = _require_model_input_vocab_size(model)
@@ -111,6 +119,8 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         **precision_flags,
         "report_to": "none",
     }
+    if "gradient_checkpointing" in args_params:
+        training_args_kwargs["gradient_checkpointing"] = gradient_checkpointing
     max_seq_length = _effective_max_seq_length(
         configured=int(training_cfg.get("max_seq_length", adapter.max_context())),
         max_position_embeddings=max_position_embeddings,
@@ -352,6 +362,65 @@ def _tokenize_text(tokenizer: Any, text: str) -> list[int]:
     return list(encoded.get("input_ids") or [])
 
 
+def _stabilize_torch_runtime() -> None:
+    import os
+
+    # This training path is already memory-bound; avoiding implicit compile/cudagraph
+    # paths makes failures deterministic across machines and CUDA builds.
+    os.environ.setdefault("TORCHDYNAMO_DISABLE", "1")
+    os.environ.setdefault("TORCH_COMPILE_DISABLE", "1")
+    try:
+        import torch  # type: ignore
+
+        dynamo = getattr(torch, "_dynamo", None)
+        config = getattr(dynamo, "config", None)
+        if config is not None:
+            setattr(config, "suppress_errors", True)
+    except Exception:
+        pass
+
+
+def _prepare_kbit_model_for_training(
+    prepare_model_for_kbit_training: Any,
+    model: Any,
+    *,
+    use_gradient_checkpointing: bool,
+) -> Any:
+    kwargs: dict[str, Any] = {}
+    try:
+        params = inspect.signature(prepare_model_for_kbit_training).parameters
+        if "use_gradient_checkpointing" in params:
+            kwargs["use_gradient_checkpointing"] = use_gradient_checkpointing
+    except Exception:
+        pass
+    print(
+        "Preparing k-bit model for training: "
+        f"use_gradient_checkpointing={use_gradient_checkpointing}",
+        flush=True,
+    )
+    return prepare_model_for_kbit_training(model, **kwargs)
+
+
+def _disable_model_cache_for_training(model: Any, seen: set[int] | None = None) -> None:
+    if model is None:
+        return
+    if seen is None:
+        seen = set()
+    model_id = id(model)
+    if model_id in seen:
+        return
+    seen.add(model_id)
+    config = _safe_getattr(model, "config")
+    if config is not None:
+        _safe_setattr(config, "use_cache", False)
+    generation_config = _safe_getattr(model, "generation_config")
+    if generation_config is not None:
+        _safe_setattr(generation_config, "use_cache", False)
+    for nested_attr in ("base_model", "model", "language_model", "module", "wrapped_model"):
+        nested = _safe_getattr(model, nested_attr)
+        _disable_model_cache_for_training(nested, seen)
+
+
 def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
     class CheckedCausalLMTrainer(base_trainer_cls):  # type: ignore[misc, valid-type]
         def compute_loss(
@@ -367,7 +436,16 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
                 return super().compute_loss(model, inputs, return_outputs=return_outputs)
             model_inputs = dict(inputs)
             labels = model_inputs.pop("labels")
-            outputs = model(**model_inputs)
+            try:
+                outputs = model(**model_inputs)
+            except Exception as exc:
+                raise RuntimeError(
+                    "SFT training model forward failed before checked loss. "
+                    "This points to model/CUDA/runtime behavior, not label cross-entropy. "
+                    f"Batch diagnostics: {_batch_debug_summary(model_inputs, labels)}, "
+                    f"hf_device_map={_summarize_device_map(getattr(model, 'hf_device_map', None))}, "
+                    f"error={exc!r}"
+                ) from exc
             logits = _extract_logits(outputs)
             loss = _checked_shifted_causal_lm_loss(logits, labels)
             if not getattr(self, "_a2ui_checked_loss_logged", False):
@@ -552,6 +630,30 @@ def _tensor_label_range(labels: Any) -> str:
         return f"min={int(trainable.min().item())}, max={int(trainable.max().item())}, trainable={int(trainable.numel())}"
     except Exception as exc:
         return f"unavailable:{exc!r}"
+
+
+def _batch_debug_summary(model_inputs: dict[str, Any], labels: Any | None = None) -> str:
+    parts: list[str] = []
+    input_ids = model_inputs.get("input_ids")
+    if input_ids is not None:
+        parts.append(f"input_shape={_tensor_shape(input_ids)}")
+        parts.append(f"input_range={_tensor_int_range(input_ids)}")
+        parts.append(f"input_device={getattr(input_ids, 'device', 'unknown')}")
+    attention_mask = model_inputs.get("attention_mask")
+    if attention_mask is not None:
+        parts.append(f"attention_shape={_tensor_shape(attention_mask)}")
+        parts.append(f"attention_range={_tensor_int_range(attention_mask)}")
+        parts.append(f"attention_device={getattr(attention_mask, 'device', 'unknown')}")
+    if labels is not None:
+        parts.append(f"label_shape={_tensor_shape(labels)}")
+        parts.append(f"label_range={_tensor_label_range(labels)}")
+        parts.append(f"label_device={getattr(labels, 'device', 'unknown')}")
+    return ", ".join(parts) if parts else "no_batch_tensors"
+
+
+def _tensor_shape(tensor: Any) -> str:
+    shape = getattr(tensor, "shape", None)
+    return str(tuple(shape)) if shape is not None else "unknown"
 
 
 class _CausalLMDataCollator:
