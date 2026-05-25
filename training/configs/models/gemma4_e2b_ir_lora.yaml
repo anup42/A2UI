@@ -8,7 +8,7 @@ model:
   trust_remote_code: false
   processor_fallback: true
   load_in_4bit: false
-  dtype: bfloat16
+  dtype: float16
   device_map: cuda:0
   attn_implementation: eager
   max_context_tokens: 8192
