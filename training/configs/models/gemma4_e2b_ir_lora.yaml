@@ -7,7 +7,7 @@ model:
   model_id: google/gemma-4-E2B-it
   trust_remote_code: false
   processor_fallback: true
-  load_in_4bit: true
+  load_in_4bit: false
   dtype: bfloat16
   attn_implementation: eager
   max_context_tokens: 8192
@@ -24,6 +24,7 @@ training:
   save_steps: 500
   eval_steps: 500
   logging_steps: 20
+  forward_smoke_check_rows: 16
 lora:
   r: 16
   alpha: 32
