@@ -17,6 +17,7 @@ from ir_training.common.cuda_env import normalize_cuda_visible_devices
 from ir_training.train import sft as sft_module
 from ir_training.train.sft import (
     _CausalLMDataCollator,
+    _checked_shifted_causal_lm_loss,
     _align_tokenizer_and_model,
     _enforce_cuda_requirement,
     _effective_max_seq_length,
@@ -585,6 +586,31 @@ def test_tokenized_sft_preflight_rejects_out_of_vocab_label_id():
         assert "trainable label id outside model vocabulary" in str(exc)
     else:
         raise AssertionError("Expected invalid label id to fail tokenized preflight")
+
+
+def test_checked_causal_lm_loss_rejects_labels_beyond_logits_vocab():
+    import torch
+
+    logits = torch.zeros((1, 3, 5), dtype=torch.float32)
+    labels = torch.tensor([[0, 1, 5]], dtype=torch.long)
+
+    try:
+        _checked_shifted_causal_lm_loss(logits, labels)
+    except ValueError as exc:
+        assert "labels exceed logits vocabulary" in str(exc)
+    else:
+        raise AssertionError("Expected checked loss to reject out-of-range labels")
+
+
+def test_checked_causal_lm_loss_accepts_valid_labels():
+    import torch
+
+    logits = torch.zeros((1, 3, 5), dtype=torch.float32)
+    labels = torch.tensor([[0, 1, 4]], dtype=torch.long)
+
+    loss = _checked_shifted_causal_lm_loss(logits, labels)
+
+    assert float(loss.item()) > 0
 
 
 def test_sft_training_sample_summary_counts_models():

@@ -178,6 +178,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             label_vocab_size=label_vocab_size,
             max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
         )
+        checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer)
         trainer_params = inspect.signature(Trainer.__init__).parameters
         trainer_kwargs = {
             "model": model,
@@ -195,7 +196,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             trainer_kwargs["tokenizer"] = tokenizer
         elif "processing_class" in trainer_params:
             trainer_kwargs["processing_class"] = tokenizer
-        trainer = Trainer(**trainer_kwargs)
+        trainer = checked_trainer_cls(**trainer_kwargs)
 
     golden_callback = _build_optional_golden_callback(
         golden_eval_cfg=golden_eval_cfg,
@@ -341,6 +342,98 @@ def _tokenize_text(tokenizer: Any, text: str) -> list[int]:
         return []
     encoded = tokenizer(text, add_special_tokens=False)
     return list(encoded.get("input_ids") or [])
+
+
+def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
+    class CheckedCausalLMTrainer(base_trainer_cls):  # type: ignore[misc, valid-type]
+        def compute_loss(
+            self,
+            model: Any,
+            inputs: dict[str, Any],
+            return_outputs: bool = False,
+            num_items_in_batch: Any | None = None,
+        ) -> Any:
+            del num_items_in_batch
+            labels = inputs.get("labels")
+            if labels is None:
+                return super().compute_loss(model, inputs, return_outputs=return_outputs)
+            model_inputs = dict(inputs)
+            labels = model_inputs.pop("labels")
+            outputs = model(**model_inputs)
+            logits = _extract_logits(outputs)
+            loss = _checked_shifted_causal_lm_loss(logits, labels)
+            if not getattr(self, "_a2ui_checked_loss_logged", False):
+                print(
+                    "Checked causal-LM loss active: "
+                    f"logits_shape={tuple(logits.shape)}, "
+                    f"labels_shape={tuple(labels.shape)}, "
+                    f"label_range={_tensor_label_range(labels)}",
+                    flush=True,
+                )
+                setattr(self, "_a2ui_checked_loss_logged", True)
+            if return_outputs:
+                return loss, outputs
+            return loss
+
+    return CheckedCausalLMTrainer
+
+
+def _extract_logits(outputs: Any) -> Any:
+    if isinstance(outputs, dict):
+        logits = outputs.get("logits")
+    else:
+        logits = getattr(outputs, "logits", None)
+    if logits is None:
+        raise ValueError("Model forward did not return logits; cannot compute checked causal-LM loss.")
+    return logits
+
+
+def _checked_shifted_causal_lm_loss(logits: Any, labels: Any) -> Any:
+    import torch.nn.functional as F
+
+    if getattr(logits, "dim", lambda: 0)() != 3:
+        raise ValueError(f"Expected causal-LM logits with shape [batch, seq, vocab], got {tuple(logits.shape)}")
+    if getattr(labels, "dim", lambda: 0)() != 2:
+        raise ValueError(f"Expected causal-LM labels with shape [batch, seq], got {tuple(labels.shape)}")
+    if logits.shape[:2] != labels.shape[:2]:
+        raise ValueError(f"Logits/labels shape mismatch: logits={tuple(logits.shape)} labels={tuple(labels.shape)}")
+    if logits.shape[1] < 2:
+        raise ValueError(f"Sequence length is too short for shifted causal-LM loss: logits={tuple(logits.shape)}")
+
+    shift_logits = logits[..., :-1, :].contiguous()
+    shift_labels = labels[..., 1:].contiguous()
+    logits_vocab_size = int(shift_logits.shape[-1])
+    _validate_labels_against_logits_vocab(shift_labels, logits_vocab_size)
+    return F.cross_entropy(
+        shift_logits.view(-1, logits_vocab_size),
+        shift_labels.view(-1),
+        ignore_index=-100,
+    )
+
+
+def _validate_labels_against_logits_vocab(labels: Any, logits_vocab_size: int) -> None:
+    trainable = labels[labels != -100]
+    if getattr(trainable, "numel", lambda: 0)() == 0:
+        raise ValueError("Checked causal-LM loss found zero trainable labels after shift.")
+    min_label = int(trainable.min().item())
+    max_label = int(trainable.max().item())
+    if min_label < 0 or max_label >= logits_vocab_size:
+        raise ValueError(
+            "Checked causal-LM loss blocked CUDA cross-entropy because labels exceed logits vocabulary. "
+            f"logits_vocab_size={logits_vocab_size}, min_label={min_label}, max_label={max_label}, "
+            f"label_range={_tensor_label_range(labels)}. "
+            "This usually means the tokenizer has tokens not represented by the model output head."
+        )
+
+
+def _tensor_label_range(labels: Any) -> str:
+    try:
+        trainable = labels[labels != -100]
+        if getattr(trainable, "numel", lambda: 0)() == 0:
+            return "no_trainable_labels"
+        return f"min={int(trainable.min().item())}, max={int(trainable.max().item())}, trainable={int(trainable.numel())}"
+    except Exception as exc:
+        return f"unavailable:{exc!r}"
 
 
 class _CausalLMDataCollator:
