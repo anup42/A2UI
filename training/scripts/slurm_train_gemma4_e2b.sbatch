@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:1
 #SBATCH --mem=96G
 #SBATCH --time=24:00:00
 #SBATCH --output=training/logs/slurm-%j.out
@@ -29,11 +29,11 @@ else
   exit 2
 fi
 
-# Use every GPU assigned by Slurm by default. Set A2UI_CUDA_VISIBLE_DEVICES or
-# A2UI_EXCLUDE_CUDA_DEVICES when a specific device must be included/excluded.
-if [[ -n "${A2UI_CUDA_VISIBLE_DEVICES:-}" ]]; then
-  export CUDA_VISIBLE_DEVICES="$A2UI_CUDA_VISIBLE_DEVICES"
-fi
+# Gemma4 SFT is intentionally single-GPU here. Multiple visible GPUs cause
+# PyTorch Trainer to DataParallel-wrap the model and can trigger CUDA failures
+# on replica devices even when model.device_map is pinned.
+export A2UI_CUDA_VISIBLE_DEVICES="${A2UI_CUDA_VISIBLE_DEVICES:-0}"
+export CUDA_VISIBLE_DEVICES="$A2UI_CUDA_VISIBLE_DEVICES"
 export TOKENIZERS_PARALLELISM=false
 export HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}"
 export TRANSFORMERS_CACHE="${TRANSFORMERS_CACHE:-$HF_HOME/transformers}"

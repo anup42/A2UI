@@ -2,6 +2,8 @@ run:
   id: gemma4_e2b_ir_lora
   dataset_dir: outputs/datasets/stage3_folder_90_10
   output_dir: runs/gemma4_e2b_ir_lora
+runtime:
+  cuda_visible_devices: "0"
 model:
   family: gemma
   model_id: google/gemma-4-E2B-it
