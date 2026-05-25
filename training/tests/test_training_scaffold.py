@@ -20,6 +20,7 @@ from ir_training.train.sft import (
     _align_tokenizer_and_model,
     _enforce_cuda_requirement,
     _effective_max_seq_length,
+    _model_output_vocab_size,
     _model_vocab_size,
     _model_position_limit,
     _resolve_training_dtype,
@@ -415,6 +416,23 @@ def test_sft_model_vocab_size_prefers_embedding_weight_shape():
             return Embeddings()
 
     assert _model_vocab_size(Model()) == 7
+
+
+def test_sft_model_output_vocab_size_uses_lm_head_weight_shape():
+    class Weight:
+        shape = (5, 16)
+
+    class LmHead:
+        out_features = 4
+        weight = Weight()
+
+    class Model:
+        lm_head = LmHead()
+
+        def get_output_embeddings(self):
+            return None
+
+    assert _model_output_vocab_size(Model()) == 5
 
 
 def test_sft_effective_max_seq_length_clamps_to_position_limit():
