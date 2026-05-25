@@ -10,7 +10,6 @@ model:
   load_in_4bit: false
   dtype: float16
   device_map: cuda:0
-  attn_implementation: eager
   max_context_tokens: 8192
   max_output_tokens: 8192
 training:
@@ -21,7 +20,7 @@ training:
   gradient_accumulation_steps: 16
   gradient_checkpointing: false
   warmup_ratio: 0.03
-  max_seq_length: 8192
+  max_seq_length: 4096
   save_steps: 500
   eval_steps: 500
   logging_steps: 20
