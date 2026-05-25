@@ -57,6 +57,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         )
     model = get_peft_model(model, build_lora_config(adapter, lora_cfg))
     _disable_model_cache_for_training(model)
+    _enable_input_grads_for_kbit_lora(model)
     _align_tokenizer_and_model(tokenizer, model)
     _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="after LoRA wrapping")
     input_vocab_size = _require_model_input_vocab_size(model)
@@ -421,6 +422,30 @@ def _disable_model_cache_for_training(model: Any, seen: set[int] | None = None) 
         _disable_model_cache_for_training(nested, seen)
 
 
+def _enable_input_grads_for_kbit_lora(model: Any) -> None:
+    enabler = getattr(model, "enable_input_require_grads", None)
+    if callable(enabler):
+        enabler()
+        print("Enabled input gradients for k-bit LoRA training via model hook.", flush=True)
+        return
+    embeddings = model.get_input_embeddings() if hasattr(model, "get_input_embeddings") else None
+    if embeddings is None:
+        print("Input gradient hook skipped: input embeddings are unavailable.", flush=True)
+        return
+
+    def make_inputs_require_grad(_module: Any, _input: Any, output: Any) -> None:
+        try:
+            output.requires_grad_(True)
+        except Exception:
+            pass
+
+    try:
+        embeddings.register_forward_hook(make_inputs_require_grad)
+        print("Enabled input gradients for k-bit LoRA training via embedding hook.", flush=True)
+    except Exception as exc:
+        print(f"Input gradient hook registration failed: {exc!r}", flush=True)
+
+
 def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
     class CheckedCausalLMTrainer(base_trainer_cls):  # type: ignore[misc, valid-type]
         def compute_loss(
@@ -453,7 +478,10 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
                     "Checked causal-LM loss active: "
                     f"logits_shape={tuple(logits.shape)}, "
                     f"labels_shape={tuple(labels.shape)}, "
-                    f"label_range={_tensor_label_range(labels)}",
+                    f"label_range={_tensor_label_range(labels)}, "
+                    f"logits_requires_grad={bool(getattr(logits, 'requires_grad', False))}, "
+                    f"loss_requires_grad={bool(getattr(loss, 'requires_grad', False))}, "
+                    f"trainable_params={_trainable_parameter_count(model)}",
                     flush=True,
                 )
                 setattr(self, "_a2ui_checked_loss_logged", True)
@@ -514,6 +542,7 @@ def _run_forward_smoke_check(
         f"hf_device_map={_summarize_device_map(getattr(model, 'hf_device_map', None))}",
         flush=True,
     )
+    was_training = bool(getattr(model, "training", False))
     try:
         model.eval()
         with torch.no_grad():
@@ -541,6 +570,9 @@ def _run_forward_smoke_check(
             f"hf_device_map={_summarize_device_map(getattr(model, 'hf_device_map', None))}, "
             f"error={exc!r}"
         ) from exc
+    finally:
+        if was_training:
+            model.train()
 
 
 def _model_input_device(model: Any) -> Any:
@@ -870,13 +902,7 @@ def _validate_trainable_label_tensor(labels: Any, vocab_size: int | None) -> Non
 
 
 def _print_trainable_parameter_summary(model: Any) -> None:
-    trainable = 0
-    total = 0
-    for parameter in getattr(model, "parameters", lambda: [])():
-        count = int(parameter.numel()) if hasattr(parameter, "numel") else 0
-        total += count
-        if bool(getattr(parameter, "requires_grad", False)):
-            trainable += count
+    trainable, total = _trainable_parameter_count(model)
     if trainable <= 0:
         raise ValueError(
             "SFT model has zero trainable parameters after applying LoRA. "
@@ -888,6 +914,17 @@ def _print_trainable_parameter_summary(model: Any) -> None:
         f"trainable={trainable}, total={total}, trainable_pct={pct:.4f}",
         flush=True,
     )
+
+
+def _trainable_parameter_count(model: Any) -> tuple[int, int]:
+    trainable = 0
+    total = 0
+    for parameter in getattr(model, "parameters", lambda: [])():
+        count = int(parameter.numel()) if hasattr(parameter, "numel") else 0
+        total += count
+        if bool(getattr(parameter, "requires_grad", False)):
+            trainable += count
+    return trainable, total
 
 
 def _print_tokenizer_model_alignment(tokenizer: Any, model: Any) -> None:
