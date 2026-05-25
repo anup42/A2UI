@@ -23,6 +23,11 @@ def normalize_cuda_visible_devices(env: MutableMapping[str, str] | None = None) 
         target_env["CUDA_VISIBLE_DEVICES"] = selected
         return selected
 
+    if _distributed_launch(target_env):
+        # torchrun/Slurm already set per-launch visibility. Mutating it inside
+        # each worker can desynchronize LOCAL_RANK from CUDA device ordinals.
+        return target_env.get("CUDA_VISIBLE_DEVICES", "")
+
     current = str(target_env.get("CUDA_VISIBLE_DEVICES", "")).strip()
     detected = _detect_queryable_gpu_indices()
     if current:
@@ -99,3 +104,15 @@ def _dedupe(values) -> list[str]:
 
 def _truthy(value: str | None) -> bool:
     return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _distributed_launch(env: MutableMapping[str, str]) -> bool:
+    for key in ("WORLD_SIZE", "LOCAL_WORLD_SIZE"):
+        value = str(env.get(key, "")).strip()
+        if value:
+            try:
+                if int(value) > 1:
+                    return True
+            except ValueError:
+                pass
+    return bool(str(env.get("LOCAL_RANK", "")).strip())

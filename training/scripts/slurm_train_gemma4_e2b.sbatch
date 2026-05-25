@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:4
 #SBATCH --mem=96G
 #SBATCH --time=24:00:00
 #SBATCH --output=training/logs/slurm-%j.out
@@ -16,6 +16,11 @@ set -euo pipefail
 REPO_DIR="${A2UI_REPO_DIR:-/home/k_anup/code/GenUI}"
 VENV_DIR="${A2UI_VENV:-/home/k_anup/gemma4_env}"
 TRAIN_CONFIG="${A2UI_TRAIN_CONFIG:-training/configs/models/gemma4_e2b_ir_lora.yaml}"
+NUM_GPUS="${A2UI_NUM_GPUS:-${SLURM_GPUS_ON_NODE:-4}}"
+if ! [[ "$NUM_GPUS" =~ ^[0-9]+$ ]]; then
+  NUM_GPUS=4
+fi
+export A2UI_NUM_GPUS="$NUM_GPUS"
 
 cd "$REPO_DIR"
 mkdir -p training/logs training/outputs training/runs
@@ -29,11 +34,11 @@ else
   exit 2
 fi
 
-# Gemma4 SFT is intentionally single-GPU here. Multiple visible GPUs cause
-# PyTorch Trainer to DataParallel-wrap the model and can trigger CUDA failures
-# on replica devices even when model.device_map is pinned.
-export A2UI_CUDA_VISIBLE_DEVICES="${A2UI_CUDA_VISIBLE_DEVICES:-0}"
-export CUDA_VISIBLE_DEVICES="$A2UI_CUDA_VISIBLE_DEVICES"
+# Gemma4 multi-GPU training must use DDP/torchrun. Do not expose multiple GPUs
+# to a plain python process, otherwise Trainer may fall back to DataParallel.
+if [[ -n "${A2UI_CUDA_VISIBLE_DEVICES:-}" ]]; then
+  export CUDA_VISIBLE_DEVICES="$A2UI_CUDA_VISIBLE_DEVICES"
+fi
 export TOKENIZERS_PARALLELISM=false
 export HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}"
 export TRANSFORMERS_CACHE="${TRANSFORMERS_CACHE:-$HF_HOME/transformers}"
@@ -44,6 +49,7 @@ python - <<'PY'
 import os
 print("A2UI repo:", os.getcwd())
 print("CUDA_VISIBLE_DEVICES:", os.environ.get("CUDA_VISIBLE_DEVICES"))
+print("A2UI_NUM_GPUS:", os.environ.get("A2UI_NUM_GPUS"))
 print("HF_HOME:", os.environ.get("HF_HOME"))
 PY
 
@@ -59,4 +65,5 @@ for index in range(torch.cuda.device_count()):
 PY
 
 exec srun --ntasks=1 --kill-on-bad-exit=1 \
-  python training/scripts/train_sft.py --config "$TRAIN_CONFIG"
+  torchrun --standalone --nproc_per_node="$NUM_GPUS" \
+    training/scripts/train_sft.py --config "$TRAIN_CONFIG"

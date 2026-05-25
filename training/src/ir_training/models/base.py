@@ -70,8 +70,10 @@ class ModelAdapter(ABC):
         kwargs: dict[str, Any] = {
             "trust_remote_code": bool(self.config.get("trust_remote_code", False)),
             "torch_dtype": dtype,
-            "device_map": self.config.get("device_map", "auto"),
         }
+        device_map = self.config.get("device_map", "auto")
+        if not _device_map_disabled(device_map):
+            kwargs["device_map"] = device_map
         attn_implementation = str(self.config.get("attn_implementation", "")).strip()
         if attn_implementation:
             kwargs["attn_implementation"] = attn_implementation
@@ -90,3 +92,9 @@ class ModelAdapter(ABC):
         if tokenizer is not None and hasattr(tokenizer, "apply_chat_template"):
             return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=not include_assistant)
         return "\n\n".join(f"{m.get('role', 'user').title()}:\n{m.get('content', '')}" for m in messages)
+
+
+def _device_map_disabled(value: Any) -> bool:
+    if value is None:
+        return True
+    return str(value).strip().lower() in {"", "none", "null", "false", "off", "ddp"}

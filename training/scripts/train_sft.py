@@ -25,6 +25,7 @@ def main() -> None:
     _apply_config_cuda_visibility(config)
     cuda_visible_devices = normalize_cuda_visible_devices()
     print(f"CUDA_VISIBLE_DEVICES={cuda_visible_devices}", flush=True)
+    _print_launch_rank()
     result = train_sft(config, config_path=config_path)
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
@@ -44,6 +45,18 @@ def _apply_config_cuda_visibility(config: dict) -> None:
     )
     if configured is not None and str(configured).strip():
         os.environ["A2UI_CUDA_VISIBLE_DEVICES"] = str(configured).strip()
+
+
+def _print_launch_rank() -> None:
+    import os
+
+    print(
+        "Launch rank: "
+        f"WORLD_SIZE={os.environ.get('WORLD_SIZE', '1')}, "
+        f"RANK={os.environ.get('RANK', '0')}, "
+        f"LOCAL_RANK={os.environ.get('LOCAL_RANK', '0')}",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":

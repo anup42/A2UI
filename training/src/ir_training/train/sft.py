@@ -29,6 +29,8 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     lora_cfg = config.get("lora") if isinstance(config.get("lora"), dict) else {}
     golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
     _enforce_cuda_requirement(model_cfg, training_cfg)
+    _enforce_ddp_launch_requirement(training_cfg)
+    _print_distributed_training_summary()
     requested_dtype = str(model_cfg.get("dtype", "bfloat16")).lower()
     resolved_dtype = _resolve_training_dtype(requested_dtype)
     model_cfg["dtype"] = resolved_dtype
@@ -64,6 +66,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     label_vocab_size = _require_model_label_vocab_size(model)
     _print_tokenizer_model_alignment(tokenizer, model)
     _print_trainable_parameter_summary(model)
+    _place_model_for_training(model)
 
     data_files: dict[str, str] = {"train": str(train_path)}
     if val_path.exists():
@@ -122,6 +125,8 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     }
     if "gradient_checkpointing" in args_params:
         training_args_kwargs["gradient_checkpointing"] = gradient_checkpointing
+    if "ddp_find_unused_parameters" in args_params and "ddp_find_unused_parameters" in training_cfg:
+        training_args_kwargs["ddp_find_unused_parameters"] = bool(training_cfg.get("ddp_find_unused_parameters", False))
     max_seq_length = _effective_max_seq_length(
         configured=int(training_cfg.get("max_seq_length", adapter.max_context())),
         max_position_embeddings=max_position_embeddings,
@@ -231,9 +236,6 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
 
     trainer.train()
     final_adapter = output_dir / "final_adapter"
-    trainer.model.save_pretrained(str(final_adapter))
-    tokenizer.save_pretrained(str(final_adapter))
-
     metadata = {
         "run_id": run_cfg.get("id", output_dir.name),
         "model": model_cfg,
@@ -246,8 +248,13 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     }
     if config_path is not None:
         metadata["config_path"] = str(config_path)
-        shutil.copy2(config_path, output_dir / "config.yaml")
-    TrainingMetadataCallback(output_dir, metadata).write()
+    if _trainer_is_world_process_zero(trainer):
+        trainer.model.save_pretrained(str(final_adapter))
+        tokenizer.save_pretrained(str(final_adapter))
+        if config_path is not None:
+            shutil.copy2(config_path, output_dir / "config.yaml")
+        TrainingMetadataCallback(output_dir, metadata).write()
+    _barrier_if_distributed()
     return metadata
 
 
@@ -378,6 +385,99 @@ def _stabilize_torch_runtime() -> None:
         config = getattr(dynamo, "config", None)
         if config is not None:
             setattr(config, "suppress_errors", True)
+    except Exception:
+        pass
+
+
+def _enforce_ddp_launch_requirement(training_cfg: dict[str, Any]) -> None:
+    if not bool(training_cfg.get("require_ddp_for_multi_gpu", False)):
+        return
+    try:
+        import torch  # type: ignore
+    except Exception:
+        return
+    visible_devices = int(torch.cuda.device_count()) if torch.cuda.is_available() else 0
+    if visible_devices <= 1 or _is_distributed_launch():
+        return
+    raise RuntimeError(
+        "Multiple CUDA devices are visible, but this process was not launched with DDP. "
+        "Use torchrun instead of plain python, for example: "
+        "`torchrun --standalone --nproc_per_node=4 training/scripts/train_sft.py "
+        "--config training/configs/models/gemma4_e2b_ir_lora.yaml`. "
+        "Plain multi-GPU python can trigger PyTorch DataParallel, which is unstable for this Gemma4 path. "
+        f"{_cuda_diagnostic_summary()}"
+    )
+
+
+def _print_distributed_training_summary() -> None:
+    import os
+
+    print(
+        "Distributed training launch: "
+        f"WORLD_SIZE={os.environ.get('WORLD_SIZE', '1')}, "
+        f"RANK={os.environ.get('RANK', '0')}, "
+        f"LOCAL_RANK={os.environ.get('LOCAL_RANK', '0')}, "
+        f"CUDA_VISIBLE_DEVICES={os.environ.get('CUDA_VISIBLE_DEVICES')!r}",
+        flush=True,
+    )
+
+
+def _is_distributed_launch() -> bool:
+    import os
+
+    for key in ("WORLD_SIZE", "LOCAL_WORLD_SIZE"):
+        value = os.environ.get(key)
+        if value:
+            try:
+                if int(value) > 1:
+                    return True
+            except ValueError:
+                pass
+    return os.environ.get("LOCAL_RANK") is not None or os.environ.get("RANK") is not None
+
+
+def _place_model_for_training(model: Any) -> None:
+    if isinstance(getattr(model, "hf_device_map", None), dict):
+        return
+    try:
+        import os
+        import torch  # type: ignore
+    except Exception:
+        return
+    if not torch.cuda.is_available():
+        return
+    local_rank = 0
+    try:
+        local_rank = int(os.environ.get("LOCAL_RANK", "0") or "0")
+    except ValueError:
+        local_rank = 0
+    device = torch.device(f"cuda:{local_rank}")
+    model.to(device)
+    print(f"Moved model to training device: {device}", flush=True)
+
+
+def _trainer_is_world_process_zero(trainer: Any) -> bool:
+    checker = getattr(trainer, "is_world_process_zero", None)
+    if callable(checker):
+        try:
+            return bool(checker())
+        except Exception:
+            pass
+    try:
+        import os
+
+        return int(os.environ.get("RANK", "0") or "0") == 0
+    except Exception:
+        return True
+
+
+def _barrier_if_distributed() -> None:
+    try:
+        import torch  # type: ignore
+
+        distributed = getattr(torch, "distributed", None)
+        if distributed is not None and distributed.is_available() and distributed.is_initialized():
+            distributed.barrier()
     except Exception:
         pass
 
