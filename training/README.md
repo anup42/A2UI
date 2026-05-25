@@ -57,15 +57,16 @@ sbatch training/scripts/slurm_train_gemma4_e2b.sbatch
 ```
 
 The sbatch file runs the training command through `srun`, activates
-`/home/k_anup/gemma4_env` by default, and exposes only GPU 0 so the job uses the
-RTX A6000 instead of the Quadro P400. The training runner also downgrades
-`bfloat16` to `float16` automatically when the visible GPU/PyTorch setup does
-not support BF16. By default, SFT training fails fast when PyTorch cannot see
-CUDA, because otherwise the job silently runs on CPU and appears stuck even when
-`nvidia-smi` shows idle GPUs. Override paths without editing the file:
+`/home/k_anup/gemma4_env` by default, and requests four GPUs. The training
+entrypoint uses all queryable GPUs visible to the process by default. The
+training runner also downgrades `bfloat16` to `float16` automatically when the
+visible GPU/PyTorch setup does not support BF16. By default, SFT training fails
+fast when PyTorch cannot see CUDA, because otherwise the job silently runs on CPU
+and appears stuck even when `nvidia-smi` shows idle GPUs. Override paths without
+editing the file:
 
 ```bash
-sbatch --export=ALL,A2UI_REPO_DIR=/home/k_anup/code/GenUI,A2UI_VENV=/home/k_anup/gemma4_env,A2UI_CUDA_VISIBLE_DEVICES=0 training/scripts/slurm_train_gemma4_e2b.sbatch
+sbatch --export=ALL,A2UI_REPO_DIR=/home/k_anup/code/GenUI,A2UI_VENV=/home/k_anup/gemma4_env training/scripts/slurm_train_gemma4_e2b.sbatch
 ```
 
 If a Slurm job fails, inspect both Slurm state and the training log:
@@ -97,19 +98,24 @@ for training: install a CUDA-enabled PyTorch build and launch Singularity with
 GPU passthrough, for example `singularity exec --nv <image> ...`.
 
 The training entrypoint normalizes `CUDA_VISIBLE_DEVICES` before importing
-PyTorch. If the shell inherits a multi-GPU value such as `0,1,2,3`, it defaults
-to `0` so an unhealthy GPU does not break PyTorch CUDA initialization. To use a
-specific healthy set, pass it explicitly:
+PyTorch. If the shell inherits a multi-GPU value such as `0,1,2,3`, it keeps all
+GPUs that `nvidia-smi --query-gpu=index` can query. To use a specific healthy
+set, pass it explicitly:
 
 ```bash
-A2UI_CUDA_VISIBLE_DEVICES=0 python3 training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_lora.yaml
+A2UI_CUDA_VISIBLE_DEVICES=0,1,3 python3 training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_lora.yaml
 ```
 
-For multi-GPU experiments, exclude unhealthy devices and opt in explicitly:
+To exclude a known bad device without hardcoding the full set:
 
 ```bash
-A2UI_CUDA_VISIBLE_DEVICES=0,1,3 A2UI_ALLOW_MULTI_GPU_VISIBLE=1 python3 training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_lora.yaml
+A2UI_EXCLUDE_CUDA_DEVICES=2 python3 training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_lora.yaml
 ```
+
+For the HF Trainer backend, labels are completion-only: prompt tokens are masked
+with `-100`, completion/IR tokens are left trainable, and the preflight fails if
+a batch would have zero trainable labels. This prevents apparent zero-gradient
+runs caused by truncating away the IR completion.
 
 Shell and sbatch files are forced to LF line endings through `.gitattributes`.
 This avoids Linux shebang failures such as `cannot execute: required file not

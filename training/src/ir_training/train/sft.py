@@ -49,6 +49,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     if bool(model_cfg.get("load_in_4bit", False)):
         model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, build_lora_config(adapter, lora_cfg))
+    _print_trainable_parameter_summary(model)
 
     data_files: dict[str, str] = {"train": str(train_path)}
     if val_path.exists():
@@ -58,6 +59,9 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
 
     def formatting_func(example: dict[str, Any]) -> str:
         return adapter.format_example(example, tokenizer=tokenizer, include_assistant=True)
+
+    def prompt_formatting_func(example: dict[str, Any]) -> str:
+        return adapter.format_example(example, tokenizer=tokenizer, include_assistant=False)
 
     trainer_backend = str(training_cfg.get("trainer_backend", "hf")).strip().lower() or "hf"
     if trainer_backend not in {"hf", "trl"}:
@@ -112,7 +116,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         training_args_kwargs["completion_only_loss"] = bool(training_cfg.get("completion_only_loss", False))
     if trainer_backend == "trl" and "assistant_only_loss" in args_params:
         training_args_kwargs["assistant_only_loss"] = bool(training_cfg.get("assistant_only_loss", False))
-    sft_text_dataset = _materialize_sft_text_dataset(dataset, formatting_func)
+    sft_text_dataset = _materialize_sft_text_dataset(dataset, formatting_func, prompt_formatting_func)
     _validate_sft_token_ids(
         dataset=sft_text_dataset,
         tokenizer=tokenizer,
@@ -218,22 +222,42 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     return metadata
 
 
-def _materialize_sft_text_dataset(dataset: Any, formatting_func: Callable[[dict[str, Any]], str]) -> Any:
+def _materialize_sft_text_dataset(
+    dataset: Any,
+    formatting_func: Callable[[dict[str, Any]], str],
+    prompt_formatting_func: Callable[[dict[str, Any]], str] | None = None,
+) -> Any:
     def add_text(example: dict[str, Any]) -> dict[str, str]:
-        return {"text": formatting_func(example)}
+        text = formatting_func(example)
+        prompt_text = prompt_formatting_func(example) if prompt_formatting_func is not None else ""
+        completion_text = _completion_suffix_text(example, text, prompt_text)
+        return {"text": text, "prompt_text": prompt_text, "completion_text": completion_text}
 
     return dataset.map(add_text, desc="Formatting SFT text")
 
 
 def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int) -> Any:
     def tokenize_batch(batch: dict[str, list[Any]]) -> dict[str, Any]:
-        return tokenizer(
-            [str(text) for text in batch.get("text", [])],
-            truncation=True,
-            max_length=max_seq_length,
-            add_special_tokens=True,
-            padding=False,
-        )
+        rows = [
+            _tokenize_completion_only_row(
+                tokenizer=tokenizer,
+                prompt_text=str(prompt_text or ""),
+                completion_text=str(completion_text or ""),
+                full_text=str(full_text or ""),
+                max_seq_length=max_seq_length,
+            )
+            for prompt_text, completion_text, full_text in zip(
+                batch.get("prompt_text", []),
+                batch.get("completion_text", []),
+                batch.get("text", []),
+                strict=False,
+            )
+        ]
+        return {
+            "input_ids": [row["input_ids"] for row in rows],
+            "attention_mask": [row["attention_mask"] for row in rows],
+            "labels": [row["labels"] for row in rows],
+        }
 
     tokenized_splits: dict[str, Any] = {}
     for split_name in dataset.keys():
@@ -245,6 +269,70 @@ def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int
             desc=f"Tokenizing {split_name} SFT text",
         )
     return tokenized_splits
+
+
+def _completion_suffix_text(example: dict[str, Any], full_text: str, prompt_text: str) -> str:
+    if prompt_text and full_text.startswith(prompt_text):
+        suffix = full_text[len(prompt_text) :]
+        if suffix:
+            return suffix
+    completion = example.get("completion")
+    if isinstance(completion, str) and completion:
+        return completion
+    messages = example.get("messages")
+    if isinstance(messages, list):
+        for message in reversed(messages):
+            if isinstance(message, dict) and message.get("role") == "assistant":
+                return str(message.get("content") or "")
+    return full_text
+
+
+def _tokenize_completion_only_row(
+    *,
+    tokenizer: Any,
+    prompt_text: str,
+    completion_text: str,
+    full_text: str,
+    max_seq_length: int,
+) -> dict[str, list[int]]:
+    prompt_ids = _tokenize_text(tokenizer, prompt_text)
+    completion_ids = _tokenize_text(tokenizer, completion_text)
+    if not completion_ids:
+        fallback = tokenizer(
+            full_text,
+            truncation=True,
+            max_length=max_seq_length,
+            add_special_tokens=True,
+        )
+        input_ids = list(fallback.get("input_ids") or [])
+        if not input_ids:
+            raise ValueError("SFT tokenization produced no input_ids.")
+        return {
+            "input_ids": input_ids,
+            "attention_mask": [1] * len(input_ids),
+            "labels": list(input_ids),
+        }
+
+    if len(completion_ids) >= max_seq_length:
+        input_ids = completion_ids[:max_seq_length]
+        labels = list(input_ids)
+    else:
+        prompt_budget = max_seq_length - len(completion_ids)
+        prompt_ids = prompt_ids[-prompt_budget:] if prompt_budget > 0 else []
+        input_ids = prompt_ids + completion_ids
+        labels = [-100] * len(prompt_ids) + list(completion_ids)
+    return {
+        "input_ids": input_ids,
+        "attention_mask": [1] * len(input_ids),
+        "labels": labels,
+    }
+
+
+def _tokenize_text(tokenizer: Any, text: str) -> list[int]:
+    if not text:
+        return []
+    encoded = tokenizer(text, add_special_tokens=False)
+    return list(encoded.get("input_ids") or [])
 
 
 class _CausalLMDataCollator:
@@ -268,14 +356,23 @@ class _CausalLMDataCollator:
         batch = self.tokenizer.pad(input_features, padding=True, return_tensors="pt")
         _validate_padded_input_id_tensor(batch["input_ids"], self.vocab_size, self.tokenizer)
         _validate_padded_sequence_length(batch["input_ids"], self.max_position_embeddings)
-        labels = batch["input_ids"].clone()
-        attention_mask = batch.get("attention_mask")
-        if attention_mask is not None:
-            labels = labels.masked_fill(attention_mask == 0, -100)
+        provided_labels = [feature.get("labels") for feature in features]
+        if all(labels is not None for labels in provided_labels):
+            labels = torch.full_like(batch["input_ids"], -100)
+            for row_index, row_labels in enumerate(provided_labels):
+                values = torch.tensor(list(row_labels), dtype=labels.dtype)
+                length = min(values.numel(), labels.shape[1])
+                labels[row_index, :length] = values[:length]
         else:
-            pad_token_id = getattr(self.tokenizer, "pad_token_id", None)
-            if pad_token_id is not None:
-                labels = labels.masked_fill(batch["input_ids"] == pad_token_id, -100)
+            labels = batch["input_ids"].clone()
+            attention_mask = batch.get("attention_mask")
+            if attention_mask is not None:
+                labels = labels.masked_fill(attention_mask == 0, -100)
+            else:
+                pad_token_id = getattr(self.tokenizer, "pad_token_id", None)
+                if pad_token_id is not None:
+                    labels = labels.masked_fill(batch["input_ids"] == pad_token_id, -100)
+        _validate_trainable_label_tensor(labels)
         batch["labels"] = labels
         return batch
 
@@ -380,6 +477,38 @@ def _validate_padded_sequence_length(input_ids: Any, max_position_embeddings: in
             "Padded SFT batch sequence length exceeds model position limit before CUDA execution. "
             f"sequence_length={sequence_length} max_position_embeddings={max_position_embeddings}"
         )
+
+
+def _validate_trainable_label_tensor(labels: Any) -> None:
+    if getattr(labels, "numel", lambda: 0)() == 0:
+        raise ValueError("SFT batch contains no labels.")
+    trainable = int((labels != -100).sum().item())
+    if trainable <= 0:
+        raise ValueError(
+            "SFT batch has zero trainable labels after prompt masking. "
+            "Increase training.max_seq_length or reduce prompt size so completion tokens remain in the batch."
+        )
+
+
+def _print_trainable_parameter_summary(model: Any) -> None:
+    trainable = 0
+    total = 0
+    for parameter in getattr(model, "parameters", lambda: [])():
+        count = int(parameter.numel()) if hasattr(parameter, "numel") else 0
+        total += count
+        if bool(getattr(parameter, "requires_grad", False)):
+            trainable += count
+    if trainable <= 0:
+        raise ValueError(
+            "SFT model has zero trainable parameters after applying LoRA. "
+            "Check lora.target_modules against the loaded model module names."
+        )
+    pct = (trainable / total * 100.0) if total else 0.0
+    print(
+        "Trainable parameter summary: "
+        f"trainable={trainable}, total={total}, trainable_pct={pct:.4f}",
+        flush=True,
+    )
 
 
 def _print_tokenizer_model_alignment(tokenizer: Any, model: Any) -> None:
@@ -670,6 +799,13 @@ def _validate_tokenized_sft_dataset(
             input_ids = split[row_index].get("input_ids") or []
             if not input_ids:
                 raise ValueError(f"Tokenized SFT preflight failed: empty input_ids at {split_name}[{row_index}]")
+            labels = split[row_index].get("labels") or []
+            trainable_label_count = sum(1 for label in labels if isinstance(label, int) and label != -100)
+            if trainable_label_count <= 0:
+                raise ValueError(
+                    "Tokenized SFT preflight failed: row has zero trainable labels after prompt masking "
+                    f"at {split_name}[{row_index}]."
+                )
             for token_id in input_ids:
                 if isinstance(token_id, int):
                     max_seen_token_id = max(max_seen_token_id, token_id)

@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:4
 #SBATCH --mem=96G
 #SBATCH --time=24:00:00
 #SBATCH --output=training/logs/slurm-%j.out
@@ -29,9 +29,11 @@ else
   exit 2
 fi
 
-# The training host has an RTX A6000 as GPU 0 and a Quadro P400 as GPU 1.
-# Keep only GPU 0 visible so Gemma training does not land on the P400.
-export CUDA_VISIBLE_DEVICES="${A2UI_CUDA_VISIBLE_DEVICES:-0}"
+# Use every GPU assigned by Slurm by default. Set A2UI_CUDA_VISIBLE_DEVICES or
+# A2UI_EXCLUDE_CUDA_DEVICES when a specific device must be included/excluded.
+if [[ -n "${A2UI_CUDA_VISIBLE_DEVICES:-}" ]]; then
+  export CUDA_VISIBLE_DEVICES="$A2UI_CUDA_VISIBLE_DEVICES"
+fi
 export TOKENIZERS_PARALLELISM=false
 export HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}"
 export TRANSFORMERS_CACHE="${TRANSFORMERS_CACHE:-$HF_HOME/transformers}"
@@ -48,14 +50,12 @@ PY
 nvidia-smi || true
 
 python - <<'PY'
-import os
 import torch
 if not torch.cuda.is_available():
     raise SystemExit("ERROR: CUDA is not available")
-name = torch.cuda.get_device_name(0)
-print("visible cuda device 0:", name)
-if "A6000" not in name and os.environ.get("A2UI_ALLOW_NON_A6000") != "1":
-    raise SystemExit(f"ERROR: expected visible GPU 0 to be RTX A6000, got {name!r}")
+print("visible cuda device count:", torch.cuda.device_count())
+for index in range(torch.cuda.device_count()):
+    print(f"visible cuda device {index}: {torch.cuda.get_device_name(index)}")
 PY
 
 exec srun --ntasks=1 --kill-on-bad-exit=1 \

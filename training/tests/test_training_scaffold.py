@@ -16,11 +16,13 @@ from ir_training.export.manifest import build_manifest, write_manifest
 from ir_training.common.cuda_env import normalize_cuda_visible_devices
 from ir_training.train import sft as sft_module
 from ir_training.train.sft import (
+    _CausalLMDataCollator,
     _align_tokenizer_and_model,
     _enforce_cuda_requirement,
     _effective_max_seq_length,
     _model_position_limit,
     _resolve_training_dtype,
+    _tokenize_completion_only_row,
     _summarize_training_sample_models,
     _training_precision_flags,
     _validate_sft_token_ids,
@@ -153,17 +155,36 @@ def test_url_preprocessing_placeholderizes_and_restores_roles():
     assert restore_url_placeholders(result.genui_json, result.url_map) == spec
 
 
-def test_cuda_visible_devices_normalizes_bad_multi_gpu_default():
+def test_cuda_visible_devices_uses_all_detected_healthy_gpus():
     env = {"CUDA_VISIBLE_DEVICES": "0,1,2,3"}
+    old_detector = normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"]
+    try:
+        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = lambda: ["0", "1", "3"]
 
-    result = normalize_cuda_visible_devices(env)
+        result = normalize_cuda_visible_devices(env)
 
-    assert result == "0"
-    assert env["CUDA_VISIBLE_DEVICES"] == "0"
+        assert result == "0,1,3"
+        assert env["CUDA_VISIBLE_DEVICES"] == "0,1,3"
+    finally:
+        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = old_detector
 
 
-def test_cuda_visible_devices_allows_explicit_healthy_multi_gpu_set():
-    env = {"CUDA_VISIBLE_DEVICES": "0,1,2,3", "A2UI_CUDA_VISIBLE_DEVICES": "0,1,3"}
+def test_cuda_visible_devices_detects_all_when_shell_does_not_set_it():
+    env = {}
+    old_detector = normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"]
+    try:
+        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = lambda: ["0", "1", "3"]
+
+        result = normalize_cuda_visible_devices(env)
+
+        assert result == "0,1,3"
+        assert env["CUDA_VISIBLE_DEVICES"] == "0,1,3"
+    finally:
+        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = old_detector
+
+
+def test_cuda_visible_devices_honors_explicit_and_excludes_bad_device():
+    env = {"A2UI_CUDA_VISIBLE_DEVICES": "0,1,2,3", "A2UI_EXCLUDE_CUDA_DEVICES": "2"}
 
     result = normalize_cuda_visible_devices(env)
 
@@ -171,12 +192,58 @@ def test_cuda_visible_devices_allows_explicit_healthy_multi_gpu_set():
     assert env["CUDA_VISIBLE_DEVICES"] == "0,1,3"
 
 
-def test_cuda_visible_devices_keeps_multi_gpu_when_opted_in():
-    env = {"CUDA_VISIBLE_DEVICES": "0,1,3", "A2UI_ALLOW_MULTI_GPU_VISIBLE": "1"}
+def test_completion_only_tokenization_masks_prompt_and_keeps_completion():
+    class Tokenizer:
+        def __call__(self, text, **_kwargs):
+            values = {"P": 10, "C": 20}
+            return {"input_ids": [values[ch] for ch in text]}
 
-    result = normalize_cuda_visible_devices(env)
+    row = _tokenize_completion_only_row(
+        tokenizer=Tokenizer(),
+        prompt_text="PPPP",
+        completion_text="CCC",
+        full_text="PPPPCCC",
+        max_seq_length=5,
+    )
 
-    assert result == "0,1,3"
+    assert row["input_ids"] == [10, 10, 20, 20, 20]
+    assert row["labels"] == [-100, -100, 20, 20, 20]
+
+
+def test_collator_preserves_completion_only_labels():
+    class PaddedBatch(dict):
+        pass
+
+    class Tokenizer:
+        pad_token_id = 0
+
+        def pad(self, features, padding=True, return_tensors="pt"):
+            import torch
+
+            max_len = max(len(feature["input_ids"]) for feature in features)
+            input_ids = []
+            attention = []
+            for feature in features:
+                values = list(feature["input_ids"])
+                pad = max_len - len(values)
+                input_ids.append(values + [0] * pad)
+                attention.append([1] * len(values) + [0] * pad)
+            return PaddedBatch(
+                {
+                    "input_ids": torch.tensor(input_ids),
+                    "attention_mask": torch.tensor(attention),
+                }
+            )
+
+    collator = _CausalLMDataCollator(Tokenizer(), vocab_size=30, max_position_embeddings=8)
+    batch = collator(
+        [
+            {"input_ids": [10, 20, 20], "attention_mask": [1, 1, 1], "labels": [-100, 20, 20]},
+            {"input_ids": [10, 10, 20], "attention_mask": [1, 1, 1], "labels": [-100, -100, 20]},
+        ]
+    )
+
+    assert batch["labels"].tolist() == [[-100, 20, 20], [-100, -100, 20]]
 
 
 def test_prepare_dataset_writes_url_map_metadata(tmp_path):
@@ -450,7 +517,7 @@ def test_sft_preflight_rejects_out_of_vocab_token_id():
 def test_tokenized_sft_preflight_rejects_out_of_vocab_token_id():
     try:
         _validate_tokenized_sft_dataset(
-            dataset={"train": [{"input_ids": [0, 5]}]},
+            dataset={"train": [{"input_ids": [0, 5], "labels": [-100, 5]}]},
             vocab_size=5,
             max_rows=0,
         )
@@ -458,6 +525,19 @@ def test_tokenized_sft_preflight_rejects_out_of_vocab_token_id():
         assert "outside model vocabulary" in str(exc)
     else:
         raise AssertionError("Expected invalid token id to fail tokenized preflight")
+
+
+def test_tokenized_sft_preflight_rejects_zero_trainable_labels():
+    try:
+        _validate_tokenized_sft_dataset(
+            dataset={"train": [{"input_ids": [0, 1], "labels": [-100, -100]}]},
+            vocab_size=5,
+            max_rows=0,
+        )
+    except ValueError as exc:
+        assert "zero trainable labels" in str(exc)
+    else:
+        raise AssertionError("Expected zero trainable labels to fail tokenized preflight")
 
 
 def test_sft_training_sample_summary_counts_models():
