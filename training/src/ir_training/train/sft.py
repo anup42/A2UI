@@ -44,11 +44,15 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     tokenizer = adapter.load_tokenizer()
     model = adapter.load_model()
     _align_tokenizer_and_model(tokenizer, model)
-    _print_tokenizer_model_alignment(tokenizer, model)
+    _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="initial model load")
     max_position_embeddings = _model_position_limit(model)
     if bool(model_cfg.get("load_in_4bit", False)):
         model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, build_lora_config(adapter, lora_cfg))
+    _align_tokenizer_and_model(tokenizer, model)
+    _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="after LoRA wrapping")
+    model_vocab_size = _require_model_vocab_size(model)
+    _print_tokenizer_model_alignment(tokenizer, model)
     _print_trainable_parameter_summary(model)
 
     data_files: dict[str, str] = {"train": str(train_path)}
@@ -121,7 +125,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         dataset=sft_text_dataset,
         tokenizer=tokenizer,
         max_seq_length=max_seq_length,
-        vocab_size=_model_vocab_size(model),
+        vocab_size=model_vocab_size,
         max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
         tokenizer_size=len(tokenizer) if hasattr(tokenizer, "__len__") else None,
     )
@@ -168,7 +172,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         tokenized_dataset = _tokenize_sft_text_dataset(sft_text_dataset, tokenizer, max_seq_length)
         _validate_tokenized_sft_dataset(
             dataset=tokenized_dataset,
-            vocab_size=_model_vocab_size(model),
+            vocab_size=model_vocab_size,
             max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
         )
         trainer_params = inspect.signature(Trainer.__init__).parameters
@@ -179,7 +183,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             "args": args,
             "data_collator": _CausalLMDataCollator(
                 tokenizer,
-                vocab_size=_model_vocab_size(model),
+                vocab_size=model_vocab_size,
                 max_position_embeddings=max_position_embeddings,
             ),
         }
@@ -372,7 +376,7 @@ class _CausalLMDataCollator:
                 pad_token_id = getattr(self.tokenizer, "pad_token_id", None)
                 if pad_token_id is not None:
                     labels = labels.masked_fill(batch["input_ids"] == pad_token_id, -100)
-        _validate_trainable_label_tensor(labels)
+        _validate_trainable_label_tensor(labels, self.vocab_size)
         batch["labels"] = labels
         return batch
 
@@ -382,7 +386,7 @@ def _align_tokenizer_and_model(tokenizer: Any, model: Any) -> None:
     vocab_size = _model_vocab_size(model)
     if token_count is not None and vocab_size is not None and token_count > vocab_size:
         model.resize_token_embeddings(token_count)
-        vocab_size = token_count
+        vocab_size = _model_vocab_size(model)
     _ensure_safe_pad_token(tokenizer, vocab_size)
     for attr in ("pad_token_id", "bos_token_id", "eos_token_id"):
         value = getattr(tokenizer, attr, None)
@@ -393,6 +397,33 @@ def _align_tokenizer_and_model(tokenizer: Any, model: Any) -> None:
         generation_config = getattr(model, "generation_config", None)
         if generation_config is not None:
             setattr(generation_config, attr, value)
+
+
+def _assert_tokenizer_model_vocab_alignment(tokenizer: Any, model: Any, *, context: str) -> None:
+    token_count = len(tokenizer) if hasattr(tokenizer, "__len__") else None
+    vocab_size = _require_model_vocab_size(model)
+    if token_count is not None and token_count > vocab_size:
+        resizer = getattr(model, "resize_token_embeddings", None)
+        if callable(resizer):
+            resizer(token_count)
+            vocab_size = _require_model_vocab_size(model)
+    if token_count is not None and token_count > vocab_size:
+        raise ValueError(
+            "Tokenizer/model vocabulary mismatch after attempted resize "
+            f"({context}): tokenizer_size={token_count}, model_vocab_size={vocab_size}. "
+            "Training would fail in the embedding layer with a CUDA device-side assert."
+        )
+    _ensure_safe_pad_token(tokenizer, vocab_size)
+
+
+def _require_model_vocab_size(model: Any) -> int:
+    vocab_size = _model_vocab_size(model)
+    if vocab_size is None:
+        raise ValueError(
+            "Unable to determine model input embedding vocabulary size. "
+            "Refusing to start CUDA training because token IDs cannot be preflight-checked."
+        )
+    return vocab_size
 
 
 def _ensure_safe_pad_token(tokenizer: Any, vocab_size: int | None) -> None:
@@ -479,7 +510,7 @@ def _validate_padded_sequence_length(input_ids: Any, max_position_embeddings: in
         )
 
 
-def _validate_trainable_label_tensor(labels: Any) -> None:
+def _validate_trainable_label_tensor(labels: Any, vocab_size: int | None) -> None:
     if getattr(labels, "numel", lambda: 0)() == 0:
         raise ValueError("SFT batch contains no labels.")
     trainable = int((labels != -100).sum().item())
@@ -488,6 +519,16 @@ def _validate_trainable_label_tensor(labels: Any) -> None:
             "SFT batch has zero trainable labels after prompt masking. "
             "Increase training.max_seq_length or reduce prompt size so completion tokens remain in the batch."
         )
+    if vocab_size is not None:
+        trainable_labels = labels[labels != -100]
+        if getattr(trainable_labels, "numel", lambda: 0)() > 0:
+            min_label_id = int(trainable_labels.min().item())
+            max_label_id = int(trainable_labels.max().item())
+            if min_label_id < 0 or max_label_id >= vocab_size:
+                raise ValueError(
+                    "SFT batch has trainable label IDs outside the model vocabulary before CUDA execution. "
+                    f"min_label_id={min_label_id} max_label_id={max_label_id} vocab_size={vocab_size}"
+                )
 
 
 def _print_trainable_parameter_summary(model: Any) -> None:
@@ -652,14 +693,31 @@ def _model_vocab_size(model: Any, seen: set[int] | None = None) -> int | None:
     seen.add(model_id)
 
     embeddings = model.get_input_embeddings() if hasattr(model, "get_input_embeddings") else None
-    vocab_size = _safe_getattr(embeddings, "num_embeddings")
+    vocab_size = _embedding_vocab_size(embeddings)
     if vocab_size is not None:
         return vocab_size
-    for nested_attr in ("base_model", "model"):
+    for nested_attr in ("base_model", "model", "language_model", "module", "wrapped_model"):
         nested = _safe_getattr(model, nested_attr)
         nested_vocab_size = _model_vocab_size(nested, seen)
         if nested_vocab_size is not None:
             return nested_vocab_size
+    return None
+
+
+def _embedding_vocab_size(embeddings: Any) -> int | None:
+    if embeddings is None:
+        return None
+    weight = _safe_getattr(embeddings, "weight")
+    shape = _safe_getattr(weight, "shape")
+    if shape is not None:
+        try:
+            if len(shape) >= 1:
+                return int(shape[0])
+        except Exception:
+            pass
+    vocab_size = _safe_getattr(embeddings, "num_embeddings")
+    if isinstance(vocab_size, int) and vocab_size > 0:
+        return vocab_size
     return None
 
 
@@ -676,7 +734,7 @@ def _model_position_limit(model: Any, seen: set[int] | None = None) -> int | Non
     config = _safe_getattr(model, "config")
     candidates: list[int] = []
     _collect_position_limit_candidates(config, candidates)
-    for nested_attr in ("base_model", "model"):
+    for nested_attr in ("base_model", "model", "language_model", "module", "wrapped_model"):
         nested = _safe_getattr(model, nested_attr)
         nested_limit = _model_position_limit(nested, seen)
         if nested_limit is not None:
@@ -806,6 +864,14 @@ def _validate_tokenized_sft_dataset(
                     "Tokenized SFT preflight failed: row has zero trainable labels after prompt masking "
                     f"at {split_name}[{row_index}]."
                 )
+            for label_id in labels:
+                if label_id == -100:
+                    continue
+                if not isinstance(label_id, int) or label_id < 0 or label_id >= vocab_size:
+                    raise ValueError(
+                        "Tokenized SFT preflight failed: trainable label id outside model vocabulary "
+                        f"at {split_name}[{row_index}] label={label_id} vocab_size={vocab_size}."
+                    )
             for token_id in input_ids:
                 if isinstance(token_id, int):
                     max_seen_token_id = max(max_seen_token_id, token_id)

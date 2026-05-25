@@ -20,6 +20,7 @@ from ir_training.train.sft import (
     _align_tokenizer_and_model,
     _enforce_cuda_requirement,
     _effective_max_seq_length,
+    _model_vocab_size,
     _model_position_limit,
     _resolve_training_dtype,
     _tokenize_completion_only_row,
@@ -401,6 +402,21 @@ def test_sft_alignment_replaces_out_of_vocab_pad_token_with_eos():
     assert model.config.pad_token_id == 1
 
 
+def test_sft_model_vocab_size_prefers_embedding_weight_shape():
+    class Weight:
+        shape = (7, 16)
+
+    class Embeddings:
+        num_embeddings = 4
+        weight = Weight()
+
+    class Model:
+        def get_input_embeddings(self):
+            return Embeddings()
+
+    assert _model_vocab_size(Model()) == 7
+
+
 def test_sft_effective_max_seq_length_clamps_to_position_limit():
     assert _effective_max_seq_length(configured=8192, max_position_embeddings=4096) == 4096
     assert _effective_max_seq_length(configured=2048, max_position_embeddings=4096) == 2048
@@ -538,6 +554,19 @@ def test_tokenized_sft_preflight_rejects_zero_trainable_labels():
         assert "zero trainable labels" in str(exc)
     else:
         raise AssertionError("Expected zero trainable labels to fail tokenized preflight")
+
+
+def test_tokenized_sft_preflight_rejects_out_of_vocab_label_id():
+    try:
+        _validate_tokenized_sft_dataset(
+            dataset={"train": [{"input_ids": [0, 4], "labels": [-100, 5]}]},
+            vocab_size=5,
+            max_rows=0,
+        )
+    except ValueError as exc:
+        assert "trainable label id outside model vocabulary" in str(exc)
+    else:
+        raise AssertionError("Expected invalid label id to fail tokenized preflight")
 
 
 def test_sft_training_sample_summary_counts_models():
