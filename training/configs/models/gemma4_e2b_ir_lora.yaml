@@ -30,6 +30,7 @@ training:
   eval_steps: 500
   logging_steps: 20
   forward_smoke_check_rows: 16
+  lora_diagnostics_steps: 12
 lora:
   r: 16
   alpha: 32

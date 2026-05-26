@@ -208,7 +208,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             max_position_embeddings=max_position_embeddings,
             max_rows=int(training_cfg.get("forward_smoke_check_rows", 1)),
         )
-        checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer)
+        checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer, training_cfg)
         trainer_params = inspect.signature(Trainer.__init__).parameters
         trainer_kwargs = {
             "model": model,
@@ -607,8 +607,26 @@ def _enable_input_grads_for_kbit_lora(model: Any) -> None:
         print(f"Input gradient hook registration failed: {exc!r}", flush=True)
 
 
-def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
+def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[str, Any] | None = None) -> Any:
+    lora_diagnostics_steps = int((training_cfg or {}).get("lora_diagnostics_steps", 0) or 0)
+    lora_diagnostics_all_ranks = bool((training_cfg or {}).get("lora_diagnostics_all_ranks", False))
+
     class CheckedCausalLMTrainer(base_trainer_cls):  # type: ignore[misc, valid-type]
+        def training_step(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+            should_report = _should_report_lora_diagnostics(
+                trainer=self,
+                max_reports=lora_diagnostics_steps,
+                all_ranks=lora_diagnostics_all_ranks,
+            )
+            if should_report:
+                _print_lora_update_diagnostics(self, model)
+            loss = super().training_step(model, inputs, *args, **kwargs)
+            if should_report:
+                _print_lora_gradient_diagnostics(self, model)
+                _store_lora_update_snapshot(self, model)
+                self._a2ui_lora_diag_reports = int(getattr(self, "_a2ui_lora_diag_reports", 0)) + 1
+            return loss
+
         def compute_loss(
             self,
             model: Any,
@@ -652,6 +670,160 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any) -> Any:
             return loss
 
     return CheckedCausalLMTrainer
+
+
+def _should_report_lora_diagnostics(*, trainer: Any, max_reports: int, all_ranks: bool) -> bool:
+    if max_reports <= 0:
+        return False
+    if not all_ranks and not _is_world_process_zero_env():
+        return False
+    return int(getattr(trainer, "_a2ui_lora_diag_reports", 0)) < max_reports
+
+
+def _print_lora_gradient_diagnostics(trainer: Any, model: Any) -> None:
+    try:
+        import torch  # type: ignore
+    except Exception as exc:
+        print(f"A2UI LoRA grad diagnostic skipped: torch import failed: {exc!r}", flush=True)
+        return
+
+    named_params, selection = _lora_trainable_named_parameters(model)
+    grad_non_none = 0
+    grad_nonzero = 0
+    grad_norms: list[float] = []
+    trainable_elements = 0
+    for _name, param in named_params:
+        try:
+            trainable_elements += int(param.numel())
+            grad = getattr(param, "grad", None)
+            if grad is None:
+                continue
+            grad_non_none += 1
+            grad_float = grad.detach().float()
+            if bool(torch.count_nonzero(grad_float).item()):
+                grad_nonzero += 1
+            grad_norms.append(float(torch.linalg.vector_norm(grad_float).item()))
+        except Exception:
+            continue
+    max_grad_norm = max(grad_norms) if grad_norms else 0.0
+    mean_grad_norm = (sum(grad_norms) / len(grad_norms)) if grad_norms else 0.0
+    print(
+        "A2UI LoRA grad diagnostic: "
+        f"rank={_rank_label()}, "
+        f"global_step={_trainer_global_step(trainer)}, "
+        f"report_index={int(getattr(trainer, '_a2ui_lora_diag_reports', 0))}, "
+        f"selection={selection}, "
+        f"trainable_tensors={len(named_params)}, "
+        f"trainable_elements={trainable_elements}, "
+        f"grad_non_none={grad_non_none}, "
+        f"grad_nonzero={grad_nonzero}, "
+        f"max_grad_norm={max_grad_norm:.8g}, "
+        f"mean_grad_norm={mean_grad_norm:.8g}",
+        flush=True,
+    )
+
+
+def _print_lora_update_diagnostics(trainer: Any, model: Any) -> None:
+    snapshot = getattr(trainer, "_a2ui_lora_update_snapshot", None)
+    if not isinstance(snapshot, dict):
+        print(
+            "A2UI LoRA update diagnostic: "
+            f"rank={_rank_label()}, global_step={_trainer_global_step(trainer)}, "
+            "status=no_previous_snapshot",
+            flush=True,
+        )
+        return
+    snapshot_step = int(getattr(trainer, "_a2ui_lora_update_snapshot_step", 0))
+    current_step = _trainer_global_step(trainer)
+    if current_step <= snapshot_step:
+        print(
+            "A2UI LoRA update diagnostic: "
+            f"rank={_rank_label()}, global_step={current_step}, "
+            f"snapshot_step={snapshot_step}, status=waiting_for_optimizer_step",
+            flush=True,
+        )
+        return
+
+    named_params, selection = _lora_trainable_named_parameters(model)
+    compared = 0
+    changed_tensors = 0
+    changed_elements = 0
+    total_elements = 0
+    max_abs_delta = 0.0
+    mean_abs_delta_sum = 0.0
+    for name, param in named_params:
+        previous = snapshot.get(name)
+        if previous is None:
+            continue
+        try:
+            current = param.detach().float().cpu()
+            delta = current - previous
+            compared += 1
+            elements = int(delta.numel())
+            total_elements += elements
+            max_delta = float(delta.abs().max().item()) if elements else 0.0
+            mean_delta = float(delta.abs().mean().item()) if elements else 0.0
+            if max_delta > 0.0:
+                changed_tensors += 1
+                changed_elements += int((delta != 0).sum().item())
+            max_abs_delta = max(max_abs_delta, max_delta)
+            mean_abs_delta_sum += mean_delta
+        except Exception:
+            continue
+    mean_abs_delta = (mean_abs_delta_sum / compared) if compared else 0.0
+    print(
+        "A2UI LoRA update diagnostic: "
+        f"rank={_rank_label()}, "
+        f"global_step={current_step}, "
+        f"snapshot_step={snapshot_step}, "
+        f"selection={selection}, "
+        f"optimizer_updated={str(max_abs_delta > 0.0).lower()}, "
+        f"compared_tensors={compared}, "
+        f"changed_tensors={changed_tensors}, "
+        f"changed_elements={changed_elements}, "
+        f"total_elements={total_elements}, "
+        f"max_abs_delta={max_abs_delta:.8g}, "
+        f"mean_abs_delta={mean_abs_delta:.8g}",
+        flush=True,
+    )
+
+
+def _store_lora_update_snapshot(trainer: Any, model: Any) -> None:
+    named_params, _selection = _lora_trainable_named_parameters(model)
+    snapshot: dict[str, Any] = {}
+    for name, param in named_params:
+        try:
+            snapshot[name] = param.detach().float().cpu().clone()
+        except Exception:
+            continue
+    trainer._a2ui_lora_update_snapshot = snapshot
+    trainer._a2ui_lora_update_snapshot_step = _trainer_global_step(trainer)
+
+
+def _lora_trainable_named_parameters(model: Any) -> tuple[list[tuple[str, Any]], str]:
+    try:
+        named = list(model.named_parameters())
+    except Exception:
+        return [], "unavailable"
+    trainable = [(name, param) for name, param in named if bool(getattr(param, "requires_grad", False))]
+    lora = [(name, param) for name, param in trainable if "lora" in name.lower()]
+    if lora:
+        return lora, "lora"
+    return trainable, "trainable_fallback"
+
+
+def _trainer_global_step(trainer: Any) -> int:
+    state = getattr(trainer, "state", None)
+    try:
+        return int(getattr(state, "global_step", 0) or 0)
+    except Exception:
+        return 0
+
+
+def _rank_label() -> str:
+    import os
+
+    return f"{os.environ.get('RANK', '0')}/{os.environ.get('LOCAL_RANK', '0')}"
 
 
 def _run_forward_smoke_check(
