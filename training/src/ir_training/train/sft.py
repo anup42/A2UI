@@ -138,6 +138,11 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     if trainer_backend == "trl" and "assistant_only_loss" in args_params:
         training_args_kwargs["assistant_only_loss"] = bool(training_cfg.get("assistant_only_loss", False))
     sft_text_dataset = _materialize_sft_text_dataset(dataset, formatting_func, prompt_formatting_func)
+    _print_sft_token_length_summary(
+        dataset=sft_text_dataset,
+        tokenizer=tokenizer,
+        threshold=max_seq_length,
+    )
     _validate_sft_token_ids(
         dataset=sft_text_dataset,
         tokenizer=tokenizer,
@@ -371,6 +376,57 @@ def _tokenize_text(tokenizer: Any, text: str) -> list[int]:
     return list(encoded.get("input_ids") or [])
 
 
+def _print_sft_token_length_summary(*, dataset: Any, tokenizer: Any, threshold: int) -> None:
+    if not _is_world_process_zero_env():
+        return
+    split_names = list(dataset.keys()) if hasattr(dataset, "keys") else []
+    total_rows = 0
+    total_over_threshold = 0
+    global_max_full_tokens = 0
+    global_max_prompt_tokens = 0
+    global_max_completion_tokens = 0
+    print(f"SFT token length summary before truncation (threshold={threshold}):", flush=True)
+    for split_name in split_names:
+        split = dataset[split_name]
+        split_rows = 0
+        split_over_threshold = 0
+        split_max_full_tokens = 0
+        split_max_prompt_tokens = 0
+        split_max_completion_tokens = 0
+        for row in split:
+            split_rows += 1
+            full_tokens = len(_tokenize_text(tokenizer, str(row.get("text") or "")))
+            prompt_tokens = len(_tokenize_text(tokenizer, str(row.get("prompt_text") or "")))
+            completion_tokens = len(_tokenize_text(tokenizer, str(row.get("completion_text") or "")))
+            if full_tokens > threshold:
+                split_over_threshold += 1
+            split_max_full_tokens = max(split_max_full_tokens, full_tokens)
+            split_max_prompt_tokens = max(split_max_prompt_tokens, prompt_tokens)
+            split_max_completion_tokens = max(split_max_completion_tokens, completion_tokens)
+        total_rows += split_rows
+        total_over_threshold += split_over_threshold
+        global_max_full_tokens = max(global_max_full_tokens, split_max_full_tokens)
+        global_max_prompt_tokens = max(global_max_prompt_tokens, split_max_prompt_tokens)
+        global_max_completion_tokens = max(global_max_completion_tokens, split_max_completion_tokens)
+        print(
+            f"  {split_name}: total={split_rows}, "
+            f"over_{threshold}={split_over_threshold}, "
+            f"max_full_tokens={split_max_full_tokens}, "
+            f"max_prompt_tokens={split_max_prompt_tokens}, "
+            f"max_completion_tokens={split_max_completion_tokens}",
+            flush=True,
+        )
+    print(
+        "SFT token length summary total: "
+        f"total={total_rows}, "
+        f"over_{threshold}={total_over_threshold}, "
+        f"max_full_tokens={global_max_full_tokens}, "
+        f"max_prompt_tokens={global_max_prompt_tokens}, "
+        f"max_completion_tokens={global_max_completion_tokens}",
+        flush=True,
+    )
+
+
 def _stabilize_torch_runtime() -> None:
     import os
 
@@ -463,6 +519,10 @@ def _trainer_is_world_process_zero(trainer: Any) -> bool:
             return bool(checker())
         except Exception:
             pass
+    return _is_world_process_zero_env()
+
+
+def _is_world_process_zero_env() -> bool:
     try:
         import os
 
