@@ -20,7 +20,7 @@ training:
   learning_rate: 0.0002
   per_device_train_batch_size: 1
   gradient_accumulation_steps: 4
-  gradient_checkpointing: false
+  gradient_checkpointing: true
   mixed_precision: none
   require_ddp_for_multi_gpu: true
   ddp_find_unused_parameters: false
