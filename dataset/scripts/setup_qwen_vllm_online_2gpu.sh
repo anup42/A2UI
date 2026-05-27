@@ -40,10 +40,21 @@ print(sys.version.split()[0])
 PY
 }
 
-if [[ -x "${ENV_DIR}/bin/python" ]] && ! python_supported "${ENV_DIR}/bin/python"; then
-  old_version="$(python_version_string "${ENV_DIR}/bin/python")"
+env_ready() {
+  [[ -f "$1/bin/activate" ]] && [[ -x "$1/bin/python" ]] && python_supported "$1/bin/python"
+}
+
+if [[ -d "${ENV_DIR}" ]] && ! env_ready "${ENV_DIR}"; then
+  old_version="missing"
+  if [[ -x "${ENV_DIR}/bin/python" ]]; then
+    old_version="$(python_version_string "${ENV_DIR}/bin/python")"
+  fi
   ENV_DIR="${REQUESTED_ENV_DIR}_py311"
-  echo "Existing env ${REQUESTED_ENV_DIR} uses unsupported Python ${old_version}; using ${ENV_DIR} instead." >&2
+  echo "Existing env ${REQUESTED_ENV_DIR} is incomplete or unsupported (${old_version}); using ${ENV_DIR} instead." >&2
+  if [[ -d "${ENV_DIR}" ]] && ! env_ready "${ENV_DIR}"; then
+    ENV_DIR="${REQUESTED_ENV_DIR}_py311_$(date +%Y%m%d_%H%M%S)"
+    echo "Fallback env is also incomplete or unsupported; using ${ENV_DIR} instead." >&2
+  fi
 fi
 
 echo "A2UI repo: ${REPO_ROOT}"
@@ -90,7 +101,7 @@ install_miniforge_and_create_env() {
   conda activate "${ENV_DIR}"
 }
 
-if [[ -f "${ENV_DIR}/bin/activate" ]]; then
+if env_ready "${ENV_DIR}"; then
   # shellcheck source=/dev/null
   source "${ENV_DIR}/bin/activate"
 else
