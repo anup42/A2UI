@@ -11,6 +11,7 @@ cd "${REPO_ROOT}"
 
 PYTHON_VERSION="${PYTHON_VERSION:-3.11}"
 ENV_DIR="${ENV_DIR:-${REPO_ROOT}/qwen_vllm_env}"
+REQUESTED_ENV_DIR="${ENV_DIR}"
 MINIFORGE_DIR="${MINIFORGE_DIR:-${HOME}/miniforge3}"
 QWEN_MODEL_ID="${QWEN_MODEL_ID:-Qwen/Qwen3.6-35B-A3B}"
 QWEN_MODEL_PATH="${QWEN_MODEL_PATH:-${REPO_ROOT}/qwen_models/${QWEN_MODEL_ID//\//--}}"
@@ -24,6 +25,26 @@ export A2UI_VLLM_GPUS="${A2UI_VLLM_GPUS:-2}"
 export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-32768}"
 export VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 export VLLM_DTYPE="${VLLM_DTYPE:-bfloat16}"
+
+python_supported() {
+  "$1" - <<'PY' >/dev/null 2>&1
+import sys
+raise SystemExit(0 if (3, 10) <= sys.version_info[:2] < (3, 13) else 1)
+PY
+}
+
+python_version_string() {
+  "$1" - <<'PY' 2>/dev/null || true
+import sys
+print(sys.version.split()[0])
+PY
+}
+
+if [[ -x "${ENV_DIR}/bin/python" ]] && ! python_supported "${ENV_DIR}/bin/python"; then
+  old_version="$(python_version_string "${ENV_DIR}/bin/python")"
+  ENV_DIR="${REQUESTED_ENV_DIR}_py311"
+  echo "Existing env ${REQUESTED_ENV_DIR} uses unsupported Python ${old_version}; using ${ENV_DIR} instead." >&2
+fi
 
 echo "A2UI repo: ${REPO_ROOT}"
 echo "Target env: ${ENV_DIR}"
