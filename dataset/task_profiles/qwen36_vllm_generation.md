@@ -18,6 +18,33 @@ The latest device-camera capture showed:
 Do not use Python 3.13 for vLLM. Create/install a Python 3.10, 3.11, or 3.12
 environment on the GPU machine first. The scripts default to `python3.11`.
 
+The setup pins vLLM/torch to the latest CUDA 12.x vLLM wheel available for this
+driver path by default. Do not use the latest PyPI stack here because it can
+pull CUDA 12.9/13.0 packages that require a newer NVIDIA driver. Defaults:
+
+```bash
+export A2UI_VLLM_VERSION=0.9.2
+export A2UI_VLLM_CUDA_VARIANT=126
+```
+
+## Internet 2-GPU Machine: Use Existing Model Folder
+
+This is the primary path for the current machine. It has internet and GPUs, and
+the model is already present at `~/models/Qwen--Qwen3.6-35B-A3B`.
+
+```bash
+cd /path/to/A2UI
+export QWEN_MODEL_PATH=~/models/Qwen--Qwen3.6-35B-A3B
+bash dataset/scripts/setup_qwen_vllm_online_2gpu.sh
+```
+
+If `QWEN_MODEL_PATH` is not set and the script is run interactively, it will ask
+for the path. To opt back into Hugging Face download, explicitly set:
+
+```bash
+export A2UI_DOWNLOAD_QWEN_MODEL=1
+```
+
 ## Internet Machine: Download Offline Bundle
 
 Run this on a Linux machine with internet access and the same Python minor
@@ -74,25 +101,6 @@ bash dataset/scripts/install_qwen_vllm_offline_env.sh /path/to/qwen_vllm_offline
 source qwen_vllm_env/activate_qwen_vllm.sh
 ```
 
-## Internet 2-GPU Machine: Use Existing Model Folder
-
-The online setup script does not download the Qwen model by default. It uses
-`~/models/Qwen--Qwen3.6-35B-A3B` unless overridden. To use another existing
-local model folder:
-
-```bash
-cd /path/to/A2UI
-export QWEN_MODEL_PATH=/path/to/existing/Qwen3.6-35B-A3B
-bash dataset/scripts/setup_qwen_vllm_online_2gpu.sh
-```
-
-If `QWEN_MODEL_PATH` is not set and the script is run interactively, it will ask
-for the path. To opt back into Hugging Face download, explicitly set:
-
-```bash
-export A2UI_DOWNLOAD_QWEN_MODEL=1
-```
-
 ## Start vLLM Server
 
 Use all visible GPUs:
@@ -101,7 +109,7 @@ Use all visible GPUs:
 cd /path/to/A2UI
 source qwen_vllm_env/activate_qwen_vllm.sh
 
-export QWEN_MODEL_PATH=/path/to/qwen_vllm_offline_bundle/models/Qwen--Qwen3.6-35B-A3B
+export QWEN_MODEL_PATH=~/models/Qwen--Qwen3.6-35B-A3B
 export CUDA_VISIBLE_DEVICES=0,1
 export A2UI_VLLM_GPUS=2
 export VLLM_MAX_MODEL_LEN=32768

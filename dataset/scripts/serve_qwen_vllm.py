@@ -70,7 +70,10 @@ def main() -> None:
     if args.enable_reasoning:
         if _vllm_supports_flag("--enable-reasoning"):
             cmd.append("--enable-reasoning")
-        cmd += ["--reasoning-parser", args.reasoning_parser]
+        if _vllm_supports_flag("--reasoning-parser"):
+            cmd += ["--reasoning-parser", args.reasoning_parser]
+        else:
+            print("vLLM build does not expose --reasoning-parser; continuing without it.", flush=True)
 
     print("Starting vLLM:", " ".join(cmd), flush=True)
     os.execvpe(cmd[0], cmd, env)

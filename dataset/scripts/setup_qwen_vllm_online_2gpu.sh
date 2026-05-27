@@ -19,6 +19,8 @@ REQ_FILE="${REQ_FILE:-${REPO_ROOT}/dataset/requirements-qwen-vllm.txt}"
 A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_DOWNLOAD_QWEN_MODEL="${A2UI_DOWNLOAD_QWEN_MODEL:-0}"
+A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-0.9.2}"
+A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
@@ -138,11 +140,40 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
     --trusted-host files.pythonhosted.org
     --trusted-host huggingface.co
     --trusted-host cdn-lfs.huggingface.co
+    --trusted-host github.com
+    --trusted-host objects.githubusercontent.com
+    --trusted-host release-assets.githubusercontent.com
+    --trusted-host download.pytorch.org
   )
 fi
 
 python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade pip setuptools wheel
-python -m pip install "${PIP_SSL_ARGS[@]}" -r "${REQ_FILE}"
+REQ_RUNTIME_FILE="$(mktemp)"
+grep -Ev '^[[:space:]]*(vllm|torch|torchvision|torchaudio)([<>=!~ ].*)?$' "${REQ_FILE}" > "${REQ_RUNTIME_FILE}"
+python -m pip install "${PIP_SSL_ARGS[@]}" -r "${REQ_RUNTIME_FILE}"
+rm -f "${REQ_RUNTIME_FILE}"
+
+install_vllm_cuda_stack() {
+  echo "Installing vLLM ${A2UI_VLLM_VERSION} for CUDA ${A2UI_VLLM_CUDA_VARIANT}"
+  # Remove CUDA 13 / mismatched packages from a reused environment.
+  python -m pip freeze | awk -F== '/^(torch|torchvision|torchaudio|vllm|triton|nvidia-)/ {print $1}' \
+    | xargs -r python -m pip uninstall -y
+
+  local arch
+  arch="$(uname -m)"
+  local manylinux_tag="manylinux1_${arch}"
+  if [[ "${A2UI_VLLM_VERSION}" == "0.21."* || "${A2UI_VLLM_VERSION}" == "0.20."* || "${A2UI_VLLM_VERSION}" == "0.19."* ]]; then
+    manylinux_tag="manylinux_2_35_${arch}"
+  fi
+  local wheel_url="${A2UI_VLLM_WHEEL_URL:-https://github.com/vllm-project/vllm/releases/download/v${A2UI_VLLM_VERSION}/vllm-${A2UI_VLLM_VERSION}%2Bcu${A2UI_VLLM_CUDA_VARIANT}-cp38-abi3-${manylinux_tag}.whl}"
+
+  python -m pip install "${PIP_SSL_ARGS[@]}" \
+    --extra-index-url "https://download.pytorch.org/whl/cu${A2UI_VLLM_CUDA_VARIANT}" \
+    --force-reinstall \
+    "${wheel_url}"
+}
+
+install_vllm_cuda_stack
 
 if [[ -z "${A2UI_CA_BUNDLE}" ]]; then
   for candidate in \
