@@ -14,10 +14,11 @@ ENV_DIR="${ENV_DIR:-${REPO_ROOT}/qwen_vllm_env}"
 REQUESTED_ENV_DIR="${ENV_DIR}"
 MINIFORGE_DIR="${MINIFORGE_DIR:-${HOME}/miniforge3}"
 QWEN_MODEL_ID="${QWEN_MODEL_ID:-Qwen/Qwen3.6-35B-A3B}"
-QWEN_MODEL_PATH="${QWEN_MODEL_PATH:-${REPO_ROOT}/qwen_models/${QWEN_MODEL_ID//\//--}}"
+QWEN_MODEL_PATH="${QWEN_MODEL_PATH:-${HOME}/models/Qwen--Qwen3.6-35B-A3B}"
 REQ_FILE="${REQ_FILE:-${REPO_ROOT}/dataset/requirements-qwen-vllm.txt}"
 A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
+A2UI_DOWNLOAD_QWEN_MODEL="${A2UI_DOWNLOAD_QWEN_MODEL:-0}"
 export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
@@ -60,7 +61,11 @@ fi
 echo "A2UI repo: ${REPO_ROOT}"
 echo "Target env: ${ENV_DIR}"
 echo "Target model: ${QWEN_MODEL_ID}"
-echo "Target model path: ${QWEN_MODEL_PATH}"
+if [[ -n "${QWEN_MODEL_PATH}" ]]; then
+  echo "Target model path: ${QWEN_MODEL_PATH}"
+else
+  echo "Target model path: not set; will ask for existing local model folder."
+fi
 
 if command -v nvidia-smi >/dev/null 2>&1; then
   nvidia-smi
@@ -162,9 +167,26 @@ else
   echo "No CA bundle detected. If SSL fails, set A2UI_CA_BUNDLE=/path/to/company-root-ca.pem" >&2
 fi
 
-mkdir -p "$(dirname "${QWEN_MODEL_PATH}")"
-export QWEN_MODEL_ID QWEN_MODEL_PATH
-python - <<'PY'
+if [[ -z "${QWEN_MODEL_PATH}" ]]; then
+  if [[ -t 0 ]]; then
+    read -r -p "Enter existing local Qwen model folder path: " QWEN_MODEL_PATH
+  else
+    echo "QWEN_MODEL_PATH is required because model download is disabled by default." >&2
+    echo "Example: QWEN_MODEL_PATH=/path/to/Qwen3.6-35B-A3B bash dataset/scripts/setup_qwen_vllm_online_2gpu.sh" >&2
+    exit 1
+  fi
+fi
+
+if [[ ! -d "${QWEN_MODEL_PATH}" ]]; then
+  if [[ "${A2UI_DOWNLOAD_QWEN_MODEL}" != "1" ]]; then
+    echo "Model folder does not exist: ${QWEN_MODEL_PATH}" >&2
+    echo "Set QWEN_MODEL_PATH to the already-downloaded model folder." >&2
+    echo "If you really want this script to download from Hugging Face, rerun with A2UI_DOWNLOAD_QWEN_MODEL=1." >&2
+    exit 1
+  fi
+  mkdir -p "$(dirname "${QWEN_MODEL_PATH}")"
+  export QWEN_MODEL_ID QWEN_MODEL_PATH
+  python - <<'PY'
 import os
 if os.environ.get("A2UI_DISABLE_SSL_VERIFY") == "1":
     import requests
@@ -193,6 +215,9 @@ snapshot_download(
     resume_download=True,
 )
 PY
+else
+  echo "Using existing local model folder: ${QWEN_MODEL_PATH}"
+fi
 
 cat > "${ENV_DIR}/activate_qwen_vllm.sh" <<EOF
 #!/usr/bin/env bash

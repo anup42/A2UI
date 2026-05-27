@@ -74,6 +74,25 @@ bash dataset/scripts/install_qwen_vllm_offline_env.sh /path/to/qwen_vllm_offline
 source qwen_vllm_env/activate_qwen_vllm.sh
 ```
 
+## Internet 2-GPU Machine: Use Existing Model Folder
+
+The online setup script does not download the Qwen model by default. It uses
+`~/models/Qwen--Qwen3.6-35B-A3B` unless overridden. To use another existing
+local model folder:
+
+```bash
+cd /path/to/A2UI
+export QWEN_MODEL_PATH=/path/to/existing/Qwen3.6-35B-A3B
+bash dataset/scripts/setup_qwen_vllm_online_2gpu.sh
+```
+
+If `QWEN_MODEL_PATH` is not set and the script is run interactively, it will ask
+for the path. To opt back into Hugging Face download, explicitly set:
+
+```bash
+export A2UI_DOWNLOAD_QWEN_MODEL=1
+```
+
 ## Start vLLM Server
 
 Use all visible GPUs:
