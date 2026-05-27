@@ -1,0 +1,142 @@
+# Qwen3.6 35B A3B vLLM Dataset Generation
+
+This profile runs dataset Stage 1, Stage 2, and Stage 3 against a local vLLM
+OpenAI-compatible server using `Qwen/Qwen3.6-35B-A3B` with Qwen reasoning
+enabled.
+
+## Camera-Captured Target Machine Notes
+
+The latest device-camera capture showed:
+
+- Python: `3.13.13`
+- NVIDIA driver: `570.133.20`
+- CUDA reported by `nvidia-smi`: `12.8`
+- GPUs visible in the captured frame: at least two `NVIDIA A100-PCIE-40GB`
+- GPU memory in the captured frame: `40960 MiB` per visible GPU
+- No active GPU process was visible in the capture
+
+Do not use Python 3.13 for vLLM. Create/install a Python 3.10, 3.11, or 3.12
+environment on the GPU machine first. The scripts default to `python3.11`.
+
+## Internet Machine: Download Offline Bundle
+
+Run this on a Linux machine with internet access and the same Python minor
+version/platform as the offline GPU machine:
+
+```bash
+git clone <A2UI repo> A2UI
+cd A2UI
+
+export PYTHON_BIN=python3.11
+export QWEN_MODEL_ID=Qwen/Qwen3.6-35B-A3B
+export BUNDLE_DIR=$PWD/qwen_vllm_offline_bundle
+
+bash dataset/scripts/download_qwen_vllm_offline_bundle.sh
+```
+
+Copy the complete `qwen_vllm_offline_bundle/` folder to the offline GPU
+machine.
+
+If the Hugging Face model repo name is different, override `QWEN_MODEL_ID` and
+`QWEN_MODEL_PATH` consistently.
+
+## Offline GPU Machine: Install Env
+
+```bash
+cd /path/to/A2UI
+
+export PYTHON_BIN=python3.11
+export ENV_DIR=$PWD/qwen_vllm_env
+
+bash dataset/scripts/install_qwen_vllm_offline_env.sh /path/to/qwen_vllm_offline_bundle
+source qwen_vllm_env/activate_qwen_vllm.sh
+```
+
+## Start vLLM Server
+
+Use all visible GPUs:
+
+```bash
+cd /path/to/A2UI
+source qwen_vllm_env/activate_qwen_vllm.sh
+
+export QWEN_MODEL_PATH=/path/to/qwen_vllm_offline_bundle/models/Qwen--Qwen3.6-35B-A3B
+export CUDA_VISIBLE_DEVICES=0,1
+export A2UI_VLLM_GPUS=2
+export VLLM_MAX_MODEL_LEN=32768
+
+bash dataset/scripts/run_qwen36_vllm_server.sh
+```
+
+For 4 or 8 GPUs, update both `CUDA_VISIBLE_DEVICES` and `A2UI_VLLM_GPUS`:
+
+```bash
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+export A2UI_VLLM_GPUS=4
+```
+
+```bash
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+export A2UI_VLLM_GPUS=8
+```
+
+## Run Dataset Stages
+
+Run all stages sequentially:
+
+```bash
+cd /path/to/A2UI
+source qwen_vllm_env/activate_qwen_vllm.sh
+
+export RUN_ID=dataset_qwen36_vllm_reasoning_v0
+export RATE_LIMIT_QPS=0.2
+export STAGE3_BATCH_SIZE=1
+
+bash dataset/scripts/run_qwen36_dataset_stages.sh
+```
+
+Run stages one by one:
+
+```bash
+STAGE=1 RUN_ID=dataset_qwen36_vllm_reasoning_v0 bash dataset/scripts/run_qwen36_dataset_stages.sh
+STAGE=2 RUN_ID=dataset_qwen36_vllm_reasoning_v0 bash dataset/scripts/run_qwen36_dataset_stages.sh
+STAGE=3 RUN_ID=dataset_qwen36_vllm_reasoning_v0 STAGE3_BATCH_SIZE=1 bash dataset/scripts/run_qwen36_dataset_stages.sh
+```
+
+Equivalent direct commands:
+
+```bash
+export LOCAL_ALLOW_HTTP_ENDPOINT=1
+export LOCAL_STRICT_OFFLINE=0
+export LOCAL_VLLM_ENABLE_THINKING=1
+export VLLM_REASONING_PARSER=qwen3
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export HF_DATASETS_OFFLINE=1
+
+python dataset/src/main.py --stage 1 --model qwen36_35b_a3b_vllm_reasoning --run_id dataset_qwen36_vllm_reasoning_v0 --rate_limit_qps 0.2
+python dataset/src/main.py --stage 2 --model qwen36_35b_a3b_vllm_reasoning --run_id dataset_qwen36_vllm_reasoning_v0 --rate_limit_qps 0.2
+python dataset/src/main.py --stage 3 --model qwen36_35b_a3b_vllm_reasoning --run_id dataset_qwen36_vllm_reasoning_v0 --genui_batch_size 1 --rate_limit_qps 0.2
+```
+
+## Auto-Start vLLM From Dataset CLI
+
+If you want `dataset/src/main.py` to start/stop vLLM for one stage:
+
+```bash
+python dataset/src/main.py \
+  --stage 3 \
+  --model qwen36_35b_a3b_vllm_reasoning \
+  --run_id dataset_qwen36_vllm_reasoning_v0 \
+  --start_vllm \
+  --vllm_model_path /path/to/qwen_vllm_offline_bundle/models/Qwen--Qwen3.6-35B-A3B \
+  --vllm_gpus 2 \
+  --vllm_cuda_visible_devices 0,1 \
+  --vllm_dtype bfloat16 \
+  --vllm_max_model_len 32768 \
+  --vllm_trust_remote_code \
+  --vllm_start_timeout 900
+```
+
+For long runs, a persistent server is usually better than auto-starting per
+stage because it avoids model reload cost.

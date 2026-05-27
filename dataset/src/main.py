@@ -291,15 +291,19 @@ def _maybe_start_vllm(spec: ModelSpec, args, logger):
         logger.info("Skipping vLLM auto-start for %s (local transformers mode)", spec.name)
         return None
     model_lower = spec.model.lower()
-    if "qwen3-coder" not in model_lower and "deepseek-coder" not in model_lower:
+    if "qwen" not in model_lower and "deepseek" not in model_lower:
         return None
 
     endpoint = spec.endpoint or "http://localhost:8000/v1/chat/completions"
+    os.environ.setdefault("LOCAL_ALLOW_HTTP_ENDPOINT", "1")
+    os.environ["LOCAL_STRICT_OFFLINE"] = "0"
+    if "qwen" in model_lower:
+        os.environ.setdefault("LOCAL_VLLM_ENABLE_THINKING", "1")
     if _endpoint_ready(endpoint):
         logger.info("vLLM already running at %s", endpoint)
         return None
 
-    if "deepseek-coder" in model_lower:
+    if "deepseek" in model_lower:
         model_path = (
             args.vllm_model_path
             or os.environ.get("DEEPSEEK_MODEL_PATH")
@@ -314,7 +318,7 @@ def _maybe_start_vllm(spec: ModelSpec, args, logger):
 
     script = ROOT / "scripts" / "serve_qwen_vllm.py"
     if not script.exists():
-        script = ROOT / "scripts" / "serve_qwen_vllm.py"
+        raise SystemExit(f"Missing vLLM server script: {script}")
     cmd = [
         sys.executable,
         str(script),
@@ -341,6 +345,17 @@ def _maybe_start_vllm(spec: ModelSpec, args, logger):
         cmd.append("--trust-remote-code")
     if args.vllm_cuda_visible_devices:
         cmd += ["--cuda-visible-devices", args.vllm_cuda_visible_devices]
+    if "qwen" in model_lower and os.environ.get("LOCAL_VLLM_ENABLE_THINKING", "1").strip().lower() not in {
+        "0",
+        "false",
+        "no",
+        "off",
+    }:
+        cmd += [
+            "--enable-reasoning",
+            "--reasoning-parser",
+            os.environ.get("VLLM_REASONING_PARSER", "qwen3"),
+        ]
 
     logger.info("Starting vLLM server: %s", " ".join(cmd))
     proc = subprocess.Popen(cmd)

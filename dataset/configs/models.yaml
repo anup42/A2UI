@@ -190,6 +190,16 @@
       tpm: null
       rpd: null
       note: "Local Transformers offline (8x V100). Set QWEN_MODEL_PATH and CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7"
+  - name: qwen36_35b_a3b_vllm_reasoning
+    provider: local
+    model: Qwen/Qwen3.6-35B-A3B
+    supports_json_mode: false
+    endpoint: http://127.0.0.1:8000/v1/chat/completions
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Local vLLM OpenAI-compatible endpoint with Qwen reasoning enabled. Set LOCAL_ALLOW_HTTP_ENDPOINT=1 and QWEN_MODEL_PATH."
   - name: deepseek_coder_v2_lite_local_4x
     provider: local
     model: deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct

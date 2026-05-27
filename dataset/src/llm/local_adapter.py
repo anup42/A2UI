@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 import urllib.request
 from pathlib import Path
@@ -244,6 +245,8 @@ class LocalAdapter(BaseLLMAdapter):
             body["seed"] = seed
         if json_mode:
             body["response_format"] = {"type": "json_object"}
+        if self._is_truthy(os.environ.get("LOCAL_VLLM_ENABLE_THINKING")):
+            body["chat_template_kwargs"] = {"enable_thinking": True}
 
         data = json.dumps(body).encode("utf-8")
         req = urllib.request.Request(
@@ -279,6 +282,8 @@ class LocalAdapter(BaseLLMAdapter):
         elapsed = (time.time() - start) * 1000
         payload = json.loads(raw)
         text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if self._model_is_qwen_or_deepseek():
+            text = re.sub(r"(?is)<think>.*?</think>", "", text or "").strip()
         usage = payload.get("usage", {})
         return LLMResult(
             text=text or "",
