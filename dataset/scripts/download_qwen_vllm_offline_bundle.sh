@@ -15,6 +15,7 @@ MODEL_DIR="${MODEL_DIR:-${BUNDLE_DIR}/models/${QWEN_MODEL_ID//\//--}}"
 WHEELHOUSE="${BUNDLE_DIR}/wheelhouse"
 DOWNLOAD_VENV="${BUNDLE_DIR}/.download_venv"
 export BUNDLE_DIR QWEN_MODEL_ID MODEL_DIR
+A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
 
 mkdir -p "${BUNDLE_DIR}" "${WHEELHOUSE}" "$(dirname "${MODEL_DIR}")"
 cp "${REQ_FILE}" "${BUNDLE_DIR}/requirements-qwen-vllm.txt"
@@ -32,7 +33,28 @@ PY
 # shellcheck source=/dev/null
 source "${DOWNLOAD_VENV}/bin/activate"
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install "huggingface_hub[cli]>=0.25.0"
+python -m pip install "huggingface_hub[cli]>=0.25.0" truststore certifi
+
+if [[ -z "${A2UI_CA_BUNDLE}" ]]; then
+  for candidate in \
+    /etc/ssl/certs/ca-certificates.crt \
+    /etc/pki/tls/certs/ca-bundle.crt \
+    /etc/ssl/cert.pem; do
+    if [[ -f "${candidate}" ]]; then
+      A2UI_CA_BUNDLE="${candidate}"
+      break
+    fi
+  done
+fi
+if [[ -n "${A2UI_CA_BUNDLE}" && -f "${A2UI_CA_BUNDLE}" ]]; then
+  export SSL_CERT_FILE="${A2UI_CA_BUNDLE}"
+  export REQUESTS_CA_BUNDLE="${A2UI_CA_BUNDLE}"
+  export CURL_CA_BUNDLE="${A2UI_CA_BUNDLE}"
+  export GIT_SSL_CAINFO="${A2UI_CA_BUNDLE}"
+  echo "Using CA bundle: ${A2UI_CA_BUNDLE}"
+else
+  echo "No CA bundle detected. If SSL fails, set A2UI_CA_BUNDLE=/path/to/company-root-ca.pem" >&2
+fi
 
 echo "Downloading wheels to ${WHEELHOUSE}"
 # PIP_DOWNLOAD_EXTRA_ARGS can be used for custom CUDA/PyTorch indexes.
@@ -46,6 +68,11 @@ python -m pip download \
 echo "Downloading model ${QWEN_MODEL_ID} to ${MODEL_DIR}"
 python - <<'PY'
 import os
+try:
+    import truststore
+    truststore.inject_into_ssl()
+except Exception as exc:
+    print(f"truststore injection skipped: {exc}")
 from huggingface_hub import snapshot_download
 
 snapshot_download(

@@ -15,6 +15,7 @@ MINIFORGE_DIR="${MINIFORGE_DIR:-${HOME}/miniforge3}"
 QWEN_MODEL_ID="${QWEN_MODEL_ID:-Qwen/Qwen3.6-35B-A3B}"
 QWEN_MODEL_PATH="${QWEN_MODEL_PATH:-${REPO_ROOT}/qwen_models/${QWEN_MODEL_ID//\//--}}"
 REQ_FILE="${REQ_FILE:-${REPO_ROOT}/dataset/requirements-qwen-vllm.txt}"
+A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
 export A2UI_VLLM_GPUS="${A2UI_VLLM_GPUS:-2}"
@@ -87,10 +88,36 @@ PY
 python -m pip install --upgrade pip setuptools wheel
 python -m pip install -r "${REQ_FILE}"
 
+if [[ -z "${A2UI_CA_BUNDLE}" ]]; then
+  for candidate in \
+    /etc/ssl/certs/ca-certificates.crt \
+    /etc/pki/tls/certs/ca-bundle.crt \
+    /etc/ssl/cert.pem; do
+    if [[ -f "${candidate}" ]]; then
+      A2UI_CA_BUNDLE="${candidate}"
+      break
+    fi
+  done
+fi
+if [[ -n "${A2UI_CA_BUNDLE}" && -f "${A2UI_CA_BUNDLE}" ]]; then
+  export SSL_CERT_FILE="${A2UI_CA_BUNDLE}"
+  export REQUESTS_CA_BUNDLE="${A2UI_CA_BUNDLE}"
+  export CURL_CA_BUNDLE="${A2UI_CA_BUNDLE}"
+  export GIT_SSL_CAINFO="${A2UI_CA_BUNDLE}"
+  echo "Using CA bundle: ${A2UI_CA_BUNDLE}"
+else
+  echo "No CA bundle detected. If SSL fails, set A2UI_CA_BUNDLE=/path/to/company-root-ca.pem" >&2
+fi
+
 mkdir -p "$(dirname "${QWEN_MODEL_PATH}")"
 export QWEN_MODEL_ID QWEN_MODEL_PATH
 python - <<'PY'
 import os
+try:
+    import truststore
+    truststore.inject_into_ssl()
+except Exception as exc:
+    print(f"truststore injection skipped: {exc}")
 from huggingface_hub import snapshot_download
 
 snapshot_download(
