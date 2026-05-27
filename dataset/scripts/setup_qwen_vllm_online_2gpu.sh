@@ -16,6 +16,8 @@ QWEN_MODEL_ID="${QWEN_MODEL_ID:-Qwen/Qwen3.6-35B-A3B}"
 QWEN_MODEL_PATH="${QWEN_MODEL_PATH:-${REPO_ROOT}/qwen_models/${QWEN_MODEL_ID//\//--}}"
 REQ_FILE="${REQ_FILE:-${REPO_ROOT}/dataset/requirements-qwen-vllm.txt}"
 A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
+A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
+export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
 export A2UI_VLLM_GPUS="${A2UI_VLLM_GPUS:-2}"
@@ -53,7 +55,11 @@ install_miniforge_and_create_env() {
   local installer="/tmp/miniforge_a2ui.sh"
   if [[ ! -x "${MINIFORGE_DIR}/bin/conda" ]]; then
     echo "Installing Miniforge to ${MINIFORGE_DIR}"
-    curl -L -o "${installer}" \
+    local curl_ssl_args=()
+    if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
+      curl_ssl_args=(-k)
+    fi
+    curl -L "${curl_ssl_args[@]}" -o "${installer}" \
       "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
     bash "${installer}" -b -p "${MINIFORGE_DIR}"
   fi
@@ -85,8 +91,21 @@ if sys.version_info < (3, 10) or sys.version_info >= (3, 13):
 print("python:", sys.version.split()[0])
 PY
 
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r "${REQ_FILE}"
+PIP_SSL_ARGS=()
+if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
+  echo "WARNING: A2UI_DISABLE_SSL_VERIFY=1; TLS certificate verification is disabled for setup downloads." >&2
+  export PYTHONHTTPSVERIFY=0
+  export CURL_SSL_BACKEND=openssl
+  PIP_SSL_ARGS=(
+    --trusted-host pypi.org
+    --trusted-host files.pythonhosted.org
+    --trusted-host huggingface.co
+    --trusted-host cdn-lfs.huggingface.co
+  )
+fi
+
+python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade pip setuptools wheel
+python -m pip install "${PIP_SSL_ARGS[@]}" -r "${REQ_FILE}"
 
 if [[ -z "${A2UI_CA_BUNDLE}" ]]; then
   for candidate in \
@@ -99,7 +118,9 @@ if [[ -z "${A2UI_CA_BUNDLE}" ]]; then
     fi
   done
 fi
-if [[ -n "${A2UI_CA_BUNDLE}" && -f "${A2UI_CA_BUNDLE}" ]]; then
+if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
+  echo "Skipping CA bundle setup because SSL verification is disabled." >&2
+elif [[ -n "${A2UI_CA_BUNDLE}" && -f "${A2UI_CA_BUNDLE}" ]]; then
   export SSL_CERT_FILE="${A2UI_CA_BUNDLE}"
   export REQUESTS_CA_BUNDLE="${A2UI_CA_BUNDLE}"
   export CURL_CA_BUNDLE="${A2UI_CA_BUNDLE}"
@@ -113,11 +134,25 @@ mkdir -p "$(dirname "${QWEN_MODEL_PATH}")"
 export QWEN_MODEL_ID QWEN_MODEL_PATH
 python - <<'PY'
 import os
-try:
-    import truststore
-    truststore.inject_into_ssl()
-except Exception as exc:
-    print(f"truststore injection skipped: {exc}")
+if os.environ.get("A2UI_DISABLE_SSL_VERIFY") == "1":
+    import requests
+    import urllib3
+    from huggingface_hub import configure_http_backend
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    def backend_factory():
+        session = requests.Session()
+        session.verify = False
+        return session
+
+    configure_http_backend(backend_factory=backend_factory)
+else:
+    try:
+        import truststore
+        truststore.inject_into_ssl()
+    except Exception as exc:
+        print(f"truststore injection skipped: {exc}")
 from huggingface_hub import snapshot_download
 
 snapshot_download(

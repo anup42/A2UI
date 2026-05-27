@@ -16,6 +16,8 @@ WHEELHOUSE="${BUNDLE_DIR}/wheelhouse"
 DOWNLOAD_VENV="${BUNDLE_DIR}/.download_venv"
 export BUNDLE_DIR QWEN_MODEL_ID MODEL_DIR
 A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
+A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
+export A2UI_DISABLE_SSL_VERIFY
 
 mkdir -p "${BUNDLE_DIR}" "${WHEELHOUSE}" "$(dirname "${MODEL_DIR}")"
 cp "${REQ_FILE}" "${BUNDLE_DIR}/requirements-qwen-vllm.txt"
@@ -32,8 +34,19 @@ PY
 "${PYTHON_BIN}" -m venv "${DOWNLOAD_VENV}"
 # shellcheck source=/dev/null
 source "${DOWNLOAD_VENV}/bin/activate"
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install "huggingface_hub[cli]>=0.25.0" truststore certifi
+PIP_SSL_ARGS=()
+if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
+  echo "WARNING: A2UI_DISABLE_SSL_VERIFY=1; TLS certificate verification is disabled for setup downloads." >&2
+  export PYTHONHTTPSVERIFY=0
+  PIP_SSL_ARGS=(
+    --trusted-host pypi.org
+    --trusted-host files.pythonhosted.org
+    --trusted-host huggingface.co
+    --trusted-host cdn-lfs.huggingface.co
+  )
+fi
+python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade pip setuptools wheel
+python -m pip install "${PIP_SSL_ARGS[@]}" "huggingface_hub[cli]>=0.25.0" truststore certifi
 
 if [[ -z "${A2UI_CA_BUNDLE}" ]]; then
   for candidate in \
@@ -46,7 +59,9 @@ if [[ -z "${A2UI_CA_BUNDLE}" ]]; then
     fi
   done
 fi
-if [[ -n "${A2UI_CA_BUNDLE}" && -f "${A2UI_CA_BUNDLE}" ]]; then
+if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
+  echo "Skipping CA bundle setup because SSL verification is disabled." >&2
+elif [[ -n "${A2UI_CA_BUNDLE}" && -f "${A2UI_CA_BUNDLE}" ]]; then
   export SSL_CERT_FILE="${A2UI_CA_BUNDLE}"
   export REQUESTS_CA_BUNDLE="${A2UI_CA_BUNDLE}"
   export CURL_CA_BUNDLE="${A2UI_CA_BUNDLE}"
@@ -58,8 +73,9 @@ fi
 
 echo "Downloading wheels to ${WHEELHOUSE}"
 # PIP_DOWNLOAD_EXTRA_ARGS can be used for custom CUDA/PyTorch indexes.
-python -m pip download --dest "${WHEELHOUSE}" pip setuptools wheel ${PIP_DOWNLOAD_EXTRA_ARGS:-}
+python -m pip download "${PIP_SSL_ARGS[@]}" --dest "${WHEELHOUSE}" pip setuptools wheel ${PIP_DOWNLOAD_EXTRA_ARGS:-}
 python -m pip download \
+  "${PIP_SSL_ARGS[@]}" \
   --dest "${WHEELHOUSE}" \
   --only-binary=:all: \
   -r "${BUNDLE_DIR}/requirements-qwen-vllm.txt" \
@@ -68,11 +84,25 @@ python -m pip download \
 echo "Downloading model ${QWEN_MODEL_ID} to ${MODEL_DIR}"
 python - <<'PY'
 import os
-try:
-    import truststore
-    truststore.inject_into_ssl()
-except Exception as exc:
-    print(f"truststore injection skipped: {exc}")
+if os.environ.get("A2UI_DISABLE_SSL_VERIFY") == "1":
+    import requests
+    import urllib3
+    from huggingface_hub import configure_http_backend
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    def backend_factory():
+        session = requests.Session()
+        session.verify = False
+        return session
+
+    configure_http_backend(backend_factory=backend_factory)
+else:
+    try:
+        import truststore
+        truststore.inject_into_ssl()
+    except Exception as exc:
+        print(f"truststore injection skipped: {exc}")
 from huggingface_hub import snapshot_download
 
 snapshot_download(

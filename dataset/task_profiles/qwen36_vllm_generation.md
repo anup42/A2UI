@@ -34,9 +34,17 @@ export BUNDLE_DIR=$PWD/qwen_vllm_offline_bundle
 bash dataset/scripts/download_qwen_vllm_offline_bundle.sh
 ```
 
-If Hugging Face download fails with `CERTIFICATE_VERIFY_FAILED` or
-`unable to get local issuer certificate`, point the scripts at the machine or
-company CA bundle:
+The setup/download scripts default to bypassing TLS certificate verification
+because this cluster path is behind a certificate chain that Python cannot
+verify. To re-enable verification, run with:
+
+```bash
+export A2UI_DISABLE_SSL_VERIFY=0
+```
+
+If verification is enabled and Hugging Face download fails with
+`CERTIFICATE_VERIFY_FAILED` or `unable to get local issuer certificate`, point
+the scripts at the machine or company CA bundle:
 
 ```bash
 export A2UI_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
