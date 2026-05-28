@@ -158,6 +158,26 @@ except Exception:
     pass
 
 try:
+    # Newer Qwen3.5/3.6 text configs can omit legacy attributes expected by
+    # vLLM 0.11.x's Qwen3 MoE model class. Config-file overlays are not enough
+    # when Transformers drops unknown keys while materializing the config
+    # object, so patch the config class directly.
+    from transformers.models.qwen3_5_moe.configuration_qwen3_5_moe import (
+        Qwen3_5MoeTextConfig,
+    )
+
+    if not hasattr(Qwen3_5MoeTextConfig, "decoder_sparse_step"):
+        Qwen3_5MoeTextConfig.decoder_sparse_step = property(
+            lambda self: self.__dict__.get("decoder_sparse_step", 1)
+        )
+        print(
+            "A2UI vLLM shim: added Qwen3_5MoeTextConfig.decoder_sparse_step",
+            flush=True,
+        )
+except Exception as exc:
+    print(f"A2UI vLLM shim: Qwen3.5/3.6 config patch not installed: {exc}", flush=True)
+
+try:
     # vLLM 0.11.x accepts Qwen3.6 mrope_section through rope_scaling, but its
     # Qwen3 MoE path does not pass the matching partial_rotary_factor into
     # get_rope(). Newer vLLM builds handle this internally. Keep this shim
