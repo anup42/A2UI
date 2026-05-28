@@ -143,6 +143,38 @@ try:
         PreTrainedTokenizerBase.all_special_tokens_extended = all_special_tokens_extended
 except Exception:
     pass
+
+try:
+    # vLLM 0.11.x accepts Qwen3.6 mrope_section through rope_scaling, but its
+    # Qwen3 MoE path does not pass the matching partial_rotary_factor into
+    # get_rope(). Newer vLLM builds handle this internally. Keep this shim
+    # scoped to rope configs that explicitly provide partial_rotary_factor.
+    import vllm.model_executor.layers.rotary_embedding as _a2ui_rope
+
+    if not getattr(_a2ui_rope.get_rope, "_a2ui_qwen36_partial_patch", False):
+        _a2ui_original_get_rope = _a2ui_rope.get_rope
+
+        def _a2ui_get_rope(*args, **kwargs):
+            rope_scaling = kwargs.get("rope_scaling")
+            partial_rotary_factor = kwargs.get("partial_rotary_factor", 1.0)
+            if (
+                isinstance(rope_scaling, dict)
+                and "partial_rotary_factor" in rope_scaling
+                and partial_rotary_factor == 1.0
+            ):
+                kwargs["partial_rotary_factor"] = float(
+                    rope_scaling["partial_rotary_factor"]
+                )
+            return _a2ui_original_get_rope(*args, **kwargs)
+
+        _a2ui_get_rope._a2ui_qwen36_partial_patch = True
+        _a2ui_rope.get_rope = _a2ui_get_rope
+        print(
+            "A2UI vLLM shim: enabled rope_scaling partial_rotary_factor patch",
+            flush=True,
+        )
+except Exception as exc:
+    print(f"A2UI vLLM shim: rope patch not installed: {exc}", flush=True)
 """.lstrip(),
         encoding="utf-8",
     )
