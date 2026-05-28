@@ -435,6 +435,24 @@ def main() -> None:
         help="Override global request rate limit (queries per second) without editing run.yaml",
     )
     parser.add_argument(
+        "--max_queries_total",
+        type=int,
+        default=None,
+        help="Override Stage 1 max_queries_total without editing run.yaml",
+    )
+    parser.add_argument(
+        "--max_responses_total",
+        type=int,
+        default=None,
+        help="Override Stage 2 max_responses_total without editing run.yaml",
+    )
+    parser.add_argument(
+        "--max_genui_total",
+        type=int,
+        default=None,
+        help="Override Stage 3 max_genui_total without editing run.yaml",
+    )
+    parser.add_argument(
         "--local_model_path",
         type=str,
         default=None,
@@ -503,6 +521,12 @@ def main() -> None:
     effective_rate_limit_qps = float(run_cfg.get("rate_limit_qps", 2))
     if args.rate_limit_qps is not None:
         effective_rate_limit_qps = float(args.rate_limit_qps)
+    if args.max_queries_total is not None:
+        run_cfg["max_queries_total"] = int(args.max_queries_total)
+    if args.max_responses_total is not None:
+        run_cfg["max_responses_total"] = int(args.max_responses_total)
+    if args.max_genui_total is not None:
+        run_cfg["max_genui_total"] = int(args.max_genui_total)
 
     genui_batch_size = run_cfg.get("genui_batch_size", 100)
     if args.genui_batch_size is not None:
