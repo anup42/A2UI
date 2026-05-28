@@ -159,18 +159,12 @@ install_vllm_cuda_stack() {
   python -m pip freeze | awk -F== '/^(torch|torchvision|torchaudio|vllm|triton|nvidia-)/ {print $1}' \
     | xargs -r python -m pip uninstall -y
 
-  local arch
-  arch="$(uname -m)"
-  local manylinux_tag="manylinux1_${arch}"
-  if [[ "${A2UI_VLLM_VERSION}" == "0.21."* || "${A2UI_VLLM_VERSION}" == "0.20."* || "${A2UI_VLLM_VERSION}" == "0.19."* ]]; then
-    manylinux_tag="manylinux_2_35_${arch}"
-  fi
-  local wheel_url="${A2UI_VLLM_WHEEL_URL:-https://github.com/vllm-project/vllm/releases/download/v${A2UI_VLLM_VERSION}/vllm-${A2UI_VLLM_VERSION}%2Bcu${A2UI_VLLM_CUDA_VARIANT}-cp38-abi3-${manylinux_tag}.whl}"
-
+  # Install from PyPI/PyTorch indexes only. GitHub release assets are blocked on
+  # this cluster path, and latest unpinned PyPI packages can pull CUDA 13 wheels.
   python -m pip install "${PIP_SSL_ARGS[@]}" \
     --extra-index-url "https://download.pytorch.org/whl/cu${A2UI_VLLM_CUDA_VARIANT}" \
     --force-reinstall \
-    "${wheel_url}"
+    "vllm==${A2UI_VLLM_VERSION}"
 }
 
 install_vllm_cuda_stack

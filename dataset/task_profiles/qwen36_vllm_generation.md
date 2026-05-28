@@ -18,9 +18,10 @@ The latest device-camera capture showed:
 Do not use Python 3.13 for vLLM. Create/install a Python 3.10, 3.11, or 3.12
 environment on the GPU machine first. The scripts default to `python3.11`.
 
-The setup pins vLLM/torch to the latest CUDA 12.x vLLM wheel available for this
-driver path by default. Do not use the latest PyPI stack here because it can
-pull CUDA 12.9/13.0 packages that require a newer NVIDIA driver. Defaults:
+The setup pins vLLM/torch to a CUDA 12-compatible stack for this driver path by
+default. Do not use the latest unpinned PyPI stack here because it can pull CUDA
+12.9/13.0 packages that require a newer NVIDIA driver. GitHub release wheel
+URLs are also avoided because they are blocked on this cluster path. Defaults:
 
 ```bash
 export A2UI_VLLM_VERSION=0.9.2
