@@ -135,13 +135,14 @@ print("python:", sys.version.split()[0])
 PY
 
 PIP_SSL_ARGS=()
+UV_SSL_ARGS=()
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
   echo "WARNING: A2UI_DISABLE_SSL_VERIFY=1; TLS certificate verification is disabled for setup downloads." >&2
   export PYTHONHTTPSVERIFY=0
   export GIT_SSL_NO_VERIFY=true
   export CURL_SSL_BACKEND=openssl
-  export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org huggingface.co cdn-lfs.huggingface.co github.com objects.githubusercontent.com release-assets.githubusercontent.com download.pytorch.org"
-  export UV_INSECURE_HOST="${UV_INSECURE_HOST:-pypi.org files.pythonhosted.org download.pytorch.org github.com objects.githubusercontent.com release-assets.githubusercontent.com}"
+  export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org huggingface.co cdn-lfs.huggingface.co github.com objects.githubusercontent.com release-assets.githubusercontent.com download.pytorch.org download-r2.pytorch.org"
+  export UV_INSECURE_HOST="${UV_INSECURE_HOST:-pypi.org files.pythonhosted.org huggingface.co cdn-lfs.huggingface.co download.pytorch.org download-r2.pytorch.org github.com objects.githubusercontent.com release-assets.githubusercontent.com}"
   PIP_SSL_ARGS=(
     --trusted-host pypi.org
     --trusted-host files.pythonhosted.org
@@ -151,6 +152,18 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
     --trusted-host objects.githubusercontent.com
     --trusted-host release-assets.githubusercontent.com
     --trusted-host download.pytorch.org
+    --trusted-host download-r2.pytorch.org
+  )
+  UV_SSL_ARGS=(
+    --allow-insecure-host pypi.org
+    --allow-insecure-host files.pythonhosted.org
+    --allow-insecure-host huggingface.co
+    --allow-insecure-host cdn-lfs.huggingface.co
+    --allow-insecure-host download.pytorch.org
+    --allow-insecure-host download-r2.pytorch.org
+    --allow-insecure-host github.com
+    --allow-insecure-host objects.githubusercontent.com
+    --allow-insecure-host release-assets.githubusercontent.com
   )
 fi
 
@@ -263,6 +276,7 @@ install_vllm_cuda_stack() {
       python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade uv
       python -m uv pip install \
         --python "$(command -v python)" \
+        "${UV_SSL_ARGS[@]}" \
         --upgrade \
         "${vllm_spec}" \
         --torch-backend=auto
