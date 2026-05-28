@@ -47,6 +47,8 @@ ENV MAX_JOBS=${MAX_JOBS}
 ENV NVCC_THREADS=${NVCC_THREADS}
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
+ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"
+ENV UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
@@ -68,15 +70,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m venv /opt/venv \
-    && python -m pip install --upgrade pip setuptools wheel uv
+    && if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
+         export CURL_CA_BUNDLE=""; \
+         export REQUESTS_CA_BUNDLE=""; \
+         export SSL_CERT_FILE=""; \
+         python -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --trusted-host download.pytorch.org --upgrade pip setuptools wheel uv setuptools-rust; \
+       else \
+         python -m pip install --upgrade pip setuptools wheel uv setuptools-rust; \
+       fi
 
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       git config --global http.sslVerify false; \
       python -m pip config set global.trusted-host "pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"; \
+      python -m pip config set global.cert ""; \
+      printf 'Acquire::https::Verify-Peer "false";\nAcquire::https::Verify-Host "false";\n' > /etc/apt/apt.conf.d/99-a2ui-insecure-ssl; \
     fi
 
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com"; \
+      export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"; \
+      export GIT_SSL_NO_VERIFY=1; \
+      export CURL_CA_BUNDLE=""; \
+      export REQUESTS_CA_BUNDLE=""; \
+      export SSL_CERT_FILE=""; \
     fi; \
     python -m uv pip install \
       --index-url "${PYTORCH_INDEX_URL}" \
@@ -94,6 +110,11 @@ WORKDIR /opt/vllm
 # CUDA 12.9/13.0 torch stack during vLLM install.
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com"; \
+      export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"; \
+      export GIT_SSL_NO_VERIFY=1; \
+      export CURL_CA_BUNDLE=""; \
+      export REQUESTS_CA_BUNDLE=""; \
+      export SSL_CERT_FILE=""; \
     fi; \
     python -m uv pip install --torch-backend=cu128 --no-build-isolation -e .
 
