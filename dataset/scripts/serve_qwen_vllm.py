@@ -2,9 +2,22 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
+from pathlib import Path
+
+
+ARCHITECTURE_ALIASES = {
+    # Qwen3.6 A3B checkpoints currently advertise the newer Transformers
+    # architecture name, while vLLM 0.11.x exposes the compatible Qwen3 MoE
+    # causal-LM implementation in its model registry.
+    "Qwen3_5MoeForConditionalGeneration": "Qwen3MoeForCausalLM",
+    "Qwen3_5MoeForCausalLM": "Qwen3MoeForCausalLM",
+}
 
 
 def _vllm_supports_flag(flag: str) -> bool:
@@ -19,6 +32,56 @@ def _vllm_supports_flag(flag: str) -> bool:
     except Exception:
         return False
     return flag in ((result.stdout or "") + (result.stderr or ""))
+
+
+def _auto_architecture_override(model_path: str, requested: str) -> list[str] | None:
+    if requested.lower() in {"", "0", "false", "none", "off"}:
+        return None
+    if requested.lower() != "auto":
+        return [item.strip() for item in requested.split(",") if item.strip()]
+
+    config_path = Path(model_path) / "config.json"
+    if not config_path.is_file():
+        return None
+    try:
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Could not inspect model config for architecture override: {exc}", flush=True)
+        return None
+
+    architectures = config.get("architectures") or []
+    mapped = [ARCHITECTURE_ALIASES[arch] for arch in architectures if arch in ARCHITECTURE_ALIASES]
+    return mapped or None
+
+
+def _model_path_with_config_overlay(model_path: str, architectures: list[str]) -> str:
+    source = Path(model_path).resolve()
+    config_path = source / "config.json"
+    if not config_path.is_file():
+        return str(source)
+
+    overlay = Path(tempfile.mkdtemp(prefix="a2ui_qwen_vllm_model_"))
+    for child in source.iterdir():
+        target = overlay / child.name
+        if child.name == "config.json":
+            continue
+        try:
+            target.symlink_to(child, target_is_directory=child.is_dir())
+        except Exception:
+            if child.is_dir():
+                shutil.copytree(child, target, symlinks=True)
+            else:
+                shutil.copy2(child, target)
+
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    original = config.get("architectures")
+    config["architectures"] = architectures
+    (overlay / "config.json").write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+    print(
+        f"Using temporary vLLM config overlay: architectures {original} -> {architectures}; path={overlay}",
+        flush=True,
+    )
+    return str(overlay)
 
 
 def main() -> None:
@@ -36,18 +99,31 @@ def main() -> None:
     parser.add_argument("--cuda-visible-devices", default=None)
     parser.add_argument("--enable-reasoning", action="store_true")
     parser.add_argument("--reasoning-parser", default="qwen3")
+    parser.add_argument(
+        "--architecture-override",
+        default=os.environ.get("VLLM_ARCHITECTURE_OVERRIDE", "auto"),
+        help="Comma-separated architecture override, 'auto', or 'none'.",
+    )
     args = parser.parse_args()
 
     env = os.environ.copy()
     if args.cuda_visible_devices:
         env["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
 
+    model_path = args.model_path
+    arch_override = _auto_architecture_override(args.model_path, args.architecture_override)
+    hf_overrides_supported = _vllm_supports_flag("--hf-overrides")
+    if arch_override:
+        print(f"Applying vLLM architecture override: {arch_override}", flush=True)
+        if not hf_overrides_supported:
+            model_path = _model_path_with_config_overlay(args.model_path, arch_override)
+
     cmd = [
         sys.executable,
         "-m",
         "vllm.entrypoints.openai.api_server",
         "--model",
-        args.model_path,
+        model_path,
         "--served-model-name",
         args.served_model_name,
         "--tensor-parallel-size",
@@ -67,6 +143,8 @@ def main() -> None:
         cmd += ["--swap-space", str(args.swap_space)]
     if args.trust_remote_code:
         cmd.append("--trust-remote-code")
+    if arch_override and hf_overrides_supported:
+        cmd += ["--hf-overrides", json.dumps({"architectures": arch_override})]
     if args.enable_reasoning:
         if _vllm_supports_flag("--enable-reasoning"):
             cmd.append("--enable-reasoning")

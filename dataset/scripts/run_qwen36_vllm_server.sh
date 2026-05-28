@@ -13,6 +13,7 @@ VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-32768}"
 VLLM_SWAP_SPACE="${VLLM_SWAP_SPACE:-8}"
 VLLM_REASONING_PARSER="${VLLM_REASONING_PARSER:-qwen3}"
+VLLM_ARCHITECTURE_OVERRIDE="${VLLM_ARCHITECTURE_OVERRIDE:-auto}"
 
 if [[ ! -d "${QWEN_MODEL_PATH}" ]]; then
   echo "Model folder not found: ${QWEN_MODEL_PATH}" >&2
@@ -55,4 +56,5 @@ exec python "${REPO_ROOT}/dataset/scripts/serve_qwen_vllm.py" \
   --trust-remote-code \
   --cuda-visible-devices "${CUDA_VISIBLE_DEVICES:-}" \
   --enable-reasoning \
-  --reasoning-parser "${VLLM_REASONING_PARSER}"
+  --reasoning-parser "${VLLM_REASONING_PARSER}" \
+  --architecture-override "${VLLM_ARCHITECTURE_OVERRIDE}"
