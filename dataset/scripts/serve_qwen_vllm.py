@@ -32,6 +32,15 @@ QWEN36_TEXT_ROPE_PARAMETERS = {
     "original_max_position_embeddings": 262144,
 }
 
+QWEN36_TEXT_CONFIG_COMPAT_OVERRIDES = {
+    # vLLM 0.11.x's Qwen3 MoE implementation expects the older MoE sparsity
+    # cadence key. Qwen3.6 uses the newer Qwen3.5 text config shape and may not
+    # expose this attribute after AutoConfig materialization.
+    "decoder_sparse_step": 1,
+    "rope_parameters": QWEN36_TEXT_ROPE_PARAMETERS,
+    "rope_scaling": QWEN36_TEXT_ROPE_PARAMETERS,
+}
+
 
 def _vllm_supports_flag(flag: str) -> bool:
     try:
@@ -81,10 +90,10 @@ def _auto_hf_overrides(model_path: str, architectures: list[str] | None) -> dict
     if architectures:
         overrides["architectures"] = architectures
     if architectures and "Qwen3MoeForCausalLM" in architectures:
-        overrides["text_config"] = {"rope_parameters": QWEN36_TEXT_ROPE_PARAMETERS}
+        overrides["text_config"] = QWEN36_TEXT_CONFIG_COMPAT_OVERRIDES
         print(
-            "Applying Qwen3.6 text RoPE override: "
-            f"{QWEN36_TEXT_ROPE_PARAMETERS}",
+            "Applying Qwen3.6 text config compatibility override: "
+            f"{QWEN36_TEXT_CONFIG_COMPAT_OVERRIDES}",
             flush=True,
         )
     return overrides
@@ -111,13 +120,17 @@ def _model_path_with_config_overlay(model_path: str, overrides: dict) -> str:
 
     config = json.loads(config_path.read_text(encoding="utf-8"))
     original_architectures = config.get("architectures")
-    original_rope = (config.get("text_config") or {}).get("rope_parameters")
+    original_text_config = dict(config.get("text_config") or {})
     _deep_update(config, overrides)
     (overlay / "config.json").write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+    text_config = config.get("text_config") or {}
     print(
         "Using temporary vLLM config overlay: "
         f"architectures {original_architectures} -> {config.get('architectures')}; "
-        f"text rope {original_rope} -> {(config.get('text_config') or {}).get('rope_parameters')}; "
+        "text_config keys "
+        f"{sorted(original_text_config.keys())} -> {sorted(text_config.keys())}; "
+        f"decoder_sparse_step={text_config.get('decoder_sparse_step')}; "
+        f"rope_scaling={text_config.get('rope_scaling')}; "
         f"path={overlay}",
         flush=True,
     )
@@ -216,7 +229,9 @@ def main() -> None:
     hf_overrides_supported = _vllm_supports_flag("--hf-overrides")
     if hf_overrides:
         print(f"Applying vLLM HF overrides: {hf_overrides}", flush=True)
-        if not hf_overrides_supported:
+        force_overlay = os.environ.get("VLLM_FORCE_CONFIG_OVERLAY", "auto").lower()
+        overlay_required = "text_config" in hf_overrides and force_overlay in {"auto", "1", "true", "yes", "on"}
+        if overlay_required or not hf_overrides_supported:
             model_path = _model_path_with_config_overlay(args.model_path, hf_overrides)
 
     cmd = [
@@ -244,7 +259,7 @@ def main() -> None:
         cmd += ["--swap-space", str(args.swap_space)]
     if args.trust_remote_code:
         cmd.append("--trust-remote-code")
-    if hf_overrides and hf_overrides_supported:
+    if hf_overrides and hf_overrides_supported and model_path == args.model_path:
         cmd += ["--hf-overrides", json.dumps(hf_overrides)]
     if args.enable_reasoning:
         if _vllm_supports_flag("--enable-reasoning"):
