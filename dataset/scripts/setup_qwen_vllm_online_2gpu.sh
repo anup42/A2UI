@@ -256,7 +256,15 @@ fi
 
 cat > "${ENV_DIR}/activate_qwen_vllm.sh" <<EOF
 #!/usr/bin/env bash
-source "${ENV_DIR}/bin/activate"
+_a2ui_qwen_env="${ENV_DIR}"
+_a2ui_qwen_activate="\${_a2ui_qwen_env}/bin/activate"
+_a2ui_qwen_shim_marker="\${_a2ui_qwen_env}/bin/.a2ui_activate_shim"
+if [[ -f "\${_a2ui_qwen_activate}" && ! -f "\${_a2ui_qwen_shim_marker}" ]]; then
+  source "\${_a2ui_qwen_activate}"
+else
+  export PATH="\${_a2ui_qwen_env}/bin:\${PATH}"
+  export VIRTUAL_ENV="\${_a2ui_qwen_env}"
+fi
 export QWEN_MODEL_PATH="${QWEN_MODEL_PATH}"
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES}"
 export A2UI_VLLM_GPUS="${A2UI_VLLM_GPUS}"
@@ -269,6 +277,15 @@ export LOCAL_VLLM_ENABLE_THINKING=1
 export VLLM_REASONING_PARSER=qwen3
 EOF
 chmod +x "${ENV_DIR}/activate_qwen_vllm.sh"
+mkdir -p "${ENV_DIR}/bin"
+if [[ ! -f "${ENV_DIR}/bin/activate" ]]; then
+  cat > "${ENV_DIR}/bin/activate" <<EOF
+#!/usr/bin/env bash
+source "${ENV_DIR}/activate_qwen_vllm.sh"
+EOF
+  touch "${ENV_DIR}/bin/.a2ui_activate_shim"
+  chmod +x "${ENV_DIR}/bin/activate"
+fi
 cat > "${ENV_DIR}/bin/activate_qwen_vllm" <<EOF
 #!/usr/bin/env bash
 source "${ENV_DIR}/activate_qwen_vllm.sh"
