@@ -269,6 +269,11 @@ export LOCAL_VLLM_ENABLE_THINKING=1
 export VLLM_REASONING_PARSER=qwen3
 EOF
 chmod +x "${ENV_DIR}/activate_qwen_vllm.sh"
+cat > "${ENV_DIR}/bin/activate_qwen_vllm" <<EOF
+#!/usr/bin/env bash
+source "${ENV_DIR}/activate_qwen_vllm.sh"
+EOF
+chmod +x "${ENV_DIR}/bin/activate_qwen_vllm"
 
 python - <<'PY'
 import importlib.metadata as md
@@ -284,8 +289,9 @@ PY
 
 echo
 echo "Setup complete."
-echo "Activate:"
+echo "Activate by running one of these exact commands, without a trailing colon:"
 echo "  source ${ENV_DIR}/activate_qwen_vllm.sh"
+echo "  source ${ENV_DIR}/bin/activate_qwen_vllm"
 echo
 echo "Start vLLM:"
 echo "  bash dataset/scripts/run_qwen36_vllm_server.sh"

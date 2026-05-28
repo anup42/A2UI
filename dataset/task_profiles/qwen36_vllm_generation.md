@@ -104,6 +104,11 @@ bash dataset/scripts/install_qwen_vllm_offline_env.sh /path/to/qwen_vllm_offline
 source qwen_vllm_env/activate_qwen_vllm.sh
 ```
 
+The setup also writes a convenience helper at
+`qwen_vllm_env/bin/activate_qwen_vllm`. Source either helper exactly as printed
+by setup; do not include the `Activate:` heading or a trailing colon in the
+command.
+
 ## Start vLLM Server
 
 Use all visible GPUs:
