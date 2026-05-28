@@ -25,8 +25,8 @@ A2UI_TORCH_VERSION="${A2UI_TORCH_VERSION:-2.9.0}"
 A2UI_ONLY_BINARY="${A2UI_ONLY_BINARY:-1}"
 A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
-A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-managed}"
-A2UI_TRANSFORMERS_INSTALL_SPEC="${A2UI_TRANSFORMERS_INSTALL_SPEC:-}"
+A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-source}"
+A2UI_TRANSFORMERS_INSTALL_SPEC="${A2UI_TRANSFORMERS_INSTALL_SPEC:-git+https://github.com/huggingface/transformers.git}"
 export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
@@ -235,7 +235,9 @@ PY
 
 install_transformers_stack() {
   local transformers_spec
-  if [[ -n "${A2UI_TRANSFORMERS_INSTALL_SPEC}" ]]; then
+  if [[ "${A2UI_TRANSFORMERS_VERSION}" == "source" ]]; then
+    transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
+  elif [[ -n "${A2UI_TRANSFORMERS_INSTALL_SPEC}" ]]; then
     transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
   elif [[ "${A2UI_TRANSFORMERS_VERSION}" == "managed" ]]; then
     echo "Using vLLM-managed Transformers dependency."
@@ -251,6 +253,7 @@ install_transformers_stack() {
   python -m pip install "${PIP_SSL_ARGS[@]}" \
     --upgrade \
     --force-reinstall \
+    --no-deps \
     "${transformers_spec}"
   install_transformers_register_guard
 }
