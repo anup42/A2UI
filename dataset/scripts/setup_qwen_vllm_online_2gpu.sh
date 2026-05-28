@@ -19,10 +19,11 @@ REQ_FILE="${REQ_FILE:-${REPO_ROOT}/dataset/requirements-qwen-vllm.txt}"
 A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_DOWNLOAD_QWEN_MODEL="${A2UI_DOWNLOAD_QWEN_MODEL:-0}"
-A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-0.9.2}"
+A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-}"
+A2UI_VLLM_INSTALL_BACKEND="${A2UI_VLLM_INSTALL_BACKEND:-uv-auto}"
 A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
-A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-latest}"
+A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-managed}"
 A2UI_TRANSFORMERS_INSTALL_SPEC="${A2UI_TRANSFORMERS_INSTALL_SPEC:-}"
 export A2UI_DISABLE_SSL_VERIFY
 
@@ -137,8 +138,10 @@ PIP_SSL_ARGS=()
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
   echo "WARNING: A2UI_DISABLE_SSL_VERIFY=1; TLS certificate verification is disabled for setup downloads." >&2
   export PYTHONHTTPSVERIFY=0
+  export GIT_SSL_NO_VERIFY=true
   export CURL_SSL_BACKEND=openssl
   export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org huggingface.co cdn-lfs.huggingface.co github.com objects.githubusercontent.com release-assets.githubusercontent.com download.pytorch.org"
+  export UV_INSECURE_HOST="${UV_INSECURE_HOST:-pypi.org files.pythonhosted.org download.pytorch.org github.com objects.githubusercontent.com release-assets.githubusercontent.com}"
   PIP_SSL_ARGS=(
     --trusted-host pypi.org
     --trusted-host files.pythonhosted.org
@@ -219,6 +222,10 @@ install_transformers_stack() {
   local transformers_spec
   if [[ -n "${A2UI_TRANSFORMERS_INSTALL_SPEC}" ]]; then
     transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
+  elif [[ "${A2UI_TRANSFORMERS_VERSION}" == "managed" ]]; then
+    echo "Using vLLM-managed Transformers dependency."
+    install_transformers_register_guard
+    return
   elif [[ "${A2UI_TRANSFORMERS_VERSION}" == "latest" ]]; then
     transformers_spec="transformers"
   else
@@ -234,22 +241,43 @@ install_transformers_stack() {
 }
 
 install_vllm_cuda_stack() {
-  echo "Installing vLLM ${A2UI_VLLM_VERSION} for CUDA ${A2UI_VLLM_CUDA_VARIANT}"
+  echo "Installing vLLM ${A2UI_VLLM_VERSION:-latest} with backend ${A2UI_VLLM_INSTALL_BACKEND}"
   # Remove CUDA 13 / mismatched packages from a reused environment.
   python -m pip freeze | awk -F== '/^(torch|torchvision|torchaudio|vllm|triton|nvidia-)/ {print $1}' \
     | xargs -r python -m pip uninstall -y
 
-  # Install from PyPI by default. GitHub release assets and download.pytorch.org
-  # SSL validation are blocked on this cluster path, and latest unpinned PyPI
-  # packages can pull CUDA 13 wheels.
+  local vllm_spec="vllm"
+  if [[ -n "${A2UI_VLLM_VERSION}" ]]; then
+    vllm_spec="vllm==${A2UI_VLLM_VERSION}"
+  fi
   local pytorch_index_args=()
   if [[ -n "${A2UI_PYTORCH_INDEX_URL}" ]]; then
     pytorch_index_args=(--extra-index-url "${A2UI_PYTORCH_INDEX_URL}")
   fi
-  python -m pip install "${PIP_SSL_ARGS[@]}" \
-    "${pytorch_index_args[@]}" \
-    --force-reinstall \
-    "vllm==${A2UI_VLLM_VERSION}"
+
+  case "${A2UI_VLLM_INSTALL_BACKEND}" in
+    uv-auto)
+      # vLLM's uv installer chooses a compatible torch backend for the local
+      # CUDA/driver stack. This is required for newer Qwen MoE checkpoints
+      # such as qwen3_5_moe; old vLLM 0.9.x does not know those configs.
+      python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade uv
+      python -m uv pip install \
+        --python "$(command -v python)" \
+        --upgrade \
+        "${vllm_spec}" \
+        --torch-backend=auto
+      ;;
+    pip)
+      python -m pip install "${PIP_SSL_ARGS[@]}" \
+        "${pytorch_index_args[@]}" \
+        --force-reinstall \
+        "${vllm_spec}"
+      ;;
+    *)
+      echo "Unsupported A2UI_VLLM_INSTALL_BACKEND=${A2UI_VLLM_INSTALL_BACKEND}; use uv-auto or pip." >&2
+      exit 1
+      ;;
+  esac
   install_transformers_stack
 }
 
@@ -339,13 +367,16 @@ model_path = os.environ["QWEN_MODEL_PATH"]
 try:
     config = AutoConfig.from_pretrained(model_path, trust_remote_code=True)
 except Exception as exc:
-    raise SystemExit(
-        "Transformers could not load the local Qwen config. "
-        "If this is a newly released Qwen architecture, rerun setup with "
-        "A2UI_TRANSFORMERS_INSTALL_SPEC=git+https://github.com/huggingface/transformers.git. "
-        f"Original error: {exc}"
+    print(
+        "WARNING: raw Transformers AutoConfig could not load the local Qwen config. "
+        "This is expected for some new Qwen MoE checkpoints when vLLM provides "
+        "the model config internally. Continue to start vLLM; if vLLM still fails, "
+        "rerun setup with A2UI_VLLM_INSTALL_BACKEND=uv-auto and the latest vLLM. "
+        f"Original error: {exc}",
+        flush=True,
     )
-print("model config type:", getattr(config, "model_type", "unknown"))
+else:
+    print("model config type:", getattr(config, "model_type", "unknown"))
 PY
 
 cat > "${ENV_DIR}/activate_qwen_vllm.sh" <<EOF
