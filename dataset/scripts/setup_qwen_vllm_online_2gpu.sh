@@ -26,7 +26,8 @@ A2UI_ONLY_BINARY="${A2UI_ONLY_BINARY:-1}"
 A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
 A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-source}"
-A2UI_TRANSFORMERS_INSTALL_SPEC="${A2UI_TRANSFORMERS_INSTALL_SPEC:-git+https://github.com/huggingface/transformers.git}"
+A2UI_TRANSFORMERS_SOURCE_DIR="${A2UI_TRANSFORMERS_SOURCE_DIR:-${HOME}/transformer}"
+A2UI_TRANSFORMERS_INSTALL_SPEC="${A2UI_TRANSFORMERS_INSTALL_SPEC:-}"
 export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
@@ -236,7 +237,28 @@ PY
 install_transformers_stack() {
   local transformers_spec
   if [[ "${A2UI_TRANSFORMERS_VERSION}" == "source" ]]; then
-    transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
+    if [[ -n "${A2UI_TRANSFORMERS_INSTALL_SPEC}" ]]; then
+      transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
+    else
+      for candidate in \
+        "${A2UI_TRANSFORMERS_SOURCE_DIR}" \
+        "${HOME}/transformer" \
+        "${HOME}/transformers" \
+        "${HOME}/transformers-main" \
+        "${HOME}/transformer-main" \
+        "${HOME}/transformers-main/transformers"; do
+        if [[ -f "${candidate}/pyproject.toml" || -f "${candidate}/setup.py" ]]; then
+          transformers_spec="${candidate}"
+          break
+        fi
+      done
+      if [[ -z "${transformers_spec:-}" ]]; then
+        echo "Transformers source checkout not found." >&2
+        echo "Download: https://github.com/huggingface/transformers/archive/refs/heads/main.zip" >&2
+        echo "Extract it so pyproject.toml is at ${A2UI_TRANSFORMERS_SOURCE_DIR}/pyproject.toml, or set A2UI_TRANSFORMERS_INSTALL_SPEC=/path/to/transformers." >&2
+        exit 1
+      fi
+    fi
   elif [[ -n "${A2UI_TRANSFORMERS_INSTALL_SPEC}" ]]; then
     transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
   elif [[ "${A2UI_TRANSFORMERS_VERSION}" == "managed" ]]; then
