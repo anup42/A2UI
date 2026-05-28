@@ -41,11 +41,12 @@ ARG NVCC_THREADS=4
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
-ENV UV_SYSTEM_PYTHON=1
 ENV CUDA_HOME=/usr/local/cuda
 ENV VLLM_USAGE_SOURCE=a2ui-cu128-source-docker
 ENV MAX_JOBS=${MAX_JOBS}
 ENV NVCC_THREADS=${NVCC_THREADS}
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
@@ -66,17 +67,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install --upgrade pip setuptools wheel uv
+RUN python3 -m venv /opt/venv \
+    && python -m pip install --upgrade pip setuptools wheel uv
 
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       git config --global http.sslVerify false; \
-      python3 -m pip config set global.trusted-host "pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"; \
+      python -m pip config set global.trusted-host "pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"; \
     fi
 
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com"; \
     fi; \
-    python3 -m uv pip install --system \
+    python -m uv pip install \
       --index-url "${PYTORCH_INDEX_URL}" \
       torch torchvision torchaudio
 
@@ -93,9 +95,9 @@ WORKDIR /opt/vllm
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com"; \
     fi; \
-    python3 -m uv pip install --system --torch-backend=cu128 --no-build-isolation -e .
+    python -m uv pip install --torch-backend=cu128 --no-build-isolation -e .
 
-RUN python3 - <<'PY'
+RUN python - <<'PY'
 import torch
 import vllm
 print("torch", torch.__version__, "torch_cuda", torch.version.cuda)
