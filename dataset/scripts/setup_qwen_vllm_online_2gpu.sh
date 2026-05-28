@@ -27,6 +27,8 @@ A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
 A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-source}"
 A2UI_TRANSFORMERS_SOURCE_DIR="${A2UI_TRANSFORMERS_SOURCE_DIR:-${HOME}/transformer}"
+A2UI_TRANSFORMERS_SOURCE_URL="${A2UI_TRANSFORMERS_SOURCE_URL:-https://codeload.github.com/huggingface/transformers/zip/refs/heads/main}"
+A2UI_DOWNLOAD_TRANSFORMERS_SOURCE="${A2UI_DOWNLOAD_TRANSFORMERS_SOURCE:-1}"
 A2UI_TRANSFORMERS_INSTALL_SPEC="${A2UI_TRANSFORMERS_INSTALL_SPEC:-}"
 export A2UI_DISABLE_SSL_VERIFY
 
@@ -234,27 +236,101 @@ print(f"Installed Transformers AutoConfig guard: {module_path}")
 PY
 }
 
+download_transformers_source() {
+  if [[ "${A2UI_DOWNLOAD_TRANSFORMERS_SOURCE}" != "1" ]]; then
+    return 1
+  fi
+  echo "Transformers source not found locally; downloading from ${A2UI_TRANSFORMERS_SOURCE_URL}"
+  export A2UI_TRANSFORMERS_SOURCE_DIR A2UI_TRANSFORMERS_SOURCE_URL A2UI_DISABLE_SSL_VERIFY
+  python - <<'PY'
+from pathlib import Path
+import os
+import shutil
+import ssl
+import tempfile
+import urllib.request
+import zipfile
+
+source_url = os.environ["A2UI_TRANSFORMERS_SOURCE_URL"]
+requested_dest = Path(os.environ["A2UI_TRANSFORMERS_SOURCE_DIR"]).expanduser()
+fallback_dest = Path(str(requested_dest) + "_auto")
+
+def is_transformers_root(path: Path) -> bool:
+    return (path / "pyproject.toml").is_file() or (path / "setup.py").is_file()
+
+if is_transformers_root(requested_dest):
+    print(f"Using existing Transformers source: {requested_dest}")
+    raise SystemExit(0)
+
+dest = requested_dest
+if requested_dest.exists() and any(requested_dest.iterdir()):
+    dest = fallback_dest
+
+if dest.exists():
+    shutil.rmtree(dest)
+dest.parent.mkdir(parents=True, exist_ok=True)
+
+ssl_context = None
+if os.environ.get("A2UI_DISABLE_SSL_VERIFY") == "1":
+    ssl_context = ssl._create_unverified_context()
+
+with tempfile.TemporaryDirectory(prefix="a2ui_transformers_") as tmp_dir:
+    tmp_dir_path = Path(tmp_dir)
+    zip_path = tmp_dir_path / "transformers.zip"
+    opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl_context))
+    with opener.open(source_url, timeout=180) as response, zip_path.open("wb") as output:
+        shutil.copyfileobj(response, output)
+
+    extract_dir = tmp_dir_path / "extract"
+    with zipfile.ZipFile(zip_path) as archive:
+        archive.extractall(extract_dir)
+
+    roots = [path for path in extract_dir.iterdir() if path.is_dir()]
+    root = next((path for path in roots if is_transformers_root(path)), None)
+    if root is None:
+        root = next((path for path in extract_dir.rglob("pyproject.toml")), None)
+        root = root.parent if root else None
+    if root is None or not is_transformers_root(root):
+        raise SystemExit("Downloaded Transformers zip did not contain pyproject.toml/setup.py")
+
+    shutil.move(str(root), str(dest))
+    print(f"Downloaded Transformers source to: {dest}")
+PY
+}
+
+resolve_transformers_source() {
+  local candidate
+  for candidate in \
+    "${A2UI_TRANSFORMERS_SOURCE_DIR}" \
+    "${A2UI_TRANSFORMERS_SOURCE_DIR}_auto" \
+    "${HOME}/transformer" \
+    "${HOME}/transformer_auto" \
+    "${HOME}/transformers" \
+    "${HOME}/transformers-main" \
+    "${HOME}/transformer-main" \
+    "${HOME}/transformers-main/transformers"; do
+    if [[ -f "${candidate}/pyproject.toml" || -f "${candidate}/setup.py" ]]; then
+      echo "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
+
 install_transformers_stack() {
   local transformers_spec
   if [[ "${A2UI_TRANSFORMERS_VERSION}" == "source" ]]; then
     if [[ -n "${A2UI_TRANSFORMERS_INSTALL_SPEC}" ]]; then
       transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
     else
-      for candidate in \
-        "${A2UI_TRANSFORMERS_SOURCE_DIR}" \
-        "${HOME}/transformer" \
-        "${HOME}/transformers" \
-        "${HOME}/transformers-main" \
-        "${HOME}/transformer-main" \
-        "${HOME}/transformers-main/transformers"; do
-        if [[ -f "${candidate}/pyproject.toml" || -f "${candidate}/setup.py" ]]; then
-          transformers_spec="${candidate}"
-          break
-        fi
-      done
+      transformers_spec="$(resolve_transformers_source || true)"
+      if [[ -z "${transformers_spec}" ]]; then
+        download_transformers_source
+        transformers_spec="$(resolve_transformers_source || true)"
+      fi
       if [[ -z "${transformers_spec:-}" ]]; then
         echo "Transformers source checkout not found." >&2
-        echo "Download: https://github.com/huggingface/transformers/archive/refs/heads/main.zip" >&2
+        echo "Download: ${A2UI_TRANSFORMERS_SOURCE_URL}" >&2
         echo "Extract it so pyproject.toml is at ${A2UI_TRANSFORMERS_SOURCE_DIR}/pyproject.toml, or set A2UI_TRANSFORMERS_INSTALL_SPEC=/path/to/transformers." >&2
         exit 1
       fi
