@@ -22,7 +22,8 @@ A2UI_DOWNLOAD_QWEN_MODEL="${A2UI_DOWNLOAD_QWEN_MODEL:-0}"
 A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-0.9.2}"
 A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
-A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-4.51.3}"
+A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-latest}"
+A2UI_TRANSFORMERS_INSTALL_SPEC="${A2UI_TRANSFORMERS_INSTALL_SPEC:-}"
 export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
@@ -155,9 +156,82 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
   python -m pip config --site set global.trusted-host "${PIP_TRUSTED_HOST}" >/dev/null || true
 fi
 REQ_RUNTIME_FILE="$(mktemp)"
-grep -Ev '^[[:space:]]*(vllm|torch|torchvision|torchaudio)([<>=!~ ].*)?$' "${REQ_FILE}" > "${REQ_RUNTIME_FILE}"
+grep -Ev '^[[:space:]]*(vllm|torch|torchvision|torchaudio|transformers)([<>=!~ ].*)?$' "${REQ_FILE}" > "${REQ_RUNTIME_FILE}"
 python -m pip install "${PIP_SSL_ARGS[@]}" -r "${REQ_RUNTIME_FILE}"
 rm -f "${REQ_RUNTIME_FILE}"
+
+install_transformers_register_guard() {
+  python - <<'PY'
+from pathlib import Path
+import site
+import textwrap
+
+site_dirs = [Path(path) for path in site.getsitepackages() if path.endswith("site-packages")]
+if not site_dirs:
+    site_dirs = [Path(site.getusersitepackages())]
+site_dir = next((path for path in site_dirs if path.exists()), site_dirs[0])
+site_dir.mkdir(parents=True, exist_ok=True)
+
+module_path = site_dir / "a2ui_transformers_register_guard.py"
+pth_path = site_dir / "a2ui_transformers_register_guard.pth"
+
+module_path.write_text(
+    textwrap.dedent(
+        """
+        # Auto-loaded by a2ui_transformers_register_guard.pth.
+        # vLLM 0.9.x registers a few AutoConfig entries that newer Transformers
+        # can already include. Suppress only that duplicate-registration case so
+        # newer Transformers can still recognize newer Qwen MoE checkpoints.
+        try:
+            from transformers.models.auto.configuration_auto import AutoConfig
+        except Exception:
+            AutoConfig = None
+
+        if AutoConfig is not None and not getattr(AutoConfig, "_a2ui_register_guard_installed", False):
+            _orig_register = AutoConfig.register
+
+            def _a2ui_register(cls, model_type, config, exist_ok=False):
+                try:
+                    return _orig_register(model_type, config, exist_ok=exist_ok)
+                except ValueError as exc:
+                    if "already used" in str(exc):
+                        try:
+                            return _orig_register(model_type, config, exist_ok=True)
+                        except TypeError:
+                            return None
+                    raise
+                except TypeError:
+                    return _orig_register(model_type, config)
+
+            AutoConfig.register = classmethod(_a2ui_register)
+            AutoConfig._a2ui_register_guard_installed = True
+        """
+    ).strip()
+    + "\n",
+    encoding="utf-8",
+)
+pth_path.write_text("import a2ui_transformers_register_guard\n", encoding="utf-8")
+print(f"Installed Transformers AutoConfig guard: {module_path}")
+PY
+}
+
+install_transformers_stack() {
+  local transformers_spec
+  if [[ -n "${A2UI_TRANSFORMERS_INSTALL_SPEC}" ]]; then
+    transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
+  elif [[ "${A2UI_TRANSFORMERS_VERSION}" == "latest" ]]; then
+    transformers_spec="transformers"
+  else
+    transformers_spec="transformers==${A2UI_TRANSFORMERS_VERSION}"
+  fi
+
+  echo "Installing Transformers compatibility stack: ${transformers_spec}"
+  python -m pip install "${PIP_SSL_ARGS[@]}" \
+    --upgrade \
+    --force-reinstall \
+    "${transformers_spec}"
+  install_transformers_register_guard
+}
 
 install_vllm_cuda_stack() {
   echo "Installing vLLM ${A2UI_VLLM_VERSION} for CUDA ${A2UI_VLLM_CUDA_VARIANT}"
@@ -176,11 +250,7 @@ install_vllm_cuda_stack() {
     "${pytorch_index_args[@]}" \
     --force-reinstall \
     "vllm==${A2UI_VLLM_VERSION}"
-  # vLLM 0.9.2 registers some configs itself. Newer Transformers releases can
-  # already include the same configs, e.g. aimv2, which crashes vLLM startup.
-  python -m pip install "${PIP_SSL_ARGS[@]}" \
-    --force-reinstall \
-    "transformers==${A2UI_TRANSFORMERS_VERSION}"
+  install_transformers_stack
 }
 
 install_vllm_cuda_stack
@@ -259,6 +329,24 @@ PY
 else
   echo "Using existing local model folder: ${QWEN_MODEL_PATH}"
 fi
+
+export QWEN_MODEL_PATH
+python - <<'PY'
+import os
+from transformers import AutoConfig
+
+model_path = os.environ["QWEN_MODEL_PATH"]
+try:
+    config = AutoConfig.from_pretrained(model_path, trust_remote_code=True)
+except Exception as exc:
+    raise SystemExit(
+        "Transformers could not load the local Qwen config. "
+        "If this is a newly released Qwen architecture, rerun setup with "
+        "A2UI_TRANSFORMERS_INSTALL_SPEC=git+https://github.com/huggingface/transformers.git. "
+        f"Original error: {exc}"
+    )
+print("model config type:", getattr(config, "model_type", "unknown"))
+PY
 
 cat > "${ENV_DIR}/activate_qwen_vllm.sh" <<EOF
 #!/usr/bin/env bash
