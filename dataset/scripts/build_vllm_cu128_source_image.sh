@@ -12,6 +12,9 @@ IMAGE_TAG="${IMAGE_TAG:-qwen36}"
 VLLM_REF="${VLLM_REF:-626fa9bba5663a5cf6a870debf031ee344ddb822}"
 CUDA_BASE_IMAGE="${CUDA_BASE_IMAGE:-nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04}"
 PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu128}"
+TORCH_VERSION="${TORCH_VERSION:-2.11.0}"
+TORCHVISION_VERSION="${TORCHVISION_VERSION:-0.26.0}"
+TORCHAUDIO_VERSION="${TORCHAUDIO_VERSION:-2.11.0}"
 MAX_JOBS="${MAX_JOBS:-16}"
 NVCC_THREADS="${NVCC_THREADS:-4}"
 BUILD_DIR="${BUILD_DIR:-${PWD}/.a2ui_vllm_cu128_build}"
@@ -35,6 +38,9 @@ FROM ${CUDA_BASE_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 ARG VLLM_REF=main
 ARG PYTORCH_INDEX_URL=https://download.pytorch.org/whl/cu128
+ARG TORCH_VERSION=2.11.0
+ARG TORCHVISION_VERSION=0.26.0
+ARG TORCHAUDIO_VERSION=2.11.0
 ARG A2UI_BYPASS_SSL=0
 ARG MAX_JOBS=16
 ARG NVCC_THREADS=4
@@ -47,8 +53,12 @@ ENV MAX_JOBS=${MAX_JOBS}
 ENV NVCC_THREADS=${NVCC_THREADS}
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
-ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"
-ENV UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com"
+ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com raw.githubusercontent.com"
+ENV UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com,raw.githubusercontent.com"
+
+RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
+      printf 'Acquire::https::Verify-Peer "false";\nAcquire::https::Verify-Host "false";\n' > /etc/apt/apt.conf.d/99-a2ui-insecure-ssl; \
+    fi
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
@@ -74,21 +84,44 @@ RUN python3 -m venv /opt/venv \
          export CURL_CA_BUNDLE=""; \
          export REQUESTS_CA_BUNDLE=""; \
          export SSL_CERT_FILE=""; \
-         python -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --trusted-host download.pytorch.org --upgrade pip setuptools wheel uv setuptools-rust; \
+         python -m pip install \
+           --trusted-host pypi.org \
+           --trusted-host files.pythonhosted.org \
+           --trusted-host download.pytorch.org \
+           --trusted-host github.com \
+           --trusted-host codeload.github.com \
+           --trusted-host raw.githubusercontent.com \
+           --upgrade \
+           pip \
+           "setuptools>=77.0.3,<81.0.0" \
+           wheel \
+           uv \
+           "setuptools-rust>=1.9.0" \
+           "setuptools-scm>=8.0" \
+           "packaging>=24.2" \
+           jinja2; \
        else \
-         python -m pip install --upgrade pip setuptools wheel uv setuptools-rust; \
+         python -m pip install \
+           --upgrade \
+           pip \
+           "setuptools>=77.0.3,<81.0.0" \
+           wheel \
+           uv \
+           "setuptools-rust>=1.9.0" \
+           "setuptools-scm>=8.0" \
+           "packaging>=24.2" \
+           jinja2; \
        fi
 
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       git config --global http.sslVerify false; \
-      python -m pip config set global.trusted-host "pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"; \
+      python -m pip config set global.trusted-host "pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com raw.githubusercontent.com"; \
       python -m pip config set global.cert ""; \
-      printf 'Acquire::https::Verify-Peer "false";\nAcquire::https::Verify-Host "false";\n' > /etc/apt/apt.conf.d/99-a2ui-insecure-ssl; \
     fi
 
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
-      export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com"; \
-      export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"; \
+      export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com,raw.githubusercontent.com"; \
+      export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com raw.githubusercontent.com"; \
       export GIT_SSL_NO_VERIFY=1; \
       export CURL_CA_BUNDLE=""; \
       export REQUESTS_CA_BUNDLE=""; \
@@ -96,7 +129,9 @@ RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
     fi; \
     python -m uv pip install \
       --index-url "${PYTORCH_INDEX_URL}" \
-      torch torchvision torchaudio
+      "torch==${TORCH_VERSION}" \
+      "torchvision==${TORCHVISION_VERSION}" \
+      "torchaudio==${TORCHAUDIO_VERSION}"
 
 WORKDIR /opt
 RUN git clone https://github.com/vllm-project/vllm.git /opt/vllm \
@@ -109,8 +144,8 @@ WORKDIR /opt/vllm
 # Build against the already-installed CUDA 12.8 PyTorch. This avoids pulling a
 # CUDA 12.9/13.0 torch stack during vLLM install.
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
-      export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com"; \
-      export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com"; \
+      export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com,raw.githubusercontent.com"; \
+      export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com raw.githubusercontent.com"; \
       export GIT_SSL_NO_VERIFY=1; \
       export CURL_CA_BUNDLE=""; \
       export REQUESTS_CA_BUNDLE=""; \
@@ -145,6 +180,9 @@ docker build \
   --build-arg "CUDA_BASE_IMAGE=${CUDA_BASE_IMAGE}" \
   --build-arg "VLLM_REF=${VLLM_REF}" \
   --build-arg "PYTORCH_INDEX_URL=${PYTORCH_INDEX_URL}" \
+  --build-arg "TORCH_VERSION=${TORCH_VERSION}" \
+  --build-arg "TORCHVISION_VERSION=${TORCHVISION_VERSION}" \
+  --build-arg "TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION}" \
   --build-arg "A2UI_BYPASS_SSL=${A2UI_BYPASS_SSL}" \
   --build-arg "MAX_JOBS=${MAX_JOBS}" \
   --build-arg "NVCC_THREADS=${NVCC_THREADS}" \
@@ -161,6 +199,9 @@ cat > "${MANIFEST_PATH}" <<EOF
   "cuda_base_image": "${CUDA_BASE_IMAGE}",
   "vllm_ref": "${VLLM_REF}",
   "pytorch_index_url": "${PYTORCH_INDEX_URL}",
+  "torch_version": "${TORCH_VERSION}",
+  "torchvision_version": "${TORCHVISION_VERSION}",
+  "torchaudio_version": "${TORCHAUDIO_VERSION}",
   "max_jobs": "${MAX_JOBS}",
   "nvcc_threads": "${NVCC_THREADS}",
   "built_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
