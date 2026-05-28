@@ -278,11 +278,9 @@ if [[ -n "\${PS1:-}" ]]; then
   if [[ -z "\${_A2UI_QWEN_OLD_PS1:-}" ]]; then
     export _A2UI_QWEN_OLD_PS1="\${PS1}"
   fi
-  if [[ "\${PS1}" =~ ^\([^)]+\)\ (.*)$ ]]; then
-    PS1="(\${CONDA_DEFAULT_ENV}) \${BASH_REMATCH[1]}"
-  else
-    PS1="(\${CONDA_DEFAULT_ENV}) \${PS1}"
-  fi
+  _a2ui_qwen_prompt="\${PS1}"
+  _a2ui_qwen_prompt="\${_a2ui_qwen_prompt#*) }"
+  PS1="(\${CONDA_DEFAULT_ENV}) \${_a2ui_qwen_prompt}"
   export PS1
 fi
 export QWEN_MODEL_PATH="${QWEN_MODEL_PATH}"
