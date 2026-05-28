@@ -167,8 +167,15 @@ try:
     )
 
     if not hasattr(Qwen3_5MoeTextConfig, "decoder_sparse_step"):
+        def _a2ui_get_decoder_sparse_step(self):
+            return self.__dict__.get("decoder_sparse_step", 1)
+
+        def _a2ui_set_decoder_sparse_step(self, value):
+            self.__dict__["decoder_sparse_step"] = value
+
         Qwen3_5MoeTextConfig.decoder_sparse_step = property(
-            lambda self: self.__dict__.get("decoder_sparse_step", 1)
+            _a2ui_get_decoder_sparse_step,
+            _a2ui_set_decoder_sparse_step,
         )
         print(
             "A2UI vLLM shim: added Qwen3_5MoeTextConfig.decoder_sparse_step",
