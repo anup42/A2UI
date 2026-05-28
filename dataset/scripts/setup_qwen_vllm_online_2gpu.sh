@@ -22,6 +22,7 @@ A2UI_DOWNLOAD_QWEN_MODEL="${A2UI_DOWNLOAD_QWEN_MODEL:-0}"
 A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-0.9.2}"
 A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
+A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-4.51.3}"
 export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
@@ -175,6 +176,11 @@ install_vllm_cuda_stack() {
     "${pytorch_index_args[@]}" \
     --force-reinstall \
     "vllm==${A2UI_VLLM_VERSION}"
+  # vLLM 0.9.2 registers some configs itself. Newer Transformers releases can
+  # already include the same configs, e.g. aimv2, which crashes vLLM startup.
+  python -m pip install "${PIP_SSL_ARGS[@]}" \
+    --force-reinstall \
+    "transformers==${A2UI_TRANSFORMERS_VERSION}"
 }
 
 install_vllm_cuda_stack

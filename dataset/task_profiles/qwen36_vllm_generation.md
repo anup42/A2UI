@@ -28,6 +28,7 @@ or fail certificate validation on this cluster path. Defaults:
 export A2UI_VLLM_VERSION=0.9.2
 export A2UI_VLLM_CUDA_VARIANT=126
 export A2UI_PYTORCH_INDEX_URL=
+export A2UI_TRANSFORMERS_VERSION=4.51.3
 ```
 
 ## Internet 2-GPU Machine: Use Existing Model Folder
