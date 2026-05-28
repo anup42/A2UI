@@ -107,7 +107,8 @@ source qwen_vllm_env/activate_qwen_vllm.sh
 The setup also writes a convenience helper at
 `qwen_vllm_env/bin/activate_qwen_vllm`. Source either helper exactly as printed
 by setup; do not include the `Activate:` heading or a trailing colon in the
-command.
+command. These helpers also set the shell prompt to `(qwen_vllm_env)` even when
+the shell started from a conda `(base)` environment.
 
 ## Start vLLM Server
 
