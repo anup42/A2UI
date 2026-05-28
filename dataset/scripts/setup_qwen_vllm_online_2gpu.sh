@@ -21,6 +21,7 @@ A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_DOWNLOAD_QWEN_MODEL="${A2UI_DOWNLOAD_QWEN_MODEL:-0}"
 A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-0.9.2}"
 A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
+A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
 export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
@@ -135,6 +136,7 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
   echo "WARNING: A2UI_DISABLE_SSL_VERIFY=1; TLS certificate verification is disabled for setup downloads." >&2
   export PYTHONHTTPSVERIFY=0
   export CURL_SSL_BACKEND=openssl
+  export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org huggingface.co cdn-lfs.huggingface.co github.com objects.githubusercontent.com release-assets.githubusercontent.com download.pytorch.org"
   PIP_SSL_ARGS=(
     --trusted-host pypi.org
     --trusted-host files.pythonhosted.org
@@ -148,6 +150,9 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
 fi
 
 python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade pip setuptools wheel
+if [[ "${A2UI_DISABLE_SSL_VERIFY}" == "1" ]]; then
+  python -m pip config --site set global.trusted-host "${PIP_TRUSTED_HOST}" >/dev/null || true
+fi
 REQ_RUNTIME_FILE="$(mktemp)"
 grep -Ev '^[[:space:]]*(vllm|torch|torchvision|torchaudio)([<>=!~ ].*)?$' "${REQ_FILE}" > "${REQ_RUNTIME_FILE}"
 python -m pip install "${PIP_SSL_ARGS[@]}" -r "${REQ_RUNTIME_FILE}"
@@ -159,10 +164,15 @@ install_vllm_cuda_stack() {
   python -m pip freeze | awk -F== '/^(torch|torchvision|torchaudio|vllm|triton|nvidia-)/ {print $1}' \
     | xargs -r python -m pip uninstall -y
 
-  # Install from PyPI/PyTorch indexes only. GitHub release assets are blocked on
-  # this cluster path, and latest unpinned PyPI packages can pull CUDA 13 wheels.
+  # Install from PyPI by default. GitHub release assets and download.pytorch.org
+  # SSL validation are blocked on this cluster path, and latest unpinned PyPI
+  # packages can pull CUDA 13 wheels.
+  local pytorch_index_args=()
+  if [[ -n "${A2UI_PYTORCH_INDEX_URL}" ]]; then
+    pytorch_index_args=(--extra-index-url "${A2UI_PYTORCH_INDEX_URL}")
+  fi
   python -m pip install "${PIP_SSL_ARGS[@]}" \
-    --extra-index-url "https://download.pytorch.org/whl/cu${A2UI_VLLM_CUDA_VARIANT}" \
+    "${pytorch_index_args[@]}" \
     --force-reinstall \
     "vllm==${A2UI_VLLM_VERSION}"
 }

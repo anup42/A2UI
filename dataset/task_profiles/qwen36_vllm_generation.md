@@ -21,11 +21,13 @@ environment on the GPU machine first. The scripts default to `python3.11`.
 The setup pins vLLM/torch to a CUDA 12-compatible stack for this driver path by
 default. Do not use the latest unpinned PyPI stack here because it can pull CUDA
 12.9/13.0 packages that require a newer NVIDIA driver. GitHub release wheel
-URLs are also avoided because they are blocked on this cluster path. Defaults:
+URLs and the PyTorch extra index are avoided by default because they are blocked
+or fail certificate validation on this cluster path. Defaults:
 
 ```bash
 export A2UI_VLLM_VERSION=0.9.2
 export A2UI_VLLM_CUDA_VARIANT=126
+export A2UI_PYTORCH_INDEX_URL=
 ```
 
 ## Internet 2-GPU Machine: Use Existing Model Folder
