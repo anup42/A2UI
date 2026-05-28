@@ -84,6 +84,33 @@ def _model_path_with_config_overlay(model_path: str, architectures: list[str]) -
     return str(overlay)
 
 
+def _install_runtime_shims(env: dict[str, str]) -> None:
+    shim_dir = Path(tempfile.mkdtemp(prefix="a2ui_qwen_vllm_shims_"))
+    sitecustomize = shim_dir / "sitecustomize.py"
+    sitecustomize.write_text(
+        """
+# Auto-installed by A2UI's vLLM launcher.
+# Bridges small Transformers/vLLM API gaps for newer Qwen checkpoints on
+# clusters pinned to older manylinux-compatible vLLM wheels.
+try:
+    from transformers.tokenization_utils_base import PreTrainedTokenizerBase
+
+    if not hasattr(PreTrainedTokenizerBase, "all_special_tokens_extended"):
+        @property
+        def all_special_tokens_extended(self):
+            return list(getattr(self, "all_special_tokens", []) or [])
+
+        PreTrainedTokenizerBase.all_special_tokens_extended = all_special_tokens_extended
+except Exception:
+    pass
+""".lstrip(),
+        encoding="utf-8",
+    )
+    current = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = str(shim_dir) if not current else f"{shim_dir}{os.pathsep}{current}"
+    print(f"Installed vLLM runtime shims: {sitecustomize}", flush=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Start a Qwen-compatible vLLM OpenAI API server.")
     parser.add_argument("--model-path", required=True, help="Local Hugging Face model directory.")
@@ -109,6 +136,7 @@ def main() -> None:
     env = os.environ.copy()
     if args.cuda_visible_devices:
         env["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
+    _install_runtime_shims(env)
 
     model_path = args.model_path
     arch_override = _auto_architecture_override(args.model_path, args.architecture_override)
