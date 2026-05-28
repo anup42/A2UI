@@ -15,14 +15,19 @@ PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu128}"
 TORCH_VERSION="${TORCH_VERSION:-2.11.0}"
 TORCHVISION_VERSION="${TORCHVISION_VERSION:-0.26.0}"
 TORCHAUDIO_VERSION="${TORCHAUDIO_VERSION:-2.11.0}"
-MAX_JOBS="${MAX_JOBS:-16}"
-NVCC_THREADS="${NVCC_THREADS:-4}"
+MAX_JOBS="${MAX_JOBS:-8}"
+NVCC_THREADS="${NVCC_THREADS:-2}"
+TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-8.0}"
+CMAKE_CUDA_ARCHITECTURES="${CMAKE_CUDA_ARCHITECTURES:-80}"
 BUILD_DIR="${BUILD_DIR:-${PWD}/.a2ui_vllm_cu128_build}"
 OUT_DIR="${OUT_DIR:-${PWD}/vllm_cu128_artifacts}"
 TAR_NAME="${TAR_NAME:-${IMAGE_NAME}_${IMAGE_TAG}.tar}"
+BUILD_LOG_NAME="${BUILD_LOG_NAME:-${IMAGE_NAME}_${IMAGE_TAG}_docker_build.log}"
 A2UI_BYPASS_SSL="${A2UI_BYPASS_SSL:-0}"
 DOCKER_BUILDKIT="${DOCKER_BUILDKIT:-1}"
+BUILDKIT_PROGRESS="${BUILDKIT_PROGRESS:-plain}"
 export DOCKER_BUILDKIT
+export BUILDKIT_PROGRESS
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker is required on the internet build machine." >&2
@@ -44,6 +49,8 @@ ARG TORCHAUDIO_VERSION=2.11.0
 ARG A2UI_BYPASS_SSL=0
 ARG MAX_JOBS=16
 ARG NVCC_THREADS=4
+ARG TORCH_CUDA_ARCH_LIST=8.0
+ARG CMAKE_CUDA_ARCHITECTURES=80
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
@@ -51,6 +58,9 @@ ENV CUDA_HOME=/usr/local/cuda
 ENV VLLM_USAGE_SOURCE=a2ui-cu128-source-docker
 ENV MAX_JOBS=${MAX_JOBS}
 ENV NVCC_THREADS=${NVCC_THREADS}
+ENV TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}
+ENV CMAKE_BUILD_PARALLEL_LEVEL=${MAX_JOBS}
+ENV CMAKE_ARGS="-DCMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES}"
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
 ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com raw.githubusercontent.com"
@@ -166,6 +176,7 @@ DOCKERFILE
 
 IMAGE_REF="${IMAGE_NAME}:${IMAGE_TAG}"
 TAR_PATH="${OUT_DIR}/${TAR_NAME}"
+BUILD_LOG_PATH="${OUT_DIR}/${BUILD_LOG_NAME}"
 MANIFEST_PATH="${OUT_DIR}/${IMAGE_NAME}_${IMAGE_TAG}_manifest.json"
 
 echo "Building ${IMAGE_REF}"
@@ -174,9 +185,13 @@ echo "vLLM ref: ${VLLM_REF}"
 echo "PyTorch index: ${PYTORCH_INDEX_URL}"
 echo "MAX_JOBS: ${MAX_JOBS}"
 echo "NVCC_THREADS: ${NVCC_THREADS}"
+echo "TORCH_CUDA_ARCH_LIST: ${TORCH_CUDA_ARCH_LIST}"
+echo "CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}"
 echo "Bypass SSL: ${A2UI_BYPASS_SSL}"
+echo "Docker progress: ${BUILDKIT_PROGRESS}"
+echo "Build log: ${BUILD_LOG_PATH}"
 
-docker build \
+docker build --progress="${BUILDKIT_PROGRESS}" \
   --build-arg "CUDA_BASE_IMAGE=${CUDA_BASE_IMAGE}" \
   --build-arg "VLLM_REF=${VLLM_REF}" \
   --build-arg "PYTORCH_INDEX_URL=${PYTORCH_INDEX_URL}" \
@@ -186,8 +201,10 @@ docker build \
   --build-arg "A2UI_BYPASS_SSL=${A2UI_BYPASS_SSL}" \
   --build-arg "MAX_JOBS=${MAX_JOBS}" \
   --build-arg "NVCC_THREADS=${NVCC_THREADS}" \
+  --build-arg "TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}" \
+  --build-arg "CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES}" \
   -t "${IMAGE_REF}" \
-  "${BUILD_DIR}"
+  "${BUILD_DIR}" 2>&1 | tee "${BUILD_LOG_PATH}"
 
 echo "Saving ${IMAGE_REF} to ${TAR_PATH}"
 docker save -o "${TAR_PATH}" "${IMAGE_REF}"
@@ -204,6 +221,8 @@ cat > "${MANIFEST_PATH}" <<EOF
   "torchaudio_version": "${TORCHAUDIO_VERSION}",
   "max_jobs": "${MAX_JOBS}",
   "nvcc_threads": "${NVCC_THREADS}",
+  "torch_cuda_arch_list": "${TORCH_CUDA_ARCH_LIST}",
+  "cmake_cuda_architectures": "${CMAKE_CUDA_ARCHITECTURES}",
   "built_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF
@@ -212,6 +231,7 @@ echo
 echo "Created:"
 echo "  ${TAR_PATH}"
 echo "  ${MANIFEST_PATH}"
+echo "  ${BUILD_LOG_PATH}"
 echo
 echo "Copy the tar to Slurm, for example:"
 echo "  scp ${TAR_PATH} <user>@<slurm-host>:/isilonhome/k_anup/containers/"
