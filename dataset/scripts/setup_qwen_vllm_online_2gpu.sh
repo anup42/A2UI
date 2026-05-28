@@ -30,6 +30,8 @@ A2UI_TRANSFORMERS_SOURCE_DIR="${A2UI_TRANSFORMERS_SOURCE_DIR:-${HOME}/transforme
 A2UI_TRANSFORMERS_SOURCE_URL="${A2UI_TRANSFORMERS_SOURCE_URL:-https://codeload.github.com/huggingface/transformers/zip/refs/heads/main}"
 A2UI_DOWNLOAD_TRANSFORMERS_SOURCE="${A2UI_DOWNLOAD_TRANSFORMERS_SOURCE:-1}"
 A2UI_TRANSFORMERS_INSTALL_SPEC="${A2UI_TRANSFORMERS_INSTALL_SPEC:-}"
+A2UI_HUGGINGFACE_HUB_SPEC="${A2UI_HUGGINGFACE_HUB_SPEC:-huggingface-hub>=1.5.0,<2.0}"
+A2UI_TOKENIZERS_SPEC="${A2UI_TOKENIZERS_SPEC:-tokenizers>=0.23.0,<0.24.0}"
 export A2UI_DISABLE_SSL_VERIFY
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
@@ -204,6 +206,20 @@ module_path.write_text(
         # can already include. Suppress only that duplicate-registration case so
         # newer Transformers can still recognize newer Qwen MoE checkpoints.
         try:
+            import huggingface_hub as _a2ui_hf_hub
+
+            # Some bleeding-edge Transformers branches import the private
+            # _is_offline_mode symbol, while current huggingface_hub exports
+            # the public is_offline_mode helper. Keep setup robust across both.
+            if (
+                not hasattr(_a2ui_hf_hub, "_is_offline_mode")
+                and hasattr(_a2ui_hf_hub, "is_offline_mode")
+            ):
+                _a2ui_hf_hub._is_offline_mode = _a2ui_hf_hub.is_offline_mode
+        except Exception:
+            pass
+
+        try:
             from transformers.models.auto.configuration_auto import AutoConfig
         except Exception:
             AutoConfig = None
@@ -319,6 +335,13 @@ resolve_transformers_source() {
 
 install_transformers_stack() {
   local transformers_spec
+  echo "Installing Transformers runtime dependencies: ${A2UI_HUGGINGFACE_HUB_SPEC}, ${A2UI_TOKENIZERS_SPEC}"
+  python -m pip install "${PIP_SSL_ARGS[@]}" \
+    --upgrade \
+    "${A2UI_HUGGINGFACE_HUB_SPEC}" \
+    "${A2UI_TOKENIZERS_SPEC}" \
+    "safetensors>=0.6.0"
+
   if [[ "${A2UI_TRANSFORMERS_VERSION}" == "source" ]]; then
     if [[ -n "${A2UI_TRANSFORMERS_INSTALL_SPEC}" ]]; then
       transformers_spec="${A2UI_TRANSFORMERS_INSTALL_SPEC}"
