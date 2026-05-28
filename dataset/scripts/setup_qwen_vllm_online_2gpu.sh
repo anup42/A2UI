@@ -20,7 +20,7 @@ A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_DOWNLOAD_QWEN_MODEL="${A2UI_DOWNLOAD_QWEN_MODEL:-0}"
 A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-}"
-A2UI_VLLM_INSTALL_BACKEND="${A2UI_VLLM_INSTALL_BACKEND:-uv-auto}"
+A2UI_VLLM_INSTALL_BACKEND="${A2UI_VLLM_INSTALL_BACKEND:-uv-pypi}"
 A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
 A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-managed}"
@@ -269,10 +269,22 @@ install_vllm_cuda_stack() {
   fi
 
   case "${A2UI_VLLM_INSTALL_BACKEND}" in
+    uv-pypi)
+      # Default for this cluster: avoid uv's PyTorch CDN backend because
+      # download-r2.pytorch.org is blocked here. Resolve vLLM/torch from PyPI
+      # instead, which uses files.pythonhosted.org and the nvidia-* wheels.
+      python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade uv
+      python -m uv pip install \
+        --python "$(command -v python)" \
+        "${UV_SSL_ARGS[@]}" \
+        --upgrade \
+        "${vllm_spec}"
+      ;;
     uv-auto)
       # vLLM's uv installer chooses a compatible torch backend for the local
       # CUDA/driver stack. This is required for newer Qwen MoE checkpoints
       # such as qwen3_5_moe; old vLLM 0.9.x does not know those configs.
+      # Use only if the network can reach download-r2.pytorch.org.
       python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade uv
       python -m uv pip install \
         --python "$(command -v python)" \
@@ -288,7 +300,7 @@ install_vllm_cuda_stack() {
         "${vllm_spec}"
       ;;
     *)
-      echo "Unsupported A2UI_VLLM_INSTALL_BACKEND=${A2UI_VLLM_INSTALL_BACKEND}; use uv-auto or pip." >&2
+      echo "Unsupported A2UI_VLLM_INSTALL_BACKEND=${A2UI_VLLM_INSTALL_BACKEND}; use uv-pypi, uv-auto, or pip." >&2
       exit 1
       ;;
   esac
