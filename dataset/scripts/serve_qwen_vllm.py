@@ -19,6 +19,19 @@ ARCHITECTURE_ALIASES = {
     "Qwen3_5MoeForCausalLM": "Qwen3MoeForCausalLM",
 }
 
+QWEN36_TEXT_ROPE_PARAMETERS = {
+    # vLLM's Qwen3.6 recipe documents these text RoPE parameters for Qwen3.6
+    # long-context serving. They also avoid the older Qwen3 MoE path reading an
+    # incompatible mrope_section from the newer Qwen3.6 config.
+    "mrope_interleaved": True,
+    "mrope_section": [11, 11, 10],
+    "rope_type": "yarn",
+    "rope_theta": 10000000,
+    "partial_rotary_factor": 0.25,
+    "factor": 4.0,
+    "original_max_position_embeddings": 262144,
+}
+
 
 def _vllm_supports_flag(flag: str) -> bool:
     try:
@@ -54,7 +67,30 @@ def _auto_architecture_override(model_path: str, requested: str) -> list[str] | 
     return mapped or None
 
 
-def _model_path_with_config_overlay(model_path: str, architectures: list[str]) -> str:
+def _deep_update(target: dict, patch: dict) -> dict:
+    for key, value in patch.items():
+        if isinstance(value, dict) and isinstance(target.get(key), dict):
+            _deep_update(target[key], value)
+        else:
+            target[key] = value
+    return target
+
+
+def _auto_hf_overrides(model_path: str, architectures: list[str] | None) -> dict:
+    overrides: dict = {}
+    if architectures:
+        overrides["architectures"] = architectures
+    if architectures and "Qwen3MoeForCausalLM" in architectures:
+        overrides["text_config"] = {"rope_parameters": QWEN36_TEXT_ROPE_PARAMETERS}
+        print(
+            "Applying Qwen3.6 text RoPE override: "
+            f"{QWEN36_TEXT_ROPE_PARAMETERS}",
+            flush=True,
+        )
+    return overrides
+
+
+def _model_path_with_config_overlay(model_path: str, overrides: dict) -> str:
     source = Path(model_path).resolve()
     config_path = source / "config.json"
     if not config_path.is_file():
@@ -74,11 +110,15 @@ def _model_path_with_config_overlay(model_path: str, architectures: list[str]) -
                 shutil.copy2(child, target)
 
     config = json.loads(config_path.read_text(encoding="utf-8"))
-    original = config.get("architectures")
-    config["architectures"] = architectures
+    original_architectures = config.get("architectures")
+    original_rope = (config.get("text_config") or {}).get("rope_parameters")
+    _deep_update(config, overrides)
     (overlay / "config.json").write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     print(
-        f"Using temporary vLLM config overlay: architectures {original} -> {architectures}; path={overlay}",
+        "Using temporary vLLM config overlay: "
+        f"architectures {original_architectures} -> {config.get('architectures')}; "
+        f"text rope {original_rope} -> {(config.get('text_config') or {}).get('rope_parameters')}; "
+        f"path={overlay}",
         flush=True,
     )
     return str(overlay)
@@ -140,11 +180,12 @@ def main() -> None:
 
     model_path = args.model_path
     arch_override = _auto_architecture_override(args.model_path, args.architecture_override)
+    hf_overrides = _auto_hf_overrides(args.model_path, arch_override)
     hf_overrides_supported = _vllm_supports_flag("--hf-overrides")
-    if arch_override:
-        print(f"Applying vLLM architecture override: {arch_override}", flush=True)
+    if hf_overrides:
+        print(f"Applying vLLM HF overrides: {hf_overrides}", flush=True)
         if not hf_overrides_supported:
-            model_path = _model_path_with_config_overlay(args.model_path, arch_override)
+            model_path = _model_path_with_config_overlay(args.model_path, hf_overrides)
 
     cmd = [
         sys.executable,
@@ -171,8 +212,8 @@ def main() -> None:
         cmd += ["--swap-space", str(args.swap_space)]
     if args.trust_remote_code:
         cmd.append("--trust-remote-code")
-    if arch_override and hf_overrides_supported:
-        cmd += ["--hf-overrides", json.dumps({"architectures": arch_override})]
+    if hf_overrides and hf_overrides_supported:
+        cmd += ["--hf-overrides", json.dumps(hf_overrides)]
     if args.enable_reasoning:
         if _vllm_supports_flag("--enable-reasoning"):
             cmd.append("--enable-reasoning")
