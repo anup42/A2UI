@@ -19,9 +19,10 @@ REQ_FILE="${REQ_FILE:-${REPO_ROOT}/dataset/requirements-qwen-vllm.txt}"
 A2UI_CA_BUNDLE="${A2UI_CA_BUNDLE:-}"
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_DOWNLOAD_QWEN_MODEL="${A2UI_DOWNLOAD_QWEN_MODEL:-0}"
-A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-0.18.0}"
+A2UI_VLLM_VERSION="${A2UI_VLLM_VERSION:-0.11.2}"
 A2UI_VLLM_INSTALL_BACKEND="${A2UI_VLLM_INSTALL_BACKEND:-uv-pypi}"
-A2UI_TORCH_VERSION="${A2UI_TORCH_VERSION:-2.10.0}"
+A2UI_TORCH_VERSION="${A2UI_TORCH_VERSION:-2.9.0}"
+A2UI_ONLY_BINARY="${A2UI_ONLY_BINARY:-1}"
 A2UI_VLLM_CUDA_VARIANT="${A2UI_VLLM_CUDA_VARIANT:-126}"
 A2UI_PYTORCH_INDEX_URL="${A2UI_PYTORCH_INDEX_URL:-}"
 A2UI_TRANSFORMERS_VERSION="${A2UI_TRANSFORMERS_VERSION:-managed}"
@@ -265,8 +266,12 @@ install_vllm_cuda_stack() {
     vllm_spec="vllm==${A2UI_VLLM_VERSION}"
   fi
   local constraint_args=()
+  local binary_args=()
   local torch_spec=()
   local constraint_file=""
+  if [[ "${A2UI_ONLY_BINARY}" == "1" ]]; then
+    binary_args=(--only-binary :all:)
+  fi
   if [[ -n "${A2UI_TORCH_VERSION}" && "${A2UI_TORCH_VERSION}" != "managed" ]]; then
     torch_spec=("torch==${A2UI_TORCH_VERSION}")
     constraint_file="$(mktemp)"
@@ -282,19 +287,22 @@ install_vllm_cuda_stack() {
   case "${A2UI_VLLM_INSTALL_BACKEND}" in
     uv-pypi)
       # Default for this cluster: avoid uv's PyTorch CDN backend because
-      # download-r2.pytorch.org is blocked here. Resolve vLLM/torch from PyPI
-      # instead, which uses files.pythonhosted.org and the nvidia-* wheels.
+      # download-r2.pytorch.org is blocked here. vLLM >=0.12 Linux wheels are
+      # manylinux_2_31 and trigger source builds on this older cluster, so the
+      # default pin uses the newest manylinux1-compatible vLLM wheel.
       python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade uv
       if [[ ${#torch_spec[@]} -gt 0 ]]; then
         python -m uv pip install \
           --python "$(command -v python)" \
           "${UV_SSL_ARGS[@]}" \
+          "${binary_args[@]}" \
           --upgrade \
           "${torch_spec[@]}"
       fi
       python -m uv pip install \
         --python "$(command -v python)" \
         "${UV_SSL_ARGS[@]}" \
+        "${binary_args[@]}" \
         --upgrade \
         "${constraint_args[@]}" \
         "${vllm_spec}"
@@ -308,6 +316,7 @@ install_vllm_cuda_stack() {
       python -m uv pip install \
         --python "$(command -v python)" \
         "${UV_SSL_ARGS[@]}" \
+        "${binary_args[@]}" \
         --upgrade \
         "${vllm_spec}" \
         --torch-backend=auto
@@ -315,6 +324,7 @@ install_vllm_cuda_stack() {
     pip)
       python -m pip install "${PIP_SSL_ARGS[@]}" \
         "${pytorch_index_args[@]}" \
+        "${binary_args[@]}" \
         --force-reinstall \
         "${constraint_args[@]}" \
         "${vllm_spec}"
