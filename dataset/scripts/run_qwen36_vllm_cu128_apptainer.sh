@@ -18,6 +18,9 @@ VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-8192}"
 VLLM_REASONING_PARSER="${VLLM_REASONING_PARSER:-qwen3}"
 VLLM_CONTAINER_MODEL_PATH="${VLLM_CONTAINER_MODEL_PATH:-/models/qwen36}"
+A2UI_CONTAINER_USER="${A2UI_CONTAINER_USER:-a2ui_user}"
+A2UI_CONTAINER_GROUP="${A2UI_CONTAINER_GROUP:-a2ui_group}"
+A2UI_BIND_SYNTHETIC_PASSWD="${A2UI_BIND_SYNTHETIC_PASSWD:-1}"
 
 if [[ ! -f "${VLLM_SIF}" ]]; then
   echo "SIF not found: ${VLLM_SIF}" >&2
@@ -62,9 +65,47 @@ echo "Tensor parallel GPUs: ${A2UI_VLLM_GPUS}"
 echo "GPU memory utilization: ${VLLM_GPU_MEMORY_UTILIZATION}"
 echo "Max model length: ${VLLM_MAX_MODEL_LEN}"
 
-exec "${RUNTIME}" exec --nv --cleanenv \
-  --env "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}" \
-  --bind "${QWEN_MODEL_PATH}:${VLLM_CONTAINER_MODEL_PATH}:ro" \
+HOST_UID="$(id -u)"
+HOST_GID="$(id -g)"
+HOST_HOME="${HOME:-/tmp}"
+CONTAINER_USER="$(id -un 2>/dev/null || true)"
+CONTAINER_GROUP="$(id -gn 2>/dev/null || true)"
+CONTAINER_USER="${CONTAINER_USER:-${A2UI_CONTAINER_USER}}"
+CONTAINER_GROUP="${CONTAINER_GROUP:-${A2UI_CONTAINER_GROUP}}"
+
+RUNTIME_ARGS=(exec --nv --cleanenv)
+RUNTIME_ARGS+=(--env "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}")
+RUNTIME_ARGS+=(--env "USER=${CONTAINER_USER}")
+RUNTIME_ARGS+=(--env "LOGNAME=${CONTAINER_USER}")
+RUNTIME_ARGS+=(--env "HOME=${HOST_HOME}")
+RUNTIME_ARGS+=(--bind "${QWEN_MODEL_PATH}:${VLLM_CONTAINER_MODEL_PATH}:ro")
+
+if [[ "${A2UI_BIND_SYNTHETIC_PASSWD}" != "0" ]]; then
+  PASSWD_DIR="$(mktemp -d "${TMPDIR:-/tmp}/a2ui_apptainer_user.XXXXXX")"
+  PASSWD_FILE="${PASSWD_DIR}/passwd"
+  GROUP_FILE="${PASSWD_DIR}/group"
+  {
+    printf 'root:x:0:0:root:/root:/bin/bash\n'
+    printf 'nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\n'
+    printf '%s:x:%s:%s:A2UI synthetic user:%s:/bin/bash\n' \
+      "${CONTAINER_USER}" "${HOST_UID}" "${HOST_GID}" "${HOST_HOME}"
+  } > "${PASSWD_FILE}"
+  {
+    printf 'root:x:0:\n'
+    printf 'nogroup:x:65534:\n'
+    printf '%s:x:%s:\n' "${CONTAINER_GROUP}" "${HOST_GID}"
+  } > "${GROUP_FILE}"
+  RUNTIME_ARGS+=(--bind "${PASSWD_FILE}:/etc/passwd:ro")
+  RUNTIME_ARGS+=(--bind "${GROUP_FILE}:/etc/group:ro")
+  echo "Binding synthetic passwd/group for UID:GID ${HOST_UID}:${HOST_GID} as ${CONTAINER_USER}:${CONTAINER_GROUP}"
+fi
+
+if command -v getent >/dev/null 2>&1 && ! getent passwd "${HOST_UID}" >/dev/null 2>&1; then
+  echo "Warning: host NSS cannot resolve UID ${HOST_UID}." >&2
+  echo "If ${RUNTIME} fails before the container starts with 'unknown userid', the cluster login/NSS layer must be fixed for this UID." >&2
+fi
+
+exec "${RUNTIME}" "${RUNTIME_ARGS[@]}" \
   "${VLLM_SIF}" \
   vllm serve "${VLLM_CONTAINER_MODEL_PATH}" \
     --served-model-name "${QWEN_MODEL_ID}" \
