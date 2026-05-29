@@ -10,6 +10,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
 ENV_DIR="${ENV_DIR:-${REPO_ROOT}/gemma4_vllm_env}"
+A2UI_CUDA_TOOLKIT_DIR="${A2UI_CUDA_TOOLKIT_DIR:-${ENV_DIR}/cuda_toolkit}"
 if [[ -f "${ENV_DIR}/bin/activate" && -z "${VIRTUAL_ENV:-}" ]]; then
   # shellcheck disable=SC1091
   source "${ENV_DIR}/bin/activate"
@@ -111,21 +112,38 @@ PY
   if [[ -n "${bins}" ]]; then
     export PATH="${bins}:${PATH}"
   fi
-  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -x "${python_cuda_home}/bin/nvcc" ]]; then
+  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -x "${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc" ]]; then
+    export CUDA_HOME="${A2UI_CUDA_TOOLKIT_DIR}"
+    export CUDA_PATH="${A2UI_CUDA_TOOLKIT_DIR}"
+    export CUDACXX="${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+  elif [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -x "${python_cuda_home}/bin/nvcc" ]]; then
     export CUDA_HOME="${python_cuda_home}"
     export CUDA_PATH="${python_cuda_home}"
+    export CUDACXX="${python_cuda_home}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="${python_cuda_home}/bin/nvcc"
   elif [[ -n "${CUDA_HOME:-}" && -x "${CUDA_HOME}/bin/nvcc" ]]; then
     export CUDA_PATH="${CUDA_HOME}"
+    export CUDACXX="${CUDA_HOME}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="${CUDA_HOME}/bin/nvcc"
   else
     unset CUDA_HOME
     unset CUDA_PATH
+    unset CUDACXX
+    unset CMAKE_CUDA_COMPILER
     for path in /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2 /usr/local/cuda-13.3 /usr/local/cuda-13 /usr/local/cuda; do
       if [[ -x "${path}/bin/nvcc" ]]; then
         export CUDA_HOME="${path}"
         export CUDA_PATH="${path}"
+        export CUDACXX="${path}/bin/nvcc"
+        export CMAKE_CUDA_COMPILER="${path}/bin/nvcc"
         break
       fi
     done
+  fi
+  if [[ -n "${CUDA_HOME:-}" ]]; then
+    export CUDAToolkit_ROOT="${CUDA_HOME}"
+    export CUDA_TOOLKIT_ROOT_DIR="${CUDA_HOME}"
   fi
 }
 export_nvidia_python_libs

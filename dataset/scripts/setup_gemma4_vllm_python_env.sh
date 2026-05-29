@@ -10,6 +10,7 @@ cd "${REPO_ROOT}"
 
 PYTHON_BIN="${PYTHON_BIN:-}"
 ENV_DIR="${ENV_DIR:-${REPO_ROOT}/gemma4_vllm_env}"
+A2UI_CUDA_TOOLKIT_DIR="${A2UI_CUDA_TOOLKIT_DIR:-${ENV_DIR}/cuda_toolkit}"
 GEMMA4_MODEL_ROOT="${GEMMA4_MODEL_ROOT:-}"
 GEMMA4_MODEL_PATH="${GEMMA4_MODEL_PATH:-}"
 GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH:-}"
@@ -75,6 +76,102 @@ apply_ssl_bypass() {
 
 apply_ssl_bypass
 
+link_dir_children() {
+  local src_dir="$1"
+  local dest_dir="$2"
+  [[ -d "${src_dir}" ]] || return 0
+  mkdir -p "${dest_dir}"
+  local item
+  shopt -s nullglob dotglob
+  for item in "${src_dir}"/*; do
+    ln -sfn "${item}" "${dest_dir}/$(basename "${item}")"
+  done
+  shopt -u nullglob dotglob
+}
+
+build_python_cuda_toolkit() {
+  if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+    return 0
+  fi
+
+  local py_lib_dir
+  py_lib_dir="$(python - <<'PY' 2>/dev/null || true
+import site
+paths = site.getsitepackages()
+print(paths[0] if paths else "")
+PY
+)"
+  [[ -n "${py_lib_dir}" && -d "${py_lib_dir}/nvidia" ]] || return 0
+
+  local toolkit="${A2UI_CUDA_TOOLKIT_DIR}"
+  rm -rf "${toolkit}"
+  mkdir -p \
+    "${toolkit}/bin" \
+    "${toolkit}/include" \
+    "${toolkit}/lib64" \
+    "${toolkit}/targets/x86_64-linux/include" \
+    "${toolkit}/targets/x86_64-linux/lib" \
+    "${toolkit}/targets/x86_64-linux/lib64"
+
+  local path
+  while IFS= read -r path; do
+    link_dir_children "${path}" "${toolkit}/bin"
+  done < <(find "${py_lib_dir}/nvidia" -type d -name bin 2>/dev/null | sort || true)
+
+  while IFS= read -r path; do
+    link_dir_children "${path}" "${toolkit}/include"
+    link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/include"
+  done < <(find "${py_lib_dir}/nvidia" -type d -name include 2>/dev/null | sort || true)
+
+  while IFS= read -r path; do
+    link_dir_children "${path}" "${toolkit}/lib64"
+    link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/lib"
+    link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/lib64"
+  done < <(find "${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
+
+  local lib_dir
+  local versioned
+  for lib_dir in "${toolkit}/lib64" "${toolkit}/targets/x86_64-linux/lib" "${toolkit}/targets/x86_64-linux/lib64"; do
+    for versioned in "${lib_dir}"/libcudart.so.*; do
+      [[ -e "${versioned}" ]] || continue
+      [[ -e "${lib_dir}/libcudart.so" ]] || ln -sfn "$(basename "${versioned}")" "${lib_dir}/libcudart.so"
+      break
+    done
+  done
+
+  if [[ -x "${toolkit}/bin/nvcc" ]]; then
+    export CUDA_HOME="${toolkit}"
+    export CUDA_PATH="${toolkit}"
+    export CUDACXX="${toolkit}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="${toolkit}/bin/nvcc"
+    export CUDAToolkit_ROOT="${toolkit}"
+    export CUDA_TOOLKIT_ROOT_DIR="${toolkit}"
+    export LIBRARY_PATH="${toolkit}/lib64:${toolkit}/targets/x86_64-linux/lib:${LIBRARY_PATH:-}"
+    export LD_LIBRARY_PATH="${toolkit}/lib64:${toolkit}/targets/x86_64-linux/lib:${LD_LIBRARY_PATH:-}"
+    export PATH="${toolkit}/bin:${PATH}"
+  fi
+}
+
+configure_cuda_build_env() {
+  if [[ -z "${CUDA_HOME:-}" ]]; then
+    echo "CUDA_HOME is unset; cannot configure CUDA build environment." >&2
+    exit 1
+  fi
+
+  local cudart
+  cudart="$(find "${CUDA_HOME}" \( -type f -o -type l \) 2>/dev/null | grep -E '/libcudart\.so($|\.)' | head -1 || true)"
+  if [[ -z "${cudart}" ]]; then
+    echo "CUDA_HOME has nvcc but no libcudart runtime library: ${CUDA_HOME}" >&2
+    echo "Rerun setup after installing ${CUDA_RUNTIME_PACKAGE}, or set A2UI_CUDA_TOOLKIT_DIR to a complete CUDA toolkit." >&2
+    exit 1
+  fi
+
+  export CUDA_CUDART_LIBRARY="${cudart}"
+  export LIBRARY_PATH="${CUDA_HOME}/lib64:${CUDA_HOME}/targets/x86_64-linux/lib:${LIBRARY_PATH:-}"
+  export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${CUDA_HOME}/targets/x86_64-linux/lib:${LD_LIBRARY_PATH:-}"
+  export CMAKE_ARGS="${CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
+  echo "Using CUDA_CUDART_LIBRARY=${CUDA_CUDART_LIBRARY}"
+}
 export_nvidia_python_libs() {
   if [[ -z "${VIRTUAL_ENV:-}" ]]; then
     return 0
@@ -91,6 +188,7 @@ PY
   local cuda_home_candidates=()
   local python_cuda_home=""
   if [[ -n "${py_lib_dir}" ]]; then
+    [[ -x "${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc" ]] && cuda_home_candidates+=("${A2UI_CUDA_TOOLKIT_DIR}")
     python_cuda_home="${py_lib_dir}/nvidia/cuda_nvcc"
     [[ -x "${python_cuda_home}/bin/nvcc" ]] && cuda_home_candidates+=("${python_cuda_home}")
     while IFS= read -r path; do
@@ -118,6 +216,7 @@ PY
     /usr/local/cuda/bin
   )
   cuda_home_candidates+=(
+    "${A2UI_CUDA_TOOLKIT_DIR}"
     /usr/local/cuda-13.0
     /usr/local/cuda-13.1
     /usr/local/cuda-13.2
@@ -152,29 +251,48 @@ PY
   if [[ -n "${bins}" ]]; then
     export PATH="${bins}:${PATH}"
   fi
-  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -x "${python_cuda_home}/bin/nvcc" ]]; then
+  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -x "${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc" ]]; then
+    export CUDA_HOME="${A2UI_CUDA_TOOLKIT_DIR}"
+    export CUDA_PATH="${A2UI_CUDA_TOOLKIT_DIR}"
+    export CUDACXX="${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+  elif [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -x "${python_cuda_home}/bin/nvcc" ]]; then
     export CUDA_HOME="${python_cuda_home}"
     export CUDA_PATH="${python_cuda_home}"
+    export CUDACXX="${python_cuda_home}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="${python_cuda_home}/bin/nvcc"
   elif [[ -n "${CUDA_HOME:-}" && -x "${CUDA_HOME}/bin/nvcc" ]]; then
     export CUDA_PATH="${CUDA_HOME}"
+    export CUDACXX="${CUDA_HOME}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="${CUDA_HOME}/bin/nvcc"
   else
     unset CUDA_HOME
     unset CUDA_PATH
+    unset CUDACXX
+    unset CMAKE_CUDA_COMPILER
     for path in "${cuda_home_candidates[@]}"; do
       if [[ -x "${path}/bin/nvcc" ]]; then
         export CUDA_HOME="${path}"
         export CUDA_PATH="${path}"
+        export CUDACXX="${path}/bin/nvcc"
+        export CMAKE_CUDA_COMPILER="${path}/bin/nvcc"
         break
       fi
     done
   fi
+  if [[ -n "${CUDA_HOME:-}" ]]; then
+    export CUDAToolkit_ROOT="${CUDA_HOME}"
+    export CUDA_TOOLKIT_ROOT_DIR="${CUDA_HOME}"
+  fi
 }
 
 require_nvcc_for_source_build() {
+  build_python_cuda_toolkit
   export_nvidia_python_libs
   if [[ -n "${CUDA_HOME:-}" && -x "${CUDA_HOME}/bin/nvcc" ]]; then
     echo "Using CUDA_HOME=${CUDA_HOME}"
     "${CUDA_HOME}/bin/nvcc" --version | head -5 || true
+    configure_cuda_build_env
     return 0
   fi
   if command -v nvcc >/dev/null 2>&1; then
@@ -185,6 +303,7 @@ require_nvcc_for_source_build() {
     export CUDA_PATH="${CUDA_HOME}"
     echo "Using CUDA_HOME=${CUDA_HOME}"
     "${CUDA_HOME}/bin/nvcc" --version | head -5 || true
+    configure_cuda_build_env
     return 0
   fi
 
@@ -365,6 +484,7 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
     "${UV_INSECURE_ARGS[@]}" || {
       echo "Warning: could not install CUDA runtime/NVCC wheels (${CUDA_RUNTIME_PACKAGE}, ${CUDA_NVCC_PACKAGE}). If vLLM or FlashInfer JIT fails, install matching CUDA runtime/NVCC packages manually." >&2
     }
+  build_python_cuda_toolkit
   export_nvidia_python_libs
 
   case "${A2UI_VLLM_INSTALL_MODE}" in
@@ -467,6 +587,7 @@ export PYTORCH_INDEX_URL="\${PYTORCH_INDEX_URL:-${PYTORCH_INDEX_URL}}"
 export A2UI_TORCH_BACKEND="\${A2UI_TORCH_BACKEND:-${A2UI_TORCH_BACKEND}}"
 export A2UI_DISABLE_SSL_VERIFY="\${A2UI_DISABLE_SSL_VERIFY:-1}"
 export A2UI_PREFER_PYTHON_CUDA="\${A2UI_PREFER_PYTHON_CUDA:-1}"
+export A2UI_CUDA_TOOLKIT_DIR="\${A2UI_CUDA_TOOLKIT_DIR:-${A2UI_CUDA_TOOLKIT_DIR}}"
 export CURL_CA_BUNDLE=""
 export REQUESTS_CA_BUNDLE=""
 export SSL_CERT_FILE=""
@@ -530,21 +651,38 @@ PY
   if [[ -n "\${bins}" ]]; then
     export PATH="\${bins}:\${PATH}"
   fi
-  if [[ "\${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "\${python_cuda_home}" && -x "\${python_cuda_home}/bin/nvcc" ]]; then
+  if [[ "\${A2UI_PREFER_PYTHON_CUDA}" = "1" && -x "\${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc" ]]; then
+    export CUDA_HOME="\${A2UI_CUDA_TOOLKIT_DIR}"
+    export CUDA_PATH="\${A2UI_CUDA_TOOLKIT_DIR}"
+    export CUDACXX="\${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="\${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+  elif [[ "\${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "\${python_cuda_home}" && -x "\${python_cuda_home}/bin/nvcc" ]]; then
     export CUDA_HOME="\${python_cuda_home}"
     export CUDA_PATH="\${python_cuda_home}"
+    export CUDACXX="\${python_cuda_home}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="\${python_cuda_home}/bin/nvcc"
   elif [[ -n "\${CUDA_HOME:-}" && -x "\${CUDA_HOME}/bin/nvcc" ]]; then
     export CUDA_PATH="\${CUDA_HOME}"
+    export CUDACXX="\${CUDA_HOME}/bin/nvcc"
+    export CMAKE_CUDA_COMPILER="\${CUDA_HOME}/bin/nvcc"
   else
     unset CUDA_HOME
     unset CUDA_PATH
+    unset CUDACXX
+    unset CMAKE_CUDA_COMPILER
     for path in /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2 /usr/local/cuda-13.3 /usr/local/cuda-13 /usr/local/cuda; do
       if [[ -x "\${path}/bin/nvcc" ]]; then
         export CUDA_HOME="\${path}"
         export CUDA_PATH="\${path}"
+        export CUDACXX="\${path}/bin/nvcc"
+        export CMAKE_CUDA_COMPILER="\${path}/bin/nvcc"
         break
       fi
     done
+  fi
+  if [[ -n "\${CUDA_HOME:-}" ]]; then
+    export CUDAToolkit_ROOT="\${CUDA_HOME}"
+    export CUDA_TOOLKIT_ROOT_DIR="\${CUDA_HOME}"
   fi
 }
 _a2ui_export_nvidia_python_libs
