@@ -36,6 +36,12 @@ class LocalAdapter(BaseLLMAdapter):
         model_name = (self.spec.model or "").lower()
         return "qwen" in model_name or "deepseek" in model_name
 
+    def _should_strip_thinking(self) -> bool:
+        model_name = (self.spec.model or "").lower()
+        if any(name in model_name for name in ("qwen", "deepseek", "gemma")):
+            return True
+        return self._is_truthy(os.environ.get("LOCAL_VLLM_STRIP_THINKING"))
+
     def _strict_offline_mode(self) -> bool:
         raw = os.environ.get("LOCAL_STRICT_OFFLINE")
         if raw is not None and raw.strip():
@@ -282,7 +288,7 @@ class LocalAdapter(BaseLLMAdapter):
         elapsed = (time.time() - start) * 1000
         payload = json.loads(raw)
         text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
-        if self._model_is_qwen_or_deepseek():
+        if self._should_strip_thinking():
             text = re.sub(r"(?is)<think>.*?</think>", "", text or "").strip()
         usage = payload.get("usage", {})
         return LLMResult(

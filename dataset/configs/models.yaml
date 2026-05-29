@@ -200,6 +200,26 @@
       tpm: null
       rpd: null
       note: "Local vLLM OpenAI-compatible endpoint with Qwen reasoning enabled. Set LOCAL_ALLOW_HTTP_ENDPOINT=1 and QWEN_MODEL_PATH."
+  - name: gemma4_31b_vllm
+    provider: local
+    model: google/gemma-4-31b-it
+    supports_json_mode: false
+    endpoint: http://127.0.0.1:8000/v1/chat/completions
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Local Singularity/vLLM endpoint for Gemma4 31B without reasoning. Set LOCAL_ALLOW_HTTP_ENDPOINT=1 and GEMMA4_MODEL_PATH."
+  - name: gemma4_31b_vllm_reasoning
+    provider: local
+    model: google/gemma-4-31b-it
+    supports_json_mode: false
+    endpoint: http://127.0.0.1:8000/v1/chat/completions
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Local Singularity/vLLM endpoint for Gemma4 31B with thinking enabled by LOCAL_VLLM_ENABLE_THINKING=1."
   - name: deepseek_coder_v2_lite_local_4x
     provider: local
     model: deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct
