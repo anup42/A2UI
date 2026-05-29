@@ -137,10 +137,20 @@ export GEMMA4_ENABLE_REASONING=0
 export GEMMA4_SPECULATIVE_MODE=draft
 export GEMMA4_SPECULATIVE_TOKENS=4
 export VLLM_MAX_MODEL_LEN=8192
+export VLLM_MAX_NUM_BATCHED_TOKENS=8192
 export VLLM_GPU_MEMORY_UTILIZATION=0.90
 
 bash dataset/scripts/run_gemma4_vllm_python.sh
 ```
+
+Gemma4 may fail startup with:
+
+```text
+Chunked MM input disabled but max_tokens_per_mm_item (...) is larger than max_num_batched_tokens (...)
+```
+
+The launcher sets `--max-num-batched-tokens 8192` by default to keep it above
+Gemma4's multimodal item budget.
 
 Reasoning/thinking mode:
 
