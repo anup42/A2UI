@@ -69,6 +69,18 @@ file`, rerun the setup script. The script installs the CUDA 13 runtime Python
 wheel and writes activation logic that adds NVIDIA wheel library folders plus
 common CUDA system library folders to `LD_LIBRARY_PATH`.
 
+If vLLM fails inside `flashinfer/jit/cpp_ext.py` with `ninja returned non-zero
+exit status 127`, leave this default enabled:
+
+```bash
+export VLLM_USE_FLASHINFER_SAMPLER=0
+```
+
+The scripts default this to `0` to avoid FlashInfer sampler JIT on systems
+without a full compiler toolchain. Setup also installs Python `ninja` and
+`cmake`, so you can opt back in later with `VLLM_USE_FLASHINFER_SAMPLER=1` if
+the system compiler stack is available.
+
 ## Start vLLM
 
 Non-reasoning mode with speculative decoding:

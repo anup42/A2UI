@@ -28,6 +28,8 @@ VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-64}"
 VLLM_KV_CACHE_DTYPE="${VLLM_KV_CACHE_DTYPE:-}"
 VLLM_EXTRA_ARGS="${VLLM_EXTRA_ARGS:-}"
+VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-0}"
+export VLLM_USE_FLASHINFER_SAMPLER
 
 GEMMA4_ENABLE_REASONING="${GEMMA4_ENABLE_REASONING:-0}"
 GEMMA4_REASONING_FLAGS_MODE="${GEMMA4_REASONING_FLAGS_MODE:-parser}" # parser|full|off
@@ -209,6 +211,11 @@ if grep -q "libcudart.so.13" <<<"${HELP_TEXT}"; then
   echo "Current LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}" >&2
   exit 1
 fi
+if [[ "${VLLM_USE_FLASHINFER_SAMPLER}" != "0" ]] && ! command -v ninja >/dev/null 2>&1; then
+  echo "VLLM_USE_FLASHINFER_SAMPLER=${VLLM_USE_FLASHINFER_SAMPLER}, but ninja is not on PATH." >&2
+  echo "Rerun setup to install ninja/cmake, or leave VLLM_USE_FLASHINFER_SAMPLER=0 to avoid FlashInfer sampler JIT." >&2
+  exit 1
+fi
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]] && ! grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
   echo "This vLLM install does not expose --speculative-config." >&2
   if is_truthy "${GEMMA4_REQUIRE_SPECULATIVE}"; then
@@ -283,6 +290,7 @@ echo "  CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}"
 echo "  tensor_parallel_size=${A2UI_VLLM_GPUS}"
 echo "  reasoning=${GEMMA4_ENABLE_REASONING} (${GEMMA4_REASONING_FLAGS_MODE})"
 echo "  speculative=${GEMMA4_SPECULATIVE_MODE} tokens=${GEMMA4_SPECULATIVE_TOKENS}"
+echo "  VLLM_USE_FLASHINFER_SAMPLER=${VLLM_USE_FLASHINFER_SAMPLER}"
 printf 'Command:'
 printf ' %q' "${cmd[@]}"
 printf '\n'
