@@ -28,8 +28,10 @@ VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-64}"
 VLLM_KV_CACHE_DTYPE="${VLLM_KV_CACHE_DTYPE:-}"
 VLLM_EXTRA_ARGS="${VLLM_EXTRA_ARGS:-}"
-VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-0}"
+VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-1}"
 export VLLM_USE_FLASHINFER_SAMPLER
+VLLM_HAS_FLASHINFER_CUBIN="${VLLM_HAS_FLASHINFER_CUBIN:-1}"
+export VLLM_HAS_FLASHINFER_CUBIN
 
 GEMMA4_ENABLE_REASONING="${GEMMA4_ENABLE_REASONING:-0}"
 GEMMA4_REASONING_FLAGS_MODE="${GEMMA4_REASONING_FLAGS_MODE:-parser}" # parser|full|off
@@ -59,6 +61,7 @@ print(paths[0] if paths else "")
 PY
 )"
   local joined=""
+  local bins=""
   local path
   if [[ -n "${py_lib_dir}" ]]; then
     while IFS= read -r path; do
@@ -70,6 +73,15 @@ PY
         fi
       fi
     done < <(find "${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
+    while IFS= read -r path; do
+      if [[ -d "${path}" ]]; then
+        if [[ -z "${bins}" ]]; then
+          bins="${path}"
+        else
+          bins="${bins}:${path}"
+        fi
+      fi
+    done < <(find "${py_lib_dir}/nvidia" -type d -name bin 2>/dev/null | sort || true)
   fi
   for path in /usr/local/cuda/lib64 /usr/local/cuda-13/lib64 /usr/local/cuda-13.0/lib64 /usr/local/cuda-13.1/lib64 /usr/local/cuda-13.2/lib64 /usr/lib/x86_64-linux-gnu; do
     if [[ -d "${path}" ]]; then
@@ -83,6 +95,24 @@ PY
   if [[ -n "${joined}" ]]; then
     export LD_LIBRARY_PATH="${joined}:${LD_LIBRARY_PATH:-}"
   fi
+  for path in /usr/local/cuda/bin /usr/local/cuda-13/bin /usr/local/cuda-13.0/bin /usr/local/cuda-13.1/bin /usr/local/cuda-13.2/bin; do
+    if [[ -d "${path}" ]]; then
+      if [[ -z "${bins}" ]]; then
+        bins="${path}"
+      else
+        bins="${bins}:${path}"
+      fi
+    fi
+  done
+  if [[ -n "${bins}" ]]; then
+    export PATH="${bins}:${PATH}"
+  fi
+  for path in "${py_lib_dir}/nvidia/cuda_nvcc" /usr/local/cuda /usr/local/cuda-13 /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2; do
+    if [[ -d "${path}" && -z "${CUDA_HOME:-}" ]]; then
+      export CUDA_HOME="${path}"
+      export CUDA_PATH="${path}"
+    fi
+  done
 }
 
 export_nvidia_python_libs
@@ -213,7 +243,8 @@ if grep -q "libcudart.so.13" <<<"${HELP_TEXT}"; then
 fi
 if [[ "${VLLM_USE_FLASHINFER_SAMPLER}" != "0" ]] && ! command -v ninja >/dev/null 2>&1; then
   echo "VLLM_USE_FLASHINFER_SAMPLER=${VLLM_USE_FLASHINFER_SAMPLER}, but ninja is not on PATH." >&2
-  echo "Rerun setup to install ninja/cmake, or leave VLLM_USE_FLASHINFER_SAMPLER=0 to avoid FlashInfer sampler JIT." >&2
+  echo "Rerun setup to install ninja/cmake and FlashInfer cubins:" >&2
+  echo "  bash dataset/scripts/setup_gemma4_vllm_python_env.sh" >&2
   exit 1
 fi
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]] && ! grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
@@ -291,6 +322,8 @@ echo "  tensor_parallel_size=${A2UI_VLLM_GPUS}"
 echo "  reasoning=${GEMMA4_ENABLE_REASONING} (${GEMMA4_REASONING_FLAGS_MODE})"
 echo "  speculative=${GEMMA4_SPECULATIVE_MODE} tokens=${GEMMA4_SPECULATIVE_TOKENS}"
 echo "  VLLM_USE_FLASHINFER_SAMPLER=${VLLM_USE_FLASHINFER_SAMPLER}"
+echo "  VLLM_HAS_FLASHINFER_CUBIN=${VLLM_HAS_FLASHINFER_CUBIN}"
+echo "  CUDA_HOME=${CUDA_HOME:-}"
 printf 'Command:'
 printf ' %q' "${cmd[@]}"
 printf '\n'

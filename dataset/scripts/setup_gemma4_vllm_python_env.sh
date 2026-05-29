@@ -22,6 +22,8 @@ VLLM_VERSION="${VLLM_VERSION:-0.22.0}"
 VLLM_NIGHTLY_INDEX="${VLLM_NIGHTLY_INDEX:-https://wheels.vllm.ai/nightly/cu129}"
 PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu129}"
 VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-v0.22.0}"
+FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu130}"
+FLASHINFER_INDEX_URL="${FLASHINFER_INDEX_URL:-https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}}"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
   for candidate in python3.12 python3.11 python3.10 python3; do
@@ -74,13 +76,17 @@ paths = site.getsitepackages()
 print(paths[0] if paths else "")
 PY
 )"
-  local candidates=()
+  local lib_candidates=()
+  local bin_candidates=()
   if [[ -n "${py_lib_dir}" ]]; then
     while IFS= read -r path; do
-      [[ -n "${path}" ]] && candidates+=("${path}")
+      [[ -n "${path}" ]] && lib_candidates+=("${path}")
     done < <(find "${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
+    while IFS= read -r path; do
+      [[ -n "${path}" ]] && bin_candidates+=("${path}")
+    done < <(find "${py_lib_dir}/nvidia" -type d -name bin 2>/dev/null | sort || true)
   fi
-  candidates+=(
+  lib_candidates+=(
     /usr/local/cuda/lib64
     /usr/local/cuda-13/lib64
     /usr/local/cuda-13.0/lib64
@@ -88,9 +94,16 @@ PY
     /usr/local/cuda-13.2/lib64
     /usr/lib/x86_64-linux-gnu
   )
+  bin_candidates+=(
+    /usr/local/cuda/bin
+    /usr/local/cuda-13/bin
+    /usr/local/cuda-13.0/bin
+    /usr/local/cuda-13.1/bin
+    /usr/local/cuda-13.2/bin
+  )
   local joined=""
   local path
-  for path in "${candidates[@]}"; do
+  for path in "${lib_candidates[@]}"; do
     if [[ -d "${path}" ]]; then
       if [[ -z "${joined}" ]]; then
         joined="${path}"
@@ -102,6 +115,25 @@ PY
   if [[ -n "${joined}" ]]; then
     export LD_LIBRARY_PATH="${joined}:${LD_LIBRARY_PATH:-}"
   fi
+  local bins=""
+  for path in "${bin_candidates[@]}"; do
+    if [[ -d "${path}" ]]; then
+      if [[ -z "${bins}" ]]; then
+        bins="${path}"
+      else
+        bins="${bins}:${path}"
+      fi
+    fi
+  done
+  if [[ -n "${bins}" ]]; then
+    export PATH="${bins}:${PATH}"
+  fi
+  for path in "${py_lib_dir}/nvidia/cuda_nvcc" /usr/local/cuda /usr/local/cuda-13 /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2; do
+    if [[ -d "${path}" && -z "${CUDA_HOME:-}" ]]; then
+      export CUDA_HOME="${path}"
+      export CUDA_PATH="${path}"
+    fi
+  done
 }
 
 is_dir() {
@@ -203,6 +235,7 @@ EOF
     --trusted-host github.com
     --trusted-host codeload.github.com
     --trusted-host raw.githubusercontent.com
+    --trusted-host flashinfer.ai
   )
   UV_INSECURE_ARGS+=(--allow-insecure-host pypi.org)
   UV_INSECURE_ARGS+=(--allow-insecure-host files.pythonhosted.org)
@@ -211,6 +244,7 @@ EOF
   UV_INSECURE_ARGS+=(--allow-insecure-host github.com)
   UV_INSECURE_ARGS+=(--allow-insecure-host codeload.github.com)
   UV_INSECURE_ARGS+=(--allow-insecure-host raw.githubusercontent.com)
+  UV_INSECURE_ARGS+=(--allow-insecure-host flashinfer.ai)
 fi
 
 python -m pip install "${PIP_TRUSTED_ARGS[@]}" --upgrade pip wheel setuptools
@@ -253,9 +287,21 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
 
   python -m uv pip install \
     "nvidia-cuda-runtime>=13,<14" \
+    "nvidia-cuda-nvcc>=13,<14" \
     "${UV_INSECURE_ARGS[@]}" || {
-      echo "Warning: could not install nvidia-cuda-runtime>=13,<14. If vLLM fails with libcudart.so.13, install this package manually." >&2
+      echo "Warning: could not install CUDA runtime/NVCC wheels. If vLLM or FlashInfer JIT fails, install nvidia-cuda-runtime and nvidia-cuda-nvcc manually." >&2
     }
+  export_nvidia_python_libs
+
+  python -m uv pip install -U \
+    "flashinfer-python" \
+    "flashinfer-cubin" \
+    "${UV_INSECURE_ARGS[@]}" || {
+      echo "Warning: could not install flashinfer-python/flashinfer-cubin from PyPI." >&2
+    }
+  python -m pip install "${PIP_TRUSTED_ARGS[@]}" --index-url "${FLASHINFER_INDEX_URL}" -U "flashinfer-jit-cache" || {
+    echo "Warning: could not install flashinfer-jit-cache from ${FLASHINFER_INDEX_URL}. FlashInfer may JIT compile kernels on first use." >&2
+  }
 
   python -m uv pip install \
     "pyyaml>=6.0.2" \
@@ -293,7 +339,9 @@ export VLLM_GPU_MEMORY_UTILIZATION="\${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 export GEMMA4_ENABLE_REASONING="\${GEMMA4_ENABLE_REASONING:-0}"
 export GEMMA4_SPECULATIVE_MODE="\${GEMMA4_SPECULATIVE_MODE:-draft}"
 export GEMMA4_SPECULATIVE_TOKENS="\${GEMMA4_SPECULATIVE_TOKENS:-4}"
-export VLLM_USE_FLASHINFER_SAMPLER="\${VLLM_USE_FLASHINFER_SAMPLER:-0}"
+export VLLM_USE_FLASHINFER_SAMPLER="\${VLLM_USE_FLASHINFER_SAMPLER:-1}"
+export VLLM_HAS_FLASHINFER_CUBIN="\${VLLM_HAS_FLASHINFER_CUBIN:-1}"
+export FLASHINFER_CUDA_TAG="\${FLASHINFER_CUDA_TAG:-${FLASHINFER_CUDA_TAG}}"
 export A2UI_DISABLE_SSL_VERIFY="\${A2UI_DISABLE_SSL_VERIFY:-1}"
 export CURL_CA_BUNDLE=""
 export REQUESTS_CA_BUNDLE=""
@@ -311,6 +359,7 @@ print(paths[0] if paths else "")
 PY
 )"
   local joined=""
+  local bins=""
   if [[ -n "\${py_lib_dir}" ]]; then
     while IFS= read -r path; do
       if [[ -d "\${path}" ]]; then
@@ -321,6 +370,15 @@ PY
         fi
       fi
     done < <(find "\${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
+    while IFS= read -r path; do
+      if [[ -d "\${path}" ]]; then
+        if [[ -z "\${bins}" ]]; then
+          bins="\${path}"
+        else
+          bins="\${bins}:\${path}"
+        fi
+      fi
+    done < <(find "\${py_lib_dir}/nvidia" -type d -name bin 2>/dev/null | sort || true)
   fi
   for path in /usr/local/cuda/lib64 /usr/local/cuda-13/lib64 /usr/local/cuda-13.0/lib64 /usr/local/cuda-13.1/lib64 /usr/local/cuda-13.2/lib64 /usr/lib/x86_64-linux-gnu; do
     if [[ -d "\${path}" ]]; then
@@ -334,6 +392,24 @@ PY
   if [[ -n "\${joined}" ]]; then
     export LD_LIBRARY_PATH="\${joined}:\${LD_LIBRARY_PATH:-}"
   fi
+  for path in /usr/local/cuda/bin /usr/local/cuda-13/bin /usr/local/cuda-13.0/bin /usr/local/cuda-13.1/bin /usr/local/cuda-13.2/bin; do
+    if [[ -d "\${path}" ]]; then
+      if [[ -z "\${bins}" ]]; then
+        bins="\${path}"
+      else
+        bins="\${bins}:\${path}"
+      fi
+    fi
+  done
+  if [[ -n "\${bins}" ]]; then
+    export PATH="\${bins}:\${PATH}"
+  fi
+  for path in "\${py_lib_dir}/nvidia/cuda_nvcc" /usr/local/cuda /usr/local/cuda-13 /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2; do
+    if [[ -d "\${path}" && -z "\${CUDA_HOME:-}" ]]; then
+      export CUDA_HOME="\${path}"
+      export CUDA_PATH="\${path}"
+    fi
+  done
 }
 _a2ui_export_nvidia_python_libs
 export LOCAL_ALLOW_HTTP_ENDPOINT=1

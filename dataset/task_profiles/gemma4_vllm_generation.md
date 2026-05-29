@@ -70,16 +70,32 @@ wheel and writes activation logic that adds NVIDIA wheel library folders plus
 common CUDA system library folders to `LD_LIBRARY_PATH`.
 
 If vLLM fails inside `flashinfer/jit/cpp_ext.py` with `ninja returned non-zero
-exit status 127`, leave this default enabled:
+exit status 127`, the FlashInfer sampler is enabled but the JIT toolchain is
+incomplete. Rerun setup:
 
 ```bash
-export VLLM_USE_FLASHINFER_SAMPLER=0
+bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 ```
 
-The scripts default this to `0` to avoid FlashInfer sampler JIT on systems
-without a full compiler toolchain. Setup also installs Python `ninja` and
-`cmake`, so you can opt back in later with `VLLM_USE_FLASHINFER_SAMPLER=1` if
-the system compiler stack is available.
+The setup script keeps FlashInfer sampler enabled by default and installs:
+
+- `flashinfer-python`
+- `flashinfer-cubin`
+- `flashinfer-jit-cache` from `https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}`
+- `ninja`
+- `cmake`
+- CUDA 13 runtime and NVCC Python wheels
+
+Defaults:
+
+```bash
+export VLLM_USE_FLASHINFER_SAMPLER=1
+export VLLM_HAS_FLASHINFER_CUBIN=1
+export FLASHINFER_CUDA_TAG=cu130
+```
+
+Use `FLASHINFER_CUDA_TAG=cu129` only if your installed PyTorch/vLLM stack is
+CUDA 12.9 rather than CUDA 13.0.
 
 ## Start vLLM
 
