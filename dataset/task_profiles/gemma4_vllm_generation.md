@@ -41,7 +41,7 @@ source gemma4_vllm_env/activate_gemma4_vllm.sh
 ```
 
 The setup script defaults to the same Gemma4-special vLLM source ref used by
-`dataset/scripts/build_vllm_cu128_gemma4_speculative_image.sh`:
+the Gemma4 speculative vLLM build script:
 
 ```text
 9b4e83934d895b5f6e488411cd46c8d0915115a1
@@ -53,8 +53,8 @@ approach used for Gemma4 speculative decoding.
 ```bash
 export A2UI_VLLM_INSTALL_MODE=source
 export VLLM_SOURCE_REF=9b4e83934d895b5f6e488411cd46c8d0915115a1
-export PYTORCH_INDEX_URL=https://download.pytorch.org/whl/cu128
-export A2UI_TORCH_BACKEND=cu128
+export PYTORCH_INDEX_URL=https://download.pytorch.org/whl/cu130
+export A2UI_TORCH_BACKEND=cu130
 bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 ```
 
@@ -88,12 +88,12 @@ export A2UI_DISABLE_SSL_VERIFY=0
 ```
 
 If vLLM fails with missing CUDA runtime libraries, rerun the setup script. The
-script installs CUDA 12.8 runtime/NVCC Python wheels by default because the
-Gemma4-special Docker build was CUDA 12.8 based:
+script installs CUDA 13.0 runtime/NVCC Python wheels by default to match the
+target CUDA 13.0/cu130 stack:
 
 ```bash
-export CUDA_RUNTIME_PACKAGE=nvidia-cuda-runtime-cu12==12.8.90
-export CUDA_NVCC_PACKAGE=nvidia-cuda-nvcc-cu12==12.8.93
+export CUDA_RUNTIME_PACKAGE=nvidia-cuda-runtime==13.0.96
+export CUDA_NVCC_PACKAGE=nvidia-cuda-nvcc==13.0.88
 bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 ```
 
@@ -112,18 +112,18 @@ The setup script keeps FlashInfer sampler enabled by default and installs:
 - `flashinfer-jit-cache` from `https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}`
 - `ninja`
 - `cmake`
-- CUDA 12.8 runtime and NVCC Python wheels
+- CUDA 13.0 runtime and NVCC Python wheels
 
 Defaults:
 
 ```bash
 export VLLM_USE_FLASHINFER_SAMPLER=1
 export VLLM_HAS_FLASHINFER_CUBIN=1
-export FLASHINFER_CUDA_TAG=cu128
+export FLASHINFER_CUDA_TAG=cu130
 ```
 
-Use `FLASHINFER_CUDA_TAG=cu129` or `cu130` only if you intentionally switch the
-PyTorch/vLLM stack away from CUDA 12.8.
+Use another `FLASHINFER_CUDA_TAG` only if you intentionally switch the
+PyTorch/vLLM stack away from CUDA 13.0/cu130.
 
 ## Start vLLM
 

@@ -23,16 +23,17 @@ VLLM_VERSION="${VLLM_VERSION:-0.22.0}"
 TORCH_VERSION="${TORCH_VERSION:-2.11.0}"
 TORCHVISION_VERSION="${TORCHVISION_VERSION:-0.26.0}"
 TORCHAUDIO_VERSION="${TORCHAUDIO_VERSION:-2.11.0}"
-VLLM_NIGHTLY_INDEX="${VLLM_NIGHTLY_INDEX:-https://wheels.vllm.ai/nightly/cu129}"
-PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu128}"
-A2UI_TORCH_BACKEND="${A2UI_TORCH_BACKEND:-cu128}"
-# Gemma4-special vLLM ref used by build_vllm_cu128_gemma4_speculative_image.sh.
+VLLM_NIGHTLY_INDEX="${VLLM_NIGHTLY_INDEX:-https://wheels.vllm.ai/nightly/cu130}"
+PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu130}"
+A2UI_TORCH_BACKEND="${A2UI_TORCH_BACKEND:-cu130}"
+# Gemma4-special vLLM ref used by the Gemma4 speculative build flow.
 VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-9b4e83934d895b5f6e488411cd46c8d0915115a1}"
 VLLM_SOURCE_DIR="${VLLM_SOURCE_DIR:-${ENV_DIR}/src/vllm-gemma4-speculative}"
-FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu128}"
+FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu130}"
 FLASHINFER_INDEX_URL="${FLASHINFER_INDEX_URL:-https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}}"
-CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime-cu12==12.8.90}"
-CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc-cu12==12.8.93}"
+CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.0.96}"
+CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.0.88}"
+A2UI_PREFER_PYTHON_CUDA="${A2UI_PREFER_PYTHON_CUDA:-1}"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
   for candidate in python3.12 python3.11 python3.10 python3; do
@@ -87,7 +88,11 @@ PY
 )"
   local lib_candidates=()
   local bin_candidates=()
+  local cuda_home_candidates=()
+  local python_cuda_home=""
   if [[ -n "${py_lib_dir}" ]]; then
+    python_cuda_home="${py_lib_dir}/nvidia/cuda_nvcc"
+    [[ -d "${python_cuda_home}" ]] && cuda_home_candidates+=("${python_cuda_home}")
     while IFS= read -r path; do
       [[ -n "${path}" ]] && lib_candidates+=("${path}")
     done < <(find "${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
@@ -96,19 +101,29 @@ PY
     done < <(find "${py_lib_dir}/nvidia" -type d -name bin 2>/dev/null | sort || true)
   fi
   lib_candidates+=(
-    /usr/local/cuda/lib64
-    /usr/local/cuda-13/lib64
     /usr/local/cuda-13.0/lib64
     /usr/local/cuda-13.1/lib64
     /usr/local/cuda-13.2/lib64
+    /usr/local/cuda-13.3/lib64
+    /usr/local/cuda-13/lib64
+    /usr/local/cuda/lib64
     /usr/lib/x86_64-linux-gnu
   )
   bin_candidates+=(
-    /usr/local/cuda/bin
-    /usr/local/cuda-13/bin
     /usr/local/cuda-13.0/bin
     /usr/local/cuda-13.1/bin
     /usr/local/cuda-13.2/bin
+    /usr/local/cuda-13.3/bin
+    /usr/local/cuda-13/bin
+    /usr/local/cuda/bin
+  )
+  cuda_home_candidates+=(
+    /usr/local/cuda-13.0
+    /usr/local/cuda-13.1
+    /usr/local/cuda-13.2
+    /usr/local/cuda-13.3
+    /usr/local/cuda-13
+    /usr/local/cuda
   )
   local joined=""
   local path
@@ -137,12 +152,20 @@ PY
   if [[ -n "${bins}" ]]; then
     export PATH="${bins}:${PATH}"
   fi
-  for path in "${py_lib_dir}/nvidia/cuda_nvcc" /usr/local/cuda /usr/local/cuda-13 /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2; do
-    if [[ -d "${path}" && -z "${CUDA_HOME:-}" ]]; then
-      export CUDA_HOME="${path}"
-      export CUDA_PATH="${path}"
-    fi
-  done
+  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -d "${python_cuda_home}" ]]; then
+    export CUDA_HOME="${python_cuda_home}"
+    export CUDA_PATH="${python_cuda_home}"
+  elif [[ -z "${CUDA_HOME:-}" ]]; then
+    for path in "${cuda_home_candidates[@]}"; do
+      if [[ -d "${path}" ]]; then
+        export CUDA_HOME="${path}"
+        export CUDA_PATH="${path}"
+        break
+      fi
+    done
+  else
+    export CUDA_PATH="${CUDA_HOME}"
+  fi
 }
 
 is_dir() {
@@ -233,6 +256,7 @@ trusted-host =
     github.com
     codeload.github.com
     raw.githubusercontent.com
+    flashinfer.ai
 disable-pip-version-check = true
 EOF
   export PIP_CONFIG_FILE="${ENV_DIR}/pip_conf/pip.conf"
@@ -278,6 +302,12 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
       flashinfer-python \
       flashinfer-cubin \
       flashinfer-jit-cache \
+      nvidia-cuda-runtime \
+      nvidia-cuda-nvcc \
+      nvidia-cuda-runtime-cu12 \
+      nvidia-cuda-nvcc-cu12 \
+      nvidia-cuda-runtime-cu13 \
+      nvidia-cuda-nvcc-cu13 \
       || true
   fi
 
@@ -396,6 +426,7 @@ export VLLM_SOURCE_REF="\${VLLM_SOURCE_REF:-${VLLM_SOURCE_REF}}"
 export PYTORCH_INDEX_URL="\${PYTORCH_INDEX_URL:-${PYTORCH_INDEX_URL}}"
 export A2UI_TORCH_BACKEND="\${A2UI_TORCH_BACKEND:-${A2UI_TORCH_BACKEND}}"
 export A2UI_DISABLE_SSL_VERIFY="\${A2UI_DISABLE_SSL_VERIFY:-1}"
+export A2UI_PREFER_PYTHON_CUDA="\${A2UI_PREFER_PYTHON_CUDA:-1}"
 export CURL_CA_BUNDLE=""
 export REQUESTS_CA_BUNDLE=""
 export SSL_CERT_FILE=""
@@ -413,7 +444,9 @@ PY
 )"
   local joined=""
   local bins=""
+  local python_cuda_home=""
   if [[ -n "\${py_lib_dir}" ]]; then
+    python_cuda_home="\${py_lib_dir}/nvidia/cuda_nvcc"
     while IFS= read -r path; do
       if [[ -d "\${path}" ]]; then
         if [[ -z "\${joined}" ]]; then
@@ -433,7 +466,7 @@ PY
       fi
     done < <(find "\${py_lib_dir}/nvidia" -type d -name bin 2>/dev/null | sort || true)
   fi
-  for path in /usr/local/cuda/lib64 /usr/local/cuda-13/lib64 /usr/local/cuda-13.0/lib64 /usr/local/cuda-13.1/lib64 /usr/local/cuda-13.2/lib64 /usr/lib/x86_64-linux-gnu; do
+  for path in /usr/local/cuda-13.0/lib64 /usr/local/cuda-13.1/lib64 /usr/local/cuda-13.2/lib64 /usr/local/cuda-13.3/lib64 /usr/local/cuda-13/lib64 /usr/local/cuda/lib64 /usr/lib/x86_64-linux-gnu; do
     if [[ -d "\${path}" ]]; then
       if [[ -z "\${joined}" ]]; then
         joined="\${path}"
@@ -445,7 +478,7 @@ PY
   if [[ -n "\${joined}" ]]; then
     export LD_LIBRARY_PATH="\${joined}:\${LD_LIBRARY_PATH:-}"
   fi
-  for path in /usr/local/cuda/bin /usr/local/cuda-13/bin /usr/local/cuda-13.0/bin /usr/local/cuda-13.1/bin /usr/local/cuda-13.2/bin; do
+  for path in /usr/local/cuda-13.0/bin /usr/local/cuda-13.1/bin /usr/local/cuda-13.2/bin /usr/local/cuda-13.3/bin /usr/local/cuda-13/bin /usr/local/cuda/bin; do
     if [[ -d "\${path}" ]]; then
       if [[ -z "\${bins}" ]]; then
         bins="\${path}"
@@ -457,12 +490,20 @@ PY
   if [[ -n "\${bins}" ]]; then
     export PATH="\${bins}:\${PATH}"
   fi
-  for path in "\${py_lib_dir}/nvidia/cuda_nvcc" /usr/local/cuda /usr/local/cuda-13 /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2; do
-    if [[ -d "\${path}" && -z "\${CUDA_HOME:-}" ]]; then
-      export CUDA_HOME="\${path}"
-      export CUDA_PATH="\${path}"
-    fi
-  done
+  if [[ "\${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "\${python_cuda_home}" && -d "\${python_cuda_home}" ]]; then
+    export CUDA_HOME="\${python_cuda_home}"
+    export CUDA_PATH="\${python_cuda_home}"
+  elif [[ -z "\${CUDA_HOME:-}" ]]; then
+    for path in /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2 /usr/local/cuda-13.3 /usr/local/cuda-13 /usr/local/cuda; do
+      if [[ -d "\${path}" ]]; then
+        export CUDA_HOME="\${path}"
+        export CUDA_PATH="\${path}"
+        break
+      fi
+    done
+  else
+    export CUDA_PATH="\${CUDA_HOME}"
+  fi
 }
 _a2ui_export_nvidia_python_libs
 export LOCAL_ALLOW_HTTP_ENDPOINT=1
