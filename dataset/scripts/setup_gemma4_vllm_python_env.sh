@@ -18,7 +18,9 @@ A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_SKIP_PIP_INSTALL="${A2UI_SKIP_PIP_INSTALL:-0}"
 A2UI_REQUIRE_SPECULATIVE="${A2UI_REQUIRE_SPECULATIVE:-1}"
 A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-release}" # release|nightly|source|skip
+A2UI_CLEAN_VLLM_STACK="${A2UI_CLEAN_VLLM_STACK:-1}"
 VLLM_VERSION="${VLLM_VERSION:-0.22.0}"
+TORCH_VERSION="${TORCH_VERSION:-2.11.0}"
 VLLM_NIGHTLY_INDEX="${VLLM_NIGHTLY_INDEX:-https://wheels.vllm.ai/nightly/cu129}"
 PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu129}"
 VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-v0.22.0}"
@@ -252,27 +254,48 @@ python -m pip install "${PIP_TRUSTED_ARGS[@]}" --upgrade pip wheel setuptools
 if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
   python -m pip install "${PIP_TRUSTED_ARGS[@]}" "uv>=0.5.0"
 
+  if [[ "${A2UI_CLEAN_VLLM_STACK}" = "1" && "${A2UI_VLLM_INSTALL_MODE}" != "skip" ]]; then
+    python -m uv pip uninstall -y \
+      vllm \
+      torch \
+      torchvision \
+      torchaudio \
+      xformers \
+      flashinfer-python \
+      flashinfer-cubin \
+      flashinfer-jit-cache \
+      || true
+  fi
+
+  python -m uv pip install -U --reinstall \
+    --extra-index-url "${PYTORCH_INDEX_URL}" \
+    --index-strategy unsafe-best-match \
+    "torch==${TORCH_VERSION}" \
+    "torchvision" \
+    "torchaudio" \
+    "${UV_INSECURE_ARGS[@]}"
+
   case "${A2UI_VLLM_INSTALL_MODE}" in
     release)
-      python -m uv pip install -U "vllm==${VLLM_VERSION}" \
+      python -m uv pip install -U --reinstall "vllm==${VLLM_VERSION}" \
         --extra-index-url "${PYTORCH_INDEX_URL}" \
         --index-strategy unsafe-best-match \
         "${UV_INSECURE_ARGS[@]}"
       ;;
     nightly)
-      python -m uv pip install -U vllm --pre \
+      python -m uv pip install -U --reinstall vllm --pre \
         --extra-index-url "${VLLM_NIGHTLY_INDEX}" \
         --extra-index-url "${PYTORCH_INDEX_URL}" \
         --index-strategy unsafe-best-match \
         "${UV_INSECURE_ARGS[@]}"
       ;;
     source)
-      python -m uv pip install -U \
+      python -m uv pip install -U --reinstall \
         --extra-index-url "${PYTORCH_INDEX_URL}" \
         --index-strategy unsafe-best-match \
-        "torch" "torchvision" "torchaudio" \
+        "torch==${TORCH_VERSION}" "torchvision" "torchaudio" \
         "${UV_INSECURE_ARGS[@]}"
-      python -m uv pip install -U \
+      python -m uv pip install -U --reinstall \
         "git+https://github.com/vllm-project/vllm.git@${VLLM_SOURCE_REF}" \
         "${UV_INSECURE_ARGS[@]}"
       ;;
@@ -428,7 +451,9 @@ mods = ["vllm", "yaml", "requests", "numpy", "PIL", "matplotlib",
 for name in mods:
     importlib.import_module(name)
 import vllm
+import torch
 print("vllm", getattr(vllm, "__version__", "unknown"))
+print("torch", getattr(torch, "__version__", "unknown"))
 print("Gemma4 Python env dependency imports OK")
 PY
 
@@ -444,6 +469,7 @@ except Exception as exc:
     print("Could not import vLLM to read version:", exc)
 PY
     echo "Speculative decoding is required. This setup pins vllm==${VLLM_VERSION}, whose upstream tag exposes --speculative-config." >&2
+    echo "It also pins torch==${TORCH_VERSION}; if you see undefined torch symbols, rerun with A2UI_CLEAN_VLLM_STACK=1." >&2
     echo "If the flag is still missing, rerun with A2UI_VLLM_INSTALL_MODE=source VLLM_SOURCE_REF=v0.22.0." >&2
     echo "Set A2UI_REQUIRE_SPECULATIVE=0 only if you intentionally want to run without speculative decoding." >&2
     exit 1

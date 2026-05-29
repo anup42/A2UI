@@ -51,6 +51,20 @@ export VLLM_SOURCE_REF=v0.22.0
 bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 ```
 
+`vllm==0.22.0` requires a matching PyTorch C++ ABI. The setup script now
+defaults to a clean reinstall of the vLLM stack and pins `torch==2.11.0`:
+
+```bash
+export A2UI_CLEAN_VLLM_STACK=1
+export VLLM_VERSION=0.22.0
+export TORCH_VERSION=2.11.0
+bash dataset/scripts/setup_gemma4_vllm_python_env.sh
+```
+
+Use this when you see an import error from `vllm/_C.abi3.so` with an undefined
+`torch::jit` symbol. That error means vLLM and PyTorch were installed from
+incompatible builds.
+
 The setup script defaults to aggressive SSL bypass because the target machines
 have certificate interception issues:
 
