@@ -62,6 +62,47 @@ apply_ssl_bypass() {
 
 apply_ssl_bypass
 
+export_nvidia_python_libs() {
+  if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+    return 0
+  fi
+  local py_lib_dir
+  py_lib_dir="$(python - <<'PY' 2>/dev/null || true
+import site
+paths = site.getsitepackages()
+print(paths[0] if paths else "")
+PY
+)"
+  local candidates=()
+  if [[ -n "${py_lib_dir}" ]]; then
+    while IFS= read -r path; do
+      [[ -n "${path}" ]] && candidates+=("${path}")
+    done < <(find "${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
+  fi
+  candidates+=(
+    /usr/local/cuda/lib64
+    /usr/local/cuda-13/lib64
+    /usr/local/cuda-13.0/lib64
+    /usr/local/cuda-13.1/lib64
+    /usr/local/cuda-13.2/lib64
+    /usr/lib/x86_64-linux-gnu
+  )
+  local joined=""
+  local path
+  for path in "${candidates[@]}"; do
+    if [[ -d "${path}" ]]; then
+      if [[ -z "${joined}" ]]; then
+        joined="${path}"
+      else
+        joined="${joined}:${path}"
+      fi
+    fi
+  done
+  if [[ -n "${joined}" ]]; then
+    export LD_LIBRARY_PATH="${joined}:${LD_LIBRARY_PATH:-}"
+  fi
+}
+
 is_dir() {
   [[ -n "${1:-}" && -d "$1" ]]
 }
@@ -134,6 +175,7 @@ fi
 # shellcheck disable=SC1091
 source "${ENV_DIR}/bin/activate"
 apply_ssl_bypass
+export_nvidia_python_libs
 
 PIP_TRUSTED_ARGS=()
 UV_INSECURE_ARGS=()
@@ -203,6 +245,12 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
   esac
 
   python -m uv pip install \
+    "nvidia-cuda-runtime>=13,<14" \
+    "${UV_INSECURE_ARGS[@]}" || {
+      echo "Warning: could not install nvidia-cuda-runtime>=13,<14. If vLLM fails with libcudart.so.13, install this package manually." >&2
+    }
+
+  python -m uv pip install \
     "pyyaml>=6.0.2" \
     "requests>=2.32.0" \
     "numpy>=1.26" \
@@ -216,6 +264,8 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
     "tqdm>=4.66" \
     "${UV_INSECURE_ARGS[@]}"
 fi
+
+export_nvidia_python_libs
 
 TARGET_PATH="$(resolve_target_model || true)"
 ASSISTANT_PATH="$(resolve_assistant_model || true)"
@@ -242,6 +292,40 @@ export PYTHONHTTPSVERIFY=0
 export GIT_SSL_NO_VERIFY=1
 export HF_HUB_DISABLE_SSL_VERIFICATION=1
 export PIP_CONFIG_FILE="${ENV_DIR}/pip_conf/pip.conf"
+_a2ui_export_nvidia_python_libs() {
+  local py_lib_dir
+  py_lib_dir="\$(python - <<'PY' 2>/dev/null || true
+import site
+paths = site.getsitepackages()
+print(paths[0] if paths else "")
+PY
+)"
+  local joined=""
+  if [[ -n "\${py_lib_dir}" ]]; then
+    while IFS= read -r path; do
+      if [[ -d "\${path}" ]]; then
+        if [[ -z "\${joined}" ]]; then
+          joined="\${path}"
+        else
+          joined="\${joined}:\${path}"
+        fi
+      fi
+    done < <(find "\${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
+  fi
+  for path in /usr/local/cuda/lib64 /usr/local/cuda-13/lib64 /usr/local/cuda-13.0/lib64 /usr/local/cuda-13.1/lib64 /usr/local/cuda-13.2/lib64 /usr/lib/x86_64-linux-gnu; do
+    if [[ -d "\${path}" ]]; then
+      if [[ -z "\${joined}" ]]; then
+        joined="\${path}"
+      else
+        joined="\${joined}:\${path}"
+      fi
+    fi
+  done
+  if [[ -n "\${joined}" ]]; then
+    export LD_LIBRARY_PATH="\${joined}:\${LD_LIBRARY_PATH:-}"
+  fi
+}
+_a2ui_export_nvidia_python_libs
 export LOCAL_ALLOW_HTTP_ENDPOINT=1
 export LOCAL_STRICT_OFFLINE=0
 export LOCAL_VLLM_STRIP_THINKING=1

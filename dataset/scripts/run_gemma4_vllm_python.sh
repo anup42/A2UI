@@ -48,6 +48,43 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
   export HF_HUB_DISABLE_SSL_VERIFICATION=1
 fi
 
+export_nvidia_python_libs() {
+  local py_lib_dir
+  py_lib_dir="$(python - <<'PY' 2>/dev/null || true
+import site
+paths = site.getsitepackages()
+print(paths[0] if paths else "")
+PY
+)"
+  local joined=""
+  local path
+  if [[ -n "${py_lib_dir}" ]]; then
+    while IFS= read -r path; do
+      if [[ -d "${path}" ]]; then
+        if [[ -z "${joined}" ]]; then
+          joined="${path}"
+        else
+          joined="${joined}:${path}"
+        fi
+      fi
+    done < <(find "${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
+  fi
+  for path in /usr/local/cuda/lib64 /usr/local/cuda-13/lib64 /usr/local/cuda-13.0/lib64 /usr/local/cuda-13.1/lib64 /usr/local/cuda-13.2/lib64 /usr/lib/x86_64-linux-gnu; do
+    if [[ -d "${path}" ]]; then
+      if [[ -z "${joined}" ]]; then
+        joined="${path}"
+      else
+        joined="${joined}:${path}"
+      fi
+    fi
+  done
+  if [[ -n "${joined}" ]]; then
+    export LD_LIBRARY_PATH="${joined}:${LD_LIBRARY_PATH:-}"
+  fi
+}
+
+export_nvidia_python_libs
+
 is_truthy() {
   case "${1:-}" in
     1|true|TRUE|yes|YES|y|Y|on|ON) return 0 ;;
@@ -165,6 +202,13 @@ fi
 detect_gpu_layout
 
 HELP_TEXT="$(vllm serve --help 2>&1 || true)"
+if grep -q "libcudart.so.13" <<<"${HELP_TEXT}"; then
+  echo "vLLM failed to load libcudart.so.13." >&2
+  echo "Fix: rerun setup so the CUDA 13 runtime wheel is installed and LD_LIBRARY_PATH is exported:" >&2
+  echo "  bash dataset/scripts/setup_gemma4_vllm_python_env.sh" >&2
+  echo "Current LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}" >&2
+  exit 1
+fi
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]] && ! grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
   echo "This vLLM install does not expose --speculative-config." >&2
   if is_truthy "${GEMMA4_REQUIRE_SPECULATIVE}"; then

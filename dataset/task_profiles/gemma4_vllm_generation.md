@@ -53,6 +53,11 @@ If the machine has working certificates, disable it:
 export A2UI_DISABLE_SSL_VERIFY=0
 ```
 
+If vLLM fails with `ImportError: libcudart.so.13: cannot open shared object
+file`, rerun the setup script. The script installs the CUDA 13 runtime Python
+wheel and writes activation logic that adds NVIDIA wheel library folders plus
+common CUDA system library folders to `LD_LIBRARY_PATH`.
+
 ## Start vLLM
 
 Non-reasoning mode with speculative decoding:
