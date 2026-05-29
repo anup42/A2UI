@@ -51,6 +51,7 @@ ARG MAX_JOBS=16
 ARG NVCC_THREADS=4
 ARG TORCH_CUDA_ARCH_LIST=8.0
 ARG CMAKE_CUDA_ARCHITECTURES=80
+ARG A2UI_INSTALL_STAGE_DEPS=1
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PIP_NO_CACHE_DIR=1
@@ -163,12 +164,54 @@ RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
     fi; \
     python -m uv pip install --torch-backend=cu128 --no-build-isolation -e .
 
+# Add the A2UI Stage 1/2/3 dataset-runner dependencies into the same venv.
+# This intentionally avoids reinstalling torch/vLLM after the source build.
+RUN if [ "${A2UI_INSTALL_STAGE_DEPS}" = "1" ]; then \
+      if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
+        export UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com,raw.githubusercontent.com"; \
+        export PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com raw.githubusercontent.com"; \
+        export GIT_SSL_NO_VERIFY=1; \
+        export CURL_CA_BUNDLE=""; \
+        export REQUESTS_CA_BUNDLE=""; \
+        export SSL_CERT_FILE=""; \
+      fi; \
+      python -m uv pip install \
+        "accelerate>=0.34.0" \
+        "safetensors>=0.4.5" \
+        "huggingface_hub[cli]>=0.25.0" \
+        "sentencepiece>=0.2.0" \
+        "tokenizers>=0.20.0" \
+        "pyyaml>=6.0.2" \
+        "requests>=2.32.0" \
+        "numpy>=1.26" \
+        "pillow>=10.0" \
+        "matplotlib>=3.8" \
+        "jsonschema>=4.23" \
+        "referencing>=0.35" \
+        "openai>=1.60" \
+        "httpx>=0.27" \
+        "truststore>=0.10" \
+        "tqdm>=4.66"; \
+    fi
+
 RUN python - <<'PY'
 import torch
 import vllm
+import yaml
+import requests
+import numpy
+from PIL import Image
+import matplotlib
+import jsonschema
+import referencing
+import openai
+import httpx
+import truststore
+import tqdm
 print("torch", torch.__version__, "torch_cuda", torch.version.cuda)
 print("vllm", getattr(vllm, "__version__", "unknown"))
 assert str(torch.version.cuda).startswith("12.8"), torch.version.cuda
+print("a2ui stage deps ok")
 PY
 
 CMD ["bash"]
@@ -203,6 +246,7 @@ docker build --progress="${BUILDKIT_PROGRESS}" \
   --build-arg "NVCC_THREADS=${NVCC_THREADS}" \
   --build-arg "TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}" \
   --build-arg "CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES}" \
+  --build-arg "A2UI_INSTALL_STAGE_DEPS=1" \
   -t "${IMAGE_REF}" \
   "${BUILD_DIR}" 2>&1 | tee "${BUILD_LOG_PATH}"
 
@@ -223,6 +267,7 @@ cat > "${MANIFEST_PATH}" <<EOF
   "nvcc_threads": "${NVCC_THREADS}",
   "torch_cuda_arch_list": "${TORCH_CUDA_ARCH_LIST}",
   "cmake_cuda_architectures": "${CMAKE_CUDA_ARCHITECTURES}",
+  "a2ui_stage123_deps": true,
   "built_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF
