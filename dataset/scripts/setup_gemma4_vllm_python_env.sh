@@ -92,7 +92,7 @@ PY
   local python_cuda_home=""
   if [[ -n "${py_lib_dir}" ]]; then
     python_cuda_home="${py_lib_dir}/nvidia/cuda_nvcc"
-    [[ -d "${python_cuda_home}" ]] && cuda_home_candidates+=("${python_cuda_home}")
+    [[ -x "${python_cuda_home}/bin/nvcc" ]] && cuda_home_candidates+=("${python_cuda_home}")
     while IFS= read -r path; do
       [[ -n "${path}" ]] && lib_candidates+=("${path}")
     done < <(find "${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
@@ -152,20 +152,57 @@ PY
   if [[ -n "${bins}" ]]; then
     export PATH="${bins}:${PATH}"
   fi
-  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -d "${python_cuda_home}" ]]; then
+  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -x "${python_cuda_home}/bin/nvcc" ]]; then
     export CUDA_HOME="${python_cuda_home}"
     export CUDA_PATH="${python_cuda_home}"
-  elif [[ -z "${CUDA_HOME:-}" ]]; then
+  elif [[ -n "${CUDA_HOME:-}" && -x "${CUDA_HOME}/bin/nvcc" ]]; then
+    export CUDA_PATH="${CUDA_HOME}"
+  else
+    unset CUDA_HOME
+    unset CUDA_PATH
     for path in "${cuda_home_candidates[@]}"; do
-      if [[ -d "${path}" ]]; then
+      if [[ -x "${path}/bin/nvcc" ]]; then
         export CUDA_HOME="${path}"
         export CUDA_PATH="${path}"
         break
       fi
     done
-  else
-    export CUDA_PATH="${CUDA_HOME}"
   fi
+}
+
+require_nvcc_for_source_build() {
+  export_nvidia_python_libs
+  if [[ -n "${CUDA_HOME:-}" && -x "${CUDA_HOME}/bin/nvcc" ]]; then
+    echo "Using CUDA_HOME=${CUDA_HOME}"
+    "${CUDA_HOME}/bin/nvcc" --version | head -5 || true
+    return 0
+  fi
+  if command -v nvcc >/dev/null 2>&1; then
+    local nvcc_bin
+    nvcc_bin="$(command -v nvcc)"
+    CUDA_HOME="$(cd "$(dirname "${nvcc_bin}")/.." && pwd)"
+    export CUDA_HOME
+    export CUDA_PATH="${CUDA_HOME}"
+    echo "Using CUDA_HOME=${CUDA_HOME}"
+    "${CUDA_HOME}/bin/nvcc" --version | head -5 || true
+    return 0
+  fi
+
+  echo "CUDA NVCC compiler was not found, but A2UI_VLLM_INSTALL_MODE=source needs nvcc to build vLLM." >&2
+  echo "Expected one of these paths to exist:" >&2
+  echo "  ${VIRTUAL_ENV:-<venv>}/lib/python*/site-packages/nvidia/cuda_nvcc/bin/nvcc" >&2
+  echo "  /usr/local/cuda-13.0/bin/nvcc" >&2
+  echo "  /usr/local/cuda/bin/nvcc" >&2
+  echo "The setup script attempted to install: ${CUDA_NVCC_PACKAGE}" >&2
+  echo "Current CUDA_HOME=${CUDA_HOME:-unset}" >&2
+  echo "Current PATH=${PATH}" >&2
+  if [[ -n "${VIRTUAL_ENV:-}" ]]; then
+    echo "Installed CUDA-related packages:" >&2
+    python -m pip list 2>/dev/null | grep -E 'nvidia-cuda|torch|vllm|flashinfer' >&2 || true
+    echo "CUDA files under virtualenv:" >&2
+    find "${VIRTUAL_ENV}" -path '*cuda_nvcc*' -maxdepth 8 2>/dev/null | head -40 >&2 || true
+  fi
+  exit 1
 }
 
 is_dir() {
@@ -312,6 +349,7 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
   fi
 
   python -m uv pip install -U --reinstall \
+    --torch-backend="${A2UI_TORCH_BACKEND}" \
     --extra-index-url "${PYTORCH_INDEX_URL}" \
     --index-strategy unsafe-best-match \
     "torch==${TORCH_VERSION}" \
@@ -345,6 +383,7 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
       ;;
     source)
       python -m uv pip install -U --reinstall \
+        --torch-backend="${A2UI_TORCH_BACKEND}" \
         --extra-index-url "${PYTORCH_INDEX_URL}" \
         --index-strategy unsafe-best-match \
         "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" "torchaudio==${TORCHAUDIO_VERSION}" \
@@ -356,6 +395,7 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
       git -C "${VLLM_SOURCE_DIR}" fetch --all --tags
       git -C "${VLLM_SOURCE_DIR}" checkout "${VLLM_SOURCE_REF}"
       git -C "${VLLM_SOURCE_DIR}" submodule update --init --recursive
+      require_nvcc_for_source_build
       python -m uv pip install \
         --torch-backend="${A2UI_TORCH_BACKEND}" \
         --no-build-isolation \
@@ -490,19 +530,21 @@ PY
   if [[ -n "\${bins}" ]]; then
     export PATH="\${bins}:\${PATH}"
   fi
-  if [[ "\${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "\${python_cuda_home}" && -d "\${python_cuda_home}" ]]; then
+  if [[ "\${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "\${python_cuda_home}" && -x "\${python_cuda_home}/bin/nvcc" ]]; then
     export CUDA_HOME="\${python_cuda_home}"
     export CUDA_PATH="\${python_cuda_home}"
-  elif [[ -z "\${CUDA_HOME:-}" ]]; then
+  elif [[ -n "\${CUDA_HOME:-}" && -x "\${CUDA_HOME}/bin/nvcc" ]]; then
+    export CUDA_PATH="\${CUDA_HOME}"
+  else
+    unset CUDA_HOME
+    unset CUDA_PATH
     for path in /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2 /usr/local/cuda-13.3 /usr/local/cuda-13 /usr/local/cuda; do
-      if [[ -d "\${path}" ]]; then
+      if [[ -x "\${path}/bin/nvcc" ]]; then
         export CUDA_HOME="\${path}"
         export CUDA_PATH="\${path}"
         break
       fi
     done
-  else
-    export CUDA_PATH="\${CUDA_HOME}"
   fi
 }
 _a2ui_export_nvidia_python_libs

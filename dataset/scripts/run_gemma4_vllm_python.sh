@@ -111,19 +111,21 @@ PY
   if [[ -n "${bins}" ]]; then
     export PATH="${bins}:${PATH}"
   fi
-  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -d "${python_cuda_home}" ]]; then
+  if [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -x "${python_cuda_home}/bin/nvcc" ]]; then
     export CUDA_HOME="${python_cuda_home}"
     export CUDA_PATH="${python_cuda_home}"
-  elif [[ -z "${CUDA_HOME:-}" ]]; then
+  elif [[ -n "${CUDA_HOME:-}" && -x "${CUDA_HOME}/bin/nvcc" ]]; then
+    export CUDA_PATH="${CUDA_HOME}"
+  else
+    unset CUDA_HOME
+    unset CUDA_PATH
     for path in /usr/local/cuda-13.0 /usr/local/cuda-13.1 /usr/local/cuda-13.2 /usr/local/cuda-13.3 /usr/local/cuda-13 /usr/local/cuda; do
-      if [[ -d "${path}" ]]; then
+      if [[ -x "${path}/bin/nvcc" ]]; then
         export CUDA_HOME="${path}"
         export CUDA_PATH="${path}"
         break
       fi
     done
-  else
-    export CUDA_PATH="${CUDA_HOME}"
   fi
 }
 export_nvidia_python_libs
