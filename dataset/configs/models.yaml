@@ -209,7 +209,7 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "Local Singularity/vLLM endpoint for Gemma4 31B without reasoning. Set LOCAL_ALLOW_HTTP_ENDPOINT=1 and GEMMA4_MODEL_PATH."
+      note: "Local Python/vLLM endpoint for Gemma4 31B without reasoning. Set LOCAL_ALLOW_HTTP_ENDPOINT=1 and GEMMA4_MODEL_ROOT or GEMMA4_MODEL_PATH."
   - name: gemma4_31b_vllm_reasoning
     provider: local
     model: google/gemma-4-31b-it
@@ -219,7 +219,7 @@
       rpm: null
       tpm: null
       rpd: null
-      note: "Local Singularity/vLLM endpoint for Gemma4 31B with thinking enabled by LOCAL_VLLM_ENABLE_THINKING=1."
+      note: "Local Python/vLLM endpoint for Gemma4 31B with reasoning enabled by LOCAL_VLLM_ENABLE_THINKING=1. Set GEMMA4_MODEL_ROOT or GEMMA4_MODEL_PATH."
   - name: deepseek_coder_v2_lite_local_4x
     provider: local
     model: deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct

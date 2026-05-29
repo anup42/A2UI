@@ -36,18 +36,30 @@ class LocalAdapter(BaseLLMAdapter):
         model_name = (self.spec.model or "").lower()
         return "qwen" in model_name or "deepseek" in model_name
 
-    def _should_strip_thinking(self) -> bool:
+    def _model_is_large_reasoning_family(self) -> bool:
         model_name = (self.spec.model or "").lower()
-        if any(name in model_name for name in ("qwen", "deepseek", "gemma")):
+        return any(name in model_name for name in ("qwen", "deepseek", "gemma"))
+
+    def _should_strip_thinking(self) -> bool:
+        if self._model_is_large_reasoning_family():
             return True
         return self._is_truthy(os.environ.get("LOCAL_VLLM_STRIP_THINKING"))
+
+    @staticmethod
+    def _strip_thinking_text(text: str) -> str:
+        cleaned = re.sub(r"(?is)<think>.*?</think>", "", text or "")
+        cleaned = re.sub(r"(?is)<\|channel\|>\s*(analysis|thought|thinking)\b.*?(?=<\|channel\|>|<\|message\|>|$)", "", cleaned)
+        cleaned = re.sub(r"(?is)<\|start\|>\s*(analysis|thought|thinking)\b.*?(?=<\|end\|>|<\|start\|>|$)", "", cleaned)
+        cleaned = re.sub(r"(?is)^\s*(analysis|thought|thinking)\s*:\s*.*?(?=\n\s*(final|assistant)\s*:|$)", "", cleaned)
+        cleaned = re.sub(r"(?is)^\s*final\s*:\s*", "", cleaned.strip())
+        return cleaned.strip()
 
     def _strict_offline_mode(self) -> bool:
         raw = os.environ.get("LOCAL_STRICT_OFFLINE")
         if raw is not None and raw.strip():
             return self._is_truthy(raw)
-        # Default to strict offline for Qwen/DeepSeek local models.
-        return self._model_is_qwen_or_deepseek()
+        # Default to strict offline for large local reasoning models.
+        return self._model_is_large_reasoning_family()
 
     def _resolve_model_path(self) -> Optional[str]:
         strict_offline = self._strict_offline_mode()
@@ -61,6 +73,8 @@ class LocalAdapter(BaseLLMAdapter):
             candidates.append(os.environ.get("QWEN_MODEL_PATH", ""))
         if "deepseek" in model_name:
             candidates.append(os.environ.get("DEEPSEEK_MODEL_PATH", ""))
+        if "gemma" in model_name:
+            candidates.append(os.environ.get("GEMMA4_MODEL_PATH", ""))
         candidates.append(os.environ.get("LOCAL_MODEL_PATH", ""))
 
         # Allow model field itself to be a local path.
@@ -107,11 +121,13 @@ class LocalAdapter(BaseLLMAdapter):
                 raise RuntimeError("QWEN_MODEL_PATH is not set for local Qwen model")
             if "deepseek" in model_name:
                 raise RuntimeError("DEEPSEEK_MODEL_PATH is not set for local DeepSeek model")
+            if "gemma" in model_name:
+                raise RuntimeError("GEMMA4_MODEL_PATH is not set for local Gemma model")
             raise RuntimeError("LOCAL_MODEL_PATH is not set for provider=local model")
         if strict_offline and not Path(model_path).exists():
             raise RuntimeError(
                 "Strict offline mode requires a local model directory path. "
-                "Set QWEN_MODEL_PATH / DEEPSEEK_MODEL_PATH / LOCAL_MODEL_PATH to an existing folder."
+                "Set QWEN_MODEL_PATH / DEEPSEEK_MODEL_PATH / GEMMA4_MODEL_PATH / LOCAL_MODEL_PATH to an existing folder."
             )
 
         self._model_path = model_path
@@ -160,7 +176,7 @@ class LocalAdapter(BaseLLMAdapter):
             max_memory: dict[Any, str] | None = None
             if max_memory_per_gpu:
                 max_memory = {idx: max_memory_per_gpu for idx in range(torch.cuda.device_count())}
-            elif self._model_is_qwen_or_deepseek():
+            elif self._model_is_large_reasoning_family():
                 # Auto-apply per-GPU memory caps for large local models unless explicitly overridden.
                 try:
                     frac = float(gpu_mem_util)
@@ -289,7 +305,7 @@ class LocalAdapter(BaseLLMAdapter):
         payload = json.loads(raw)
         text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
         if self._should_strip_thinking():
-            text = re.sub(r"(?is)<think>.*?</think>", "", text or "").strip()
+            text = self._strip_thinking_text(text)
         usage = payload.get("usage", {})
         return LLMResult(
             text=text or "",
@@ -349,7 +365,7 @@ class LocalAdapter(BaseLLMAdapter):
                     max_input_tokens = max(0, int(max_input_tokens_raw))
                 except Exception:
                     max_input_tokens = 0
-            elif self._model_is_qwen_or_deepseek():
+            elif self._model_is_large_reasoning_family():
                 max_input_tokens = 81920
 
             tokenizer_kwargs: dict[str, Any] = {"return_tensors": "pt"}
@@ -379,7 +395,7 @@ class LocalAdapter(BaseLLMAdapter):
                     max_new_tokens_cap = max(1, int(max_new_tokens_raw))
                 except Exception:
                     max_new_tokens_cap = 0
-            elif self._model_is_qwen_or_deepseek():
+            elif self._model_is_large_reasoning_family():
                 # Safe default for large local models on V100-class GPUs.
                 max_new_tokens_cap = 1024
             if max_new_tokens_cap > 0:
@@ -393,7 +409,7 @@ class LocalAdapter(BaseLLMAdapter):
             use_cache_raw = os.environ.get("LOCAL_MODEL_USE_CACHE", "")
             if use_cache_raw.strip():
                 gen_kwargs["use_cache"] = self._is_truthy(use_cache_raw)
-            elif self._model_is_qwen_or_deepseek():
+            elif self._model_is_large_reasoning_family():
                 # Lower peak memory for long prompts.
                 gen_kwargs["use_cache"] = False
             if do_sample:

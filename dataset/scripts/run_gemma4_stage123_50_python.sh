@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Single-terminal helper: start Gemma4 31B vLLM from the Python virtualenv in
-# the background, wait until /v1/models is ready, then run Stage 1, Stage 2,
-# and Stage 3 sequentially.
+# Single-terminal Python-env flow:
+# 1. start Gemma4 vLLM in the background
+# 2. wait until the OpenAI-compatible endpoint is ready
+# 3. run A2UI Stage 1, Stage 2, and Stage 3 sequentially
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -15,6 +16,22 @@ TARGET_COUNT="${TARGET_COUNT:-50}"
 VLLM_PORT="${VLLM_PORT:-8000}"
 VLLM_START_TIMEOUT="${VLLM_START_TIMEOUT:-1200}"
 START_VLLM="${START_VLLM:-1}"
+ENV_DIR="${ENV_DIR:-${REPO_ROOT}/gemma4_vllm_env}"
+
+if [[ -f "${ENV_DIR}/bin/activate" && -z "${VIRTUAL_ENV:-}" ]]; then
+  # shellcheck disable=SC1091
+  source "${ENV_DIR}/bin/activate"
+fi
+
+export A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
+if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
+  export CURL_CA_BUNDLE=""
+  export REQUESTS_CA_BUNDLE=""
+  export SSL_CERT_FILE=""
+  export PYTHONHTTPSVERIFY=0
+  export GIT_SSL_NO_VERIFY=1
+  export HF_HUB_DISABLE_SSL_VERIFICATION=1
+fi
 
 mkdir -p "${RUN_DIR}/logs"
 
@@ -27,7 +44,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ "${START_VLLM}" != "0" ]]; then
-  echo "Starting Gemma4 vLLM server..."
+  echo "Starting Gemma4 vLLM Python server..."
   bash dataset/scripts/run_gemma4_vllm_python.sh > "${RUN_DIR}/logs/vllm_server.log" 2>&1 &
   VLLM_PID=$!
   echo "vLLM PID=${VLLM_PID}"

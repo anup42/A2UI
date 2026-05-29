@@ -1,55 +1,73 @@
 # Gemma4 31B vLLM Dataset Generation
 
 This profile runs A2UI dataset Stage 1, Stage 2, and Stage 3 against a local
-Gemma4 31B model served by vLLM inside a Singularity container.
+Gemma4 31B model served by vLLM from a normal Python virtualenv. It does not
+require Docker, Apptainer, or Singularity.
 
-## Camera-Captured Target Machine Notes
+## Target Machine Notes
 
 The latest device-camera capture showed:
 
-- Runtime available: `singularity`
-- `apptainer` and `module` were not available in the active shell
+- Runtime available: `singularity`, but this workflow does not use it
 - NVIDIA driver: `580.159.03`
 - CUDA reported by `nvidia-smi`: `13.0`
-- GPUs visible in the captured frame: at least four `NVIDIA RTX 6000 Ada`
-- GPU memory in the captured frame: `49140 MiB` per visible GPU
-- No active GPU process was visible
+- GPUs visible: at least four `NVIDIA RTX 6000 Ada`
+- GPU memory visible: `49140 MiB` per GPU
 
-## Setup Host Dataset Environment
+## Model Folder Layout
+
+Set `GEMMA4_MODEL_ROOT` to the parent folder that contains both checkpoints:
+
+```text
+<GEMMA4_MODEL_ROOT>/
+  gemma-4-31B-it/
+  gemma-4-31B-it-assistant/
+```
+
+Equivalent names like `gemma-4-31b-it`, `google--gemma-4-31B-it`, and
+`gemma4-31b-it-assistant` are also auto-detected. If your folder names differ,
+set `GEMMA4_MODEL_PATH` and `GEMMA4_ASSISTANT_MODEL_PATH` directly.
+
+## Create Python Environment
 
 ```bash
 cd /path/to/A2UI
 
-export VLLM_SIF=$HOME/containers/a2ui-vllm-cu128-source_gemma4_speculative.sif
-export GEMMA4_MODEL_PATH=$HOME/dataset_generation/models/gemma4-31b
-export GEMMA4_DRAFT_MODEL_PATH=$HOME/dataset_generation/models/gemma4-2b
+export GEMMA4_MODEL_ROOT=/path/to/parent/folder
+export PYTHON_BIN=python3.12
 
-bash dataset/scripts/setup_gemma4_vllm_singularity_env.sh
+bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 source gemma4_vllm_env/activate_gemma4_vllm.sh
 ```
 
-The draft model is required when `GEMMA4_SPECULATIVE_MODE=draft`. To disable
-speculative decoding:
+The setup script defaults to aggressive SSL bypass because the target machines
+have certificate interception issues:
 
 ```bash
-export GEMMA4_SPECULATIVE_MODE=off
+export A2UI_DISABLE_SSL_VERIFY=1
+```
+
+If the machine has working certificates, disable it:
+
+```bash
+export A2UI_DISABLE_SSL_VERIFY=0
 ```
 
 ## Start vLLM
 
-Non-reasoning mode:
+Non-reasoning mode with speculative decoding:
 
 ```bash
 source gemma4_vllm_env/activate_gemma4_vllm.sh
 
+export GEMMA4_MODEL_ROOT=/path/to/parent/folder
 export GEMMA4_ENABLE_REASONING=0
-export CUDA_VISIBLE_DEVICES=0,1,2,3
-export A2UI_VLLM_GPUS=4
-export VLLM_MAX_MODEL_LEN=8192
 export GEMMA4_SPECULATIVE_MODE=draft
 export GEMMA4_SPECULATIVE_TOKENS=4
+export VLLM_MAX_MODEL_LEN=8192
+export VLLM_GPU_MEMORY_UTILIZATION=0.90
 
-bash dataset/scripts/run_gemma4_vllm_singularity.sh
+bash dataset/scripts/run_gemma4_vllm_python.sh
 ```
 
 Reasoning/thinking mode:
@@ -57,21 +75,24 @@ Reasoning/thinking mode:
 ```bash
 source gemma4_vllm_env/activate_gemma4_vllm.sh
 
+export GEMMA4_MODEL_ROOT=/path/to/parent/folder
 export GEMMA4_ENABLE_REASONING=1
 export LOCAL_VLLM_ENABLE_THINKING=1
 export LOCAL_VLLM_STRIP_THINKING=1
 
-bash dataset/scripts/run_gemma4_vllm_singularity.sh
+bash dataset/scripts/run_gemma4_vllm_python.sh
 ```
 
-The server does not add vLLM `--enable-reasoning` flags by default, because
-Gemma-compatible reasoning parsers are build-dependent. If your vLLM build
-supports one, enable it explicitly:
+To disable speculative decoding:
 
 ```bash
-export GEMMA4_ENABLE_SERVER_REASONING_FLAGS=1
-export GEMMA4_REASONING_PARSER=<parser-name>
+export GEMMA4_SPECULATIVE_MODE=off
 ```
+
+The vLLM Gemma4 recipe uses the assistant checkpoint with
+`--speculative-config '{"model": "...assistant", "num_speculative_tokens": 4}'`
+and uses `--reasoning-parser gemma4` for thinking mode. The launcher checks
+that these flags exist before starting.
 
 ## Run Dataset Stages
 
@@ -99,10 +120,19 @@ Single-terminal 50-sample smoke run:
 ```bash
 source gemma4_vllm_env/activate_gemma4_vllm.sh
 
+export GEMMA4_MODEL_ROOT=/path/to/parent/folder
 export RUN_ID=dataset_gemma4_31b_vllm_50
 export TARGET_COUNT=50
 export GEMMA4_ENABLE_REASONING=0
 export GEMMA4_SPECULATIVE_MODE=draft
 
-bash dataset/scripts/run_gemma4_stage123_50.sh
+bash dataset/scripts/run_gemma4_stage123_50_python.sh
 ```
+
+## Readiness Check
+
+```bash
+curl -fsS http://127.0.0.1:8000/v1/models
+```
+
+If the call succeeds, the dataset stage scripts can use the local endpoint.
