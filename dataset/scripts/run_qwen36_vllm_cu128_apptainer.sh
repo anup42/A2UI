@@ -25,6 +25,36 @@ VLLM_CONTAINER_MODEL_PATH="${VLLM_CONTAINER_MODEL_PATH:-/models/qwen36}"
 A2UI_CONTAINER_USER="${A2UI_CONTAINER_USER:-a2ui_user}"
 A2UI_CONTAINER_GROUP="${A2UI_CONTAINER_GROUP:-a2ui_group}"
 A2UI_BIND_SYNTHETIC_PASSWD="${A2UI_BIND_SYNTHETIC_PASSWD:-1}"
+A2UI_ENABLE_HOST_NSS_WRAPPER="${A2UI_ENABLE_HOST_NSS_WRAPPER:-1}"
+A2UI_NSS_WRAPPER_LIB="${A2UI_NSS_WRAPPER_LIB:-}"
+
+find_nss_wrapper_lib() {
+  if [[ -n "${A2UI_NSS_WRAPPER_LIB}" && -f "${A2UI_NSS_WRAPPER_LIB}" ]]; then
+    printf '%s\n' "${A2UI_NSS_WRAPPER_LIB}"
+    return 0
+  fi
+  if command -v ldconfig >/dev/null 2>&1; then
+    local from_ldconfig
+    from_ldconfig="$(ldconfig -p 2>/dev/null | awk '/libnss_wrapper\\.so/ {print $NF; exit}')"
+    if [[ -n "${from_ldconfig}" && -f "${from_ldconfig}" ]]; then
+      printf '%s\n' "${from_ldconfig}"
+      return 0
+    fi
+  fi
+  local candidate
+  for candidate in \
+    /usr/lib64/libnss_wrapper.so \
+    /usr/lib/x86_64-linux-gnu/libnss_wrapper.so \
+    /usr/lib/libnss_wrapper.so \
+    /lib64/libnss_wrapper.so \
+    /lib/x86_64-linux-gnu/libnss_wrapper.so; do
+    if [[ -f "${candidate}" ]]; then
+      printf '%s\n' "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
 
 if [[ ! -f "${VLLM_SIF}" ]]; then
   echo "SIF not found: ${VLLM_SIF}" >&2
@@ -80,6 +110,8 @@ CONTAINER_USER="$(id -un 2>/dev/null || true)"
 CONTAINER_GROUP="$(id -gn 2>/dev/null || true)"
 CONTAINER_USER="${CONTAINER_USER:-${A2UI_CONTAINER_USER}}"
 CONTAINER_GROUP="${CONTAINER_GROUP:-${A2UI_CONTAINER_GROUP}}"
+PASSWD_FILE=""
+GROUP_FILE=""
 
 RUNTIME_ARGS=(exec --nv --cleanenv)
 RUNTIME_ARGS+=(--env "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}")
@@ -110,7 +142,38 @@ fi
 
 if command -v getent >/dev/null 2>&1 && ! getent passwd "${HOST_UID}" >/dev/null 2>&1; then
   echo "Warning: host NSS cannot resolve UID ${HOST_UID}." >&2
-  echo "If ${RUNTIME} fails before the container starts with 'unknown userid', the cluster login/NSS layer must be fixed for this UID." >&2
+  if [[ "${A2UI_ENABLE_HOST_NSS_WRAPPER}" != "0" ]]; then
+    if command -v module >/dev/null 2>&1; then
+      module load nss_wrapper >/dev/null 2>&1 || true
+    fi
+    if NSS_WRAPPER_LIB="$(find_nss_wrapper_lib)"; then
+      if [[ -z "${PASSWD_FILE}" || -z "${GROUP_FILE}" ]]; then
+        PASSWD_DIR="$(mktemp -d "${TMPDIR:-/tmp}/a2ui_apptainer_user.XXXXXX")"
+        PASSWD_FILE="${PASSWD_DIR}/passwd"
+        GROUP_FILE="${PASSWD_DIR}/group"
+        {
+          printf 'root:x:0:0:root:/root:/bin/bash\n'
+          printf 'nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\n'
+          printf '%s:x:%s:%s:A2UI synthetic user:%s:/bin/bash\n' \
+            "${CONTAINER_USER}" "${HOST_UID}" "${HOST_GID}" "${HOST_HOME}"
+        } > "${PASSWD_FILE}"
+        {
+          printf 'root:x:0:\n'
+          printf 'nogroup:x:65534:\n'
+          printf '%s:x:%s:\n' "${CONTAINER_GROUP}" "${HOST_GID}"
+        } > "${GROUP_FILE}"
+      fi
+      export LD_PRELOAD="${NSS_WRAPPER_LIB}${LD_PRELOAD:+:${LD_PRELOAD}}"
+      export NSS_WRAPPER_PASSWD="${PASSWD_FILE}"
+      export NSS_WRAPPER_GROUP="${GROUP_FILE}"
+      echo "Enabled host NSS wrapper for UID ${HOST_UID}: ${NSS_WRAPPER_LIB}" >&2
+    else
+      echo "Host NSS wrapper library was not found." >&2
+      echo "Run 'module avail nss_wrapper' and 'module load nss_wrapper', or ask the cluster admin to add UID ${HOST_UID} to passwd/NSS." >&2
+    fi
+  else
+    echo "A2UI_ENABLE_HOST_NSS_WRAPPER=0, skipping NSS wrapper workaround." >&2
+  fi
 fi
 
 VLLM_CMD_ARGS=(
