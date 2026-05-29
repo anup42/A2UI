@@ -191,7 +191,8 @@ RUN if [ "${A2UI_INSTALL_STAGE_DEPS}" = "1" ]; then \
         "openai>=1.60" \
         "httpx>=0.27" \
         "truststore>=0.10" \
-        "tqdm>=4.66"; \
+        "tqdm>=4.66" \
+        "bitsandbytes>=0.45.0"; \
     fi
 
 RUN python - <<'PY'
@@ -208,8 +209,10 @@ import openai
 import httpx
 import truststore
 import tqdm
+import bitsandbytes
 print("torch", torch.__version__, "torch_cuda", torch.version.cuda)
 print("vllm", getattr(vllm, "__version__", "unknown"))
+print("bitsandbytes", getattr(bitsandbytes, "__version__", "unknown"))
 assert str(torch.version.cuda).startswith("12.8"), torch.version.cuda
 print("a2ui stage deps ok")
 PY
@@ -268,6 +271,7 @@ cat > "${MANIFEST_PATH}" <<EOF
   "torch_cuda_arch_list": "${TORCH_CUDA_ARCH_LIST}",
   "cmake_cuda_architectures": "${CMAKE_CUDA_ARCHITECTURES}",
   "a2ui_stage123_deps": true,
+  "bitsandbytes": true,
   "built_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF

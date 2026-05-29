@@ -127,6 +127,28 @@ export VLLM_MAX_MODEL_LEN=32768
 bash dataset/scripts/run_qwen36_vllm_server.sh
 ```
 
+On 2x A100 40GB, Qwen3.6 35B can fail during KV-cache profiling at long
+contexts. Start with a shorter context, or enable INT8 model-weight loading:
+
+```bash
+export CUDA_VISIBLE_DEVICES=0,1
+export A2UI_VLLM_GPUS=2
+export VLLM_MAX_MODEL_LEN=8192
+export VLLM_QUANTIZATION_MODE=int8
+
+bash dataset/scripts/run_qwen36_vllm_cu128_apptainer.sh
+```
+
+If the failure still mentions KV cache, combine INT8 weights with a smaller KV
+cache footprint:
+
+```bash
+export VLLM_QUANTIZATION_MODE=int8
+export VLLM_KV_CACHE_DTYPE=fp8_e4m3
+export VLLM_MAX_NUM_SEQS=1
+export VLLM_MAX_MODEL_LEN=8192
+```
+
 For 4 or 8 GPUs, update both `CUDA_VISIBLE_DEVICES` and `A2UI_VLLM_GPUS`:
 
 ```bash

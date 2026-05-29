@@ -234,6 +234,15 @@ def main() -> None:
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.90)
     parser.add_argument("--max-model-len", type=int, default=None)
     parser.add_argument("--swap-space", type=int, default=None, help="CPU swap space in GiB.")
+    parser.add_argument(
+        "--quantization-mode",
+        default=os.environ.get("VLLM_QUANTIZATION_MODE", "none"),
+        choices=["none", "int8", "bnb-int8", "bitsandbytes-int8", "bnb-4bit", "bitsandbytes-4bit", "4bit", "fp8"],
+        help="Optional vLLM weight quantization mode.",
+    )
+    parser.add_argument("--kv-cache-dtype", default=os.environ.get("VLLM_KV_CACHE_DTYPE", ""))
+    parser.add_argument("--cpu-offload-gb", default=os.environ.get("VLLM_CPU_OFFLOAD_GB", ""))
+    parser.add_argument("--max-num-seqs", default=os.environ.get("VLLM_MAX_NUM_SEQS", ""))
     parser.add_argument("--trust-remote-code", action="store_true")
     parser.add_argument("--cuda-visible-devices", default=None)
     parser.add_argument("--enable-reasoning", action="store_true")
@@ -286,6 +295,35 @@ def main() -> None:
         cmd += ["--swap-space", str(args.swap_space)]
     if args.trust_remote_code:
         cmd.append("--trust-remote-code")
+    quantization_mode = str(args.quantization_mode or "none").lower()
+    if quantization_mode in {"int8", "bnb-int8", "bitsandbytes-int8"}:
+        cmd += [
+            "--quantization",
+            "bitsandbytes",
+            "--load-format",
+            "bitsandbytes",
+            "--model-loader-extra-config",
+            '{"load_in_8bit":true,"load_in_4bit":false}',
+        ]
+    elif quantization_mode in {"bnb-4bit", "bitsandbytes-4bit", "4bit"}:
+        cmd += [
+            "--quantization",
+            "bitsandbytes",
+            "--load-format",
+            "bitsandbytes",
+            "--model-loader-extra-config",
+            '{"load_in_8bit":false,"load_in_4bit":true}',
+        ]
+    elif quantization_mode == "fp8":
+        cmd += ["--quantization", "fp8"]
+    elif quantization_mode not in {"", "none", "off", "false", "0"}:
+        raise SystemExit(f"Unsupported --quantization-mode: {args.quantization_mode}")
+    if args.kv_cache_dtype:
+        cmd += ["--kv-cache-dtype", args.kv_cache_dtype]
+    if args.cpu_offload_gb:
+        cmd += ["--cpu-offload-gb", str(args.cpu_offload_gb)]
+    if args.max_num_seqs:
+        cmd += ["--max-num-seqs", str(args.max_num_seqs)]
     if hf_overrides and hf_overrides_supported and model_path == args.model_path:
         cmd += ["--hf-overrides", json.dumps(hf_overrides)]
     if args.enable_reasoning:

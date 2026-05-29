@@ -12,6 +12,10 @@ VLLM_DTYPE="${VLLM_DTYPE:-bfloat16}"
 VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-8192}"
 VLLM_SWAP_SPACE="${VLLM_SWAP_SPACE:-8}"
+VLLM_QUANTIZATION_MODE="${VLLM_QUANTIZATION_MODE:-none}"
+VLLM_KV_CACHE_DTYPE="${VLLM_KV_CACHE_DTYPE:-}"
+VLLM_CPU_OFFLOAD_GB="${VLLM_CPU_OFFLOAD_GB:-}"
+VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-}"
 VLLM_REASONING_PARSER="${VLLM_REASONING_PARSER:-qwen3}"
 VLLM_ARCHITECTURE_OVERRIDE="${VLLM_ARCHITECTURE_OVERRIDE:-auto}"
 
@@ -44,19 +48,40 @@ echo "A2UI_VLLM_GPUS=${A2UI_VLLM_GPUS}"
 echo "QWEN_MODEL_PATH=${QWEN_MODEL_PATH}"
 echo "VLLM_GPU_MEMORY_UTILIZATION=${VLLM_GPU_MEMORY_UTILIZATION}"
 echo "VLLM_MAX_MODEL_LEN=${VLLM_MAX_MODEL_LEN}"
+echo "VLLM_QUANTIZATION_MODE=${VLLM_QUANTIZATION_MODE}"
+echo "VLLM_KV_CACHE_DTYPE=${VLLM_KV_CACHE_DTYPE:-auto}"
+echo "VLLM_CPU_OFFLOAD_GB=${VLLM_CPU_OFFLOAD_GB:-0}"
+echo "VLLM_MAX_NUM_SEQS=${VLLM_MAX_NUM_SEQS:-vLLM default}"
+
+SERVER_ARGS=(
+  --model-path "${QWEN_MODEL_PATH}"
+  --served-model-name "${QWEN_MODEL_ID}"
+  --gpus "${A2UI_VLLM_GPUS}"
+  --host "${VLLM_HOST}"
+  --port "${VLLM_PORT}"
+  --dtype "${VLLM_DTYPE}"
+  --gpu-memory-utilization "${VLLM_GPU_MEMORY_UTILIZATION}"
+  --max-model-len "${VLLM_MAX_MODEL_LEN}"
+  --swap-space "${VLLM_SWAP_SPACE}"
+  --trust-remote-code
+  --cuda-visible-devices "${CUDA_VISIBLE_DEVICES:-}"
+  --enable-reasoning
+  --reasoning-parser "${VLLM_REASONING_PARSER}"
+  --architecture-override "${VLLM_ARCHITECTURE_OVERRIDE}"
+  --quantization-mode "${VLLM_QUANTIZATION_MODE}"
+)
+
+if [[ -n "${VLLM_KV_CACHE_DTYPE}" ]]; then
+  SERVER_ARGS+=(--kv-cache-dtype "${VLLM_KV_CACHE_DTYPE}")
+fi
+
+if [[ -n "${VLLM_CPU_OFFLOAD_GB}" ]]; then
+  SERVER_ARGS+=(--cpu-offload-gb "${VLLM_CPU_OFFLOAD_GB}")
+fi
+
+if [[ -n "${VLLM_MAX_NUM_SEQS}" ]]; then
+  SERVER_ARGS+=(--max-num-seqs "${VLLM_MAX_NUM_SEQS}")
+fi
 
 exec python "${REPO_ROOT}/dataset/scripts/serve_qwen_vllm.py" \
-  --model-path "${QWEN_MODEL_PATH}" \
-  --served-model-name "${QWEN_MODEL_ID}" \
-  --gpus "${A2UI_VLLM_GPUS}" \
-  --host "${VLLM_HOST}" \
-  --port "${VLLM_PORT}" \
-  --dtype "${VLLM_DTYPE}" \
-  --gpu-memory-utilization "${VLLM_GPU_MEMORY_UTILIZATION}" \
-  --max-model-len "${VLLM_MAX_MODEL_LEN}" \
-  --swap-space "${VLLM_SWAP_SPACE}" \
-  --trust-remote-code \
-  --cuda-visible-devices "${CUDA_VISIBLE_DEVICES:-}" \
-  --enable-reasoning \
-  --reasoning-parser "${VLLM_REASONING_PARSER}" \
-  --architecture-override "${VLLM_ARCHITECTURE_OVERRIDE}"
+  "${SERVER_ARGS[@]}"

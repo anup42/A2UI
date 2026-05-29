@@ -16,6 +16,10 @@ VLLM_PORT="${VLLM_PORT:-8000}"
 VLLM_DTYPE="${VLLM_DTYPE:-bfloat16}"
 VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-8192}"
+VLLM_QUANTIZATION_MODE="${VLLM_QUANTIZATION_MODE:-none}"
+VLLM_KV_CACHE_DTYPE="${VLLM_KV_CACHE_DTYPE:-}"
+VLLM_CPU_OFFLOAD_GB="${VLLM_CPU_OFFLOAD_GB:-}"
+VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-}"
 VLLM_REASONING_PARSER="${VLLM_REASONING_PARSER:-qwen3}"
 VLLM_CONTAINER_MODEL_PATH="${VLLM_CONTAINER_MODEL_PATH:-/models/qwen36}"
 A2UI_CONTAINER_USER="${A2UI_CONTAINER_USER:-a2ui_user}"
@@ -64,6 +68,10 @@ echo "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset}"
 echo "Tensor parallel GPUs: ${A2UI_VLLM_GPUS}"
 echo "GPU memory utilization: ${VLLM_GPU_MEMORY_UTILIZATION}"
 echo "Max model length: ${VLLM_MAX_MODEL_LEN}"
+echo "Quantization mode: ${VLLM_QUANTIZATION_MODE}"
+echo "KV cache dtype: ${VLLM_KV_CACHE_DTYPE:-auto}"
+echo "CPU offload GiB/GPU: ${VLLM_CPU_OFFLOAD_GB:-0}"
+echo "Max num seqs: ${VLLM_MAX_NUM_SEQS:-vLLM default}"
 
 HOST_UID="$(id -u)"
 HOST_GID="$(id -g)"
@@ -105,15 +113,62 @@ if command -v getent >/dev/null 2>&1 && ! getent passwd "${HOST_UID}" >/dev/null
   echo "If ${RUNTIME} fails before the container starts with 'unknown userid', the cluster login/NSS layer must be fixed for this UID." >&2
 fi
 
+VLLM_CMD_ARGS=(
+  vllm serve "${VLLM_CONTAINER_MODEL_PATH}"
+  --served-model-name "${QWEN_MODEL_ID}"
+  --host "${VLLM_HOST}"
+  --port "${VLLM_PORT}"
+  --tensor-parallel-size "${A2UI_VLLM_GPUS}"
+  --dtype "${VLLM_DTYPE}"
+  --gpu-memory-utilization "${VLLM_GPU_MEMORY_UTILIZATION}"
+  --max-model-len "${VLLM_MAX_MODEL_LEN}"
+  --reasoning-parser "${VLLM_REASONING_PARSER}"
+  --trust-remote-code
+)
+
+case "${VLLM_QUANTIZATION_MODE,,}" in
+  ""|none|off|false|0)
+    ;;
+  int8|bnb-int8|bitsandbytes-int8)
+    # BitsAndBytes INT8 reduces model-weight memory. KV cache memory is still
+    # controlled separately by max-model-len/max-num-seqs/kv-cache-dtype.
+    VLLM_CMD_ARGS+=(
+      --quantization bitsandbytes
+      --load-format bitsandbytes
+      --model-loader-extra-config '{"load_in_8bit":true,"load_in_4bit":false}'
+    )
+    ;;
+  bnb-4bit|bitsandbytes-4bit|4bit)
+    VLLM_CMD_ARGS+=(
+      --quantization bitsandbytes
+      --load-format bitsandbytes
+      --model-loader-extra-config '{"load_in_8bit":false,"load_in_4bit":true}'
+    )
+    ;;
+  fp8)
+    VLLM_CMD_ARGS+=(--quantization fp8)
+    ;;
+  *)
+    echo "Unsupported VLLM_QUANTIZATION_MODE='${VLLM_QUANTIZATION_MODE}'." >&2
+    echo "Supported: none, int8, bnb-4bit, fp8" >&2
+    exit 1
+    ;;
+esac
+
+if [[ -n "${VLLM_KV_CACHE_DTYPE}" ]]; then
+  VLLM_CMD_ARGS+=(--kv-cache-dtype "${VLLM_KV_CACHE_DTYPE}")
+fi
+
+if [[ -n "${VLLM_CPU_OFFLOAD_GB}" ]]; then
+  VLLM_CMD_ARGS+=(--cpu-offload-gb "${VLLM_CPU_OFFLOAD_GB}")
+fi
+
+if [[ -n "${VLLM_MAX_NUM_SEQS}" ]]; then
+  VLLM_CMD_ARGS+=(--max-num-seqs "${VLLM_MAX_NUM_SEQS}")
+fi
+
+echo "vLLM command: ${VLLM_CMD_ARGS[*]}"
+
 exec "${RUNTIME}" "${RUNTIME_ARGS[@]}" \
   "${VLLM_SIF}" \
-  vllm serve "${VLLM_CONTAINER_MODEL_PATH}" \
-    --served-model-name "${QWEN_MODEL_ID}" \
-    --host "${VLLM_HOST}" \
-    --port "${VLLM_PORT}" \
-    --tensor-parallel-size "${A2UI_VLLM_GPUS}" \
-    --dtype "${VLLM_DTYPE}" \
-    --gpu-memory-utilization "${VLLM_GPU_MEMORY_UTILIZATION}" \
-    --max-model-len "${VLLM_MAX_MODEL_LEN}" \
-    --reasoning-parser "${VLLM_REASONING_PARSER}" \
-    --trust-remote-code
+  "${VLLM_CMD_ARGS[@]}"
