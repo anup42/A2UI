@@ -40,24 +40,33 @@ bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 source gemma4_vllm_env/activate_gemma4_vllm.sh
 ```
 
-The setup script pins `vllm==0.22.0` by default because the upstream `v0.22.0`
-source contains both `--speculative-config` and `--reasoning-parser`. If the
-local wheel still does not expose speculative decoding, force source install
-from the same upstream tag:
+The setup script defaults to the same Gemma4-special vLLM source ref used by
+`dataset/scripts/build_vllm_cu128_gemma4_speculative_image.sh`:
+
+```text
+9b4e83934d895b5f6e488411cd46c8d0915115a1
+```
+
+It builds from source with `--no-build-isolation`, matching the Docker build
+approach used for Gemma4 speculative decoding.
 
 ```bash
 export A2UI_VLLM_INSTALL_MODE=source
-export VLLM_SOURCE_REF=v0.22.0
+export VLLM_SOURCE_REF=9b4e83934d895b5f6e488411cd46c8d0915115a1
+export PYTORCH_INDEX_URL=https://download.pytorch.org/whl/cu128
+export A2UI_TORCH_BACKEND=cu128
 bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 ```
 
-`vllm==0.22.0` requires a matching PyTorch C++ ABI. The setup script now
-defaults to a clean reinstall of the vLLM stack and pins `torch==2.11.0`:
+The special vLLM source ref requires a matching PyTorch C++ ABI. The setup
+script defaults to a clean reinstall of the vLLM stack and pins the same Torch
+family used in the Docker script:
 
 ```bash
 export A2UI_CLEAN_VLLM_STACK=1
-export VLLM_VERSION=0.22.0
 export TORCH_VERSION=2.11.0
+export TORCHVISION_VERSION=0.26.0
+export TORCHAUDIO_VERSION=2.11.0
 bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 ```
 
@@ -78,10 +87,15 @@ If the machine has working certificates, disable it:
 export A2UI_DISABLE_SSL_VERIFY=0
 ```
 
-If vLLM fails with `ImportError: libcudart.so.13: cannot open shared object
-file`, rerun the setup script. The script installs the CUDA 13 runtime Python
-wheel and writes activation logic that adds NVIDIA wheel library folders plus
-common CUDA system library folders to `LD_LIBRARY_PATH`.
+If vLLM fails with missing CUDA runtime libraries, rerun the setup script. The
+script installs CUDA 12.8 runtime/NVCC Python wheels by default because the
+Gemma4-special Docker build was CUDA 12.8 based:
+
+```bash
+export CUDA_RUNTIME_PACKAGE=nvidia-cuda-runtime-cu12==12.8.90
+export CUDA_NVCC_PACKAGE=nvidia-cuda-nvcc-cu12==12.8.93
+bash dataset/scripts/setup_gemma4_vllm_python_env.sh
+```
 
 If vLLM fails inside `flashinfer/jit/cpp_ext.py` with `ninja returned non-zero
 exit status 127`, the FlashInfer sampler is enabled but the JIT toolchain is
@@ -98,18 +112,18 @@ The setup script keeps FlashInfer sampler enabled by default and installs:
 - `flashinfer-jit-cache` from `https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}`
 - `ninja`
 - `cmake`
-- CUDA 13 runtime and NVCC Python wheels
+- CUDA 12.8 runtime and NVCC Python wheels
 
 Defaults:
 
 ```bash
 export VLLM_USE_FLASHINFER_SAMPLER=1
 export VLLM_HAS_FLASHINFER_CUBIN=1
-export FLASHINFER_CUDA_TAG=cu130
+export FLASHINFER_CUDA_TAG=cu128
 ```
 
-Use `FLASHINFER_CUDA_TAG=cu129` only if your installed PyTorch/vLLM stack is
-CUDA 12.9 rather than CUDA 13.0.
+Use `FLASHINFER_CUDA_TAG=cu129` or `cu130` only if you intentionally switch the
+PyTorch/vLLM stack away from CUDA 12.8.
 
 ## Start vLLM
 

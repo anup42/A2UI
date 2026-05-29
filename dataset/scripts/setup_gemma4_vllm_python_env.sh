@@ -17,15 +17,22 @@ GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH:-}"
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_SKIP_PIP_INSTALL="${A2UI_SKIP_PIP_INSTALL:-0}"
 A2UI_REQUIRE_SPECULATIVE="${A2UI_REQUIRE_SPECULATIVE:-1}"
-A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-release}" # release|nightly|source|skip
+A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-source}" # source|release|nightly|skip
 A2UI_CLEAN_VLLM_STACK="${A2UI_CLEAN_VLLM_STACK:-1}"
 VLLM_VERSION="${VLLM_VERSION:-0.22.0}"
 TORCH_VERSION="${TORCH_VERSION:-2.11.0}"
+TORCHVISION_VERSION="${TORCHVISION_VERSION:-0.26.0}"
+TORCHAUDIO_VERSION="${TORCHAUDIO_VERSION:-2.11.0}"
 VLLM_NIGHTLY_INDEX="${VLLM_NIGHTLY_INDEX:-https://wheels.vllm.ai/nightly/cu129}"
-PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu129}"
-VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-v0.22.0}"
-FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu130}"
+PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu128}"
+A2UI_TORCH_BACKEND="${A2UI_TORCH_BACKEND:-cu128}"
+# Gemma4-special vLLM ref used by build_vllm_cu128_gemma4_speculative_image.sh.
+VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-9b4e83934d895b5f6e488411cd46c8d0915115a1}"
+VLLM_SOURCE_DIR="${VLLM_SOURCE_DIR:-${ENV_DIR}/src/vllm-gemma4-speculative}"
+FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu128}"
 FLASHINFER_INDEX_URL="${FLASHINFER_INDEX_URL:-https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}}"
+CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime-cu12==12.8.90}"
+CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc-cu12==12.8.93}"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
   for candidate in python3.12 python3.11 python3.10 python3; do
@@ -249,7 +256,14 @@ EOF
   UV_INSECURE_ARGS+=(--allow-insecure-host flashinfer.ai)
 fi
 
-python -m pip install "${PIP_TRUSTED_ARGS[@]}" --upgrade pip wheel setuptools
+python -m pip install "${PIP_TRUSTED_ARGS[@]}" --upgrade \
+  pip \
+  wheel \
+  "setuptools>=77.0.3,<81.0.0" \
+  "setuptools-rust>=1.9.0" \
+  "setuptools-scm>=8.0" \
+  "packaging>=24.2" \
+  jinja2
 
 if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
   python -m pip install "${PIP_TRUSTED_ARGS[@]}" "uv>=0.5.0"
@@ -271,9 +285,19 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
     --extra-index-url "${PYTORCH_INDEX_URL}" \
     --index-strategy unsafe-best-match \
     "torch==${TORCH_VERSION}" \
-    "torchvision" \
-    "torchaudio" \
+    "torchvision==${TORCHVISION_VERSION}" \
+    "torchaudio==${TORCHAUDIO_VERSION}" \
+    "ninja>=1.11" \
+    "cmake>=3.28" \
     "${UV_INSECURE_ARGS[@]}"
+
+  python -m uv pip install \
+    "${CUDA_RUNTIME_PACKAGE}" \
+    "${CUDA_NVCC_PACKAGE}" \
+    "${UV_INSECURE_ARGS[@]}" || {
+      echo "Warning: could not install CUDA runtime/NVCC wheels (${CUDA_RUNTIME_PACKAGE}, ${CUDA_NVCC_PACKAGE}). If vLLM or FlashInfer JIT fails, install matching CUDA runtime/NVCC packages manually." >&2
+    }
+  export_nvidia_python_libs
 
   case "${A2UI_VLLM_INSTALL_MODE}" in
     release)
@@ -293,28 +317,29 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
       python -m uv pip install -U --reinstall \
         --extra-index-url "${PYTORCH_INDEX_URL}" \
         --index-strategy unsafe-best-match \
-        "torch==${TORCH_VERSION}" "torchvision" "torchaudio" \
+        "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" "torchaudio==${TORCHAUDIO_VERSION}" \
         "${UV_INSECURE_ARGS[@]}"
-      python -m uv pip install -U --reinstall \
-        "git+https://github.com/vllm-project/vllm.git@${VLLM_SOURCE_REF}" \
+      mkdir -p "$(dirname "${VLLM_SOURCE_DIR}")"
+      if [[ ! -d "${VLLM_SOURCE_DIR}/.git" ]]; then
+        git clone https://github.com/vllm-project/vllm.git "${VLLM_SOURCE_DIR}"
+      fi
+      git -C "${VLLM_SOURCE_DIR}" fetch --all --tags
+      git -C "${VLLM_SOURCE_DIR}" checkout "${VLLM_SOURCE_REF}"
+      git -C "${VLLM_SOURCE_DIR}" submodule update --init --recursive
+      python -m uv pip install \
+        --torch-backend="${A2UI_TORCH_BACKEND}" \
+        --no-build-isolation \
+        -e "${VLLM_SOURCE_DIR}" \
         "${UV_INSECURE_ARGS[@]}"
       ;;
     skip)
       echo "Skipping vLLM install because A2UI_VLLM_INSTALL_MODE=skip"
       ;;
     *)
-      echo "Unsupported A2UI_VLLM_INSTALL_MODE=${A2UI_VLLM_INSTALL_MODE}; use release, nightly, source, or skip." >&2
+      echo "Unsupported A2UI_VLLM_INSTALL_MODE=${A2UI_VLLM_INSTALL_MODE}; use source, release, nightly, or skip." >&2
       exit 1
       ;;
   esac
-
-  python -m uv pip install \
-    "nvidia-cuda-runtime>=13,<14" \
-    "nvidia-cuda-nvcc>=13,<14" \
-    "${UV_INSECURE_ARGS[@]}" || {
-      echo "Warning: could not install CUDA runtime/NVCC wheels. If vLLM or FlashInfer JIT fails, install nvidia-cuda-runtime and nvidia-cuda-nvcc manually." >&2
-    }
-  export_nvidia_python_libs
 
   python -m uv pip install -U \
     "flashinfer-python" \
@@ -365,6 +390,10 @@ export GEMMA4_SPECULATIVE_TOKENS="\${GEMMA4_SPECULATIVE_TOKENS:-4}"
 export VLLM_USE_FLASHINFER_SAMPLER="\${VLLM_USE_FLASHINFER_SAMPLER:-1}"
 export VLLM_HAS_FLASHINFER_CUBIN="\${VLLM_HAS_FLASHINFER_CUBIN:-1}"
 export FLASHINFER_CUDA_TAG="\${FLASHINFER_CUDA_TAG:-${FLASHINFER_CUDA_TAG}}"
+export A2UI_VLLM_INSTALL_MODE="\${A2UI_VLLM_INSTALL_MODE:-${A2UI_VLLM_INSTALL_MODE}}"
+export VLLM_SOURCE_REF="\${VLLM_SOURCE_REF:-${VLLM_SOURCE_REF}}"
+export PYTORCH_INDEX_URL="\${PYTORCH_INDEX_URL:-${PYTORCH_INDEX_URL}}"
+export A2UI_TORCH_BACKEND="\${A2UI_TORCH_BACKEND:-${A2UI_TORCH_BACKEND}}"
 export A2UI_DISABLE_SSL_VERIFY="\${A2UI_DISABLE_SSL_VERIFY:-1}"
 export CURL_CA_BUNDLE=""
 export REQUESTS_CA_BUNDLE=""
@@ -468,9 +497,9 @@ try:
 except Exception as exc:
     print("Could not import vLLM to read version:", exc)
 PY
-    echo "Speculative decoding is required. This setup pins vllm==${VLLM_VERSION}, whose upstream tag exposes --speculative-config." >&2
+    echo "Speculative decoding is required. This setup defaults to the Gemma4-special vLLM source ref ${VLLM_SOURCE_REF}, the same ref used by the Docker Gemma4 speculative build." >&2
     echo "It also pins torch==${TORCH_VERSION}; if you see undefined torch symbols, rerun with A2UI_CLEAN_VLLM_STACK=1." >&2
-    echo "If the flag is still missing, rerun with A2UI_VLLM_INSTALL_MODE=source VLLM_SOURCE_REF=v0.22.0." >&2
+    echo "If the flag is still missing, rerun with A2UI_VLLM_INSTALL_MODE=source VLLM_SOURCE_REF=9b4e83934d895b5f6e488411cd46c8d0915115a1." >&2
     echo "Set A2UI_REQUIRE_SPECULATIVE=0 only if you intentionally want to run without speculative decoding." >&2
     exit 1
   fi
@@ -481,6 +510,10 @@ fi
 
 echo
 echo "Gemma4 Python environment ready."
+echo "Install mode: ${A2UI_VLLM_INSTALL_MODE}"
+echo "vLLM source ref: ${VLLM_SOURCE_REF}"
+echo "PyTorch index: ${PYTORCH_INDEX_URL}"
+echo "Torch backend: ${A2UI_TORCH_BACKEND}"
 echo "Target model: ${TARGET_PATH:-not resolved yet; set GEMMA4_MODEL_ROOT or GEMMA4_MODEL_PATH}"
 echo "Assistant model: ${ASSISTANT_PATH:-not resolved yet; set GEMMA4_MODEL_ROOT or GEMMA4_ASSISTANT_MODEL_PATH}"
 echo
