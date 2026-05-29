@@ -40,6 +40,17 @@ bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 source gemma4_vllm_env/activate_gemma4_vllm.sh
 ```
 
+The setup script pins `vllm==0.22.0` by default because the upstream `v0.22.0`
+source contains both `--speculative-config` and `--reasoning-parser`. If the
+local wheel still does not expose speculative decoding, force source install
+from the same upstream tag:
+
+```bash
+export A2UI_VLLM_INSTALL_MODE=source
+export VLLM_SOURCE_REF=v0.22.0
+bash dataset/scripts/setup_gemma4_vllm_python_env.sh
+```
+
 The setup script defaults to aggressive SSL bypass because the target machines
 have certificate interception issues:
 

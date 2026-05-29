@@ -17,10 +17,11 @@ GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH:-}"
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_SKIP_PIP_INSTALL="${A2UI_SKIP_PIP_INSTALL:-0}"
 A2UI_REQUIRE_SPECULATIVE="${A2UI_REQUIRE_SPECULATIVE:-1}"
-A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-nightly}" # nightly|source|skip
+A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-release}" # release|nightly|source|skip
+VLLM_VERSION="${VLLM_VERSION:-0.22.0}"
 VLLM_NIGHTLY_INDEX="${VLLM_NIGHTLY_INDEX:-https://wheels.vllm.ai/nightly/cu129}"
 PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu129}"
-VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-main}"
+VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-v0.22.0}"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
   for candidate in python3.12 python3.11 python3.10 python3; do
@@ -218,6 +219,12 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
   python -m pip install "${PIP_TRUSTED_ARGS[@]}" "uv>=0.5.0"
 
   case "${A2UI_VLLM_INSTALL_MODE}" in
+    release)
+      python -m uv pip install -U "vllm==${VLLM_VERSION}" \
+        --extra-index-url "${PYTORCH_INDEX_URL}" \
+        --index-strategy unsafe-best-match \
+        "${UV_INSECURE_ARGS[@]}"
+      ;;
     nightly)
       python -m uv pip install -U vllm --pre \
         --extra-index-url "${VLLM_NIGHTLY_INDEX}" \
@@ -239,7 +246,7 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
       echo "Skipping vLLM install because A2UI_VLLM_INSTALL_MODE=skip"
       ;;
     *)
-      echo "Unsupported A2UI_VLLM_INSTALL_MODE=${A2UI_VLLM_INSTALL_MODE}; use nightly, source, or skip." >&2
+      echo "Unsupported A2UI_VLLM_INSTALL_MODE=${A2UI_VLLM_INSTALL_MODE}; use release, nightly, source, or skip." >&2
       exit 1
       ;;
   esac
@@ -350,7 +357,16 @@ HELP_TEXT="$(vllm serve --help 2>&1 || true)"
 if ! grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
   echo "Warning: this vLLM install did not expose --speculative-config." >&2
   if [[ "${A2UI_REQUIRE_SPECULATIVE}" = "1" ]]; then
-    echo "Speculative decoding is required. Install a newer vLLM nightly/pre build or set A2UI_REQUIRE_SPECULATIVE=0." >&2
+    python - <<'PY' >&2 || true
+try:
+    import vllm
+    print("Installed vLLM:", getattr(vllm, "__version__", "unknown"))
+except Exception as exc:
+    print("Could not import vLLM to read version:", exc)
+PY
+    echo "Speculative decoding is required. This setup pins vllm==${VLLM_VERSION}, whose upstream tag exposes --speculative-config." >&2
+    echo "If the flag is still missing, rerun with A2UI_VLLM_INSTALL_MODE=source VLLM_SOURCE_REF=v0.22.0." >&2
+    echo "Set A2UI_REQUIRE_SPECULATIVE=0 only if you intentionally want to run without speculative decoding." >&2
     exit 1
   fi
 fi
