@@ -200,6 +200,16 @@
       tpm: null
       rpd: null
       note: "Local vLLM OpenAI-compatible endpoint with Qwen reasoning enabled. Set LOCAL_ALLOW_HTTP_ENDPOINT=1 and QWEN_MODEL_PATH."
+  - name: qwen36_35b_a3b_vllm
+    provider: local
+    model: Qwen/Qwen3.6-35B-A3B
+    supports_json_mode: false
+    endpoint: http://127.0.0.1:8000/v1/chat/completions
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      note: "Local vLLM OpenAI-compatible endpoint for Qwen without reasoning. Set LOCAL_ALLOW_HTTP_ENDPOINT=1 and QWEN_MODEL_PATH."
   - name: gemma4_31b_vllm
     provider: local
     model: google/gemma-4-31b-it

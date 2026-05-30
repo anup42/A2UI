@@ -349,26 +349,33 @@ class LocalAdapter(BaseLLMAdapter):
 
         served_model_override = (os.environ.get("LOCAL_VLLM_SERVED_MODEL") or "").strip()
         request_model = served_model_override or self.spec.model
+        use_hf_generation_config = self._is_truthy(
+            os.environ.get("LOCAL_VLLM_USE_HF_GENERATION_CONFIG")
+        )
+        force_sampling_overrides = self._is_truthy(
+            os.environ.get("LOCAL_VLLM_FORCE_SAMPLING_OVERRIDES")
+        )
         body: dict[str, object] = {
             "model": request_model,
             "messages": messages,
-            "temperature": temperature,
             "max_tokens": max_tokens,
         }
-        default_top_p = 0.95 if "gemma" in (self.spec.model or "").lower() else None
-        default_top_k = 64 if "gemma" in (self.spec.model or "").lower() else None
-        top_p = self._env_float("LOCAL_VLLM_TOP_P", default_top_p)
-        top_k = self._env_int("LOCAL_VLLM_TOP_K", default_top_k)
-        repetition_penalty = self._env_float(
-            "LOCAL_VLLM_REPETITION_PENALTY",
-            1.0 if "gemma" in (self.spec.model or "").lower() else None,
-        )
-        if top_p is not None:
-            body["top_p"] = top_p
-        if top_k is not None:
-            body["top_k"] = top_k
-        if repetition_penalty is not None:
-            body["repetition_penalty"] = repetition_penalty
+        if not use_hf_generation_config or force_sampling_overrides:
+            body["temperature"] = temperature
+            default_top_p = 0.95 if "gemma" in (self.spec.model or "").lower() else None
+            default_top_k = 64 if "gemma" in (self.spec.model or "").lower() else None
+            top_p = self._env_float("LOCAL_VLLM_TOP_P", default_top_p)
+            top_k = self._env_int("LOCAL_VLLM_TOP_K", default_top_k)
+            repetition_penalty = self._env_float(
+                "LOCAL_VLLM_REPETITION_PENALTY",
+                1.0 if "gemma" in (self.spec.model or "").lower() else None,
+            )
+            if top_p is not None:
+                body["top_p"] = top_p
+            if top_k is not None:
+                body["top_k"] = top_k
+            if repetition_penalty is not None:
+                body["repetition_penalty"] = repetition_penalty
         if seed is not None:
             body["seed"] = seed
         if json_mode:

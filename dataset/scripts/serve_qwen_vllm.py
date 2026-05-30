@@ -243,6 +243,11 @@ def main() -> None:
     parser.add_argument("--kv-cache-dtype", default=os.environ.get("VLLM_KV_CACHE_DTYPE", ""))
     parser.add_argument("--cpu-offload-gb", default=os.environ.get("VLLM_CPU_OFFLOAD_GB", ""))
     parser.add_argument("--max-num-seqs", default=os.environ.get("VLLM_MAX_NUM_SEQS", ""))
+    parser.add_argument(
+        "--generation-config",
+        default=os.environ.get("VLLM_GENERATION_CONFIG", "auto"),
+        help="vLLM generation config mode. Use 'auto' to keep the Hugging Face generation_config.json.",
+    )
     parser.add_argument("--trust-remote-code", action="store_true")
     parser.add_argument("--cuda-visible-devices", default=None)
     parser.add_argument("--enable-reasoning", action="store_true")
@@ -324,6 +329,15 @@ def main() -> None:
         cmd += ["--cpu-offload-gb", str(args.cpu_offload_gb)]
     if args.max_num_seqs:
         cmd += ["--max-num-seqs", str(args.max_num_seqs)]
+    if args.generation_config and args.generation_config.lower() not in {"none", "off", "false", "0"}:
+        if _vllm_supports_flag("--generation-config"):
+            cmd += ["--generation-config", args.generation_config]
+        else:
+            print(
+                "vLLM build does not expose --generation-config; "
+                "leaving default generation config behavior unchanged.",
+                flush=True,
+            )
     if hf_overrides and hf_overrides_supported and model_path == args.model_path:
         cmd += ["--hf-overrides", json.dumps(hf_overrides)]
     if args.enable_reasoning:
