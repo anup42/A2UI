@@ -603,7 +603,7 @@ def run_stage3(
         else 1
     )
 
-    def _write_aggregates() -> None:
+    def _write_aggregates(reason: str = "") -> None:
         if not aggregates_path:
             return
         try:
@@ -630,8 +630,15 @@ def run_stage3(
                 aggregate_weights or {},
             )
             aggregates["media_score"] = compute_media_score(aggregates)
-            aggregates_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
-            logger.info("Stage3 aggregates stored at %s", aggregates_path)
+            tmp_path = aggregates_path.with_name(
+                f".{aggregates_path.name}.{os.getpid()}.{time.time_ns()}.tmp"
+            )
+            tmp_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
+            tmp_path.replace(aggregates_path)
+            if reason:
+                logger.info("Stage3 aggregates stored at %s (%s)", aggregates_path, reason)
+            else:
+                logger.info("Stage3 aggregates stored at %s", aggregates_path)
         except Exception as exc:  # best-effort
             logger.warning("Stage3 aggregates failed: %s", exc)
 
@@ -1043,6 +1050,7 @@ def run_stage3(
         existing_ids.add(ui_id)
         logger.info("Stage3 created ui_id=%s schema_ok=%s", ui_id, schema_valid_strict)
         total_created += 1
+        _write_aggregates(reason=f"after_ui={ui_id}")
 
         if errors:
             error_path = artifacts_dir / f"error_{ui_id}.json"
