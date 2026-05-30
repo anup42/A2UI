@@ -244,6 +244,12 @@ def main() -> None:
     parser.add_argument("--cpu-offload-gb", default=os.environ.get("VLLM_CPU_OFFLOAD_GB", ""))
     parser.add_argument("--max-num-seqs", default=os.environ.get("VLLM_MAX_NUM_SEQS", ""))
     parser.add_argument(
+        "--disable-custom-all-reduce",
+        default=os.environ.get("VLLM_DISABLE_CUSTOM_ALL_REDUCE", "auto"),
+        choices=["auto", "0", "1", "false", "true", "off", "on", "no", "yes"],
+        help="Disable vLLM custom all-reduce. 'auto' disables it when tensor parallel uses more than 2 GPUs.",
+    )
+    parser.add_argument(
         "--generation-config",
         default=os.environ.get("VLLM_GENERATION_CONFIG", "auto"),
         help="vLLM generation config mode. Use 'auto' to keep the Hugging Face generation_config.json.",
@@ -262,6 +268,10 @@ def main() -> None:
     env = os.environ.copy()
     if args.cuda_visible_devices:
         env["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
+    env.setdefault("FLASHINFER_DISABLE_VERSION_CHECK", "1")
+    env.setdefault("FLASHINFER_DISABLE_VERSION__CHECK", "1")
+    env.setdefault("VLLM_USE_FLASHINFER_SAMPLER", "0")
+    env.setdefault("VLLM_HAS_FLASHINFER_CUBIN", "0")
     _install_runtime_shims(env)
 
     model_path = args.model_path
@@ -335,6 +345,19 @@ def main() -> None:
         cmd += ["--cpu-offload-gb", str(args.cpu_offload_gb)]
     if args.max_num_seqs:
         cmd += ["--max-num-seqs", str(args.max_num_seqs)]
+    custom_all_reduce_mode = str(args.disable_custom_all_reduce or "auto").lower()
+    disable_custom_all_reduce = custom_all_reduce_mode in {"1", "true", "on", "yes"}
+    if custom_all_reduce_mode == "auto" and args.gpus > 2:
+        disable_custom_all_reduce = True
+    if disable_custom_all_reduce:
+        if _vllm_supports_flag("--disable-custom-all-reduce"):
+            cmd.append("--disable-custom-all-reduce")
+        else:
+            print(
+                "vLLM build does not expose --disable-custom-all-reduce; "
+                "leaving custom all-reduce behavior unchanged.",
+                flush=True,
+            )
     if args.generation_config and args.generation_config.lower() not in {"none", "off", "false", "0"}:
         if _vllm_supports_flag("--generation-config"):
             cmd += ["--generation-config", args.generation_config]
