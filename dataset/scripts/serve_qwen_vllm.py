@@ -296,8 +296,14 @@ def main() -> None:
     ]
     if args.max_model_len:
         cmd += ["--max-model-len", str(args.max_model_len)]
-    if args.swap_space is not None:
+    if args.swap_space is not None and _vllm_supports_flag("--swap-space"):
         cmd += ["--swap-space", str(args.swap_space)]
+    elif args.swap_space is not None:
+        print(
+            "vLLM build does not expose --swap-space; "
+            f"skipping requested swap space {args.swap_space} GiB.",
+            flush=True,
+        )
     if args.trust_remote_code:
         cmd.append("--trust-remote-code")
     quantization_mode = str(args.quantization_mode or "none").lower()
