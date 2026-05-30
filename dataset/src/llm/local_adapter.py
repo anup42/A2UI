@@ -307,6 +307,14 @@ class LocalAdapter(BaseLLMAdapter):
                 provider=self.spec.provider,
                 error="Local endpoint not configured",
             )
+        local_max_output_raw = (os.environ.get("LOCAL_VLLM_MAX_OUTPUT_TOKENS") or "").strip()
+        if local_max_output_raw:
+            try:
+                local_max_output = max(1, int(local_max_output_raw))
+                if max_tokens > local_max_output:
+                    max_tokens = local_max_output
+            except Exception:
+                pass
 
         messages = []
         if system:

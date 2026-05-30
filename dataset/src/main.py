@@ -230,6 +230,16 @@ def _load_env(root: Path) -> None:
                 os.environ[pending_key] = ",".join(pending_parts)
 
 
+def _apply_env_int_override(run_cfg: dict, key: str, env_key: str) -> None:
+    raw = (os.environ.get(env_key) or "").strip()
+    if not raw:
+        return
+    try:
+        run_cfg[key] = int(raw)
+    except Exception:
+        raise SystemExit(f"{env_key} must be an integer, got: {raw!r}")
+
+
 def _endpoint_ready(endpoint: str, timeout_s: float = 2.0) -> bool:
     check_url = endpoint
     if check_url.endswith("/v1/chat/completions"):
@@ -527,6 +537,10 @@ def main() -> None:
         run_cfg["max_responses_total"] = int(args.max_responses_total)
     if args.max_genui_total is not None:
         run_cfg["max_genui_total"] = int(args.max_genui_total)
+    _apply_env_int_override(run_cfg, "query_max_tokens", "A2UI_QUERY_MAX_TOKENS")
+    _apply_env_int_override(run_cfg, "response_max_tokens", "A2UI_RESPONSE_MAX_TOKENS")
+    _apply_env_int_override(run_cfg, "genui_max_tokens", "A2UI_GENUI_MAX_TOKENS")
+    _apply_env_int_override(run_cfg, "genui_prompt_max_tokens", "A2UI_GENUI_PROMPT_MAX_TOKENS")
 
     genui_batch_size = run_cfg.get("genui_batch_size", 100)
     if args.genui_batch_size is not None:
