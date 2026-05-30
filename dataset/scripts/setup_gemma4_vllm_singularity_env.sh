@@ -83,6 +83,7 @@ export VLLM_GPU_MEMORY_UTILIZATION="\${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 export GEMMA4_ENABLE_REASONING="\${GEMMA4_ENABLE_REASONING:-0}"
 export GEMMA4_SPECULATIVE_MODE="\${GEMMA4_SPECULATIVE_MODE:-mtp}"
 export GEMMA4_SPECULATIVE_TOKENS="\${GEMMA4_SPECULATIVE_TOKENS:-1}"
+export GEMMA4_ALLOW_LEGACY_SPECULATIVE_FALLBACK="\${GEMMA4_ALLOW_LEGACY_SPECULATIVE_FALLBACK:-1}"
 export FLASHINFER_DISABLE_VERSION_CHECK="\${FLASHINFER_DISABLE_VERSION_CHECK:-1}"
 export FLASHINFER_DISABLE_VERSION__CHECK="\${FLASHINFER_DISABLE_VERSION__CHECK:-1}"
 export LOCAL_ALLOW_HTTP_ENDPOINT=1
@@ -98,7 +99,11 @@ if [[ "${A2UI_CHECK_CONTAINER}" = "1" && -f "${VLLM_SIF}" ]]; then
   echo "Checking vLLM speculative flags inside ${VLLM_SIF}"
   HELP_TEXT="$(singularity exec --nv "${VLLM_SIF}" vllm serve --help 2>&1 || true)"
   if ! grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
-    echo "Warning: vLLM help did not expose --speculative-config. MTP speculative decoding may not be available in this image." >&2
+    if grep -q -- "--speculative-model" <<<"${HELP_TEXT}" && grep -q -- "--num-speculative-tokens" <<<"${HELP_TEXT}"; then
+      echo "Warning: vLLM help did not expose --speculative-config; runner will use legacy token-1 speculative flags." >&2
+    else
+      echo "Warning: vLLM help did not expose --speculative-config or legacy speculative flags. Speculative decoding may not be available in this image." >&2
+    fi
   fi
 fi
 
