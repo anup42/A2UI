@@ -76,6 +76,7 @@ class LocalAdapter(BaseLLMAdapter):
         if "gemma" in model_name:
             candidates.append(os.environ.get("GEMMA4_MODEL_PATH", ""))
         candidates.append(os.environ.get("LOCAL_MODEL_PATH", ""))
+        candidates.extend(self._model_root_candidates(self.spec.model or ""))
 
         # Allow model field itself to be a local path.
         if self.spec.model and Path(os.path.expandvars(os.path.expanduser(self.spec.model))).exists():
@@ -89,6 +90,61 @@ class LocalAdapter(BaseLLMAdapter):
             if normalized:
                 return normalized
         return None
+
+    @staticmethod
+    def _model_id_variants(model_id: str) -> list[str]:
+        raw = (model_id or "").strip().strip("/")
+        if not raw:
+            return []
+        leaf = raw.rsplit("/", 1)[-1]
+        variants = [
+            raw,
+            raw.replace("/", "--"),
+            raw.replace("/", "__"),
+            raw.replace("/", "_"),
+            leaf,
+            leaf.replace("_", "-"),
+            leaf.replace("-", "_"),
+        ]
+        lowered = [item.lower() for item in variants]
+        upper_b = [item.replace("-31b-", "-31B-") for item in variants + lowered]
+        deduped: list[str] = []
+        for item in variants + lowered + upper_b:
+            if item and item not in deduped:
+                deduped.append(item)
+        return deduped
+
+    @classmethod
+    def _model_root_candidates(cls, model_id: str) -> list[str]:
+        root_values = [
+            os.environ.get("MODEL_ROOT", ""),
+            os.environ.get("LOCAL_MODEL_ROOT", ""),
+            os.environ.get("A2UI_MODEL_ROOT", ""),
+            os.environ.get("GEMMA4_MODEL_ROOT", ""),
+            os.environ.get("QWEN_MODEL_ROOT", ""),
+            os.environ.get("DEEPSEEK_MODEL_ROOT", ""),
+        ]
+        roots: list[Path] = []
+        for raw in root_values:
+            for part in (raw or "").split(os.pathsep):
+                normalized = os.path.expandvars(os.path.expanduser(part.strip()))
+                if normalized:
+                    roots.append(Path(normalized))
+
+        candidates: list[str] = []
+        for root in roots:
+            if not root.exists():
+                continue
+            if (root / "config.json").is_file():
+                candidates.append(str(root))
+            exact = root / Path((model_id or "").strip("/"))
+            if exact.exists():
+                candidates.append(str(exact))
+            for variant in cls._model_id_variants(model_id):
+                path = root / Path(variant)
+                if path.exists():
+                    candidates.append(str(path))
+        return candidates
 
     def _local_input_device(self):
         if self._torch is None:
@@ -257,8 +313,10 @@ class LocalAdapter(BaseLLMAdapter):
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
+        served_model_override = (os.environ.get("LOCAL_VLLM_SERVED_MODEL") or "").strip()
+        request_model = served_model_override or self.spec.model
         body: dict[str, object] = {
-            "model": self.spec.model,
+            "model": request_model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,

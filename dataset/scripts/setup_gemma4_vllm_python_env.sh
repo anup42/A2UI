@@ -11,9 +11,12 @@ cd "${REPO_ROOT}"
 PYTHON_BIN="${PYTHON_BIN:-}"
 ENV_DIR="${ENV_DIR:-${REPO_ROOT}/gemma4_vllm_env}"
 A2UI_CUDA_TOOLKIT_DIR="${A2UI_CUDA_TOOLKIT_DIR:-${ENV_DIR}/cuda_toolkit}"
-GEMMA4_MODEL_ROOT="${GEMMA4_MODEL_ROOT:-}"
+MODEL_ROOT="${MODEL_ROOT:-${LOCAL_MODEL_ROOT:-${A2UI_MODEL_ROOT:-}}}"
+GEMMA4_MODEL_ROOT="${GEMMA4_MODEL_ROOT:-${MODEL_ROOT}}"
 GEMMA4_MODEL_PATH="${GEMMA4_MODEL_PATH:-}"
 GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH:-}"
+GEMMA4_MODEL_ID="${GEMMA4_MODEL_ID:-google/gemma-4-31b-it}"
+GEMMA4_ASSISTANT_MODEL_ID="${GEMMA4_ASSISTANT_MODEL_ID:-google/gemma-4-31b-it-assistant}"
 
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_SKIP_PIP_INSTALL="${A2UI_SKIP_PIP_INSTALL:-0}"
@@ -437,9 +440,24 @@ find_child_dir() {
   return 1
 }
 
+resolve_model_from_roots() {
+  local model_id="$1"
+  shift
+  python "${REPO_ROOT}/dataset/scripts/resolve_model_from_root.py" \
+    --model "${model_id}" \
+    "$@" \
+    --quiet 2>/dev/null || true
+}
+
 resolve_target_model() {
   if is_dir "${GEMMA4_MODEL_PATH}"; then
     printf '%s\n' "${GEMMA4_MODEL_PATH}"
+    return 0
+  fi
+  local mapped
+  mapped="$(resolve_model_from_roots "${GEMMA4_MODEL_ID}" --root "${GEMMA4_MODEL_ROOT}")"
+  if is_dir "${mapped}"; then
+    printf '%s\n' "${mapped}"
     return 0
   fi
   if is_dir "${GEMMA4_MODEL_ROOT}"; then
@@ -463,6 +481,12 @@ resolve_target_model() {
 resolve_assistant_model() {
   if is_dir "${GEMMA4_ASSISTANT_MODEL_PATH}"; then
     printf '%s\n' "${GEMMA4_ASSISTANT_MODEL_PATH}"
+    return 0
+  fi
+  local mapped
+  mapped="$(resolve_model_from_roots "${GEMMA4_ASSISTANT_MODEL_ID}" --root "${GEMMA4_MODEL_ROOT}")"
+  if is_dir "${mapped}"; then
+    printf '%s\n' "${mapped}"
     return 0
   fi
   if is_dir "${GEMMA4_MODEL_ROOT}"; then
@@ -688,7 +712,12 @@ source "${ENV_DIR}/bin/activate"
 export GEMMA4_MODEL_ROOT="${GEMMA4_MODEL_ROOT}"
 export GEMMA4_MODEL_PATH="${TARGET_PATH}"
 export GEMMA4_ASSISTANT_MODEL_PATH="${ASSISTANT_PATH}"
-export GEMMA4_MODEL_ID="\${GEMMA4_MODEL_ID:-google/gemma-4-31B-it}"
+export MODEL_ROOT="\${MODEL_ROOT:-${MODEL_ROOT}}"
+export LOCAL_MODEL_ROOT="\${LOCAL_MODEL_ROOT:-\${MODEL_ROOT}}"
+export A2UI_MODEL_ROOT="\${A2UI_MODEL_ROOT:-\${MODEL_ROOT}}"
+export GEMMA4_MODEL_ID="\${GEMMA4_MODEL_ID:-${GEMMA4_MODEL_ID}}"
+export GEMMA4_ASSISTANT_MODEL_ID="\${GEMMA4_ASSISTANT_MODEL_ID:-${GEMMA4_ASSISTANT_MODEL_ID}}"
+export LOCAL_VLLM_SERVED_MODEL="\${LOCAL_VLLM_SERVED_MODEL:-\${GEMMA4_MODEL_ID}}"
 export CUDA_VISIBLE_DEVICES="\${CUDA_VISIBLE_DEVICES:-}"
 export A2UI_VLLM_GPUS="\${A2UI_VLLM_GPUS:-}"
 export VLLM_MAX_MODEL_LEN="\${VLLM_MAX_MODEL_LEN:-8192}"

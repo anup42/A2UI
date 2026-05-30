@@ -16,10 +16,12 @@ if [[ -f "${ENV_DIR}/bin/activate" && -z "${VIRTUAL_ENV:-}" ]]; then
   source "${ENV_DIR}/bin/activate"
 fi
 
-GEMMA4_MODEL_ROOT="${GEMMA4_MODEL_ROOT:-}"
+MODEL_ROOT="${MODEL_ROOT:-${LOCAL_MODEL_ROOT:-${A2UI_MODEL_ROOT:-}}}"
+GEMMA4_MODEL_ROOT="${GEMMA4_MODEL_ROOT:-${MODEL_ROOT}}"
 GEMMA4_MODEL_PATH="${GEMMA4_MODEL_PATH:-}"
 GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH:-}"
-GEMMA4_MODEL_ID="${GEMMA4_MODEL_ID:-google/gemma-4-31B-it}"
+GEMMA4_MODEL_ID="${GEMMA4_MODEL_ID:-google/gemma-4-31b-it}"
+GEMMA4_ASSISTANT_MODEL_ID="${GEMMA4_ASSISTANT_MODEL_ID:-google/gemma-4-31b-it-assistant}"
 
 VLLM_HOST="${VLLM_HOST:-0.0.0.0}"
 VLLM_PORT="${VLLM_PORT:-8000}"
@@ -182,9 +184,24 @@ find_child_dir() {
   return 1
 }
 
+resolve_model_from_roots() {
+  local model_id="$1"
+  shift
+  python "${REPO_ROOT}/dataset/scripts/resolve_model_from_root.py" \
+    --model "${model_id}" \
+    "$@" \
+    --quiet 2>/dev/null || true
+}
+
 resolve_target_model() {
   if is_dir "${GEMMA4_MODEL_PATH}"; then
     printf '%s\n' "${GEMMA4_MODEL_PATH}"
+    return 0
+  fi
+  local mapped
+  mapped="$(resolve_model_from_roots "${GEMMA4_MODEL_ID}" --root "${GEMMA4_MODEL_ROOT}")"
+  if is_dir "${mapped}"; then
+    printf '%s\n' "${mapped}"
     return 0
   fi
   if is_dir "${GEMMA4_MODEL_ROOT}"; then
@@ -208,6 +225,12 @@ resolve_target_model() {
 resolve_assistant_model() {
   if is_dir "${GEMMA4_ASSISTANT_MODEL_PATH}"; then
     printf '%s\n' "${GEMMA4_ASSISTANT_MODEL_PATH}"
+    return 0
+  fi
+  local mapped
+  mapped="$(resolve_model_from_roots "${GEMMA4_ASSISTANT_MODEL_ID}" --root "${GEMMA4_MODEL_ROOT}")"
+  if is_dir "${mapped}"; then
+    printf '%s\n' "${mapped}"
     return 0
   fi
   if is_dir "${GEMMA4_MODEL_ROOT}"; then
@@ -261,7 +284,8 @@ PY
 TARGET_MODEL_PATH="$(resolve_target_model || true)"
 if [[ -z "${TARGET_MODEL_PATH}" ]]; then
   echo "Gemma4 target model not found." >&2
-  echo "Set GEMMA4_MODEL_ROOT to the parent folder containing gemma-4-31B-it and gemma-4-31B-it-assistant, or set GEMMA4_MODEL_PATH directly." >&2
+  echo "Set MODEL_ROOT/GEMMA4_MODEL_ROOT to the parent folder containing model-id folders from dataset/configs/models.yaml, or set GEMMA4_MODEL_PATH directly." >&2
+  echo "Accepted examples under the root: google/gemma-4-31b-it, google--gemma-4-31b-it, gemma-4-31b-it." >&2
   exit 1
 fi
 

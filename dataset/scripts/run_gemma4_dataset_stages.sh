@@ -18,6 +18,7 @@ else
 fi
 
 RUN_ID="${RUN_ID:-dataset_gemma4_31b_vllm_v0}"
+MODEL_ROOT="${MODEL_ROOT:-${LOCAL_MODEL_ROOT:-${A2UI_MODEL_ROOT:-${GEMMA4_MODEL_ROOT:-}}}}"
 RATE_LIMIT_QPS="${RATE_LIMIT_QPS:-0.2}"
 STAGE3_BATCH_SIZE="${STAGE3_BATCH_SIZE:-1}"
 RENDER_WORKERS="${RENDER_WORKERS:-1}"
@@ -29,6 +30,11 @@ STAGE="${STAGE:-all}"
 export LOCAL_ALLOW_HTTP_ENDPOINT="${LOCAL_ALLOW_HTTP_ENDPOINT:-1}"
 export LOCAL_STRICT_OFFLINE="${LOCAL_STRICT_OFFLINE:-0}"
 export LOCAL_VLLM_STRIP_THINKING="${LOCAL_VLLM_STRIP_THINKING:-1}"
+export GEMMA4_MODEL_ID="${GEMMA4_MODEL_ID:-google/gemma-4-31b-it}"
+export MODEL_ROOT
+export LOCAL_MODEL_ROOT="${LOCAL_MODEL_ROOT:-${MODEL_ROOT}}"
+export A2UI_MODEL_ROOT="${A2UI_MODEL_ROOT:-${MODEL_ROOT}}"
+export GEMMA4_MODEL_ROOT="${GEMMA4_MODEL_ROOT:-${MODEL_ROOT}}"
 export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-1}"
 export TRANSFORMERS_OFFLINE="${TRANSFORMERS_OFFLINE:-1}"
 export HF_DATASETS_OFFLINE="${HF_DATASETS_OFFLINE:-1}"
@@ -41,6 +47,64 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
   export GIT_SSL_NO_VERIFY=1
   export HF_HUB_DISABLE_SSL_VERIFICATION=1
 fi
+
+ensure_vllm_served_model() {
+  if [[ "${A2UI_SKIP_VLLM_MODEL_CHECK:-0}" = "1" ]]; then
+    export LOCAL_VLLM_SERVED_MODEL="${LOCAL_VLLM_SERVED_MODEL:-${GEMMA4_MODEL_ID}}"
+    return 0
+  fi
+
+  local expected="${LOCAL_VLLM_SERVED_MODEL:-${GEMMA4_MODEL_ID}}"
+  local models_url="${LOCAL_VLLM_MODELS_URL:-http://127.0.0.1:8000/v1/models}"
+  local served
+  served="$(python - "${models_url}" "${expected}" <<'PY'
+import json
+import sys
+import urllib.request
+
+models_url = sys.argv[1]
+expected = sys.argv[2]
+try:
+    with urllib.request.urlopen(models_url, timeout=5) as resp:
+        payload = json.loads(resp.read().decode("utf-8"))
+except Exception as exc:
+    print(f"Could not read local vLLM models from {models_url}: {exc}", file=sys.stderr)
+    raise SystemExit(2)
+
+ids = [
+    item.get("id")
+    for item in payload.get("data", [])
+    if isinstance(item, dict) and isinstance(item.get("id"), str)
+]
+if expected in ids:
+    print(expected)
+    raise SystemExit(0)
+for model_id in ids:
+    if model_id.lower() == expected.lower():
+        print(model_id)
+        raise SystemExit(0)
+
+print(
+    "Local vLLM is running, but the requested model is not served.\n"
+    f"  requested: {expected}\n"
+    f"  served: {ids}\n"
+    "Fix: restart vLLM with dataset/scripts/run_gemma4_vllm_python.sh, "
+    "or export LOCAL_VLLM_SERVED_MODEL to one of the served ids.",
+    file=sys.stderr,
+)
+raise SystemExit(3)
+PY
+)" || return $?
+
+  export LOCAL_VLLM_SERVED_MODEL="${served}"
+  echo "Using local vLLM served model: ${LOCAL_VLLM_SERVED_MODEL}"
+}
+
+case "${STAGE}" in
+  1|2|3|all)
+    ensure_vllm_served_model
+    ;;
+esac
 
 run_stage() {
   local stage="$1"
