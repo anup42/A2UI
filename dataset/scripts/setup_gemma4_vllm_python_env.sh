@@ -109,6 +109,7 @@ PY
     "${toolkit}/bin" \
     "${toolkit}/include" \
     "${toolkit}/lib64" \
+    "${toolkit}/nvvm" \
     "${toolkit}/targets/x86_64-linux/include" \
     "${toolkit}/targets/x86_64-linux/lib" \
     "${toolkit}/targets/x86_64-linux/lib64"
@@ -128,6 +129,12 @@ PY
     link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/lib"
     link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/lib64"
   done < <(find "${py_lib_dir}/nvidia" -type d -name lib 2>/dev/null | sort || true)
+
+  # nvcc resolves helper binaries like cicc relative to ../nvvm, so PATH alone is
+  # not enough. Mirror the package's nvvm tree into the combined toolkit root.
+  while IFS= read -r path; do
+    link_dir_children "${path}" "${toolkit}/nvvm"
+  done < <(find "${py_lib_dir}/nvidia" -type d -name nvvm 2>/dev/null | sort || true)
 
   local lib_dir
   local versioned
