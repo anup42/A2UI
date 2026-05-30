@@ -32,8 +32,8 @@ VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-9b4e83934d895b5f6e488411cd46c8d0915115a1}"
 VLLM_SOURCE_DIR="${VLLM_SOURCE_DIR:-${ENV_DIR}/src/vllm-gemma4-speculative}"
 FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu130}"
 FLASHINFER_INDEX_URL="${FLASHINFER_INDEX_URL:-https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}}"
-CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.3.29}"
-CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.3.33}"
+CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.0.96}"
+CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.0.88}"
 A2UI_PREFER_PYTHON_CUDA="${A2UI_PREFER_PYTHON_CUDA:-1}"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
@@ -197,6 +197,26 @@ configure_cuda_build_env() {
     echo "Rerun setup with A2UI_CLEAN_VLLM_STACK=1 so ${CUDA_NVCC_PACKAGE} is installed and mirrored into the venv CUDA toolkit." >&2
     exit 1
   fi
+  local nvcc_code=""
+  local header_code=""
+  local nvcc_major=""
+  local nvcc_minor=""
+  local nvcc_release
+  nvcc_release="$("${CUDA_HOME}/bin/nvcc" --version | sed -n 's/.*release \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1 \2/p' | head -1 || true)"
+  if [[ -n "${nvcc_release}" ]]; then
+    read -r nvcc_major nvcc_minor <<<"${nvcc_release}"
+    nvcc_code="$((nvcc_major * 1000 + nvcc_minor * 10))"
+  fi
+  if [[ -f "${CUDA_HOME}/include/cuda.h" ]]; then
+    header_code="$(grep -E '^[[:space:]]*#define[[:space:]]+CUDA_VERSION[[:space:]]+[0-9]+' "${CUDA_HOME}/include/cuda.h" | awk '{print $3}' | head -1 || true)"
+  fi
+  if [[ -n "${nvcc_code}" && -n "${header_code}" && "${nvcc_code}" != "${header_code}" ]]; then
+    echo "CUDA toolkit version mismatch in ${CUDA_HOME}: nvcc reports ${nvcc_major}.${nvcc_minor} (${nvcc_code}), but include/cuda.h reports ${header_code}." >&2
+    echo "For torch ${TORCH_VERSION}+${A2UI_TORCH_BACKEND}, rerun setup with A2UI_CLEAN_VLLM_STACK=1 and the default CUDA 13.0 packages:" >&2
+    echo "  ${CUDA_RUNTIME_PACKAGE}" >&2
+    echo "  ${CUDA_NVCC_PACKAGE}" >&2
+    exit 1
+  fi
 
   export CUDA_CUDART_LIBRARY="${cudart}"
   export LIBRARY_PATH="${CUDA_HOME}/lib64:${CUDA_HOME}/targets/x86_64-linux/lib:${LIBRARY_PATH:-}"
@@ -205,6 +225,7 @@ configure_cuda_build_env() {
   export SKBUILD_CMAKE_ARGS="${SKBUILD_CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
   echo "Using CUDA_CUDART_LIBRARY=${CUDA_CUDART_LIBRARY}"
   "${CUDA_HOME}/bin/ptxas" --version | head -5 || true
+  [[ -n "${header_code}" ]] && echo "Using CUDA header CUDA_VERSION=${header_code}"
 }
 export_nvidia_python_libs() {
   if [[ -z "${VIRTUAL_ENV:-}" ]]; then
@@ -509,6 +530,21 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
       nvidia-cuda-runtime-cu13 \
       nvidia-cuda-nvcc-cu13 \
       || true
+    python - <<'PY'
+import pathlib
+import shutil
+import site
+
+for root in site.getsitepackages():
+    nvidia = pathlib.Path(root) / "nvidia"
+    if not nvidia.exists():
+        continue
+    for name in ("cu13", "cuda_nvcc", "cuda_runtime"):
+        target = nvidia / name
+        if target.exists():
+            shutil.rmtree(target)
+            print(f"Removed stale CUDA package tree: {target}")
+PY
   fi
 
   python -m uv pip install -U --reinstall \
