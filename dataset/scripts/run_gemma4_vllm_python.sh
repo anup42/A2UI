@@ -50,7 +50,6 @@ GEMMA4_ENABLE_DEFAULT_THINKING="${GEMMA4_ENABLE_DEFAULT_THINKING:-0}"
 GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-mtp}" # mtp|draft|off
 GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-1}"
 GEMMA4_REQUIRE_SPECULATIVE="${GEMMA4_REQUIRE_SPECULATIVE:-0}"
-GEMMA4_ALLOW_LEGACY_SPECULATIVE_FALLBACK="${GEMMA4_ALLOW_LEGACY_SPECULATIVE_FALLBACK:-1}"
 
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
@@ -331,27 +330,10 @@ if [[ "${VLLM_USE_FLASHINFER_SAMPLER}" != "0" ]] && ! command -v ninja >/dev/nul
   echo "  bash dataset/scripts/setup_gemma4_vllm_python_env.sh" >&2
   exit 1
 fi
-VLLM_HAS_SPECULATIVE_CONFIG=0
-if grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
-  VLLM_HAS_SPECULATIVE_CONFIG=1
-fi
-VLLM_HAS_LEGACY_SPECULATIVE=0
-if grep -q -- "--speculative-model" <<<"${HELP_TEXT}" && grep -q -- "--num-speculative-tokens" <<<"${HELP_TEXT}"; then
-  VLLM_HAS_LEGACY_SPECULATIVE=1
-fi
-GEMMA4_SPECULATIVE_ARG_STYLE="off"
-if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
-  if [[ "${VLLM_HAS_SPECULATIVE_CONFIG}" = "1" ]]; then
-    GEMMA4_SPECULATIVE_ARG_STYLE="config"
-  elif [[ "${VLLM_HAS_LEGACY_SPECULATIVE}" = "1" ]] && is_truthy "${GEMMA4_ALLOW_LEGACY_SPECULATIVE_FALLBACK}"; then
-    GEMMA4_SPECULATIVE_ARG_STYLE="legacy"
-    echo "Warning: this vLLM install does not expose --speculative-config." >&2
-    echo "Using legacy --speculative-model/--num-speculative-tokens with token-1 fallback; this is not true Gemma4 MTP." >&2
-  else
-    echo "This vLLM install does not expose --speculative-config." >&2
-    echo "True Gemma4 MTP requires --speculative-config. Install the Gemma4-compatible vLLM build or set GEMMA4_SPECULATIVE_MODE=off." >&2
-    exit 1
-  fi
+if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]] && ! grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
+  echo "This vLLM install does not expose --speculative-config." >&2
+  echo "MTP speculative decoding requires --speculative-config. Install the Gemma4-compatible vLLM build or set GEMMA4_SPECULATIVE_MODE=off." >&2
+  exit 1
 fi
 VLLM_HAS_REASONING_PARSER=0
 if grep -q -- "--reasoning-parser" <<<"${HELP_TEXT}"; then
@@ -384,7 +366,7 @@ if [[ -n "${VLLM_KV_CACHE_DTYPE}" ]]; then
   cmd+=(--kv-cache-dtype "${VLLM_KV_CACHE_DTYPE}")
 fi
 
-if [[ "${GEMMA4_SPECULATIVE_ARG_STYLE}" = "config" ]]; then
+if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
   spec_json="$(python - "${GEMMA4_SPECULATIVE_MODE}" "${ASSISTANT_MODEL_PATH}" "${GEMMA4_SPECULATIVE_TOKENS}" <<'PY'
 import json
 import sys
@@ -399,9 +381,6 @@ print(json.dumps(payload))
 PY
 )"
   cmd+=(--speculative-config "${spec_json}")
-elif [[ "${GEMMA4_SPECULATIVE_ARG_STYLE}" = "legacy" ]]; then
-  cmd+=(--speculative-model "${ASSISTANT_MODEL_PATH}")
-  cmd+=(--num-speculative-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
 fi
 
 if is_truthy "${GEMMA4_ENABLE_REASONING}" && [[ "${GEMMA4_REASONING_FLAGS_MODE}" != "off" ]]; then
@@ -445,7 +424,7 @@ echo "  CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}"
 echo "  tensor_parallel_size=${A2UI_VLLM_GPUS}"
 echo "  max_num_batched_tokens=${VLLM_MAX_NUM_BATCHED_TOKENS}"
 echo "  reasoning=${GEMMA4_ENABLE_REASONING} (${GEMMA4_REASONING_FLAGS_MODE})"
-echo "  speculative=${GEMMA4_SPECULATIVE_MODE} style=${GEMMA4_SPECULATIVE_ARG_STYLE} tokens=${GEMMA4_SPECULATIVE_TOKENS}"
+echo "  speculative=${GEMMA4_SPECULATIVE_MODE} tokens=${GEMMA4_SPECULATIVE_TOKENS}"
 echo "  VLLM_USE_FLASHINFER_SAMPLER=${VLLM_USE_FLASHINFER_SAMPLER}"
 echo "  VLLM_HAS_FLASHINFER_CUBIN=${VLLM_HAS_FLASHINFER_CUBIN}"
 echo "  FLASHINFER_DISABLE_VERSION_CHECK=${FLASHINFER_DISABLE_VERSION_CHECK}"
